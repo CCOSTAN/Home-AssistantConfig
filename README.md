@@ -8,6 +8,9 @@ Software on the Pi : Home Assistant, Dasher, HomeBridge
 
 Devices I have : 
 * Lots of iOS Devices
+    * iPads
+    * iPods
+    * iPhones
 * Nest Thermostat
 * Amazon Echo 
 * Phillips Hue Hub
