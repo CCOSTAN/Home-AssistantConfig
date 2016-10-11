@@ -2,7 +2,7 @@
 Home Assistant configuration files (YAMLs)
 
 This is my Home Assistant Configuration.  I update it pretty regularly. 
-Home Assistantruns on my Raspberry Pi 3 with Aeon Labs Z Wave Stick (GEN 5). I've also added a 433Mhz Transmitter and receiver.
+Home Assistant runs on my Raspberry Pi 3 with Aeon Labs Z Wave Stick (GEN 5). I've also added a 433Mhz Transmitter and receiver.
 
 Software on the Pi : Home Assistant, Dasher, HomeBridge
 
