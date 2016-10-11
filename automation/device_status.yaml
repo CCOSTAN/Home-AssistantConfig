@@ -1,0 +1,15 @@
+- alias: 'Device Status'
+#This recipe sends a POST to IFTTT Maker channel. IFTTT then sends me a SMS Text with "device_status : Wii is Offline."
+  trigger:
+       - platform: state
+         entity_id: 
+         - sensor.wii
+         - sensor.tablotv
+         - sensor.hue_hub
+         - sensor.alexa_echo
+         - sensor.rachio
+         - sensor.circle
+         - sensor.skybell
+  action:
+     service: ifttt.trigger
+     data_template: {"event":"device_status", "value1":"{{ trigger.entity_id.split('.')[1] }}", "value2":"{{ trigger.to_state.state }}"}

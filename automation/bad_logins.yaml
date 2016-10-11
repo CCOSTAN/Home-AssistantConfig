@@ -1,0 +1,8 @@
+- alias: Login Failure
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.badlogin
+    above: 1
+  action:
+    service: ifttt.trigger
+    data: {"event":"device_status", "value1":"Home Assistant Error: ", "value2":"Login Failure Detected"}

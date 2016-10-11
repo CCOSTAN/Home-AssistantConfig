@@ -1,0 +1,17 @@
+- alias: 'GoodNight - Away Mode'
+# There is also an IFTTT recipe that shuts down all lights when Nest goes into Away mode. - event_type= Good_Night
+  trigger:
+    - platform: state
+      entity_id: group.family
+      state: 'not_home'
+    - platform: event
+      event_type: good_night
+  
+  condition:
+    condition: state
+    entity_id: group.family
+    state: not_home 
+
+  action:
+    service: light.turn_off
+    entity_id: group.all_lights

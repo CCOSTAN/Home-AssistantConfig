@@ -1,0 +1,16 @@
+- alias: TV Time    
+  trigger:
+    - platform: sun
+      event: sunset
+      offset: '+00:30:00'
+    - platform: event
+      event_type: tv_time
+  
+  condition:
+    condition: state
+    entity_id: group.family
+    state: home 
+
+  action:
+    service: scene.turn_on
+    entity_id: scene.living_room_tv_time

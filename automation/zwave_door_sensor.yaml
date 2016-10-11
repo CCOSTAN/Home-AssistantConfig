@@ -1,0 +1,21 @@
+- alias: ZWave Enerwave Door Sensors Open
+  trigger:
+     platform: event
+     event_type: zwave.node_event
+     event_data:
+       object_id: enerwave_unknown_type0601_id0903_2
+       basic_level: 255
+  action:
+    service: light.turn_off
+    entity_id: light.office_lamp
+    
+- alias: ZWave Enerwave Door Sensors Closed
+  trigger:
+     platform: event
+     event_type: zwave.node_event
+     event_data:
+       object_id: enerwave_unknown_type0601_id0903_2
+       basic_level: 0
+  action:
+    service: light.turn_on
+    entity_id: light.office_lamp

@@ -1,0 +1,8 @@
+- alias: "Update Available Notification"
+  trigger:
+    platform: state
+    entity_id: updater.updater
+  action:
+    service: ifttt.trigger
+    data: {"event":"device_status", "value1":"Home Assistant Update: ", "value2":"Available"}
+ 

@@ -1,0 +1,40 @@
+- name: Living Room TV Time
+  entities:
+       light.dinette_light_1:
+           state: off
+           transition: 10
+       light.dinette_light_2:
+           state: off
+           transition: 10
+       light.living_room_front_left:
+           state: off
+           transition: 10
+       light.living_room_front_right: 
+           state: off
+           transition: 10
+       light.living_room_slider: 
+           state: off
+           transition: 10
+       light.living_room_back_right: 
+           state: on
+           transition: 10
+           brightness: 1
+       light.living_room_back_left: 
+           state: on
+           transition: 40
+           brightness: 1
+       light.living_room_couch_1:
+           state: on
+           transition: 400
+           xy_color: [0.6621,0.3023]
+           brightness: 255
+       light.living_room_couch_2:
+           state: on
+           transition: 400
+           xy_color: [0.6621,0.3023]
+           brightness: 255
+       light.couch_tv_light:
+           state: on
+           transition: 400
+           xy_color: [0.6621,0.3023]
+           brightness: 100
