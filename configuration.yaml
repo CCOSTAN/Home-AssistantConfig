@@ -1,0 +1,528 @@
+homeassistant:
+  name: Bear Stone Run 
+  latitude: !secret homeassistant_latitude
+  longitude: !secret homeassistant_longitude
+  elevation: !secret homeassistant_elevation
+  unit_system: imperial
+  time_zone: America/New_York
+
+  customize: 
+     climate.downstairs:
+       friendly_name: 'Nest Downstairs'
+       icon: mdi:air-conditioner
+     climate.upstairs:
+       friendly_name: 'Nest Upstairs'
+       icon: mdi:air-conditioner
+     sensor.dark_sky_precip_intensity:
+       friendly_name: 'Rainfall'
+     sensor.dark_sky_humidity:
+       friendly_name: 'Outdoor Humidity'
+     sensor.dark_sky_temperature:
+       friendly_name: 'Outdoor Temp'
+     sensor.speedtest_download:
+       friendly_name: 'Download'
+       icon: mdi:speedometer
+     sensor.speedtest_upload:
+       friendly_name: 'Upload'
+       icon: mdi:speedometer
+     media_player.roku_1gj361038190: 
+       friendly_name: 'Downstairs Main Roku'
+     media_player.roku_1gs3ac111661:
+       friendly_name: 'Upstairs Roku'
+     media_player.roku_2N006T621680:
+       friendly_name: 'Bedroom Roku'
+     sensor.wii:
+       icon: mdi:gamepad-variant
+     sensor.tablotv:
+       icon: mdi:television-guide
+     sensor.hue_hub:
+       icon: mdi:router-wireless
+     sensor.rachio:
+       icon: mdi:spray
+     sensor.circle:
+       icon: mdi:google-circles-group
+     sensor.alexa_echo:
+       icon: mdi:amazon
+     sensor.skybell:
+       icon: mdi:camera-front
+     sensor.samsungtv:
+       icon: mdi:television
+     sensor.since_last_boot_templated:
+       friendly_name: 'HomeAssistant Uptime'
+       icon: mdi:clock-start
+     sensor.since_last_boot:
+       hidden: true
+     sensor.badlogin:
+       hidden: true
+     device_tracker.tablotv:
+       hidden: true
+     device_tracker.hue_hub:
+       hidden: true
+     device_tracker.wii:
+       hidden: true
+     device_tracker.rachio:
+       hidden: true
+     device_tracker.circle:
+       hidden: true
+     device_tracker.alexa_echo:
+       hidden: true       
+     device_tracker.skybell:
+       hidden: true
+     device_tracker.samsungtv:
+       hidden: true
+  
+http:
+  api_password: !secret http_api_password
+
+discovery:
+
+light:
+  platform: hue
+  host: 192.168.10.101
+  allow_unreachable: true
+
+ifttt:
+  key: !secret ifttt_key
+
+device_tracker:
+  platform: nmap_tracker
+  hosts: 192.168.10.100-254
+  track_new_devices: no
+  # consider_home: 1800 - Added to known_devices.yaml instead on a device by device basis.
+
+frontend:
+# history:
+logbook:
+  exclude:
+    entities:
+      - sensor.since_last_boot
+      - sensor.since_last_boot_templated
+#logger:
+#  default: info
+
+sun:
+
+mqtt:
+  broker: 127.0.0.1
+  port: 1883
+  client_id: home-assistant-1
+  username: pi
+  password: raspberry
+  
+zwave:
+ usb_path: /dev/ttyACM0
+ config_path: /srv/hass/hass_venv/lib/python3.4/site-packages/libopenzwave-0.3.1-py3.4-linux-armv7l.egg/config
+  
+sensor forecast:
+  platform: darksky
+  api_key: !secret forecast_key
+    
+  monitored_conditions:
+    - summary
+#    - precip_type
+    - precip_intensity
+    - temperature
+#    - dew_point
+#    - wind_speed
+#    - wind_bearing
+#    - cloud_cover
+    - humidity
+#    - pressure
+#    - visibility
+#    - ozone
+
+nest:
+  username: !secret nest_username
+  password: !secret nest_password
+  
+climate:
+  platform: nest
+
+media_player:
+  platform: cast
+  
+recorder:
+  purge_days: 14
+
+sensor Speedtest:
+  platform: speedtest
+  minute: 30
+  hour:
+    - 0
+    - 6
+    - 12
+    - 18
+  monitored_conditions:
+    - download
+    - upload
+
+# emulated_hue:
+  # host_ip: 192.168.10.10
+  # listen_port: 8300
+#  off_maps_to_on_domains:
+#    - script
+#    - scene
+  
+# A comma separated list of states that have to be tracked as a single group
+# Grouped states should share the same type of states (ON/OFF or HOME/NOT_HOME)
+group: 
+  Family:
+    - device_tracker.carlo
+    - device_tracker.stacey
+    - device_tracker.franco
+    - device_tracker.yolanda
+    - device_tracker.joyce_ipad
+  Devices:
+    - sensor.since_last_boot_templated
+    - sensor.wii
+    - sensor.hue_hub
+    - sensor.tablotv
+    - sensor.alexa_echo
+    - sensor.circle
+    - sensor.rachio
+    - sensor.skybell
+    - sensor.samsungtv
+  Internet:
+    - sensor.speedtest_download
+    - sensor.speedtest_upload
+  Sensors:
+    - binary_sensor._sensor_2
+    - binary_sensor._sensor_3
+    - binary_sensor._sensor_5
+    - binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4
+    - binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_6
+  Nest:
+    - climate.downstairs
+    - climate.upstairs
+
+switch:
+  platform: rpi_rf
+  gpio: 17
+  switches:
+    Outlet_Living_Room:
+      protocol: 1
+      pulselength: 186
+      code_on: 5265155
+      code_off: 5265164
+    Outlet_2:
+      protocol: 1
+      pulselength: 186
+      code_on: 5264835
+      code_off: 5264844
+    Outlet_Garage:
+      protocol: 1
+      pulselength: 186
+      code_on: 5264691
+      code_off: 5264700    
+    
+sensor Devices:
+  platform: template
+  sensors:
+      wii:
+        friendly_name: 'Wii'
+        value_template: >-
+            {%- if is_state("device_tracker.wii", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+      tablotv:
+        friendly_name: 'Tablo TV'
+        value_template: >-
+            {%- if is_state("device_tracker.tablotv", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}	
+      hue_hub:
+        friendly_name: 'Hue Hub'
+        value_template: >-
+            {%- if is_state("device_tracker.hue_hub", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+      alexa_echo:
+        friendly_name: 'Alexa Echo'
+        value_template: >-
+            {%- if is_state("device_tracker.alexa_echo", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}	
+      circle:
+        friendly_name: 'Disney Circle'
+        value_template: >-
+            {%- if is_state("device_tracker.circle", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}   
+      rachio:
+        friendly_name: 'Rachio Sprinklers'
+        value_template: >-
+            {%- if is_state("device_tracker.rachio", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}    
+      skybell:
+        friendly_name: 'Skybell Doorbell'
+        value_template: >-
+            {%- if is_state("device_tracker.skybell", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %} 
+      samsungtv:
+        friendly_name: 'Samsung TV'
+        value_template: >-
+            {%- if is_state("device_tracker.samsungtv", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}             
+
+
+sensor Login_Failures:
+  platform: command_line
+  command: "grep -c invalidpassword /home/hass/.homeassistant/home-assistant.log"
+  name: badlogin            
+
+sensor:
+- platform: systemmonitor
+  resources:
+    # - type: last_boot
+    - type: since_last_boot
+
+- platform: template
+  sensors:
+    since_last_boot_templated:
+      value_template: >-
+        {%- set slb = states.sensor.since_last_boot.state.split(' ') -%}
+        {%- set count = slb | length -%}
+        {%- set hms = slb[count - 1] -%}
+        {%- set hms_trimmed = hms.split('.')[0] -%}
+        {%- set hms_split = hms_trimmed.split(':') -%}
+        {%- set hours = hms_split[0] | int -%}
+        {%- set minutes = hms_split[1] | int -%}
+        {%- set seconds = hms_split[2] | int -%}
+
+        {%- if count == 3 -%}
+          {{ slb[0] ~ ' ' ~ slb[1] ~ ' ' }}
+        {%- endif -%}
+        {%- if hours > 0 -%}
+          {%- if hours == 1 -%}
+            1 hour
+          {%- else -%}
+            {{ hours }} hours
+          {%- endif -%}
+        {%- endif -%}
+        {%- if minutes > 0 -%}
+          {%- if hours > 0 -%}
+            {{ ', ' }}
+          {%- endif -%}
+          {%- if minutes == 1 -%}
+            1 minute
+          {%- else -%}
+            {{ minutes }} minutes
+          {%- endif -%}
+        {%- endif -%}
+        {%- if seconds > 0 -%}
+          {%- if hours > 0 or minutes > 0 -%}
+            {{ ', ' }}
+          {%- endif -%}
+          {%- if seconds == 1 -%}
+            1 second
+          {%- else -%}
+            {{ seconds }} seconds
+          {%- endif -%}
+        {%- endif -%}
+        
+automation:
+- alias: Heal ZWave Nightly
+  trigger:
+    platform: time
+    after: '2:31:00'
+  action:
+    service: zwave.heal_network    
+
+- alias: "Update Available Notification"
+  trigger:
+    platform: state
+    entity_id: updater.updater
+  action:
+    service: ifttt.trigger
+    data: {"event":"device_status", "value1":"Home Assistant Update: ", "value2":"Available"}
+      
+- alias: Login Failure
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.badlogin
+    above: 1
+  action:
+    service: ifttt.trigger
+    data: {"event":"device_status", "value1":"Home Assistant Error: ", "value2":"Login Failure Detected"}
+        
+- alias: 'Device Status'
+#This recipe sends a POST to IFTTT Maker channel. IFTTT then sends me a SMS Text with "device_status : Wii is Offline."
+  trigger:
+       - platform: state
+         entity_id: 
+         - sensor.wii
+         - sensor.tablotv
+         - sensor.hue_hub
+         - sensor.alexa_echo
+         - sensor.rachio
+         - sensor.circle
+         - sensor.skybell
+  action:
+     service: ifttt.trigger
+     data_template: {"event":"device_status", "value1":"{{ trigger.entity_id.split('.')[1] }}", "value2":"{{ trigger.to_state.state }}"}
+
+- alias: Startup Notification
+  trigger:
+    platform: event
+    event_type: homeassistant_start
+  action:
+    service: ifttt.trigger
+    data: {"event":"device_status", "value1":"Home Assistant", "value2":"Up and Running"}
+    
+- alias: 'GoodNight - Away Mode'
+# There is also an IFTTT recipe that shuts down all lights when Nest goes into Away mode. - event_type= Good_Night
+  trigger:
+    - platform: state
+      entity_id: group.family
+      state: 'not_home'
+    - platform: event
+      event_type: good_night
+  
+  condition:
+    condition: state
+    entity_id: group.family
+    state: not_home 
+
+  action:
+    service: light.turn_off
+    entity_id: group.all_lights
+
+- alias: ZWave Enerwave Door Sensors Open
+  trigger:
+     platform: event
+     event_type: zwave.node_event
+     event_data:
+       object_id: enerwave_unknown_type0601_id0903_2
+       basic_level: 255
+  action:
+    service: light.turn_off
+    entity_id: light.office_lamp
+    
+- alias: ZWave Enerwave Door Sensors Closed
+  trigger:
+     platform: event
+     event_type: zwave.node_event
+     event_data:
+       object_id: enerwave_unknown_type0601_id0903_2
+       basic_level: 0
+  action:
+    service: light.turn_on
+    entity_id: light.office_lamp
+
+- alias: TV Time    
+  trigger:
+    - platform: sun
+      event: sunset
+      offset: '+00:30:00'
+    - platform: event
+      event_type: tv_time
+  
+  condition:
+    condition: state
+    entity_id: group.family
+    state: home 
+
+  action:
+    service: scene.turn_on
+    entity_id: scene.living_room_tv_time
+ 
+scene:
+ - name: Living Room TV Time
+   entities:
+       light.dinette_light_1:
+           state: off
+           transition: 10
+       light.dinette_light_2:
+           state: off
+           transition: 10
+       light.living_room_front_left:
+           state: off
+           transition: 10
+       light.living_room_front_right: 
+           state: off
+           transition: 10
+       light.living_room_slider: 
+           state: off
+           transition: 10
+       light.living_room_back_right: 
+           state: on
+           transition: 10
+           brightness: 1
+       light.living_room_back_left: 
+           state: on
+           transition: 40
+           brightness: 1
+       light.living_room_couch_1:
+           state: on
+           transition: 400
+           xy_color: [0.6621,0.3023]
+           brightness: 255
+       light.living_room_couch_2:
+           state: on
+           transition: 400
+           xy_color: [0.6621,0.3023]
+           brightness: 255
+       light.couch_tv_light:
+           state: on
+           transition: 400
+           xy_color: [0.6621,0.3023]
+           brightness: 100
+ 
+ 
+# Restart Homebridge on HASS start
+# shell_command:
+  # restart_homebridge: 'sudo su pi -c "pm2 restart homebridge"'
+  # start_homebridge: 'sudo su pi -c "pm2 start homebridge"'
+  # stop_homebridge: 'sudo su pi -c "pm2 stop homebridge"'
+  
+ ###  Future Ideas
+
+# - alias: 'Get Random Time'
+  # trigger:
+    # platform: time
+    # after: '21:00:00'
+  # action:
+    # - service: input_slider.select_value
+      # data_template:
+        # entity_id: input_slider.hour
+        # value: '{{ (range(22, 23) | random) }}'
+    # - service: input_slider.select_value
+      # data_template:
+        # entity_id: input_slider.random_minute
+        # value: '{{ (range(30, 45) | random) }}'
+# Then simply use that in your light turn off automation:
+
+# - alias: 'Turn lights off'
+  # trigger:
+    # platform: template
+    # value_template: '{{ now.hour == (states.input_slider.random_hour.state | int) and now.minute == (states.input_slider.random_minute.state | int) }}'
+  # action:
+    # - service: light.turn_off
+      # data: 
+        # entity_id: light.hue_color_lamp_1
+        
+
+#Todo List
+
+# AUTOMATE LAMP UPSTAIRS USING ifttt AND Nest thermostat.
+# Put Dash Buttons out there.
+# Put door sensor on garage door
