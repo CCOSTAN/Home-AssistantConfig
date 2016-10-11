@@ -25,4 +25,5 @@ Devices I have :
 * Door Sensors (AEON Labs)
 * Nintendo Wii
 
+![Screenshot of Dashboards](https://i.imgur.com/fVPHWLA.png)
 
