@@ -165,35 +165,8 @@ sensor Speedtest:
   
 # A comma separated list of states that have to be tracked as a single group
 # Grouped states should share the same type of states (ON/OFF or HOME/NOT_HOME)
-group: 
-  Family:
-    - device_tracker.carlo
-    - device_tracker.stacey
-    - device_tracker.franco
-    - device_tracker.yolanda
-    - device_tracker.joyce_ipad
-  Devices:
-    - sensor.since_last_boot_templated
-    - sensor.wii
-    - sensor.hue_hub
-    - sensor.tablotv
-    - sensor.alexa_echo
-    - sensor.circle
-    - sensor.rachio
-    - sensor.skybell
-    - sensor.samsungtv
-  Internet:
-    - sensor.speedtest_download
-    - sensor.speedtest_upload
-  Sensors:
-    - binary_sensor._sensor_2
-    - binary_sensor._sensor_3
-    - binary_sensor._sensor_5
-    - binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4
-    - binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_6
-  Nest:
-    - climate.downstairs
-    - climate.upstairs
+group: !include_dir_merge_named group
+
 
 switch:
   platform: rpi_rf
