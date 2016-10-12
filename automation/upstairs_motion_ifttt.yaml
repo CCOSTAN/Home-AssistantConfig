@@ -1,6 +1,6 @@
 # Uses the Nest thermostat to turn on lights and turn them off.
 
-- alias: 'Upstairs Light Turn'
+- alias: 'Upstairs Light Turn on'
   trigger:
     - platform: event
       event_type: upstairs_light_on
@@ -12,4 +12,13 @@
 
   action:
     service: light.turn_on
+    entity_id: group.upstairs
+
+- alias: 'Upstairs Light Turn off'
+  trigger:
+    - platform: event
+      event_type: upstairs_light_off
+  
+  action:
+    service: light.turn_off
     entity_id: group.upstairs

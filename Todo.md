@@ -1,6 +1,7 @@
 #Todo List
 
-* AUTOMATE LAMP UPSTAIRS using Nest thermostat.
+* AUTOMATE LAMP UPSTAIRS using Nest thermostat.  
+* (Using IFTTT for now - Need to switch over to native HA)
 * Put Dash Buttons out there.
 * Put door sensor on garage door
  
