@@ -1,0 +1,23 @@
+# Here is a collection of automations for logging IFTTT supported devices in LogBook.
+
+- alias: 'Log SkyBell Pressed Activity'
+  trigger:
+    - platform: event
+      event_type: skybell_pressed
+  
+  action:
+    service: logbook.log
+    data:
+      name: "SkyBell HD Doorbell:"
+      message: "Someone Pressed the Doorbell."
+
+- alias: 'Log SkyBell Motion detection'
+  trigger:
+    - platform: event
+      event_type: skybell_motion
+  
+  action:
+    service: logbook.log
+    data:
+      name: "SkyBell HD Doorbell:"
+      message: "Someone is by the door."
