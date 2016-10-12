@@ -6,9 +6,9 @@
       event_type: upstairs_light_on
   
   condition:
-    condition: state
-    - platform: sun
-      event: sunset
+      condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
 
   action:
     service: light.turn_on
