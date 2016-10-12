@@ -5,12 +5,22 @@
       offset: '+00:30:00'
     - platform: event
       event_type: tv_time
-  
-  condition:
-    condition: state
-    entity_id: group.family
-    state: home 
-
+    - platform: state
+      entity_id: sensor.samsungtv
+      state: 'Online'
+      
+  condition: and
+  conditions:
+    - condition: state
+      entity_id: group.family
+      state: home 
+    - condition: state
+      entity_id: sensor.samsungtv
+      state: online
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+        
   action:
     service: scene.turn_on
     entity_id: scene.living_room_tv_time
