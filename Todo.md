@@ -1,6 +1,6 @@
 #Todo List
 
-* AUTOMATE LAMP UPSTAIRS USING ifttt AND Nest thermostat.
+* AUTOMATE LAMP UPSTAIRS using Nest thermostat.
 * Put Dash Buttons out there.
 * Put door sensor on garage door
  
@@ -32,3 +32,19 @@ Then simply use that in your light turn off automation:
        data: 
          entity_id: light.hue_color_lamp_1
  
+ 
+- automation:
+  alias: Random GLeft
+  initial_state: False
+  hide_entity: False
+trigger:
+  platform: time
+  seconds: '/5'
+action:
+  service: homeassistant.turn_on
+  entity_id:
+    - light.gright
+  data:
+    effect: random
+    transition: 1
+    brightness: 255`
