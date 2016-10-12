@@ -7,19 +7,20 @@
       event_type: tv_time
     - platform: state
       entity_id: sensor.samsungtv
-      state: 'Online'
+      state: Online
       
-  condition: and
-  conditions:
-    - condition: state
-      entity_id: group.family
-      state: home 
-    - condition: state
-      entity_id: sensor.samsungtv
-      state: online
-    - condition: state
-      entity_id: sun.sun
-      state: 'below_horizon'
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: group.family
+        state: home
+      - condition: state
+        entity_id: sensor.samsungtv
+        state: Online
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
         
   action:
     service: scene.turn_on
