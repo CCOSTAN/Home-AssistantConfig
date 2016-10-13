@@ -1,0 +1,27 @@
+
+- alias: 'Late Night Helper'
+  trigger:
+      entity_id: binary_sensor.upstairs_away_mode
+      to: 'off'
+    - platform: state
+      entity_id: binary_sensor.downstairs_away_mode
+      to: 'off'  
+    - platform: state
+      entity_id: group.family
+      state: home 
+
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+    - condition: time
+      before: '23:45'
+
+  action:
+    service: light.turn_on
+    entity_id: 
+      - group.living_room_accents
+      - light.living_room_slider
+    data:
+      brightness: 150
+  
