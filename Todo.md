@@ -5,6 +5,25 @@
 * Put Dash Buttons out there.
 * Put door sensor on garage door
  
+binary_sensor:
+  - platform: template
+    sensors:
+      upstairs_away_mode:
+        entity_id: climate.upstairs
+        value_template: "{{ is_state_attr('climate.upstairs', 'away_mode', 'on') }}"
+
+automation:
+  - alias: Trigger When Away
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.upstairs_away_mode
+        to: 'on'
+    condition:
+      ...
+    action:
+      ...
+     
+ 
  
 ###  Future Ideas
 
