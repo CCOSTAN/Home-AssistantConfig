@@ -6,13 +6,11 @@ Home Assistant runs on my Raspberry Pi 3 with Aeon Labs Z Wave Stick (GEN 5). I'
 
 Software on the Pi : Home Assistant, Dasher, HomeBridge
 
-Devices I have : 
-* Lots of iOS Devices
-    * iPads
-    * iPods
-    * iPhones
+*** Devices I have : ***
+* Lots of iOS Devices (iPads, iPods, iPhones)
 * Nest Thermostats
-* Amazon Echo 
+* Amazon Echo and DOT
+* Amazon Dash Buttons
 * Phillips Hue Hub
 * Circle by Disney
 * Rachio Sprinkler system
@@ -21,20 +19,20 @@ Devices I have :
 * Samsung Smart TV
 * ChromeCast Audios
 * Etekcity Outlets
-* Amazon Dash Buttons
 * Door Sensors (AEON Labs)
 * Nintendo Wii
 
-Automations: 
+*** Automations: ***
 * SMS and IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions.
-* Logging entries in Logbooks for Rachio, Doorbell
+* (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
 * Auto Heal ZWave at 2:30am
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Turn on Upstaris light if Nest detects people and it's nighttime.
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
 * Turn on some lights when we get home
-* Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
-* Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
+* (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
+* (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
+* (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
 
 ![Screenshot of Dashboards](https://i.imgur.com/HyriksZ.png)
 
