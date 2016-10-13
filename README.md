@@ -25,5 +25,13 @@ Devices I have :
 * Door Sensors (AEON Labs)
 * Nintendo Wii
 
+Automations: 
+* SMS and IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions.
+* Logging entries in Logbooks for Rachio, Doorbell
+* Auto Heal ZWave at 2:30am
+* Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
+* Turn on Upstaris light if Nest detects people and it's nighttime.
+* Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
+
 ![Screenshot of Dashboards](https://i.imgur.com/HyriksZ.png)
 
