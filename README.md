@@ -1,4 +1,4 @@
-# Home-Assistant Config by @ccostan
+# Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
 Home Assistant configuration files (YAMLs)
 
 This is my Home Assistant Configuration.  I update it pretty regularly. 
