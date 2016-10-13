@@ -1,11 +1,12 @@
 
 - alias: 'Late Night Helper'
   trigger:
+    - platform: state
       entity_id: binary_sensor.upstairs_away_mode
-      to: 'off'
+      state: 'off'
     - platform: state
       entity_id: binary_sensor.downstairs_away_mode
-      to: 'off'  
+      state: 'off'  
     - platform: state
       entity_id: group.family
       state: home 
