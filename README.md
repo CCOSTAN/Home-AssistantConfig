@@ -6,7 +6,7 @@ Home Assistant runs on my Raspberry Pi 3 with Aeon Labs Z Wave Stick (GEN 5). I'
 
 Software on the Pi : Home Assistant, Dasher, HomeBridge
 
-*** Devices I have : ***
+**Devices I have :**
 * Lots of iOS Devices (iPads, iPods, iPhones)
 * Nest Thermostats
 * Amazon Echo and DOT
@@ -22,7 +22,7 @@ Software on the Pi : Home Assistant, Dasher, HomeBridge
 * Door Sensors (AEON Labs)
 * Nintendo Wii
 
-*** Automations: ***
+**Automations:**
 * SMS and IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions.
 * (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
 * Auto Heal ZWave at 2:30am
