@@ -36,3 +36,9 @@ Software on the Pi : Home Assistant, Dasher, HomeBridge
 
 ![Screenshot of Dashboards](https://i.imgur.com/HyriksZ.png)
 
+#Todo List
+
+* Put Dash Buttons out there.
+* Put door sensor on garage door
+* Put Door Sensor in Mailbox
+* Put Door Sensor in Attic trap door to trigger light (GE LINK)

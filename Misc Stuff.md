@@ -1,10 +1,4 @@
-#Todo List
 
-* Put Dash Buttons out there.
-* Put door sensor on garage door
- 
- 
- 
  
 ###  Future Ideas
 
