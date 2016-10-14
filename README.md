@@ -1,25 +1,25 @@
 # Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
-Home Assistant configuration files (YAMLs)
+[Home Assistant](https://home-assistant.io/) configuration files (YAMLs)
 
-This is my Home Assistant Configuration.  I update it pretty regularly. 
-Home Assistant runs on my Raspberry Pi 3 with Aeon Labs Z Wave Stick (GEN 5). I've also added a 433Mhz Transmitter and receiver.
+This is my Home Assistant Configuration created with the All In One installer.  I update it pretty regularly. 
+Home Assistant runs on my Raspberry Pi 3 with Aeon Labs Z Wave Stick (GEN 5). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
 
-Software on the Pi : Home Assistant, Dasher, HomeBridge
+Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), [HomeBridge](https://github.com/nfarina/homebridge)
 
 **Devices I have :**
 * Lots of iOS Devices (iPads, iPods, iPhones)
-* Nest Thermostats
-* Amazon Echo and DOT
-* Amazon Dash Buttons
-* Phillips Hue Hub
-* Circle by Disney
-* Rachio Sprinkler system
-* SkyBell HD
-* Rokus for all streaming
-* Samsung Smart TV
+* [Nest Thermostats](http://amzn.to/2eAhB1k)
+* [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
+* [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
+* [Phillips Hue Hub](http://amzn.to/2eoQTJy)
+* [Circle by Disney](http://amzn.to/2eAgaA6)
+* [Rachio Sprinkler system](http://amzn.to/2eoPKBW)
+* [SkyBell HD](http://amzn.to/2dcexIB)
+* [Rokus](http://amzn.to/2dpn89c) for all streaming
+* [Samsung Smart TV](http://amzn.to/2efNNnq)
 * ChromeCast Audios
-* Etekcity Outlets
-* Door Sensors (AEON Labs)
+* [Etekcity Outlets](http://amzn.to/2efNoBP)
+* [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * Nintendo Wii
 
 **Automations:**
