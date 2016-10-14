@@ -22,6 +22,15 @@ light:
   host: 192.168.10.75
   allow_unreachable: true
 
+emulated_hue:
+  host_ip: 192.168.10.10
+#  expose_by_default: false
+  exposed_domains:
+    - group
+    - input_boolean
+    - media_player
+    - switch
+  
 ifttt:
   key: !secret ifttt_key
 
