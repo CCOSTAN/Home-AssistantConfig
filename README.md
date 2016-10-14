@@ -2,7 +2,7 @@
 [Home Assistant](https://home-assistant.io/) configuration files (YAMLs)
 
 This is my Home Assistant Configuration created with the All In One installer.  I update it pretty regularly. 
-Home Assistant runs on my Raspberry Pi 3 with Aeon Labs Z Wave Stick (GEN 5). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
+Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
 
 Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), [HomeBridge](https://github.com/nfarina/homebridge)
 
