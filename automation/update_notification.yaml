@@ -3,7 +3,23 @@
   trigger:
     platform: state
     entity_id: updater.updater
+
+  condition:
+    - condition: template
+      value_template: "{{ states('updater.updater') != 'unknown' }}"
+
   action:
-    service: ifttt.trigger
-    data: {"event":"device_status", "value1":"Home Assistant Update: ", "value2":"Available"}
- 
+    - service: ifttt.trigger
+      data: {"event":"device_status", "value1":"Home Assistant Update: ", "value2":"Available"}
+    
+    - service: notify.html5
+      data_template:
+        title: "Update Available"
+        message: "Home Assistant {{ states('updater.updater') }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+        data:
+          url: "https://home-assistant.io/getting-started/installation-raspberry-pi-all-in-one/#upgrading"
+    - service: persistent_notification.create
+      data:
+        title: "Update Available"
+        message: "Home Assistant {{ states('updater.updater') }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+        notification_id: "update_available"   
