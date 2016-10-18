@@ -43,3 +43,6 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Put door sensor on garage door
 * Put Door Sensor in Mailbox
 * Put Door Sensor in Attic trap door to trigger light (GE LINK)
+* Add IFTTT to Set Guest MODE via Alexa.
+* Add IFTTT Event to turn Switches (AMP) On and Off. 
+* Add LetsEncrypt and [CertBot](https://certbot.eff.org/#debianjessie-other) for auto renewals. (or buy cheapo SSL cert) for advanced Alexa stuff.

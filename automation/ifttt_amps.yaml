@@ -1,0 +1,20 @@
+# There is also an IFTTT recipe that shuts down all lights when Nest goes into Away mode. - event_type= Good_Night
+
+- alias: 'IFTTT Turn AMP on'
+  trigger:
+    - platform: event
+      event_type: amp_on
+
+  action:
+    - service: switch.turn_on
+      entity_id: switch.living_room_amp
+      
+      
+- alias: 'IFTTT Turn AMP off'
+  trigger:
+    - platform: event
+      event_type: amp_off
+
+  action:
+    - service: switch.turn_off
+      entity_id: switch.living_room_amp
