@@ -12,11 +12,13 @@
       state: home 
 
   condition:
-    - condition: state
-      entity_id: sun.sun
-      state: 'below_horizon'
-    - condition: time
-      before: '23:45'
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+      - condition: time
+        before: '23:45'
 
   action:
     service: light.turn_on

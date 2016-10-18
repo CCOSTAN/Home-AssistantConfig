@@ -15,13 +15,14 @@
       state: not_home 
 
   condition:
-    - condition: state
-      entity_id: group.family
-      state: not_home 
-    - condition:
-      platform: state
-      entity_id: input_boolean.guest_mode
-      state: 'off'
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: group.family
+        state: not_home 
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
 
   action:
     - service: light.turn_off
