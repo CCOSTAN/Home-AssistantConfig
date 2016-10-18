@@ -10,7 +10,11 @@
       - condition: state
         entity_id: sun.sun
         state: 'below_horizon'
-        
+      - condition:
+        platform: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'  
+  
   action:
     service: light.turn_off
     entity_id: 
