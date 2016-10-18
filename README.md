@@ -21,6 +21,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [Etekcity Outlets](http://amzn.to/2efNoBP)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * Nintendo Wii
+* Emulated Hue to try and get Alexa to see my switches.Not working yet http://carlo-pi:8300/api/12345678901234567890/lights
 
 **Automations:**
 * SMS and IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions.
