@@ -2,6 +2,9 @@
  
 ###  Future Ideas
 
+Add IFTTT to Set Guest MODE via Alexa.
+
+
 - alias: 'Get Random Time'
      trigger:
      platform: time
