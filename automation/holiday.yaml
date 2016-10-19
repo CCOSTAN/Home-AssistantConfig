@@ -11,7 +11,7 @@
               
   action:
     - service: switch.turn_on
-      entity_id: switch.halloween_lights_den
+      entity_id: group.holiday
 
 - alias: 'Holiday Stuff off'  
   trigger:
@@ -23,5 +23,5 @@
 
   action:
     - service: switch.turn_on
-      entity_id: switch.halloween_lights_den
+      entity_id: group.holiday
       
