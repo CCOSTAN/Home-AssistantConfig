@@ -1,0 +1,23 @@
+- alias: 'Holiday Stuff on'  
+  trigger:
+    - platform: sun
+      event: sunset
+    - platform: event
+      event_type: halloween_lights_on
+              
+  action:
+    - service: switch.turn_on
+      entity_id: switch.halloween_lights_den
+
+- alias: 'Holiday Stuff off'  
+  trigger:
+    - platform: sun
+      event: sunrise
+      offset: '-03:00:00'
+    - platform: event
+      event_type: halloween_lights_off          
+
+  action:
+    - service: switch.turn_on
+      entity_id: switch.halloween_lights_den
+      

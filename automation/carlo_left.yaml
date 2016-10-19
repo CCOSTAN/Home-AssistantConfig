@@ -1,0 +1,9 @@
+- alias: 'Carlo has left the building'
+  trigger:
+    - platform: state
+      entity_id: device_tracker.carlo
+      state: not_home 
+
+  action:
+    - service: light.turn_off
+      entity_id: light.office_lamp

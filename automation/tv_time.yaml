@@ -2,12 +2,14 @@
   trigger:
     - platform: sun
       event: sunset
-      offset: '+00:30:00'
+      offset: '+01:00:00'
     - platform: event
       event_type: tv_time
     - platform: state
       entity_id: sensor.samsungtv
       state: Online
+    - platform: time
+      after: '20:00:00'
       
   condition:
     condition: and
@@ -24,6 +26,8 @@
       - condition: state
         entity_id: input_boolean.guest_mode
         state: 'off'
+      - condition: time
+        after: '20:00:00'
         
   action:
     service: scene.turn_on
