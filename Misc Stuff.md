@@ -1,4 +1,6 @@
 
+
+
 - alias: 'Get Random Time'
      trigger:
      platform: time

@@ -45,3 +45,9 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Put Door Sensor in Attic trap door to trigger light (GE LINK)
 * Add IFTTT to Set Guest MODE via Alexa.
 * Add LetsEncrypt and [CertBot](https://certbot.eff.org/#debianjessie-other) for auto renewals. (or buy cheapo SSL cert) for advanced Alexa stuff.
+* This : http://groundp.in/2016/10/18/step-by-step-guide-to-setting-up-esp-easy-with-home-assistant/
+* http://www.pibakery.org/
+* http://www.esp8266.nu/index.php/ESPEasy
+* https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Falexbloggt.com%2Funiversal-infrarot-websteuerung-ueber-esp8266%2F
+
+
