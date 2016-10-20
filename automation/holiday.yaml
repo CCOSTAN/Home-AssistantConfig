@@ -11,17 +11,24 @@
               
   action:
     - service: switch.turn_on
-      entity_id: group.holiday
-
+      entity_id: switch.halloween_lights_den
+    - delay: 00:00:30
+    - service: switch.turn_on
+      entity_id: switch.halloween_lights_dining_room
+    
 - alias: 'Holiday Stuff off'  
   trigger:
     - platform: sun
       event: sunrise
-      offset: '-03:00:00'
+      offset: '-03:30:00'
     - platform: event
       event_type: halloween_lights_off          
 
   action:
-    - service: switch.turn_on
-      entity_id: group.holiday
+    - service: switch.turn_off
+      entity_id: switch.halloween_lights_den
+    - delay: 00:00:30
+    - service: switch.turn_off
+      entity_id: switch.halloween_lights_dining_room
+    
       
