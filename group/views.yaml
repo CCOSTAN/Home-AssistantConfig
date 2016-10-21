@@ -6,6 +6,7 @@ default_view:
     - persistent_notification.update_available
     - group.home_mode
     - group.family
+    - group.weather
     - group.amps
     - group.holiday
     - group.Bedroom
@@ -22,9 +23,17 @@ Lights:
   view: yes
   icon: mdi:lightbulb
   entities:
-    - group.all_lights
-    - group.all_switches
-    - group.all_automations
+    - group.amps
+    - group.holiday
+    - group.Bedroom
+    - group.Kitchen
+    - group.Dinette
+    - group.living_room
+    - group.living_room_accents
+    - group.foyer
+    - group.upstairs
+    - group.den
+    - group.office
     
 Info:
   view: yes
@@ -33,4 +42,8 @@ Info:
     - group.family
     - group.network
     - group.sensors
+    - sun.sun
     - group.weather
+    - group.all_lights
+    - group.all_switches
+    - group.all_automations
