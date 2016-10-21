@@ -1,15 +1,36 @@
+default_view:
+  name: Bear Stone Run
+  view: yes
+  icon: mdi:home
+  entities:
+    - persistent_notification.update_available
+    - group.home_mode
+    - group.family
+    - group.amps
+    - group.holiday
+    - group.Bedroom
+    - group.Kitchen
+    - group.Dinette
+    - group.living_room
+    - group.living_room_accents
+    - group.foyer
+    - group.upstairs
+    - group.den
+    - group.office
+
 Lights:
   view: yes
   icon: mdi:lightbulb
   entities:
     - group.all_lights
     - group.all_switches
+    - group.all_automations
     
 Info:
   view: yes
   icon: mdi:settings
   entities:
     - group.family
-    - group.devices
+    - group.network
     - group.sensors
     - group.weather

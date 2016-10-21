@@ -18,6 +18,7 @@
         message: "Home Assistant {{ states('updater.updater') }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
         data:
           url: "https://home-assistant.io/getting-started/installation-raspberry-pi-all-in-one/#upgrading"
+    
     - service: persistent_notification.create
       data:
         title: "Update Available"
