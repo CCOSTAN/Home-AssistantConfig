@@ -35,7 +35,9 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
 
-![Screenshot of Dashboards](https://i.imgur.com/HgVkDGD.png)
+![Screenshot of Home View](https://i.imgur.com/Exz32fr.png)
+![Screenshot of Lights](https://i.imgur.com/rPm5wgJ.png)
+![Screenshot of Info](https://i.imgur.com/jKGpJVo.png)
 
 #Todo List
 

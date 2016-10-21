@@ -4,7 +4,7 @@ default_view:
   icon: mdi:home
   entities:
     - persistent_notification.update_available
-    - group.home_mode
+    - group.home_modes
     - group.family
     - group.weather
     - group.amps
@@ -23,6 +23,7 @@ Lights:
   view: yes
   icon: mdi:lightbulb
   entities:
+    - group.home_modes
     - group.amps
     - group.holiday
     - group.Bedroom
@@ -40,6 +41,7 @@ Info:
   icon: mdi:settings
   entities:
     - group.family
+    - group.home_modes
     - group.network
     - group.sensors
     - sun.sun
