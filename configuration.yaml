@@ -9,8 +9,14 @@ homeassistant:
 
 http:
   api_password: !secret http_api_password
-  
+
 frontend:
+panel_iframe:
+  router:
+    title: 'Router'
+    icon: 'mdi:router-wireless'
+    url: 'http://192.168.10.1'
+  
 group: !include_dir_merge_named group
 device_tracker: !include_dir_merge_list device_tracker
 input_boolean: !include_dir_merge_named input_boolean
@@ -25,7 +31,7 @@ light:
 
 emulated_hue:
   host_ip: 192.168.10.10
-#  expose_by_default: false
+  expose_by_default: true
   exposed_domains:
     - group
 #    - input_boolean
