@@ -45,6 +45,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Put door sensor on garage door
 * Put Door Sensor in Mailbox
 * Put Door Sensor in Attic trap door to trigger light (GE LINK)
+* Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
 * Add IFTTT to Set Guest MODE via Alexa.
 * Add LetsEncrypt and [CertBot](https://certbot.eff.org/#debianjessie-other) for auto renewals. (or buy cheapo SSL cert) for advanced Alexa stuff.
 * This : http://groundp.in/2016/10/18/step-by-step-guide-to-setting-up-esp-easy-with-home-assistant/
