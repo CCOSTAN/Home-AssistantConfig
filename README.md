@@ -24,16 +24,19 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Emulated Hue to try and get Alexa to see my switches.Not working yet http://carlo-pi:8300/api/12345678901234567890/lights
 
 **Automations:**
-* SMS and IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions.
+* Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
+* IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions.
 * (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
 * Auto Heal ZWave at 2:30am
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Turn on Upstaris light if Nest detects people and it's nighttime.
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
 * Turn on some lights when we get home
+* Turn on Holiday Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior Holiday lights when we go to sleep.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
+* (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
 
 ![Screenshot of Home View](https://i.imgur.com/Exz32fr.png)
 ![Screenshot of Lights](https://i.imgur.com/rPm5wgJ.png)
@@ -42,11 +45,10 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 #Todo List
 
 * Put Dash Buttons out there.
-* Put door sensor on garage door
+* Put door sensor on garage door ([Garadget](garadget.com) is on the way!)
 * Put Door Sensor in Mailbox
 * Put Door Sensor in Attic trap door to trigger light (GE LINK)
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
-* Add IFTTT to Set Guest MODE via Alexa.
 * Add LetsEncrypt and [CertBot](https://certbot.eff.org/#debianjessie-other) for auto renewals. (or buy cheapo SSL cert) for advanced Alexa stuff.
 * This : http://groundp.in/2016/10/18/step-by-step-guide-to-setting-up-esp-easy-with-home-assistant/
 * http://www.pibakery.org/

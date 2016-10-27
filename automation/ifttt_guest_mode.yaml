@@ -1,0 +1,22 @@
+###################################
+##  Turn on/off Guest Mode via ALexa/IFTTT event.
+###################################
+
+- alias: 'IFTTT Flip Guest Mode on'
+  trigger:
+    - platform: event
+      event_type: guest_mode_on
+
+  action:
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.guest_mode
+      
+      
+- alias: 'IFTTT Flip Guest Mode off'
+  trigger:
+    - platform: event
+      event_type: guest_mode_off
+
+  action:
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.guest_mode
