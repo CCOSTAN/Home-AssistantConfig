@@ -58,7 +58,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Motion after midnight and the sprinklers go on. 
 * Bathroom lights flash when door bell is pressed. 
 * Vacation mode and mocupancy scenes to simulate being here. 
-* Time based automations - light brightness, blink light notifications (location),  dash button options 
+* Time based automations - light brightness, blink light notifications (location),  dash button options (https://github.com/dale3h/homeassistant-config/blob/master/examples/%40CCOSTAN/detect_state_change.yaml)
 
 * This : http://groundp.in/2016/10/18/step-by-step-guide-to-setting-up-esp-easy-with-home-assistant/
 * http://www.pibakery.org/
