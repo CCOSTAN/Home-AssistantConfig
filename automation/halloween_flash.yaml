@@ -1,0 +1,35 @@
+###################################
+##  Flash the lights on Halloween for the Tricker Treaters!
+###################################
+- alias: 'halloween flasher'
+  trigger:
+    - platform: sun
+      event: sunset
+    - platform: event
+      event_type: trick_or_treat 
+
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+      - condition: time
+        before: '23:45'
+
+  action:
+    - service: light.turn_on
+#    entity_id: group.all_lights
+      entity_id: light.office_lamp
+      data:
+        flash: long
+    - delay: 00:00:5
+    - service: light.turn_on
+      entity_id: light.office_lamp
+      data:
+        flash: long
+    - delay: 00:00:5
+    - service: light.turn_on
+      entity_id: light.office_lamp
+      data:
+        flash: long
