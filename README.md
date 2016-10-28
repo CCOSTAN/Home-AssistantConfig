@@ -37,6 +37,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
+* Halloween Special - Flash all front lights when motion is detected via SkyBell (IFTTT - Maker)
 
 ![Screenshot of Home View](https://i.imgur.com/Exz32fr.png)
 ![Screenshot of Lights](https://i.imgur.com/rPm5wgJ.png)

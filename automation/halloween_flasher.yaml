@@ -19,17 +19,26 @@
 
   action:
     - service: light.turn_on
-#    entity_id: group.all_lights
-      entity_id: light.office_lamp
+      entity_id: group.halloween_flasher
+      data:
+        flash: long
+    - delay: 00:00:2
+    - service: light.turn_on
+      entity_id: group.halloween_flasher
+      data:
+        flash: long
+    - delay: 00:00:2
+    - service: light.turn_on
+      entity_id: group.halloween_flasher
+      data:
+        flash: long
+    - delay: 00:00:3
+    - service: light.turn_on
+      entity_id: group.halloween_flasher
       data:
         flash: long
     - delay: 00:00:5
     - service: light.turn_on
-      entity_id: light.office_lamp
-      data:
-        flash: long
-    - delay: 00:00:5
-    - service: light.turn_on
-      entity_id: light.office_lamp
+      entity_id: group.halloween_flasher
       data:
         flash: long
