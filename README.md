@@ -51,6 +51,15 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Put Door Sensor in Attic trap door to trigger light (GE LINK)
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
 * Add LetsEncrypt and [CertBot](https://certbot.eff.org/#debianjessie-other) for auto renewals. (or buy cheapo SSL cert) for advanced Alexa stuff.
+* Flash backyard lights when doorbell rings. 
+* Bedside dash button for morning, night and bathroom trips. 
+* Create various scenes (early morning, breakfast, work, entertaining, )
+* Doorbell motion after dusk turns on light and changes it color.  Dims foyer light up as well. Maybe a sconce light too. 
+* Motion after midnight and the sprinklers go on. 
+* Bathroom lights flash when door bell is pressed. 
+* Vacation mode and mocupancy scenes to simulate being here. 
+* Time based automations - light brightness, blink light notifications (location),  dash button options 
+
 * This : http://groundp.in/2016/10/18/step-by-step-guide-to-setting-up-esp-easy-with-home-assistant/
 * http://www.pibakery.org/
 * http://www.esp8266.nu/index.php/ESPEasy
