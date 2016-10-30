@@ -1,0 +1,38 @@
+######################################################################
+##  TV Time at sunset or 8pm.  Whichever is later.
+######################################################################
+
+- alias: TV Time    
+  trigger:
+    - platform: sun
+      event: sunset
+      offset: '+01:00:00'
+    - platform: event
+      event_type: tv_time
+    - platform: state
+      entity_id: sensor.samsungtv
+      state: Online
+    - platform: time
+      after: '20:00:00'
+      
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: group.family
+        state: home
+      - condition: state
+        entity_id: sensor.samsungtv
+        state: Online
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+      - condition: time
+        after: '20:00:00'
+        
+  action:
+    service: scene.turn_on
+    entity_id: scene.living_room_tv_time

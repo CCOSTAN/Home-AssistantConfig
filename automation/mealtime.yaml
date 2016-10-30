@@ -1,0 +1,18 @@
+######################################################################
+##  Time to eat - Set it up!
+######################################################################
+
+- alias: Mealtime   
+  trigger:
+    - platform: event
+      event_type: mealtime
+        
+  action:
+    - service: light.turn_on
+      entity_id: 
+        - group.dinette
+        - group.kitchen
+    - service: light.turn_off
+      entity_id: 
+        - light.office_lamp
+        - group.living_room
