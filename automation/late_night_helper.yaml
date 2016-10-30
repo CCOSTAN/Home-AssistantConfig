@@ -20,7 +20,8 @@
         entity_id: sun.sun
         state: 'below_horizon'
       - condition: time
-        before: '23:45'
+        after: '20:00'
+        before: '02:00'
 
   action:
     service: light.turn_on
