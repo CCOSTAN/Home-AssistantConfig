@@ -23,9 +23,9 @@
     - condition: template
       value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
     - condition: template
-      value_template: "{{ trigger.event.data.new_state.attributes is not none }}"
+      value_template: "{{ trigger.event.data.old_state.state == 'off' }}"
     - condition: template
-      value_template: "{{ trigger.event.data.new_state.attributes.brightness|default(0)|int > 254 }}"
+      value_template: "{{ trigger.event.data.new_state.attributes is not none }}"
   action:
     - service: light.turn_on
       data_template:
