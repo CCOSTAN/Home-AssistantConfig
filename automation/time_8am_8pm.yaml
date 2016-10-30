@@ -1,4 +1,4 @@
-- alias: detect_light_between 8am and 12pm
+- alias: detect_light_between 8am and 8pm
   trigger:
     - platform: event
       event_type: state_changed
@@ -11,21 +11,11 @@
     - condition: time
       before: '20:00:00'
     - condition: template
-      value_template: "{{ trigger.event.data is not none }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.entity_id is not none }}"
-    - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('.')[0] == 'light' }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.new_state is not none }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.new_state.state is not none }}"
     - condition: template
       value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
     - condition: template
       value_template: "{{ trigger.event.data.old_state.state == 'off' }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.new_state.attributes is not none }}"
   action:
     - service: light.turn_on
       data_template:

@@ -33,6 +33,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
 * Turn on some lights when we get home
 * Turn on Holiday Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior Holiday lights when we go to sleep.
+* Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
@@ -48,7 +49,6 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Put Dash Buttons out there.
 * Put door sensor on garage door ([Garadget](garadget.com) is on the way!)
 * Put Door Sensor in Mailbox
-* Put Door Sensor in Attic trap door to trigger light (GE LINK)
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
 * Add LetsEncrypt and [CertBot](https://certbot.eff.org/#debianjessie-other) for auto renewals. (or buy cheapo SSL cert) for advanced Alexa stuff.
 * Flash backyard lights when doorbell rings. 
@@ -58,7 +58,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Motion after midnight and the sprinklers go on. 
 * Bathroom lights flash when door bell is pressed. 
 * Vacation mode and mocupancy scenes to simulate being here. 
-* Time based automations - light brightness, blink light notifications (location),  dash button options (https://github.com/dale3h/homeassistant-config/blob/master/examples/%40CCOSTAN/detect_state_change.yaml)
+* Time based automations - blink light notifications (location),  dash button options (https://github.com/dale3h/homeassistant-config/blob/master/examples/%40CCOSTAN/detect_state_change.yaml)
 
 * This : http://groundp.in/2016/10/18/step-by-step-guide-to-setting-up-esp-easy-with-home-assistant/
 * http://www.pibakery.org/
