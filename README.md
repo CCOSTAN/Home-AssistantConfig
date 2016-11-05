@@ -21,7 +21,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [Etekcity Outlets](http://amzn.to/2efNoBP)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * Nintendo Wii
-* Emulated Hue pushes all Switch, Group and scene information to Alexa for First Class Control!
+* Emulated Hue pushes all Switch, Group and scene information to Alexa for First Class Control! [Broked!  Worked for literally long enough for me to clear out all my devices in Alexa. :( ]
 
 **Automations:**
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
@@ -32,7 +32,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Turn on Upstaris light if Nest detects people and it's nighttime.
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
 * Turn on some lights when we get home
-* Turn on Holiday Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior Holiday lights when we go to sleep.
+* Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
@@ -58,6 +58,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Motion after midnight and the sprinklers go on. 
 * Bathroom lights flash when door bell is pressed. 
 * Vacation mode and mocupancy scenes to simulate being here. 
+* Figure out a way to change the color of outdoor lights based on various minor holidays automagically.
 * Time based automations - blink light notifications (location),  dash button options (https://github.com/dale3h/homeassistant-config/blob/master/examples/%40CCOSTAN/detect_state_change.yaml)
 
 * This : http://groundp.in/2016/10/18/step-by-step-guide-to-setting-up-esp-easy-with-home-assistant/
