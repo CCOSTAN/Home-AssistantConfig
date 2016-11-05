@@ -15,9 +15,6 @@
     - delay: 00:00:30
     - service: switch.turn_on
       entity_id: switch.halloween_lights_dining_room
-    - delay: 00:00:30
-    - service: switch.turn_on
-      entity_id: switch.pumpkin_lights  
     
 - alias: 'Holiday Stuff off'  
   trigger:
@@ -33,7 +30,5 @@
     - delay: 00:00:30
     - service: switch.turn_off
       entity_id: switch.halloween_lights_dining_room
-    - delay: 00:00:30
-    - service: switch.turn_off
-      entity_id: switch.pumpkin_lights
+
       

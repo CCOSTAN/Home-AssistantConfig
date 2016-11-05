@@ -65,4 +65,4 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * http://www.esp8266.nu/index.php/ESPEasy
 * https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Falexbloggt.com%2Funiversal-infrarot-websteuerung-ueber-esp8266%2F
 
-
+https://community.home-assistant.io/t/voice-controlled-cheap-non-smart-led-strip-with-ok-google-command/5756
