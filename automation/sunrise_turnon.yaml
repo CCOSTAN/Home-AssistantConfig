@@ -12,6 +12,11 @@
   action:
     - service: switch.turn_on
       entity_id: switch.foyer_outlet 
+    - service: light.turn_on
+      data:
+        entity_id: light.outdoor_foyer
+        brightness: 200
+        rgb_color: [61,178,112]
     
 - alias: 'Sunset Stuff off'  
   trigger:
@@ -24,4 +29,6 @@
   action:
     - service: switch.turn_off
       entity_id: switch.foyer_outlet
+    - service: light.turn_off
+      entity_id: light.outdoor_foyer
       
