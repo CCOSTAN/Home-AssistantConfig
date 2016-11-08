@@ -11,11 +11,13 @@
     - condition: time
       before: '20:00:00'
     - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('.')[1] != 'tv_light' }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('.')[1] != 'tv_stand_light' }}"
-    - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('.')[0] == 'light' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.tv' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.couch' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.outdoor' }}"
     - condition: template
       value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
     - condition: template

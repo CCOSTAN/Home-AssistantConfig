@@ -4,14 +4,14 @@
 This is my Home Assistant Configuration created with the All In One installer.  I update it pretty regularly. 
 Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
 
-Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), [HomeBridge](https://github.com/nfarina/homebridge)
+Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), SSL via SSLS.com - 5 Bucks A Year!
 
 **Devices I have :**
 * Lots of iOS Devices (iPads, iPods, iPhones)
 * [Nest Thermostats](http://amzn.to/2eAhB1k)
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
-* [Phillips Hue Hub](http://amzn.to/2eoQTJy)
+* [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * [Circle by Disney](http://amzn.to/2eAgaA6)
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW)
 * [SkyBell HD](http://amzn.to/2dcexIB)
@@ -50,7 +50,6 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Put door sensor on garage door ([Garadget](garadget.com) is on the way!)
 * Put Door Sensor in Mailbox
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
-* Add LetsEncrypt and [CertBot](https://certbot.eff.org/#debianjessie-other) for auto renewals. (or buy cheapo SSL cert) for advanced Alexa stuff.
 * Flash backyard lights when doorbell rings. 
 * Bedside dash button for morning, night and bathroom trips. 
 * Create various scenes (early morning, breakfast, work, entertaining, )
