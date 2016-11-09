@@ -55,6 +55,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Create various scenes (early morning, breakfast, work, entertaining, )
 * Doorbell motion after dusk turns on light and changes it color.  Dims foyer light up as well. Maybe a sconce light too. 
 * Motion after midnight and the sprinklers go on. 
+* Using Input Booleans, list trashday and kid's chore day on Main Screen.
 * Bathroom lights flash when door bell is pressed. 
 * Vacation mode and mocupancy scenes to simulate being here. 
 * Figure out a way to change the color of outdoor lights based on various minor holidays automagically.
