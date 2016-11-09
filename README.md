@@ -4,7 +4,7 @@
 This is my Home Assistant Configuration created with the All In One installer.  I update it pretty regularly. 
 Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
 
-Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), SSL via SSLS.com - 5 Bucks A Year!
+Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), SSL via [SSLS](SSLS.com) - 5 Bucks A Year!
 
 **Devices I have :**
 * Lots of iOS Devices (iPads, iPods, iPhones)

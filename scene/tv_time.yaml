@@ -1,11 +1,17 @@
 - name: Living Room TV Time
   entities:
+       group.foyer:
+           state: off
+           transition: 100
+       group.office:
+           state: off
+           transition: 10
        group.dinette:
            state: off
-           transition: 10
+           transition: 100
        group.kitchen:
            state: off
-           transition: 10
+           transition: 100
        light.living_room_front_left:
            state: off
            transition: 10
@@ -23,18 +29,18 @@
            state: on
            transition: 40
            brightness: 1
+       light.tv_stand_light:
+           state: on
+           transition: 400
+           xy_color: [0.5014,0.4153]
+           brightness: 150
+       light.tv_light:
+           state: on
+           transition: 400
+           xy_color: [0.5014,0.4153]
+           brightness: 125
        light.couch_1:
            state: on
            transition: 400
            xy_color: [0.6621,0.3023]
            brightness: 255
-       light.couch_2:
-           state: on
-           transition: 400
-           xy_color: [0.6621,0.3023]
-           brightness: 255
-       light.couch_tv:
-           state: on
-           transition: 400
-           xy_color: [0.6621,0.3023]
-           brightness: 100
