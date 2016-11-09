@@ -16,6 +16,25 @@
             {% else %}
                 Offline
             {%- endif %}	
+
+      actiontechap:
+        friendly_name: 'ActionTech AP'
+        value_template: >-
+            {%- if is_state("device_tracker.actiontechap", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+
+      cisco_ap:
+        friendly_name: 'Cisco Main AP'
+        value_template: >-
+            {%- if is_state("device_tracker.cisco_ap", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+             
       hue_hub:
         friendly_name: 'Hue Hub'
         value_template: >-
@@ -32,6 +51,16 @@
             {% else %}
                 Offline
             {%- endif %}	
+
+      amazon_dot:
+        friendly_name: 'Amazon Dot'
+        value_template: >-
+            {%- if is_state("device_tracker.amazon_dot", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+            
       circle:
         friendly_name: 'Disney Circle'
         value_template: >-
@@ -40,6 +69,25 @@
             {% else %}
                 Offline
             {%- endif %}   
+
+      nest_downstairs:
+        friendly_name: 'Downstairs Nest'
+        value_template: >-
+            {%- if is_state("device_tracker.nest_downstairs", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+
+      nest_upstairs:
+        friendly_name: 'Upstairs Nest'
+        value_template: >-
+            {%- if is_state("device_tracker.nest_upstairs", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+  
       rachio:
         friendly_name: 'Rachio Sprinklers'
         value_template: >-
@@ -64,3 +112,22 @@
             {% else %}
                 Offline
             {%- endif %}             
+
+      chromecast_audio_1:
+        friendly_name: 'ChromeCast Audio 1'
+        value_template: >-
+            {%- if is_state("device_tracker.chromecast_audio_1", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+
+      chromecast_audio_2:
+        friendly_name: 'ChromeCast Audio 2'
+        value_template: >-
+            {%- if is_state("device_tracker.chromecast_audio_2", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}
+  

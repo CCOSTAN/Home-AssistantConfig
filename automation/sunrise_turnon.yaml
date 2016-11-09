@@ -1,5 +1,5 @@
 ###################################
-##  Holiday Lights on/off with IFTTT/Alexa support
+##  Sunrise and Sunset stuff
 ###################################
 
 - alias: 'Sunset Stuff on'  
@@ -12,6 +12,8 @@
   action:
     - service: switch.turn_on
       entity_id: switch.foyer_outlet 
+    - service: light.turn_on
+      entity_id: light.pool_bathroom
     - service: light.turn_on
       data:
         entity_id: light.outdoor_foyer
