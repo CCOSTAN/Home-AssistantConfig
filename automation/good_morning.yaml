@@ -1,0 +1,41 @@
+######################################################################
+##  Shut it all down.  No one is here or we went to sleep.
+######################################################################
+
+- alias: 'Good Morning Routine'
+  trigger:
+    - platform: event
+      event_type: good_morning
+    - platform: time
+      after: '06:00:00'
+
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: home 
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: time    
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+        
+  action:
+    - service: light.turn_on
+      entity_id: 
+        - light.kitchen_fridge
+        - light.s1
+        - light.s4
+      data:
+        brightness: 150
+    - delay: 02:30:00
+    - service: light.turn_off
+      entity_id: 
+        - light.kitchen_fridge
+        - light.s1
+        - light.s4
+      
