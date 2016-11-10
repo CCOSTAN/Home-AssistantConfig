@@ -1,5 +1,5 @@
 ######################################################################
-##  Shut it all down.  No one is here or we went to sleep.
+##  Weekday Morning Routines for the Wife and Kiddos.
 ######################################################################
 
 - alias: 'Good Morning Routine'
@@ -14,7 +14,7 @@
       entity_id: group.family
       state: home 
     - condition: state
-      entity_id: input_boolean.guest_mode
+      entity_id: input_boolean.no_school
       state: 'off'
     - condition: time    
       weekday:
@@ -32,10 +32,29 @@
         - light.s4
       data:
         brightness: 150
-    - delay: 02:30:00
+    - delay: 00:50:00   
+# 6:50am now.
+    - service: light.turn_on
+      entity_id: 
+        - light.d1
+        - light.d2
+      data:
+        brightness: 150
+    - delay: 01:00:00 
+# 7:50am now.
+    - service: light.turn_on
+      entity_id: 
+        - group.kitchen_lights
+      data:
+        brightness: 200
     - service: light.turn_off
       entity_id: 
-        - light.kitchen_fridge
-        - light.s1
-        - light.s4
+        - group.dining_room_lights
+    - delay: 00:40:00 
+# 8:30am now.
+    - service: light.turn_off
+      entity_id: 
+        - group.kitchen_lights
+        - group.dinette_lights
+        
       
