@@ -7,13 +7,21 @@
   trigger:
        - platform: state
          entity_id: 
-         - sensor.wii
-         - sensor.tablotv
-         - sensor.hue_hub
-         - sensor.alexa_echo
-         - sensor.rachio
-         - sensor.circle
-         - sensor.skybell
+           - sensor.wii
+           - sensor.hue_hub
+           - sensor.tablotv
+           - sensor.alexa_echo
+           - sensor.amazon_dot
+           - sensor.circle
+           - sensor.rachio
+           - sensor.skybell
+           - sensor.samsungtv
+           - sensor.chromecast_audio_1
+           - sensor.chromecast_audio_2
+           - sensor.nest_upstairs
+           - sensor.nest_downstairs
+           - sensor.ciscoap
+           - sensor.actiontechap
   action:
      service: ifttt.trigger
      data_template: {"event":"device_status", "value1":"{{ trigger.entity_id.split('.')[1] }}", "value2":"{{ trigger.to_state.state }}"}
