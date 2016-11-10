@@ -29,10 +29,11 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
 * Auto Heal ZWave at 2:30am
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
-* Turn on Upstaris light if Nest detects people and it's nighttime.
+* Turn on Upstairs light if Nest detects people and it's nighttime.
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
 * Turn on some lights when we get home
 * Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
+* Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
