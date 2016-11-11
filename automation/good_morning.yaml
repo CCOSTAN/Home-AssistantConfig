@@ -38,8 +38,12 @@
       entity_id: 
         - light.d1
         - light.d2
+        - group.kitchen_lights
       data:
         brightness: 150
+    - service: light.turn_off
+      entity_id: 
+        - group.dining_room_lights
     - delay: 01:00:00 
 # 7:50am now.
     - service: light.turn_on
@@ -47,9 +51,7 @@
         - group.kitchen_lights
       data:
         brightness: 200
-    - service: light.turn_off
-      entity_id: 
-        - group.dining_room_lights
+
     - delay: 00:40:00 
 # 8:30am now.
     - service: light.turn_off
