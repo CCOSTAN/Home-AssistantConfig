@@ -1,5 +1,5 @@
 - platform: command_line
-  command: "grep -c invalidpassword /home/hass/.homeassistant/home-assistant.log"
+  command: "grep -c 'Login attempt' /home/hass/.homeassistant/home-assistant.log"
   name: badlogin
 
 - platform: systemmonitor

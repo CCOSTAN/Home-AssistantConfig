@@ -48,6 +48,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 #Todo List
 
 * Configure the Alexa Component.
+* Turn on Accent lights when TV is sensed on.
 * Put Dash Buttons out there.
 * Put door sensor on garage door ([Garadget](garadget.com) is on the way!)
 * Put Door Sensor in Mailbox

@@ -52,4 +52,18 @@ action:
   data:
     effect: random
     transition: 1
-    brightness: 255`
+    brightness: 255
+    
+    
+alias: 'Autoadjust Bedroom Lights After Sunset'
+trigger:
+  - platform: numeric_state
+    entity_id: light.bedroom_light_1
+    value_template: '{{ state.attributes.brightness }}'
+    above: 140
+condition:
+  condition: state
+  entity_id: sun.sun
+  state: below_horizon
+action:
+  - service: script.bedroom_lights_fade_down_to_50_percent
