@@ -28,6 +28,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions.
 * (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
 * Auto Heal ZWave at 2:30am
+* Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Turn on Upstairs light if Nest detects people and it's nighttime.
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
