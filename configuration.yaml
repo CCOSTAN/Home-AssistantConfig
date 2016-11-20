@@ -21,7 +21,6 @@ panel_iframe:
   
 group: !include_dir_merge_named group
 device_tracker: !include_dir_merge_list device_tracker
-input_boolean: !include_dir_merge_list input_boolean
 discovery:
 updater:
 sun:
@@ -39,7 +38,7 @@ emulated_hue:
 #    - input_boolean
 #    - media_player
     - switch
-    - scene
+#    - scene
     
 ifttt:
   key: !secret ifttt_key
@@ -82,3 +81,24 @@ sensor: !include_dir_merge_list sensor
 automation: !include_dir_merge_list automation
 scene: !include_dir_merge_list scene
 switch: !include_dir_merge_list switch
+input_boolean:
+  guest_mode:
+    name: Guest Mode
+    icon: mdi:account-alert
+    initial: off
+  no_school:
+    name: No School
+    icon: mdi:school
+    initial: off
+  trash_reminder:
+    name: Trash Day Reminder
+    icon: mdi:delete
+    initial: off 
+  pill_reminder:
+    name: Pill Reminder
+    icon: mdi:pill
+    initial: off 
+  chore_reminder:
+    name: chore Reminder
+    icon: mdi:human-male-female
+    initial: off 
