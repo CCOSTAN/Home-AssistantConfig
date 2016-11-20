@@ -24,14 +24,17 @@
         before: '02:00'
 
   action:
-    service: light.turn_on
-    entity_id: 
-      - group.living_room_accents
-      - light.living_room_slider
-      - light.foyer_door
-      - light.fridge
-      - light.sink
-      - light.M1_front_right
-    data:
-      brightness: 150
+    - service: light.turn_on
+      entity_id: 
+        - group.living_room_accents
+        - light.living_room_slider
+        - light.foyer_door
+        - light.fridge
+        - light.sink
+        - light.M1_front_right
+      data:
+        brightness: 150
+    - service: switch.turn_on
+      entity_id: switch.kitchen_accents
+
   

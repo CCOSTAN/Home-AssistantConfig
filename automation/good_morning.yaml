@@ -27,11 +27,15 @@
   action:
     - service: light.turn_on
       entity_id: 
-        - light.fridge
         - light.s1
         - light.s4
       data:
         brightness: 150
+    - service: switch.turn_on
+      entity_id: switch.kitchen_accents
+    - delay: 00:01:00
+    - service: switch.turn_on
+      entity_id: switch.kitchen_accents
     - delay: 00:50:00   
 # 6:50am now.
     - service: light.turn_on
@@ -44,6 +48,8 @@
     - service: light.turn_off
       entity_id: 
         - group.dining_room_lights
+    - service: switch.turn_off
+      entity_id: switch.kitchen_accents
     - delay: 01:00:00 
 # 7:50am now.
     - service: light.turn_on
@@ -56,9 +62,7 @@
 # 8:30am now.
     - service: light.turn_off
       entity_id: 
-        - group.kitchen_lights
-        - group.dinette_lights
-      data:
-        transition: 240
+        - group.interior_lights
+        
         
       

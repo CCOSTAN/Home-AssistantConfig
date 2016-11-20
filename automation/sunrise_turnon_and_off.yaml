@@ -22,6 +22,7 @@
         #Green
         rgb_color: [255,112,242] 
         #Purple
+  
                 
 - alias: 'Sunset Stuff off'  
   trigger:
@@ -41,4 +42,8 @@
     - service: light.turn_off
       entity_id: light.pool_bathroom  
     - service: light.turn_off
-      entity_id: group.outdoor_lights      
+      entity_id: group.outdoor_lights   
+    - service: switch.turn_off
+      entity_id: switch.kitchen_accents
+
+     
