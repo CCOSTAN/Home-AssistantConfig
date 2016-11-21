@@ -38,7 +38,7 @@
   trigger:
     - platform: state
       entity_id: light.k4
-      state: on
+      state: 'on'
       for: '00:20:00'
     - platform: event
       event_type: zwave.node_event
@@ -49,7 +49,7 @@
   condition: 
     condition: state
     entity_id: light.k1
-    state: off
+    state: 'off'
        
   action:
     - service: light.turn_off
