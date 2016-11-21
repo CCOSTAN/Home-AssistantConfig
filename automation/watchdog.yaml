@@ -2,13 +2,17 @@
 ###  Detect when things are on and forgotten about.
 ##############################################################################
 
-- alias: Printer on for more than 35 minutes
+- alias: Automated Switch WatchDog!
   trigger:
     - platform: state
       entity_id: switch.printer_outlet
       state: 'on'
       for: '00:35:00'
-
+    - platform: state
+      entity_id: switch.garage_outlet
+      state: 'on'
+      for: '03:00:00'
+      
 #Turn it off twice for good measure!
   action:
     - service: switch.turn_off
@@ -19,3 +23,15 @@
       data_template:
         entity_id: "{{ trigger.entity_id }}"
  
+- alias: Automated Light WatchDog!
+  trigger:
+    - platform: state
+      entity_id: light.hallway
+      state: 'on'
+      for: '00:20:00'
+      
+#Turn it off!
+  action:
+    - service: light.turn_off
+      data_template:
+        entity_id: "{{ trigger.entity_id }}"
