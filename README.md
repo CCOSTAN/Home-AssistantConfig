@@ -20,6 +20,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * ChromeCast Audios
 * [Etekcity Outlets](http://amzn.to/2efNoBP)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
+* [Garadget](garadget.com) - Garage Door opener/sensor
 * Nintendo Wii
 * Emulated Hue pushes all Switch, Group and scene information to Alexa for First Class Control! [Broked!  Worked for literally long enough for me to clear out all my devices in Alexa. :( ]
 
@@ -52,7 +53,6 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Configure the Alexa Component.
 * Turn on Accent lights when TV is sensed on.
 * Put Dash Buttons out there.
-* Put door sensor on garage door ([Garadget](garadget.com) is on the way!)
 * Put Door Sensor in Mailbox
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
 * Flash backyard lights when doorbell rings. 
