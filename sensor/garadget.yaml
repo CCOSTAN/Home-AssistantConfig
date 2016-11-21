@@ -4,7 +4,7 @@
       friendly_name: 'State of the door'
       value_template: '{{ states.cover.garadget_small.state }}'
     garadget_small_time_in_state:
-      friendly_name: 'Since'
+      friendly_name: 'Time Since Change'
       value_template: '{{ states.cover.garadget_small.attributes["time in state"] }}'
     garadget_small_wifi_signal_strength:
       friendly_name: 'WiFi strength'
@@ -17,7 +17,7 @@
       friendly_name: 'State of the door'
       value_template: '{{ states.cover.garadget_large.state }}'
     garadget_large_time_in_state:
-      friendly_name: 'Since'
+      friendly_name: 'Time Since Change'
       value_template: '{{ states.cover.garadget_large.attributes["time in state"] }}'
     garadget_large_wifi_signal_strength:
       friendly_name: 'WiFi strength'

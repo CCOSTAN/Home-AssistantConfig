@@ -23,8 +23,13 @@ default_view:
     - group.outdoor_pool_lights
     - group.outdoor_lights
     - group.switches
-    - group.garage_doors
 
+Doors:
+  view: yes
+  icon: mdi:security-home
+  entities:
+    - group.garage_doors
+    
 Lights:
   view: yes
   icon: mdi:lightbulb
