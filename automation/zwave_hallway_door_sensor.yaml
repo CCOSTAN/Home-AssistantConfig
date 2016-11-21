@@ -1,0 +1,56 @@
+- alias: Hallway ZWave Enerwave Door Sensors Open
+  hide_entity: True
+  trigger:
+     platform: event
+     event_type: zwave.node_event
+     event_data:
+       object_id: enerwave_unknown_type0601_id0903_2
+       basic_level: 255
+
+  condition: 
+    condition: sun
+    after: sunset
+    after_offset: '-03:00:00'       
+       
+  action:
+    - service: light.turn_on
+      entity_id: 
+        - light.hallway
+        - light.k4
+    - delay: 00:20:00
+    - service: light.turn_off
+      entity_id: light.hallway
+    
+- alias: ZWave Enerwave Door Sensors Closed
+  hide_entity: True
+  trigger:
+     platform: event
+     event_type: zwave.node_event
+     event_data:
+       object_id: enerwave_unknown_type0601_id0903_2
+       basic_level: 0
+  action:
+    service: light.turn_off
+    entity_id: light.hallway
+
+- alias: Shutdown Helper light
+  hide_entity: True
+  trigger:
+    - platform: state
+      entity_id: light.k4
+      state: on
+      for: '00:20:00'
+    - platform: event
+      event_type: zwave.node_event
+      event_data:
+       object_id: enerwave_unknown_type0601_id0903_2
+       basic_level: 0
+      
+  condition: 
+    condition: state
+    entity_id: light.k1
+    state: off
+       
+  action:
+    - service: light.turn_off
+      entity_id: light.k4
