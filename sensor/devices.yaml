@@ -130,4 +130,21 @@
             {% else %}
                 Offline
             {%- endif %}
-  
+            
+      garadget_large:
+        friendly_name: 'Garadget Large'
+        value_template: >-
+            {%- if is_state("device_tracker.garadget_large", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %}  
+            
+      garadget_small:
+        friendly_name: 'Garadget Small'
+        value_template: >-
+            {%- if is_state("device_tracker.garadget_small", "home") %}
+                Online
+            {% else %}
+                Offline
+            {%- endif %} 
