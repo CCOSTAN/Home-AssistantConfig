@@ -8,10 +8,8 @@ default_view:
     - group.family
     - group.weather
     - group.amps
-    - group.holiday
     - group.Bedroom_lights
     - group.Kitchen_lights
-    - switch.kitchen_accents
     - group.Dinette_lights
     - group.living_room_lights
     - group.living_room_accents
@@ -24,6 +22,8 @@ default_view:
     - group.garage_lights
     - group.outdoor_pool_lights
     - group.outdoor_lights
+    - group.switches
+    - group.garage_doors
 
 Lights:
   view: yes
@@ -33,10 +33,8 @@ Lights:
     - group.amps
     - group.interior_lights
     - group.outdoor_lights
-    - group.holiday_lights
     - group.Bedroom_lights
     - group.Kitchen_lights
-    - switch.kitchen_accents
     - group.Dinette_lights
     - group.living_room_lights
     - group.living_room_accents
@@ -47,7 +45,7 @@ Lights:
     - group.office_lights
     - group.garage_lights
     - group.outdoor_pool_lights
-
+    - group.switches
     
 Info:
   view: yes
@@ -57,6 +55,7 @@ Info:
     - group.home_modes
     - group.network
     - group.sensors
+    - group.garage_doors
     - sun.sun
     - media_player.roku_1gj361038190
     - media_player.roku_1gs3ac111661

@@ -1,0 +1,25 @@
+- platform: template
+  sensors:
+    garadget_small_status:
+      friendly_name: 'State of the door'
+      value_template: '{{ states.cover.garadget_small.state }}'
+    garadget_small_time_in_state:
+      friendly_name: 'Since'
+      value_template: '{{ states.cover.garadget_small.attributes["time in state"] }}'
+    garadget_small_wifi_signal_strength:
+      friendly_name: 'WiFi strength'
+      value_template: '{{ states.cover.garadget_small.attributes["wifi signal strength (dB)"] }}'
+      unit_of_measurement: 'dB'
+      
+- platform: template
+  sensors:
+    garadget_large_status:
+      friendly_name: 'State of the door'
+      value_template: '{{ states.cover.garadget_large.state }}'
+    garadget_large_time_in_state:
+      friendly_name: 'Since'
+      value_template: '{{ states.cover.garadget_large.attributes["time in state"] }}'
+    garadget_large_wifi_signal_strength:
+      friendly_name: 'WiFi strength'
+      value_template: '{{ states.cover.garadget_large.attributes["wifi signal strength (dB)"] }}'
+      unit_of_measurement: 'dB'

@@ -76,7 +76,19 @@ climate:
 media_player:
   platform: cast
   host: 192.168.10.105  
-   
+
+cover:
+  platform: garadget
+  covers:
+      3c003a001151353338363333:
+        username: !secret garadget_username
+        password: !secret garadget_password
+        name: Garadget Large
+      2a003f001751353432393433:  
+        username: !secret garadget_username
+        password: !secret garadget_password
+        name: Garadget Small      
+  
 sensor: !include_dir_merge_list sensor
 automation: !include_dir_merge_list automation
 scene: !include_dir_merge_list scene

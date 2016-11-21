@@ -1,16 +1,3 @@
-- alias: turn_it_off_after_10m
-  trigger:
-    - platform: state
-      entity_id: light.bedroom
-      state: 'on'
-      for: '00:10:00'
-    condition:
-      ...
-    action:
-      - service: light.turn_off
-        data_template:
-          entity_id: "{{ trigger.entity_id }}"
-
 
 - alias: 'Get Random Time'
      trigger:
