@@ -30,6 +30,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
 * Auto Heal ZWave at 2:30am
 * Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
+* Turn on Hallway light for no more than 20 minutes when Pantry door is opened.
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Turn on Upstairs light if Nest detects people and it's nighttime.
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
@@ -44,12 +45,15 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
 * Halloween Special - Flash all front lights when motion is detected via SkyBell (IFTTT - Maker)
 
-![Screenshot of Home View](https://i.imgur.com/Exz32fr.png)
-![Screenshot of Lights](https://i.imgur.com/rPm5wgJ.png)
-![Screenshot of Info](https://i.imgur.com/jKGpJVo.png)
+![Screenshot of Home View](https://i.imgur.com/2mFr9HP.png)
+![Screenshot of Garage Door View](https://i.imgur.com/GhMf2Lo.png)
+![Screenshot of Lights](https://i.imgur.com/joYkz0D.png)
+![Screenshot of Info](https://i.imgur.com/vABefL9.png)
 
 #Todo List
 
+* AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
+* Notifications and Close garage doors if left open after 9 or 10 PM.
 * Configure the Alexa Component.
 * Turn on Accent lights when TV is sensed on.
 * Put Dash Buttons out there.
