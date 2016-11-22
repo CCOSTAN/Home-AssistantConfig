@@ -11,6 +11,8 @@ http:
   api_password: !secret http_api_password
   ssl_certificate: !secret ssl_certificate
   ssl_key: !secret ssl_key
+  trusted_networks:
+    - 192.168.10.0/24
 
 frontend:
 panel_iframe:
