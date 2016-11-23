@@ -2,32 +2,27 @@
 ##  Press a dash Button and then stuff happens.
 ###################################
 
-- alias: 'Toggle Office Light on if off'
+- alias: 'Toggle Office Light on/off'
   trigger:
     - platform: event
       event_type: brooklyn_dash
-
-  condition:
-    - condition: state
-      entity_id: light.office_lamp
-      state: 'off'
-     
+    
   action:
-    - service: light.turn_on
+    - service: light.toggle
       entity_id: light.office_lamp
       
 
-- alias: 'Toggle Office Light off if on'
-  trigger:
-    - platform: event
-      event_type: brooklyn_dash
+# - alias: 'Toggle Office Light off if on'
+  # trigger:
+    # - platform: event
+      # event_type: brooklyn_dash
 
-  condition:
-    - condition: state
-      entity_id: light.office_lamp
-      state: 'on'
+  # condition:
+    # - condition: state
+      # entity_id: light.office_lamp
+      # state: 'on'
      
-  action:
-    - service: light.turn_off
-      entity_id: light.office_lamp
+  # action:
+    # - service: light.turn_off
+      # entity_id: light.office_lamp
       
