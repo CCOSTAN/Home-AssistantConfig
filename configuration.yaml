@@ -13,6 +13,7 @@ http:
   ssl_key: !secret ssl_key
   trusted_networks:
     - 192.168.10.0/24
+    - 127.0.0.1
 
 frontend:
 panel_iframe:
@@ -87,7 +88,7 @@ media_player:
 cover:
   platform: garadget
   covers:
-      3c003a001151353338363333:
+      !secret garadget_id:
         username: !secret garadget_username
         password: !secret garadget_password
         name: Garadget Large

@@ -10,6 +10,10 @@
       friendly_name: 'WiFi strength'
       value_template: '{{ states.cover.garadget_small.attributes["wifi signal strength (dB)"] }}'
       unit_of_measurement: 'dB'
+    garadget_small_reflection_rate:
+      friendly_name: 'Reflection Rate'
+      value_template: '{{ states.cover.garadget_small.attributes["sensor reflection rate"] }}'
+    
       
 - platform: template
   sensors:
@@ -23,3 +27,6 @@
       friendly_name: 'WiFi strength'
       value_template: '{{ states.cover.garadget_large.attributes["wifi signal strength (dB)"] }}'
       unit_of_measurement: 'dB'
+    garadget_large_reflection_rate:
+      friendly_name: 'Reflection Rate'
+      value_template: '{{ states.cover.garadget_large.attributes["sensor reflection rate"] }}'

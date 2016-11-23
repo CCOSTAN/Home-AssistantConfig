@@ -54,6 +54,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
 * Notifications and Close garage doors if left open after 9 or 10 PM.
+* Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Configure the Alexa Component.
 * Turn on Accent lights when TV is sensed on.
 * Put Dash Buttons out there.
