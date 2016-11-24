@@ -2,7 +2,7 @@
 ##  Good night Routine
 ######################################################################
 
-- alias: 'Good Morning Routine'
+- alias: 'Good Night Routine'
   trigger:
     - platform: event
       event_type: good_night
@@ -16,6 +16,10 @@
     - service: light.turn_off
       entity_id: 
         - group.interior_lights
+    - service: switch.turn_off
+      entity_id: switch.kitchen_accents
+      
+        
         
         
       
