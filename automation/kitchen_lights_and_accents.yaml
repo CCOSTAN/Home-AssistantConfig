@@ -1,0 +1,37 @@
+#####################################################################################
+###  If the Kitchen Lights go on for more than 10 minutes, turn off the accent lights
+#####################################################################################
+
+- alias: Kitchen lights on - Accent lights off
+  trigger:
+    - platform: state
+      entity_id: group.kitchen_lights
+      state: 'on'
+      for: '00:10:00'
+      
+  condition:
+    - condition: state
+      entity_id: switch.kitchen_accents
+      state: 'on' 
+    
+  action:
+    - service: switch.turn_off
+      entity_id: switch.kitchen_accents
+           
+##############################################################################
+        
+- alias: Kitchen lights off - turn on Accent lights
+  trigger:
+    - platform: state
+      entity_id: group.kitchen_lights
+      state: 'off'
+      
+  condition:
+    - condition: sun
+      after: 'sunset'
+    - condition: time
+      before: '02:00:00'
+
+  action:
+    - service: switch.turn_on
+      entity_id: switch.kitchen_accents
