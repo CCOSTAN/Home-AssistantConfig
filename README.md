@@ -56,7 +56,6 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Notifications and Close garage doors if left open after 9 or 10 PM.
 * Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Configure the Alexa Component.
-* Turn on Accent lights when TV is sensed on.
 * Put Dash Buttons out there.
 * Put Door Sensor in Mailbox
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
