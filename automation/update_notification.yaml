@@ -10,7 +10,7 @@
 
   action:
     - service: ifttt.trigger
-      data: {"event":"device_status", "value1":"Home Assistant Update: ", "value2":"Available"}
+      data: {"event":"ifttt_notify", "value1":"Home Assistant Update: ", "value2":"Available"}
     
     - service: notify.html5
       data_template:

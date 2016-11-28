@@ -37,3 +37,26 @@
     - service: light.turn_off
       data_template:
         entity_id: "{{ trigger.entity_id }}"
+
+##############################################################################
+
+- alias: 9pm - is the Garage door Open
+  trigger:
+    - platform: time
+      after: '21:00:00'
+    - platform: sun
+      event: sunset
+      offset: '+01:00:00'
+
+  condition:
+    - condition: sun
+      after: 'sunset'
+    - condition: template
+      value_template: "{{ states('cover.garadget_large') != 'closed' }}"
+    - condition: template
+      value_template: "{{ states('cover.garadget_small') != 'closed' }}"
+      
+  action:
+    - service: ifttt.trigger
+      data: {"event":"ifttt_notify", "value1":"Check Garage Doors ", "value2":"Small {{ states('cover.garadget_small')}}", "value3":"Large {{ states('cover.garadget_large')}} "}
+

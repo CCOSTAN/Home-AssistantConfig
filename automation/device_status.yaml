@@ -26,4 +26,4 @@
            - sensor.garadget_large
   action:
      service: ifttt.trigger
-     data_template: {"event":"device_status", "value1":"{{ trigger.entity_id.split('.')[1] }}", "value2":"{{ trigger.to_state.state }}"}
+     data_template: {"event":"ifttt_notify", "value1":"{{ trigger.entity_id.split('.')[1] }}", "value2":"{{ trigger.to_state.state }}"}

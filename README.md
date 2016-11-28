@@ -53,6 +53,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 #Todo List
 
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
+* On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 * Notifications and Close garage doors if left open after 9 or 10 PM.
 * Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Configure the Alexa Component.
@@ -74,5 +75,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * http://www.pibakery.org/
 * http://www.esp8266.nu/index.php/ESPEasy
 * https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Falexbloggt.com%2Funiversal-infrarot-websteuerung-ueber-esp8266%2F
+
+* https://github.com/thundergreen/home-assistant/wiki/Add-OZWCP-in-HASS
 
 https://community.home-assistant.io/t/voice-controlled-cheap-non-smart-led-strip-with-ok-google-command/5756
