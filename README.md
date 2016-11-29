@@ -52,6 +52,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 
 #Todo List
 
+* Create script/automation for staggered shutdown of switches. (Nighttime stuff)
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
 * On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 * Notifications and Close garage doors if left open after 9 or 10 PM.
@@ -79,3 +80,5 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * https://github.com/thundergreen/home-assistant/wiki/Add-OZWCP-in-HASS
 
 https://community.home-assistant.io/t/voice-controlled-cheap-non-smart-led-strip-with-ok-google-command/5756
+
+https://community.home-assistant.io/t/detect-if-ip-changes/6830
