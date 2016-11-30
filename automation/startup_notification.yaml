@@ -8,5 +8,10 @@
     platform: event
     event_type: homeassistant_start
   action:
-    service: ifttt.trigger
-    data: {"event":"ifttt_notify", "value1":"Home Assistant is ", "value2":"Up and Running"}
+    service: script.turn_on
+    entity_id: script.notify_ifttt
+    data_template:
+      variables:
+        value1: "Startup: Home Assistant is Up and Running!"
+        value2: ""
+        value3: ""
