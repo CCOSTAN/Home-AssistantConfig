@@ -136,3 +136,37 @@ automation:
             brightness: 255
         # script with a delay that'll reset light in 5 min
         - service: script.return_front_porch_delayed
+
+        
+Easy Garbage Automation
+  - alias: brown garbage
+    trigger:
+      platform: time
+      hours: 20
+      minutes: 00
+      seconds: 0
+    condition:
+      condition: time
+# At least one of the following is required.
+      weekday:
+        - mon
+        - thu
+    action:
+      service: notify.thorsten
+      data:
+        message: 'Put the brown garbage out!'
+  - alias: blue garbage
+    trigger:
+      platform: time
+      hours: 20
+      minutes: 00
+      seconds: 0
+    condition:
+      condition: time
+# At least one of the following is required.
+      weekday:
+        - tue
+    action:
+      service: notify.thorsten
+      data:
+        message: 'Put the blue garbage out!'
