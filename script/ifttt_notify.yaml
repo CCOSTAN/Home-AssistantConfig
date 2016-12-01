@@ -1,5 +1,8 @@
+######################################################################################################
+###Script to send notifications to IFTTT to notify me on the mobile Phone!
+######################################################################################################
 
-notify_ifttt:
+ifttt_notify:
   sequence:
     - service: ifttt.trigger
       data_template: {"event":"ifttt_notify", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}

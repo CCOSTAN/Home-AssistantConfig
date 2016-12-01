@@ -8,10 +8,8 @@
     platform: event
     event_type: homeassistant_start
   action:
-    service: script.turn_on
-    entity_id: script.notify_ifttt
+    service: script.ifttt_notify
     data_template:
-      variables:
-        value1: "Startup: Home Assistant is Up and Running!"
-        value2: ""
-        value3: ""
+      value1: 'Startup: Home Assistant is Up and Running!'
+      value2: ''
+      value3: ''

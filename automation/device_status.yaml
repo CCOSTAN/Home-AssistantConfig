@@ -25,10 +25,8 @@
            - sensor.garadget_small
            - sensor.garadget_large
   action:
-    service: script.turn_on
-    entity_id: script.notify_ifttt
+    service: script.ifttt_notify
     data_template:
-      variables:
-        value1: 'Device Status '
-        value2: "{{ trigger.entity_id.split('.')[1] }} is "
-        value3: "{{ trigger.to_state.state }}"
+      value1: 'Device Status:'
+      value2: "{{ trigger.entity_id.split('.')[1] }} is "
+      value3: "{{ trigger.to_state.state }}"

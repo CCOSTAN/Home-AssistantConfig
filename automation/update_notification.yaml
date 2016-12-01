@@ -9,8 +9,11 @@
       value_template: "{{ states('updater.updater') != 'unknown' }}"
 
   action:
-    - service: ifttt.trigger
-      data: {"event":"ifttt_notify", "value1":"Home Assistant Update: ", "value2":"Available"}
+    - service: script.ifttt_notify
+      data_template:
+        value1: 'There is a new Version of Home-Assistant Available.'
+        value2: "{{ states('updater.updater') }}"
+        value3: ''
     
     - service: notify.html5
       data_template:
