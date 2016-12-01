@@ -1,5 +1,11 @@
 ######################################################################################################
-###Script to send notifications to IFTTT to notify me on the mobile Phone!
+###Script to send notifications to IFTTT to notify me on the mobile Phone! Call like this:
+  # action:
+    # service: script.ifttt_notify
+    # data_template:
+      # value1: 'Startup: Home Assistant is Up and Running!'
+      # value2: ''
+      # value3: "{{ trigger.to_state.state }}"
 ######################################################################################################
 
 ifttt_notify:
