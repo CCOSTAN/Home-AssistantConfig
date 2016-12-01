@@ -6,22 +6,22 @@ switch_turn_off_all:
   sequence:
     - service: switch.turn_off
       entity_id: switch.halloween_lights_den
-    - delay: '00:00:30'
+    - delay: '00:01:00'
     - service: switch.turn_off
       entity_id: switch.halloween_lights_dining_room
-    - delay: '00:00:30'
+    - delay: '00:01:00'
     - service: switch.turn_off
       entity_id: switch.foyer_outlet
-    - delay: '00:00:30'
+    - delay: '00:01:00'
     - service: switch.turn_off
       entity_id: switch.kitchen_Accents
-    - delay: '00:00:30'
+    - delay: '00:01:00'
     - service: switch.turn_off
       entity_id: switch.printer_outlet
-    - delay: '00:00:30'    
+    - delay: '00:01:00'    
     - service: switch.turn_off
       entity_id: switch.garage_outlet
-    - delay: 00:01:00
+    - delay: '00:01:00'
     - service: switch.turn_off
-      entity_id: group.amps
+      entity_id: switch.living_room_amp
     
