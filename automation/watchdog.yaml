@@ -58,6 +58,9 @@
       value_template: "{{ states('cover.garadget_small') == 'opened' }}"
       
   action:
-    - service: ifttt.trigger
-      data: {"event":"ifttt_notify", "value1":"Check Garage Doors: ", "value2":"Small: {{ states('cover.garadget_small')}}", "value3":"Large: {{ states('cover.garadget_large')}} "}
+    service: script.ifttt_notify
+    data_template:
+      value1: 'Check Garage Doors:'
+      value2: "Small: {{ states('cover.garadget_small')}}"
+      value3: "Large: {{ states('cover.garadget_large')}}"
 
