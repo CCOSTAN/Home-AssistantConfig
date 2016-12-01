@@ -17,36 +17,8 @@
       entity_id: switch.foyer_outlet 
     - service: light.turn_on
       entity_id: light.outdoor_bathroom
-    - service: light.turn_on
-      data:
-        entity_id: light.outdoor_foyer
-        brightness: 235
-        #rgb_color: [61,178,112] 
-        #Green
-        #rgb_color: [255,112,242] 
-        #Purple
-        rgb_color: [206,22,32]
-        #red
-    - service: light.turn_on
-      data:
-        entity_id: light.outdoor_scounce_1
-        brightness: 235
-        rgb_color: [61,178,112] 
-        #Green
-        #rgb_color: [255,112,242] 
-        #Purple
-        #rgb_color: [206,22,32]
-        #red
-    - service: light.turn_on
-      data:
-        entity_id: light.outdoor_scounce_2
-        brightness: 235
-        #rgb_color: [61,178,112] 
-        #Green
-        #rgb_color: [255,112,242] 
-        #Purple
-        rgb_color: [206,22,32]
-        #red
+    - service: scene.turn_on
+      entity_id: scene.december_front
 ######################################################################
 
 - alias: 'Sunset Stuff off'  
@@ -58,8 +30,6 @@
 #      event_type: halloween_lights_off          
 
   action:
-    - service: switch.turn_off
-      entity_id: switch.foyer_outlet
     - service: light.turn_off
       entity_id: group.outdoor_front_lights
       data:
@@ -68,7 +38,8 @@
       entity_id: light.outdoor_bathroom  
     - service: light.turn_off
       entity_id: group.outdoor_lights   
-    - service: switch.turn_off
-      entity_id: switch.kitchen_accents
-
+    - service: script.switch_turn_off_all
+    
+      
+    
      
