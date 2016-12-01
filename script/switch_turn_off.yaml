@@ -5,11 +5,17 @@
 switch_turn_off:
   sequence:
     - service: switch.turn_off
-      entity_id: switch.kitchen_accents
+      entity_id: switch.halloween_lights_den
     - delay: '00:00:30'
     - service: switch.turn_off
-      entity_id: switch.kitchen_accents
+      entity_id: switch.halloween_lights_dining_room
     - delay: '00:00:30'
     - service: switch.turn_off
-      entity_id: switch.kitchen_accents
+      entity_id: switch.foyer_outlet
     - delay: '00:00:30'
+    - service: switch.turn_off
+      entity_id: switch.kitchen_Accents
+    - delay: '00:00:30'
+    - service: switch.turn_off
+      entity_id: switch.printer_outlet
+    - delay: '00:00:30'    
