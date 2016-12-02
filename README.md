@@ -44,6 +44,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
 * Halloween Special - Flash all front lights when motion is detected via SkyBell (IFTTT - Maker)
+* Sets up the front lights in the house with preset colors depending on the month.
 
 ![Screenshot of Home View](https://i.imgur.com/2mFr9HP.png)
 ![Screenshot of Garage Door View](https://i.imgur.com/GhMf2Lo.png)

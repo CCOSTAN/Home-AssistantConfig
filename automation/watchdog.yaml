@@ -31,6 +31,10 @@
       entity_id: light.hallway
       state: 'on'
       for: '00:20:00'
+    - platform: state
+      entity_id: group.foyer_lights
+      state: 'on'
+      for: '00:20:00'
       
 #Turn it off!
   action:
