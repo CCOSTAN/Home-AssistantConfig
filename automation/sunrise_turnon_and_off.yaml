@@ -12,8 +12,9 @@
       entity_id: switch.foyer_outlet 
     - service: light.turn_on
       entity_id: light.outdoor_bathroom
-    - service: scene.turn_on
-      entity_id: scene.december_front
+    - service: script.monthly_front_house_scene
+    
+    
 ######################################################################
 
 - alias: 'Sunset Stuff off'  
