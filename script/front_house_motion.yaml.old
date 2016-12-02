@@ -1,0 +1,36 @@
+######################################################################################################
+###Script to turn on scene for the appropriate month for the front of the house. 
+#  action:
+#   - service: script.monthly_front_house_scene
+#
+#   scenes should be named month_front_[1-12]_colors (month_front_6_colors)
+######################################################################################################
+
+front_house_motion:
+  sequence:
+    - service: logbook.log
+      data:
+        name: "SkyBell HD Doorbell:"
+        message: "Someone is by the door."
+
+    - condition: state
+      entity_id: input_boolean.chore_reminder
+      state: 'on'
+    - service: ifttt.trigger
+      data: {"event":"ifttt_notify", "value1":"Chore Reminder On"}
+      
+    - condition: state
+      entity_id: input_boolean.pill_reminder
+      state: 'on'
+    - service: ifttt.trigger
+      data: {"event":"ifttt_notify", "value1":"pill Reminder On"}
+      
+    - condition: state
+      entity_id: input_boolean.trash_reminder
+      state: 'on'
+    - service: ifttt.trigger
+      data: {"event":"ifttt_notify", "value1":"trash Reminder On"}
+      
+  
+
+ 

@@ -1,19 +1,4 @@
 ###################################
-##  LOG IFTTT Stuff - Rachio
-###################################
-- alias: 'Log Sprinkler Activity'
-  hide_entity: True
-  trigger:
-    - platform: event
-      event_type: rachio_water_stops
-  
-  action:
-    service: logbook.log
-    data:
-      name: "Rachio Sprinkler:"
-      message: "The Lawn was watered just now."
-
-###################################
 ##  LOG IFTTT Stuff - SkyBell
 ###################################
 
@@ -24,11 +9,11 @@
       event_type: skybell_pressed
   
   action:
-    service: logbook.log
-    data:
+    - service: logbook.log
+    - data:
       name: "SkyBell HD Doorbell:"
       message: "Someone Pressed the Doorbell."
-
+    
 - alias: 'Log SkyBell Motion detection'
   hide_entity: True
   trigger:

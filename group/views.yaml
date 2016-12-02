@@ -22,13 +22,15 @@ default_view:
     - group.garage_lights
     - group.outdoor_pool_lights
     - group.outdoor_lights
-    - group.switches
+    - group.all_switches
 
 Doors:
   view: yes
   icon: mdi:security-home
   entities:
+    - group.family
     - group.garage_doors
+        
     
 Lights:
   view: yes
@@ -51,7 +53,7 @@ Lights:
     - group.garage_lights
     - group.outdoor_pool_lights
     - group.outdoor_front_lights
-    - group.switches
+    - group.all_switches
     
 Info:
   view: yes

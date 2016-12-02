@@ -1,0 +1,15 @@
+###################################
+##  LOG IFTTT Stuff - Rachio
+###################################
+- alias: 'Log Sprinkler Activity'
+  hide_entity: True
+  trigger:
+    - platform: event
+      event_type: rachio_water_stops
+  
+  action:
+    service: logbook.log
+    data:
+      name: "Rachio Sprinkler:"
+      message: "The Lawn was watered just now."
+
