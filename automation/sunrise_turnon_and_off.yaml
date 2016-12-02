@@ -6,11 +6,6 @@
   trigger:
     - platform: sun
       event: sunset
-    - platform: time
-      after: '20:00:00'
-#Time trigger is until I replace the stupid switch.
-#    - platform: event
-#      event_type: halloween_lights_on
               
   action:
     - service: switch.turn_on
@@ -25,19 +20,13 @@
   trigger:
     - platform: sun
       event: sunrise
-      offset: '-03:30:00'
-#    - platform: event
-#      event_type: halloween_lights_off          
+      offset: '-03:30:00'       
 
   action:
     - service: light.turn_off
-      entity_id: group.outdoor_front_lights
+      entity_id: group.all_lights
       data:
-        transition: 1200      
-    - service: light.turn_off
-      entity_id: light.outdoor_bathroom  
-    - service: light.turn_off
-      entity_id: group.outdoor_lights   
+        transition: 1200       
     - service: script.switch_turn_off_all
     
       

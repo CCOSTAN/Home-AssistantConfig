@@ -8,10 +8,10 @@
 switch_turn_off_all:
   sequence:
     - service: switch.turn_off
-      entity_id: switch.halloween_lights_den
+      entity_id: switch.outlet_den
     - delay: '00:01:00'
     - service: switch.turn_off
-      entity_id: switch.halloween_lights_dining_room
+      entity_id: switch.outlet_living_room
     - delay: '00:01:00'
     - service: switch.turn_off
       entity_id: switch.foyer_outlet

@@ -5,15 +5,22 @@
 - platform: rpi_rf
   gpio: 17
   switches:
-# Outlet 1
+# Outlet 1412_1
+    Garage_Outlet:
+      protocol: 1
+      pulselength: 186
+      code_on: 5264691
+      code_off: 5264700 
+  
+  # Outlet 1412_3
     Living_Room_Amp:
       protocol: 1
       pulselength: 186
       code_on: 5265155
       code_off: 5265164
 
-# Outlet 2
-    Halloween_Lights_Den:
+# Outlet 1412_2
+    Outlet_Den:
       protocol: 1
       pulselength: 186
       code_on: 5264835
@@ -25,23 +32,16 @@
       pulselength: 186
       code_on: 292099
       code_off: 292108 
-
-# Outlet 3
-    Garage_Outlet:
-      protocol: 1
-      pulselength: 186
-      code_on: 5264691
-      code_off: 5264700 
       
 # Outlet 311_1
-    Kitchen Accents:
+    Kitchen_Accents:
       protocol: 1
       pulselength: 186
       code_on: 283955
       code_off: 283964 
       
 # Outlet 311_2 : Responds to 311_1 as well.
-    Kitchen Accent 2:
+    Kitchen_Accent 2:
       protocol: 1
       pulselength: 186
       code_on: 284099
@@ -55,36 +55,36 @@
       code_off: 284428 
       
 # Outlet 311_4
-    Halloween_Lights_Dining_Room:
+    Outlet_Living_Room:
       protocol: 1
       pulselength: 186
       code_on: 285955
       code_off: 285964 
             
 # Outlet 304_1
-    Outlet 304_1:
+    Outlet_304_1:
       protocol: 1
-      pulselength: 189
+      pulselength: 186
       code_on: 5330027
       code_off: 5330236 
       
 # Outlet 304_2
-    Outlet 304_2:
+    Outlet_304_2:
       protocol: 1
-      pulselength: 189
+      pulselength: 186
       code_on: 5330371
       code_off: 5330380 
 
 # Outlet 304_3
-    Outlet 304_3:
+    Outlet_304_3:
       protocol: 1
-      pulselength: 189
+      pulselength: 186
       code_on: 5330691
       code_off: 5330700 
       
-# Outlet 304_4
-    Outlet 304_4:
+# Outlet_Dining_Room
+    Outlet_304_4:
       protocol: 1
-      pulselength: 189
+      pulselength: 186
       code_on: 5332227
       code_off: 5332236 

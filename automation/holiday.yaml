@@ -11,10 +11,10 @@
               
   action:
     - service: switch.turn_on
-      entity_id: switch.halloween_lights_den
+      entity_id: switch.outlet_den
     - delay: 00:00:30
     - service: switch.turn_on
-      entity_id: switch.halloween_lights_dining_room
+      entity_id: switch.outlet_living_room
     
 - alias: 'Holiday Stuff off'  
   trigger:
@@ -26,9 +26,9 @@
 
   action:
     - service: switch.turn_off
-      entity_id: switch.halloween_lights_den
+      entity_id: switch.outlet_den
     - delay: 00:00:30
     - service: switch.turn_off
-      entity_id: switch.halloween_lights_dining_room
+      entity_id: switch.outlet_living_room
 
       
