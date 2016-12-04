@@ -83,3 +83,6 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 https://community.home-assistant.io/t/voice-controlled-cheap-non-smart-led-strip-with-ok-google-command/5756
 
 https://community.home-assistant.io/t/detect-if-ip-changes/6830
+
+https://community.home-assistant.io/t/snmp-bandwidth-monitor/7122
+
