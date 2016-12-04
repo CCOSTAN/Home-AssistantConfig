@@ -54,12 +54,30 @@
       for: 00:05:00
 
   condition:
-    - condition: sun
-      after: 'sunset'
-    - condition: template
-      value_template: "{{ states('cover.garadget_large') == 'opened' }}"
-    - condition: template
-      value_template: "{{ states('cover.garadget_small') == 'opened' }}"
+    condition: or
+    conditions:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: group.family
+            state: not_home 
+            for: 00:05:00
+          - condition: or
+            conditions:
+              - condition: template
+                value_template: "{{ states('cover.garadget_large') == 'opened' }}"
+              - condition: template
+                value_template: "{{ states('cover.garadget_small') == 'opened' }}"
+      - condition: and
+        conditions:
+          - condition: sun
+            after: 'sunset'
+          - condition: or
+            conditions:
+              - condition: template
+                value_template: "{{ states('cover.garadget_large') == 'opened' }}"
+              - condition: template
+                value_template: "{{ states('cover.garadget_small') == 'opened'}}"                
       
   action:
     service: script.ifttt_notify
