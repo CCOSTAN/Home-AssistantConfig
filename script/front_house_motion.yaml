@@ -1,9 +1,8 @@
 ######################################################################################################
-###Script to turn on scene for the appropriate month for the front of the house. 
+###Script to turn on Front light FULL bright for 15m when motion is detected and then return to the normal colors.
 #  action:
-#   - service: script.monthly_front_house_scene
+#   - service: script.front_house_motion
 #
-#   scenes should be named month_front_[1-12]_colors (month_front_6_colors)
 ######################################################################################################
 
 front_house_motion:
@@ -13,24 +12,13 @@ front_house_motion:
         name: "SkyBell HD Doorbell:"
         message: "Someone is by the door."
 
-    - condition: state
-      entity_id: input_boolean.chore_reminder
-      state: 'on'
-    - service: ifttt.trigger
-      data: {"event":"ifttt_notify", "value1":"Chore Reminder On"}
-      
-    - condition: state
-      entity_id: input_boolean.pill_reminder
-      state: 'on'
-    - service: ifttt.trigger
-      data: {"event":"ifttt_notify", "value1":"pill Reminder On"}
-      
-    - condition: state
-      entity_id: input_boolean.trash_reminder
-      state: 'on'
-    - service: ifttt.trigger
-      data: {"event":"ifttt_notify", "value1":"trash Reminder On"}
-      
+    - condition: sun
+      after: 'sunset'
+    - service: scene.turn_on
+      entity_id: scene.front_full_brightness
+    - delay: 00:15:00  
+    - service: script.monthly_front_house_scene
+
   
 
  
