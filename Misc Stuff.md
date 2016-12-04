@@ -170,3 +170,7 @@ Easy Garbage Automation
       service: notify.thorsten
       data:
         message: 'Put the blue garbage out!'
+        
+        
+        
+{%- if now().month in [01, 11, 12] -%} Yes {%- else -%} NO {%- endif %}
