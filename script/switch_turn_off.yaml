@@ -8,13 +8,34 @@
 switch_turn_off_all:
   sequence:
     - service: switch.turn_off
+      entity_id: switch.outlet_living_room
+    - delay: '00:01:00'
+    - service: switch.turn_off
+      entity_id: switch.kitchen_Accents
+    - delay: '00:01:00'
+    - service: switch.turn_off
       entity_id: switch.outlet_den
     - delay: '00:01:00'
+    - service: switch.turn_off
+      entity_id: switch.foyer_outlet
+    - delay: '00:01:00'
+    - service: switch.turn_off
+      entity_id: switch.printer_outlet
+    - delay: '00:01:00'    
+    - service: switch.turn_off
+      entity_id: switch.garage_outlet
+    - delay: '00:01:00'
+    - service: switch.turn_off
+      entity_id: switch.living_room_amp
+      
     - service: switch.turn_off
       entity_id: switch.outlet_living_room
     - delay: '00:01:00'
     - service: switch.turn_off
       entity_id: switch.kitchen_Accents
+    - delay: '00:01:00'
+    - service: switch.turn_off
+      entity_id: switch.outlet_den
     - delay: '00:01:00'
     - service: switch.turn_off
       entity_id: switch.foyer_outlet
