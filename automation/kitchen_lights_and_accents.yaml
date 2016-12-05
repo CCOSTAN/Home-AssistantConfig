@@ -7,7 +7,7 @@
     - platform: state
       entity_id: group.kitchen_lights
       state: 'on'
-      for: '00:10:00'
+      for: '00:05:00'
       
   condition:
     - condition: state
@@ -30,7 +30,10 @@
   condition:
     - condition: sun
       after: 'sunset'
-
+    - condition: state
+      entity_id: group.interior_lights
+      state: 'on'
+    
   action:
     - service: switch.turn_on
       entity_id: switch.kitchen_accents
