@@ -86,3 +86,22 @@
       value2: "Small: {{ states('cover.garadget_small')}}"
       value3: "Large: {{ states('cover.garadget_large')}}"
 
+##############################################################################
+
+- alias: If Outdoor lights are on and it's daytime, TURN THEM OFF!!
+  trigger:
+    - platform: time
+      minutes: '/47'
+
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'above_horizon'
+    - condition: state
+      entity_id: group.outdoor_lights
+      state: 'on'
+      
+  action:
+    - service: light.turn_off
+      entity_id: group.outdoor_lights
+
