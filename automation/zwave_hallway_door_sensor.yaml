@@ -1,16 +1,25 @@
+##############################################################
 - alias: Hallway ZWave Enerwave Door Sensors Open
   hide_entity: True
   trigger:
-     platform: event
-     event_type: zwave.node_event
-     event_data:
-       object_id: enerwave_unknown_type0601_id0903_2
-       basic_level: 255
-
-  condition: 
-    condition: sun
-    after: sunset
-    after_offset: '-03:00:00'       
+    - platform: event
+      event_type: zwave.node_event
+      event_data:
+        object_id: enerwave_unknown_type0601_id0903_2
+        basic_level: 255
+    - platform: state
+      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
+      state: 'on'
+     
+  condition:
+    condition: or
+    conditions:
+      - condition: sun
+        after: sunset
+        after_offset: '-03:00:00'
+      - condition: numeric_state
+        entity_id: sensor.dark_sky_cloud_coverage
+        above: 70
        
   action:
     - service: light.turn_on
@@ -20,19 +29,25 @@
     - delay: 00:20:00
     - service: light.turn_off
       entity_id: light.hallway
-    
+
+##############################################################
 - alias: ZWave Enerwave Door Sensors Closed
   hide_entity: True
   trigger:
-     platform: event
-     event_type: zwave.node_event
-     event_data:
-       object_id: enerwave_unknown_type0601_id0903_2
-       basic_level: 0
+    - platform: event
+      event_type: zwave.node_event
+      event_data:
+        object_id: enerwave_unknown_type0601_id0903_2
+        basic_level: 0
+    - platform: state
+      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
+      state: 'off'
+      
   action:
     service: light.turn_off
     entity_id: light.hallway
 
+##############################################################
 - alias: Shutdown Helper light
   hide_entity: True
   trigger:
@@ -45,6 +60,9 @@
       event_data:
        object_id: enerwave_unknown_type0601_id0903_2
        basic_level: 0
+    - platform: state
+      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
+      state: 'off'
       
   condition: 
     condition: state
