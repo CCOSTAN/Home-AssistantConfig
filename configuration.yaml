@@ -79,10 +79,10 @@ mqtt:
 zwave:
  usb_path: /dev/ttyACM0
  config_path: /srv/hass/hass_venv/lib/python3.4/site-packages/libopenzwave-0.3.1-py3.4-linux-armv7l.egg/config
-
+  
 nest:
-  username: !secret nest_username
-  password: !secret nest_password
+  client_id: !secret nest_client_id
+  client_secret: !secret nest_client_secret
   
 climate:
   platform: nest

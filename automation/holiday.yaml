@@ -7,7 +7,7 @@
     - platform: sun
       event: sunset
     - platform: event
-      event_type: halloween_lights_on
+      event_type: holiday_lights_on
               
   action:
     - service: switch.turn_on
@@ -22,13 +22,9 @@
       event: sunrise
       offset: '-03:30:00'
     - platform: event
-      event_type: halloween_lights_off          
+      event_type: holiday_lights_off          
 
   action:
-    - service: switch.turn_off
-      entity_id: switch.outlet_den
-    - delay: 00:00:30
-    - service: switch.turn_off
-      entity_id: switch.outlet_living_room
+    - service: script.switch_turn_off_all
 
       

@@ -8,12 +8,21 @@
       event: sunset
               
   action:
+    - service: script.monthly_front_house_scene
+    - service: switch.turn_on
+      entity_id: switch.living_room_outlet 
+    - delay: '00:00:30'
+    - service: switch.turn_on
+      entity_id: switch.den_outlet
+    - delay: '00:00:30'
+    - service: switch.turn_on
+      entity_id: switch.living_room_outlet 
+    - delay: '00:00:30'
     - service: switch.turn_on
       entity_id: switch.foyer_outlet 
     - service: light.turn_on
       entity_id: light.outdoor_bathroom
-    - service: script.monthly_front_house_scene
-    
+       
     
 ######################################################################
 
