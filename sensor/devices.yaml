@@ -2,149 +2,68 @@
   sensors:
       wii:
         friendly_name: 'Wii'
-        value_template: >-
-            {%- if is_state("device_tracker.wii", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.wii', 'home') else 'Offline' }}"
+        
       tablotv:
         friendly_name: 'Tablo TV'
-        value_template: >-
-            {%- if is_state("device_tracker.tablotv", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}	
-
+        value_template: "{{ 'Online' if is_state('device_tracker.tablotv', 'home') else 'Offline' }}"
+        
       actiontechap:
         friendly_name: 'ActionTech AP'
-        value_template: >-
-            {%- if is_state("device_tracker.actiontechap", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.actiontechap', 'home') else 'Offline' }}"
 
       cisco_ap:
         friendly_name: 'Cisco Main AP'
-        value_template: >-
-            {%- if is_state("device_tracker.cisco_ap", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.cisco_ap', 'home') else 'Offline' }}"
              
       hue_hub:
         friendly_name: 'Hue Hub'
-        value_template: >-
-            {%- if is_state("device_tracker.hue_hub", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.hue_hub', 'home') else 'Offline' }}"
+        
       alexa_echo:
         friendly_name: 'Alexa Echo'
-        value_template: >-
-            {%- if is_state("device_tracker.alexa_echo", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}	
+        value_template: "{{ 'Online' if is_state('device_tracker.alexa_echo', 'home') else 'Offline' }}"
 
       amazon_dot:
         friendly_name: 'Amazon Dot'
-        value_template: >-
-            {%- if is_state("device_tracker.amazon_dot", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.amazon_dot', 'home') else 'Offline' }}"
             
       circle:
         friendly_name: 'Disney Circle'
-        value_template: >-
-            {%- if is_state("device_tracker.circle", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}   
+        value_template: "{{ 'Online' if is_state('device_tracker.circle', 'home') else 'Offline' }}"  
 
       nest_downstairs:
         friendly_name: 'Downstairs Nest'
-        value_template: >-
-            {%- if is_state("device_tracker.nest_downstairs", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.nest_downstairs', 'home') else 'Offline' }}"
 
       nest_upstairs:
         friendly_name: 'Upstairs Nest'
-        value_template: >-
-            {%- if is_state("device_tracker.nest_upstairs", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.nest_upstairs', 'home') else 'Offline' }}"
   
       rachio:
         friendly_name: 'Rachio Sprinklers'
-        value_template: >-
-            {%- if is_state("device_tracker.rachio", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}    
+        value_template: "{{ 'Online' if is_state('device_tracker.rachio', 'home') else 'Offline' }}"    
+        
       skybell:
         friendly_name: 'Skybell Doorbell'
-        value_template: >-
-            {%- if is_state("device_tracker.skybell", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %} 
+        value_template: "{{ 'Online' if is_state('device_tracker.skybell', 'home') else 'Offline' }}"
+        
       samsungtv:
         friendly_name: 'Samsung TV'
-        value_template: >-
-            {%- if is_state("device_tracker.samsungtv", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}             
+        value_template: "{{ 'Online' if is_state('device_tracker.samsungtv', 'home') else 'Offline' }}"            
 
       chromecast_audio_1:
         friendly_name: 'ChromeCast Audio 1'
-        value_template: >-
-            {%- if is_state("device_tracker.chromecast_audio_1", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.chromecast_audio_1', 'home') else 'Offline' }}"
 
       chromecast_audio_2:
         friendly_name: 'ChromeCast Audio 2'
-        value_template: >-
-            {%- if is_state("device_tracker.chromecast_audio_2", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}
+        value_template: "{{ 'Online' if is_state('device_tracker.chromecast_audio_2', 'home') else 'Offline' }}"
             
       garadget_large:
         friendly_name: 'Garadget Large'
-        value_template: >-
-            {%- if is_state("device_tracker.garadget_large", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %}  
-            
+        value_template: "{{ 'Online' if is_state('device_tracker.garadget_large', 'home') else 'Offline' }}"
+        
       garadget_small:
         friendly_name: 'Garadget Small'
-        value_template: >-
-            {%- if is_state("device_tracker.garadget_small", "home") %}
-                Online
-            {% else %}
-                Offline
-            {%- endif %} 
+        value_template: "{{ 'Online' if is_state('device_tracker.garadget_small', 'home') else 'Offline' }}"
