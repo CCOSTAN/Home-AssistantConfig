@@ -174,3 +174,12 @@ Easy Garbage Automation
         
         
 {%- if now().month in [01, 11, 12] -%} Yes {%- else -%} NO {%- endif %}
+
+
+binary_sensor:
+  platform: command_line
+  name: Daughter Laptop
+  command: ping -W 1 -c 1 192.168.0.101 > /dev/null 2>&1 && echo success || echo fail
+  sensor_class: connectivity
+  payload_on: "success"
+  payload_off: "fail"
