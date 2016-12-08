@@ -23,6 +23,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [Garadget](garadget.com) - Garage Door opener/sensor
 * Nintendo Wii
 * Emulated Hue pushes all Switch, Group and scene information to Alexa for First Class Control! [Broked!  Worked for literally long enough for me to clear out all my devices in Alexa. :( ]
+* [iTeadStudio goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
 
 **Automations:**
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
