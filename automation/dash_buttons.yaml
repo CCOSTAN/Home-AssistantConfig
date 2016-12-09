@@ -6,12 +6,14 @@
   trigger:
     - platform: event
       event_type: brooklyn_dash
-    
+    - platform: event
+      event_type: simplehuman_dash
+      
   action:
     - service: light.toggle
       entity_id: light.office_lamp
       
-
+     
 # - alias: 'Toggle Office Light off if on'
   # trigger:
     # - platform: event
