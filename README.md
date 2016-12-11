@@ -27,7 +27,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 
 **Automations:**
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
-* IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions.
+* IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
 * (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
 * Auto Heal ZWave at 2:30am
 * Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
@@ -46,6 +46,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
 * Halloween Special - Flash all front lights when motion is detected via SkyBell (IFTTT - Maker)
 * Sets up the front lights in the house with preset colors depending on the month.
+* On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 
 ![Screenshot of Home View](https://i.imgur.com/2mFr9HP.png)
 ![Screenshot of Garage Door View](https://i.imgur.com/GhMf2Lo.png)
@@ -55,7 +56,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 #Todo List
 
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
-* On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
+
 * Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Configure the Alexa Component.
 * Put Dash Buttons out there.
@@ -80,8 +81,6 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * https://github.com/thundergreen/home-assistant/wiki/Add-OZWCP-in-HASS
 
 https://community.home-assistant.io/t/voice-controlled-cheap-non-smart-led-strip-with-ok-google-command/5756
-
-https://community.home-assistant.io/t/detect-if-ip-changes/6830
 
 https://community.home-assistant.io/t/snmp-bandwidth-monitor/7122
 
