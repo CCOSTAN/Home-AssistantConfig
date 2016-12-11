@@ -1,0 +1,65 @@
+###################################
+##  Garadget Stuff
+###################################
+
+- alias: Garadget Reflection Rates
+  hide_entity: True
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.garadget_large_reflection_rate
+      below: 85
+    - platform: numeric_state
+      entity_id: sensor.garadget_small_reflection_rate
+      below: 85
+      
+  action:
+    - service: script.ifttt_notify
+      data_template:
+        value1: 'Check Garage Doors Reflection:'
+        value2: "Small: {{ states('sensor.garadget_small_reflection_rate')}}"
+        value3: "Large: {{ states('sensor.garadget_large_reflection_rate')}}"
+      
+##############################################################################
+
+- alias: Is the Garage door Open at night - Checks every 60 minutes or 5 minutes after we drive away.
+  hide_entity: True
+  trigger:
+    - platform: time
+      minutes: '/60'
+    - platform: state
+      entity_id: group.family
+      state: not_home 
+      for: 00:05:00
+
+  condition:
+    condition: or
+    conditions:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: group.family
+            state: not_home 
+            for: 00:05:00
+          - condition: or
+            conditions:
+              - condition: template
+                value_template: "{{ states('cover.garadget_large') == 'opened' }}"
+              - condition: template
+                value_template: "{{ states('cover.garadget_small') == 'opened' }}"
+      - condition: and
+        conditions:
+          - condition: sun
+            after: 'sunset'
+          - condition: or
+            conditions:
+              - condition: template
+                value_template: "{{ states('cover.garadget_large') == 'opened' }}"
+              - condition: template
+                value_template: "{{ states('cover.garadget_small') == 'opened'}}"                
+      
+  action:
+    service: script.ifttt_notify
+    data_template:
+      value1: 'Check Garage Doors:'
+      value2: "Small: {{ states('cover.garadget_small')}}"
+      value3: "Large: {{ states('cover.garadget_large')}}"
