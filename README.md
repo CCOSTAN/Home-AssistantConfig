@@ -28,6 +28,8 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 **Automations:**
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
 * IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
+* Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
+* Notifications when the garage door is left open at night or when we leave the house.
 * (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
 * Auto Heal ZWave at 2:30am
 * Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
@@ -35,7 +37,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Turn on Upstairs light if Nest detects people and it's nighttime.
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
-* Turn on some lights when we get home
+* Turn on some lights abd switches when we get home
 * Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
@@ -44,9 +46,9 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
-* Halloween Special - Flash all front lights when motion is detected via SkyBell (IFTTT - Maker)
 * Sets up the front lights in the house with preset colors depending on the month.
 * On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
+
 
 ![Screenshot of Home View](https://i.imgur.com/2mFr9HP.png)
 ![Screenshot of Garage Door View](https://i.imgur.com/GhMf2Lo.png)
@@ -56,8 +58,6 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 #Todo List
 
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
-
-* Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Configure the Alexa Component.
 * Put Dash Buttons out there.
 * Put Door Sensor in Mailbox
