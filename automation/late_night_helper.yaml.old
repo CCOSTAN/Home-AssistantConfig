@@ -41,7 +41,13 @@
         brightness: 150
     - service: switch.turn_on
       entity_id: switch.kitchen_accents
-    - delay: 00:08:00
+    - delay: '00:00:30'
+    - service: switch.turn_on
+    - entity_id: switch.living_room_outlet
+    - delay: '00:00:30'
+    - service: switch.turn_on
+      entity_id: switch.foyer_outlet
+    - delay: '00:08:00'
     - service: light.turn_off
       entity_id: 
         - light.S1

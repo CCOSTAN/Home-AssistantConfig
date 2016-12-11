@@ -106,3 +106,16 @@
       entity_id: group.outdoor_lights
 
 ##############################################################################
+
+- alias: "NOTIFY IF IP CHANGES"
+  trigger:
+    - platform: state
+      entity_id: sensor.ipchange
+      from: 'False'
+      to: 'True'
+  action:
+    - service: script.ifttt_notify
+      data_template:
+        value1: 'Changed IP address:'
+        value2: "New IP: {{ states('sensor.exteral_ip') }}"
+        value3: ' - Be sure to Cahnge DNS!'

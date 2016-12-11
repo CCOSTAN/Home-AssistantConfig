@@ -6,7 +6,7 @@
   resources:
     # - type: last_boot
     - type: since_last_boot
-
+    
 - platform: template
   sensors:
     since_last_boot_templated:
@@ -50,3 +50,14 @@
             {{ seconds }} seconds
           {%- endif -%}
         {%- endif -%}
+
+- platform: rest
+  resource: http://ip.jsontest.com
+  name: External IP
+  value_template: '{{ value_json.ip }}' 
+  
+- platform: template
+  sensors:
+    ipchange:
+      entity_id: sensor.external_ip
+      value_template: "{%- if is_state('sensor.external_ip', '67.8.31.24') -%} False {%- else -%} True {%- endif %}"
