@@ -89,6 +89,7 @@
 ##############################################################################
 
 - alias: If Outdoor lights are on and it's daytime, TURN THEM OFF!!
+  hide_entity: True
   trigger:
     - platform: time
       minutes: '/47'
@@ -108,6 +109,7 @@
 ##############################################################################
 
 - alias: "NOTIFY IF IP CHANGES"
+  hide_entity: True
   trigger:
     - platform: state
       entity_id: sensor.ipchange
@@ -118,4 +120,8 @@
       data_template:
         value1: 'Changed IP address:'
         value2: "New IP: {{ states('sensor.exteral_ip') }}"
-        value3: ' - Be sure to Cahnge DNS!'
+        value3: ' - Be sure to Change DNS!'
+
+##############################################################################
+
+
