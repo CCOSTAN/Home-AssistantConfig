@@ -11,6 +11,14 @@
     - platform: numeric_state
       entity_id: sensor.garadget_small_reflection_rate
       below: 85
+
+  condition:
+    condition: or 
+    conditions:
+      - condition: template
+        value_template: "{{ states('cover.garadget_large') == 'closed' }}"
+      - condition: template
+        value_template: "{{ states('cover.garadget_small') == 'closed' }}"
       
   action:
     - service: script.ifttt_notify
