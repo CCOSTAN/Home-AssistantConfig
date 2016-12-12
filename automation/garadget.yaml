@@ -13,12 +13,10 @@
       below: 85
 
   condition:
-    condition: or 
-    conditions:
-      - condition: template
-        value_template: "{{ states('cover.garadget_large') == 'closed' }}"
-      - condition: template
-        value_template: "{{ states('cover.garadget_small') == 'closed' }}"
+    - condition: template
+      value_template: "{{ states('cover.garadget_large') == 'closed' }}"
+    - condition: template
+      value_template: "{{ states('cover.garadget_small') == 'closed' }}"
       
   action:
     - service: script.ifttt_notify
