@@ -88,6 +88,7 @@ https://i.imgur.com/xy10yI1.png
 
 #Lab notes:
 
+```yaml
 - alias: 'Get Random Time'
      trigger:
      platform: time
@@ -270,3 +271,5 @@ binary_sensor:
   sensor_class: connectivity
   payload_on: "success"
   payload_off: "fail"
+
+```
