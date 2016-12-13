@@ -49,8 +49,8 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Sets up the front lights in the house with preset colors depending on the month.
 * On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 
-#Automation TimeLine
-```yaml
+**Automation TimeLine**
+```
 ALL DAY LONG: 
 Check to see if we are away.
 
