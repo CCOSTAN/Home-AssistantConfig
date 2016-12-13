@@ -30,8 +30,6 @@
       - condition: state
         entity_id: input_boolean.guest_mode
         state: 'off'
-      - condition: time
-        after: '20:00:00'
         
   action:
     service: scene.turn_on

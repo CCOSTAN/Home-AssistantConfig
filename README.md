@@ -49,6 +49,33 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Sets up the front lights in the house with preset colors depending on the month.
 * On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 
+#Automation TimeLine
+```yaml
+ALL DAY LONG: 
+Check to see if we are away.
+
+SUNRISE minus 3.5 hours
+     Turn off ALL SWITCHES
+     Turn off ALL LIGHTS
+05:00 AM ** Light Brightness helper 50 Brightness ** 
+06:00 AM (Mon - Fri) : Turn on Dining Room lights, Kitchen Accents
+06:51 AM Turn on Dinette lights, Turn off Dining Room Lights and Kitchen Accents
+07:51 AM Turn on Kitchen Lights
+08:00 AM ** Light Brightness helper FULL 255 Brightness ** 
+08:31 AM Turn off ALL interior lights.
+
+ SUNSET: 
+     Turn on Den Outlet, Living Room Outlet, Dining Room Outlet, Outdoor Bathroom light
+     Activate Monthly Front Lighting Scene
+     Check if Garage Door is open (Every 60 minutes)
+     ** Kitchen Light/Accent Helper Activated **
+
+08:00 PM ** Late Night Helper is active **
+08:00 PM ** Light Brightness helper 35 Brightness ** 
+08:00 PM TV time Scene triggered if the TV is on. 
+02:00 AM ** Late Night Help Deactivated **
+02:31 AM Heal ZWave Network
+```
 
 ![Screenshot of Home View](https://i.imgur.com/2mFr9HP.png)
 ![Screenshot of Garage Door View](https://i.imgur.com/GhMf2Lo.png)

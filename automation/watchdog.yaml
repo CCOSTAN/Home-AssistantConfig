@@ -64,6 +64,17 @@
 
 ##############################################################################
 
+- alias: Add some double and triple checking to the 433 RF outlets.
+  hide_entity: True
+  trigger:
+    - platform: time
+      minutes: '/63'
+      
+  action:
+    - service: script.reliability
+
+##############################################################################
+
 - alias: "NOTIFY IF IP CHANGES"
   hide_entity: True
   trigger:
