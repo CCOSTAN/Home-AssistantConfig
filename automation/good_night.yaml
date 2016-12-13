@@ -7,19 +7,12 @@
     - platform: event
       event_type: good_night
 
-  condition:
-    - condition: state
-      entity_id: group.family
-      state: home 
+  # condition:
+    # - condition: state
+      # entity_id: group.family
+      # state: home 
         
   action:
-    - service: light.turn_off
-      entity_id: 
-        - group.interior_lights
-    - service: switch.turn_off
-      entity_id: switch.kitchen_accents
-      
-        
-        
-        
+    - service: script.interior_off
+
       
