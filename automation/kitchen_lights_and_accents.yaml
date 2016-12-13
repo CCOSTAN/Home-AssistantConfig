@@ -30,6 +30,8 @@
   condition:
     - condition: sun
       after: 'sunset'
+    - condition: time
+      before: '23:00:00'
     - condition: state
       entity_id: group.interior_lights
       state: 'on'

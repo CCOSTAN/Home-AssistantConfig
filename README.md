@@ -89,6 +89,15 @@ https://i.imgur.com/xy10yI1.png
 #Lab notes:
 
 ```yaml
+
+For the led strips.
+
+https://home-assistant.io/components/light.flux_led/
+ - platform: flux_led
+   devices:
+     192.168.1.22:
+       name: Cabinet Lights
+
 - alias: 'Get Random Time'
      trigger:
      platform: time
