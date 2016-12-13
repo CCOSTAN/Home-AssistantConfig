@@ -4,7 +4,7 @@
 #  action:
 #   - service: script.reliability
 ######################################################################################################
-
+    
 {% macro swTest(onoff='') %}
     - service: switch.turn_{{ states(onoff) }}
       entity_id: {{ onoff }}
@@ -18,4 +18,3 @@ switch_check:
 {{ swTest("switch.den_outlet") }}
 {{ swTest("switch.living_room_outlet") }}
 {{ swTest("switch.living_room_amp") }}
-    
