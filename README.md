@@ -57,6 +57,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 
 #Todo List
 
+* Create IMAGE clone of the SD Card for Backup purposes. [This](https://community.home-assistant.io/t/no-more-reinstalling-your-ha-from-scratch-how-to/7630)
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
 * Configure the Alexa Component.
 * Put Dash Buttons out there.

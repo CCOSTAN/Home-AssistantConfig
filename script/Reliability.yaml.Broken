@@ -5,13 +5,11 @@
 #   - service: script.reliability
 ######################################################################################################
     
-{% macro swTest(onoff='') %}
-    - service: switch.turn_{{ states(onoff) }}
-      entity_id: {{ onoff }}
-{% endmacro %}
+{% macro swTest(onoff='') %}    - service: switch.turn_{{ states(onoff) }}
+      entity_id: {{ onoff }}{% endmacro %}
 
 switch_check:
-  sequence:
+  sequence:  
 {{ swTest("switch.foyer_outlet") }}
 {{ swTest("switch.printer_outlet") }}
 {{ swTest("switch.garage_outlet") }}
