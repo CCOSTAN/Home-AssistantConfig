@@ -5,7 +5,7 @@
 #   - service: script.reliability
 ######################################################################################################
     
-{% macro swTest(onoff='') %}    - service: switch.turn_{{ states(onoff) }}
+{% macro swTest(onoff) %}    - service: switch.turn_{{ states(onoff) }}
       entity_id: {{ onoff }}{% endmacro %}
 
 switch_check:

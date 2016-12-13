@@ -87,6 +87,8 @@ https://community.home-assistant.io/t/snmp-bandwidth-monitor/7122
 
 https://i.imgur.com/xy10yI1.png
 
+resource for my RF switches. (MQTT) bit.ly/2gBiOqz 
+
 #Lab notes:
 
 ```yaml
