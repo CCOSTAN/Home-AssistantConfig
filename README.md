@@ -89,6 +89,9 @@ https://i.imgur.com/xy10yI1.png
 
 resource for my RF switches. (MQTT) bit.ly/2gBiOqz 
 
+https://www.reddit.com/r/amazonecho/comments/5he8o7/diy_ir_blaster_10_instructions_inside/?st=IWIDBGRT&sh=dd117f28
+
+
 #Lab notes:
 
 ```yaml
@@ -126,22 +129,6 @@ Then simply use that in your light turn off automation:
        data: 
          entity_id: light.hue_color_lamp_1
  
- 
-- automation:
-  alias: Random GLeft
-  initial_state: False
-  hide_entity: False
-trigger:
-  platform: time
-  seconds: '/5'
-action:
-  service: homeassistant.turn_on
-  entity_id:
-    - light.gright
-  data:
-    effect: random
-    transition: 1
-    brightness: 255
     
    
  - platform: template
