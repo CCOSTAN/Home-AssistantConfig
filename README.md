@@ -24,6 +24,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Nintendo Wii
 * Emulated Hue pushes all Switch, Group and scene information to Alexa for First Class Control! [Broked!  Worked for literally long enough for me to clear out all my devices in Alexa. :( ]
 * [iTeadStudio goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
+* [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2hxpAL7) with [LED Strips](http://amzn.to/2gJYfZ5)
 
 **Automations:**
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
@@ -126,6 +127,7 @@ https://www.reddit.com/r/amazonecho/comments/5he8o7/diy_ir_blaster_10_instructio
 For the led strips.
 
 https://home-assistant.io/components/light.flux_led/
+Compatible Lihts: https://www.amazon.com/gp/product/B01DY56N8U/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1
  - platform: flux_led
    devices:
      192.168.1.22:

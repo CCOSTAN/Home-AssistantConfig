@@ -49,6 +49,7 @@
   trigger:
     - platform: time
       minutes: '/47'
+      seconds: 0
 
   condition:
     - condition: state
@@ -68,7 +69,8 @@
   hide_entity: True
   trigger:
     - platform: time
-      minutes: '/43'
+      minutes: 43
+      seconds: 0
       
   action:
     - service: script.reliability
