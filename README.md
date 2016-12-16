@@ -1,7 +1,7 @@
 # Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
 [Home Assistant](https://home-assistant.io/) configuration files (YAMLs)
 
-This is my Home Assistant Configuration created with the All In One installer.  I update it pretty regularly. 
+This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly. 
 Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
 
 Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), SSL via [SSLS](SSLS.com) - 5 Bucks A Year!
@@ -85,7 +85,6 @@ SUNSET:
 
 #Todo List
 
-* Create IMAGE clone of the SD Card for Backup purposes. [This](https://community.home-assistant.io/t/no-more-reinstalling-your-ha-from-scratch-how-to/7630)
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
 * Configure the Alexa Component.
 * Put Dash Buttons out there.
@@ -96,6 +95,7 @@ SUNSET:
 * Create various scenes (early morning, breakfast, work, entertaining, )
 * Doorbell motion after dusk turns on light and changes it color.  Dims foyer light up as well. Maybe a sconce light too. 
 * Motion after midnight and the sprinklers go on. 
+* Z-wave outlet for the landscape transformers. (2 of them) to better track sunset/sunrise/home.
 * Using Input Booleans, list trashday and kid's chore day on Main Screen.
 * Bathroom lights flash when door bell is pressed. 
 * Vacation mode and mocupancy scenes to simulate being here. 
