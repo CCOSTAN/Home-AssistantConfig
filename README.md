@@ -300,4 +300,18 @@ binary_sensor:
   payload_on: "success"
   payload_off: "fail"
 
+  
+  
+  #Wake on Lan stuff to try 
+  
+- platform: wake_on_lan
+  mac_address: XX:XX:XX:XX:XX:XX
+  name: "Synology WOL"
+  host: "192.168.1.3"
+
+- platform: wake_on_lan
+  mac_address: XX:XX:XX:XX:XX:XX
+  name: "iMac WOL"
+  host: "192.168.1.2"
+  
 ```
