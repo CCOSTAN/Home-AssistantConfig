@@ -93,26 +93,18 @@ SUNSET:
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
 * Bedside dash button for morning, night and bathroom trips. 
 * Create various scenes (early morning, breakfast, work, entertaining, )
-* Doorbell motion after dusk turns on light and changes it color.  Dims foyer light up as well. Maybe a sconce light too. 
 * Motion after midnight and the sprinklers go on. 
 * Z-wave outlet for the landscape transformers. (2 of them) to better track sunset/sunrise/home.
 * Using Input Booleans, list trashday and kid's chore day on Main Screen.
 * Vacation mode and mocupancy scenes to simulate being here. 
 * Figure out a way to change the color of outdoor lights based on various minor holidays automagically.
-* Time based automations - blink light notifications (location),  dash button options (https://github.com/dale3h/homeassistant-config/blob/master/examples/%40CCOSTAN/detect_state_change.yaml)
 
 * This : http://groundp.in/2016/10/18/step-by-step-guide-to-setting-up-esp-easy-with-home-assistant/
 * http://www.pibakery.org/
 * http://www.esp8266.nu/index.php/ESPEasy
 * https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Falexbloggt.com%2Funiversal-infrarot-websteuerung-ueber-esp8266%2F
 
-* https://github.com/thundergreen/home-assistant/wiki/Add-OZWCP-in-HASS
-
-https://community.home-assistant.io/t/voice-controlled-cheap-non-smart-led-strip-with-ok-google-command/5756
-
 https://community.home-assistant.io/t/snmp-bandwidth-monitor/7122
-
-https://i.imgur.com/xy10yI1.png
 
 resource for my RF switches. (MQTT) bit.ly/2gBiOqz 
 
@@ -122,15 +114,6 @@ https://www.reddit.com/r/amazonecho/comments/5he8o7/diy_ir_blaster_10_instructio
 #Lab notes:
 
 ```yaml
-
-For the led strips.
-
-https://home-assistant.io/components/light.flux_led/
-Compatible Lihts: https://www.amazon.com/gp/product/B01DY56N8U/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1
- - platform: flux_led
-   devices:
-     192.168.1.22:
-       name: Cabinet Lights
 
 - alias: 'Get Random Time'
      trigger:
@@ -178,115 +161,7 @@ sensors:
       {% else %}
         n/a
       {% endif %}
-
-      
-Using Slider_Booleans to store data and restore it after.
-
-https://community.home-assistant.io/t/brighten-front-porch-lights-then-return-to-recorded-dim-level/6641
-
-input_slider:
-  porch_brightness:
-    name: Front Porch Brightness
-    initial: 25
-    min: 0
-    max: 255
-    step: 1
-
-script: 
-  record_front_porch:
-    alias: Record front porch status to slider
-    sequence:
-      - service: input_slider.select_value
-        data_template:
-          entity_id: input_slider.porch_brightness
-          value: '{% if states.light.front_porch_light_level_32_0.state == "off" %}0{% else %}{{states.light.front_porch_light_level_32_0.attributes.brightness}}{% endif %}'
-
-  return_front_porch:
-    alias: Return front porch to recorded value
-    sequence:
-      - service: light.turn_on
-        entity_id: light.front_porch_light_level_32_0
-        data_template:
-          brightness: '{{states.input_slider.porch_brightness.state | int}}'
-      - service: input_boolean.turn_off
-        entity_id: input_boolean.front_porch_motion_light_active
-
-  return_front_porch_delayed:
-    alias: Wait 5 min and then return front porch to recorded value
-    sequence: 
-      - delay: 
-          minutes: 5
-      - service: script.return_front_porch
-
-automation:
-    - alias: Motion ON front porch
-      trigger:
-        # if motion is ON - this is triggered via IFTTT and Arlo
-        - platform: state
-          entity_id: input_boolean.motion_front_porch
-          to: 'on'
-          from: 'off'
-      action:
-        # some notifications
-        - service: notify.scott_notifier
-          data: 
-            message: "Motion front porch"
-            title: "Front Porch"
-            data:
-              priority: 0
-        - service: notify.kodi
-          data: 
-            message: "Motion front porch"
-            title: "Front Porch"
-        # only at night
-        - condition: state
-          entity_id: sun.sun
-          state: 'below_horizon'
-        #remember the state of front porch
-        - service: script.record_front_porch
-        # turn the light on
-        - service: light.turn_on
-          entity_id: light.front_porch_light_level_32_0
-          data:
-            brightness: 255
-        # script with a delay that'll reset light in 5 min
-        - service: script.return_front_porch_delayed
-
-        
-Easy Garbage Automation
-  - alias: brown garbage
-    trigger:
-      platform: time
-      hours: 20
-      minutes: 00
-      seconds: 0
-    condition:
-      condition: time
-# At least one of the following is required.
-      weekday:
-        - mon
-        - thu
-    action:
-      service: notify.thorsten
-      data:
-        message: 'Put the brown garbage out!'
-  - alias: blue garbage
-    trigger:
-      platform: time
-      hours: 20
-      minutes: 00
-      seconds: 0
-    condition:
-      condition: time
-# At least one of the following is required.
-      weekday:
-        - tue
-    action:
-      service: notify.thorsten
-      data:
-        message: 'Put the blue garbage out!'
-        
-        
+   
         
 {%- if now().month in [01, 11, 12] -%} Yes {%- else -%} NO {%- endif %}
 
