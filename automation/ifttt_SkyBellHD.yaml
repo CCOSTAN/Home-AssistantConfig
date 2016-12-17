@@ -9,10 +9,7 @@
       event_type: skybell_pressed
   
   action:
-    - service: logbook.log
-      data:
-        name: "SkyBell HD Doorbell:"
-        message: "Someone Pressed the Doorbell."
+    - service: script.skybell_pressed
   
 ######################################################################
 

@@ -1,0 +1,24 @@
+######################################################################################################
+###Script to turn on Front light FULL bright for 15m when motion is detected and then return to the normal colors.
+#  action:
+#   - service: script.front_house_motion
+#
+######################################################################################################
+
+front_house_motion:
+  sequence:     
+    - service: logbook.log
+      data:
+        name: "SkyBell HD Doorbell:"
+        message: "Someone Pressed the Doorbell."
+
+    - service: light.turn_on
+      entity_id: 
+        - group.outdoor_pool_lights
+        - light.master_toilet
+      data:
+        flash: short
+
+  
+
+ 
