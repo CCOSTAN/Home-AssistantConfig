@@ -49,6 +49,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
 * Sets up the front lights in the house with preset colors depending on the month.
 * On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
+* When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell.
 
 **Time Based Automation TimeLine**
 ```
@@ -66,7 +67,7 @@ SUNRISE minus 3.5 hours
 08:31 AM Turn off ALL interior lights.
 
 SUNSET: 
-     Turn on Den Outlet, Living Room Outlet, Dining Room Outlet, Outdoor Bathroom light
+     Turn on Den Outlet, Living Room Outlet, Dining Room Outlet, Outdoor Bathroom light, TV lights
      Activate Monthly Front Lighting Scene
      Check if Garage Door is open (Every 60 minutes)
      ** Kitchen Light/Accent Helper Activated **
@@ -90,14 +91,12 @@ SUNSET:
 * Put Dash Buttons out there.
 * Put Door Sensor in Mailbox
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
-* Flash backyard lights when doorbell rings. 
 * Bedside dash button for morning, night and bathroom trips. 
 * Create various scenes (early morning, breakfast, work, entertaining, )
 * Doorbell motion after dusk turns on light and changes it color.  Dims foyer light up as well. Maybe a sconce light too. 
 * Motion after midnight and the sprinklers go on. 
 * Z-wave outlet for the landscape transformers. (2 of them) to better track sunset/sunrise/home.
 * Using Input Booleans, list trashday and kid's chore day on Main Screen.
-* Bathroom lights flash when door bell is pressed. 
 * Vacation mode and mocupancy scenes to simulate being here. 
 * Figure out a way to change the color of outdoor lights based on various minor holidays automagically.
 * Time based automations - blink light notifications (location),  dash button options (https://github.com/dale3h/homeassistant-config/blob/master/examples/%40CCOSTAN/detect_state_change.yaml)
