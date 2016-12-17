@@ -24,7 +24,12 @@
     - service: switch.turn_on
       entity_id: switch.foyer_outlet 
     - service: light.turn_on
-      entity_id: light.outdoor_bathroom
+      entity_id: 
+        - light.outdoor_bathroom
+        - light.tv_light
+        - light.tv_stand_light
+      data:  
+        transition: 1200 
        
     
 ######################################################################
