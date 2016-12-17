@@ -1,11 +1,11 @@
 ######################################################################################################
 ###Script to turn on Front light FULL bright for 15m when motion is detected and then return to the normal colors.
 #  action:
-#   - service: script.front_house_motion
+#   - service: script.skybell_pressed
 #
 ######################################################################################################
 
-front_house_motion:
+skybell_pressed:
   sequence:     
     - service: logbook.log
       data:
