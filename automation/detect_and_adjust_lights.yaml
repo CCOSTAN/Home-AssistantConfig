@@ -16,6 +16,10 @@
     - condition: time
       before: '7:59:00'
     - condition: template
+      value_template: "{{ trigger.event.data is not none }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id is not none }}"
+    - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('.')[0] == 'light' }}"
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.tv' }}"
@@ -56,6 +60,10 @@
       after: '08:00:00'
     - condition: time
       before: '20:00:00'
+    - condition: template
+      value_template: "{{ trigger.event.data is not none }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id is not none }}"
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('.')[0] == 'light' }}"
     - condition: template
@@ -98,6 +106,10 @@
       - condition: state
         entity_id: group.family
         state: home 
+      - condition: template
+        value_template: "{{ trigger.event.data is not none }}"
+      - condition: template
+        value_template: "{{ trigger.event.data.entity_id is not none }}"
       - condition: template
         value_template: "{{ trigger.event.data.entity_id.split('.')[0] == 'light' }}"
       - condition: template
