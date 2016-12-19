@@ -12,8 +12,9 @@ front_house_motion:
         name: "SkyBell HD Doorbell:"
         message: "Someone is by the door."
 
-    - condition: sun
-      after: 'sunset'
+    - condition: state
+      entity_id: sun.sun
+      state: 'below.horizon'
     - service: scene.turn_on
       entity_id: scene.front_full_brightness
     - delay: '00:10:00' 
