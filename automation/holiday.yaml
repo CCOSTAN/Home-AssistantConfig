@@ -10,14 +10,8 @@
       event_type: holiday_lights_on
               
   action:
-    - service: switch.turn_on
-      entity_id: switch.den_outlet
-    - delay: 00:00:30
-    - service: switch.turn_on
-      entity_id: switch.living_room_outlet
-    - service: switch.turn_on
-      entity_id: switch.dining_room_outlet
-    - delay: 00:00:30
+   - service: script.holiday_switches_on
+    
     
 - alias: 'Holiday Stuff off'  
   trigger:

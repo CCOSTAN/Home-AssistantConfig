@@ -1,0 +1,23 @@
+######################################################################################################
+###Script to shut switches with a 30 second delay to not trample codes
+###  Sample Call
+#  action:
+#   - service: script.holiday_switches_on
+######################################################################################################
+
+holiday_switches_on:
+  sequence:
+    - service: switch.turn_on
+      entity_id: switch.living_room_outlet
+    - delay: 00:00:30
+    - service: switch.turn_on
+      entity_id: switch.foyer_outlet
+    - delay: 00:00:30
+
+    - condition: sun
+      after: sunset
+    - service: switch.turn_on
+      entity_id: switch.den_outlet
+    - delay: 00:00:30
+    - service: switch.turn_on
+      entity_id: switch.dining_room_outlet
