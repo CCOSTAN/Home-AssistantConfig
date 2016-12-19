@@ -9,20 +9,7 @@
               
   action:
     - service: script.monthly_front_house_scene
-    - service: switch.turn_on
-      entity_id: switch.living_room_outlet 
-    - delay: '00:00:30'
-    - service: switch.turn_on
-      entity_id: switch.den_outlet
-    - delay: '00:00:30'
-    - service: switch.turn_on
-      entity_id: switch.living_room_outlet 
-    - delay: '00:00:30'
-    - service: switch.turn_on
-      entity_id: switch.dining_room_outlet 
-    - delay: '00:00:30'
-    - service: switch.turn_on
-      entity_id: switch.foyer_outlet 
+    - service: script.holiday_switches_on
     - service: light.turn_on
       entity_id: 
         - light.outdoor_bathroom
@@ -30,7 +17,6 @@
         - light.tv_stand_light
       data:  
         transition: 1200 
-       
     
 ######################################################################
 

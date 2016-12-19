@@ -1,5 +1,5 @@
 ######################################################################################################
-###Script to turn on scene for the appropriate month for the front of the house but only when the sun is down.  (Minus 3 Hours)
+###Script to turn on scene for the appropriate month for the front of the house but only when the sun is down. 
 #  action:
 #   - service: script.monthly_front_house_scene
 #
@@ -10,7 +10,6 @@ monthly_front_house_scene:
   sequence:
     - condition: sun
       before: 'sunrise'
-      before_offset: '-03:00:00'
     
     - service: scene.turn_on
       data_template:
