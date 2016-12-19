@@ -20,10 +20,6 @@ front_house_motion:
     - delay: '00:10:00' 
     - service: light.turn_off
       entity_id: group.outdoor_front_lights
-
-    - condition: sun
-      before: 'sunrise'
-      before_offset: '-03:00:00'
     - delay: '00:00:10'
     - service: script.monthly_front_house_scene
 

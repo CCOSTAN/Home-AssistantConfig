@@ -8,6 +8,10 @@
 
 monthly_front_house_scene:
   sequence:
+    - condition: sun
+      before: 'sunrise'
+      before_offset: '-03:00:00'
+    
     - service: scene.turn_on
       data_template:
         entity_id: "scene.month_front_{{ states('sensor.date').split('-')[1] }}_colors"
