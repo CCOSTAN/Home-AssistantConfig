@@ -88,10 +88,9 @@ SUNSET:
 
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
 * Configure the Alexa Component.
-* Put Dash Buttons out there.
+* Put Dash Buttons out there. Bedside dash button for morning, night and bathroom trips. 
 * Put Door Sensor in Mailbox
 * Add Pi-Hole (Ad blocking) to the network with the Pi Zero. (Add to Home Assistant)
-* Bedside dash button for morning, night and bathroom trips. 
 * Create various scenes (early morning, breakfast, work, entertaining, )
 * Motion after midnight and the sprinklers go on. 
 * Z-wave outlet for the landscape transformers. (2 of them) to better track sunset/sunrise/home.
