@@ -56,4 +56,4 @@
   sensors:
     ipchange:
       entity_id: sensor.external_ip
-      value_template: "{%- if is_state('sensor.external_ip', '67.8.31.24') -%} False {%- else -%} True {%- endif %}"
+      value_template: "{%- if is_state('sensor.external_ip', '!secret external_ip') -%} False {%- else -%} True {%- endif %}"
