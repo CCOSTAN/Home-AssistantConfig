@@ -87,6 +87,7 @@ SUNSET:
 #Todo List
 
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
+* Visio of Environment
 * Configure the Alexa Component.
 * Put Dash Buttons out there. Bedside dash button for morning, night and bathroom trips. 
 * Put Door Sensor in Mailbox
