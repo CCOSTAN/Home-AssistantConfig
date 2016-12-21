@@ -41,6 +41,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Turn on some lights abd switches when we get home
 * Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
+* Rainy days trigger extra light inside the house. 
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * Leverage Alexa, IFTTT and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)

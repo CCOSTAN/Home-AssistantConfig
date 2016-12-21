@@ -43,3 +43,24 @@
         - switch.living_room_outlet
 
 ######################################################################
+
+######################################################################
+##  Dark House Little extra light - RAIN is over.
+######################################################################
+
+- alias: 'Rain is over'  
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.dark_sky_precip_intensity
+      below: 1
+      
+  action:
+    - service: light.turn_off
+      entity_id: 
+        - light.tv_light
+        - light.tv_stand_light
+      data:  
+        transition: 1200 
+    - service: switch.turn_off
+      entity_id:
+        - switch.living_room_outlet
