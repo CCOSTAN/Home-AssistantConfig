@@ -12,7 +12,7 @@
       below: 20.0
     - platform: numeric_state
       entity_id: sensor.dark_sky_cloud_coverage
-      above: 80
+      above: 90
       
   condition:
     - condition: numeric_state
@@ -21,7 +21,7 @@
       below: 20.0
     - condition: numeric_state
       entity_id: sensor.dark_sky_cloud_coverage
-      above: 80
+      above: 90
       
   action:
     - service: light.turn_on
