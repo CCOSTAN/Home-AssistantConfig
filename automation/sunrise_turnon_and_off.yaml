@@ -1,5 +1,3 @@
-
-
 ###################################
 ##  Dark House Little extra light
 ###################################
@@ -13,16 +11,26 @@
     - platform: numeric_state
       entity_id: sensor.dark_sky_cloud_coverage
       above: 90
+    - platform: numeric_state
+      entity_id: sensor.dark_sky_precip_intensity
+      above: 1
       
   condition:
-    - condition: numeric_state
-      entity_id: sun.sun
-      value_template: '{{ state.attributes.elevation }}'
-      below: 20.0
-    - condition: numeric_state
-      entity_id: sensor.dark_sky_cloud_coverage
-      above: 90
-      
+    condition: or
+    conditions:
+      - condition: and
+        conditions:
+          - condition: numeric_state
+            entity_id: sun.sun
+            value_template: '{{ state.attributes.elevation }}'
+            below: 20.0
+          - condition: numeric_state
+            entity_id: sensor.dark_sky_cloud_coverage
+            above: 90
+      - condition: numeric_state
+        entity_id: sensor.dark_sky_precip_intensity
+        above: 1
+            
   action:
     - service: light.turn_on
       entity_id: 

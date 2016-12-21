@@ -39,7 +39,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Turn on Upstairs light if Nest detects people and it's nighttime.
 * Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
 * Turn on some lights abd switches when we get home
-* Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
+* Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * Leverage Alexa, IFTTT and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
