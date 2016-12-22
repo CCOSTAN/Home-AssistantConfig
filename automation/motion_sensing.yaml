@@ -11,4 +11,13 @@
   action:
     - service: script.skybell_pressed
   
+######################################################################
 
+- alias: 'Log SkyBell Motion detection'
+  hide_entity: True
+  trigger:
+    - platform: event
+      event_type: skybell_motion
+  
+  action:
+    - service: script.front_house_motion
