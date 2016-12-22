@@ -1,0 +1,16 @@
+Upi can use this code to quickly create files from the template editor in HA.
+
+
+
+Create fast CUSTOMIZE.YAML:
+
+{% for state in states.group -%}
+  {%- if loop.first %}
+{% elif loop.last %}
+{% else %} 
+{% endif -%}
+{{ state.entity_id }}:
+  friendly_name: '{{ state.name }}'
+  emulated_hue: true
+{%- endfor -%}
+
