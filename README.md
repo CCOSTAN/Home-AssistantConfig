@@ -105,6 +105,8 @@ SUNSET:
 * http://www.esp8266.nu/index.php/ESPEasy
 * https://translate.google.com/translate?hl=en&sl=de&tl=en&u=https%3A%2F%2Falexbloggt.com%2Funiversal-infrarot-websteuerung-ueber-esp8266%2F
 
+* https://github.com/jayrox/esp8266_ir_blaster
+
 https://community.home-assistant.io/t/snmp-bandwidth-monitor/7122
 
 resource for my RF switches. (MQTT) bit.ly/2gBiOqz 
