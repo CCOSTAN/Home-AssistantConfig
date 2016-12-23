@@ -22,7 +22,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](garadget.com) - Garage Door opener/sensor
 * Nintendo Wii
-* Emulated Hue pushes all Switch, Group and scene information to Alexa for First Class Control! [Broked!  Worked for literally long enough for me to clear out all my devices in Alexa. :( ]
+* Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control! 
 * [iTeadStudio goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
 * [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2hxpAL7) with [LED Strips](http://amzn.to/2gJYfZ5)
 
@@ -113,6 +113,7 @@ resource for my RF switches. (MQTT) bit.ly/2gBiOqz
 
 https://www.reddit.com/r/amazonecho/comments/5he8o7/diy_ir_blaster_10_instructions_inside/?st=IWIDBGRT&sh=dd117f28
 
+https://community.home-assistant.io/t/a-different-take-on-an-alarm-system/7809/5 - ALARM System info.
 
 #Lab notes:
 
