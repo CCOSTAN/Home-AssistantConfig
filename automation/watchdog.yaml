@@ -35,6 +35,12 @@
       entity_id: group.foyer_lights
       state: 'on'
       for: '00:20:00'
+    - platform: state
+      entity_id:
+        - light.paige_go
+        - light.justin_go
+      state: 'on'
+      for: '02:00:00'
       
 #Turn it off!
   action:
