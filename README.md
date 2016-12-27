@@ -61,11 +61,11 @@ SUNRISE minus 3.5 hours
      Turn off ALL SWITCHES
      Turn off ALL LIGHTS
 05:00 AM ** Light Brightness helper 50 Brightness ** 
-06:00 AM (Mon - Fri) : Turn on Dining Room lights, Kitchen Accents
+06:00 AM ( on school days) : Turn on Dining Room lights, Kitchen Accents and start Kid's bedroom [Hue Go](http://amzn.to/2iB36Ii) wake up lights.
 06:51 AM Turn on Dinette lights, Turn off Dining Room Lights and Kitchen Accents
 07:51 AM Turn on Kitchen Lights
 08:00 AM ** Light Brightness helper FULL 255 Brightness ** 
-08:31 AM Turn off ALL interior lights.
+08:31 AM (on school days) Turn off ALL interior lights.
 
 SUNSET: 
      Turn on Den Outlet, Living Room Outlet, Dining Room Outlet, Outdoor Bathroom light, TV lights
@@ -76,6 +76,7 @@ SUNSET:
 08:00 PM ** Late Night Helper is active **
 08:00 PM ** Light Brightness helper 35 Brightness ** 
 08:00 PM TV time Scene triggered if the TV is on. 
+09:00 PM Turn on [Hue Go](http://amzn.to/2iB36Ii) lights for the kid's rooms and start fading down.
 02:00 AM ** Late Night Help Deactivated **
 02:31 AM Heal ZWave Network
 ```
