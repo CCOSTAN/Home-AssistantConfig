@@ -44,6 +44,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Rainy days trigger extra light inside the house. 
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * Leverage Alexa, IFTTT and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
+* Turn on AMPs when Chromecast reports 'Playing'.  Turn them off when we are done streaming music. 
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
