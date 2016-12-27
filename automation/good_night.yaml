@@ -6,11 +6,19 @@
   trigger:
     - platform: event
       event_type: good_night
+    - platform: state
+      entity_id: sensor.samsungtv
+      state: 'Offline'
 
-  # condition:
-    # - condition: state
-      # entity_id: group.family
-      # state: home 
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: home 
+    - condition: time
+      after: '20:00:00'
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
         
   action:
     - service: script.interior_off
