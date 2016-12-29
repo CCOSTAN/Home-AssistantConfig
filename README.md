@@ -11,6 +11,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [Nest Thermostats](http://amzn.to/2eAhB1k)
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
+* [ Amazon Fire TV](http://amzn.to/2iiuaNT)
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * [Circle by Disney](http://amzn.to/2eAgaA6)
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW)
@@ -24,7 +25,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Nintendo Wii
 * Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control! 
 * [iTeadStudio goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
-* [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2hxpAL7) with [LED Strips](http://amzn.to/2gJYfZ5)
+* [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2hxpAL7) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet.
 
 **Automations:**
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
@@ -90,7 +91,9 @@ SUNSET:
 #Todo List
 
 * AutoIt script to control lights via REST and also auto light office when I am working on Laptop.
+* Install HomeBridge
 * Visio of Environment
+* Add #Slack notifications.
 * Configure the Alexa Component.
 * Put Dash Buttons out there. Bedside dash button for morning, night and bathroom trips. 
 * Put Door Sensor in Mailbox
