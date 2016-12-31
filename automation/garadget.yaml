@@ -8,10 +8,12 @@
     - platform: numeric_state
       entity_id: sensor.garadget_large_reflection_rate
       below: 85
+#      for: '00:05:00'
     - platform: numeric_state
       entity_id: sensor.garadget_small_reflection_rate
       below: 85
-
+#      for: '00:05:00'
+      
   condition:
     - condition: template
       value_template: "{{ states('cover.garadget_large') == 'closed' }}"
