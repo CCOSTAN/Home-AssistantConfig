@@ -67,3 +67,17 @@
       garadget_small:
         friendly_name: 'Garadget Small'
         value_template: "{{ 'Online' if is_state('device_tracker.garadget_small', 'home') else 'Offline' }}"
+        
+      rgb_led_outdoor_den:
+        friendly_name: 'RGB LED Outdoor Den'
+        value_template: "{{ 'Online' if is_state('device_tracker.rgb_led_outdoor_den', 'home') else 'Offline' }}"
+        
+      rgb_led_garage_left:
+        friendly_name: 'RGB LED Garage Left'
+        value_template: "{{ 'Online' if is_state('device_tracker.rgb_led_garage_left', 'home') else 'Offline' }}"
+    
+      rgb_led_garage_small:
+        friendly_name: 'RGB LED Garage Small'
+        value_template: "{{ 'Online' if is_state('device_tracker.rgb_led_garage_small', 'home') else 'Offline' }}"
+        
+        
