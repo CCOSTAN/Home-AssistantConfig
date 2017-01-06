@@ -120,6 +120,8 @@ https://www.reddit.com/r/amazonecho/comments/5he8o7/diy_ir_blaster_10_instructio
 
 https://community.home-assistant.io/t/a-different-take-on-an-alarm-system/7809/5 - ALARM System info.
 
+GUI for Light sunset offset - https://community.home-assistant.io/t/sun-event-related-timers/8648
+
 #Lab notes:
 
 ```yaml

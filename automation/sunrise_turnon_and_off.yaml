@@ -8,8 +8,10 @@
       event: sunset
               
   action:
+    - delay: '00:{{ (range(1, 59)|random|int) }}:00'
     - service: script.monthly_front_house_scene
     - service: script.holiday_switches_on
+    - delay: '00:{{ (range(1, 59)|random|int) }}:00'
     - service: light.turn_on
       entity_id: 
         - light.outdoor_bathroom
