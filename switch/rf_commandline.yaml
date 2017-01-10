@@ -1,0 +1,11 @@
+######################################################################
+##  Awesome Elekcity Outlet control via RF via CODESEND!
+######################################################################
+
+- platform: command_line
+  switches:
+# Outlet 311_3
+    printer_cmd:
+      command_on: "/home/hass/.homeassistant/shell_scripts/codesend 284419"
+      command_off: "/home/hass/.homeassistant/shell_scripts/codesend 284428"
+ 
