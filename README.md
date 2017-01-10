@@ -126,6 +126,10 @@ GUI for Light sunset offset - https://community.home-assistant.io/t/sun-event-re
 
 ```yaml
 
+Add codesend backup to RF Plugs! 
+@CCOSTAN I followed the info here: https://home-assistant.io/components/switch.command_line/
+command_on: "/var/www/html/rfoutlet/codesend 4543795 -l 177 -p 0"
+
 - alias: 'Get Random Time'
      trigger:
      platform: time
