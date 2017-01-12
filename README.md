@@ -122,6 +122,10 @@ https://community.home-assistant.io/t/a-different-take-on-an-alarm-system/7809/5
 
 GUI for Light sunset offset - https://community.home-assistant.io/t/sun-event-related-timers/8648
 
+Grandfather Clock - https://community.home-assistant.io/t/grand-father-clock-chime/9465
+
+Build a Light Sensor! - https://community.home-assistant.io/t/movement-and-light-sensor-for-around-10/9450/30?u=ccostan
+
 #Lab notes:
 
 ```yaml
