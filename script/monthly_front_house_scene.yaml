@@ -8,8 +8,9 @@
 
 monthly_front_house_scene:
   sequence:
-    - condition: sun
-      before: 'sunrise'
+    - condition: state
+      entity_id: sun.sun
+      state: 'below.horizon'
     
     - service: scene.turn_on
       data_template:
