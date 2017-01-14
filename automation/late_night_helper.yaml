@@ -47,7 +47,8 @@
     - delay: '00:00:30'
     - service: switch.turn_on
       entity_id: switch.foyer_outlet
-    - delay: '00:08:00'
+#    - delay: '00:08:00'
+    - service: script.front_house_motion
     - service: light.turn_off
       entity_id: 
         - light.S1
