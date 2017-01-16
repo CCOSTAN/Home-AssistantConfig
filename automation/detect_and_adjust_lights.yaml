@@ -26,11 +26,7 @@
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.couch' }}"
     - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.outdoor' }}"
-    - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.office' }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.garage' }}"
     - condition: template
       value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
     - condition: template
@@ -70,8 +66,6 @@
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.tv' }}"
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.couch' }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.outdoor' }}"
     - condition: template
       value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
     - condition: template
@@ -117,11 +111,7 @@
       - condition: template
         value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.couch' }}"
       - condition: template
-        value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.outdoor' }}"
-      - condition: template
         value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.office' }}"
-      - condition: template
-        value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.garage' }}"
       - condition: template
         value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
       - condition: template
