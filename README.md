@@ -11,7 +11,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [Nest Thermostats](http://amzn.to/2eAhB1k)
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
-* [ Amazon Fire TV](http://amzn.to/2iiuaNT)
+* [Amazon Fire TV](http://amzn.to/2iiuaNT)
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * [Circle by Disney](http://amzn.to/2eAgaA6)
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW)
@@ -21,7 +21,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * ChromeCast Audios
 * [Etekcity Outlets](http://amzn.to/2efNoBP)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
-* [Garadget](garadget.com) - Garage Door opener/sensor
+* [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor
 * Nintendo Wii
 * Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control! 
 * [iTeadStudio goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
