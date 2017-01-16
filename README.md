@@ -207,5 +207,11 @@ binary_sensor:
   mac_address: XX:XX:XX:XX:XX:XX
   name: "iMac WOL"
   host: "192.168.1.2"
-  
+```
+
+#Tips and Tricks
+Add some color to your HA logs. 
+```bash
+sudo apt-get install ccze
+sudo journalctl -u home-assistant -f | ccze
 ```
