@@ -37,6 +37,7 @@ light:
 
 # Reference : https://www.flexfireleds.com/pages/Comparison-between-3528-LEDs-and-5050-LEDs.html    
   - platform: flux_led
+    automatic_add: True 
     devices:
       192.168.10.150:
         name: Garage_Left
@@ -119,3 +120,4 @@ scene: !include_dir_merge_list scene
 switch: !include_dir_merge_list switch
 script: !include_dir_merge_named script
 input_boolean: !include_dir_merge_named input_boolean
+notify: !include_dir_merge_list notify
