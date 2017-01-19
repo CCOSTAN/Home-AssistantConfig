@@ -14,3 +14,11 @@ ifttt_notify:
   sequence:
     - service: ifttt.trigger
       data_template: {"event":"ifttt_notify", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
+      
+    
+    - service: notify.facebook
+      data_template:
+        message: {"event":"ifttt_notify", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
+        target:
+          - +16468797283
+          - +16469967218
