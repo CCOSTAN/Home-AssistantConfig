@@ -8,10 +8,9 @@
       event: sunset
       
   action:
-    
-    - service: script.monthly_front_house_scene
-    - service: script.holiday_switches_on
-    - delay: '00:{{ (range(1, 59)|random|int) }}:00'
+    - service: switch.turn_on
+      entity_id:
+        - switch.front_door_outlet
     - service: light.turn_on
       entity_id: 
         - light.outdoor_bathroom
@@ -19,14 +18,16 @@
         - light.tv_stand_light
       data:  
         transition: 1200 
-    
+    - service: script.holiday_switches_on
+    - delay: '00:{{ (range(1, 59)|random|int) }}:00'
+    - service: script.monthly_front_house_scene
 ######################################################################
 
 - alias: 'Sunset Stuff off'  
   trigger:
     - platform: sun
       event: sunrise
-      # offset: '-0{{ (range(1, 3)|random|int) }}:{{ (range(1, 59)|random|int) }}:00'
+      offset: '-01:00:00'
 
   action:
     - service: light.turn_off

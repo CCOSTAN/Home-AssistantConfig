@@ -15,7 +15,9 @@ holiday_switches_on:
     - service: switch.turn_on
       entity_id: switch.foyer_outlet
     - delay: 00:00:30
-
+    - service: switch.turn_on
+      entity_id: switch.front_door_outlet
+      
     - condition: sun
       after: sunset
     - service: switch.turn_on
