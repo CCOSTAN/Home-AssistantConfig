@@ -4,8 +4,9 @@
 
 - alias: 'Sunset Stuff on'  
   trigger:
-    - platform: sun
-      event: sunset
+    - platform: state
+      entity_id: sun.sun
+      state: 'below.horizon'
       
   action:
     - service: switch.turn_on

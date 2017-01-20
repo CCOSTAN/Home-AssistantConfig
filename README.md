@@ -60,7 +60,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 ALL DAY LONG: 
 Check to see if we are away.
 
-SUNRISE minus 3.5 hours
+SUNRISE minus 1 hour
      Turn off ALL SWITCHES
      Turn off ALL LIGHTS
 05:00 AM ** Light Brightness helper 50 Brightness ** 
