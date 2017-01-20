@@ -32,7 +32,7 @@ switch_turn_off_all:
       entity_id: switch.living_room_amp
     - delay: '00:01:00'      
     - service: switch.turn_on
-      entity_id: switch.village_outlet
+      entity_id: switch.Outlet_304_4
       
     - service: switch.turn_off
       entity_id: switch.living_room_outlet
@@ -58,5 +58,8 @@ switch_turn_off_all:
     - service: switch.turn_off
       entity_id: switch.living_room_amp
     - delay: '00:01:00'      
-    - service: switch.turn_on
-      entity_id: switch.village_outlet
+    - service: switch.turn_off
+      entity_id: switch.Outlet_304_4
+    - delay: '00:01:00'      
+    - service: switch.turn_off
+      entity_id: group.all_switches
