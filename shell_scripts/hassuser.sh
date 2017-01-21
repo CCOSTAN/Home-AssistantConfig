@@ -10,6 +10,6 @@ sudo su -s /bin/bash hass
 # pip3 install --upgrade homeassistant  - Use HAUpdate.sh script
 
 # To view The HA logs realtime
-# sudo journalctl -u home-assistant -f
+# sudo journalctl -u home-assistant -f | ccze
 
 
