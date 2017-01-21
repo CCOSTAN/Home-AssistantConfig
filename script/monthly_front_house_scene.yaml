@@ -3,7 +3,7 @@
 #  action:
 #   - service: script.monthly_front_house_scene
 #
-#   scenes should be named month_front_[1-12]_colors (month_front_6_colors)
+#   scenes should be named month_front_[01-12]_colors (month_front_06_colors)
 ######################################################################################################
 
 monthly_front_house_scene:
@@ -11,6 +11,11 @@ monthly_front_house_scene:
     - condition: state
       entity_id: sun.sun
       state: 'below.horizon'
+    
+    - service: logbook.log
+      data_template:
+        name: "Launching Scene:"
+        message: "scene.month_front_{{ states('sensor.date').split('-')[1] }}_colors"
     
     - service: scene.turn_on
       data_template:
