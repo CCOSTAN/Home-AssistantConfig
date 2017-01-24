@@ -79,5 +79,13 @@
       rgb_led_garage_small:
         friendly_name: 'RGB LED Garage Small'
         value_template: "{{ 'Online' if is_state('device_tracker.rgb_led_garage_small', 'home') else 'Offline' }}"
+      
+      smart_water_meter:
+        friendly_name: 'Smart Water Meter'
+        value_template: "{{ 'Online' if is_state('device_tracker.smart_water_meter', 'home') else 'Offline' }}"
+
+      withings_scale:
+        friendly_name: 'WiThings Scale'
+        value_template: "{{ 'Online' if is_state('device_tracker.withings_scale', 'home') else 'Offline' }}"   
         
         
