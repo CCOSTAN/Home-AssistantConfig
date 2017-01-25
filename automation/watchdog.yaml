@@ -28,13 +28,12 @@
 - alias: Automated Light WatchDog!
   trigger:
     - platform: state
-      entity_id: light.hallway
+      entity_id: 
+        - light.hallway
+        - group.foyer_lights
       state: 'on'
       for: '00:20:00'
-    - platform: state
-      entity_id: group.foyer_lights
-      state: 'on'
-      for: '00:20:00'
+
     - platform: state
       entity_id:
         - light.paige_go
@@ -49,26 +48,6 @@
         entity_id: "{{ trigger.entity_id }}"
 
 ##############################################################################
-
-- alias: If Outdoor lights are on and it's daytime, TURN THEM OFF!!
-  hide_entity: True
-  trigger:
-    - platform: time
-      minutes: '/47'
-      seconds: 0
-
-  condition:
-    - condition: state
-      entity_id: sun.sun
-      state: 'above_horizon'
-    - condition: state
-      entity_id: group.outdoor_lights
-      state: 'on'
-      
-  action:
-    - service: light.turn_off
-      entity_id: group.outdoor_lights
-
 
 - alias: "NOTIFY IF IP CHANGES"
   hide_entity: True
