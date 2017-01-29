@@ -52,6 +52,7 @@ light:
         mode: "rgb"
         
 emulated_hue:
+  type: alexa
   host_ip: 192.168.10.10
   listen_port: 8300
   expose_by_default: false
@@ -122,4 +123,4 @@ scene: !include_dir_merge_list scene
 switch: !include_dir_merge_list switch
 script: !include_dir_merge_named script
 input_boolean: !include_dir_merge_named input_boolean
-notify: !include_dir_merge_list notify
+
