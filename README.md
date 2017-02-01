@@ -4,7 +4,7 @@
 This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly. 
 Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
 
-Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), SSL via [SSLS](SSLS.com) - 5 Bucks A Year! 
+Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), SSL via [SSLS](SSLS.com) - 5 Bucks A Year! , [HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility. 
 
 **Devices I have :**
 * Lots of iOS Devices (iPads, iPods, iPhones)
@@ -22,7 +22,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [AMPs](http://amzn.to/2j18dlT) - These are cheap but effective for the Dots, Chromecasts or other speakers.
 * [Etekcity Outlets](http://amzn.to/2efNoBP)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
-* [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor
+* [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * Nintendo Wii
 * Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control! 
 * [iTeadStudio goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
