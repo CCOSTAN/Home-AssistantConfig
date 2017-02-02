@@ -14,7 +14,7 @@ front_house_motion:
 
     - condition: state
       entity_id: sun.sun
-      state: 'below.horizon'
+      state: 'below_horizon'
     - service: scene.turn_on
       entity_id: scene.front_full_brightness
     - delay: '00:{{ (range(5, 20)|random|int) }}:00' 
