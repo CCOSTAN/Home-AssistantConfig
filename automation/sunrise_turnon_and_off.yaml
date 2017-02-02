@@ -4,9 +4,8 @@
 
 - alias: 'Sunset Stuff on'  
   trigger:
-    - platform: state
-      entity_id: sun.sun
-      state: 'below.horizon'
+    - platform: sun
+      event: sunset
       
   action:
     - service: switch.turn_on
@@ -17,8 +16,6 @@
         - light.outdoor_bathroom
         - light.tv_light
         - light.tv_stand_light
-      data:  
-        transition: 1200 
     - service: script.holiday_switches_on
     - delay: '00:{{ (range(1, 59)|random|int) }}:00'
     - service: script.monthly_front_house_scene
