@@ -2,7 +2,7 @@
 ###  Detect when lights are turned on and adjust them accordingly based on time.
 ###  Code by @JesseWebDotCom
 ##############################################################################
-- alias: detect lights and adjust the brightness when turned on based on time.
+- alias: detect lights and adjust the brightness when turned on based on time
   trigger:
     - platform: event
       event_type: state_changed
@@ -37,11 +37,11 @@
         entity_id: "{{ trigger.event.data.entity_id }}"
         brightness: >
           {% set hour=states("sensor.time").split(':')[0] | int %}
-          {%- if hour >= 5 or hour < 8  -%}
+          {%- if hour >= 5 and hour < 8  -%}
             50
-          {%- elif hour >= 8 or hour <20  -%}
+          {%- elif hour >= 8 and hour <20  -%}
             255
-          {%- elif hour >= 20 or hour <24  -%}
+          {%- elif hour >= 20 and hour <24  -%}
             40  
           {%- else -%}
             15
