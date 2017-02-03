@@ -23,11 +23,12 @@ voice_notify:
               state: 'on'
       
         - condition: time
+          after: '08:00:00'
           before: '20:00:00'
 
     - service: switch.turn_on
       entity_id: switch.living_room_amp    
-    - delay: '00:00:10'
+    - delay: '00:00:05'
     
     - service: tts.google_say
       entity_id: media_player.whole_house

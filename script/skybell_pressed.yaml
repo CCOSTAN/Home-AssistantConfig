@@ -12,12 +12,13 @@ skybell_pressed:
       data:
         name: "SkyBell HD Doorbell:"
         message: "Someone Pressed the Doorbell."
-        
+
+    - service: script.flash_notify        
     - service: script.Voice_notify
       data:
         value1: 'Please check the Front Door.  Someone Pressed the Doorbell.'
 
-    - service: script.flash_notify
+
 
   
 
