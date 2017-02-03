@@ -1,5 +1,5 @@
 #Color Table
-# http://www.w3schools.com/colors/colors_hex.asp
+# http://www.colorhexa.com/color-names
 
 #    service: scene.turn_on
 #    entity_id: scene.month_front_01_colors
@@ -7,13 +7,13 @@
     
 - name: month_front_01_colors
   entities:
-       light.outdoor_sconce_2:
+       light.outdoor_foyer:
            state: 'on'
            color_name: 'Gold'
        light.outdoor_sconce_1:
            state: 'on'
            color_name: 'Gold'
-       light.outdoor_foyer:
+       light.outdoor_sconce_2:
            state: 'on'
            color_name: 'Gold'
        light.outdoor_sconce_3:
@@ -32,18 +32,18 @@
 
 - name: month_front_02_colors
   entities:
-       light.outdoor_sconce_2:
-           state: 'on'
-           color_name: 'Pink'
        light.outdoor_sconce_1:
            state: 'on'
-           color_name: 'Pink'
-       light.outdoor_foyer:
+           color_name: 'Hot Pink'
+       light.outdoor_sconce_2:
            state: 'on'
-           color_name: 'Pink'
+           color_name: 'Hot Pink'
        light.outdoor_sconce_3:
            state: 'on'
-           color_name: 'Pink'
+           color_name: 'Hot Pink'
+       light.outdoor_foyer:
+           state: 'on'
+           color_name: 'Hot Pink'
        # light.garage_left:
            # state: 'on'
            # color_name: 'Pink'
@@ -76,20 +76,20 @@
            # brightness: 255
        light.garage_left:
            state: 'on'
-           color_name: 'RoyalBlue'
+           color_name: 'Royal Blue'
            # brightness: 255
        light.garage_small:
            state: 'on'
-           color_name: 'RoyalBlue'
+           color_name: 'Royal Blue'
            # brightness: 255
        light.outdoor_den:
            state: 'on'
-           color_name: 'RoyalBlue'
+           color_name: 'Royal Blue'
            # brightness: 255
 
 - name: front_full_brightness
   entities:
-       light.outdoor_sconce_2:
+       light.outdoor_foyer:
            state: 'on'
            color_name: 'White'
            brightness: 255
@@ -97,7 +97,7 @@
            state: 'on'
            color_name: 'White'
            brightness: 255
-       light.outdoor_foyer:
+       light.outdoor_sconce_2:
            state: 'on'
            color_name: 'White'
            brightness: 255
