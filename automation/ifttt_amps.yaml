@@ -10,13 +10,10 @@
     - platform: event
       event_type: amp_on
     - platform: state
-      entity_id: media_player.whole_house
-      from: 'off'
-      to: 'playing'
-    - platform: state
-      entity_id: media_player.livingroomcc
-      from: 'off'
-      to: 'playing'
+      entity_id: 
+        - media_player.livingroomcc
+        - media_player.whole_house
+        
   action:
     - service: switch.turn_on
       entity_id: switch.living_room_amp
@@ -27,13 +24,12 @@
     - platform: event
       event_type: amp_off
     - platform: state
-      entity_id: media_player.whole_house
+      entity_id: 
+        - media_player.livingroomcc
+        - media_player.whole_house
       from: 'playing'
       to: 'off'
-    - platform: state
-      entity_id: media_player.livingroomcc
-      from: 'playing'
-      to: 'off'
+      for: '00:30:00'
       
   action:
     - service: switch.turn_off

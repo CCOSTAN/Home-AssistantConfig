@@ -1,17 +1,39 @@
 ######################################################################################################
-###Script to send notifications to IFTTT to notify me on the mobile Phone! Call like this:
+###Script to send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
   # action:
-    # service: script.ifttt_notify
+    # service: script.Voice_notify
     # data_template:
       # value1: 'Startup: Home Assistant is Up and Running!'
-      # value2: ''
-      # value3: "{{ trigger.to_state.state }}"
+      # OR
+      # value1: "{{ trigger.to_state.state }}"
       
-    # IFTTT Maker channel should look like this: https://files.gitter.im/home-assistant/home-assistant/phkx/blob
 ######################################################################################################
 
-ifttt_notify:
+voice_notify:
   sequence:
-    - service: ifttt.trigger
-      data_template: {"event":"ifttt_notify", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
+    - condition: and
+      conditions:
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: group.family
+              state: 'home'
+            - condition: state
+              entity_id: input_boolean.guest_mode
+              state: 'on'
+      
+        - condition: time
+          before: '20:00:00'
+
+    - service: switch.turn_on
+      entity_id: switch.living_room_amp    
+    - delay: '00:00:10'
+    
+    - service: tts.google_say
+      entity_id: media_player.whole_house
+      data_template:
+        message: "{{ value1 }}"
+        cache: true
+ 
+
       
