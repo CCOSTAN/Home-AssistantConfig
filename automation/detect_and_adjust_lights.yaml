@@ -2,7 +2,7 @@
 ###  Detect when lights are turned on and adjust them accordingly based on time.
 ###  Code by @JesseWebDotCom
 ##############################################################################
-- alias: detect_light_between 5am and 8am
+- alias: detect lights and adjust the brightness when turned on based on time.
   trigger:
     - platform: event
       event_type: state_changed
@@ -10,7 +10,10 @@
   condition:
     - condition: state
       entity_id: group.family
-      state: home 
+      state: 'home'
+    - condition: state
+      entity_id: input_boolean.alert_mode
+      state: 'off'
     - condition: template
       value_template: "{{ trigger.event.data is not none }}"
     - condition: template
@@ -41,6 +44,6 @@
           {%- elif hour >= 20 or hour <24  -%}
             40  
           {%- else -%}
-            20
+            15
           {%- endif %}
    

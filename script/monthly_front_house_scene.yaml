@@ -11,6 +11,9 @@ monthly_front_house_scene:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
+    - condition: state
+      entity_id: input_boolean.alert_mode
+      state: 'off'
     
     - service: logbook.log
       data_template:
