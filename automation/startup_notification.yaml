@@ -2,14 +2,18 @@
 ##  Start Up Section
 ###################################
 
-- alias: Startup Notification
+- alias: Startup Notification and Shut startup lights
   hide_entity: True
   trigger:
-    platform: event
-    event_type: homeassistant_start
+    - platform: event
+      event_type: homeassistant_start
   action:
-    service: script.ifttt_notify
-    data_template:
-      value1: 'Startup: Home Assistant is Up and Running!'
-      value2: ''
-      value3: ''
+    - service: script.ifttt_notify
+      data_template:
+        value1: 'Startup: Home Assistant is Up and Running!'
+        value2: ''
+        value3: ''
+      
+    - service: light.turn_off
+      entity_id: group.hallway_lights
+      
