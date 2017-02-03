@@ -8,6 +8,7 @@ homeassistant:
   customize: !include_dir_merge_named customize  
 
 http:
+  base_url: !secret http_base_url
   api_password: !secret http_api_password
   ssl_certificate: !secret ssl_certificate
   ssl_key: !secret ssl_key
@@ -103,7 +104,14 @@ climate:
 media_player:
   platform: cast
   host: 192.168.10.105  
-  
+
+tts:
+  - platform: google
+    language: 'en-us'
+    cache: true
+    cache_dir: /tmp/tts
+    time_memory: 300
+    
 cover:
   platform: garadget
   covers:
