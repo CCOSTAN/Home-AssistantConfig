@@ -1,6 +1,6 @@
 ##############################################################################
 ###  Detect when lights are turned on and adjust them accordingly based on time.
-###  Here is 8pm to 5am
+###  Code by @JesseWebDotCom
 ##############################################################################
 - alias: detect_light_between 5am and 8am
   trigger:
@@ -38,7 +38,9 @@
             50
           {%- elif hour >= 8 or hour <20  -%}
             255
+          {%- elif hour >= 20 or hour <24  -%}
+            40  
           {%- else -%}
-            35
+            20
           {%- endif %}
    

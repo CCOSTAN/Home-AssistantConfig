@@ -1,3 +1,5 @@
+##  These scripts are run from /home/pi 
+
 #!/bin/bash
 cat hassuser
 
