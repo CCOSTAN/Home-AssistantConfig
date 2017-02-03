@@ -7,8 +7,11 @@
     - platform: event
       event_type: good_night
     - platform: state
-      entity_id: sensor.samsungtv
+      entity_id: 
+        - sensor.samsungtv
+        - sensor.withings_scale
       state: 'Offline'
+      from: 'Online'
 
   condition:
     - condition: time

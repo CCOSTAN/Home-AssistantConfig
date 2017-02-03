@@ -16,10 +16,9 @@
     - service: light.turn_on
       entity_id: 
         - light.outdoor_bathroom
-        - light.tv_light
-        - light.tv_stand_light
+        - group.living_room_accents
     - service: script.holiday_switches_on
-    - delay: '00:{{ (range(1, 59)|random|int) }}:00'
+    - delay: '00:{{ (range(1, 30)|random|int) }}:00'
     - service: script.monthly_front_house_scene
 ######################################################################
 
