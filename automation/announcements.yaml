@@ -14,7 +14,6 @@
         - device_tracker.joyce_ipad
       from: 'home'
       to: 'not_home'
-      for: '00:03:00'
 
     - platform: state
       entity_id:
@@ -25,7 +24,7 @@
         - device_tracker.joyce_ipad
       from: 'not_home'
       to: 'home'
-      for: '00:03:00'
+      for: '00:02:00'
       
     - platform: state
       entity_id:
@@ -33,9 +32,9 @@
         - cover.garadget_small
       from: 'closed'
       to: 'open'
-      for: '00:03:00'
+      for: '00:02:00'
       
   action:
     - service: script.Voice_notify
-      data_template: 
-        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ trigger.to_state.state }}"
+      data_template:
+        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} is {{ (trigger.to_state.state)|replace('_', ' ') }}"
