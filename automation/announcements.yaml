@@ -38,5 +38,4 @@
   action:
     - service: script.Voice_notify
       data_template:
-        message: "Attention.  {{ trigger.entity_id.split('.')[1].lower().title() }} is now {{ trigger.to_state.state }}"
-        cache: true
+        value1: "Attention.  {{ trigger.entity_id.split('.')[1].lower().title() }} is now {{ trigger.to_state.state }}"
