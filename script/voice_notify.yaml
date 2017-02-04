@@ -40,7 +40,15 @@ voice_notify:
     - service: tts.google_say
       entity_id: media_player.whole_house
       data_template:
-        message: "{{ value1 }}"
+        message: >
+          {% if now().strftime("%H")|int < 12 %}
+          "Good morning.
+          {% elif now().strftime("%H")|int < 18 %}
+          "Good afternoon.
+          {% else %}
+          "Good evening.
+          {% endif %}
+          {{ value1 }}"
         cache: true
  
 
