@@ -21,10 +21,14 @@ voice_notify:
             - condition: state
               entity_id: input_boolean.guest_mode
               state: 'on'
-      
-        - condition: time
-          after: '08:00:00'
-          before: '21:00:00'
+        - condition: or
+          conditions:
+            - condition: time
+              after: '08:00:00'
+              before: '21:00:00'
+            - condition: state
+              entity_id: input_boolean.alert_mode
+              state: 'on'      
         - condition: state
           entity_id: input_boolean.speech_notifications
           state: 'on'
