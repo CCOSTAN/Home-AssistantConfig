@@ -19,6 +19,12 @@ front_house_motion:
     - service: input_boolean.turn_on
       data:
         entity_id: input_boolean.alert_mode
+    - service: script.Voice_notify
+      data:
+        value1: 'Motion has been detected by the front door.'
+    - service: input_boolean.turn_off
+      data:
+        entity_id: input_boolean.alert_mode
     - service: scene.turn_on
       entity_id: scene.front_full_brightness
     - service: input_boolean.turn_off
