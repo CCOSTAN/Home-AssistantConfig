@@ -37,6 +37,19 @@ voice_notify:
       entity_id: switch.living_room_amp    
     - delay: '00:00:05'
     
+    - service: media_player.volume_set
+      entity_id:
+        - media_player.whole_house
+      data_template: 
+        volume_level: >
+          {% if now().strftime("%H")|int < 12 %}
+          0.20
+          {% elif now().strftime("%H")|int < 18 %}
+          0.70
+          {% else %}
+          0.40
+          {% endif %}
+    
     - service: tts.google_say
       entity_id: media_player.whole_house
       data_template:
