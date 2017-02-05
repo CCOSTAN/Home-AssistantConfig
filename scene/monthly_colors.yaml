@@ -5,18 +5,53 @@
 #    entity_id: scene.month_01_colors
 
     
-- name: month_01_colors
+- name: month_standard_colors
   entities:
        group.outdoor_front_lights:
            state: 'on'
            color_name: 'Gold'
 
-- name: month_02_colors
+- name: month_valentine_colors
   entities:
        group.outdoor_front_lights:
            state: 'on'
-           color_name: 'Hot Pink'
+           color_name: 'Crimson'
+
+- name: month_marti_gras_colors
+  entities:
+       light.outdoor_foyer:
+           state: 'on'
+           color_name: 'Gold'
+       light.outdoor_sconce_1:
+           state: 'on'
+           color_name: 'Purple'
+       light.outdoor_sconce_2:
+           state: 'on'
+           color_name: 'Green'
+       light.outdoor_sconce_3:
+           state: 'on'
+           color_name: 'Gold'
+
+- name: month_st_patty_colors
+  entities:
+       group.outdoor_front_lights:
+           state: 'on'
+           color_name: 'Dark Spring Green'
            
+- name: month_RWB_colors
+  entities:
+       light.outdoor_foyer:
+           state: 'on'
+           color_name: 'Cream'
+       light.outdoor_sconce_1:
+           state: 'on'
+           color_name: 'Red'
+       light.outdoor_sconce_2:
+           state: 'on'
+           color_name: 'White'
+       light.outdoor_sconce_3:
+           state: 'on'
+           color_name: 'Blue'
 
 - name: front_full_brightness
   entities:
