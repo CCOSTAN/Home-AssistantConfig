@@ -52,7 +52,7 @@ monthly_color_scene:
           and now().strftime("%m%d")|int <= 317-%}
           st_patty
           {%- else -%}
-          {{ states('sensor.date').split('-')[1] }}
+          standard
           {%- endif -%}_colors"
  
  
