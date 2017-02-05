@@ -50,8 +50,8 @@
 - alias: 'Rain is over'  
   trigger:
     - platform: numeric_state
-      entity_id: sensor.dark_sky_cloud_coverage
-      above: 90
+      entity_id: sensor.dark_sky_precip_intensity
+      below: 1
       
   action:
     - service: light.turn_off
