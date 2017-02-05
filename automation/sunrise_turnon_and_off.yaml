@@ -19,7 +19,7 @@
         - group.living_room_accents
     - service: script.holiday_switches_on
     - delay: '00:{{ (range(1, 30)|random|int) }}:00'
-    - service: script.monthly_front_house_scene
+    - service: script.monthly_color_scene
     - service: script.Voice_notify
       data:
         value1: 'Sunset has occurred.  I will turn on the outside lights now.'
