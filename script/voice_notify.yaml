@@ -37,9 +37,12 @@ voice_notify:
       entity_id: switch.living_room_amp    
     - delay: '00:00:05'
     
+    - service: media_player.turn_on
+      entity_id: media_player.livingroomCC 
+        
     - service: media_player.volume_set
       entity_id:
-        - media_player.whole_house
+        - media_player.livingroomCC
       data_template: 
         volume_level: >
           {% if now().strftime("%H")|int < 12 %}
@@ -51,7 +54,7 @@ voice_notify:
           {% endif %}
     
     - service: tts.google_say
-      entity_id: media_player.whole_house
+      entity_id: media_player.livingroomCC
       data_template:
         message: >
           {% if now().strftime("%H")|int < 12 %}
