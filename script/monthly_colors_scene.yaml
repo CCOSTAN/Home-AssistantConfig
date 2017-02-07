@@ -29,7 +29,7 @@ monthly_color_scene:
     - service: scene.turn_on
       data_template:
         entity_id: >
-          "scene.month_
+          scene.month_
           {%- if now().strftime("%m%d")|int == 101 -%}
           new_years_day
           {%- elif now().strftime("%m%d")|int == 212
@@ -53,7 +53,7 @@ monthly_color_scene:
           st_patty
           {%- else -%}
           standard
-          {%- endif -%}_colors"
+          {%- endif -%}_colors
  
  
 # http://www.calendar-365.com/holidays/2017.html 

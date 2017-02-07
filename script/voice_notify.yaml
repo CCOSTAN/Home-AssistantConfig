@@ -48,9 +48,9 @@ voice_notify:
           {% if now().strftime("%H")|int < 12 %}
           0.20
           {% elif now().strftime("%H")|int < 18 %}
-          0.70
+          0.50
           {% else %}
-          0.40
+          0.25
           {% endif %}
     
     - service: tts.google_say
