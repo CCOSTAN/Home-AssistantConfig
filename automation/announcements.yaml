@@ -27,5 +27,4 @@
   action:
     - service: script.Voice_notify
       data_template:
-        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} is {{ (trigger.to_state.state)|replace('_', ' ') }}. 
-        {{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} was {{(trigger.to_state.state)|replace('_', ' ') }} for {{trigger.for}}."
+        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} is {{ (trigger.to_state.state)|replace('_', ' ') }}."

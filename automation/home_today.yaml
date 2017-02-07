@@ -19,7 +19,7 @@
           {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
           Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is trash day.  Please be sure to tell the kids to take out the trash.
           {%endif%}
-          Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with {{states('sensor.downstairs_thermostat_humidity')}} around percent humidity. Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}} 
+          Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity. Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}} 
           {% if is_state('cover.garadget_large', 'open') -%}
           Also, The Large Garage Door is still open 
           {% endif -%}
@@ -27,3 +27,9 @@
           {% if is_state('cover.garadget_large', 'open') -%}and
           {%- endif %} The small Garage Door is still open.
           {% endif %}
+          There are 
+          {% for state in states.light if state.state == 'on' -%}
+            {%- if loop.last -%}
+            {{ loop.index }}
+            {%- endif -%}
+          {%- endfor %} lights on right now."
