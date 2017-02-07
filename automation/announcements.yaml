@@ -12,16 +12,6 @@
         - device_tracker.franco
         - device_tracker.yolanda
         - device_tracker.joyce_ipad
-      from: 'home'
-      to: 'not_home'
-
-    - platform: state
-      entity_id:
-        - device_tracker.carlo
-        - device_tracker.stacey
-        - device_tracker.franco
-        - device_tracker.yolanda
-        - device_tracker.joyce_ipad
       from: 'not_home'
       to: 'home'
       for: '00:02:00'
@@ -37,4 +27,5 @@
   action:
     - service: script.Voice_notify
       data_template:
-        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} is {{ (trigger.to_state.state)|replace('_', ' ') }}"
+        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} is {{ (trigger.to_state.state)|replace('_', ' ') }}. 
+        {{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} was {{(trigger.to_state.state)|replace('_', ' ') }} for {{trigger.for}}."
