@@ -38,7 +38,7 @@
         - light.sink
     - service: script.Voice_notify
       data_template:
-        value1: "It is getting a little dark because of the  {{trigger.entity_id.split('_')[2]|replace('precip','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}}
+        value1: "It is getting a little dark inside the house because of the  {{trigger.entity_id.split('_')[2]|replace('precip','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}}
         outside.  I will turn on some extra lights in the living room."
 
 ######################################################################
@@ -62,4 +62,4 @@
         transition: 1200 
     - service: script.Voice_notify
       data_template:
-        value1: "Sun is back out.  Let's turn down these lights now."
+        value1: "The sun is back out.  Let's turn down these lights now."
