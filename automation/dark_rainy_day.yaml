@@ -35,11 +35,11 @@
     - service: light.turn_on
       entity_id: 
         - light.couch_1
-      data:  
-        transition: 1200 
-    - service: switch.turn_on
-      entity_id:
-        - switch.living_room_outlet
+        - light.sink
+    - service: script.Voice_notify
+      data_template:
+        value1: "It is getting a little dark because of the  {{trigger.entity_id.split('_')[2]|replace('precip','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}}
+        outside.  I will turn on some extra lights in the living room."
 
 ######################################################################
 
@@ -57,8 +57,9 @@
     - service: light.turn_off
       entity_id: 
         - light.couch_1
+        - light.sink
       data:  
         transition: 1200 
-    - service: switch.turn_off
-      entity_id:
-        - switch.living_room_outlet
+    - service: script.Voice_notify
+      data_template:
+        value1: "Sun is back out.  Let's turn down these lights now."
