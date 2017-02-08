@@ -53,7 +53,7 @@ voice_notify:
           0.25
           {% endif %}
     
-    - service: tts.google_say
+    - service: tts.amazon_polly_say
       entity_id: media_player.livingroomCC
       data_template:
         message: >
