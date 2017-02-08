@@ -116,6 +116,11 @@ tts:
     cache_dir: /tmp/tts
     time_memory: 300
     
+  - platform: amazon_polly
+    aws_access_key_id: !secret aws_access_key_ID
+    aws_secret_access_key: !secret aws_secret_access_key
+    region_name: 'us-east-1'
+    
 cover:
   platform: garadget
   covers:
