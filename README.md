@@ -135,6 +135,13 @@ command_on: "/var/www/html/rfoutlet/codesend 4543795 -l 177 -p 0"
       friendly_name: 'Deadbolt Status:'
 
       
+      #Handy Little Set trick
+{% for entity_id in states.group.my_group.attributes.entity_id %}
+  {% set domain = entity_id.split('.')[0] %}
+  {% set entity = entity_id.split('.')[1] %}
+  Temperature: {{ states[domain][entity].attributes.temperature }}
+{% endfor %}
+
       
 ```
 
