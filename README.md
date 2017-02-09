@@ -25,13 +25,13 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * Nintendo Wii
 * Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control! 
-* [iTeadStudio goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
+* [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
 * [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2j5Vu0D)
 * [Digital Smart Water Main ShutOff/Leak Detector] (http://www.providencecpc.org/wp-content/uploads/2016/01/work_in_progress.png) - Beta test to monitor Water usage and Leaks centrally.
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
 
 **Automations:**
-* Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios.  Accomplished via the [Google TTS](https://home-assistant.io/components/tts/) component.
+* Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios.  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
 * IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
 * Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
@@ -54,7 +54,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
-* Sets up the front lights in the house with preset colors depending on the month.
+* Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell.
 
