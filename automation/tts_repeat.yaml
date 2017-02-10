@@ -1,8 +1,7 @@
 ######################################################################
-##  Announce when people come or go.
-## Announce over all Chromecast Audios 
+##  What did she say? REPEAT THE LAST MESSAGE.
 ######################################################################
-- alias: 'State Announcements'
+- alias: 'tts_repeat'
   
   trigger:
     - platform: state
@@ -13,4 +12,4 @@
   action:
     - service: script.Voice_notify
       data_template:
-        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} is {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        value1: "{{states.sensor.polly_lastmsg.state}}"
