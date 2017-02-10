@@ -139,23 +139,8 @@ command_on: "/var/www/html/rfoutlet/codesend 4543795 -l 177 -p 0"
         }}'
       friendly_name: 'Deadbolt Status:'
 
-      
-      #Handy Little Set trick
-{% for entity_id in states.group.my_group.attributes.entity_id %}
-  {% set domain = entity_id.split('.')[0] %}
-  {% set entity = entity_id.split('.')[1] %}
-  Temperature: {{ states[domain][entity].attributes.temperature }}
-{% endfor %}
 
-#More handy tricks!
 
-{% set comma = joiner(', ') %}
-{%- for group in states.light|groupby('state') -%}
-  Lights that are {{ group.grouper|upper }}:{{ ' ' }}
-  {%- for entity in group.list -%}
-    {{ comma() }}{{ entity.name }}
-  {%- endfor -%}
-{%- endfor %}
    
 ```
 

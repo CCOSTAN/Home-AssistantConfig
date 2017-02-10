@@ -16,7 +16,13 @@
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
-        
+    - condition: state
+      entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      state: 'on'
+      
   action:
     - service: script.Voice_notify
       data_template:
