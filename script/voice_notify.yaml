@@ -58,7 +58,13 @@ voice_notify:
           {% else %}
           0.25
           {% endif %}
-    
+
+    - service: mqtt.publish
+      data_template:
+        payload: '{{ value1 }}"'
+        topic: 'polly/lastmsg'
+        retain: true
+          
     - service: tts.amazon_polly_say
       entity_id: media_player.livingroomCC
       data_template:
