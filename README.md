@@ -34,6 +34,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 
 **Automations:**
 * Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios.  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
+* Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
 * IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
 * Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
@@ -60,6 +61,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell.
+* Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space. 
 
 **Time Based Automation TimeLine**
 ```
