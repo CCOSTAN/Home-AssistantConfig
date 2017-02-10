@@ -8,19 +8,20 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 
 **Devices I have :**
 * Lots of iOS Devices (iPads, iPods, iPhones)
-* [Nest Thermostats](http://amzn.to/2eAhB1k)
+* [Nest Thermostats](http://amzn.to/2eAhB1k) - Smart Thermostat
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
-* [Circle by Disney](http://amzn.to/2eAgaA6)
-* [Rachio Sprinkler system](http://amzn.to/2eoPKBW)
+* [Circle by Disney](http://amzn.to/2eAgaA6) - Parental Monitor for internet and screentime.
+* [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
+* [Withings](http://amzn.to/2kr78nW) - Smart Weight scale
 * [SkyBell HD](http://amzn.to/2dcexIB)
 * [Rokus](http://amzn.to/2dpn89c) for all streaming
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
 * ChromeCast Audios
 * [AMPs](http://amzn.to/2j18dlT) - These are cheap but effective for the Dots, Chromecasts or other speakers.
-* [Etekcity Outlets](http://amzn.to/2efNoBP)
+* [Etekcity Outlets](http://amzn.to/2efNoBP) - Cheap 6 Buck RF outlet control!
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * Nintendo Wii
@@ -29,6 +30,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2j5Vu0D)
 * [Digital Smart Water Main ShutOff/Leak Detector] (http://www.providencecpc.org/wp-content/uploads/2016/01/work_in_progress.png) - Beta test to monitor Water usage and Leaks centrally.
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
+* [SleepNumber Bed i8](http://amzn.to/2kxdXXI) - Has SleepIQ to track occupancy and sleep habits.  Tied into HA.
 
 **Automations:**
 * Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios.  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
@@ -54,6 +56,7 @@ Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](htt
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
+* (IFTTT) Trigger Good Night routine when I step on the [Withings](http://amzn.to/2kr78nW) scale after 10pm.
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell.
@@ -142,7 +145,16 @@ command_on: "/var/www/html/rfoutlet/codesend 4543795 -l 177 -p 0"
   Temperature: {{ states[domain][entity].attributes.temperature }}
 {% endfor %}
 
-      
+#More handy tricks!
+
+{% set comma = joiner(', ') %}
+{%- for group in states.light|groupby('state') -%}
+  Lights that are {{ group.grouper|upper }}:{{ ' ' }}
+  {%- for entity in group.list -%}
+    {{ comma() }}{{ entity.name }}
+  {%- endfor -%}
+{%- endfor %}
+   
 ```
 
 

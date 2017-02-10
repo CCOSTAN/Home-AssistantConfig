@@ -84,6 +84,10 @@
         friendly_name: 'Smart Water Meter'
         value_template: "{{ 'Online' if is_state('device_tracker.smart_water_meter', 'home') else 'Offline' }}"
 
+      sleep_number_bed:
+        friendly_name: 'Sleep Number Bed'
+        value_template: "{{ 'Online' if is_state('device_tracker.sleep_number_bed', 'home') else 'Offline' }}"
+        
       withings_scale:
         friendly_name: 'WiThings Scale'
         value_template: "{{ 'Online' if is_state('device_tracker.withings_scale', 'home') else 'Offline' }}"   
