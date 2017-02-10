@@ -5,11 +5,11 @@
   
   trigger:
     - platform: state
-      entity_id: input_boolean.repeat_message
+      entity_id: input_boolean.last_message
       state: 'on'
       from: 'off'
       
   action:
     - service: script.Voice_notify
       data_template:
-        value1: "{{states.sensor.polly_lastmsg.state}}"
+        value1: "{{states('sensor.polly_lastmsg')}}"
