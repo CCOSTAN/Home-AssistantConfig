@@ -61,7 +61,7 @@ voice_notify:
 
     - service: mqtt.publish
       data_template:
-        payload: '{{ value1 }}"'
+        payload: '{{ value1 }}'
         topic: 'polly/lastmsg'
         retain: true
           

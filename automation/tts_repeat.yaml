@@ -1,0 +1,16 @@
+######################################################################
+##  Announce when people come or go.
+## Announce over all Chromecast Audios 
+######################################################################
+- alias: 'State Announcements'
+  
+  trigger:
+    - platform: state
+      entity_id: input_boolean.repeat_message
+      state: 'on'
+      from: 'off'
+      
+  action:
+    - service: script.Voice_notify
+      data_template:
+        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'The large garage ')|replace('garadget small', 'The small garage ') }} is {{ (trigger.to_state.state)|replace('_', ' ') }}."
