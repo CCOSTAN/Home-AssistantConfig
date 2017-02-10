@@ -29,7 +29,13 @@
           {% endif %}
           . There are 
           {% for state in states.light if state.state == 'on' -%}
-            {%- if loop.last -%}
-            {{ loop.index }}
-            {%- endif -%}
-          {%- endfor %} lights on right now."
+          {%- if loop.last -%}
+          {{ loop.index }}
+          {%- endif -%}
+          {%- endfor %}  lights on right now."
+          {% set comma = joiner(', ') %} The 
+          {% for group in states.group|groupby('state') -%}
+          {%- for entity in group.list if entity.state == 'on' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
+          {{ comma() }}{{ entity.name }}
+          {%- endfor -%}
+          {%- endfor %}.
