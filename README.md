@@ -6,7 +6,10 @@ Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon La
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
-Software on the Pi : [Home Assistant](https://home-assistant.io/) , [Dasher](https://github.com/maddox/dasher), SSL via [SSLS](SSLS.com) - 5 Bucks A Year! , [HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility. 
+Software on the Pi : [Home Assistant](https://home-assistant.io/) , 
+[Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)  
+SSL via [SSLS](SSLS.com) - 5 Bucks A Year! - Keeps me safe!
+[HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility. 
 
 **Devices I have :**
 * Lots of iOS Devices (iPads, iPods, iPhones)
@@ -94,9 +97,12 @@ SUNSET:
 02:31 AM Heal ZWave Network
 ```
 
-![Screenshot of Home View](https://i.imgur.com/6NYAhZA.png)
-![Screenshot of Garage Door View](https://i.imgur.com/rtRZJNP.png)
-![Screenshot of Lights](https://i.imgur.com/oDeQrm2.png)
+![Screenshot of Home View](https://i.imgur.com/UlUiKTX.png)
+![Screenshot of Garage Door View](https://i.imgur.com/zotvUKp.png)
+![Screenshot of Lights](https://i.imgur.com/KKCPaLJ.png)
+![Screenshot of More](https://i.imgur.com/rg6lhJz.png)
+![Screenshot of Even More](https://i.imgur.com/SlglNh3.png)
+![Screenshot of Last one](https://i.imgur.com/sTsYQi4.png)
 
 #Todo List
 I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github. 
