@@ -1,5 +1,9 @@
 You can use this code to quickly create files from the template editor in HA.  I use it mainly for `emulated_hue` and to quickly add in new Customize options to all things HA!
 
+
+For the sandbox. 
+{% set trigger = {'entity_id':'sensor.downstairs_thermostat_hvac_state','to_state':'cooling'} %}
+
 #########################################################
 Create fast Customize for groups, sensors, covers etc...
 
