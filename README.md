@@ -82,6 +82,7 @@ SUNRISE minus 1 hour
 07:51 AM Turn on Kitchen Lights
 08:00 AM ** Light Brightness helper FULL 255 Brightness ** 
 08:31 AM (on school days) Turn off ALL interior lights.
+09:00 AM Speech Notifications are enabled for the house.
 
 SUNSET: 
      Turn on Den Outlet, Living Room Outlet, Dining Room Outlet, Outdoor Bathroom light, TV lights
@@ -93,9 +94,13 @@ SUNSET:
 08:00 PM ** Light Brightness helper 35 Brightness ** 
 08:00 PM TV time Scene triggered if the TV is on. 
 09:00 PM Turn on [Hue Go](http://amzn.to/2iB36Ii) lights for the kid's rooms and start fading down.
+09:00 PM Speech Notifications are disabled for the house. (except under ALERT mode)
 02:00 AM ** Late Night Help Deactivated **
 02:31 AM Heal ZWave Network
 ```
+
+#Todo List
+I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github. 
 
 ![Screenshot of Home View](https://i.imgur.com/UlUiKTX.png)
 ![Screenshot of Garage Door View](https://i.imgur.com/zotvUKp.png)
@@ -104,8 +109,6 @@ SUNSET:
 ![Screenshot of Even More](https://i.imgur.com/SlglNh3.png)
 ![Screenshot of Last one](https://i.imgur.com/sTsYQi4.png)
 
-#Todo List
-I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github. 
 
 
 
