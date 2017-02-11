@@ -100,48 +100,5 @@ SUNSET:
 I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github. 
 
 
-#Lab notes:
-
-```yaml
-
-Add codesend backup to RF Plugs! 
-@CCOSTAN I followed the info here: https://home-assistant.io/components/switch.command_line/
-command_on: "/var/www/html/rfoutlet/codesend 4543795 -l 177 -p 0"
-        
-{%- if now().month in [01, 11, 12] -%} Yes {%- else -%} NO {%- endif %}
-
-
-     #Great Template Sensor Example
-- platform: template
-  sensors:
-    front_door_lock_alarm_state:
-      value_template: >
-        '{{
-          {
-            '21': 'Secured using Key or inside thumb-turn',
-            '22': 'Un-Secured using Key or inside thumb-turn',
-            '26': 'Auto Secured – Bolt Jammed',
-            '27': 'Auto Secured – Successful',
-            '17': 'Secured at Keypad – Bolt Jammed',
-            '18': 'Secured at Keypad – Successful',
-            '19': 'Un-Secured by User at Keypad',
-            '23': 'Secured by Controller – Bolt Jammed',
-            '24': 'Secured by Controller – Successful',
-            '25': 'Un-Secured by Controller – Successful',
-            '112': 'New User Code added to the lock',
-            '32': 'All User Codes deleted from lock',
-            '161': 'Failed User Code attempt at Keypad',
-            '162': 'Attempted access by user outside of schedule',
-            '167': 'Low battery level',
-            '168': 'Critical battery level',
-            '169': 'Battery level too low to operate lock'
-          }[states('sensor.kwikset_touchpad_electronic_deadbolt_alarm_type_26_0')]
-        }}'
-      friendly_name: 'Deadbolt Status:'
-
-
-
-   
-```
 
 
