@@ -35,7 +35,7 @@
           {%- endfor %}  lights on right now."
           {% set comma = joiner(', ') %} The 
           {% for group in states.group|groupby('state') -%}
-            {%- for entity in group.list if entity.state == 'off' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
+            {%- for entity in group.list if entity.state == 'on' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
             {{ ' and' if loop.last and not loop.first else comma() }}
             {{ entity.name }}
             {%- endfor -%}
