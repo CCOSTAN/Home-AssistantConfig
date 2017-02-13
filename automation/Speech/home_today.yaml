@@ -17,25 +17,26 @@
         value1: >
           "Welcome Home {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }}. Here is what's going on around the house right now:
           {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
-          Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.  Please be sure to tell the kids to take out the trash.
+            Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.  Please be sure to tell the kids to take out the trash.
           {%endif%}
           Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity. Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}} 
           {% if is_state('cover.garadget_large', 'open') -%}
-          Also, The Large Garage Door is still open 
+            Also, The Large Garage Door is still open 
           {% endif -%}
           {% if is_state('cover.garadget_small', 'open') -%}
-          {% if is_state('cover.garadget_large', 'open') -%}and
-          {%- endif %} The small Garage Door is still open.
+            {% if is_state('cover.garadget_large', 'open') -%}and
+            {%- endif %} The small Garage Door is still open.
           {% endif %}
           . There are 
           {% for state in states.light if state.state == 'on' -%}
-          {%- if loop.last -%}
-          {{ loop.index }}
-          {%- endif -%}
+            {%- if loop.last -%}
+              {{ loop.index }}
+            {%- endif -%}
           {%- endfor %}  lights on right now."
           {% set comma = joiner(', ') %} The 
           {% for group in states.group|groupby('state') -%}
-          {%- for entity in group.list if entity.state == 'on' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
-          {{ comma() }}{{ entity.name }}
-          {%- endfor -%}
-          {%- endfor %}.
+            {%- for entity in group.list if entity.state == 'off' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
+            {{ ' and' if loop.last and not loop.first else comma() }}
+            {{ entity.name }}
+            {%- endfor -%}
+          {%- endfor %}
