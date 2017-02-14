@@ -19,4 +19,14 @@
   action:
     - service: script.Voice_notify
       data_template:
-        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')}} is {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        value1: >
+          {{ [
+          "Welcome home {{ trigger.entity_id.split('.')[1]|replace('_', ' ')}}",
+          "Guess who is home?  {{ trigger.entity_id.split('.')[1]|replace('_', ' ')}} is!",
+          "Attention: {{ trigger.entity_id.split('.')[1]|replace('_', ' ')}} is now in the house.",
+          "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')}} in da house!"
+          "Welcome Home {{ trigger.entity_id.split('.')[1]|replace('_', ' ')}}.  We've missed you. or at least Molly did."
+          "Our home is now complete, Rest your head and relax your feet! Welcome Back {{ trigger.entity_id.split('.')[1]|replace('_', ' ')}}"
+          "Life is like a song, you’re back where you belong. Welcome home {{ trigger.entity_id.split('.')[1]|replace('_', ' ')}}"
+          ] | random }}    
+    
