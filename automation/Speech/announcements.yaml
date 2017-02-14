@@ -2,7 +2,7 @@
 ##  Announce when people come or go.
 ## Announce over all Chromecast Audios 
 ######################################################################
-- alias: 'State Announcements'
+- alias: 'People Greeting'
   
   trigger:
     - platform: state
@@ -16,15 +16,7 @@
       to: 'home'
       for: '00:02:00'
       
-    - platform: state
-      entity_id:
-        - cover.garadget_large
-        - cover.garadget_small
-      from: 'closed'
-      to: 'open'
-      for: '00:02:00'
-      
   action:
     - service: script.Voice_notify
       data_template:
-        value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', '  large garage ')|replace('garadget small', ' small garage ') }} is {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        value1: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ')}} is {{ (trigger.to_state.state)|replace('_', ' ') }}."
