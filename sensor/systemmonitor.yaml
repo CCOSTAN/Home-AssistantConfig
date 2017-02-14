@@ -54,8 +54,11 @@
   name: External IP
   value_template: '{{ value_json.ip }}' 
   
-- platform: template
-  sensors:
-    ipchange:
-      entity_id: sensor.external_ip
-      value_template: "{%- if is_state('sensor.external_ip', '!secret external_ip') -%} False {%- else -%} True {%- endif %}"
+#############################################################################################################
+###  This part of the automation is hidden due to the IP address exposed  ##
+# - platform: template
+  # sensors:
+    # ipchange:
+      # entity_id: sensor.external_ip
+      # value_template: "{%- if is_state('sensor.external_ip', 'xxx.xxx.xxx.xxx') -%} False {%- else -%} True {%- endif %}"
+#############################################################################################################
