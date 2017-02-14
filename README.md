@@ -1,10 +1,9 @@
 # Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
 [Home Assistant](https://home-assistant.io/) configuration files (YAMLs)
 
-This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly. 
-Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
-
-Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
+This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly.
+Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2kNttio) was upgraded to 16GB. (Order 2! - 1 for backup)
+I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi and Windows for backups.
 
 Software on the Pi : [Home Assistant](https://home-assistant.io/) , 
 [Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)  
@@ -12,24 +11,25 @@ SSL via [SSLS](SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 [HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility. 
 
 **Devices I have :**
-* Lots of iOS Devices (iPads, iPods, iPhones)
+* Lots of iOS Devices ([iPads](http://amzn.to/2l2qyRb), iPods, [iPhones](http://amzn.to/2l9Yoq9)
 * [Nest Thermostats](http://amzn.to/2eAhB1k) - Smart Thermostat
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
+* Mixture of [Hue Colored lights](http://amzn.to/2l2viGK), [White Lights](http://amzn.to/2lEf4Xq) and GE Link bulbs.
 * [Circle by Disney](http://amzn.to/2eAgaA6) - Parental Monitor for internet and screentime.
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
 * [Withings](http://amzn.to/2kr78nW) - Smart Weight scale
 * [SkyBell HD](http://amzn.to/2dcexIB)
 * [Rokus](http://amzn.to/2dpn89c) for all streaming
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
-* ChromeCast Audios
+* [ChromeCast Audios](http://amzn.to/2lE9gNu)
 * [AMPs](http://amzn.to/2j18dlT) - These are cheap but effective for the Dots, Chromecasts or other speakers.
 * [Etekcity Outlets](http://amzn.to/2efNoBP) - Cheap 6 Buck RF outlet control!
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
-* Nintendo Wii
+* [Nintendo Wii](http://amzn.to/2l2qIYY)
 * Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control! 
 * [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
 * [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2j5Vu0D)
@@ -37,36 +37,39 @@ SSL via [SSLS](SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
 * [SleepNumber Bed i8](http://amzn.to/2kxdXXI) - Has SleepIQ to track occupancy and sleep habits.  Tied into HA.
 
+Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
+
 **Automations:**
 * Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios.  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
 * Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
 * IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
-* Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
+* Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Notifications when the garage door is left open at night or when we leave the house.
-* (IFTTT) Logging entries in Logbooks for Rachio, Doorbell
+* (IFTTT) Logging entries in Logbooks for [Rachio Sprinkler system](http://amzn.to/2eoPKBW), and [SkyBell HD](http://amzn.to/2dcexIB).
 * Auto Heal ZWave at 2:30am
 * Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
 * Turn on Hallway light for no more than 20 minutes when Pantry door is opened.
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
-* Turn on Upstairs light if Nest detects people and it's nighttime.
-* Turn off lights when Nest detects we are away. (Upstairs and Downstairs)
-* Turn on some lights abd switches when we get home
+* Turn on Upstairs light if [Nest Thermostats](http://amzn.to/2eAhB1k) detects people and it's nighttime.
+* Turn off lights when [Nest Thermostats](http://amzn.to/2eAhB1k) detects we are away. (Upstairs and Downstairs)
+* Turn on some lights and switches when we get home
 * Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Rainy days trigger extra light inside the house. 
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * Leverage Alexa, IFTTT and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
-* Turn on AMPs when Chromecast reports 'Playing'.  Turn them off when we are done streaming music. 
+* Turn on [AMPs](http://amzn.to/2j18dlT) when Chromecast reports 'Playing'.  Turn them off when we are done streaming music. 
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
-* (IFTTT) Stop watering grass via Rachio if winds are greater than 20 MPH. 
+* (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH. 
+* (IFTTT) Add a 1 day rain delay to [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if it is going to rain tomorrow.
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
 * (IFTTT) Trigger Good Night routine when I step on the [Withings](http://amzn.to/2kr78nW) scale after 10pm.
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
-* On motion from Doorbell (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
+* On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell.
-* Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space. 
+* Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio). 
 
 **Time Based Automation TimeLine**
 ```
