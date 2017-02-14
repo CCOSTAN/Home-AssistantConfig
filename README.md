@@ -7,11 +7,11 @@ I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi an
 
 Software on the Pi : [Home Assistant](https://home-assistant.io/) , 
 [Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)  
-SSL via [SSLS](SSLS.com) - 5 Bucks A Year! - Keeps me safe!
+SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 [HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility. 
 
 **Devices I have :**
-* Lots of iOS Devices ([iPads](http://amzn.to/2l2qyRb), iPods, [iPhones](http://amzn.to/2l9Yoq9)
+* Lots of iOS Devices ([iPads](http://amzn.to/2l2qyRb), iPods, [iPhones](http://amzn.to/2l9Yoq9))
 * [Nest Thermostats](http://amzn.to/2eAhB1k) - Smart Thermostat
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
@@ -31,7 +31,7 @@ SSL via [SSLS](SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * [Nintendo Wii](http://amzn.to/2l2qIYY)
 * Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control! 
-* [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - SonOff and SonOn with a Slampher!
+* [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)!
 * [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2j5Vu0D)
 * [Digital Smart Water Main ShutOff/Leak Detector] (http://www.providencecpc.org/wp-content/uploads/2016/01/work_in_progress.png) - Beta test to monitor Water usage and Leaks centrally.
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
