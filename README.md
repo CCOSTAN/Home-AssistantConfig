@@ -18,6 +18,7 @@ SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * Mixture of [Hue Colored lights](http://amzn.to/2l2viGK), [White Lights](http://amzn.to/2lEf4Xq) and GE Link bulbs.
+* [Hue Go](http://amzn.to/2iB36Ii) - Great lights for the kids since they have an actual button on them for control.
 * [Circle by Disney](http://amzn.to/2eAgaA6) - Parental Monitor for internet and screentime.
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
 * [Withings](http://amzn.to/2kr78nW) - Smart Weight scale
