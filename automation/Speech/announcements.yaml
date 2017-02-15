@@ -1,9 +1,9 @@
 ##########  ############################################################
 ##  Announce when people come or go.
-## Announce over all Chromecast Audios 
+## Announce over all Chromecast Audios
 ######################################################################
 - alias: 'People Greeting'
-  
+
   trigger:
     - platform: state
       entity_id:
@@ -15,24 +15,23 @@
       from: 'not_home'
       to: 'home'
       for: '00:02:00'
-      
+
   action:
     - service: script.Voice_notify
       data_template:
         value1: >
-          
           {% set person = trigger.entity_id.split('.')[1]|replace('_', ' ')%}
-          {% macro greeting_sentence(person) %}
+          {%- macro greeting_sentence(person) -%}
           {{ [
           "Welcome home " ~ person,
           "Guess who is home? "  ~ person +" is!",
           "Attention: " ~ person + " is now in the house.",
-          person ~ " in da hiz house!",
+          person ~ " in da hiz Ouse!",
           "Welcome Home " ~ person + ".  We've missed you. or at least Molly did.",
           "Our home is now complete, Rest your head and relax your feet! Welcome Back " ~ person,
-          "Life is like a song, you’re back where you belong. Welcome home" ~ person,
+          "Life is like a song, you’re back where you belong. Welcome home " ~ person,
           "Hey there " ~ person,
           person ~ "! You're home!"
-          ] | random }}    
-          {% endmacro %}
-          {{greeting_sentence(person)}}
+          ] | random }}
+          {%- endmacro -%}
+          "{{greeting_sentence(person)}}"

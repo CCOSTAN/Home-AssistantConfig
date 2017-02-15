@@ -2,13 +2,13 @@
 ##  Sunrise and Sunset stuff
 ###################################
 
-- alias: 'Sunset Stuff on'  
+- alias: 'Sunset Stuff on'
   trigger:
     - platform: state
       entity_id: sun.sun
       state: 'below_horizon'
       from: 'above_horizon'
-      
+
   action:
     - service: switch.turn_on
       entity_id:
@@ -17,7 +17,7 @@
         - switch.den_outlet
         - switch.foyer_outlet
     - service: light.turn_on
-      entity_id: 
+      entity_id:
         - light.outdoor_bathroom
         - group.living_room_accents
     #- delay: '00:{{ (range(1, 20)|random|int) }}:00'
@@ -25,18 +25,18 @@
     - service: script.Voice_notify
       data_template:
         value1: >
-          {% macro dark_outside() %}
-          {{ [
-          "It is pretty dark outside.  I will turn on the outside lights now.",
-          "It's a little past Sunset. Time to turn on the outside lights. I'm on it.",
-          "I'll switch on the outside lights.  It's getting dark outside.",
-          "Time to turn on the front lights. I'll take care of it."
-          ] | random }}
-          {% endmacro %}
-          {{ dark_outside() }}
+          {%- macro dark_outside() -%}
+            {{ [
+            "It is pretty dark outside.  I will turn on the outside lights now.",
+            "It's a little past Sunset. Time to turn on the outside lights. I'm on it.",
+            "I'll switch on the outside lights.  It's getting dark outside.",
+            "Time to turn on the front lights. I'll take care of it."
+            ] | random }}
+          {%- endmacro -%}
+          "{{ dark_outside() }}"
 ######################################################################
 
-- alias: 'Sunset Stuff off'  
+- alias: 'Sunset Stuff off'
   trigger:
     - platform: sun
       event: sunrise
@@ -44,14 +44,9 @@
 
   action:
     - service: light.turn_off
-      entity_id: 
-        - group.exterior_lights        
+      entity_id:
+        - group.exterior_lights
         - group.outdoor_front_lights
         - group.outdoor_pool_lights
         - group.all_lights
     - service: script.interior_off
-
-    
-      
-    
-     
