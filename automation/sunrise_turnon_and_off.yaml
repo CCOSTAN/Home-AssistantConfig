@@ -20,12 +20,19 @@
       entity_id: 
         - light.outdoor_bathroom
         - group.living_room_accents
-    - delay: '00:{{ (range(1, 20)|random|int) }}:00'
+    #- delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.monthly_color_scene
     - service: script.Voice_notify
       data_template:
         value1: >
-          !include voice.macros
+          {% macro dark_outside() %}
+          {{ [
+          "It is pretty dark outside.  I will turn on the outside lights now.",
+          "It's a little past Sunset. Time to turn on the outside lights. I'm on it.",
+          "I'll switch on the outside lights.  It's getting dark outside.",
+          "Time to turn on the front lights. I'll take care of it."
+          ] | random }}
+          {% endmacro %}
           {{ dark_outside() }}
 ######################################################################
 
