@@ -1,11 +1,11 @@
 homeassistant:
-  name: Bear Stone Run 
+  name: Bear Stone Run
   latitude: !secret homeassistant_latitude
   longitude: !secret homeassistant_longitude
   elevation: !secret homeassistant_elevation
   unit_system: imperial
   time_zone: America/New_York
-  customize: !include_dir_merge_named customize  
+  customize: !include_dir_merge_named customize
 
 http:
   base_url: !secret http_base_url
@@ -17,14 +17,14 @@ http:
     - 127.0.0.1
   ip_ban_enabled: True
   login_attempts_threshold: 3
-  
+
 frontend:
 panel_iframe:
   router:
     title: 'Router'
     icon: 'mdi:router-wireless'
     url: 'http://192.168.10.1'
-  
+
 group: !include_dir_merge_named group
 device_tracker: !include_dir_merge_list device_tracker
 discovery:
@@ -38,9 +38,9 @@ light:
     allow_in_emulated_hue: false
     allow_hue_groups: false
 
-# Reference : https://www.flexfireleds.com/pages/Comparison-between-3528-LEDs-and-5050-LEDs.html    
+# Reference : https://www.flexfireleds.com/pages/Comparison-between-3528-LEDs-and-5050-LEDs.html
   - platform: flux_led
-    automatic_add: True 
+    automatic_add: True
     devices:
       192.168.10.150:
         name: Garage_Left
@@ -51,12 +51,12 @@ light:
       192.168.10.168:
         name: Outdoor_Den
         mode: "rgb"
-        
+
 emulated_hue:
   host_ip: 192.168.10.10
   listen_port: 8300
   expose_by_default: false
-    
+
 ifttt:
   key: !secret ifttt_key
 
@@ -89,38 +89,32 @@ mqtt:
   client_id: home-assistant-1
   username: !secret MQTT_username
   password: !secret MQTT_password
-  
+
 zwave:
  usb_path: /dev/ttyACM0
  config_path: /srv/hass/hass_venv/lib/python3.4/site-packages/libopenzwave-0.3.1-py3.4-linux-armv7l.egg/config
-  
+
 nest:
   client_id: !secret nest_client_id
   client_secret: !secret nest_client_secret
-  
+
 climate:
   platform: nest
 
 media_player:
   platform: cast
-  host: 192.168.10.105  
+  host: 192.168.10.105
 
 sleepiq:
   username: !secret sleepiq_username
   password: !secret sleepiq_password
-  
+
 tts:
-  - platform: google
-    language: 'en-us'
-    cache: true
-    cache_dir: /tmp/tts
-    time_memory: 300
-    
   - platform: amazon_polly
     aws_access_key_id: !secret aws_access_key_ID
     aws_secret_access_key: !secret aws_secret_access_key
     region_name: 'us-east-1'
-    
+
 cover:
   platform: garadget
   covers:
@@ -128,15 +122,14 @@ cover:
         username: !secret garadget_username
         password: !secret garadget_password
         name: Garadget Large
-      !secret garadget_small_id:  
+      !secret garadget_small_id:
         username: !secret garadget_username
         password: !secret garadget_password
-        name: Garadget Small      
-  
+        name: Garadget Small
+
 sensor: !include_dir_merge_list sensor
 automation: !include_dir_merge_list automation
 scene: !include_dir_merge_list scene
 switch: !include_dir_merge_list switch
 script: !include_dir_merge_named script
 input_boolean: !include_dir_merge_named input_boolean
-
