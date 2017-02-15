@@ -45,9 +45,10 @@
   action:
     - service: light.turn_off
       entity_id: 
-        - group.all_lights    
-        - light.outdoor_front
-        - group.outdoor_lights
+        - group.exterior_lights        
+        - group.outdoor_front_lights
+        - group.outdoor_pool_lights
+        - group.all_lights
     - service: script.interior_off
 
     
