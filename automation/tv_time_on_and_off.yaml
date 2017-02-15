@@ -2,7 +2,7 @@
 ##  TV Time at sunset or 8pm.  Whichever is later.
 ######################################################################
 
-- alias: TV Time    
+- alias: TV Time
   trigger:
     - platform: sun
       event: sunset
@@ -14,7 +14,7 @@
       state: 'Online'
     - platform: time
       after: '20:00:00'
-      
+
   condition:
     condition: and
     conditions:
@@ -30,21 +30,21 @@
       - condition: state
         entity_id: input_boolean.guest_mode
         state: 'off'
-        
+
   action:
     service: scene.turn_on
-    entity_id: scene.living_room_tv_time
+    entity_id: scene.tv_time
 
 ######################################################################
 ##  Turn off the Living room lights when the TV is turned off.
 ######################################################################
-    
-- alias: TV Time off   
+
+- alias: TV Time off
   trigger:
     - platform: state
       entity_id: sensor.samsungtv
       state: 'Offline'
-      
+
   condition:
     condition: and
     conditions:
@@ -53,10 +53,10 @@
         state: 'below_horizon'
       - condition: state
         entity_id: input_boolean.guest_mode
-        state: 'off'  
-  
+        state: 'off'
+
   action:
     service: light.turn_off
-    entity_id: 
+    entity_id:
       - group.living_room
       - group.living_room_accents
