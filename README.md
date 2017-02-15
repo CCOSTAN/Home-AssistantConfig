@@ -5,10 +5,10 @@ This is my Home Assistant Configuration created with the All In One installer [e
 Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2kNttio) was upgraded to 16GB. (Order 2! - 1 for backup)
 I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi and Windows for backups.
 
-Software on the Pi : [Home Assistant](https://home-assistant.io/) , 
-[Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)  
+Software on the Pi : [Home Assistant](https://home-assistant.io/) ,
+[Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
-[HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility. 
+[HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
 
 **Devices I have :**
 * Lots of iOS Devices ([iPads](http://amzn.to/2l2qyRb), iPods, [iPhones](http://amzn.to/2l9Yoq9))
@@ -31,7 +31,7 @@ SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * [Nintendo Wii](http://amzn.to/2l2qIYY)
-* Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control! 
+* Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control!
 * [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)!
 * [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2j5Vu0D)
 * [Digital Smart Water Main ShutOff/Leak Detector] (http://www.providencecpc.org/wp-content/uploads/2016/01/work_in_progress.png) - Beta test to monitor Water usage and Leaks centrally.
@@ -57,46 +57,46 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * Turn on some lights and switches when we get home
 * Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
-* Rainy days trigger extra light inside the house. 
+* Rainy days trigger extra light inside the house.
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * Leverage Alexa, IFTTT and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
-* Turn on [AMPs](http://amzn.to/2j18dlT) when Chromecast reports 'Playing'.  Turn them off when we are done streaming music. 
+* Turn on [AMPs](http://amzn.to/2j18dlT) when Chromecast reports 'Playing'.  Turn them off when we are done streaming music.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
-* (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH. 
+* (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH.
 * (IFTTT) Add a 1 day rain delay to [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if it is going to rain tomorrow.
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
 * (IFTTT) Trigger Good Night routine when I step on the [Withings](http://amzn.to/2kr78nW) scale after 10pm.
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell.
-* Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio). 
+* Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
 
 **Time Based Automation TimeLine**
 ```
-ALL DAY LONG: 
+ALL DAY LONG:
 Check to see if we are away.
 
 SUNRISE minus 1 hour
      Turn off ALL SWITCHES
      Turn off ALL LIGHTS
-05:00 AM ** Light Brightness helper 50 Brightness ** 
+05:00 AM ** Light Brightness helper 50 Brightness **
 06:00 AM ( on school days) : Turn on Dining Room lights, Kitchen Accents and start Kid's bedroom [Hue Go](http://amzn.to/2iB36Ii) wake up lights.
 06:51 AM Turn on Dinette lights, Turn off Dining Room Lights and Kitchen Accents
 07:51 AM Turn on Kitchen Lights
-08:00 AM ** Light Brightness helper FULL 255 Brightness ** 
+08:00 AM ** Light Brightness helper FULL 255 Brightness **
 08:31 AM (on school days) Turn off ALL interior lights.
 09:00 AM Speech Notifications are enabled for the house.
 
-SUNSET: 
+SUNSET:
      Turn on Den Outlet, Living Room Outlet, Dining Room Outlet, Outdoor Bathroom light, TV lights
      Activate Monthly Front Lighting Scene
      Check if Garage Door is open (Every 60 minutes)
      ** Kitchen Light/Accent Helper Activated **
 
 08:00 PM ** Late Night Helper is active **
-08:00 PM ** Light Brightness helper 35 Brightness ** 
-08:00 PM TV time Scene triggered if the TV is on. 
+08:00 PM ** Light Brightness helper 35 Brightness **
+08:00 PM TV time Scene triggered if the TV is on.
 09:00 PM Turn on [Hue Go](http://amzn.to/2iB36Ii) lights for the kid's rooms and start fading down.
 09:00 PM Speech Notifications are disabled for the house. (except under ALERT mode)
 02:00 AM ** Late Night Help Deactivated **
@@ -104,7 +104,7 @@ SUNSET:
 ```
 
 #Todo List
-I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github. 
+I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github.
 
 ![Screenshot of Home View](https://i.imgur.com/UlUiKTX.png)
 ![Screenshot of Garage Door View](https://i.imgur.com/zotvUKp.png)
@@ -114,6 +114,4 @@ I've moved this entire section to the [issues section](https://github.com/CCOSTA
 ![Screenshot of Last one](https://i.imgur.com/sTsYQi4.png)
 
 
-
-
-
+**All files are now being edited with [Atom](https://atom.io/).**
