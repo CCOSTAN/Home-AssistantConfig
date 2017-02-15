@@ -25,12 +25,8 @@
     - service: script.Voice_notify
       data_template:
         value1: >
-          {{ [
-          "It is pretty dark outside.  I will turn on the outside lights now.",
-          "It's a little past Sunset. Time to turn on the outside lights. I'm on it.",
-          "I'll switch on the outside lights.  It's getting dark outside.",
-          "Time to turn on the front lights. I'll take care of it."
-          ] | random }}
+          !include voice.macros
+          {{ dark_outside() }}
 ######################################################################
 
 - alias: 'Sunset Stuff off'  
