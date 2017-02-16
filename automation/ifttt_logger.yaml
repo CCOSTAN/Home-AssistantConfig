@@ -6,10 +6,15 @@
   trigger:
     - platform: event
       event_type: rachio_water_stops
-  
-  action:
-    service: logbook.log
-    data:
-      name: "Rachio Sprinkler:"
-      message: "The Lawn was watered just now."
 
+  action:
+    - service: logbook.log
+      data:
+        name: "Rachio Sprinkler:"
+        message: "The Lawn was watered just now."
+
+    - service: mqtt.publish
+      data_template:
+        payload: "The Lawn was watered on {{states('sensor.date')}}"
+        topic: 'ifttt/rachio/watering_time'
+        retain: true
