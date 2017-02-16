@@ -1,0 +1,23 @@
+######################################################################
+##  Some home facts when we get back home from being away.
+######################################################################
+- alias: 'chores'
+
+  trigger:
+
+    - platform: state
+      entity_id: input_boolean.chore_schedule
+      state: 'on'
+      from: 'off'
+
+  action:
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.chore_schedule
+
+    - service: script.Voice_notify
+      data_template:
+        value1: >
+          "Welcome Home Costanzo Family. Here is what's going on around the house right now:
+          {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
+            Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.  Please be sure to tell the kids to take out the trash.
+          {%endif%}
