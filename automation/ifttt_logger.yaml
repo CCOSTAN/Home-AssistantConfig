@@ -15,6 +15,6 @@
 
     - service: mqtt.publish
       data_template:
-        payload: "The Lawn was watered on {{states('sensor.date')}}"
+        payload: '{{ states("sensor.date") }}'
         topic: 'ifttt/rachio/watering_time'
         retain: true
