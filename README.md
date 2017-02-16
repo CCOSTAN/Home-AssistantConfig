@@ -43,6 +43,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 **Automations:**
 * Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios.  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
 * Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
+* Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
 * IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
 * Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
