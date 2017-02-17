@@ -12,19 +12,19 @@
       for: '00:03:00'
 
     - platform: state
-      entity_id: input_boolean.home_news
+      entity_id: input_boolean.home_stats
       state: 'on'
       from: 'off'
 
   action:
     - service: input_boolean.turn_off
-      entity_id: input_boolean.home_news
+      entity_id: input_boolean.home_stats
 
     - service: script.Voice_notify
       data_template:
         value1: >
           "Welcome Home Costanzo Family. Here is what's going on around the house right now:
-          {%- macro chore_schedule() -%}
+          {%- macro responsibilities() -%}
             {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
               Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
             {%endif%}
@@ -34,7 +34,7 @@
               Today is Paige's day to do the chores.
             {%endif%}
           {%- endmacro -%}
-          {{chore_schedule()}}
+          {{responsibilities()}}
           Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity. Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
           {% if is_state('cover.garadget_large', 'open') -%}
             Also, The Large Garage Door is still open

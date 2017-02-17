@@ -6,18 +6,18 @@
   trigger:
 
     - platform: state
-      entity_id: input_boolean.chore_schedule
+      entity_id: input_boolean.responsibilities
       state: 'on'
       from: 'off'
 
   action:
     - service: input_boolean.turn_off
-      entity_id: input_boolean.chore_schedule
+      entity_id: input_boolean.responsibilities
 
     - service: script.Voice_notify
       data_template:
         value1: >
-          {%- macro chore_schedule() -%}
+          {%- macro responsibilities() -%}
             {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
               Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
             {%endif%}
@@ -27,4 +27,4 @@
               Today is Paige's day to do the chores.
             {%endif%}
           {%- endmacro -%}
-          "{{chore_schedule()}}"
+          "{{responsibilities()}}"
