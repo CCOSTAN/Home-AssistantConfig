@@ -99,9 +99,10 @@ SUNSET:
 08:00 PM ** Light Brightness helper 35 Brightness **
 08:00 PM TV time Scene triggered if the TV is on.
 09:00 PM Turn on [Hue Go](http://amzn.to/2iB36Ii) lights for the kid's rooms and start fading down.
-09:00 PM Speech Notifications are disabled for the house. (except under ALERT mode)
+10:00 PM Speech Notifications are disabled for the house. (except under ALERT mode) and AMP is shut.
 02:00 AM ** Late Night Help Deactivated **
 02:31 AM Heal ZWave Network
+02:35 AM Clear out daily TTS cache
 ```
 
 #Todo List

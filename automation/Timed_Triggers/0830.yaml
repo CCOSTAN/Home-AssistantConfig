@@ -1,0 +1,28 @@
+######################################################################
+##  Stuff that needs to happen at 08:30am.
+######################################################################
+
+- alias: 'Kids left for the day.'
+  trigger:
+    - platform: time
+      after: '08:30:00'
+
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: home
+    - condition: state
+      entity_id: input_boolean.school_mode
+      state: 'on'
+    - condition: time
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+
+  action:
+    - service: light.turn_off
+      entity_id:
+        - group.interior_lights

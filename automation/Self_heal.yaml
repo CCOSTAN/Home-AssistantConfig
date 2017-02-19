@@ -1,5 +1,5 @@
 ###################################
-##  ZWave Healing Section - 
+##  Self Healing Section -
 ##  Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0).
 ###################################
 
@@ -9,4 +9,12 @@
     platform: time
     after: '2:31:00'
   action:
-    service: zwave.heal_network    
+    service: zwave.heal_network
+
+- alias: Flush TTS Cache
+  hide_entity: True
+  trigger:
+    platform: time
+    after: '2:35:00'
+  action:
+    service: tts.clear_cache

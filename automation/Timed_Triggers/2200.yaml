@@ -1,0 +1,12 @@
+######################################################################
+##  Stuff that needs to happen at 10pm.
+######################################################################
+
+- alias: 'Shut down AMP in Living room'
+  trigger:
+    - platform: time
+      after: '20:00:00'
+
+  action:
+    - service: switch.turn_off
+      entity_id: switch.living_room_amp
