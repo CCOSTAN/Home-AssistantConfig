@@ -1,0 +1,16 @@
+###################################
+##  Uses IFTTT to notify me of bad logins.
+###################################
+
+- alias: Login Failure
+  hide_entity: True
+  trigger:
+    platform: template
+    value_template: "{{ states('persistent_notification.httplogin') != 'unknown' }}"
+
+  action:
+    service: script.ifttt_notify
+    data_template:
+      value1: 'Bad Login: '
+      value2: 'There was a Hack attempt!'
+      value3: 'Go Check the GUI for details.'

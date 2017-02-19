@@ -1,0 +1,29 @@
+- alias: "Update Available Notification"
+  hide_entity: True
+  trigger:
+    platform: state
+    entity_id: updater.updater
+
+  condition:
+    - condition: template
+      value_template: "{{ states('updater.updater') != 'unknown' }}"
+
+  action:
+    - service: script.ifttt_notify
+      data_template:
+        value1: 'There is a new Version of Home-Assistant Available.'
+        value2: "{{ states('updater.updater') }}"
+        value3: ''
+    
+    - service: notify.html5
+      data_template:
+        title: "Update Available"
+        message: "Home Assistant {{ states('updater.updater') }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+        data:
+          url: "https://home-assistant.io/getting-started/installation-raspberry-pi-all-in-one/#upgrading"
+    
+    - service: persistent_notification.create
+      data:
+        title: "Update Available"
+        message: "Home Assistant {{ states('updater.updater') }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+        notification_id: "update_available"    
