@@ -42,27 +42,3 @@
         outside.  I will turn on some extra lights in the living room."
 
 ######################################################################
-
-######################################################################
-##  Dark House Little extra light - RAIN is over.
-######################################################################
-
-- alias: 'Rain is over'
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.dark_sky_precip_intensity
-      below: 1
-
-  condition:
-    - condition: state
-      entity_id: sun.sun
-      state: 'above_horizon'
-
-  action:
-    - service: light.turn_off
-      entity_id:
-        - light.couch_1
-        - light.sink
-    - service: script.Voice_notify
-      data_template:
-        value1: "The sun is back out.  Let's turn down these lights now."
