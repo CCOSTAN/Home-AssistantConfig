@@ -1,0 +1,25 @@
+##############################################################################
+###  Detect when things are on and forgotten about. Like any Good Watchdog.
+##############################################################################
+
+- alias: Automated Switch WatchDog!
+  trigger:
+    - platform: state
+      entity_id: switch.printer_outlet
+      state: 'on'
+      for: '00:20:00'
+    - platform: state
+      entity_id: switch.garage_outlet
+      state: 'on'
+      for: '03:00:00'
+
+#Turn it off twice for good measure!
+  action:
+    - service: switch.turn_off
+      data_template:
+        entity_id: "{{ trigger.entity_id }}"
+    - delay: 00:01:00
+    - service: switch.turn_off
+      data_template:
+        entity_id: "{{ trigger.entity_id }}"
+ 

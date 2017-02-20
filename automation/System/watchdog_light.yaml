@@ -1,0 +1,27 @@
+##############################################################################
+###  Detect when things are on and forgotten about. Like any Good Watchdog.
+##############################################################################
+
+- alias: Automated Light WatchDog!
+  trigger:
+    - platform: state
+      entity_id:
+        - light.hallway
+        - group.foyer_lights
+        - light.master_toilet
+      state: 'on'
+      for: '00:20:00'
+
+    - platform: state
+      entity_id:
+        - light.paige_go
+        - light.justin_go
+        - group.upstairs
+      state: 'on'
+      for: '02:00:00'
+
+#Turn it off!
+  action:
+    - service: light.turn_off
+      data_template:
+        entity_id: "{{ trigger.entity_id }}"

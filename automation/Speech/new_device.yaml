@@ -1,0 +1,15 @@
+##############################################################################
+###  Detect when things are on and forgotten about. Like any Good Watchdog.
+##############################################################################
+
+- alias: "New device connected"
+  trigger:
+    - platform: event
+      event_type: device_tracker_new_device
+  action:
+    - service: script.Voice_notify
+      data_template:
+        value1: "There has been a new device detected on the network.  Be sure to appropriately catagorize it within Circle."
+
+##############################################################################
+  
