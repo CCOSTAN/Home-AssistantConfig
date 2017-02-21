@@ -33,7 +33,7 @@ SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [Nintendo Wii](http://amzn.to/2l2qIYY)
 * Emulated Hue pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control!
 * [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)!
-* [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2j5Vu0D)
+* [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2j5Vu0D) - [Outdoor Housing](http://amzn.to/2m2dG0X) - Finished Product #71
 * [Digital Smart Water Main ShutOff/Leak Detector] (http://www.providencecpc.org/wp-content/uploads/2016/01/work_in_progress.png) - Beta test to monitor Water usage and Leaks centrally.
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
 * [SleepNumber Bed i8](http://amzn.to/2kxdXXI) - Has SleepIQ to track occupancy and sleep habits.  Tied into HA.
