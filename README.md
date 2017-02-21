@@ -1,4 +1,4 @@
-# Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
+# Home-Assistant Config [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) by [@ccostan](http://www.twitter.com/ccostan)
 [Home Assistant](https://home-assistant.io/) configuration files (YAMLs)
 
 This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly.
