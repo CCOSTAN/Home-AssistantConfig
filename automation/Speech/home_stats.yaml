@@ -23,7 +23,7 @@
     - service: script.Voice_notify
       data_template:
         value1: >
-          "Welcome Home Costanzo Family. Here is what's going on around the house right now:
+          "Welcome Home. Here is what's going on around the house right now:
           {%- macro responsibilities() -%}
             {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
               Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
