@@ -56,14 +56,14 @@ logbook:
     entities:
       - sensor.since_last_boot
       - sensor.since_last_boot_templated
-      - sensor.garadget_small_status
-      - sensor.garadget_large_status
-      - sensor.garadget_small_time_in_state
-      - sensor.garadget_large_time_in_state
-      - sensor.garadget_large_wifi_signal_strength
-      - sensor.garadget_small_wifi_signal_strength
-      - sensor.garadget_small_reflection_rate
-      - sensor.garadget_large_reflection_rate
+      - sensor.small_garage_status
+      - sensor.large_garage_status
+      - sensor.small_garage_time_in_state
+      - sensor.large_garage_time_in_state
+      - sensor.large_garage_wifi_signal_strength
+      - sensor.small_garage_wifi_signal_strength
+      - sensor.small_garage_reflection_rate
+      - sensor.large_garage_reflection_rate
       - group.garage_doors
       - sensor.time
       - sensor.date
@@ -108,11 +108,11 @@ tts:
 cover:
   platform: garadget
   covers:
-      !secret garadget_large_id:
+      !secret large_garage_id:
         username: !secret garadget_username
         password: !secret garadget_password
         name: Large Garage
-      !secret garadget_small_id:
+      !secret small_garage_id:
         username: !secret garadget_username
         password: !secret garadget_password
         name: Small Garage

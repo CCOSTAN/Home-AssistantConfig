@@ -4,33 +4,33 @@
 
 - platform: template
   sensors:
-    garadget_small_status:
+    small_garage_status:
       friendly_name: 'State of the door'
-      value_template: '{{ states.cover.garadget_small.state }}'
-    garadget_small_time_in_state:
+      value_template: '{{ states.cover.small_garage.state }}'
+    small_garage_time_in_state:
       friendly_name: 'Time Since Change'
-      value_template: '{{ states.cover.garadget_small.attributes["time in state"] }}'
-    garadget_small_wifi_signal_strength:
+      value_template: '{{ states.cover.small_garage.attributes["time in state"] }}'
+    small_garage_wifi_signal_strength:
       friendly_name: 'WiFi strength'
-      value_template: '{{ states.cover.garadget_small.attributes["wifi signal strength (dB)"] }}'
+      value_template: '{{ states.cover.small_garage.attributes["wifi signal strength (dB)"] }}'
       unit_of_measurement: 'dB'
-    garadget_small_reflection_rate:
+    small_garage_reflection_rate:
       friendly_name: 'Reflection Rate'
-      value_template: '{{ states.cover.garadget_small.attributes["sensor reflection rate"] }}'
+      value_template: '{{ states.cover.small_garage.attributes["sensor reflection rate"] }}'
     
       
 - platform: template
   sensors:
-    garadget_large_status:
+    large_garage_status:
       friendly_name: 'State of the door'
-      value_template: '{{ states.cover.garadget_large.state }}'
-    garadget_large_time_in_state:
+      value_template: '{{ states.cover.large_garage.state }}'
+    large_garage_time_in_state:
       friendly_name: 'Time Since Change'
-      value_template: '{{ states.cover.garadget_large.attributes["time in state"] }}'
-    garadget_large_wifi_signal_strength:
+      value_template: '{{ states.cover.large_garage.attributes["time in state"] }}'
+    large_garage_wifi_signal_strength:
       friendly_name: 'WiFi strength'
-      value_template: '{{ states.cover.garadget_large.attributes["wifi signal strength (dB)"] }}'
+      value_template: '{{ states.cover.large_garage.attributes["wifi signal strength (dB)"] }}'
       unit_of_measurement: 'dB'
-    garadget_large_reflection_rate:
+    large_garage_reflection_rate:
       friendly_name: 'Reflection Rate'
-      value_template: '{{ states.cover.garadget_large.attributes["sensor reflection rate"] }}'
+      value_template: '{{ states.cover.large_garage.attributes["sensor reflection rate"] }}'

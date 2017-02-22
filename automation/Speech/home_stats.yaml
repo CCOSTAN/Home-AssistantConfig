@@ -36,11 +36,11 @@
           {%- endmacro -%}
           {{responsibilities()}}
           Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity. Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
-          {% if is_state('cover.garadget_large', 'open') -%}
+          {% if is_state('cover.large_garage', 'open') -%}
             Also, The Large Garage Door is still open
           {% endif -%}
-          {% if is_state('cover.garadget_small', 'open') -%}
-            {% if is_state('cover.garadget_large', 'open') -%}and
+          {% if is_state('cover.small_garage', 'open') -%}
+            {% if is_state('cover.large_garage', 'open') -%}and
             {%- endif %} The small Garage Door is still open.
           {% endif %}
           . There are

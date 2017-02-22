@@ -60,13 +60,13 @@
         friendly_name: 'ChromeCast Audio 2'
         value_template: "{{ 'Online' if is_state('device_tracker.chromecast_audio_2', 'home') else 'Offline' }}"
             
-      garadget_large:
+      large_garage:
         friendly_name: 'Garadget Large'
-        value_template: "{{ 'Online' if is_state('device_tracker.garadget_large', 'home') else 'Offline' }}"
+        value_template: "{{ 'Online' if is_state('device_tracker.large_garage', 'home') else 'Offline' }}"
         
-      garadget_small:
+      small_garage:
         friendly_name: 'Garadget Small'
-        value_template: "{{ 'Online' if is_state('device_tracker.garadget_small', 'home') else 'Offline' }}"
+        value_template: "{{ 'Online' if is_state('device_tracker.small_garage', 'home') else 'Offline' }}"
         
       rgb_led_outdoor_den:
         friendly_name: 'RGB LED Outdoor Den'

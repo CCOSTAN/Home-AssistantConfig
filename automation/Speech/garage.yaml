@@ -6,16 +6,16 @@
   trigger:
     - platform: state
       entity_id:
-        - cover.garadget_large
-        - cover.garadget_small
+        - cover.large_garage
+        - cover.small_garage
       from: 'closed'
       to: 'open'
       for: '00:02:00'
       
     - platform: state
       entity_id:
-        - cover.garadget_large
-        - cover.garadget_small
+        - cover.large_garage
+        - cover.small_garage
       from: 'open'
       to: 'closed'
       for: '00:02:00'
