@@ -117,4 +117,5 @@ I've moved this entire section to the [issues section](https://github.com/CCOSTA
 
 
 **All files are now being edited with [Atom](https://atom.io/).**
+
 **All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
