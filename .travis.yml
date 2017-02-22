@@ -1,9 +1,26 @@
 language: python
+env: HASS='homeassistant==0.38.4'
 python:
   - "3.4"
-install:
-  - pip3 install homeassistant
-script:
-  - hass -c . --script check_config
+matrix:
+  fast_finish: true
+  include:
+    - python: "3.4"
+      env: HASS='homeassistant'
+    - python: "3.4"
+      env: HASS='https://github.com/home-assistant/home-assistant/archive/dev.zip'
+  allow_failures:
+    - python: "3.4"
+      env: HASS='homeassistant'
+    - python: "3.4"
+      env: HASS='https://github.com/home-assistant/home-assistant/archive/dev.zip'
+cache:
+  directories:
+    - $HOME/.cache/pip
 before_install:
   - mv travis_secrets.yaml secrets.yaml
+install:
+  - pip3 install $HASS
+  - hass --version
+script:
+  - hass -c . --script check_config
