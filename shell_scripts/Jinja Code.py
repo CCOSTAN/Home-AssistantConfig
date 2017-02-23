@@ -5,7 +5,7 @@ For the sandbox.
 {% set trigger = {'entity_id':'sensor.downstairs_thermostat_hvac_state','to_state':'cooling'} %}
 
 #########################################################
-Create fast Customize for groups, sensors, covers etc...
+Create fast Customize for groups, sensors, covers etc...  Just change that first line below 'sensor' to 'group', 'covers' etc..
 
 {% for state in states.sensor -%}
   {% if loop.first %}
@@ -21,60 +21,3 @@ Create fast Customize for groups, sensors, covers etc...
 {% endfor -%}
 
 #########################################################
-Create fast Customize for lights.yaml
-
-{% for state in states.light -%}
-  {% if loop.first %}
-{% elif loop.last %}
-{% else %} 
-{% endif %}
-{{ state.entity_id }}:
-  friendly_name: '{{ state.attributes.friendly_name|replace("_"," ",)|title() if state.attributes.friendly_name is defined else state.name|replace("_"," ",)|title()  }}'
-  {{-'icon: '+ state.attributes.icon if state.attributes.icon is defined}}
-  emulated_hue: {{state.attributes.emulated_hue if state.attributes.emulated_hue is defined else 'False' }}
-  hidden: {{state.attributes.hidden if state.attributes.hidden is defined else "False"}}
-{%- endfor -%}
-
-#########################################################
-Create fast Customize for Input_Boolean.yaml
-
-{% for state in states.input_boolean -%}
-  {% if loop.first %}
-{% elif loop.last %}
-{% else %} 
-{% endif %}
-{{ state.entity_id }}:
-  friendly_name: '{{ state.attributes.friendly_name|replace("_"," ",)|title() if state.attributes.friendly_name is defined else state.name|replace("_"," ",)|title()  }}'
-  {{-'icon: '+ state.attributes.icon if state.attributes.icon is defined}}
-  emulated_hue: {{state.attributes.emulated_hue if state.attributes.emulated_hue is defined else 'False' }}
-  hidden: {{state.attributes.hidden if state.attributes.hidden is defined else "False"}}
-{%- endfor -%}
-
-#########################################################
-Create fast Customize for Scripts.yaml
-
-{% for state in states.script-%}
-  {% if loop.first %}
-{% elif loop.last %}
-{% else %} 
-{% endif %}
-{{ state.entity_id }}:
-  friendly_name: '{{ state.attributes.friendly_name|replace("_"," ",)|title() if state.attributes.friendly_name is defined else state.name|replace("_"," ",)|title() }}'
-  {{-'icon: '+ state.attributes.icon if state.attributes.icon is defined}}
-  emulated_hue: {{state.attributes.emulated_hue if state.attributes.emulated_hue is defined else 'False' }}
-  hidden: {{state.attributes.hidden if state.attributes.hidden is defined else "False"}}
-{%- endfor -%}
-
-#########################################################
-Create fast Customize for scenes.yaml
-
-{% for state in states.scene-%}
-  {% if loop.first %}
-{% elif loop.last %}
-{% else %} 
-{% endif %}
-{{ state.entity_id }}:
-  friendly_name: '{{ state.attributes.friendly_name|replace("_"," ",)|title() if state.attributes.friendly_name is defined else state.name|replace("_"," ",)|title() }}'
-  {{-'icon: '+ state.attributes.icon if state.attributes.icon is defined}}
-  emulated_hue: {{state.attributes.emulated_hue if state.attributes.emulated_hue is defined else 'False' }}
-{%- endfor -%}
