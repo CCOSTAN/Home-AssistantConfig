@@ -6,7 +6,7 @@
       # value1: 'Startup: Home Assistant is Up and Running!'
       # OR
       # value1: "{{ trigger.to_state.state }}"
-      
+
 ######################################################################################################
 
 voice_notify:
@@ -28,7 +28,7 @@ voice_notify:
               before: '22:00:00'
             - condition: state
               entity_id: input_boolean.alert_mode
-              state: 'on'      
+              state: 'on'
         - condition: state
           entity_id: input_boolean.speech_notifications
           state: 'on'
@@ -40,16 +40,16 @@ voice_notify:
               true
             {% endif %}
     - service: switch.turn_on
-      entity_id: switch.living_room_amp    
+      entity_id: switch.living_room_amp
     - delay: '00:00:05'
-    
+
     - service: media_player.turn_on
-      entity_id: media_player.livingroomCC 
-        
+      entity_id: media_player.livingroomCC
+
     - service: media_player.volume_set
       entity_id:
         - media_player.livingroomCC
-      data_template: 
+      data_template:
         volume_level: >
           {% if now().strftime("%H")|int < 12 %}
           0.20
@@ -64,7 +64,7 @@ voice_notify:
         payload: '{{ value1 }}'
         topic: 'polly/lastmsg'
         retain: true
-          
+
     - service: tts.amazon_polly_say
       entity_id: media_player.livingroomCC
       data_template:
@@ -78,7 +78,8 @@ voice_notify:
           {% endif %}
           {{ value1 }}"
         cache: true
- 
-    - service: input_boolean.turn_off
-      entity_id: input_boolean.last_message
 
+    - service: input_boolean.turn_off
+      entity_id: 
+        - input_boolean.last_message
+        - input_boolean.alert_mode
