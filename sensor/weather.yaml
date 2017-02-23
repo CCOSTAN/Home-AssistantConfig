@@ -1,10 +1,12 @@
 - platform: darksky
   api_key: !secret forecast_key
-
+  forecast:
+    - 1
   monitored_conditions:
 #    - summary
 #    - precip_type
     - precip_intensity
+    - precip_intensity_max
     - temperature
 #    - dew_point
     - wind_speed
