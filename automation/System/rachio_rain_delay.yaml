@@ -8,6 +8,9 @@
     - platform: numeric_state
       entity_id: sensor.dark_sky_precip_intensity_max
       above: 0.5
+    - platform: numeric_state
+      entity_id: sensor.dark_sky_wind_speed
+      above: 20
 
   action:
     - service: ifttt.trigger
