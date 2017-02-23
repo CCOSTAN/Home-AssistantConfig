@@ -4,10 +4,12 @@
 
 - alias: 'Good Morning Routine'
   trigger:
-    - platform: event
-      event_type: good_morning
     - platform: state
-      entity_id: 
+      entity_id: input_boolean.good_morning
+      state: 'on'
+      from: 'off'
+    - platform: state
+      entity_id:
         - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
       state: 'off'
 
@@ -38,3 +40,5 @@
     - delay: 00:01:00
     - service: switch.turn_on
       entity_id: switch.kitchen_accents
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.good_morning

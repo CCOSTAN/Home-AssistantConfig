@@ -7,8 +7,10 @@
     - platform: sun
       event: sunset
       offset: '+01:00:00'
-    - platform: event
-      event_type: tv_time
+    - platform: state
+      entity_id: input_boolean.TV_time
+      state: 'on'
+      from: 'off'
     - platform: state
       entity_id: sensor.samsungtv
       state: 'Online'
@@ -32,8 +34,10 @@
         state: 'off'
 
   action:
-    service: scene.turn_on
-    entity_id: scene.tv_time
+    - service: scene.turn_on
+      entity_id: scene.tv_time
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.tv_time
 
 ######################################################################
 ##  Turn off the Living room lights when the TV is turned off.

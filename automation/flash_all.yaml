@@ -1,21 +1,19 @@
 ######################################################################
-##  Time to eat - Set it up!
+##  Turn off my Office light whenever I leave the house.
 ######################################################################
-
-- alias: Meal Time
+- alias: 'Carlo has left the building'
   trigger:
     - platform: state
-      entity_id: input_boolean.meal_time
+      entity_id: input_boolean.flash
       state: 'on'
       from: 'off'
 
   action:
     - service: light.turn_on
       entity_id:
-        - group.dinette_lights
-        - group.kitchen_lights
-    - service: light.turn_off
-      entity_id:
-        - group.living_room_lights
+        - group.all_lights
+      data:
+        flash: long
+
     - service: input_boolean.turn_off
-      entity_id: input_boolean.meal_time
+      entity_id: input_boolean.flash

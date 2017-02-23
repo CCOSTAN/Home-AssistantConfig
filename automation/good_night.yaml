@@ -4,8 +4,10 @@
 
 - alias: 'Good Night Trigger'
   trigger:
-    - platform: event
-      event_type: good_night
+    - platform: state
+      entity_id: input_boolean.good_night
+      state: 'on'
+      from: 'off'
     - platform: state
       entity_id:
         - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
@@ -27,6 +29,9 @@
       state: 'on'
 
   action:
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.good_night
+
     - service: script.Voice_notify
       data_template:
         value1: >
