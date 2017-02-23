@@ -18,9 +18,13 @@
         - switch.foyer_outlet
     - service: light.turn_on
       entity_id:
-        - light.outdoor_bathroom
         - group.living_room_accents
-    #- delay: '00:{{ (range(1, 20)|random|int) }}:00'
+    - service: light.turn_on
+      data:
+        entity_id:
+          - light.outdoor_bathroom
+        brightness: 15
+    - delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.monthly_color_scene
     - service: script.Voice_notify
       data_template:
@@ -28,25 +32,9 @@
           {%- macro dark_outside() -%}
             {{ [
             "It is pretty dark outside.  I will turn on the outside lights now.",
-            "It's a little past Sunset. Time to turn on the outside lights. I'm on it.",
-            "I'll switch on the outside lights.  It's getting dark outside.",
-            "Time to turn on the front lights. I'll take care of it."
+            "It is a little past Sunset. Time to turn on the outside lights. I'm on it.",
+            "I will switch on the outside lights.  It is getting dark outside.",
+            "Time to turn on the front lights. I will take care of it."
             ] | random }}
           {%- endmacro -%}
           "{{ dark_outside() }}"
-######################################################################
-
-- alias: 'Sunset Stuff off'
-  trigger:
-    - platform: sun
-      event: sunrise
-      offset: '-01:00:00'
-
-  action:
-    - service: light.turn_off
-      entity_id:
-        - group.exterior_lights
-        - group.outdoor_front_lights
-        - group.outdoor_pool_lights
-        - group.all_lights
-    - service: script.interior_off

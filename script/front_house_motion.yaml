@@ -24,8 +24,18 @@ front_house_motion:
         value1: 'Motion has been detected by the front door.'
     - service: scene.turn_on
       entity_id: scene.front_full_brightness
+    - service: light.turn_on
+      data:
+        entity_id:
+          - light.outdoor_bathroom
+        brightness: 255
     - delay: '00:{{ (range(5, 20)|random|int) }}:00'
     - service: light.turn_off
       entity_id: group.outdoor_front_lights
+    - service: light.turn_on
+      data:
+        entity_id:
+          - light.outdoor_bathroom
+        brightness: 15
     - delay: '00:00:10'
     - service: script.monthly_color_scene
