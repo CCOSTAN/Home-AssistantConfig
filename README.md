@@ -107,6 +107,7 @@ SUNSET:
 
 #Todo List
 I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github.
+Feel free to join the conversations there.
 
 ![Screenshot of Home View](https://i.imgur.com/UlUiKTX.png)
 ![Screenshot of Garage Door View](https://i.imgur.com/zotvUKp.png)
@@ -119,3 +120,6 @@ I've moved this entire section to the [issues section](https://github.com/CCOSTA
 **All files are now being edited with [Atom](https://atom.io/).**
 
 **All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
+
+#Still have questions on my Config?
+Message me on twitter : [@CCostan](https://twitter.com/ccostan)
