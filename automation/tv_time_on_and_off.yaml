@@ -34,10 +34,11 @@
         state: 'off'
 
   action:
-    - service: scene.turn_on
-      entity_id: scene.tv_time
     - service: input_boolean.turn_off
       entity_id: input_boolean.tv_time
+    - service: scene.turn_on
+      entity_id: scene.tv_time
+
 
 ######################################################################
 ##  Turn off the Living room lights when the TV is turned off.
