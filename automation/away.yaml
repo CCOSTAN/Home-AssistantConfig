@@ -9,21 +9,18 @@
       to: 'on'
     - platform: state
       entity_id: binary_sensor.downstairs_away_mode
-      to: 'on'  
+      to: 'on'
     - platform: state
       entity_id: group.family
-      state: not_home 
+      state: 'not_home' 
 
   condition:
     - condition: state
       entity_id: group.family
-      state: 'not_home '
+      state: 'not_home'
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
 
   action:
     - service: script.interior_off
-
-      
-      
