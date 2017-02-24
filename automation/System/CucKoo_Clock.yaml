@@ -1,0 +1,22 @@
+###################################
+##  cuckoo Clock simulation.
+###################################
+
+- alias: Cuckoo Clock
+  trigger:
+    - platform: time
+      minutes: 59
+      seconds: 56
+  action:
+    - service: media_player.volume_set
+      entity_id:
+        - media_player.livingroomCC
+      data:
+        volume_level: 0.20
+
+    - service: media_player.play_media
+      data_template:
+        entity_id: media_player.LivingRoomCC
+        media_content_id: >
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/cuckoo-clock-{{now().strftime("%I")}}.mp3
+        media_content_type: audio/mp4
