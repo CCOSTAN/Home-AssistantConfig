@@ -72,11 +72,13 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell.
 * Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
+* Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.  Plays across the whole house on my [ChromeCast Audios](http://amzn.to/2lE9gNu)
 
 **Time Based Automation TimeLine**
 ```
 ALL DAY LONG:
-Check to see if we are away.
+Checks to see if we are away.
+Cuckoo Clock goes off each hour and on the half.
 
 SUNRISE minus 1 hour
      Turn off ALL SWITCHES
