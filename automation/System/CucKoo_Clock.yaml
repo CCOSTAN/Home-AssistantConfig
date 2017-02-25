@@ -19,6 +19,13 @@
     - condition: state
       entity_id: group.family
       state: 'home'
+    - condition: template
+      value_template: >
+        {% if is_state('media_player.livingroomCC', 'playing') %}
+          false
+        {% else %}
+          true
+        {% endif %}
 
   action:
     - service: media_player.turn_on
