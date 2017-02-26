@@ -45,7 +45,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
 * Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
-* IFTTT Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
+* IFTTT and Slack Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
 * Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Notifications when the garage door is left open at night or when we leave the house.
 * (IFTTT) Logging entries in Logbooks for [Rachio Sprinkler system](http://amzn.to/2eoPKBW), and [SkyBell HD](http://amzn.to/2dcexIB).
