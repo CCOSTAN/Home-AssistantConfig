@@ -16,9 +16,13 @@
         friendly_name: 'Cisco Main AP'
         value_template: "{{ 'Online' if is_state('device_tracker.cisco_ap', 'home') else 'Offline' }}"
 
-      hue_hub:
-        friendly_name: 'Hue Hub'
-        value_template: "{{ 'Online' if is_state('device_tracker.hue_hub', 'home') else 'Offline' }}"
+      hue_hub_1:
+        friendly_name: 'Hue Hub 1'
+        value_template: "{{ 'Online' if is_state('device_tracker.hue_hub_1', 'home') else 'Offline' }}"
+
+      hue_hub_2:
+        friendly_name: 'Hue Hub 2'
+        value_template: "{{ 'Online' if is_state('device_tracker.hue_hub_2', 'home') else 'Offline' }}"
 
       alexa_echo:
         friendly_name: 'Alexa Echo'
