@@ -4,7 +4,7 @@
     - type: since_last_boot
     - type: disk_use_percent
       arg: /
-    
+
 - platform: template
   sensors:
     since_last_boot_templated:
@@ -52,13 +52,13 @@
 - platform: rest
   resource: http://ip.jsontest.com
   name: External IP
-  value_template: '{{ value_json.ip }}' 
-  
+  value_template: '{{ value_json.ip }}'
+
 #############################################################################################################
 ###  This part of the automation is hidden due to the IP address exposed  ##
 # - platform: template
   # sensors:
     # ipchange:
       # entity_id: sensor.external_ip
-      # value_template: "{%- if is_state('sensor.external_ip', 'xxx.xxx.xxx.xxx') -%} False {%- else -%} True {%- endif %}"
+      # value_template: "{%- if is_state('sensor.external_ip', 'xxx.xxx.xxx.xxx') -%} False {%- elif is_state('sensor.external_ip', 'unknown' ) -%} False {%- else -%} True {%- endif %}"
 #############################################################################################################
