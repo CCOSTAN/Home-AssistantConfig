@@ -31,6 +31,9 @@
            #- sensor.withings_scale
            - sensor.smart_water_meter
            - sensor.sleep_number_bed
+         to: 'offline'
+         for:
+           minutes: 5
 
   action:
     - service: script.ifttt_notify
