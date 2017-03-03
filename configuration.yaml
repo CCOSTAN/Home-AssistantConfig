@@ -58,8 +58,6 @@ emulated_hue:
 ifttt:
   key: !secret ifttt_key
 
-# history:
-
 logbook:
   exclude:
     entities:
@@ -77,8 +75,23 @@ logbook:
       - group.garage_doors
       - sensor.time
       - sensor.date
-#logger:
-#  default: info
+
+history:
+  include:
+    domains:
+      - sensor
+      - switch
+      - media_player
+      - light
+  exclude:
+    entities:
+     - sensor.last_boot
+     - sensor.date
+logger:
+ default: error
+ logs:
+   homeassistant.components.light: info
+   homeassistant.components.input_boolean: info
 recorder:
   purge_days: 7
 
