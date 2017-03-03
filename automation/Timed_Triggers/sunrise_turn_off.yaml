@@ -9,6 +9,7 @@
       offset: '-01:30:00'
 
   action:
+    - delay: '00:{{ (range(1, 45)|random|int) }}:00'
     - service: light.turn_off
       entity_id:
         - group.exterior_lights
