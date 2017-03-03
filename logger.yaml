@@ -8,6 +8,7 @@
 
 default: info
 logs:
+  homeassistant.core: warn
   homeassistant.components.climate.nest: error
   homeassistant.components.device_tracker: error
   homeassistant.components.discovery: warn
@@ -15,3 +16,5 @@ logs:
   homeassistant.components.media_player: warn
   homeassistant.components.recorder: warn
   homeassistant.components.sensor.darksky: error
+  homeassistant.components.zwave: info
+  homeassistant.helpers.script: info
