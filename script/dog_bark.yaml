@@ -9,6 +9,8 @@
 
 dog_bark:
   sequence:
+    - wait_template: "{{ states.media_player.livingroomCC.states != 'playing' }}"
+      timeout: 00:00:30
     - condition: template
       value_template: >
         {% if is_state('media_player.livingroomCC', 'playing') %}
@@ -16,9 +18,6 @@ dog_bark:
         {% else %}
         true
         {% endif %}
-    - condition: state
-      entity_id: input_boolean.alert_mode
-      state: 'on'
     - condition: state
       entity_id: input_boolean.speech_notifications
       state: 'on'
@@ -41,9 +40,6 @@ dog_bark:
           {% else %}
           0.40
           {% endif %}
-
-    - service: media_player.turn_on
-      entity_id: media_player.livingroomCC
 
     - service: media_player.play_media
       data_template:

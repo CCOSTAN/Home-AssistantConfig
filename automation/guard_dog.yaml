@@ -1,0 +1,15 @@
+######################################################################
+##  Speak Max!  Speak Max!!
+######################################################################
+
+- alias: Guard Dog
+  trigger:
+    - platform: state
+      entity_id: input_boolean.guard_dog
+      state: 'on'
+      from: 'off'
+
+  action:
+    - service: script.dog_bark
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.guard_dog
