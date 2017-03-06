@@ -32,6 +32,14 @@
         friendly_name: 'Amazon Dot'
         value_template: "{{ 'Online' if is_state('device_tracker.amazon_dot', 'home') else 'Offline' }}"
 
+      amazon_fire_stick:
+        friendly_name: 'Amazon Fire Stick'
+        value_template: "{{ 'Online' if is_state('device_tracker.amazon_fire_stick', 'home') else 'Offline' }}"
+
+      printer:
+        friendly_name: 'Printer'
+        value_template: "{{ 'Online' if is_state('device_tracker.printer', 'home') else 'Offline' }}"
+
       circle:
         friendly_name: 'Disney Circle'
         value_template: "{{ 'Online' if is_state('device_tracker.circle', 'home') else 'Offline' }}"
