@@ -46,7 +46,7 @@ light 2:
   - platform: flux_led
     automatic_add: True
     devices:
-      192.168.10.91:
+      192.168.10.213:
         name: garage_large
         mode: "rgb"
 
@@ -88,8 +88,8 @@ history:
      - sensor.last_boot
      - sensor.date
 
-logger: !include logger.yaml
-recorder: !include recorder.yaml
+#logger: !include logger.yaml
+#recorder: !include recorder.yaml
 
 mqtt:
   broker: 127.0.0.1

@@ -16,6 +16,11 @@
         friendly_name: 'Cisco Main AP'
         value_template: "{{ 'Online' if is_state('device_tracker.cisco_ap', 'home') else 'Offline' }}"
 
+      unifi_ap:
+        friendly_name: 'Unifi AP'
+        value_template: "{{ 'Online' if is_state('device_tracker.unifi_ap', 'home') else 'Offline' }}"
+
+
       hue_hub_1:
         friendly_name: 'Hue Hub 1'
         value_template: "{{ 'Online' if is_state('device_tracker.hue_hub_1', 'home') else 'Offline' }}"
