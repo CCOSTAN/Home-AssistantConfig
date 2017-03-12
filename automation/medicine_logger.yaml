@@ -1,0 +1,24 @@
+###################################
+##  LOG IFTTT Stuff - Rachio
+###################################
+- alias: 'Log Sprinkler Activity'
+  hide_entity: True
+  trigger:
+    - platform: event
+      event_type: simplehuman_dash
+
+  action:
+
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.medicine
+
+    - service: logbook.log
+      data:
+        name: "Medicine Push"
+        message: "Took Medicine today."
+
+    - service: mqtt.publish
+      data_template:
+        payload: '{{ states("sensor.date") }}'
+        topic: 'dash/simplehuman/medicine_time'
+        retain: true
