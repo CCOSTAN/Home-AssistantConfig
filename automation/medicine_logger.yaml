@@ -22,3 +22,7 @@
         payload: '{{ states("sensor.date") }}'
         topic: 'dash/simplehuman/medicine_time'
         retain: true
+
+    -  service: script.ifttt_notify
+       data_template:
+         value1: 'Took Medicine today.'
