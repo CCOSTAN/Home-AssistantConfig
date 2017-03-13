@@ -1,16 +1,12 @@
 ######################################################################
 ##  Garage Status Announcements
 ######################################################################
-- alias: 'Garage Opened'
+- alias: 'Door Opened/Closed'
 
   trigger:
     - platform: state
       entity_id:
-        - cover.large_garage
-        - cover.small_garage
-      from: 'closed'
-      to: 'open'
-      for: '00:02:00'
+        - sensor.backdoor
 
   action:
     - service: input_boolean.turn_on
