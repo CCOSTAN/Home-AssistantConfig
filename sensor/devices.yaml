@@ -108,3 +108,7 @@
       withings_scale:
         friendly_name: 'WiThings Scale'
         value_template: "{{ 'Online' if is_state('device_tracker.withings_scale', 'home') else 'Offline' }}"
+
+      backdoor:
+        friendly_name: 'Back Door'
+        value_template: "{{ 'Open' if is_state('binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_3_0', 'on') else 'Closed' }}"
