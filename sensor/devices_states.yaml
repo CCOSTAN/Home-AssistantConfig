@@ -111,4 +111,8 @@
 
       backdoor:
         friendly_name: 'Back Door'
-        value_template: "{{ 'Open' if is_state('binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_3_0', 'on') else 'Closed' }}"
+        value_template: "{{ 'Opened' if is_state('binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_3_0', 'on') else 'Closed' }}"
+
+      linen_door:
+        friendly_name: 'Linen Door'
+        value_template: "{{ 'Opened' if is_state('binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0', 'on') else 'Closed' }}"

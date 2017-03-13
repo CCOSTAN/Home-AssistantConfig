@@ -1,13 +1,15 @@
 ######################################################################
 ##  Garage Status Announcements - Only during normal hours.
 ######################################################################
-- alias: 'Garage closed'
+- alias: 'Garage or Door closed'
 
   trigger:
     - platform: state
       entity_id:
         - cover.large_garage
         - cover.small_garage
+        - sensor.backdoor
+
       from: 'open'
       to: 'closed'
       for: '00:02:00'
@@ -15,4 +17,4 @@
   action:
     - service: script.Voice_notify
       data_template:
-        value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ')|replace('garadget large', 'large garage ')|replace('garadget small', 'small garage ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."

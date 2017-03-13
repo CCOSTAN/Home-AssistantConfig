@@ -38,8 +38,9 @@
       - condition: state
         entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
         state: 'off'
-
-
+      - condition: state
+        entity_id: sun.sun
+        state: 'above_horizon'
 
   action:
     - service: light.turn_on
@@ -48,7 +49,6 @@
         - light.sink
     - service: script.Voice_notify
       data_template:
-        value1: "It is getting a little dark inside the house because of the  {{trigger.entity_id.split('_')[2]|replace('precip','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}}
-        outside.  I will turn on some extra lights in the living room."
+        value1: "It is getting a little dark inside the house because of the {{trigger.entity_id.split('_')[2]|replace('precip','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}} outside.  I will turn on some extra lights in the living room."
 
 ######################################################################

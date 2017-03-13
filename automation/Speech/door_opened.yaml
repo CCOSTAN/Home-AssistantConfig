@@ -1,12 +1,13 @@
 ######################################################################
 ##  Garage Status Announcements
 ######################################################################
-- alias: 'Door Opened/Closed'
+- alias: 'Door Opened'
 
   trigger:
     - platform: state
       entity_id:
         - sensor.backdoor
+      to: 'Opened'
 
   action:
     - service: input_boolean.turn_on
@@ -14,4 +15,10 @@
 
     - service: script.Voice_notify
       data_template:
-        value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
+
+    - service: script.ifttt_notify
+      data_template:
+        value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        value2: ''
+        value3: ''
