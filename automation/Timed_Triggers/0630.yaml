@@ -1,11 +1,11 @@
 ######################################################################
-##  Stuff that needs to happen at 08:30am.
+##  Stuff that needs to happen at 06:30am.
 ######################################################################
 
-- alias: 'Kids 0750am.'
+- alias: 'Timed 630.'
   trigger:
     - platform: time
-      after: '07:50:00'
+      after: '06:50:00'
 
   condition:
     - condition: state
@@ -25,4 +25,6 @@
   action:
     - service: light.turn_on
       entity_id:
-        - group.kitchen_lights
+        - group.dining_room_lights
+    - service: switch.turn_on
+      entity_id: switch.kitchen_accents
