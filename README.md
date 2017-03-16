@@ -114,8 +114,12 @@ SUNSET:
 I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github.
 Feel free to join the conversations there.
 
-![Screenshot of Home View](https://imgflip.com/gif/1le5hi)
-
+![Screenshot of Home View](https://i.imgur.com/UlUiKTX.png)
+![Screenshot of Garage Door View](https://i.imgur.com/zotvUKp.png)
+![Screenshot of Lights](https://i.imgur.com/KKCPaLJ.png)
+![Screenshot of More](https://i.imgur.com/rg6lhJz.png)
+![Screenshot of Even More](https://i.imgur.com/SlglNh3.png)
+![Screenshot of Last one](https://i.imgur.com/sTsYQi4.png)
 
 **All files are now being edited with [Atom](https://atom.io/).**
 
