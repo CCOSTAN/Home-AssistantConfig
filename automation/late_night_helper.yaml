@@ -4,19 +4,18 @@
 - alias: 'Late Night Helper'
   trigger:
     - platform: state
-      entity_id: 
+      entity_id:
         - binary_sensor.upstairs_away_mode
         - binary_sensor.downstairs_away_mode
-      state: 'off'    
+      state: 'off'
     - platform: state
       entity_id: group.family
-      state: home 
+      state: home
     - platform: state
       entity_id: group.garage_doors
       state: 'open'
       for: '00:01:30'
-      
-    
+
   condition:
     condition: and
     conditions:
@@ -28,6 +27,8 @@
         before: '02:00:00'
 
   action:
+    - service: scene.turn_on
+      entity_id: scene.front_full_brightness
     - service: light.turn_on
       entity_id: 
         - group.living_room_accents
@@ -45,12 +46,11 @@
       entity_id: switch.living_room_outlet
     - service: switch.turn_on
       entity_id: switch.foyer_outlet
-    - service: script.front_house_motion
+    - delay: '00:10:00'
     - service: light.turn_off
-      entity_id: 
+      entity_id:
         - light.S1
         - light.S4
         - light.foyer_door
         - light.fridge
-        
-  
+    - service: script.monthly_color_scene
