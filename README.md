@@ -13,7 +13,7 @@ SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 [HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
 
 **Devices I have :**
-* [Ubiquiti Networks Unifi 802.11ac Pro](http://amzn.to/2mBSfE9) This keeps me warm with it's Wifi rays blanketing the house.
+* [Ubiquiti Networks Unifi 802.11ac Pro](http://amzn.to/2mBSfE9) This keeps me warm with it's Wifi rays blanketing the house. Also used as a presence Tracker for iPhones/People.
 * Lots of iOS Devices ([iPads](http://amzn.to/2l2qyRb), iPods, [iPhones](http://amzn.to/2l9Yoq9))
 * [Nest Thermostats](http://amzn.to/2eAhB1k) - Smart Thermostat
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
