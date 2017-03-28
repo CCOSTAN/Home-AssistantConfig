@@ -1,0 +1,13 @@
+###################################
+##  Dynamically set the log levels without having to restart HASS or edit configuration.yaml
+#- Thanks @VDRainer
+###################################
+
+- alias: Log Level
+  trigger:
+    platform: state
+    entity_id: input_select.log_level
+  action:
+    service: logger.set_level
+    data_template:
+      homeassistant.components: "{{ trigger.to_state.state }}"
