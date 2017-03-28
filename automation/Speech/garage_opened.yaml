@@ -8,9 +8,10 @@
       entity_id:
         - cover.large_garage
         - cover.small_garage
+        - sensor.backdoor
       from: 'closed'
       to: 'open'
-      for: '00:02:00'
+      for: '00:02:30'
 
   action:
     - service: input_boolean.turn_on
