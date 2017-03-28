@@ -1,0 +1,12 @@
+###################################################
+## * Special HASS related sensors - Thanks @torn8o
+###################################################
+
+- platform: command_line
+  name: HA Installed Version
+  command: "/srv/hass/hass_venv/bin/hass --version"
+- platform: template
+  sensors:
+   ha_last_restart:
+     value_template: '{{ as_timestamp(states.automation.startup_notification.attributes.last_triggered) | timestamp_custom("%b %d %X") }}'
+     friendly_name: HA Last Restart
