@@ -50,6 +50,7 @@
         {%- endif -%}
 
 - platform: rest
+  scan_interval: 86400
   resource: http://ip.jsontest.com
   name: External IP
   value_template: '{{ value_json.ip }}'
