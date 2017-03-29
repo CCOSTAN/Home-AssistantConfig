@@ -6,6 +6,7 @@ homeassistant:
   unit_system: imperial
   time_zone: America/New_York
   customize: !include_dir_merge_named customize
+  packages: !include_dir_named packages
 
 http:
   base_url: !secret http_base_url
