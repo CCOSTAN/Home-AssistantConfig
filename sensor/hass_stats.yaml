@@ -6,8 +6,23 @@
   name: HA Installed Version
   command: "/srv/hass/hass_venv/bin/hass --version"
   scan_interval: 86400
-- platform: template
-  sensors:
-   ha_last_restart:
-     value_template: '{{ as_timestamp(states.automation.startup_notification_and_shut_startup_lights.attributes.last_triggered) | timestamp_custom("%b %d %X") }}'
-     friendly_name: HA Last Restart
+
+- platform: command_line
+  name: "HA Uptime"
+  command: echo "$(($(date +%s) - $(date -d "$(head -n1 /home/hass/.homeassistant/home-assistant.log | cut -d' ' -f-2)" +%s)))"
+  scan_interval: 360
+  value_template: >-
+    {% set uptime = value | int %}
+    {% set seconds = uptime % 60 %}
+    {% set minutes = ((uptime % 3600) / 60) | int %}
+    {% set hours = ((uptime % 86400) / 3600) | int %}
+    {% set days = (uptime / 86400) | int %}
+    {%- if days > 0 -%}
+      {%- if days == 1 -%}
+        1 day
+      {%- else -%}
+        {{ days }} days
+      {%- endif -%}
+      {{ ', ' }}
+    {%- endif -%}
+    {{ '%02d' % hours }}:{{ '%02d' % minutes }}
