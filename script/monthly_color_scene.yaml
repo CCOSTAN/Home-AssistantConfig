@@ -1,5 +1,5 @@
 ######################################################################################################
-###Script to turn on scene for the appropriate month for the front of the house but only when the sun is down. 
+###Script to turn on scene for the appropriate month for the front of the house but only when the sun is down.
 #  action:
 #   - service: script.monthly_color_scene
 #
@@ -11,10 +11,7 @@ monthly_color_scene:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
-    - condition: state
-      entity_id: input_boolean.alert_mode
-      state: 'off'
-    
+
     - service: logbook.log
       data_template:
         name: "Launching Scene:"
@@ -33,18 +30,18 @@ monthly_color_scene:
           or now().strftime("%m%d")|int == 1111
           -%}
           RWB
-          {%- elif now().strftime("%m%d")|int >= 210 
+          {%- elif now().strftime("%m%d")|int >= 210
           and now().strftime("%m%d")|int <= 214-%}
           valentine
           {%- elif now().strftime("%m%d")|int == 228 -%}
           marti_gras
-          {%- elif now().strftime("%m%d")|int >= 314 
+          {%- elif now().strftime("%m%d")|int >= 314
           and now().strftime("%m%d")|int <= 317-%}
           st_patty
           {%- else -%}
           standard
           {%- endif -%}_colors"
-          
+
     - service: scene.turn_on
       data_template:
         entity_id: >
@@ -62,23 +59,23 @@ monthly_color_scene:
           or now().strftime("%m%d")|int == 1111
           -%}
           RWB
-          {%- elif now().strftime("%m%d")|int >= 210 
+          {%- elif now().strftime("%m%d")|int >= 210
           and now().strftime("%m%d")|int <= 214-%}
           valentine
           {%- elif now().strftime("%m%d")|int == 228 -%}
           marti_gras
-          {%- elif now().strftime("%m%d")|int >= 314 
+          {%- elif now().strftime("%m%d")|int >= 314
           and now().strftime("%m%d")|int <= 317-%}
           st_patty
           {%- else -%}
           standard
           {%- endif -%}_colors
- 
- 
-# http://www.calendar-365.com/holidays/2017.html 
+
+
+# http://www.calendar-365.com/holidays/2017.html
 # 101 New_years_day (colorloop)
 # RWB 212 Lincoln's Birthday
-# 214 Valentine's Day (pink, red) 
+# 214 Valentine's Day (pink, red)
 # RWB 220 President's Day
 # 228 Mardi Gras (purple, green, gold )
 # 317 st Patty (green)
