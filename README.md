@@ -40,6 +40,7 @@ SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [Digital Smart Water Main ShutOff/Leak Detector] (http://www.providencecpc.org/wp-content/uploads/2016/01/work_in_progress.png) - Beta test to monitor Water usage and Leaks centrally.
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
 * [SleepNumber Bed i8](http://amzn.to/2kxdXXI) - Has SleepIQ to track occupancy and sleep habits.  Tied into HA.
+* [MX8 Zodiac Pool Robot](http://amzn.to/2nAGvPf) - Not YET hooked up HA, but working on it.
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
