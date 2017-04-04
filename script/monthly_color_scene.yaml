@@ -38,9 +38,14 @@ monthly_color_scene:
           {%- elif now().strftime("%m%d")|int >= 314
           and now().strftime("%m%d")|int <= 317-%}
           st_patty
+          {%- elif now().strftime("%m%d")|int >= 414
+          and now().strftime("%m%d")|int <= 416-%}
+          easter
+          {%- elif now().strftime("%m%d")|int == 505 -%}
+          cinco_de_mayo
           {%- else -%}
           standard
-          {%- endif -%}_colors"
+          {%- endif -%}_colors
 
     - service: scene.turn_on
       data_template:
