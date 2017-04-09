@@ -6,6 +6,10 @@
     - platform: state
       entity_id: group.garage_doors
       state: 'open'
+    - platform: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+      from: 'above_horizon'
 
   condition:
     condition: and
@@ -13,6 +17,9 @@
       - condition: state
         entity_id: sun.sun
         state: 'below_horizon'
+      - condition: state
+        entity_id: group.garage_doors
+        state: 'open'
 
   action:
     - service: scene.turn_on
