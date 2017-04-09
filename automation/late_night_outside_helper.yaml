@@ -1,0 +1,21 @@
+###################################
+##  Late Night lights Section
+###################################
+- alias: 'Late Night Helper'
+  trigger:
+    - platform: state
+      entity_id: group.garage_doors
+      state: 'open'
+
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+
+  action:
+    - service: scene.turn_on
+      entity_id: scene.front_full_brightness
+    - wait_template: "{{ states.group.garage_doors.states == 'closed' }}"
+    - service: script.monthly_color_scene
