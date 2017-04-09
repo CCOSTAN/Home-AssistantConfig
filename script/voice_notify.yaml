@@ -74,14 +74,17 @@ voice_notify:
       entity_id: media_player.livingroomCC
       data_template:
         message: >
+          "<speak>
           {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
-          "Good morning.
+          Good morning.
           {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
-          "Good afternoon.
+          Good afternoon.
           {% else %}
-          "Good evening.
+          Good evening.
           {% endif %}
-          {{ value1 }}"
+          {{ value1 }}
+          <break time='1s'/>
+          </speak>"
         cache: true
 
     - service: input_boolean.turn_off
