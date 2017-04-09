@@ -1,5 +1,5 @@
 ###################################
-##  LOG IFTTT Stuff - Rachio
+##  LOG Medicine
 ###################################
 - alias: 'Log Medicine Activity'
   hide_entity: True
@@ -11,7 +11,8 @@
 
     - service: input_boolean.turn_on
       entity_id: input_boolean.medicine
-
+    - service: automation.turn_off
+      entity_id: automation.log_medicine_activity
     - service: logbook.log
       data:
         name: "Medicine Push"
@@ -26,3 +27,7 @@
     -  service: script.ifttt_notify
        data_template:
          value1: 'Took Medicine today.'
+
+    -  delay:
+         minutes: 1
+    - service: automation.turn_on

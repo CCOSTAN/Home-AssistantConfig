@@ -10,7 +10,7 @@
   action:
     # Disable this automation
     - service: automation.turn_off
-      entity_id: dash_buttons.yaml
+      entity_id: automation.toggle_office_light_onoff
     - service: light.toggle
       entity_id: light.office_lamp
     - delay:
