@@ -1,0 +1,72 @@
+homeassistant:
+  customize:
+    sensor.deliveries_today:
+      icon: mdi:package-variant
+    sensor.packages_in_transit:
+      icon: mdi:truck-delivery
+
+group:
+  Deliveries:
+    - sensor.usps
+    - sensor.ups
+#    - sensor.fedex
+    - sensor.deliveries_today
+    - sensor.packages_in_transit
+
+sensor:
+  - platform: usps
+    name: 'USPS'
+    username: !secret myusps_username
+    password: !secret myusps_password
+  - platform: ups
+    name: 'UPS'
+    username: !secret upsmychoice_username
+    password: !secret upsmychoice_password
+#  - platform: fedex
+#    name: 'Fedex'
+#    username: !secret fedexdeliverymanager_username
+#    password: !secret fedexdeliverymanager_password
+
+  - platform: template
+    sensors:
+      packages_in_transit:
+        friendly_name: "Packages in Transit"
+        value_template: >
+          {% macro in_transit(sensor) %}
+            {{sensor.state|int - delivered(sensor)|int}}
+          {% endmacro %}
+          {% macro delivered(sensor) %}
+            {% if 'delivered' in sensor.attributes %}
+              {{sensor.attributes.delivered}}
+            {% else %}
+               0
+            {% endif %}
+          {% endmacro %}
+          {{in_transit(states.sensor.usps)|int + in_transit(states.sensor.ups)|int + in_transit(states.sensor.fedex)|int}}
+      deliveries_today:
+        friendly_name: "Today's Deliveries"
+        value_template: >
+          {% macro delivered(sensor) %}
+            {% if 'delivered' in sensor.attributes %}
+              {{sensor.attributes.delivered}}
+            {% else %}
+               0
+            {% endif %}
+          {% endmacro %}
+          {{delivered(states.sensor.usps)|int + delivered(states.sensor.ups)|int + delivered(states.sensor.fedex)|int}}
+
+automation:
+  - alias: Announce package delivery
+    trigger:
+      platform: state
+      entity_id: sensor.deliveries_today
+    condition:
+      - condition: template
+        value_template: '{{trigger.to_state.state|int > trigger.from_state.state|int}}'
+      - condition: state
+        entity_id: group.all_devices
+        state: 'home'
+    action:
+      - service: script.Voice_notify
+        data_template:
+          value1: "A package was just delivered."
