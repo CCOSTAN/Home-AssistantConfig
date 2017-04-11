@@ -1,16 +1,4 @@
-###################################
-##  LOG IFTTT Stuff - [SkyBell HD](http://amzn.to/2dcexIB)
-###################################
 
-- alias: 'Log SkyBell Pressed Activity'
-  hide_entity: True
-  trigger:
-    - platform: event
-      event_type: skybell_pressed
-  
-  action:
-    - service: script.skybell_pressed
-  
 ######################################################################
 
 - alias: 'Log SkyBell Motion detection'
@@ -18,6 +6,6 @@
   trigger:
     - platform: event
       event_type: skybell_motion
-  
+
   action:
     - service: script.front_house_motion
