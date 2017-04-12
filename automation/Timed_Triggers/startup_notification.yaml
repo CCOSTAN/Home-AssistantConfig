@@ -5,8 +5,8 @@
 - alias: Startup Notification and Shut startup lights
   hide_entity: True
   trigger:
-    - platform: event
-      event_type: homeassistant_start
+    - platform: homeassistant
+      event: start
   action:
     - service: script.ifttt_notify
       data_template:
@@ -16,4 +16,3 @@
 
     - service: light.turn_off
       entity_id: group.hallway_lights
-    
