@@ -64,11 +64,7 @@ voice_notify:
           0.20
           {% endif %}
 
-    - service: mqtt.publish
-      data_template:
-        payload: '{{ value1 }}'
-        topic: 'polly/lastmsg'
-        retain: true
+
 
     - service: tts.amazon_polly_say
       entity_id: media_player.livingroomCC
@@ -81,6 +77,8 @@ voice_notify:
           {% else %}
           "Good evening.
           {% endif %}
+
+          {{ personarriving }}
 
           {%- macro responsibilities() -%}
             {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
@@ -99,9 +97,16 @@ voice_notify:
           {% if is_state('input_boolean.responsibilities', 'on') %}
             {{responsibilities()}}
           {%endif%}
-          
+
+          {{ DoorOpened }}
           {{ value1 }}"
         cache: true
+
+    - service: mqtt.publish
+      data_template:
+        payload: '{{ value1 }}'
+        topic: 'polly/lastmsg'
+        retain: true
 
     - service: input_boolean.turn_off
       entity_id:
