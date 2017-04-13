@@ -19,6 +19,7 @@ SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
+* [Wink Hub](http://amzn.to/2orGEWo) - Used to connect certain Zwave outlets etc.
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * Mixture of [Hue Colored lights](http://amzn.to/2l2viGK), [White Lights](http://amzn.to/2lEf4Xq) and GE Link bulbs.
 * [Hue Go](http://amzn.to/2iB36Ii) - Great lights for the kids since they have an actual button on them for control.

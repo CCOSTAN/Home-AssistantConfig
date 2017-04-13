@@ -29,6 +29,9 @@ voice_notify:
             - condition: state
               entity_id: input_boolean.alert_mode
               state: 'on'
+            - condition: state
+              entity_id: input_boolean.medicine
+              state: 'off'
         - condition: or
           conditions:
             - condition: template
@@ -41,6 +44,9 @@ voice_notify:
             - condition: state
               entity_id: input_boolean.alert_mode
               state: 'on'
+            - condition: state
+              entity_id: input_boolean.medicine
+              state: 'off'
         - condition: state
           entity_id: input_boolean.speech_notifications
           state: 'on'
@@ -57,11 +63,11 @@ voice_notify:
       data_template:
         volume_level: >
           {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
-          0.25
+          0.4
           {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 20%}
-          0.45
+          0.6
           {% else %}
-          0.20
+          0.3
           {% endif %}
 
     - service: tts.amazon_polly_say
@@ -75,7 +81,7 @@ voice_notify:
           {% else %}
           "Good evening.
           {% endif %}
-          
+
           {%- macro responsibilities() -%}
             {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
               Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
@@ -124,6 +130,11 @@ voice_notify:
           {% endif %}
           {%- endmacro -%}
 
+          {% macro medicine() %}
+          {% if is_state('input_boolean.medicine', 'off') -%}
+            It looks like Carlo has not taken his medicine yet.  Please make sure Carlo takes his medicine now.
+          {% endif -%}
+          {%- endmacro -%}
 
           {{ personarriving }}
 
@@ -147,18 +158,18 @@ voice_notify:
           {% if is_state('input_boolean.lights_status', 'on') %}
             {{lights_status()}}
           {%endif%}
+          {% if is_state('input_boolean.responsibilities', 'on') %}
+            {{responsibilities()}}
+          {%endif%}
+          {% if now().strftime("%H")|int > 22 %}
+            {{Medicine()}}
+          {%endif%}
+
           {{ value1 }}"
         cache: true
 
-    - service: mqtt.publish
-      data_template:
-        payload: '{{ value1 }}'
-        topic: 'polly/lastmsg'
-        retain: true
-
     - service: input_boolean.turn_off
       entity_id:
-        - input_boolean.last_message
         - input_boolean.alert_mode
         - input_boolean.home_stats
         - input_boolean.responsibilities
