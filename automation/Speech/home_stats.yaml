@@ -17,57 +17,12 @@
       from: 'off'
 
   action:
-    - service: input_boolean.turn_off
-      entity_id: input_boolean.home_stats
+    - service: input_boolean.turn_on
+      entity_id:
+        - input_boolean.responsibilities
+        - input_boolean.inside_temp
+        - input_boolean.outside_weather
+        - input_boolean.lights_status
+        - input_boolean.garage_check
 
     - service: script.Voice_notify
-      data_template:
-        value1: >
-          "Welcome Home. Here is what's going on around the house right now:
-
-          {%- macro responsibilities() -%}
-            {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
-              Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
-            {%endif%}
-            {% if now().strftime("%j")|int % 2 != 0 %}
-              Today is Justin's day to do the chores.
-            {% else %}
-              Today is Paige's day to do the chores.
-            {%endif%}
-          {%- endmacro -%}
-          {{responsibilities()}}
-
-          {%- macro inside_weather() -%}
-          Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity.
-          {%- endmacro -%}
-          {{inside_weather()}}
-
-          {%- macro outside_weather() -%}
-          Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
-          {%- endmacro -%}
-          {{outside_weather()}}
-
-          {% if is_state('cover.large_garage', 'open') -%}
-            Also, The Large Garage Door is still open
-          {% endif -%}
-          {% if is_state('cover.small_garage', 'open') -%}
-            {% if is_state('cover.large_garage', 'open') -%}and
-            {%- endif %} The small Garage Door is still open.
-          {% endif %}
-
-          {%- macro lights_status() -%}
-          . There are
-          {% for state in states.light if state.state == 'on' -%}
-            {%- if loop.last -%}
-              {{ loop.index }}
-            {%- endif -%}
-          {%- endfor %}  lights on right now.
-          {% set comma = joiner(', ') %} The
-          {% for group in states.group|groupby('state') -%}
-            {%- for entity in group.list if entity.state == 'on' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
-            {{ ' and' if loop.last and not loop.first else comma() }}
-            {{ entity.name }}
-            {%- endfor -%}
-          {%- endfor %}
-          {%- endmacro -%}
-          {{lights_status()}}"

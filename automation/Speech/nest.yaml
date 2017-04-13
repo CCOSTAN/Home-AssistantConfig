@@ -1,11 +1,11 @@
 ######################################################################
 ##  Announce when one of the nests kick in
-## Announce over all Chromecast Audios 
+## Announce over all Chromecast Audios
 ######################################################################
 - alias: 'Nest Status'
-  
+
   trigger:
-      
+
     - platform: state
       entity_id:
         - sensor.downstairs_thermostat_hvac_state
@@ -15,4 +15,4 @@
   action:
     - service: script.Voice_notify
       data_template:
-        value1: "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."
+        NestStatus: "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."
