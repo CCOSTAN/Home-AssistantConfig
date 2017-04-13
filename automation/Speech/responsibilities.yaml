@@ -11,20 +11,4 @@
       from: 'off'
 
   action:
-    - service: input_boolean.turn_off
-      entity_id: input_boolean.responsibilities
-
     - service: script.Voice_notify
-      data_template:
-        value1: >
-          {%- macro responsibilities() -%}
-            {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
-              Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
-            {%endif%}
-            {% if now().strftime("%j")|int % 2 != 0 %}
-              Today is Justin's day to do the chores.
-            {% else %}
-              Today is Paige's day to do the chores.
-            {%endif%}
-          {%- endmacro -%}
-          "{{responsibilities()}}"

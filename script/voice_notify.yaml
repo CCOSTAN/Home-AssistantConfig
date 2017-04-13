@@ -81,6 +81,25 @@ voice_notify:
           {% else %}
           "Good evening.
           {% endif %}
+
+          {%- macro responsibilities() -%}
+            {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
+              Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
+            {%endif%}
+            {%if now().strftime("%a") == 'Wed'%}
+              Both Recycling and regular Garbage goes out. Please take out all of the garbage cans tonight.
+            {%endif%}
+            {% if now().strftime("%j")|int % 2 != 0 %}
+              Today is Justin's day to do the chores.
+            {% else %}
+              Today is Paige's day to do the chores.
+            {%endif%}
+          {%- endmacro -%}
+
+          {% if is_state('input_boolean.responsibilities', 'on') %}
+            {{responsibilities()}}
+          {%endif%}
+          
           {{ value1 }}"
         cache: true
 
@@ -88,3 +107,4 @@ voice_notify:
       entity_id:
         - input_boolean.last_message
         - input_boolean.alert_mode
+        - input_boolean.responsibilities
