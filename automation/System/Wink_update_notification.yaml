@@ -1,0 +1,25 @@
+- alias: "Wink Update Available Notification"
+  hide_entity: True
+  trigger:
+    platform: template
+    value_template: "{{ is_state_attr('binary_sensor.carlowink', 'update needed', True) }} != False }}"
+
+  action:
+    - service: script.ifttt_notify
+      data_template:
+        value1: 'Check the Wink Hub.  Update is needed.'
+        value2: "{{ states.binary_sensor.carlowink.attributes }}"
+        value3: ''
+
+    - service: notify.html5
+      data_template:
+        title: "Wink Update Available"
+        message: "Wink Update is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+        data:
+          url: "https://home-assistant.io/getting-started/installation-raspberry-pi-all-in-one/#upgrading"
+
+    - service: persistent_notification.create
+      data:
+        title: "Wink Update Available"
+        message: "Wink Update is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+        notification_id: "update_available"    

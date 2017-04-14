@@ -4,7 +4,8 @@
 
 - platform: command_line
   name: HA Installed Version
-  command: "/srv/hass/hass_venv/bin/hass --version"
+  command: >-
+      cat $HASS_CONFIG/.HA_VERSION
   scan_interval: 86400
 
 - platform: command_line

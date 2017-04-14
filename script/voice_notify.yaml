@@ -63,9 +63,9 @@ voice_notify:
       data_template:
         volume_level: >
           {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
-          0.4
+          0.35
           {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 20%}
-          0.6
+          0.55
           {% else %}
           0.3
           {% endif %}
@@ -138,9 +138,6 @@ voice_notify:
 
           {{ personarriving }}
 
-          {% if is_state('input_boolean.responsibilities', 'on') %}
-            {{responsibilities()}}
-          {%endif%}
           {{ NestStatus}}
           {% if is_state('input_boolean.inside_weather', 'on') %}
             {{inside_weather()}}
