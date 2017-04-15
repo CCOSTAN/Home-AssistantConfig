@@ -8,6 +8,10 @@
       entity_id: input_boolean.guard_dog
       state: 'on'
       from: 'off'
+    - platform: state
+      entity_id: binary_sensor.front_door_opened
+      state: 'on'
+      from: 'off'
 
   action:
     - service: script.dog_bark
