@@ -7,18 +7,22 @@
     - platform: state
       entity_id:
         - sensor.backdoor
+        - sensor.sliding_door
       to: 'Opened'
 
   action:
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode
 
-    - service: script.Voice_notify
-      data_template:
-        DoorOpened: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
-
     - service: script.ifttt_notify
       data_template:
         value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
         value2: ''
         value3: ''
+        
+    - wait_template: "{{ states.media_player.livingroomCC.states != 'playing' }}"
+      timeout: 00:00:30
+
+    - service: script.Voice_notify
+      data_template:
+        DoorOpened: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
