@@ -15,5 +15,11 @@
       data:
         effect: colorloop
 
+    - service: light.turn_on
+      entity_id:
+        - light.justin_go
+      data:
+        effect: colorloop
+
     - service: input_boolean.turn_off
       entity_id: input_boolean.color_tornado

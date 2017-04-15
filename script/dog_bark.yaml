@@ -36,7 +36,7 @@ dog_bark:
           {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
           0.45
           {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
-          0.9
+          0.7
           {% else %}
           0.40
           {% endif %}

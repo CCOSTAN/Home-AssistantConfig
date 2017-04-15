@@ -5,13 +5,13 @@
 - platform: command_line
   name: HA Installed Version
   command: >-
-      cat $HASS_CONFIG/.HA_VERSION
+      cat /home/hass/.homeassistant/.HA_VERSION
   scan_interval: 86400
 
 - platform: command_line
   name: "HA Uptime"
   command: echo "$(($(date +%s) - $(date -d "$(head -n1 /home/hass/.homeassistant/home-assistant.log | cut -d' ' -f-2)" +%s)))"
-  scan_interval: 360
+  scan_interval: 720
   value_template: >-
     {% set uptime = value | int %}
     {% set seconds = uptime % 60 %}
