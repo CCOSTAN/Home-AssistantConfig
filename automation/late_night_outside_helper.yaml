@@ -4,7 +4,7 @@
 - alias: 'Late Night Helper outside'
   trigger:
     - platform: state
-      entity_id: group.garage_doors
+      entity_id: group.all_covers
       state: 'open'
     - platform: state
       entity_id: sun.sun
@@ -18,7 +18,7 @@
         entity_id: sun.sun
         state: 'below_horizon'
       - condition: state
-        entity_id: group.garage_doors
+        entity_id: group.all_covers
         state: 'open'
 
   action:
