@@ -21,7 +21,7 @@ http:
 
 frontend:
 ios:
-  
+
 group: !include_dir_merge_named group
 device_tracker: !include_dir_merge_list device_tracker
 #discovery:
@@ -122,11 +122,14 @@ climate:
 
 media_player:
   - platform: cast
+  
   - platform: roku
+
   - platform: samsungtv
     host: 192.168.10.207
     port: 8001
     name: Living Room TV
+    scan_interval: 60
 
 sleepiq:
   username: !secret sleepiq_username
