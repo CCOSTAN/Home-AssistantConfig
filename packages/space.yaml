@@ -9,8 +9,19 @@ homeassistant:
       friendly_name: ISS Visibility
       emulated_hue: False
       hidden: False
-
+#-------------------------------------------
 binary_sensor:
   - platform: iss
     show_on_map: False
 #-------------------------------------------
+automation:
+  - alias: 'ISS is above us!'
+
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.iss
+        from: 'off'
+
+    action:
+      - service: script.Voice_notify

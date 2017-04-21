@@ -136,6 +136,13 @@ voice_notify:
           {% endif -%}
           {%- endmacro -%}
 
+          {% macro iss() %}
+          {% if is_state('binary_sensor.iss', 'on') -%}
+            Here is something interesting.  The international space station is above us now.  There are {{ states.binary_sensor.iss.attributes["number_of_people_in_space"]}} people in space right now.
+            {{outside_weather()}}
+          {% endif -%}
+          {%- endmacro -%}
+
           {{ personarriving }}
 
           {{ NestStatus}}
@@ -148,7 +155,7 @@ voice_notify:
 
           {{ DoorOpened }}
           {{ DoorClosed }}
-          {% if is_state('input_boolean.garage_check', 'on') %}
+          {% if is_state('input_boolean.garage_check', 'on') or is_state('sun.sun', 'below_horizon') %}
             {{garage_check()}}
           {%endif%}
           {{ NewDevice}}
@@ -162,7 +169,8 @@ voice_notify:
             {{Medicine()}}
           {%endif%}
 
-          {{ value1 }}"
+          {{ value1 }}
+          {{iss()}}"
         cache: true
 
     - service: input_boolean.turn_off
