@@ -158,6 +158,7 @@ cover:
         password: !secret garadget_password
         name: Small Garage
 
+binary_sensor: !include_dir_merge_list binary_sensor
 sensor: !include_dir_merge_list sensor
 automation: !include_dir_merge_list automation
 scene: !include_dir_merge_list scene

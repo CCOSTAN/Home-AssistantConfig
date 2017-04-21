@@ -11,12 +11,15 @@
     - platform: state
       entity_id: sensor.samsungtv
       state: 'Online'
+      from: 'Offline'
     - platform: state
       entity_id: sun.sun
       state: 'below_horizon'
+      from: 'above_horizon'
     - platform: state
       entity_id: media_player.living_room
       state: 'playing'
+      from: 'idle'
 
   condition:
     condition: and
