@@ -1,0 +1,16 @@
+#-------------------------------------------
+#  Space Related Packages
+#-------------------------------------------
+#------ISS----------------------------------
+homeassistant:
+  customize:
+    binary_sensor.iss:
+      icon: mdi:satellite-variant
+      friendly_name: ISS Visibility
+      emulated_hue: False
+      hidden: False
+
+binary_sensor:
+  - platform: iss
+    show_on_map: False
+#-------------------------------------------
