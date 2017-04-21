@@ -4,15 +4,15 @@
 #------Whole House Radio Enabled via Emulated Hue----------------------------
 homeassistant:
   customize:
-    input_boolean.radio:
+    input_boolean.house_station:
       icon: mdi:radio
       friendly_name: Streaming Radio
       emulated_hue: True
       hidden: False
 #---Use this Boolean to trigger via GUI or Alexa------------------------------
 input_boolean:
-  radio:
-    name: Radio
+  house_station:
+    name: House Station
     initial: off
 
 #-----Turn on the Music--------------------------------------
@@ -22,7 +22,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - input_boolean.radio
+          - input_boolean.house_station
         state: 'on'
         from: 'off'
 
@@ -34,20 +34,13 @@ automation:
         entity_id:
           - media_player.livingroomCC
         data_template:
-          volume_level: >
-            {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
-            0.45
-            {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
-            0.7
-            {% else %}
-            0.40
-            {% endif %}
+          volume_level: 0.2
 
       - service: media_player.play_media
         data_template:
           entity_id:
             - media_player.LivingRoomCC
-          media_content_id: "http://dir.xiph.org/listen/113920/listen.m3u"
+          media_content_id: "http://streaming312.radionomy.com:80/113FMHighway"
           media_content_type: audio/mp4
 
 #-----Turn off the Music--------------------------------------
@@ -56,7 +49,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - input_boolean.radio
+          - input_boolean.house_station
         state: 'off'
         from: 'on'
 
@@ -65,4 +58,4 @@ automation:
         entity_id: media_player.livingroomCC
 
       - service: input_boolean.turn_off
-        entity_id: input_boolean.radio
+        entity_id: input_boolean.house_station

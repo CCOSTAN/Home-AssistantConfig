@@ -29,14 +29,13 @@ voice_notify:
             - condition: state
               entity_id: input_boolean.alert_mode
               state: 'on'
-            - condition: state
-              entity_id: input_boolean.medicine
-              state: 'off'
         - condition: or
           conditions:
             - condition: template
               value_template: >
                 {% if is_state('media_player.livingroomCC', 'playing') %}
+                false
+                {% elif is_state('media_player.whole_house', 'playing') %}
                 false
                 {% else %}
                 true
@@ -44,9 +43,6 @@ voice_notify:
             - condition: state
               entity_id: input_boolean.alert_mode
               state: 'on'
-            - condition: state
-              entity_id: input_boolean.medicine
-              state: 'off'
         - condition: state
           entity_id: input_boolean.speech_notifications
           state: 'on'
