@@ -15,12 +15,13 @@ binary_sensor:
     show_on_map: False
 #-------------------------------------------
 automation:
-  - alias: 'ISS is above us!'
+  - alias: 'ISS is above us'
 
     trigger:
       - platform: state
         entity_id:
           - binary_sensor.iss
+        state: 'on'
         from: 'off'
 
     action:
