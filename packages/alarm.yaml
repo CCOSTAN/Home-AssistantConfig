@@ -3,26 +3,33 @@
 #-------------------------------------------
 
 #-------------------------------------------
-sensor:
+binary_sensor:
   - platform: mqtt
-    state_topic: "NodeMCU1/Door1/status"
+    state_topic: "NodeMCU1/Door1/Status"
     name: "Door1"
+    device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door2/status"
+    state_topic: "NodeMCU1/Door2/Status"
     name: "Door2"
+    device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door3/status"
+    state_topic: "NodeMCU1/Door3/Status"
     name: "Door3"
+    device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door4/status"
+    state_topic: "NodeMCU1/Door4/Status"
     name: "Door4"
+    device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door5/status"
+    state_topic: "NodeMCU1/Door5/Status"
     name: "Door5"
+    device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door6/status"
+    state_topic: "NodeMCU1/Door6/Status"
     name: "Door6"
+    device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door7/status"
+    state_topic: "NodeMCU1/Door7/Status"
     name: "Door7"
+    device_class: opening
 #-------------------------------------------
