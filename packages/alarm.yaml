@@ -8,6 +8,9 @@ homeassistant:
       friendly_name: Interior Garage Door
       emulated_hue: False
       hidden: False
+    device_tracker.NodeMCU1:
+      emulated_hue: False
+      hidden: True
 #-------------------------------------------
 binary_sensor:
   - platform: mqtt
@@ -47,6 +50,14 @@ binary_sensor:
     payload_on: 1
     payload_off: 0
     device_class: opening
+#-------------------------------------------
+sensor:
+  - platform: template
+    sensors:
+      nodemcu1:
+        friendly_name: 'NodeMCU1'
+        value_template: "{{ 'Online' if is_state('device_tracker.NodeMCU1', 'home') else 'Offline' }}"
+
 #-------------------------------------------
 group:
   entry_points:
