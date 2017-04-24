@@ -1,7 +1,13 @@
 #-------------------------------------------
-#  Space Related Packages
+#  ALarm Related Packages
 #-------------------------------------------
-
+homeassistant:
+  customize:
+    binary_sensor.door1:
+      icon: mdi:Door
+      friendly_name: Interior Garage Door
+      emulated_hue: False
+      hidden: False
 #-------------------------------------------
 binary_sensor:
   - platform: mqtt
@@ -28,12 +34,7 @@ binary_sensor:
     payload_on: 1
     payload_off: 0
     device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/Door5/Status"
-    name: "Door5"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
+
   - platform: mqtt
     state_topic: "NodeMCU1/Door6/Status"
     name: "Door6"
@@ -47,3 +48,12 @@ binary_sensor:
     payload_off: 0
     device_class: opening
 #-------------------------------------------
+group:
+  entry_points:
+    entities:
+      - binary_sensor.door1
+      - binary_sensor.Door2
+      - binary_sensor.Door3
+      - binary_sensor.Door4
+      - binary_sensor.Door6
+      - binary_sensor.Door7
