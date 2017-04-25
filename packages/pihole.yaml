@@ -1,0 +1,27 @@
+#-------------------------------------------
+#  PiHole ad Blocking Related Packages
+#-------------------------------------------
+
+#-------------------------------------------
+sensor:
+  - platform: pi_hole
+    host: 192.168.10.11
+    monitored_conditions:
+      - dns_queries_today
+      - ads_blocked_today
+      - ads_percentage_today
+
+  - platform: template
+    sensors:
+      carlopihole:
+        friendly_name: 'Carlo-PiHole'
+        value_template: "{{ 'Online' if is_state('device_tracker.carlopihole', 'home') else 'Offline' }}"
+
+#-------------------------------------------
+group:
+  Pi-Hole:
+    entities:
+      - sensor.carlopihole
+      - sensor.dns_queries_today
+      - sensor.ads_blocked_today
+      - sensor.ads_percentage_today
