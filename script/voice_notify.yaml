@@ -140,6 +140,14 @@ voice_notify:
           {% endif -%}
           {%- endmacro -%}
 
+          {% macro pihole() %}
+          {% if states.sensor.pihole_ads_blocked_today.state|int > 200 -%}
+            Our internet blocking system has blocked {{states.sensor.pihole_ads_blocked_today.state}} ads today!
+            happy Internet surfing!
+          {% endif -%}
+
+          {%- endmacro -%}
+
           {{ personarriving }}
 
           {{ NestStatus}}
@@ -168,6 +176,7 @@ voice_notify:
 
           {{ value1 }}
           {{iss()}}
+          {{pihole()}}
           </speak>
         cache: true
 
