@@ -101,10 +101,19 @@ voice_notify:
             Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
           {%- endmacro -%}
 
-          {# This macro looks for High UV rays and lets us know if it is before 2pm #}
+          {# *********** This macro looks for High UV rays and lets us know if it is before 2pm #}
           {%- macro uv_rays() -%}
           {% if now().strftime("%H")|int < 8 and now().strftime("%H")|int > 14%}
-            Good morning.
+            {% if state.sensor.uv_index.states|int <= 4 %}
+            The U V index today will be very mild today.
+            {% elif states.sensor.uv_index.state|int > 4 and states.sensor.uv_index.state|int <=7 %}
+            The U V index will be {{states('sensor.uv_index')}} today.  This is considered high.
+            Be sure to drink lots of water and put on suntan lotion if you will be in the sun.
+            {% elif states.sensor.uv_index.state|int > 7 and states.sensor.uv_index.state|int <=10 %}
+            The U V index will be {{states(sensor.uv_index)}} today.  This is considered very high.
+            Be sure to drink lots of water and put on suntan lotion often today.
+            You could get a sunburn in about {{states('sensor.uv_burn_time')}}
+            {% endif %}
           {% endif %}
           {%- endmacro -%}
 
@@ -155,6 +164,8 @@ voice_notify:
 
           {%- endmacro -%}
 
+
+          {#  *********** Start the Speech routines ******* #}
           {{ personarriving }}
 
           {{ NestStatus}}
@@ -164,6 +175,7 @@ voice_notify:
           {% if is_state('input_boolean.outside_weather', 'on') %}
             {{outside_weather()}}
           {%endif%}
+          {{uv_rays()}}
 
           {{ DoorOpened }}
           {{ DoorClosed }}
