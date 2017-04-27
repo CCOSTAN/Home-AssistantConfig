@@ -61,6 +61,7 @@ monthly_color_scene:
           or now().strftime("%m%d")|int == 704
           or now().strftime("%m%d")|int == 904
           or now().strftime("%m%d")|int == 911
+          or now().strftime("%m%d")|int == 1009
           or now().strftime("%m%d")|int == 1111
           -%}
           RWB
@@ -77,6 +78,10 @@ monthly_color_scene:
           easter
           {%- elif now().strftime("%m%d")|int == 505 -%}
           cinco_de_mayo
+          {%- elif now().strftime("%m%d")|int == 514 -%}
+          valentine
+          {%- elif now().strftime("%m%d")|int == 618 -%}
+          fathers_day
           {%- else -%}
           standard
           {%- endif -%}_colors
@@ -92,16 +97,16 @@ monthly_color_scene:
 # 414 Good Friday
 # 416 Easter
 # 422 Earth Day
-# 505 Cinco de Mayo
-# 514 Mother's Day
+# 505 Cinco de Mayo (green, white, red)
+# 514 Mother's Day (pink, red) - Same as Valentine
 # RWB 520 Armed Forces Day
 # RWB 529 Memorial Day
 # RWB 614 Flag Day
-# 618 Fathers day
+# 618 Fathers day (Orange, Blue)
 # RWB 704 July 4th
 # RWB 904 Labor Day
 # RWB 911 Patriots day
-# 1009 columbus day
+# RWB 1009 columbus day
 # 1031 halloween
 # RWB 1111 veterans day
 # 1123 Thanksgiving
