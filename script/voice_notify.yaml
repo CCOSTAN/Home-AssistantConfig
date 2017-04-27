@@ -59,7 +59,7 @@ voice_notify:
       data_template:
         volume_level: >
           {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
-          0.35
+          0.3
           {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 20%}
           0.55
           {% else %}
@@ -99,6 +99,13 @@ voice_notify:
 
           {%- macro outside_weather() -%}
             Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
+          {%- endmacro -%}
+
+          {# This macro looks for High UV rays and lets us know if it is before 2pm #}
+          {%- macro uv_rays() -%}
+          {% if now().strftime("%H")|int < 8 and now().strftime("%H")|int > 14%}
+            Good morning.
+          {% endif %}
           {%- endmacro -%}
 
           {%- macro lights_status() -%}
@@ -141,9 +148,9 @@ voice_notify:
           {%- endmacro -%}
 
           {% macro pihole() %}
-          {% if states.sensor.pihole_ads_blocked_today.state|int > 200 -%}
+          {% if states.sensor.pihole_ads_blocked_today.state|int > 1000 -%}
             Our internet blocking system has blocked {{states.sensor.pihole_ads_blocked_today.state}} ads today!
-            happy Internet surfing!
+            Happy Internet surfing!
           {% endif -%}
 
           {%- endmacro -%}

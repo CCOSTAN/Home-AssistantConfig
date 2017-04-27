@@ -1,0 +1,70 @@
+#-------------------------------------------
+################################################################
+## Packages / Weather
+## Dependencies: DARKSKY - https://darksky.net/dev/
+##               UVIMATE - https://uvimate.herokuapp.com/uvindex-api
+##                          !secret uv_mate_key: API KEY HERE
+##                          !secret uv_mate_resource: https://uvimate.herokuapp.com/api/getUVI/longitude/latitude
+################################################################
+#-------------------------------------------
+homeassistant:
+  customize:
+      sensor.uv_index:
+        friendly_name: 'UV Index'
+        icon: mdi:white-balance-sunny
+        emulated_hue: False
+        hidden: False
+      sensor.uv_peak:
+        friendly_name: 'Peak UV Index'
+        icon: mdi:white-balance-sunny
+        emulated_hue: False
+        hidden: False
+      sensor.uv_burn_time:
+        friendly_name: 'Burn Time'
+        icon: mdi:fire
+        emulated_hue: False
+        hidden: False
+      sensor.uv_sun_advice:
+        friendly_name: 'Sun Advice'
+        icon: mdi:sunglasses
+        emulated_hue: False
+        hidden: False
+#-------------------------------------------
+######  UV
+sensor:
+  - platform: rest
+    name: uv_index
+    resource: !secret uv_mate_resource
+    method: GET
+    headers:
+      x-access-token: !secret uv_mate_key
+    value_template: '{{ value_json.result.uviData.uvi | round(2) }}'
+    scan_interval: 3600
+
+  - platform: rest
+    name: uv_peak
+    resource: !secret uv_mate_resource
+    method: GET
+    headers:
+      x-access-token: !secret uv_mate_key
+    value_template: "{{ value_json.result.uviData.uviMax | round(2) }} at {{ as_timestamp(value_json.result.uviData.uviMaxTime) | timestamp_custom('%I:%M') }}"
+    scan_interval: 3600
+
+  - platform: rest
+    name: uv_sun_advice
+    resource: !secret uv_mate_resource
+    method: GET
+    headers:
+      x-access-token: !secret uv_mate_key
+    value_template: '{{ value_json.result.sunAdvice.advice }}'
+    scan_interval: 3600
+
+  - platform: rest
+    name: uv_burn_time
+    resource: !secret uv_mate_resource
+    method: GET
+    headers:
+      x-access-token: !secret uv_mate_key
+    value_template: '{{ value_json.result.burnTime.mediterranean }}'
+    unit_of_measurement: Minutes
+    scan_interval: 3600
