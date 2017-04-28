@@ -105,14 +105,14 @@ voice_notify:
           {%- macro uv_rays() -%}
           {% if now().strftime("%H")|int < 8 and now().strftime("%H")|int > 14%}
             {% if state.sensor.uv_index.states|int <= 4 %}
-            The U V index today will be very mild today.
+            The U V index today will be very mild today. {{states('sensor.uv_sun_advice')}}
             {% elif states.sensor.uv_index.state|int > 4 and states.sensor.uv_index.state|int <=7 %}
             The U V index will be {{states('sensor.uv_index')}} today.  This is considered high.
             Be sure to drink lots of water and put on suntan lotion if you will be in the sun.
             {% elif states.sensor.uv_index.state|int > 7 and states.sensor.uv_index.state|int <=10 %}
             The U V index will be {{states(sensor.uv_index)}} today.  This is considered very high.
             Be sure to drink lots of water and put on suntan lotion often today.
-            You could get a sunburn in about {{states('sensor.uv_burn_time')}}
+            You could get a sunburn in about {{states('sensor.uv_burn_time')}} minutes.
             {% endif %}
           {% endif %}
           {%- endmacro -%}
@@ -194,8 +194,8 @@ voice_notify:
           {%endif%}
 
           {{ value1 }}
-          {{iss()}}
-          {{pihole()}}
+          {{ iss() }}
+          {{ pihole() }}
           </speak>
         cache: true
 
