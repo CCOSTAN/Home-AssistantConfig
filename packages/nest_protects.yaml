@@ -1,0 +1,61 @@
+######################################################################################################
+# Nest Protect Package
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+######################################################################################################
+#-----------------------------------
+homeassistant:
+  customize:
+
+    binary_sensor.hallway_nest_protect_kids_hallway_online:
+      friendly_name: Kids Hallway Protect
+      icon: mdi:nest-protect
+
+    binary_sensor.justins_room_nest_protect_online:
+      friendly_name: Justins Room Protect
+      icon: mdi:nest-protect
+
+    binary_sensor.kitchen_nest_protect_online:
+      friendly_name: Kitchen Protect
+      icon: mdi:nest-protect
+
+    binary_sensor.master_bedroom_nest_protect_online:
+      friendly_name: Master Bedroom Protect
+      icon: mdi:nest-protect
+
+    binary_sensor.master_hallway_nest_protect_online:
+      friendly_name: Master Hallway Protect
+      icon: mdi:nest-protect
+
+    binary_sensor.paiges_room_nest_protect_paiges_room_online:
+      friendly_name: Paiges Room Protect
+      icon: mdi:nest-protect
+
+    binary_sensor.upstairs_bedroom_nest_protect_online:
+      friendly_name: Upstairs Bedroom Protect
+      icon: mdi:nest-protect
+
+    binary_sensor.upstairs_living_room_nest_protect_online:
+      friendly_name: Upstairs Living Room Protect
+      icon: mdi:nest-protect
+
+    binary_sensor.office_nest_protect_online:
+        friendly_name: Office Protect
+        icon: mdi:nest-protect
+#-------------------------------------------
+
+#-------------------------------------------
+group:
+  protects:
+    entities:
+      - binary_sensor.upstairs_living_room_nest_protect_online
+      - binary_sensor.hallway_nest_protect_kids_hallway_online
+      - binary_sensor.justins_room_nest_protect_online
+      - binary_sensor.kitchen_nest_protect_online
+      - binary_sensor.master_bedroom_nest_protect_online
+      - binary_sensor.master_hallway_nest_protect_online
+      - binary_sensor.paiges_room_nest_protect_paiges_room_online
+      - binary_sensor.upstairs_bedroom_nest_protect_online
+      - binary_sensor.office_nest_protect_online
+
+#-------------------------------------------
