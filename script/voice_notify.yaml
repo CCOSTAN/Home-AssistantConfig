@@ -103,9 +103,9 @@ voice_notify:
 
           {# *********** This macro looks for High UV rays and lets us know if it is before 2pm #}
           {%- macro uv_rays() -%}
-          {% if now().strftime("%H")|int < 8 and now().strftime("%H")|int > 14%}
+          {% if now().strftime("%H")|int > 8 and now().strftime("%H")|int < 16%}
             {% if state.sensor.uv_index.states|int <= 4 %}
-            The U V index today will be very mild today. {{states('sensor.uv_sun_advice')}}
+            The U V index today will be very mild today.
             {% elif states.sensor.uv_index.state|int > 4 and states.sensor.uv_index.state|int <=7 %}
             The U V index will be {{states('sensor.uv_index')}} today.  This is considered high.
             Be sure to drink lots of water and put on suntan lotion if you will be in the sun.
@@ -114,6 +114,7 @@ voice_notify:
             Be sure to drink lots of water and put on suntan lotion often today.
             You could get a sunburn in about {{states('sensor.uv_burn_time')}} minutes.
             {% endif %}
+            {{states('sensor.uv_sun_advice')}}
           {% endif %}
           {%- endmacro -%}
 

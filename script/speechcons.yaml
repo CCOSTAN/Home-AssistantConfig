@@ -34,15 +34,15 @@ speechcon:
           {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
           0.3
           {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
-          0.65
+          0.6
           {% else %}
-          0.30
+          0.3
           {% endif %}
 
     - service: media_player.play_media
       entity_id:
-        - media_player.LivingRoomCCa
+        - media_player.LivingRoomCC
       data_template:
         media_content_id: >
-          "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/speechcons/{{speechcon}}._TTH_.wav"
+          "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/speechcons/{{speechcon}}._TTH_.mp3"
         media_content_type: audio/mp4
