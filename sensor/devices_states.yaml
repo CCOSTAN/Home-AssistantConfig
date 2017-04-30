@@ -16,6 +16,11 @@
         friendly_name: 'Cisco Main AP'
         value_template: "{{ 'Online' if is_state('device_tracker.cisco_ap', 'home') else 'Offline' }}"
 
+      trendnetap:
+        friendly_name: 'TrendNet AP'
+        value_template: "{{ 'Online' if is_state('device_tracker.trendnetap', 'home') else 'Offline' }}"
+
+
       unifi_ap:
         friendly_name: 'Unifi AP'
         value_template: "{{ 'Online' if is_state('device_tracker.unifi_ap', 'home') else 'Offline' }}"
