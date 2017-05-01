@@ -3,50 +3,83 @@
 #-------------------------------------------
 homeassistant:
   customize:
-    binary_sensor.door1:
-      friendly_name: Interior Garage Door
-      emulated_hue: False
-      hidden: False
     device_tracker.NodeMCU1:
       icon: mdi:chip
       emulated_hue: False
       hidden: True
+    device_tracker.NodeMCU2:
+      icon: mdi:chip
+      emulated_hue: False
+      hidden: True
+    binary_sensor.MCU1_GPIO12:
+      friendly_name: 'Interior Garage Door'
+      emulated_hue: False
+      hidden: false
+    binary_sensor.MCU1_GPIO14:
+      friendly_name: 'Office Window'
+      emulated_hue: False
+      hidden: false
+    binary_sensor.MCU1_GPIO4:
+      friendly_name: 'Paige Window'
+      emulated_hue: False
+      hidden: false
+    binary_sensor.MCU1_GPIO10:
+      friendly_name: 'Dining Room Windows'
+      emulated_hue: False
+      hidden: false
+    binary_sensor.MCU1_GPIO0:
+      friendly_name: 'Front Den Windows'
+      emulated_hue: False
+      hidden: false
+    binary_sensor.MCU1_GPIO2:
+      friendly_name: 'GPIO2'
+      emulated_hue: False
+      hidden: false
+    binary_sensor.MCU1_GPIO5:
+      friendly_name: 'Front Door'
+      emulated_hue: False
+      hidden: false
 #-------------------------------------------
 binary_sensor:
   - platform: mqtt
-    state_topic: "NodeMCU1/Door1/Status"
-    name: "Door1"
+    state_topic: "NodeMCU1/GPIO12/Status"
+    name: "MCU1_GPIO12"
     payload_on: 1
     payload_off: 0
     device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door2/Status"
-    name: "Door2"
+    state_topic: "NodeMCU1/GPIO14/Status"
+    name: "MCU1_GPIO14"
     payload_on: 1
     payload_off: 0
     device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door3/Status"
-    name: "Door3"
+    state_topic: "NodeMCU1/GPIO10/Status"
+    name: "MCU1_GPIO10"
     payload_on: 1
     payload_off: 0
     device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door4/Status"
-    name: "Door4"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-
-  - platform: mqtt
-    state_topic: "NodeMCU1/Door6/Status"
-    name: "Door6"
+    state_topic: "NodeMCU1/GPIO0/Status"
+    name: "MCU1_GPIO0"
     payload_on: 1
     payload_off: 0
     device_class: opening
   - platform: mqtt
-    state_topic: "NodeMCU1/Door7/Status"
-    name: "Door7"
+    state_topic: "NodeMCU1/GPIO2/Status"
+    name: "MCU1_GPIO2"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU1/GPIO4/Status"
+    name: "MCU1_GPIO4"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU1/GPIO5/Status"
+    name: "MCU1_GPIO5"
     payload_on: 1
     payload_off: 0
     device_class: opening
@@ -62,9 +95,10 @@ sensor:
 group:
   entry_points:
     entities:
-      - binary_sensor.door1
-      - binary_sensor.Door2
-      - binary_sensor.Door3
-      - binary_sensor.Door4
-      - binary_sensor.Door6
-      - binary_sensor.Door7
+      - binary_sensor.MCU1_GPIO0
+      - binary_sensor.MCU1_GPIO2
+      - binary_sensor.MCU1_GPIO4
+      - binary_sensor.MCU1_GPIO5
+      - binary_sensor.MCU1_GPIO10
+      - binary_sensor.MCU1_GPIO12
+      - binary_sensor.MCU1_GPIO14
