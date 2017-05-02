@@ -1,0 +1,35 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize:
+    sensor.process_mosquitto:
+      friendly_name: 'Mosquitto'
+      emulated_hue: False
+      hidden: False
+    sensor.process_homebridge:
+      friendly_name: 'Apple HomeKit'
+      emulated_hue: False
+      hidden: False
+#-------------------------------------------
+sensor:
+  - platform: systemmonitor
+    resources:
+      # - type: last_boot
+      - type: since_last_boot
+      - type: disk_use_percent
+        arg: /
+      - type: process
+        arg: mosquitto
+      - type: process
+        arg: homebridge
+#-------------------------------------------
+group:
+  processes:
+    name: Processes
+    control: hidden
+    entities:
+      - sensor.process_mosquitto
+      - sensor.process_homebridge
+#-------------------------------------------

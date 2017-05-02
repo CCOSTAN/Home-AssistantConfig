@@ -1,10 +1,3 @@
-- platform: systemmonitor
-  resources:
-    # - type: last_boot
-    - type: since_last_boot
-    - type: disk_use_percent
-      arg: /
-
 - platform: template
   sensors:
     since_last_boot_templated:
