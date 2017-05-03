@@ -13,6 +13,11 @@
       state: 'on'
       from: 'off'
 
+  condition:
+    - condition: state
+      entity_id: group.all_covers
+      state: 'closed'
+
   action:
     - service: script.dog_bark
     - service: input_boolean.turn_off
