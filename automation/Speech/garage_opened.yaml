@@ -14,7 +14,13 @@
       for: '00:02:30'
 
   action:
-    - service: input_boolean.turn_on
+    - service_template: >
+       {% set hour=states("sensor.time").split(':')[0] | int %}
+       {% if hour >= 7 and hour <= 9 and states.input_boolean.school_mode.state == 'on'%}
+         input_boolean.turn_off
+       {% else %}
+          input_boolean.turn_on
+       {% endif %}
       entity_id: input_boolean.alert_mode
 
     - service: script.Voice_notify
