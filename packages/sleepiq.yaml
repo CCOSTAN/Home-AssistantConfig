@@ -4,10 +4,17 @@
 #-------------------------------------------
 homeassistant:
   customize:
-    input_boolean.sleepy_dog:
-      friendly_name: 'Sleepy Dog'
-      icon: mdi:bell-sleep
-      emulated_hue: True
+    sensor.Carlo_sleep_hours:
+      friendly_name: 'Carlo Slept last night'
+      unit_of_measurement: hours
+      icon: mdi:sleep
+      emulated_hue: False
+      hidden: False
+    sensor.Stacey_sleep_hours:
+      friendly_name: 'Stacey Slept last night'
+      unit_of_measurement: hours
+      icon: mdi:sleep
+      emulated_hue: False
       hidden: False
 #-------------------------------------------
 sleepiq:
@@ -32,6 +39,16 @@ sensor:
     end: '{{ now() }}'
     duration:
       hours: 24
+
+group:
+  bed:
+    entities:
+      - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      - sensor.sleepnumber_carlo_carlo_sleepnumber
+      - sensor.Carlo_sleep_hours
+      - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      - sensor.sleepnumber_carlo_stacey_sleepnumber
+      - sensor.Stacey_sleep_hours
 
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
