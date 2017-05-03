@@ -11,7 +11,6 @@
       from: 'off'
 
   action:
-    - service: input_boolean.turn_on
-      entity_id:
-        - input_boolean.chore_check
     - service: script.Voice_notify
+      data:
+        call_responsibilities: 1

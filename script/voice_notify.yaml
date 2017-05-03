@@ -173,10 +173,10 @@ voice_notify:
           {{ personarriving }} {# Called from Annoucenments #}
 
           {{ NestStatus}} {# Called from Nest when thermostats turn on #}
-          {% if is_state('input_boolean.inside_weather', 'on') or call_inside_weather == 1 %}
+          {% if call_inside_weather == 1 %}
             {{inside_weather()}}
           {%endif%}
-          {% if is_state('input_boolean.outside_weather', 'on') %}
+          {% if call_outside_weather == 1 %}
             {{outside_weather()}}
           {%endif%}
           {{uv_rays()}}
@@ -190,7 +190,7 @@ voice_notify:
           {% if is_state('input_boolean.lights_status', 'on') %}
             {{lights_status()}}
           {%endif%}
-          {% if is_state('input_boolean.chore_check', 'on') %}
+          {% if call_responsibilities == 1%}
             {{responsibilities()}}
           {%endif%}
           {% if now().strftime("%H")|int > 22 %}
@@ -208,8 +208,5 @@ voice_notify:
         - input_boolean.alert_mode
         - input_boolean.home_stats
         - input_boolean.responsibilities
-        - input_boolean.chore_check
-        - input_boolean.inside_temp
-        - input_boolean.outside_weather
         - input_boolean.lights_status
         - input_boolean.garage_check

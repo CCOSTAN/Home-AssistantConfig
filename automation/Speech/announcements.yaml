@@ -17,11 +17,6 @@
       for: '00:02:00'
 
   action:
-    - service: input_boolean.turn_on
-      entity_id:
-        - input_boolean.responsibilities
-        - input_boolean.inside_weather
-
     - service: script.Voice_notify
       data_template:
         personarriving: >
@@ -41,3 +36,4 @@
           ] | random }}
           {%- endmacro -%}
           "{{greeting_sentence(person)}}"
+        call_responsibilities: 1
