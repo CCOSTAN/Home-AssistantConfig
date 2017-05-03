@@ -20,10 +20,10 @@
     - service: input_boolean.turn_on
       entity_id:
         - input_boolean.lights_status
-        - input_boolean.garage_check
 
     - service: script.Voice_notify
       data:
         call_inside_weather: 1
         call_responsibilities: 1
         call_outside_weather: 1
+        call_garage_check: 1
