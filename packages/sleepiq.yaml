@@ -1,0 +1,38 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize:
+    input_boolean.sleepy_dog:
+      friendly_name: 'Sleepy Dog'
+      icon: mdi:bell-sleep
+      emulated_hue: True
+      hidden: False
+#-------------------------------------------
+sleepiq:
+  username: !secret sleepiq_username
+  password: !secret sleepiq_password
+#-------------------------------------------
+sensor:
+  - platform: history_stats
+    name: Carlo_sleep_hours
+    entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+    state: 'on'
+    type: time
+    end: '{{ now() }}'
+    duration:
+      hours: 24
+
+  - platform: history_stats
+    name: Stacey_sleep_hours
+    entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+    state: 'on'
+    type: time
+    end: '{{ now() }}'
+    duration:
+      hours: 24
+
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################

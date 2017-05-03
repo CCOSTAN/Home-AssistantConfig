@@ -79,7 +79,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * (IFTTT) Trigger Good Night routine when I step on the [Withings](http://amzn.to/2kr78nW) scale after 10pm.
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
-* When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well.
+* When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
 * Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
 * Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.  Plays across the whole house on my [ChromeCast Audios](http://amzn.to/2lE9gNu)
 
