@@ -120,7 +120,7 @@ voice_notify:
           {% endif %}
           {%- endmacro -%}
 
-          {%- macro lights_status() -%}
+          {%- macro light_check() -%}
             . There are
           {% for state in states.light if state.state == 'on' -%}
             {%- if loop.last -%}
@@ -189,8 +189,8 @@ voice_notify:
             {{garage_check()}}
           {%endif%}
           {{ NewDevice}}
-          {% if is_state('input_boolean.lights_status', 'on') %}
-            {{lights_status()}}
+          {% if call_light_check == 1 %}
+            {{light_check()}}
           {%endif%}
           {% if call_responsibilities == 1%}
             {{responsibilities()}}
@@ -210,4 +210,3 @@ voice_notify:
         - input_boolean.alert_mode
         - input_boolean.home_stats
         - input_boolean.responsibilities
-        - input_boolean.lights_status
