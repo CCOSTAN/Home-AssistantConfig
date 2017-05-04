@@ -26,7 +26,7 @@ voice_notify:
           conditions:
             - condition: time
               after: '09:00:00'
-              before: '22:00:00'
+              before: '21:30:00'
             - condition: state
               entity_id: input_boolean.alert_mode
               state: 'on'
@@ -71,12 +71,14 @@ voice_notify:
       data_template:
         message: >
           <speak>
-          {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
-          Good morning.
-          {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
-          Good afternoon.
-          {% else %}
-          Good evening.
+          {% if call_no_announcement != 1 %}
+            {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
+            Good morning.
+            {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
+            Good afternoon.
+            {% else %}
+            Good evening.
+            {% endif %}
           {% endif %}
 
           {%- macro responsibilities() -%}
