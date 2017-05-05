@@ -9,7 +9,7 @@
         - sensor.backdoor
         - sensor.sliding_door
         # Interior Garage Door #
-#        - binary_sensor.MCU1_GPIO12
+        - binary_sensor.MCU1_GPIO12
       to: 'Opened'
       for:
         minutes: 2
@@ -18,7 +18,7 @@
 
     - service: script.ifttt_notify
       data_template:
-        value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
         value2: ''
         value3: ''
 
@@ -30,5 +30,5 @@
 
     - service: script.Voice_notify
       data_template:
-        DoorOpened: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        DoorOpened: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
         call_inside_weather: 1
