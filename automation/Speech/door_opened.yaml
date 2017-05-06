@@ -8,14 +8,12 @@
       entity_id:
         - sensor.backdoor
         - sensor.sliding_door
-        # Interior Garage Door #
-        - binary_sensor.MCU1_GPIO12
+        - binary_sensor.MCU1_GPIO12 # Interior Garage Door #
       to: 'Opened'
       for:
         minutes: 2
 
   action:
-
     - service: script.ifttt_notify
       data_template:
         value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."

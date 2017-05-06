@@ -27,11 +27,11 @@ homeassistant:
       friendly_name: 'Dining Room Windows'
       emulated_hue: False
       hidden: false
-    binary_sensor.MCU1_GPIO0:
+    binary_sensor.MCU1_GPIO13:
       friendly_name: 'Front Den Windows'
       emulated_hue: False
       hidden: false
-    binary_sensor.MCU1_GPIO2:
+    binary_sensor.MCU1_GPIO15:
       friendly_name: 'GPIO2'
       emulated_hue: False
       hidden: false
@@ -41,36 +41,6 @@ homeassistant:
       hidden: false
 #-------------------------------------------
 binary_sensor:
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO12/Status"
-    name: "MCU1_GPIO12"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO14/Status"
-    name: "MCU1_GPIO14"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO10/Status"
-    name: "MCU1_GPIO10"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO0/Status"
-    name: "MCU1_GPIO0"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO2/Status"
-    name: "MCU1_GPIO2"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
   - platform: mqtt
     state_topic: "NodeMCU1/GPIO4/Status"
     name: "MCU1_GPIO4"
@@ -83,6 +53,78 @@ binary_sensor:
     payload_on: 1
     payload_off: 0
     device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU1/GPIO10/Status"
+    name: "MCU1_GPIO10"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU1/GPIO12/Status"
+    name: "MCU1_GPIO12"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU1/GPIO13/Status"
+    name: "MCU1_GPIO13"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU1/GPIO14/Status"
+    name: "MCU1_GPIO14"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU1/GPIO15/Status"
+    name: "MCU1_GPIO15"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU2/GPIO4/Status"
+    name: "MCU1_GPIO4"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU2/GPIO5/Status"
+    name: "MCU1_GPIO5"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU2/GPIO10/Status"
+    name: "MCU1_GPIO10"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU2/GPIO12/Status"
+    name: "MCU1_GPIO12"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU2/GPIO13/Status"
+    name: "MCU1_GPIO13"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU2/GPIO14/Status"
+    name: "MCU1_GPIO14"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU2/GPIO15/Status"
+    name: "MCU1_GPIO15"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
 #-------------------------------------------
 sensor:
   - platform: template
@@ -90,15 +132,26 @@ sensor:
       nodemcu1:
         friendly_name: 'NodeMCU1'
         value_template: "{{ 'Online' if is_state('device_tracker.NodeMCU1', 'home') else 'Offline' }}"
-
+  - platform: template
+    sensors:
+      nodemcu1:
+        friendly_name: 'NodeMCU2'
+        value_template: "{{ 'Online' if is_state('device_tracker.NodeMCU2', 'home') else 'Offline' }}"
 #-------------------------------------------
 group:
   entry_points:
     entities:
-      - binary_sensor.MCU1_GPIO0
-      - binary_sensor.MCU1_GPIO2
       - binary_sensor.MCU1_GPIO4
       - binary_sensor.MCU1_GPIO5
       - binary_sensor.MCU1_GPIO10
       - binary_sensor.MCU1_GPIO12
+      - binary_sensor.MCU1_GPIO13
       - binary_sensor.MCU1_GPIO14
+      - binary_sensor.MCU1_GPIO15
+      - binary_sensor.MCU2_GPIO4
+      - binary_sensor.MCU2_GPIO5
+      - binary_sensor.MCU2_GPIO10
+      - binary_sensor.MCU2_GPIO12
+      - binary_sensor.MCU2_GPIO13
+      - binary_sensor.MCU2_GPIO14
+      - binary_sensor.MCU2_GPIO15
