@@ -1,17 +1,14 @@
 ###################################
-##  Late Night lights Section
+##  Late Night lights Section -
+# This is not needed once https://github.com/home-assistant/home-assistant/issues/6342 is fixed.
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ###################################
-- alias: 'Late Night Helper outside'
+- alias: 'Late Night Helper outside closer'
   trigger:
     - platform: state
       entity_id: group.all_covers
-      state: 'open'
-    - platform: state
-      entity_id: sun.sun
-      state: 'below_horizon'
-      from: 'above_horizon'
+      state: 'closed'
 
   condition:
     condition: and
@@ -21,10 +18,9 @@
         state: 'below_horizon'
       - condition: state
         entity_id: group.all_covers
-        state: 'open'
+        state: 'closed'
 
   action:
-    - service: scene.turn_on
-      entity_id: scene.front_full_brightness
-#    - wait_template: "{{ states.group.garage_doors.states == 'closed' }}"
-#    - service: script.monthly_color_scene
+#    - service: scene.turn_on
+#      entity_id: scene.front_full_brightness
+    - service: script.monthly_color_scene
