@@ -3,19 +3,18 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 #-------------------------------------------
 homeassistant:
+  customize_glob:
+    "sensor.*_sleep_hours":
+      unit_of_measurement: hours
+      icon: mdi:sleep
+      emulated_hue: False
+      hidden: False
   customize:
     sensor.Carlo_sleep_hours:
       friendly_name: 'Carlo Slept last night'
-      unit_of_measurement: hours
-      icon: mdi:sleep
-      emulated_hue: False
-      hidden: False
     sensor.Stacey_sleep_hours:
       friendly_name: 'Stacey Slept last night'
-      unit_of_measurement: hours
-      icon: mdi:sleep
-      emulated_hue: False
-      hidden: False
+
 #-------------------------------------------
 sleepiq:
   username: !secret sleepiq_username
