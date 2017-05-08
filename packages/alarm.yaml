@@ -3,13 +3,13 @@
 #-------------------------------------------
 homeassistant:
   customize_glob:
-    "device_tracker.NodeMCU*":
+    "device_tracker.nodemcu*":
       icon: mdi:chip
       emulated_hue: False
       hidden: True
-    "binary_sensor.MCU?_GPIO*":
+    "binary_sensor.mcu?_gpio*":
       emulated_hue: False
-      hidden: false
+      hidden: False
 
   customize:
     binary_sensor.MCU1_GPIO4:
