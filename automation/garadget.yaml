@@ -58,8 +58,9 @@
                 value_template: "{{ states('cover.small_garage') == 'opened' }}"
       - condition: and
         conditions:
-          - condition: sun
-            after: 'sunset'
+          - condition: state
+            entity_id: sun.sun
+            state: 'below_horizon'
           - condition: or
             conditions:
               - condition: template
