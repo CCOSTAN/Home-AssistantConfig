@@ -2,43 +2,32 @@
 #  ALarm Related Packages
 #-------------------------------------------
 homeassistant:
+  customize_glob:
+    "device_tracker.NodeMCU*":
+      icon: mdi:chip
+      emulated_hue: False
+      hidden: True
+    "binary_sensor.MCU?_GPIO*":
+      emulated_hue: False
+      hidden: false
+
   customize:
-    device_tracker.NodeMCU1:
-      icon: mdi:chip
-      emulated_hue: False
-      hidden: True
-    device_tracker.NodeMCU2:
-      icon: mdi:chip
-      emulated_hue: False
-      hidden: True
-    binary_sensor.MCU1_GPIO12:
-      friendly_name: 'Interior Garage Door'
-      emulated_hue: False
-      hidden: false
-    binary_sensor.MCU1_GPIO14:
-      friendly_name: 'Office Window'
-      emulated_hue: False
-      hidden: false
     binary_sensor.MCU1_GPIO4:
       friendly_name: 'Paige Window'
-      emulated_hue: False
-      hidden: false
-    binary_sensor.MCU1_GPIO10:
-      friendly_name: 'Dining Room Windows'
-      emulated_hue: False
-      hidden: false
-    binary_sensor.MCU1_GPIO13:
-      friendly_name: 'Front Den Windows'
-      emulated_hue: False
-      hidden: false
-    binary_sensor.MCU1_GPIO15:
-      friendly_name: 'GPIO2'
-      emulated_hue: False
-      hidden: false
     binary_sensor.MCU1_GPIO5:
       friendly_name: 'Front Door'
-      emulated_hue: False
-      hidden: false
+    binary_sensor.MCU1_GPIO10:
+      friendly_name: 'Dining Room Windows'
+    binary_sensor.MCU1_GPIO12:
+      friendly_name: 'Interior Garage Door'
+    binary_sensor.MCU1_GPIO13:
+      friendly_name: 'Front Den Windows'
+    binary_sensor.MCU1_GPIO14:
+      friendly_name: 'Office Window'
+    binary_sensor.MCU1_GPIO15:
+      friendly_name: 'GPIO2'
+
+
 #-------------------------------------------
 binary_sensor:
   - platform: mqtt
