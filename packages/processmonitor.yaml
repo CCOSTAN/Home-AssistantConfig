@@ -57,11 +57,25 @@ automation:
           value3: "{{ trigger.to_state.state }}"
 
 #-------------------------------------------
-  - alias: "Disk Use Alarm"
+
+  - alias: "Self Heal Disk Use Alarm"
     trigger:
       - platform: numeric_state
         entity_id: sensor.disk_use_
         above: 80
+    action:
+      - service: script.ifttt_notify
+        data_template:
+          value1: 'Hard Drive Monitor:'
+          value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_.state }}%!"
+          value3: 'Attempting to clean'
+      - service: tts.clear_cache
+
+  - alias: "Disk Use Alarm"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.disk_use_
+        above: 90
     action:
       - service: script.ifttt_notify
         data_template:
