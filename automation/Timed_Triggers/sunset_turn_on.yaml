@@ -23,8 +23,11 @@
       data:
         entity_id:
           - light.outdoor_bathroom
-        brightness: 15
+        brightness: 35
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'
+    - service: homeassistant.turn_on
+      entity_id:
+        - group.landscaping
     - service: script.monthly_color_scene
     - service: script.Voice_notify
       data_template:

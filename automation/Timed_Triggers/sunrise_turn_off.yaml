@@ -6,10 +6,10 @@
   trigger:
     - platform: sun
       event: sunrise
-      offset: '-01:30:00'
+      offset: '-02:00:00'
 
   action:
-    - delay: '00:{{ (range(1, 45)|random|int) }}:00'
+    - delay: '00:{{ (range(1, 55)|random|int) }}:00'
     - service: light.turn_off
       entity_id:
         - group.exterior_lights
@@ -17,6 +17,9 @@
         - group.outdoor_pool_lights
         - group.all_lights
     - service: script.interior_off
+    - service: homeassistant.turn_on
+      entity_id:
+        - group.landscaping
 
     - service: input_boolean.turn_off
       entity_id: input_boolean.medicine
