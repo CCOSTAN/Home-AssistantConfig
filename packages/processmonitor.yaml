@@ -12,6 +12,10 @@ homeassistant:
       friendly_name: 'Apple HomeKit'
       emulated_hue: False
       hidden: False
+    sensor.process_dasher:
+      friendly_name: 'Dash Button Monitor'
+      emulated_hue: False
+      hidden: False
 #-------------------------------------------
 sensor:
   - platform: systemmonitor
@@ -24,6 +28,8 @@ sensor:
         arg: mosquitto
       - type: process
         arg: homebridge
+      - type: process
+        arg: dasher
 #-------------------------------------------
 group:
   processes:
@@ -32,6 +38,7 @@ group:
     entities:
       - sensor.process_mosquitto
       - sensor.process_homebridge
+      - sensor.process_dasher
 #-------------------------------------------
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
@@ -45,6 +52,7 @@ automation:
            entity_id:
              - sensor.process_mosquitto
              - sensor.process_homebridge
+             - sensor.process_dasher
            to: 'off'
            for:
              minutes: 1
