@@ -26,6 +26,7 @@ SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [Hue Go](http://amzn.to/2iB36Ii) - Great lights for the kids since they have an actual button on them for control.
 * [Circle by Disney](http://amzn.to/2eAgaA6) - Parental Monitor for internet and screentime.
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
+* [GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S) - These control my Landscape lighting and connect up to my Wink.
 * [Withings](http://amzn.to/2kr78nW) - Smart Weight scale
 * [SkyBell HD](http://amzn.to/2dcexIB)
 * [Rokus](http://amzn.to/2dpn89c) for all streaming
