@@ -12,7 +12,7 @@ homeassistant:
       friendly_name: 'Apple HomeKit'
       emulated_hue: False
       hidden: False
-    sensor.process_dasher:
+    sensor.process_node:
       friendly_name: 'Dash Button Monitor'
       emulated_hue: False
       hidden: False
@@ -29,7 +29,7 @@ sensor:
       - type: process
         arg: homebridge
       - type: process
-        arg: dasher
+        arg: node
 #-------------------------------------------
 group:
   processes:
@@ -61,7 +61,7 @@ automation:
       - service: script.ifttt_notify
         data_template:
           value1: 'Process Status:'
-          value2: "{{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is "
+          value2: "{{ trigger.to_state.attributes.friendly_name }} is "
           value3: "{{ trigger.to_state.state }}"
 
 #-------------------------------------------
