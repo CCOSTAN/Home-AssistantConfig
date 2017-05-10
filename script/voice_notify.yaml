@@ -66,11 +66,11 @@ voice_notify:
           0.3
           {% endif %}
 
-    - service: tts.amazon_polly_say
-      entity_id: media_player.livingroomCC
+    - service: mqtt.publish
       data_template:
-        message: >
-          <speak>
+        topic: 'polly/lastmsg'
+        payload_template: >
+          '<speak>
           {% if call_no_announcement != 1 %}
             {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
             Good morning.
@@ -141,9 +141,10 @@ voice_notify:
             The Large Garage Door is still open
           {% endif -%}
           {% if is_state('cover.small_garage', 'open') -%}
-            {% if is_state('cover.large_garage', 'open') -%}and
-            {%- endif %} The small Garage Door is still open.
+            {% if is_state('cover.large_garage', 'open') -%} and
+            {%- endif %} The small Garage Door is still open
           {% endif %}
+          .
           {%- endmacro -%}
 
           {% macro medicine() %}
@@ -202,7 +203,13 @@ voice_notify:
           {{ value1 }}
           {{ iss() }}
           {{ pihole() }}
-          </speak>
+          </speak>'
+        retain: true
+
+    - service: tts.amazon_polly_say
+      entity_id: media_player.livingroomCC
+      data_template:
+        message: "{{ states.sensor.polly_lastmsg.state }}"
         cache: true
 
     - service: input_boolean.turn_off
@@ -210,3 +217,4 @@ voice_notify:
         - input_boolean.alert_mode
         - input_boolean.home_stats
         - input_boolean.responsibilities
+        - input_boolean.lastmsg
