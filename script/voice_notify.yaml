@@ -65,11 +65,10 @@ voice_notify:
           {% else %}
           0.3
           {% endif %}
-
-    - service: tts.amazon_polly_say
-      entity_id: media_player.livingroomCC
+    - service: mqtt.publish
       data_template:
-        message: >
+        topic: 'polly/lastmsg'
+        payload_template: >
           <speak>
           {% if call_no_announcement != 1 %}
             {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
@@ -80,7 +79,6 @@ voice_notify:
             Good evening.
             {% endif %}
           {% endif %}
-
           {%- macro responsibilities() -%}
             {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
               Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
@@ -94,15 +92,12 @@ voice_notify:
               Today is Paige's day to do the chores.
             {%endif%}
           {%- endmacro -%}
-
           {%- macro inside_weather() -%}
             Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity.
           {%- endmacro -%}
-
           {%- macro outside_weather() -%}
             Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
           {%- endmacro -%}
-
           {# *********** This macro looks for High UV rays and lets us know if it is before 2pm #}
           {%- macro uv_rays() -%}
           {% if now().strftime("%H")|int > 8 and now().strftime("%H")|int < 16%}
@@ -119,7 +114,6 @@ voice_notify:
             {{states('sensor.uv_sun_advice')}}
           {% endif %}
           {%- endmacro -%}
-
           {%- macro light_check() -%}
             . There are
           {% for state in states.light if state.state == 'on' -%}
@@ -135,45 +129,38 @@ voice_notify:
             {%- endfor -%}
           {%- endfor %}
           {%- endmacro -%}
-
           {% macro garage_check() %}
           {% if is_state('cover.large_garage', 'open') -%}
             The Large Garage Door is still open
           {% endif -%}
           {% if is_state('cover.small_garage', 'open') -%}
-            {% if is_state('cover.large_garage', 'open') -%}and
-            {%- endif %} The small Garage Door is still open.
+            {% if is_state('cover.large_garage', 'open') -%} and
+            {%- endif %} The small Garage Door is still open
           {% endif %}
+          .
           {%- endmacro -%}
-
           {% macro medicine() %}
           {% if is_state('input_boolean.medicine', 'off') -%}
             It looks like Carlo has not taken his medicine yet.  Please make sure Carlo takes his medicine now.
           {% endif -%}
           {%- endmacro -%}
-
           {% macro iss() %}
           {% if is_state('binary_sensor.iss', 'on') -%}
             Here is something interesting.  The international space station is above us now.  There are {{ states.binary_sensor.iss.attributes["number_of_people_in_space"]}} people in space right now.
             {{outside_weather()}}
           {% endif -%}
           {%- endmacro -%}
-
           {% macro pihole() %}
           {% if states.sensor.pihole_ads_blocked_today.state|int > 1000 -%}
             Our internet blocking system has blocked {{states.sensor.pihole_ads_blocked_today.state}} ads today!
             Happy Internet surfing!
           {% endif -%}
-
           {%- endmacro -%}
-
           {#  ********************************************* #}
           {#   ******** Start the Speech routines *******   #}
           {#                                                #}
           {#  ********************************************* #}
-
           {{ personarriving }} {# Called from Annoucenments #}
-
           {{ NestStatus}} {# Called from Nest when thermostats turn on #}
           {% if call_inside_weather == 1 %}
             {{inside_weather()}}
@@ -182,7 +169,6 @@ voice_notify:
             {{outside_weather()}}
           {%endif%}
           {{uv_rays()}}
-
           {{ DoorOpened }}
           {{ DoorClosed }}
           {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
@@ -198,11 +184,16 @@ voice_notify:
           {% if now().strftime("%H")|int > 22 %}
             {{Medicine()}}
           {%endif%}
-
           {{ value1 }}
           {{ iss() }}
           {{ pihole() }}
           </speak>
+        retain: true
+
+    - service: tts.amazon_polly_say
+      entity_id: media_player.livingroomCC
+      data_template:
+        message: "{{ states.sensor.last_message.state }}"
         cache: true
 
     - service: input_boolean.turn_off
@@ -210,3 +201,4 @@ voice_notify:
         - input_boolean.alert_mode
         - input_boolean.home_stats
         - input_boolean.responsibilities
+        - input_boolean.lastmsg
