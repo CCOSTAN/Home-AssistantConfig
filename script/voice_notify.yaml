@@ -114,6 +114,7 @@ voice_notify:
             {{states('sensor.uv_sun_advice')}}
           {% endif %}
           {%- endmacro -%}
+
           {%- macro light_check() -%}
             . There are
           {% for state in states.light if state.state == 'on' -%}
@@ -129,6 +130,7 @@ voice_notify:
             {%- endfor -%}
           {%- endfor %}
           {%- endmacro -%}
+
           {% macro garage_check() %}
           {% if is_state('cover.large_garage', 'open') -%}
             The Large Garage Door is still open
@@ -144,6 +146,7 @@ voice_notify:
             It looks like Carlo has not taken his medicine yet.  Please make sure Carlo takes his medicine now.
           {% endif -%}
           {%- endmacro -%}
+
           {% macro iss() %}
           {% if is_state('binary_sensor.iss', 'on') -%}
             Here is something interesting.  The international space station is above us now.  There are {{ states.binary_sensor.iss.attributes["number_of_people_in_space"]}} people in space right now.
@@ -151,7 +154,7 @@ voice_notify:
           {% endif -%}
           {%- endmacro -%}
           {% macro pihole() %}
-          {% if states.sensor.pihole_ads_blocked_today.state|int > 1000 -%}
+          {% if states.sensor.pihole_ads_blocked_today.state|int > 1500 -%}
             Our internet blocking system has blocked {{states.sensor.pihole_ads_blocked_today.state}} ads today!
             Happy Internet surfing!
           {% endif -%}
