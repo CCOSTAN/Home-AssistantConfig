@@ -142,7 +142,6 @@ voice_notify:
           {% if is_state('cover.small_garage', 'open') -%}
             {% if is_state('cover.large_garage', 'open') -%} and
             {%- endif %} The small Garage Door is still openlogs
-
           {% endif %}
           .
           {%- endmacro -%}
@@ -208,8 +207,7 @@ voice_notify:
     - service: tts.amazon_polly_say
       entity_id: media_player.livingroomCC
       data_template:
-        message: >
-          {{ states.sensor.last_message.state }}
+        message: '{{ states.sensor.last_message.state }}'
         cache: true
 
     - service: input_boolean.turn_off
