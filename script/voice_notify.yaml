@@ -209,7 +209,7 @@ voice_notify:
       entity_id: media_player.livingroomCC
       data_template:
         message: >
-          {{ states.sensor.polly_lastmsg.state }}
+          {{ states.sensor.last_message.state }}
         cache: true
 
     - service: input_boolean.turn_off
