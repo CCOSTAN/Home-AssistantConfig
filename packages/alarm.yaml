@@ -131,7 +131,7 @@ sensor:
         value_template: "{{ 'Online' if is_state('device_tracker.NodeMCU1', 'home') else 'Offline' }}"
   - platform: template
     sensors:
-      nodemcu1:
+      nodemcu2:
         friendly_name: 'NodeMCU2'
         value_template: "{{ 'Online' if is_state('device_tracker.NodeMCU2', 'home') else 'Offline' }}"
 #-------------------------------------------
