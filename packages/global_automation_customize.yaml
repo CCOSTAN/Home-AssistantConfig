@@ -4,9 +4,14 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 #-------------------------------------------
 homeassistant:
+  customize_glob:
+    "automation.*watchdog*":
+      icon: mdi:timer
+
   customize_domain:
     automation:
       initial_state: 'on'
+
   customize:
     group.all_automations:
       control: show

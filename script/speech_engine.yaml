@@ -1,16 +1,20 @@
 ######################################################################################################
 ###Script to send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
   # action:
-    # service: script.Voice_notify
-    # data_template:
-      # value1: 'Startup: Home Assistant is Up and Running!'
-      # OR
-      # value1: "{{ trigger.to_state.state }}"
+    # service: script.speech_engine
+    # data:
+    #   call_no_announcement
+    #   call_dark_outside:
+    #   call_garage_check:
+    #   call_responsibilities
+    #   call_light_check
+    #   call_inside_weather
+    #   call_outside_weather
 # # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ######################################################################################################
 
-voice_notify:
+speech_engine:
   sequence:
     - condition: and
       conditions:
@@ -65,10 +69,21 @@ voice_notify:
           {% else %}
           0.3
           {% endif %}
+
+
     - service: mqtt.publish
       data_template:
         topic: 'polly/lastmsg'
         payload_template: >
+          {%- macro dark_outside() -%}
+            {{ [
+            "It is pretty dark outside.  I will turn on the outside lights now.",
+            "It is a little past Sunset. Time to turn on the outside lights. I am on it.",
+            "I will switch on the outside lights.  It is getting dark outside.",
+            "Time to turn on the front lights. I will take care of it."
+            ] | random }}
+          {%- endmacro -%}
+
           {%- macro responsibilities() -%}
             {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
               Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
@@ -109,7 +124,7 @@ voice_notify:
           {%- endmacro -%}
 
           {%- macro light_check() -%}
-            . There are
+          There are
           {% for state in states.light if state.state == 'on' -%}
             {%- if loop.last -%}
               {{ loop.index }}
@@ -121,7 +136,8 @@ voice_notify:
             {{ ' and' if loop.last and not loop.first else comma() }}
             {{ entity.name }}
             {%- endfor -%}
-          {%- endfor %}
+          {%- endfor -%}
+          .
           {%- endmacro -%}
 
           {% macro garage_check() %}
@@ -158,7 +174,7 @@ voice_notify:
           {#  ********************************************* #}
           {% if is_state('input_boolean.lastmsg', 'off') %}
             <speak>
-            {% if call_no_announcement != 1 %}
+            {% if call_no_announcement != 'yes' %}
               {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
               Good morning.
               {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
@@ -170,15 +186,18 @@ voice_notify:
 
             {{ personarriving }} {# Called from Annoucenments #}
             {{ NestStatus}} {# Called from Nest when thermostats turn on #}
-            {% if call_inside_weather == 1 %}
+            {% if call_inside_weather == 'yes' %}
               {{inside_weather()}}
             {%endif%}
-            {% if call_outside_weather == 1 %}
+            {% if call_outside_weather == 1 and is_state('sun.sun', 'above_horizon') %}
               {{outside_weather()}}
             {%endif%}
             {{uv_rays()}}
             {{ DoorOpened }}
             {{ DoorClosed }}
+            {% if call_dark_outside == 'yes' %}
+            {{ dark_outside() }}
+            {%endif%}
             {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
               {{garage_check()}}
             {%endif%}

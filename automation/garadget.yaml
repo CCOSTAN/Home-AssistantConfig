@@ -79,6 +79,6 @@
         value2: "Small: {{ states('cover.small_garage')}}"
         value3: "Large: {{ states('cover.large_garage')}}"
 
-    - service: script.Voice_notify
+    - service: script.speech_engine
       data_template:
         value1: "Please check the garage doors. The Small garage is {{ states('cover.small_garage')}} and the large garage is {{ states('cover.large_garage')}}"

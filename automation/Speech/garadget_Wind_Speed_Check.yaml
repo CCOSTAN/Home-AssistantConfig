@@ -27,7 +27,7 @@
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode
 
-    - service: script.Voice_notify
+    - service: script.speech_engine
       data_template:
         value1: >
           "The winds are picking up outside.  The wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.

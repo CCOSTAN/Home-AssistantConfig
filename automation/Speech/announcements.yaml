@@ -17,7 +17,7 @@
       for: '00:02:00'
 
   action:
-    - service: script.Voice_notify
+    - service: script.speech_engine
       data_template:
         personarriving: >
           {% set person = trigger.entity_id.split('.')[1]|replace('_', ' ')%}

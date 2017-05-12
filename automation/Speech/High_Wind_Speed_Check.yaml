@@ -25,7 +25,7 @@
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode
 
-    - service: script.Voice_notify
+    - service: script.speech_engine
       data_template:
         value1: >
           "ATTENTION: The wind speed is now {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  Please make sure everyone is inside for safety."

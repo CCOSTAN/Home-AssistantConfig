@@ -8,7 +8,7 @@
       event_type: device_tracker_new_device
 
   action:
-    - service: script.Voice_notify
+    - service: script.speech_engine
       data_template:
         NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize it within Circle."
 

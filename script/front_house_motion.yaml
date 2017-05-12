@@ -20,7 +20,7 @@ front_house_motion:
       entity_id: input_boolean.alert_mode
 
     - service: script.dog_bark
-    - service: script.Voice_notify
+    - service: script.speech_engine
       data:
         value1: 'Motion has been detected by the front door.'
     - service: scene.turn_on

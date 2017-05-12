@@ -22,6 +22,6 @@
        {% endif %}
       entity_id: input_boolean.alert_mode
 
-    - service: script.Voice_notify
+    - service: script.speech_engine
       data_template:
         value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."

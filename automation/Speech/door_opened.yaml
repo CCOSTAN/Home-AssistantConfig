@@ -26,7 +26,7 @@
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode
 
-    - service: script.Voice_notify
+    - service: script.speech_engine
       data_template:
         DoorOpened: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
-        call_inside_weather: 1
+        call_inside_weather: 'yes'
