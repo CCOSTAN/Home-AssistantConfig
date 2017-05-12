@@ -16,16 +16,14 @@
 
 speech_engine:
   sequence:
-    - condition: and
+    - condition: or
       conditions:
-        - condition: or
-          conditions:
-            - condition: state
-              entity_id: group.family
-              state: 'home'
-            - condition: state
-              entity_id: input_boolean.guest_mode
-              state: 'on'
+        - condition: state
+          entity_id: group.family
+          state: 'home'
+        - condition: state
+          entity_id: input_boolean.guest_mode
+          state: 'on'
 
     - service: script.speech_processing
       data_template:
@@ -60,7 +58,7 @@ speech_engine:
           {%- macro outside_weather() -%}
             Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
           {%- endmacro -%}
-
+          
           {# *********** This macro looks for High UV rays and lets us know if it is before 2pm #}
           {%- macro uv_rays() -%}
           {% if now().strftime("%H")|int > 8 and now().strftime("%H")|int < 16%}

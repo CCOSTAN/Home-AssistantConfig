@@ -7,7 +7,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ######################################################################################################
 
-speech_engine:
+speech_processing:
   sequence:
     - condition: and
       conditions:
@@ -64,11 +64,10 @@ speech_engine:
           {% endif %}
 
     - service: mqtt.publish
-      data:
+      data_template:
         topic: 'polly/lastmsg'
+        payload: '{{speech_message}}'
         retain: true
-        payload_template: >
-         {{speech_message}}
 
     - service: tts.amazon_polly_say
       entity_id: media_player.livingroomCC
