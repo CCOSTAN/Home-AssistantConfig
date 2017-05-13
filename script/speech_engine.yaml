@@ -36,7 +36,6 @@ speech_engine:
             "Time to turn on the front lights. I will take care of it."
             ] | random }}
           {%- endmacro -%}
-
           {%- macro responsibilities() -%}
             {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
               Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
@@ -50,32 +49,13 @@ speech_engine:
               Today is Paige's day to do the chores.
             {%endif%}
           {%- endmacro -%}
-
           {%- macro inside_weather() -%}
             Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity.
           {%- endmacro -%}
-
           {%- macro outside_weather() -%}
             Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
           {%- endmacro -%}
-          
           {# *********** This macro looks for High UV rays and lets us know if it is before 2pm #}
-          {%- macro uv_rays() -%}
-          {% if now().strftime("%H")|int > 8 and now().strftime("%H")|int < 16%}
-            {% if state.sensor.uv_index.states|int <= 4 %}
-            The U V index today will be very mild today.
-            {% elif states.sensor.uv_index.state|int > 4 and states.sensor.uv_index.state|int <=7 %}
-            The U V index will be {{states('sensor.uv_index')}} today.  This is considered high.
-            Be sure to drink lots of water and put on suntan lotion if you will be in the sun.
-            {% elif states.sensor.uv_index.state|int > 7 and states.sensor.uv_index.state|int <=10 %}
-            The U V index will be {{states(sensor.uv_index)}} today.  This is considered very high.
-            Be sure to drink lots of water and put on suntan lotion often today.
-            You could get a sunburn in about {{states('sensor.uv_burn_time')}} minutes.
-            {% endif %}
-            {{states('sensor.uv_sun_advice')}}
-          {% endif %}
-          {%- endmacro -%}
-
           {%- macro light_check() -%}
           There are
           {% for state in states.light if state.state == 'on' -%}
@@ -92,7 +72,6 @@ speech_engine:
           {%- endfor -%}
           .
           {%- endmacro -%}
-
           {% macro garage_check() %}
           {% if is_state('cover.large_garage', 'open') -%}
             The Large Garage Door is still open
@@ -108,7 +87,6 @@ speech_engine:
             It looks like Carlo has not taken his medicine yet.  Please make sure Carlo takes his medicine now.
           {% endif -%}
           {%- endmacro -%}
-
           {% macro iss() %}
           {% if is_state('binary_sensor.iss', 'on') -%}
             Here is something interesting.  The international space station is above us now.  There are {{ states.binary_sensor.iss.attributes["number_of_people_in_space"]}} people in space right now.
@@ -135,7 +113,6 @@ speech_engine:
               Good evening.
               {% endif %}
             {% endif %}
-
             {{ personarriving }} {# Called from Annoucenments #}
             {{ NestStatus}} {# Called from Nest when thermostats turn on #}
             {% if call_inside_weather == 'yes' %}
@@ -144,7 +121,6 @@ speech_engine:
             {% if call_outside_weather == 1 and is_state('sun.sun', 'above_horizon') %}
               {{outside_weather()}}
             {%endif%}
-            {{uv_rays()}}
             {{ DoorOpened }}
             {{ DoorClosed }}
             {% if call_dark_outside == 'yes' %}
@@ -167,7 +143,6 @@ speech_engine:
             {{ iss() }}
             {{ pihole() }}
           {% endif %}
-
     - service: input_boolean.turn_off
       entity_id:
         - input_boolean.home_stats

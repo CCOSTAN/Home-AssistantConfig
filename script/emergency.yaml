@@ -20,9 +20,9 @@ emergency:
         - group.all_lights
       data:
         flash: long
-      # This starts RACHIO SPRINKLERS in the front yard for 10 minutes in case of Fire.
-    - service: ifttt.trigger
-      data_template: {"event":"rachio_start_front"}
+      # Rachio is already inergrated Natively with Protects to run SPRINKLERS with smoke conditions..
+#    - service: ifttt.trigger
+#      data_template: {"event":"rachio_start_front"}
       # Flash All LIGHTS
     - service: light.turn_on
       entity_id:
