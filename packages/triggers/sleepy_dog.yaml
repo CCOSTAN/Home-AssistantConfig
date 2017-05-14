@@ -33,6 +33,10 @@ automation:
         entity_id: automation.guard_dog
       - service: input_boolean.turn_off
         entity_id: input_boolean.sleepy_dog
+      - service: script.speech_engine
+        data:
+          call_no_announcement: 'yes'
+          value1: "The dogs have been put away for the next 30 minutes."
       - delay:
           minutes: 30
       - service: automation.turn_on
