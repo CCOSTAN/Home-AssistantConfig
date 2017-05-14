@@ -9,6 +9,12 @@
 
 speech_processing:
   sequence:
+    - service: mqtt.publish
+      data_template:
+        topic: 'polly/lastmsg'
+        payload: '{{speech_message}}'
+        retain: true
+
     - condition: and
       conditions:
         - condition: or
@@ -63,12 +69,6 @@ speech_processing:
           {% else %}
           0.3
           {% endif %}
-
-    - service: mqtt.publish
-      data_template:
-        topic: 'polly/lastmsg'
-        payload: '{{speech_message}}'
-        retain: true
 
     - service: tts.amazon_polly_say
       entity_id: media_player.livingroomCC
