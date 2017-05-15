@@ -8,14 +8,24 @@
       entity_id: switch.living_room_amp
       state: 'on'
       for: '00:20:00'
-
+      
   condition:
-    - condition: state
-      entity_id: sun.sun
-      state: 'below_horizon'
-    - condition: time
-      after: '22:00:00'
-      before: '09:00:00'
+    condition: or
+    conditions:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: group.family
+            state: 'not_home'
+          - condition: state
+            entity_id: input_boolean.guest_mode
+            state: 'off'
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+      - condition: time
+        after: '22:00:00'
+        before: '09:00:00'
 
 #Turn it off twice for good measure!
   action:
