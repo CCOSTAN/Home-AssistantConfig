@@ -34,9 +34,15 @@ automation:
       - service: input_boolean.turn_off
         entity_id: input_boolean.sleepy_dog
       - service: script.speech_engine
-        data:
+        data_template:
           call_no_announcement: 'yes'
-          value1: "The dogs have been put away for the next 30 minutes."
+          value1: >
+            {{ [
+            "The dogs have been put away for the next 30 minutes.",
+            "I will let sleeping dogs lie for the next 30 minutes.",
+            "You will not be bothered by the sound of dogs barking for at least 30 minutes.",
+            "Molly is our only watch cat for the next 30 minutes now."
+            ] |random }}
       - delay:
           minutes: 30
       - service: automation.turn_on
