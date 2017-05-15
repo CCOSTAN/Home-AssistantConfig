@@ -12,7 +12,7 @@ speech_processing:
     - service: mqtt.publish
       data_template:
         topic: 'polly/lastmsg'
-        payload: '{{speech_message}}'
+        payload: 'This Message is from now().strftime("%X") {{speech_message}}'
         retain: true
 
     - condition: and
