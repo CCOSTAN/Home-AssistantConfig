@@ -6,7 +6,7 @@
   trigger:
     - platform: state
       entity_id:
-        - sensor.backdoor
+        - binary_sensor.mcu2_gpio5 # back door #
         - sensor.sliding_door
         - binary_sensor.MCU1_GPIO12 # Interior Garage Door #
       to: 'Opened'
