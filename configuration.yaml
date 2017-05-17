@@ -71,6 +71,9 @@ logbook:
     entities:
       - automation.detect_lights_and_adjust_the_brightness_when_turned_on_based_on_time
       - automation.cuckoo_clock
+      - group.garage_doors
+      - media_player.LivingRoomCC
+      - py.warnings
       - sensor.since_last_boot
       - sensor.since_last_boot_templated
       - sensor.small_garage_status
@@ -81,10 +84,11 @@ logbook:
       - sensor.small_garage_wifi_signal_strength
       - sensor.small_garage_reflection_rate
       - sensor.large_garage_reflection_rate
-      - group.garage_doors
+      - sensor.pihole_ads_blocked_today
+      - sensor.pihole_ads_percentage_blocked_today
+      - sensor.pihole_dns_queries_today
       - sensor.time
       - sensor.date
-      - media_player.LivingRoomCC
 
 
 history:
@@ -98,6 +102,11 @@ history:
     entities:
      - sensor.last_boot
      - sensor.date
+     - sensor.pihole_ads_blocked_today
+     - sensor.pihole_ads_percentage_blocked_today
+     - sensor.pihole_dns_queries_today
+     - sensor.since_last_boot
+     - sensor.since_last_boot_templated
 
 logger: !include logger.yaml
 recorder: !include recorder.yaml

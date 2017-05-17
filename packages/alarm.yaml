@@ -41,6 +41,8 @@ homeassistant:
     binary_sensor.MCU2_GPIO14:
       friendly_name: 'Justin Window'
 
+    group.entry_points:
+      homebridge_hidden: true
 #-------------------------------------------
 binary_sensor:
   - platform: mqtt
@@ -157,3 +159,4 @@ group:
       - binary_sensor.MCU2_GPIO13
       - binary_sensor.MCU2_GPIO14
       - binary_sensor.MCU2_GPIO15
+      - binary_sensor.kitchen_door_opened
