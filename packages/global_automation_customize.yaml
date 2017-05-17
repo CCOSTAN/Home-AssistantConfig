@@ -5,8 +5,14 @@
 #-------------------------------------------
 homeassistant:
   customize_glob:
-    "automation.*watchdog*":
-      icon: mdi:timer
+    - "automation.*watchdog*":
+        icon: mdi:timer
+    - "sensor.dark_sky_*":
+        homebridge_hidden: true
+    - "scene.month_*_colors":
+        hidden: true
+        emulated_hue: False
+        homebridge_hidden: true
 
   customize_domain:
     automation:
