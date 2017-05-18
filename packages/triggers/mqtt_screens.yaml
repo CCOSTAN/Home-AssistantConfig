@@ -1,20 +1,17 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# More information : https://github.com/SmilyOrg/screenmqtt
 #-------------------------------------------
 homeassistant:
   customize:
-    input_boolean.computer_screens:
+    switch.computer_screens:
       friendly_name: 'Computer Screens'
-      icon: mdi:computer
+      icon: mdi:monitor-multiple
       emulated_hue: True
       hidden: False
+      homebridge_hidden: False
 #-------------------------------------------
-input_boolean:
-  computer_screens:
-    name: Computer Screens
-    initial: on
-
 switch:
   - platform: mqtt
     name: computer_screens
@@ -22,6 +19,4 @@ switch:
     command_topic: 'carlo-ultra/monitor/all/power/command'
 
 #-------------------------------------------
-##############################################################################
-###  Automations - Detect when things are not right. Like any Good Watchdog.
-##############################################################################
+#group - Added to group.interior_switches
