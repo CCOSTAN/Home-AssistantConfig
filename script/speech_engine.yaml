@@ -5,6 +5,7 @@
     # data:
     #   call_no_announcement
     #   call_dark_outside:
+    #   call_window_check
     #   call_garage_check:
     #   call_responsibilities
     #   call_light_check
@@ -29,75 +30,93 @@ speech_engine:
       data_template:
         speech_message: >
           {%- macro dark_outside() -%}
-            {{ [
-            "It is pretty dark outside.  I will turn on the outside lights now.",
-            "It is a little past Sunset. Time to turn on the outside lights. I am on it.",
-            "I will switch on the outside lights.  It is getting dark outside.",
-            "Time to turn on the front lights. I will take care of it."
-            ] | random }}
+              {{ [
+              "It is pretty dark outside.  I will turn on the outside lights now.",
+              "It is a little past Sunset. Time to turn on the outside lights. I am on it.",
+              "I will switch on the outside lights.  It is getting dark outside.",
+              "Time to turn on the front lights. I will take care of it."
+              ] | random }}
           {%- endmacro -%}
           {%- macro responsibilities() -%}
-            {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
-              Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
-            {%endif%}
-            {%if now().strftime("%a") == 'Wed'%}
-              Both Recycling and regular Garbage goes out. Please take out all of the garbage cans tonight.
-            {%endif%}
-            {% if now().strftime("%j")|int % 2 != 0 %}
-              Today is Justin's day to do the chores.
-            {% else %}
-              Today is Paige's day to do the chores.
-            {%endif%}
+              {%if now().strftime("%a") == 'Wed' or now().strftime("%a") == 'Sun'%}
+                Today is {{now().strftime("%A")}} and {{now().strftime("%A")}} is garbage day.
+              {%endif%}
+              {%if now().strftime("%a") == 'Wed'%}
+                Both Recycling and regular Garbage goes out. Please take out all of the garbage cans tonight.
+              {%endif%}
+              {% if now().strftime("%j")|int % 2 != 0 %}
+                Today is Justin's day to do the chores.
+              {% else %}
+                Today is Paige's day to do the chores.
+              {%endif%}
           {%- endmacro -%}
           {%- macro inside_weather() -%}
-            Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity.
+              Inside the house, it is {{ states.climate.downstairs.attributes["current_temperature"]}} degrees with around {{states('sensor.downstairs_thermostat_humidity')}} percent humidity.
           {%- endmacro -%}
           {%- macro outside_weather() -%}
-            Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
+              Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
           {%- endmacro -%}
-          {# *********** This macro looks for High UV rays and lets us know if it is before 2pm #}
           {%- macro light_check() -%}
-          There are
-          {% for state in states.light if state.state == 'on' -%}
-            {%- if loop.last -%}
-              {{ loop.index }}
-            {%- endif -%}
-          {%- endfor %}  lights on right now.
-          {% set comma = joiner(', ') %} The
-          {% for group in states.group|groupby('state') -%}
-            {%- for entity in group.list if entity.state == 'on' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
-            {{ ' and' if loop.last and not loop.first else comma() }}
-            {{ entity.name }}
-            {%- endfor -%}
-          {%- endfor -%}
-          .
+              There are
+              {% for state in states.light if state.state == 'on' -%}
+                {%- if loop.last -%}
+                  {{ loop.index }}
+                {%- endif -%}
+              {%- endfor %}  lights on right now.
+              {% set comma = joiner(', ') %} The
+              {% for group in states.group|groupby('state') -%}
+                {%- for entity in group.list if entity.state == 'on' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
+                {{ ' and' if loop.last and not loop.first else comma() }}
+                {{ entity.name }}
+                {%- endfor -%}
+              {%- endfor -%}
+              .
+          {%- endmacro -%}
+          {%- macro window_check() -%}
+              {% if states.group.entry_points.state != 'off' -%}
+              {% set comma = joiner(', ') %}
+              The
+              {%- for state in states.binary_sensor if state.state == 'on' and state.attributes.device_class == 'opening' -%}
+              {%- endfor %}
+              {% for group in states.binary_sensor|groupby('state') -%}
+              {%- for entity in group.list  if entity.state == 'on' and entity.attributes.device_class == 'opening'  -%}
+              {{ ' and' if loop.last and not loop.first else comma() }}
+              {{ entity.attributes.friendly_name }}
+              {%- endfor -%}
+              {%- endfor %}
+              need to be closed.
+              {%- endif -%}
           {%- endmacro -%}
           {% macro garage_check() %}
-          {% if is_state('cover.large_garage', 'open') -%}
-            The Large Garage Door is still open
-          {% endif -%}
-          {% if is_state('cover.small_garage', 'open') -%}
-            {% if is_state('cover.large_garage', 'open') -%} and
-            {%- endif %} The small Garage Door is still open
-          {% endif %}
-          .
+              {% if states.group.garage_doors.state !='closed' -%}
+              The
+              {%- for state in states.cover -%}
+              {%- endfor %}
+              {% for group in states.cover|groupby('state') -%}
+              {%- for entity in group.list  if entity.state == 'open' and entity.attributes.device_class == 'garage'  -%}
+              {{ ' and' if loop.last and not loop.first }}
+              {{ entity.attributes.friendly_name }}
+              {%- endfor -%}
+              {%- endfor %}
+              need to be closed.
+              {%- endif -%}
           {%- endmacro -%}
           {% macro medicine() %}
-          {% if is_state('input_boolean.medicine', 'off') -%}
-            It looks like Carlo has not taken his medicine yet.  Please make sure Carlo takes his medicine now.
-          {% endif -%}
+              {% if is_state('input_boolean.medicine', 'off') -%}
+                It looks like Carlo has not taken his medicine yet.  Please make sure Carlo takes his medicine now.
+              {% endif -%}
           {%- endmacro -%}
           {% macro iss() %}
-          {% if is_state('binary_sensor.iss', 'on') -%}
-            Here is something interesting.  The international space station is above us now.  There are {{ states.binary_sensor.iss.attributes["number_of_people_in_space"]}} people in space right now.
-            {{outside_weather()}}
-          {% endif -%}
+              {% if is_state('binary_sensor.iss', 'on') -%}
+                Here is something interesting.  The international space station is above us now.  There are {{ states.binary_sensor.iss.attributes["number_of_people_in_space"]}} people in space right now.
+                {{outside_weather()}}
+              {% endif -%}
           {%- endmacro -%}
           {% macro pihole() %}
-          {% if states.sensor.pihole_ads_blocked_today.state|int > 1500 -%}
-            Our internet blocking system has blocked {{states.sensor.pihole_ads_blocked_today.state}} ads today!
-            Happy Internet surfing!
-          {% endif -%}
+              {% if states.sensor.pihole_ads_blocked_today.state|int > 1500 -%}
+                Our internet blocking system has blocked {{states.sensor.pihole_ads_blocked_today.state}} ads today!
+                Happy Internet surfing!
+              {% endif -%}
           {%- endmacro -%}
           {#  ********************************************* #}
           {#   ******** Start the Speech routines *******   #}
@@ -128,6 +147,9 @@ speech_engine:
             {%endif%}
             {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
               {{garage_check()}}
+            {%endif%}
+            {% if (call_window_check == 'yes' or is_state('sun.sun', 'below_horizon')) or is_state('group.entry_points', 'on') %}
+              {{window_check()}}
             {%endif%}
             {{ NewDevice}}
             {% if call_light_check == 1 %}

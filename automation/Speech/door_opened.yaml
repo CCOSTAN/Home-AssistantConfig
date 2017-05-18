@@ -29,4 +29,5 @@
     - service: script.speech_engine
       data_template:
         DoorOpened: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        call_window_check: 'yes'
         call_inside_weather: 'yes'
