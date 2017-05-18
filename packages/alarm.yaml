@@ -168,7 +168,20 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - group.entry_points
+          - binary_sensor.MCU1_GPIO4
+          - binary_sensor.MCU1_GPIO5
+          - binary_sensor.MCU1_GPIO10
+          - binary_sensor.MCU1_GPIO12
+          - binary_sensor.MCU1_GPIO13
+          - binary_sensor.MCU1_GPIO14
+          - binary_sensor.MCU1_GPIO15
+          - binary_sensor.MCU2_GPIO4
+          - binary_sensor.MCU2_GPIO5
+          - binary_sensor.MCU2_GPIO10
+          - binary_sensor.MCU2_GPIO12
+          - binary_sensor.MCU2_GPIO13
+          - binary_sensor.MCU2_GPIO14
+          - binary_sensor.MCU2_GPIO15
         state: 'on'
         from: 'off'
         for:

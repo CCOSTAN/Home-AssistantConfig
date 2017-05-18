@@ -1,0 +1,27 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize:
+    input_boolean.computer_screens:
+      friendly_name: 'Computer Screens'
+      icon: mdi:computer
+      emulated_hue: True
+      hidden: False
+#-------------------------------------------
+input_boolean:
+  computer_screens:
+    name: Computer Screens
+    initial: on
+
+switch:
+  - platform: mqtt
+    name: computer_screens
+    state_topic: 'carlo-ultra/monitor/all/power/state'
+    command_topic: 'carlo-ultra/monitor/all/power/command'
+
+#-------------------------------------------
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
