@@ -48,6 +48,10 @@ homeassistant:
       friendly_name: 'Justin Window'
 
     group.entry_points:
+      friendly_name: Alarm Entry Points
+      homebridge_hidden: true
+    group.interior_door:
+      friendly_name: Interior doors
       homebridge_hidden: true
 #-------------------------------------------
 binary_sensor:
@@ -132,6 +136,48 @@ binary_sensor:
   - platform: mqtt
     state_topic: "NodeMCU2/GPIO15/Status"
     name: "MCU2_GPIO15"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO4/Status"
+    name: "MCU3_GPIO4"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO5/Status"
+    name: "MCU3_GPIO5"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO10/Status"
+    name: "MCU3_GPIO10"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO12/Status"
+    name: "MCU3_GPIO12"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO13/Status"
+    name: "MCU3_GPIO13"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO14/Status"
+    name: "MCU3_GPIO14"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO15/Status"
+    name: "MCU3_GPIO15"
     payload_on: 1
     payload_off: 0
     device_class: opening
