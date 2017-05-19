@@ -31,15 +31,16 @@ homeassistant:
       friendly_name: 'Front Den Windows'
     binary_sensor.MCU1_GPIO14:
       friendly_name: 'Office Window'
-    binary_sensor.MCU1_GPIO15:
-      friendly_name: 'MCU1_GPIO15'
+
 
     binary_sensor.MCU2_GPIO4:
-      friendly_name: 'Master Bathroom (Probably)'
+      friendly_name: 'Dinette Windows'
     binary_sensor.MCU2_GPIO5:
       friendly_name: 'Back Door'
+    binary_sensor.MCU2_GPIO09:
+      friendly_name: 'Carlo Window'
     binary_sensor.MCU2_GPIO10:
-      friendly_name: 'Dinette Window (Probably)'
+      friendly_name: 'Master Bathroom Window'
     binary_sensor.MCU2_GPIO12:
       friendly_name: 'Main Slider'
     binary_sensor.MCU2_GPIO13:
@@ -91,12 +92,7 @@ binary_sensor:
     payload_on: 1
     payload_off: 0
     device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO15/Status"
-    name: "MCU1_GPIO15"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
+
   - platform: mqtt
     state_topic: "NodeMCU2/GPIO4/Status"
     name: "MCU2_GPIO4"
@@ -106,6 +102,12 @@ binary_sensor:
   - platform: mqtt
     state_topic: "NodeMCU2/GPIO5/Status"
     name: "MCU2_GPIO5"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU2/GPIO9/Status"
+    name: "MCU2_GPIO9"
     payload_on: 1
     payload_off: 0
     device_class: opening
@@ -133,54 +135,7 @@ binary_sensor:
     payload_on: 1
     payload_off: 0
     device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU2/GPIO15/Status"
-    name: "MCU2_GPIO15"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO4/Status"
-    name: "MCU3_GPIO4"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO5/Status"
-    name: "MCU3_GPIO5"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO10/Status"
-    name: "MCU3_GPIO10"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO12/Status"
-    name: "MCU3_GPIO12"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO13/Status"
-    name: "MCU3_GPIO13"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO14/Status"
-    name: "MCU3_GPIO14"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO15/Status"
-    name: "MCU3_GPIO15"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
+
 #-------------------------------------------
 sensor:
   - platform: template
@@ -209,21 +164,14 @@ group:
       - binary_sensor.MCU1_GPIO12
       - binary_sensor.MCU1_GPIO13
       - binary_sensor.MCU1_GPIO14
-      - binary_sensor.MCU1_GPIO15
       - binary_sensor.MCU2_GPIO4
       - binary_sensor.MCU2_GPIO5
+      - binary_sensor.MCU2_GPIO09
       - binary_sensor.MCU2_GPIO10
       - binary_sensor.MCU2_GPIO12
       - binary_sensor.MCU2_GPIO13
       - binary_sensor.MCU2_GPIO14
       - binary_sensor.MCU2_GPIO15
-      - binary_sensor.MCU3_GPIO4
-      - binary_sensor.MCU3_GPIO5
-      - binary_sensor.MCU3_GPIO10
-      - binary_sensor.MCU3_GPIO12
-      - binary_sensor.MCU3_GPIO13
-      - binary_sensor.MCU3_GPIO14
-      - binary_sensor.MCU3_GPIO15
   interior_door:
     entities:
       - binary_sensor.kitchen_door_opened
@@ -239,14 +187,13 @@ automation:
           - binary_sensor.MCU1_GPIO12
           - binary_sensor.MCU1_GPIO13
           - binary_sensor.MCU1_GPIO14
-          - binary_sensor.MCU1_GPIO15
           - binary_sensor.MCU2_GPIO4
           - binary_sensor.MCU2_GPIO5
+          - binary_sensor.MCU2_GPIO09
           - binary_sensor.MCU2_GPIO10
           - binary_sensor.MCU2_GPIO12
           - binary_sensor.MCU2_GPIO13
           - binary_sensor.MCU2_GPIO14
-          - binary_sensor.MCU2_GPIO15
         state: 'on'
         from: 'off'
         for:
