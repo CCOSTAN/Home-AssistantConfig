@@ -24,7 +24,7 @@
           {%- macro greeting_sentence(person) -%}
           {{ [
           "Welcome back home " ~ person,
-          "Guess who is home? "  ~ person +" is!",
+          "Guess who is home?" ~ person +" is!",
           person + " is now in the house.",
           "Welcome Home " ~ person + ".  We have missed you. Or at least Molly did.",
           "Our home is now complete, Rest your head and relax your feet! Welcome Back " ~ person,
@@ -32,8 +32,9 @@
           "Hey there " ~ person + " Welcome Home!",
           "Knock Knock. Who is There? "   ~ person +" is!",
           person ~ "! You are home!",
-          "<prosody pitch="-50%"> \ Let us do the Robot. </prosody> "  ~ person +"is home!"
+          "I know a secret! "  ~ person +' is home!'
           ] | random }}
           {%- endmacro -%}
           "{{greeting_sentence(person)}}"
         call_responsibilities: 1
+        call_no_announcement: 'yes'
