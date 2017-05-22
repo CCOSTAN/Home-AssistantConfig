@@ -57,6 +57,7 @@ speech_engine:
               Outside, it is going to be {{states('sensor.dark_sky_minutely_summary')}}
           {%- endmacro -%}
           {%- macro light_check() -%}
+              {% if states.group.all_lights.state != 'off' -%}
               There are
               {% for state in states.light if state.state == 'on' -%}
                 {%- if loop.last -%}
@@ -71,6 +72,7 @@ speech_engine:
                 {%- endfor -%}
               {%- endfor -%}
               .
+              {%- endif -%}
           {%- endmacro -%}
           {%- macro window_check() -%}
               {% if states.group.entry_points.state != 'off' -%}
@@ -113,11 +115,16 @@ speech_engine:
               {% endif -%}
           {%- endmacro -%}
           {% macro pihole() %}
-              {% if states.sensor.pihole_ads_blocked_today.state|int > 1500 -%}
+              {% if states.sensor.pihole_ads_blocked_today.state|int > 2000 -%}
                 Our internet blocking system has blocked {{states.sensor.pihole_ads_blocked_today.state}} ads today!
                 Happy Internet surfing!
               {% endif -%}
           {%- endmacro -%}
+          {% macro moon() -%}
+            {%- if states.sensor.moon.state == 'Full moon' -%}
+            Check out the full moon tonight!
+            {%- endif -%}
+          {%- endmacro %}
           {#  ********************************************* #}
           {#   ******** Start the Speech routines *******   #}
           {#                                                #}
@@ -161,8 +168,7 @@ speech_engine:
               {{Medicine()}}
             {%endif%}
             {{ value1 }}
-            {{ iss() }}
-            {{ pihole() }}
+            {{([iss, pihole, moon]| random)()}} {# call a Random fact about the house #}
     - service: input_boolean.turn_off
       entity_id:
         - input_boolean.home_stats
