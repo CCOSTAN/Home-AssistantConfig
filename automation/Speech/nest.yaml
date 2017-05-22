@@ -16,5 +16,5 @@
     - service: script.speech_engine
       data_template:
         NestStatus: "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."
-        call_inside_weather: 'yes'
-        call_window_check: 'yes'
+        call_inside_weather: 1
+        call_window_check: 1

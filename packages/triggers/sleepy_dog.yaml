@@ -35,7 +35,7 @@ automation:
         entity_id: input_boolean.sleepy_dog
       - service: script.speech_engine
         data_template:
-          call_no_announcement: 'yes'
+          call_no_announcement: 1
           value1: >
             {{ [
             "The dogs have been put away for the next 30 minutes.",
