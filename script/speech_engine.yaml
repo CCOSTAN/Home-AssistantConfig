@@ -122,7 +122,6 @@ speech_engine:
           {#   ******** Start the Speech routines *******   #}
           {#                                                #}
           {#  ********************************************* #}
-          {% if is_state('input_boolean.lastmsg', 'off') %}
             {% if call_no_announcement != 1 %}
               {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
               Good morning.
@@ -164,7 +163,6 @@ speech_engine:
             {{ value1 }}
             {{ iss() }}
             {{ pihole() }}
-          {% endif %}
     - service: input_boolean.turn_off
       entity_id:
         - input_boolean.home_stats
