@@ -5,7 +5,7 @@
   hide_entity: True
   trigger:
     - platform: event
-      event_type: gatorade_dash
+      event_type: medicine_dash
 
   action:
 
@@ -21,7 +21,7 @@
     - service: mqtt.publish
       data_template:
         payload: '{{ states("sensor.date") }}'
-        topic: 'dash/gatorade/medicine_time'
+        topic: 'dash/medicine/medicine_time'
         retain: true
 
     -  service: script.ifttt_notify
