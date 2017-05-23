@@ -16,12 +16,6 @@
         value2: "{{ states('sensor.dark_sky_wind_speed')}}"
         value3: ' '
 
-    - service: light.turn_on
-      entity_id:
-        - group.all_lights
-      data:
-        flash: short
-
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode
 
@@ -29,9 +23,7 @@
       data_template:
         value1: >
           "ATTENTION: The wind speed is now {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  Please make sure everyone is inside for safety."
+        call_window_check: 1
+        call_garage_check: 1
 
-    - service: light.turn_on
-      entity_id:
-        - group.all_lights
-      data:
-        flash: long
+    - service: script.emergency
