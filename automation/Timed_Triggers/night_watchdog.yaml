@@ -8,7 +8,7 @@
       entity_id: switch.living_room_amp
       state: 'on'
       for: '00:20:00'
-      
+
   condition:
     condition: or
     conditions:
@@ -20,19 +20,16 @@
           - condition: state
             entity_id: input_boolean.guest_mode
             state: 'off'
-      - condition: state
-        entity_id: sun.sun
-        state: 'below_horizon'
-      - condition: time
-        after: '22:00:00'
-        before: '09:00:00'
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: 'below_horizon'
+          - condition: state
+            entity_id: input_boolean.guest_mode
+            state: 'off'
 
-#Turn it off twice for good measure!
   action:
-    - service: switch.turn_off
-      data_template:
-        entity_id: "{{ trigger.entity_id }}"
-    - delay: 00:01:00
     - service: switch.turn_off
       data_template:
         entity_id: "{{ trigger.entity_id }}"
