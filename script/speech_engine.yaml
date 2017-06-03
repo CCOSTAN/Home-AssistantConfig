@@ -165,7 +165,7 @@ speech_engine:
               {{responsibilities()}}
             {%endif%}
             {% if now().strftime("%H")|int > 22 %}
-              {{Medicine()}}
+              {{medicine()}}
             {%endif%}
             {{ value1 }}
             {{([iss, pihole, moon]| random)()}} {# call a Random fact about the house #}
