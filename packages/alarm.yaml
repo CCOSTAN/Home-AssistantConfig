@@ -38,7 +38,7 @@ homeassistant:
     binary_sensor.MCU2_GPIO5:
       friendly_name: 'Back Door'
     binary_sensor.MCU2_GPIO9:
-      friendly_name: 'Carlo Window'
+      friendly_name: 'Master Slider'
     binary_sensor.MCU2_GPIO10:
       friendly_name: 'Master Bathroom Window'
     binary_sensor.MCU2_GPIO12:
@@ -47,6 +47,16 @@ homeassistant:
       friendly_name: 'Upstairs Bedroom Window'
     binary_sensor.MCU2_GPIO14:
       friendly_name: 'Justin Window'
+
+    binary_sensor.MCU3_GPIO4:
+      friendly_name: 'Stacey Bedroom Window'
+    binary_sensor.MCU3_GPIO5:
+      friendly_name: 'Carlo Bedroom Window'
+    binary_sensor.MCU3_GPIO10:
+      friendly_name: 'Master Bedroom Window'
+    binary_sensor.MCU3_GPIO14:
+      friendly_name: 'Upstairs Windows'
+
 
     group.entry_points:
       friendly_name: Alarm Entry Points
@@ -136,6 +146,31 @@ binary_sensor:
     payload_off: 0
     device_class: opening
 
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO4/Status"
+    name: "MCU3_GPIO4"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO5/Status"
+    name: "MCU3_GPIO5"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO10/Status"
+    name: "MCU3_GPIO10"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/GPIO14/Status"
+    name: "MCU3_GPIO14"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
+
 #-------------------------------------------
 sensor:
   - platform: template
@@ -172,6 +207,10 @@ group:
       - binary_sensor.MCU2_GPIO13
       - binary_sensor.MCU2_GPIO14
       - binary_sensor.MCU2_GPIO15
+      - binary_sensor.MCU3_GPIO4
+      - binary_sensor.MCU3_GPIO5
+      - binary_sensor.MCU3_GPIO10
+      - binary_sensor.MCU3_GPIO14
   interior_door:
     entities:
       - binary_sensor.kitchen_door_opened
@@ -194,6 +233,10 @@ automation:
           - binary_sensor.MCU2_GPIO12
           - binary_sensor.MCU2_GPIO13
           - binary_sensor.MCU2_GPIO14
+          - binary_sensor.MCU3_GPIO4
+          - binary_sensor.MCU3_GPIO5
+          - binary_sensor.MCU3_GPIO10
+          - binary_sensor.MCU3_GPIO14
         state: 'on'
         from: 'off'
         for:
@@ -208,6 +251,7 @@ automation:
         data_template:
           value1: "The {{ trigger.to_state.attributes.friendly_name }} has been opened for about 5 minutes.  I will shut down the Air Conditioner so you can enjoy the fresh air."
           call_outside_weather: 1
+          call_inside_weather: 1
 
 #-------------------------------------------#-------------------------------------------
   - alias: 'Turn HVAC back on when all doors/windows are closed.'
