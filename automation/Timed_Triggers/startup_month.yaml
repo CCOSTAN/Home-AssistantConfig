@@ -1,0 +1,21 @@
+###################################
+##  Start Up Section
+###################################
+
+- alias: Check if it's summer vacation on startup.
+  hide_entity: True
+  trigger:
+    - platform: homeassistant
+      event: start
+
+  condition:
+    - condition: template
+      value_template: >
+        {% set month=states("sensor.date").split('-')[1] | int %}
+        {%- if month == 6 or month == 7 -%}
+          true
+        {%- endif -%}
+
+  action:
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.school_mode
