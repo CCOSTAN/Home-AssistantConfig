@@ -56,7 +56,8 @@ homeassistant:
       friendly_name: 'Master Bedroom Window'
     binary_sensor.MCU3_GPIO14:
       friendly_name: 'Upstairs Windows'
-
+    binary_sensor.MCU3_Light:
+      friendly_name: 'Panel Door'
 
     group.entry_points:
       friendly_name: Alarm Entry Points
@@ -170,6 +171,12 @@ binary_sensor:
     payload_on: 1
     payload_off: 0
     device_class: opening
+  - platform: mqtt
+    state_topic: "NodeMCU3/Light/Status"
+    name: "MCU3_Light"
+    payload_on: 1
+    payload_off: 0
+    device_class: opening
 
 #-------------------------------------------
 sensor:
@@ -214,6 +221,7 @@ group:
   interior_door:
     entities:
       - binary_sensor.kitchen_door_opened
+      - binary_sensor.MCU3_Light
 #-------------------------------------------#-------------------------------------------
 automation:
   - alias: 'Turn off HVAC in window/door is opened'
