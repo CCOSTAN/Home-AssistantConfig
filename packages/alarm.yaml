@@ -277,3 +277,20 @@ automation:
         data:
           entity_id: climate.downstairs
           operation_mode: 'auto'
+
+#-------------------------------------------#---
+  - alias: "Panel Door opened"
+    hide_entity: True
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.MCU3_Light
+        state: 'off'
+        from: 'on'
+
+    action:
+      - service: script.ifttt_notify
+        data_template:
+          value1: 'Someone has opened up the Alarm Panel Door!'
+          value2: ''
+          value3: ''
