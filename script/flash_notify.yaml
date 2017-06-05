@@ -6,16 +6,13 @@
 ######################################################################################################
 
 flash_notify:
-  sequence:     
+  sequence:
     - service: light.turn_on
-      entity_id: 
-        - group.outdoor_pool_lights
+      entity_id:
+        - light.m1_slider
         - light.master_toilet
         - light.office_lamp
         - light.outdoor_foyer
+        - light.outdoor_bathroom
       data:
         flash: long
-
-  
-
- 
