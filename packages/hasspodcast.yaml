@@ -21,7 +21,7 @@ automation:
         data_template:
           value1: 'There is a new HA Podcast available!'
           value2: "{{ trigger.event.data.title }}"
-          value3: "{{ trigger.event.data.link }}" 
+          value3: "{{ trigger.event.data.link }}"
 
       - service: notify.html5
         data_template:
@@ -31,7 +31,7 @@ automation:
             url: "{{ trigger.event.data.link }}"
 
       - service: persistent_notification.create
-        data:
+        data_template:
           title: "New HA Podcast available"
           message: "{{ trigger.event.data.title }} - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
           notification_id: "update_available"
