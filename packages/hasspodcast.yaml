@@ -20,18 +20,18 @@ automation:
       - service: script.ifttt_notify
         data_template:
           value1: 'There is a new HA Podcast available!'
-          value2: "{{ trigger.event.data.title }}"
-          value3: "{{ trigger.event.data.link }}"
+          value2: 'https://hasspodcast.io/'
+          value3: ""
 
       - service: notify.html5
         data_template:
           title: "New HA Podcast available"
-          message: "{{ trigger.event.data.title }} - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+          message: "New HA Podcast - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
           data:
-            url: "{{ trigger.event.data.link }}"
+            url: "https://hasspodcast.io/"
 
       - service: persistent_notification.create
         data_template:
           title: "New HA Podcast available"
-          message: "{{ trigger.event.data.title }} - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+          message: "New Podcast available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
           notification_id: "update_available"
