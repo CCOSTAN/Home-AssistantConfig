@@ -25,8 +25,8 @@ automation:
     trigger:
       - platform: state
         entity_id: input_boolean.sleepy_dog
-        state: 'on'
-        from: 'off'
+        to: 'on'
+
     action:
     # Disable automation for 30 minutes
       - service: automation.turn_off

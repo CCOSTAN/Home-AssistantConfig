@@ -20,7 +20,7 @@ sensor:
     state_topic: "polly/lastmsg"
     name: "Last Message"
 ##############################################################################
-###  Automations - 
+###  Automations -
 ##############################################################################
 
 automation:
@@ -29,8 +29,7 @@ automation:
     trigger:
       - platform: state
         entity_id: input_boolean.lastmsg
-        state: 'on'
-        from: 'off'
+        to: 'on'
 
     action:
       - service: script.speech_engine

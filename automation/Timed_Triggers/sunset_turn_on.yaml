@@ -6,8 +6,8 @@
   trigger:
     - platform: state
       entity_id: sun.sun
-      state: 'below_horizon'
-      from: 'above_horizon'
+      to: 'below_horizon'
+
 
   action:
     - service: switch.turn_on

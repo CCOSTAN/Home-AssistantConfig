@@ -5,7 +5,7 @@
   trigger:
     - platform: state
       entity_id: device_tracker.carlo
-      state: not_home 
+      to: not_home 
 
   action:
     - service: light.turn_off
