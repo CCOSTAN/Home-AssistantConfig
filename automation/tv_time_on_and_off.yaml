@@ -6,19 +6,19 @@
   trigger:
     - platform: state
       entity_id: input_boolean.TV_time
-      state: 'on'
+      to: 'on'
       from: 'off'
     - platform: state
       entity_id: sensor.samsungtv
-      state: 'Online'
+      to: 'Online'
       from: 'Offline'
     - platform: state
       entity_id: sun.sun
-      state: 'below_horizon'
+      to: 'below_horizon'
       from: 'above_horizon'
     - platform: state
       entity_id: media_player.living_room
-      state: 'playing'
+      to: 'playing'
       from: 'idle'
 
   condition:

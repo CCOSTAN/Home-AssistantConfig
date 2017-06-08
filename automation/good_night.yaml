@@ -6,13 +6,13 @@
   trigger:
     - platform: state
       entity_id: input_boolean.good_night
-      state: 'on'
+      to: 'on'
       from: 'off'
     - platform: state
       entity_id:
         - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
         - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-      state: 'on'
+      to: 'on'
 
   condition:
     - condition: state

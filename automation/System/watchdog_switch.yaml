@@ -6,11 +6,11 @@
   trigger:
     - platform: state
       entity_id: switch.printer_outlet
-      state: 'on'
+      to: 'on'
       for: '00:20:00'
     - platform: state
       entity_id: switch.garage_outlet
-      state: 'on'
+      to: 'on'
       for: '03:00:00'
 
 #Turn it off twice for good measure!
@@ -22,4 +22,3 @@
     - service: switch.turn_off
       data_template:
         entity_id: "{{ trigger.entity_id }}"
- 

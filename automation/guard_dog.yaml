@@ -6,11 +6,11 @@
   trigger:
     - platform: state
       entity_id: input_boolean.guard_dog
-      state: 'on'
+      to: 'on'
       from: 'off'
     - platform: state
       entity_id: binary_sensor.front_door_opened
-      state: 'on'
+      to: 'on'
       from: 'off'
 
   condition:

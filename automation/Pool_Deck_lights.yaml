@@ -8,11 +8,11 @@
   trigger:
     - platform: state
       entity_id: binary_sensor.MCU2_GPIO12
-      state: 'on'
+      to: 'on'
       for: '00:3:00'
     - platform: state
       entity_id: sun.sun
-      state: 'below_horizon'
+      to: 'below_horizon'
       from: 'above_horizon'
 
   condition:

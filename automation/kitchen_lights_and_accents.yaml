@@ -8,27 +8,27 @@
   trigger:
     - platform: state
       entity_id: group.kitchen_lights
-      state: 'on'
+      to: 'on'
       for: '00:05:00'
-      
+
   condition:
     - condition: state
       entity_id: switch.kitchen_accents
-      state: 'on' 
-    
+      state: 'on'
+
   action:
     - service: switch.turn_off
       entity_id: switch.kitchen_accents
-           
+
 ##############################################################################
-        
+
 - alias: Kitchen lights off - turn on Accent lights
   trigger:
     - platform: state
       entity_id: group.kitchen_lights
       state: 'off'
       for: '00:05:00'
-      
+
   condition:
     - condition: sun
       after: 'sunset'
@@ -37,7 +37,7 @@
     - condition: state
       entity_id: group.interior_lights
       state: 'on'
-    
+
   action:
     - service: switch.turn_on
       entity_id: switch.kitchen_accents

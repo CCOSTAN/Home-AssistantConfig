@@ -6,10 +6,10 @@
     - platform: state
       entity_id:
         - binary_sensor.downstairs_away_mode
-      state: 'off'
+      to: 'off'
     - platform: state
       entity_id: group.family
-      state: home
+      to: home
 
   condition:
     condition: and

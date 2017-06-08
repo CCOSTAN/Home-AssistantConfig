@@ -7,10 +7,10 @@
   trigger:
     - platform: state
       entity_id: group.all_covers
-      state: 'open'
+      to: 'open'
     - platform: state
       entity_id: sun.sun
-      state: 'below_horizon'
+      to: 'below_horizon'
       from: 'above_horizon'
 
   condition:
