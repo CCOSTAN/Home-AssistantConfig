@@ -1,4 +1,4 @@
-name: Demo Floorplan
+name: Floorplan
 image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
 
@@ -62,12 +62,17 @@ groups:
       - state: 'disarmed'
         class: 'alarm-disarmed'
 
-  - name: Binary sensors
+  - name: Nest Protects
     entities:
-      - binary_sensor.front_hallway
-      - binary_sensor.kitchen
-      - binary_sensor.master_bedroom
-      - binary_sensor.theatre_room
+      - binary_sensor.upstairs_living_room_nest_protect_online
+      - binary_sensor.hallway_nest_protect_kids_hallway_online
+      - binary_sensor.justins_room_nest_protect_online
+      - binary_sensor.kitchen_nest_protect_online
+      - binary_sensor.master_bedroom_nest_protect_online
+      - binary_sensor.master_hallway_nest_protect_online
+      - binary_sensor.paiges_room_nest_protect_paiges_room_online
+      - binary_sensor.upstairs_bedroom_nest_protect_online
+      - binary_sensor.office_nest_protect_online
     states:
       - state: 'off'
         class: 'info-background'
