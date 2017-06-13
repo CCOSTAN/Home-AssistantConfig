@@ -20,6 +20,14 @@ http:
   login_attempts_threshold: 3
 
 frontend:
+
+panel_custom:
+  - name: floorplan
+    sidebar_title: Floorplan
+    sidebar_icon: mdi:home
+    url_path: floorplan
+    config: !include floorplan.yaml
+
 ios:
 
 group: !include_dir_merge_named group
