@@ -2,9 +2,6 @@ name: Floorplan
 image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
 
-last_motion_entity: sensor.template_last_motion
-last_motion_class: last-motion
-
 groups:
 
   - name: Sensors
@@ -20,26 +17,31 @@ groups:
       else
         return "temp-high";
       '
-
-  - name: Lights
+  - name: Rooms
     entities:
-       - light.hallway
-       - light.living_room
-       - light.patio
+      - group.kitchen_lights
+
     states:
       - state: 'on'
         class: 'light-on'
       - state: 'off'
         class: 'light-off'
 
-  - name: Switches
+  - name: Lights
     entities:
-       - switch.doorbell
+      - light.kids_hallway
+      - light.bedroom_hallway
+      - light.m1_back_left
+      - light.m1_back_right
+      - light.m1_front_left
+      - light.m1_front_right
+      - light.m1_slider
+
     states:
       - state: 'on'
-        class: 'doorbell-on'
+        class: 'light-on'
       - state: 'off'
-        class: 'doorbell-off'
+        class: 'light-off'
 
   - name: NVR
     entities:
@@ -50,17 +52,6 @@ groups:
         class: 'danger-text'
       - state: 'on'
         class: 'success-text'
-
-  - name: Alarm Panel
-    entities:
-       - alarm_control_panel.alarm
-    states:
-      - state: 'armed_away'
-        class: 'alarm-armed'
-      - state: 'armed_home'
-        class: 'alarm-armed'
-      - state: 'disarmed'
-        class: 'alarm-disarmed'
 
   - name: Nest Protects
     entities:
@@ -75,21 +66,44 @@ groups:
       - binary_sensor.office_nest_protect_online
     states:
       - state: 'off'
-        class: 'info-background'
+        class: 'protect-off'
       - state: 'on'
-        class: 'warning-background'
-    state_transitions:
-      - name: On to off
-        from_state: 'on'
-        to_state: 'off'
-        duration: 10
+        class: 'protect-on'
 
-  - name: Cameras
+  - name: Entry Points
     entities:
-      - camera.hallway
-      - camera.driveway
-      - camera.front_door
-      - camera.backyard
+      - binary_sensor.mcu1_gpio4
+      - binary_sensor.mcu1_gpio5
+      - binary_sensor.mcu1_gpio10
+      - binary_sensor.mcu1_gpio12
+      - binary_sensor.mcu1_gpio13
+      - binary_sensor.mcu1_gpio14
+      - binary_sensor.mcu2_gpio4
+      - binary_sensor.mcu2_gpio5
+      - binary_sensor.mcu2_gpio9
+      - binary_sensor.mcu2_gpio10
+      - binary_sensor.mcu2_gpio12
+      - binary_sensor.mcu2_gpio13
+      - binary_sensor.mcu2_gpio14
+      - binary_sensor.mcu2_gpio15
+      - binary_sensor.mcu3_gpio4
+      - binary_sensor.mcu3_gpio5
+      - binary_sensor.mcu3_gpio10
+      - binary_sensor.mcu3_gpio14
+      - binary_sensor.kitchen_door_opened
+      - binary_sensor.mcu3_light
     states:
-      - state: 'idle'
-        class: 'camera-idle'
+      - state: 'off'
+        class: 'window-closed'
+      - state: 'on'
+        class: 'window-open'
+
+  - name: Garage Doors
+    entities:
+      - cover.large_garage
+      - cover.small_garage
+    states:
+      - state: 'closed'
+        class: 'window-closed'
+      - state: 'open'
+        class: 'window-open'
