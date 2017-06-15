@@ -1,0 +1,631 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://momentjs.com/downloads/moment.js"></script>
+
+<dom-module id="ha-floorplan">
+
+  <template>
+    <style>
+      .loading-container {
+        text-align: center;
+        padding: 8px;
+      }
+
+      .loading {
+        height: 0px;
+        overflow: hidden;
+      }
+    </style>
+
+    <template is='dom-if' if='[[isLoading]]'>
+      <div class='loading-container'>
+        <paper-spinner active alt='Loading'></paper-spinner>
+      </div>
+    </template>
+
+    <div id="debug"></div>
+    <div id="floorplan" on-tap="stopPropagation"></div>
+
+  </template>
+
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'ha-floorplan',
+
+    ready() {
+    },
+
+    attached() {
+      this.onAttached();
+    },
+
+    detached() {
+    },
+
+    properties: {
+      hass: {
+        type: Object,
+      },
+      inDialog: {
+        type: Boolean,
+        value: false,
+      },
+      isPanel: {
+        type: Boolean,
+        value: false,
+      },
+      config: {
+        type: Object,
+      },
+      isLoading: {
+        type: Boolean,
+        value: true,
+      },
+      timeDifference: {
+        type: Number,
+        value: undefined,
+      },
+      entityConfigs: {
+        type: Array,
+        value: () => { return []; },
+      },
+      cssRules: {
+        type: Array,
+        value: () => { return []; },
+      },
+    },
+
+    stopPropagation(e) {
+      e.stopPropagation();
+    },
+
+    onAttached() {
+      var authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
+
+      var wsUri = ((window.location.protocol === 'https:') ? 'wss:' : 'ws:') + '//' + window.location.host + '/api/websocket';
+      window.HAWS.createConnection(wsUri, { authToken: authToken }).then(conn => {
+
+        conn.socket.addEventListener('message', event => {
+          var data = JSON.parse(event.data);
+
+          // Store the time difference between the local web browser and the Home Assistant server
+          if (data.event && data.event.time_fired) {
+            var lastEventFiredTime = moment(data.event.time_fired).toDate();
+            this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
+          }
+        });
+
+        window.HAWS.subscribeEntities(conn, entities => this.handleEntities(entities));
+      }, err => { console.error(err); });
+
+      this.addExternalCss(() => {
+        this.loadFloorPlan(() => {
+          this.isLoading = false;
+          this.handleEntities(this.hass.states);
+        });
+      });
+
+      if (this.config.groups.find(entityGroup => entityGroup.state_transitions)) {
+        setInterval(this.updateStateTransitions.bind(this), 100);
+      }
+    },
+
+    addExternalCss(callback) {
+      if (this.config.stylesheet) {
+        var styleSheetUrl = this.config.stylesheet + '?cacheBuster=' + (new Date().getTime());
+
+        var link = document.createElement('link');
+        link.type = 'text/css';
+        link.rel = 'stylesheet';
+        link.href = styleSheetUrl;
+        link.onload = function () {
+          this.instance.onStyleSheetLoaded(e)
+          this.callback();
+        }.bind({ instance: this, callback: callback });
+
+        Polymer.dom(this.root).appendChild(link);
+      }
+    },
+
+    onStyleSheetLoaded(e) {
+      for (var styleSheet of this.getArray(document.styleSheets)) {
+        if (styleSheet.href && styleSheet.href.indexOf(this.config.stylesheet) >= 0) {
+          this.cssRules = this.getArray(styleSheet.cssRules);
+          return;
+        }
+      }
+
+      for (var styleSheet of this.getArray(Polymer.dom(this.root).node.styleSheets)) {
+        if (styleSheet.href && styleSheet.href.indexOf(this.config.stylesheet) >= 0) {
+          this.cssRules = this.getArray(styleSheet.cssRules);
+          return;
+        }
+      }
+    },
+
+    loadFloorPlan(callback) {
+      jQuery.ajax({
+        url: this.config.image + '?cacheBuster=' + (new Date().getTime()),
+        success: function (result) {
+          var svg = $(result).find('svg')[0];
+
+          $(svg).height('100%');
+          $(svg).width('100%');
+          $(svg).css('position', this.instance.isPanel ? 'absolute' : 'relative');
+
+          var svgShapes = $(svg).find('*').toArray();
+
+          for (var entityGroup of this.instance.config.groups) {
+            for (var entityId of entityGroup.entities) {
+              var entityConfig = {
+                group: entityGroup,
+                lastState: undefined,
+                lastChangedTime: undefined,
+                svgShapeConfigs: {}
+              };
+
+              this.instance.entityConfigs[entityId] = entityConfig;
+
+              var svgShape = svgShapes.find(svgShape => svgShape.id === entityId);
+              if (svgShape) {
+                entityConfig.svgShapeConfigs[svgShape.id] = {
+                  svgShapeId: svgShape.id,
+                  svgShape: svgShape,
+                  clonedSvgShape: svgShape.cloneNode(true),
+                  entityId: entityId
+                };
+
+                $(svgShape).find('*').each((i, svgNestedShape) => {
+                  entityConfig.svgShapeConfigs[svgNestedShape.id] = {
+                    svgShapeId: svgNestedShape.id,
+                    svgShape: svgNestedShape,
+                    clonedSvgShape: svgNestedShape.cloneNode(true),
+                    entityId: entityId
+                  };
+                });
+              }
+            }
+          }
+
+          // Create the title element for each shape (to support tooltips)
+          for (var entityId in this.instance.entityConfigs) {
+            var entityConfig = this.instance.entityConfigs[entityId];
+            for (svgShapeId in entityConfig.svgShapeConfigs) {
+              var svgShapeConfig = entityConfig.svgShapeConfigs[svgShapeId];
+
+              svgShapeConfig.svgShape.appendChild(document.createElementNS('', 'title'));
+              svgShapeConfig.svgShape.setAttribute('title', 'Some title');
+            }
+          }
+
+          // Create a new SVG element and copy the contents from the original SVG
+          var newSvg = $(`${svg.outerHTML}`)[0];
+          Polymer.dom(this.instance.$.floorplan).node.appendChild(newSvg);
+
+          $(newSvg).css('cursor', 'default');
+
+          for (var entityId in this.instance.entityConfigs) {
+            var entityConfig = this.instance.entityConfigs[entityId];
+            for (svgShapeId in entityConfig.svgShapeConfigs) {
+              var svgShapeConfig = entityConfig.svgShapeConfigs[svgShapeId];
+
+              var newSvgShape = $(newSvg).find('[id="' + svgShapeConfig.svgShapeId + '"]');
+
+              if (newSvgShape.length) {
+                svgShapeConfig.svgShape = newSvgShape[0];
+
+                $(newSvgShape).attr('title', 'test');
+                $(newSvgShape).on('click', this.instance.onShapeClick.bind(this.instance));
+                $(newSvgShape).css('cursor', 'pointer');
+                $(newSvgShape).addClass('entity');
+
+                if ((newSvgShape[0].nodeName === 'text') && (newSvgShape[0].id === entityId)) {
+                  var boundingBox = newSvgShape[0].getBBox();
+                  var rect = $(document.createElementNS("http://www.w3.org/2000/svg", 'rect'))
+                    .attr('id', entityId + '.background')
+                    .attr('height', boundingBox.height + 1)
+                    .attr('width', boundingBox.width + 2)
+                    .height(boundingBox.height + 1)
+                    .width(boundingBox.width + 2)
+                    .attr('x', boundingBox.x - 1)
+                    .attr('y', boundingBox.y - 0.5)
+                    .css('fill-opacity', 0);
+
+                  $(rect).insertBefore($(newSvgShape));
+                }
+              }
+            }
+          }
+
+          this.callback();
+
+        }.bind({ instance: this, callback: callback })
+      });
+    },
+
+    handleEntities(entities) {
+      var svg = Polymer.dom(this.$.floorplan).querySelector('svg');
+
+      for (var entityId in entities) {
+        var entityState = entities[entityId];
+
+        var entityConfig = this.entityConfigs[entityId];
+        if (!entityConfig)
+          continue;
+
+        entityConfig.lastState = entityState.state;
+
+        for (var svgShapeId in entityConfig.svgShapeConfigs) {
+          var svgShapeConfig = entityConfig.svgShapeConfigs[svgShapeId];
+          var svgShape = $(svg).find('[id="' + svgShapeConfig.svgShapeId + '"]')[0];
+
+          if (!svgShape)
+            continue;
+
+          var title = $(svgShape).find('title');
+          if (title.length) {
+            var titleText = entityState.attributes.friendly_name + '\n' +
+              'State: ' + entityState.state + '\n' +
+              'Last changed date: ' + moment(entityState.last_changed).format('DD-MMM-YYYY') + '\n' +
+              'Last changed time: ' + moment(entityState.last_changed).format('HH:mm:ss');
+
+            $(title).html(titleText);
+          }
+
+          if (svgShape.nodeName === 'text') {
+            var text = entityConfig.group.text_template ?
+              this.assemble(entityConfig.group.text_template, entityState, entities) : entityState.state;
+
+            var tspan = $(svgShape).find('tspan');
+            if (tspan.length) {
+              $(tspan).text(text);
+            }
+            else {
+              var title = $(svgShape).find('title');
+              $(svgShape).text(text);
+              if (title.length) {
+                $(svgShape).append(title);
+              }
+            }
+
+            var rect = $(svgShape).parent().find('[id="' + entityId + '.background"]');
+            if (rect.length) {
+              var boundingBox = svgShape.getBBox();
+              $(rect)
+                .attr("x", boundingBox.x - 1)
+                .attr("y", boundingBox.y - 0.5)
+                .attr('height', boundingBox.height + 1)
+                .attr('width', boundingBox.width + 2)
+                .height(boundingBox.height + 1)
+                .width(boundingBox.width + 2);
+            }
+          }
+
+          if (!this.cssRules || !this.cssRules.length)
+            return;
+
+          var wasTransitionHandled = false;
+
+          if (entityConfig.group.states && entityConfig.group.state_transitions) {
+            var transitionConfig = entityConfig.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityState.state));
+            if (transitionConfig && transitionConfig.from_state && transitionConfig.to_state && transitionConfig.duration) {
+              // Determine the current time on the server (based on the local vs. server time difference)
+              var serverMoment = this.getServerMoment();
+              var lastChangedMoment = moment(entityState.last_changed);
+              var elapsed = Math.max(serverMoment.diff(lastChangedMoment, 'milliseconds'), 0);
+              var remaining = (transitionConfig.duration * 1000) - elapsed;
+
+              if (remaining > 0) {
+                entityConfig.lastChangedTime = lastChangedMoment.toDate();
+              }
+              else {
+                this.setEntityStyle(svgShapeConfig, svgShape, entityConfig);
+              }
+              wasTransitionHandled = true;
+            }
+          }
+
+          var targetClass = undefined;
+          var obsoleteClasses = [];
+
+          if (entityConfig.group.class_template) {
+            targetClass = this.assemble(entityConfig.group.class_template, entityState, entities);
+          }
+
+          // Get the config for the current state
+          if (entityConfig.group.states) {
+            var stateConfig = entityConfig.group.states.find(stateConfig => (stateConfig.state === entityState.state));
+            if (stateConfig && stateConfig.class && !wasTransitionHandled) {
+              targetClass = stateConfig.class;
+            }
+
+            // Remove any other previously-added state classes
+            for (var otherStateConfig of entityConfig.group.states.filter(otherStateConfig => !stateConfig || (otherStateConfig.state != stateConfig.state))) {
+              if (otherStateConfig.class && (otherStateConfig.class != 'entity') && $(svgShape).hasClass(otherStateConfig.class)) {
+                obsoleteClasses.push(otherStateConfig.class);
+              }
+            }
+          }
+          else {
+            for (var otherClassName of this.getArray(svgShape.classList)) {
+              if ((otherClassName != targetClass) && (otherClassName != 'entity')) {
+                obsoleteClasses.push(otherClassName);
+              }
+            }
+          }
+
+          // Remove any obsolete classes from the entity
+          this.removeClasses(entityId, svgShape, obsoleteClasses);
+
+          // Add the target class to the entity
+          if (targetClass) {
+            this.addClass(entityId, svgShape, targetClass);
+          }
+
+          if (this.config.last_motion_entity && this.config.last_motion_class && entities[this.config.last_motion_entity] &&
+            (entityState.attributes.friendly_name === entities[this.config.last_motion_entity].state)) {
+            if (!$(svgShape).hasClass(this.config.last_motion_class)) {
+              $(svgShape).addClass(this.config.last_motion_class);
+            }
+          }
+          else {
+            if ($(svgShape).hasClass(this.config.last_motion_class)) {
+              $(svgShape).removeClass(this.config.last_motion_class);
+            }
+          }
+        }
+      }
+    },
+
+    addClass(entityId, svgShape, className) {
+      if ($(svgShape).hasClass('ha-leave-me-alone')) {
+        return;
+      }
+
+      if (!$(svgShape).hasClass(className)) {
+        //console.log(`${entityId}: adding class "${className}" for current state "${entityState.state}" (${svgShape.id})`);
+        $(svgShape).addClass(className);
+
+        if ((svgShape.nodeName === 'text')) {
+          var rect = $(svgShape).parent().find('[id="' + entityId + '.background"]');
+          if (rect.length) {
+            if (!$(rect).hasClass(className + '-background')) {
+              $(rect).addClass(className + '-background');
+            }
+          }
+        }
+      }
+    },
+
+    removeClasses(entityId, svgShape, classes) {
+      for (className of classes) {
+        //console.log(`${entityId}: removing class "${className}" (${svgShape.id})`);
+        if ($(svgShape).hasClass(className)) {
+          $(svgShape).removeClass(className);
+
+          if ((svgShape.nodeName === 'text')) {
+            var rect = $(svgShape).parent().find('[id="' + entityId + '.background"]');
+            if (rect.length) {
+              if ($(rect).hasClass(className + '-background')) {
+                $(rect).removeClass(className + '-background');
+              }
+            }
+          }
+        }
+      }
+    },
+
+    updateStateTransitions() {
+      if (!this.cssRules || !this.cssRules.length)
+        return;
+
+      var svg = Polymer.dom(this.$.floorplan).querySelector('svg');
+
+      for (var entityId in this.entityConfigs) {
+        var entityConfig = this.entityConfigs[entityId];
+
+        if (!entityConfig || !entityConfig.group.states || !entityConfig.group.state_transitions || (entityConfig.lastChangedTime === undefined))
+          continue;
+
+        for (var svgShapeId in entityConfig.svgShapeConfigs) {
+          var svgShapeConfig = entityConfig.svgShapeConfigs[svgShapeId];
+          var svgShape = $(svg).find('[id="' + svgShapeConfig.svgShapeId + '"]')[0];
+
+          if (!svgShape)
+            continue;
+
+          var wasTransitionHandled = false;
+
+          var transitionConfig = entityConfig.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityConfig.lastState));
+          if (transitionConfig && transitionConfig.from_state && transitionConfig.to_state && transitionConfig.duration) {
+            var serverMoment = this.getServerMoment();
+            var fromStateConfig = entityConfig.group.states.find(stateConfig => (stateConfig.state === transitionConfig.from_state));
+            var toStateConfig = entityConfig.group.states.find(stateConfig => (stateConfig.state === transitionConfig.to_state));
+
+            if (fromStateConfig && toStateConfig) {
+              var fromFill = this.getFill(fromStateConfig);
+              var toFill = this.getFill(toStateConfig);
+
+              if (fromFill && toFill) {
+                var elapsed = serverMoment.diff(moment(entityConfig.lastChangedTime), 'milliseconds');
+                if (elapsed < 0) {
+                  this.setTransitionFill(svgShape, fromFill, toFill, 1);
+                }
+                else {
+                  if (elapsed < (transitionConfig.duration * 1000)) {
+                    this.setTransitionFill(svgShape, fromFill, toFill, elapsed / (transitionConfig.duration * 1000));
+                  }
+                  else {
+                    this.setTransitionFill(svgShape, fromFill, toFill, 0);
+                    entityConfig.lastChangedTime = undefined;
+                  }
+                }
+
+                wasTransitionHandled = true;
+              }
+            }
+          }
+
+          if (!wasTransitionHandled) {
+            this.setEntityStyle(svgShapeConfig, svgShape, entityConfig);
+          }
+        }
+      }
+    },
+
+    setEntityStyle(svgShapeConfig, svgShape, entityConfig, state) {
+      var stateConfig = entityConfig.group.states.find(stateConfig => (stateConfig.state === entityConfig.lastState));
+      if (stateConfig) {
+        if (svgShape.nodeName === 'text') {
+          var stroke = this.getStroke(stateConfig);
+          if (stroke) {
+            svgShape.syle.stroke = stroke;
+          }
+          else {
+            if (svgShapeConfig.clonedSvgShape) {
+              svgShape.style.stroke = svgShapeConfig.clonedSvgShape.style.stroke;
+            }
+            else {
+              // ???
+            }
+          }
+        }
+        else {
+          var fill = this.getFill(stateConfig);
+          if (fill) {
+            svgShape.style.fill = fill;
+          }
+          else {
+            if (svgShapeConfig.clonedSvgShape) {
+              svgShape.style.fill = svgShapeConfig.clonedSvgShape.style.fill;
+            }
+            else {
+              // ???
+            }
+          }
+          var stroke = this.getStroke(stateConfig);
+          if (stroke) {
+            svgShape.syle.stroke = stroke;
+          }
+          else {
+            if (svgShapeConfig.clonedSvgShape) {
+              svgShape.style.stroke = svgShapeConfig.clonedSvgShape.style.stroke;
+            }
+            else {
+              // ???
+            }
+          }
+
+        }
+      }
+    },
+
+    onShapeClick(e) {
+      for (var entityId in this.entityConfigs) {
+        var entityConfig = this.entityConfigs[entityId];
+        var svgShapeConfig = entityConfig.svgShapeConfigs[e.target.id];
+        if (svgShapeConfig) {
+          if (entityConfig.group.action && entityConfig.group.action.service) {
+            var domain = window.HAWS.extractDomain(entityId);
+            this.hass.callService(domain, entityConfig.group.action.service, {
+              entity_id: entityId
+            });
+          } else {
+            this.fire('hass-more-info', { entityId: svgShapeConfig.entityId });
+          }
+        }
+      }
+    },
+
+    getFill(stateConfig) {
+      var fill = undefined;
+
+      for (var cssRule of this.cssRules) {
+        if (cssRule.selectorText.indexOf(`.${stateConfig.class}`) >= 0) {
+          if (cssRule.style && cssRule.style.fill) {
+            if (cssRule.style.fill[0] === '#') {
+              fill = cssRule.style.fill;
+            }
+            else {
+              var rgb = cssRule.style.fill.substring(4).slice(0, -1).split(',').map(x => parseInt(x));
+              fill = `#${rgb[0].toString(16)}${rgb[1].toString(16)}${rgb[2].toString(16)}`;
+            }
+          }
+        }
+      }
+
+      return fill;
+    },
+
+    setTransitionFill(svgShape, fromFill, toFill, value) {
+      if (value >= 1) {
+        svgShape.style.fill = fromFill;
+      }
+      else if (value <= 0) {
+        svgShape.style.fill = toFill;
+      }
+      else {
+        var color = this.rgbToHex(this.mix(this.hexToRgb(toFill), this.hexToRgb(fromFill), value));
+        svgShape.style.fill = color;
+      }
+    },
+
+    getServerMoment() {
+      var serverMoment = moment();
+      if (this.timeDifference >= 0)
+        serverMoment.subtract(this.timeDifference, 'milliseconds');
+      else
+        serverMoment.add(Math.abs(this.timeDifference), 'milliseconds');
+      return serverMoment;
+    },
+
+    getArray(list) {
+      return Array.isArray(list) ? list : Object.keys(list).map(key => list[key]);
+    },
+
+    assemble(code, entity, entities) {
+      var functionBody = (code.indexOf('return') >= 0) ? code : `return \`${code}\`;`;
+      var func = new Function('entity', 'entities', 'hass', 'config', functionBody);
+      return func(entity, entities, this.hass, this.config);
+    },
+
+    debug(message) {
+      var debug = Polymer.dom(this.$.debug).node;
+      $(debug).html($(debug).html() + message + '<br>')
+    },
+
+    rgbToHex(rgb) {
+      return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+    },
+
+    hexToRgb(hex) {
+      // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+      var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+      hex = hex.replace(shorthandRegex, (m, r, g, b) => {
+        return r + r + g + g + b + b;
+      });
+
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    },
+
+    mix(color1, color2, weight) {
+      var p = weight;
+      var w = p * 2 - 1;
+      var w1 = ((w / 1) + 1) / 2;
+      var w2 = 1 - w1;
+      var rgb = [
+        Math.round(color1.r * w1 + color2.r * w2),
+        Math.round(color1.g * w1 + color2.g * w2),
+        Math.round(color1.b * w1 + color2.b * w2)
+      ];
+      return rgb;
+    }
+  });
+
+</script>

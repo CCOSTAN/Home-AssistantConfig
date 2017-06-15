@@ -4,28 +4,50 @@ stylesheet: /local/custom_ui/floorplan/floorplan.css
 
 groups:
 
-  - name: Sensors
+  - name: thermostats_temp
     entities:
-       - sensor.melbourne_now
+      - climate.downstairs
+      - climate.upstairs
+    text_template: '${entity.attributes.current_temperature ? entity.attributes.current_temperature : "unknown"}'
+
+  - name: text_states
+    entities:
+      - sensor.downstairs_thermostat_humidity
+      - sensor.dark_sky_temperature
     text_template: '${entity.state ? entity.state : "unknown"}'
-    class_template: '
-      var temp = parseFloat(entity.state.replace("°", ""));
-      if (temp < 10)
-        return "temp-low";
-      else if (temp < 30)
-        return "temp-medium";
-      else
-        return "temp-high";
-      '
+
+
+  - name: Family
+    entities:
+      - device_tracker.carlo
+      - device_tracker.stacey
+    states:
+      - state: 'home'
+        class: 'text-appear'
+      - state: 'not_home'
+        class: 'text-disappear'
+
+  - name: input_booleans
+    entities:
+      - input_boolean.house_station
+      - input_boolean.guest_mode
+    states:
+      - state: 'on'
+        class: 'button-on'
+      - state: 'off'
+        class: 'button-off'
+    action:
+      service: toggle
+      
   - name: Rooms
     entities:
       - group.kitchen_lights
 
     states:
       - state: 'on'
-        class: 'light-on'
+        class: 'room-on'
       - state: 'off'
-        class: 'light-off'
+        class: 'room-off'
 
   - name: Lights
     entities:
@@ -36,22 +58,42 @@ groups:
       - light.m1_front_left
       - light.m1_front_right
       - light.m1_slider
+      - light.office_lamp
+      - light.den_lamp
+      - light.f2
+      - light.f1
+      - light.s1
+      - light.s2
+      - light.s3
+      - light.s4
+      - light.d1
+      - light.d2
+      - light.p1_front_left_2
+      - light.p1_front_right_2
+      - light.p1_back_left_2
+      - light.p1_back_right_2
+      - light.couch_1
+      - light.tv_light
+      - light.tv_stand_light
+      - light.bedroom
+      - light.master_toilet
+      - light.justin_go
+      - light.paige_go
+      - light.outdoor_foyer
+      - light.outdoor_sconce_1
+      - light.outdoor_sconce_2
+      - light.outdoor_sconce_3
+      - light.led_garage_large
+      - light.led_garage_small
+      - light.led_outdoor_den
 
     states:
       - state: 'on'
         class: 'light-on'
       - state: 'off'
         class: 'light-off'
-
-  - name: NVR
-    entities:
-       - binary_sensor.blue_iris_nvr
-    text_template: '${(entity.state === "on") ? "online" : "offline"}'
-    states:
-      - state: 'off'
-        class: 'danger-text'
-      - state: 'on'
-        class: 'success-text'
+    action:
+      service: toggle
 
   - name: Nest Protects
     entities:
