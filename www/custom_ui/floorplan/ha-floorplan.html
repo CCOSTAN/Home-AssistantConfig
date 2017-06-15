@@ -475,51 +475,36 @@
     },
 
     setEntityStyle(svgShapeConfig, svgShape, entityConfig, state) {
-      var stateConfig = entityConfig.group.states.find(stateConfig => (stateConfig.state === entityConfig.lastState));
-      if (stateConfig) {
-        if (svgShape.nodeName === 'text') {
-          var stroke = this.getStroke(stateConfig);
-          if (stroke) {
-            svgShape.syle.stroke = stroke;
-          }
-          else {
-            if (svgShapeConfig.clonedSvgShape) {
-              svgShape.style.stroke = svgShapeConfig.clonedSvgShape.style.stroke;
+          var stateConfig = entityConfig.group.states.find(stateConfig => (stateConfig.state === entityConfig.lastState));
+          if (stateConfig) {
+            var stroke = this.getStroke(stateConfig);
+            if (stroke) {
+              svgShape.syle.stroke = stroke;
             }
             else {
-              // ???
+              if (svgShapeConfig.clonedSvgShape) {
+                svgShape.style.stroke = svgShapeConfig.clonedSvgShape.style.stroke;
+              }
+              else {
+                // ???
+              }
             }
-          }
-        }
-        else {
-          var fill = this.getFill(stateConfig);
-          if (fill) {
-            svgShape.style.fill = fill;
-          }
-          else {
-            if (svgShapeConfig.clonedSvgShape) {
-              svgShape.style.fill = svgShapeConfig.clonedSvgShape.style.fill;
-            }
-            else {
-              // ???
-            }
-          }
-          var stroke = this.getStroke(stateConfig);
-          if (stroke) {
-            svgShape.syle.stroke = stroke;
-          }
-          else {
-            if (svgShapeConfig.clonedSvgShape) {
-              svgShape.style.stroke = svgShapeConfig.clonedSvgShape.style.stroke;
-            }
-            else {
-              // ???
-            }
-          }
 
-        }
-      }
-    },
+            var fill = this.getFill(stateConfig);
+            if (fill) {
+              svgShape.style.fill = fill;
+            }
+            else {
+              if (svgShapeConfig.clonedSvgShape) {
+                svgShape.style.fill = svgShapeConfig.clonedSvgShape.style.fill;
+              }
+              else {
+                // ???
+              }
+            }
+          }
+        },
+
 
     onShapeClick(e) {
       for (var entityId in this.entityConfigs) {

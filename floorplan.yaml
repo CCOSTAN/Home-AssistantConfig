@@ -1,4 +1,4 @@
-name: Floorplan
+name: Alarm Panel
 image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
 
@@ -8,19 +8,22 @@ groups:
     entities:
       - climate.downstairs
       - climate.upstairs
-    text_template: '${entity.attributes.current_temperature ? entity.attributes.current_temperature : "unknown"}'
+    text_template: '${entity.attributes.current_temperature ? entity.attributes.current_temperature : "undefined"}'
 
   - name: text_states
     entities:
       - sensor.downstairs_thermostat_humidity
       - sensor.dark_sky_temperature
-    text_template: '${entity.state ? entity.state : "unknown"}'
+      - sensor.last_message
+    text_template: '${entity.state ? entity.state.replace(/\s{2,}/g,"") : "undefined"}'
 
 
   - name: Family
     entities:
       - device_tracker.carlo
       - device_tracker.stacey
+    text_template: '${entity.state ? entity.state.replace("_", " ") : "undefined"}'
+
     states:
       - state: 'home'
         class: 'text-appear'
@@ -38,16 +41,30 @@ groups:
         class: 'button-off'
     action:
       service: toggle
-      
-  - name: Rooms
-    entities:
-      - group.kitchen_lights
 
+  - name: switches
+    entities:
+      - switch.den_outlet
+      - switch.living_room_outlet
+      - switch.foyer_outlet
+      - switch.kitchen_Accents
+      - switch.kitchen_accent_2
+      - switch.printer_outlet
+      - switch.front_door_outlet
+      - switch.garage_outlet
+      - switch.living_room_amp
+      - switch.outlet_304_1
+      - switch.outlet_304_2
+      - switch.outlet_304_4
+      - switch.pool_deck
+      - switch.computer_screens
     states:
       - state: 'on'
-        class: 'room-on'
+        class: 'switch-on'
       - state: 'off'
-        class: 'room-off'
+        class: 'switch-off'
+    action:
+      service: toggle
 
   - name: Lights
     entities:
@@ -68,10 +85,19 @@ groups:
       - light.s4
       - light.d1
       - light.d2
+      - light.k1
+      - light.k2
+      - light.k3
+      - light.k4
+      - light.k5
+      - light.k6
+      - light.sink
+      - light.fridge
       - light.p1_front_left_2
       - light.p1_front_right_2
       - light.p1_back_left_2
       - light.p1_back_right_2
+      - light.outdoor_bathroom
       - light.couch_1
       - light.tv_light
       - light.tv_stand_light
@@ -86,7 +112,7 @@ groups:
       - light.led_garage_large
       - light.led_garage_small
       - light.led_outdoor_den
-
+      - light.garage_attic
     states:
       - state: 'on'
         class: 'light-on'
@@ -139,6 +165,16 @@ groups:
         class: 'window-closed'
       - state: 'on'
         class: 'window-open'
+
+  - name: Presence
+    entities:
+      - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+    states:
+      - state: 'on'
+        class: 'presence-on'
+      - state: 'off'
+        class: 'presence-off'
 
   - name: Garage Doors
     entities:
