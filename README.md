@@ -3,16 +3,18 @@
 
 Be sure to :star: my repo so you can keep up to date on the daily progress!
 
-![Screenshot of SmartHome](https://i.imgur.com/d3SDxRd.png)
+![Screenshot of SmartHome](https://i.imgur.com/Pbifaeu.png)
 
 This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly. :star:
 Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2kNttio) was upgraded to 16GB. (Order 2! - 1 for backup)
 I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi and Windows for backups.
 
-Software on the Pi : [Home Assistant](https://home-assistant.io/) ,
-[Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
-SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
-[HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
+**Software on the Pi :**
+* [Home Assistant](https://home-assistant.io/) ,
+* [Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
+* SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
+* [HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
+* The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
 
 **Devices I have :**
 * [Ubiquiti Networks Unifi 802.11ac Pro](http://amzn.to/2mBSfE9) This keeps me warm with it's Wifi rays blanketing the house. Also used as a presence Tracker for iPhones/People.
@@ -47,7 +49,7 @@ SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
 * [SleepNumber Bed i8](http://amzn.to/2kxdXXI) - Has SleepIQ to track occupancy and sleep habits.  Tied into HA.
 * [MX8 Zodiac Pool Robot](http://amzn.to/2nAGvPf) - Not YET hooked up HA, but working on it.
 * [Pi Zero](http://amzn.to/2ougZQ3) with [Wireless Nub](http://amzn.to/2q38rg4) running Pi-Hole and smacking down internet ads left and right!
-* [NodeMCU Development Boards](http://amzn.to/2ou0NON) hooked into the alarm system wires for DIY alarm system.
+* [NodeMCU Development Boards](http://amzn.to/2ou0NON) hooked into the alarm system wires for [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html).
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
