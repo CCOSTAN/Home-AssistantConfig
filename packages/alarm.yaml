@@ -245,7 +245,7 @@ automation:
           - binary_sensor.MCU3_GPIO5
           - binary_sensor.MCU3_GPIO10
           - binary_sensor.MCU3_GPIO14
-        state: 'on'
+        to: 'on'
         from: 'off'
         for:
           minutes: 5
@@ -267,7 +267,7 @@ automation:
       - platform: state
         entity_id:
           - group.entry_points
-        state: 'off'
+        to: 'off'
         from: 'on'
         for:
           minutes: 5
@@ -285,7 +285,7 @@ automation:
       - platform: state
         entity_id:
           - binary_sensor.MCU3_Light
-        state: 'off'
+        to: 'off'
         from: 'on'
 
     action:

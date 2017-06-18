@@ -25,7 +25,7 @@ automation:
       - platform: state
         entity_id:
           - input_boolean.house_station
-        state: 'on'
+        to: 'on'
         from: 'off'
 
     action:
@@ -53,7 +53,7 @@ automation:
       - platform: state
         entity_id:
           - input_boolean.house_station
-        state: 'off'
+        to: 'off'
         from: 'on'
 
     action:
