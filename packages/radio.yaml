@@ -29,6 +29,9 @@ automation:
         from: 'off'
 
     action:
+      - service: media_player.turn_off
+        entity_id: media_player.living_room_tv
+
       - service: media_player.turn_on
         entity_id: media_player.livingroomCC
 
