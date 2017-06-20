@@ -115,7 +115,7 @@ speech_engine:
               {% endif -%}
           {%- endmacro -%}
           {% macro pihole() %}
-              {% if states.sensor.pihole_ads_blocked_today.state|int > 5000 -%}
+              {% if states.sensor.pihole_ads_blocked_today.state|int > 10000 -%}
                 Our internet blocking system has blocked {{states.sensor.pihole_ads_blocked_today.state}} ads today!
                 Happy Internet surfing!
               {% endif -%}

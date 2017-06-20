@@ -13,7 +13,9 @@ groups:
   - name: text_states
     entities:
       - sensor.downstairs_thermostat_humidity
+      - sensor.upstairs_thermostat_humidity
       - sensor.dark_sky_temperature
+      - sensor.dark_sky_humidity
       - sensor.last_message
     text_template: '${entity.state ? entity.state.replace(/\s{2,}/g,"") : "undefined"}'
 
@@ -114,6 +116,7 @@ groups:
       - light.led_garage_small
       - light.led_outdoor_den
       - light.garage_attic
+      - light.upstairs_lamp
     states:
       - state: 'on'
         class: 'light-on'
