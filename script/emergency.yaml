@@ -11,7 +11,9 @@ emergency:
       # Turn on Outside LED lights strobing RED
     - service: light.turn_on
       entity_id:
-        - group.led_lights
+        - light.led_garage_large
+        - light.led_garage_small
+        - light.led_outdoor_den
       data:
         effect: red_strobe
       # Flash All LIGHTS
@@ -44,6 +46,8 @@ emergency:
       # Turn on Outside LED lights strobing RED
     - service: light.turn_on
       entity_id:
-        - group.led_lights
+        - light.led_garage_large
+        - light.led_garage_small
+        - light.led_outdoor_den
       data:
         effect: red_strobe

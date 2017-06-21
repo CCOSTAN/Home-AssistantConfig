@@ -62,3 +62,36 @@ group:
       - binary_sensor.office_nest_protect_online
 
 #-------------------------------------------
+automation:
+  - alias: Nest protect emergency
+    hide_entity: true
+    trigger:
+      platform: state
+      entity_id:
+        - sensor.hallway_nest_protect_kids_hallway_smoke_status
+        - sensor.hallway_nest_protect_kids_hallway_co_status
+        - sensor.justins_room_nest_protect_smoke_status
+        - sensor.justins_room_nest_protect_co_status
+        - sensor.kitchen_nest_protect_smoke_status
+        - sensor.kitchen_nest_protect_co_status
+        - sensor.master_bedroom_nest_protect_smoke_status
+        - sensor.master_bedroom_nest_protect_co_status
+        - sensor.master_hallway_nest_protect_smoke_status
+        - sensor.master_hallway_nest_protect_co_status
+        - sensor.office_nest_protect_smoke_status
+        - sensor.office_nest_protect_co_status
+        - sensor.paiges_room_nest_protect_paiges_room_smoke_status
+        - sensor.paiges_room_nest_protect_paiges_room_co_status
+        - sensor.upstairs_bedroom_nest_protect_smoke_status
+        - sensor.upstairs_bedroom_nest_protect_co_status
+        - sensor.upstairs_living_room_nest_protect_smoke_status
+        - sensor.upstairs_living_room_nest_protect_co_status
+      to: 'Emergency'
+
+    condition:
+      - condition: state
+        entity_id: group.family
+        state: 'home'
+
+    action:
+      - service: script.emergency
