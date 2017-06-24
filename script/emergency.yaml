@@ -8,14 +8,12 @@
 
 emergency:
   sequence:
-      # Turn on Outside LED lights strobing RED
+# Switch all outside front lights to Red to indicate emergency
     - service: light.turn_on
       entity_id:
-        - light.led_garage_large
-        - light.led_garage_small
-        - light.led_outdoor_den
+        - group.outdoor_front_lights
       data:
-        effect: red_strobe
+        color_name: 'red'
       # Flash All LIGHTS
     - service: light.turn_on
       entity_id:
@@ -25,29 +23,19 @@ emergency:
       # Rachio is already inergrated Natively with Protects to run SPRINKLERS with smoke conditions..
 #    - service: ifttt.trigger
 #      data_template: {"event":"rachio_start_front"}
-      # Flash All LIGHTS
-    - service: light.turn_on
-      entity_id:
-        - group.all_lights
-      data:
-        flash: long
+
       # Turn on All LIGHTS 100% Brightness
     - service: light.turn_on
       entity_id:
         - group.all_lights
       data:
         brightness: 255
-      # Switch all outside front lights to Red to indicate emergency
-    - service: light.turn_on
-      entity_id:
-        - group.outdoor_front_lights
-      data:
-        color_name: 'red'
-      # Turn on Outside LED lights strobing RED
+
+      # Turn on Outside LED lights strobing White
     - service: light.turn_on
       entity_id:
         - light.led_garage_large
         - light.led_garage_small
         - light.led_outdoor_den
       data:
-        effect: red_strobe
+        effect: white_strobe

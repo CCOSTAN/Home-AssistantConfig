@@ -479,7 +479,7 @@
           if (stateConfig) {
             var stroke = this.getStroke(stateConfig);
             if (stroke) {
-              svgShape.syle.stroke = stroke;
+              svgShape.style.stroke = stroke;
             }
             else {
               if (svgShapeConfig.clonedSvgShape) {
@@ -534,13 +534,33 @@
             }
             else {
               var rgb = cssRule.style.fill.substring(4).slice(0, -1).split(',').map(x => parseInt(x));
-              fill = `#${rgb[0].toString(16)}${rgb[1].toString(16)}${rgb[2].toString(16)}`;
+              fill = `#${rgb[0].toString(16)[0]}${rgb[1].toString(16)[0]}${rgb[2].toString(16)[0]}`;
             }
           }
         }
       }
 
       return fill;
+    },
+
+    getStroke(stateConfig) {
+      var stroke = undefined;
+
+      for (var cssRule of this.cssRules) {
+        if (cssRule.selectorText.indexOf(`.${stateConfig.class}`) >= 0) {
+          if (cssRule.style && cssRule.style.stroke) {
+            if (cssRule.style.stroke[0] === '#') {
+              stroke = cssRule.style.stroke;
+            }
+            else {
+              var rgb = cssRule.style.stroke.substring(4).slice(0, -1).split(',').map(x => parseInt(x));
+              stroke = `#${rgb[0].toString(16)[0]}${rgb[1].toString(16)[0]}${rgb[2].toString(16)[0]}`;
+            }
+          }
+        }
+      }
+
+      return stroke;
     },
 
     setTransitionFill(svgShape, fromFill, toFill, value) {

@@ -2,6 +2,7 @@
 # Nest Protect Package
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# - Write up- http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html
 ######################################################################################################
 #-----------------------------------
 homeassistant:
@@ -95,3 +96,5 @@ automation:
 
     action:
       - service: script.emergency
+        data_template:
+          call_garage_open: 1
