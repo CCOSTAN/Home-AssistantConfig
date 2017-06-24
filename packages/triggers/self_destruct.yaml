@@ -17,7 +17,7 @@ input_boolean:
 
 #-------------------------------------------
 ##############################################################################
-###  Automations - Detect when things are not right. Like any Good Watchdog.
+###  Pretend to blow up the house..
 ##############################################################################
 
 automation:
@@ -46,7 +46,7 @@ automation:
         - media_player.LivingRoomCC
       data_template:
         media_content_id: >
-          "/local/sounds/self_destruct.mp3"
+          "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/speechcons/self_destruct.mp3"
         media_content_type: audio/mp4
     - service: light.turn_on
       entity_id:
