@@ -59,3 +59,6 @@ automation:
     - service: light.turn_off
       entity_id:
         - group.all_lights
+    - service: input_boolean.turn_off
+      entity_id:
+        - input_boolean.self_destruct
