@@ -122,20 +122,22 @@ svg, svg * {
 
 .button-on {
   fill: blue !important;
+  fill-opacity: 0.25;
 }
 
 .button-off {
-  fill: light grey !important;
+  fill: grey !important;
+  fill-opacity: 0;
 }
 
 /* Nest Protects */
 
 .protect-on {
-  fill: #00FF00 !important;
+  fill: green !important;
 }
 
 .protect-off {
-  fill: #c60919 !important;
+  fill: red !important;
 }
 
 /* Windows / Doors / Entry Points */
@@ -146,24 +148,6 @@ svg, svg * {
 
 .window-closed {
   fill: #00FFFF !important;
-}
-
-/* Rooms */
-
-.room-off {
-  fill: grey !important;
-  fill-opacity: 0.1;
-  stroke: black !important;
-  stroke-width: 1;
-  stroke-opacity:0.1;
-}
-
-.room-on {
-  fill: yellow !important;
-  fill-opacity: 0.25;
-  stroke: yellow !important;
-  stroke-width: 30;
-  stroke-opacity: 0.25;
 }
 
 /* Light */
@@ -182,36 +166,4 @@ svg, svg * {
   stroke: yellow !important;
   stroke-width: 40;
   stroke-opacity: 0.25;
-}
-
-/* Temperature sensor */
-
-.temp-very-low-background {
-  fill: #d9edf7 !important;
-  fill-opacity: 1 !important;
-}
-
-.temp-below-average-background {
-  fill: #dcefe8 !important;
-  fill-opacity: 1 !important;
-}
-
-.temp-average-background {
-  fill: #dff0d8 !important;
-  fill-opacity: 1 !important;
-}
-
-.temp-very-high-background {
-  fill: #f2dede !important;
-  fill-opacity: 1 !important;
-}
-
-/* Media player */
-
-.squeezebox-off {
-  fill: #8AA8A7 !important;
-}
-
-.squeezebox-on {
-  fill: #2baaa6 !important;
 }
