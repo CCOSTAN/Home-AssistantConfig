@@ -24,7 +24,7 @@ groups:
     entities:
       - device_tracker.carlo
       - device_tracker.stacey
-    text_template: '${entity.state ? entity.state.replace("_", " ") : "undefined"}'
+    text_template: '${entity.state ? entity.state.replace("not_home", "away") : "undefined"}'
 
     states:
       - state: 'home'
@@ -49,12 +49,15 @@ groups:
       - group.justins_room
       - group.outdoor_pool_lights
       - group.outdoor_front_lights
-
+    text_template: '${entity.attributes.friendly_name ? entity.attributes.friendly_name.replace("Lights", "") : "undefined"}'
     states:
       - state: 'on'
         class: 'room-on'
       - state: 'off'
         class: 'room-off'
+
+    action:
+      service: toggle
 
   - name: input_booleans
     entities:
@@ -64,6 +67,7 @@ groups:
       - input_boolean.tv_time
       - input_boolean.good_night
       - input_boolean.sleepy_dog
+    text_template: '${entity.attributes.friendly_name ? entity.attributes.friendly_name : "undefined"}'
     states:
       - state: 'on'
         class: 'button-on'

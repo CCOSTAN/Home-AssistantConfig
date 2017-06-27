@@ -1,5 +1,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://momentjs.com/downloads/moment.js"></script>
+<script src="svg-pan-zoom.min.js"></script>
 
 <dom-module id="ha-floorplan">
 
@@ -14,6 +15,11 @@
         height: 0px;
         overflow: hidden;
       }
+
+      #debug {
+        color: #FF851B;
+        display: none;
+      }
     </style>
 
     <template is='dom-if' if='[[isLoading]]'>
@@ -22,7 +28,10 @@
       </div>
     </template>
 
-    <div id="debug"></div>
+    <div id="debug">
+      <ul></ul>
+    </div>
+
     <div id="floorplan" on-tap="stopPropagation"></div>
 
   </template>
@@ -46,6 +55,7 @@
     properties: {
       hass: {
         type: Object,
+        observer: 'hassChanged'
       },
       inDialog: {
         type: Boolean,
@@ -80,24 +90,20 @@
       e.stopPropagation();
     },
 
+    hassChanged: function (newHass, oldHass) {
+      this.handleEntities(newHass.states);
+    },
+
     onAttached() {
-      var authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
+      this.hass.connection.socket.addEventListener('message', event => {
+        var data = JSON.parse(event.data);
 
-      var wsUri = ((window.location.protocol === 'https:') ? 'wss:' : 'ws:') + '//' + window.location.host + '/api/websocket';
-      window.HAWS.createConnection(wsUri, { authToken: authToken }).then(conn => {
-
-        conn.socket.addEventListener('message', event => {
-          var data = JSON.parse(event.data);
-
-          // Store the time difference between the local web browser and the Home Assistant server
-          if (data.event && data.event.time_fired) {
-            var lastEventFiredTime = moment(data.event.time_fired).toDate();
-            this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
-          }
-        });
-
-        window.HAWS.subscribeEntities(conn, entities => this.handleEntities(entities));
-      }, err => { console.error(err); });
+        // Store the time difference between the local web browser and the Home Assistant server
+        if (data.event && data.event.time_fired) {
+          var lastEventFiredTime = moment(data.event.time_fired).toDate();
+          this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
+        }
+      });
 
       this.addExternalCss(() => {
         this.loadFloorPlan(() => {
@@ -157,7 +163,25 @@
           var svgShapes = $(svg).find('*').toArray();
 
           for (var entityGroup of this.instance.config.groups) {
+            var targetEntityIds = [];
             for (var entityId of entityGroup.entities) {
+              if (entityId.indexOf('group.') == 0) {
+                var group = this.instance.hass.states[entityId];
+                if (group) {
+                  for (var targetEntityId of group.attributes.entity_id) {
+                    targetEntityIds.push(targetEntityId);
+                  }
+                }
+                else {
+                  this.instance.debug(`Cannot find '${entityId}' in HA group configuration`);
+                }
+              }
+              else {
+                targetEntityIds.push(entityId);
+              }
+            }
+
+            for (var entityId of targetEntityIds) {
               var entityConfig = {
                 group: entityGroup,
                 lastState: undefined,
@@ -184,6 +208,9 @@
                     entityId: entityId
                   };
                 });
+              }
+              else {
+                this.instance.debug(`Cannot find element '${entityId}' in SVG file`);
               }
             }
           }
@@ -217,6 +244,7 @@
 
                 $(newSvgShape).attr('title', 'test');
                 $(newSvgShape).on('click', this.instance.onShapeClick.bind(this.instance));
+                $(newSvgShape).on('touchstart', this.instance.onShapeClick.bind(this.instance));
                 $(newSvgShape).css('cursor', 'pointer');
                 $(newSvgShape).addClass('entity');
 
@@ -236,6 +264,16 @@
                 }
               }
             }
+          }
+
+          // Enable pan / zoom if enabled in config
+          if ((this.instance.config.pan_zoom === null) || (this.instance.config.pan_zoom !== undefined)) {
+            svgPanZoom($(newSvg)[0], {
+              zoomEnabled: true,
+              controlIconsEnabled: true,
+              fit: true,
+              center: true,
+            });
           }
 
           this.callback();
@@ -475,36 +513,35 @@
     },
 
     setEntityStyle(svgShapeConfig, svgShape, entityConfig, state) {
-          var stateConfig = entityConfig.group.states.find(stateConfig => (stateConfig.state === entityConfig.lastState));
-          if (stateConfig) {
-            var stroke = this.getStroke(stateConfig);
-            if (stroke) {
-              svgShape.style.stroke = stroke;
-            }
-            else {
-              if (svgShapeConfig.clonedSvgShape) {
-                svgShape.style.stroke = svgShapeConfig.clonedSvgShape.style.stroke;
-              }
-              else {
-                // ???
-              }
-            }
-
-            var fill = this.getFill(stateConfig);
-            if (fill) {
-              svgShape.style.fill = fill;
-            }
-            else {
-              if (svgShapeConfig.clonedSvgShape) {
-                svgShape.style.fill = svgShapeConfig.clonedSvgShape.style.fill;
-              }
-              else {
-                // ???
-              }
-            }
+      var stateConfig = entityConfig.group.states.find(stateConfig => (stateConfig.state === entityConfig.lastState));
+      if (stateConfig) {
+        var stroke = this.getStroke(stateConfig);
+        if (stroke) {
+          svgShape.style.stroke = stroke;
+        }
+        else {
+          if (svgShapeConfig.clonedSvgShape) {
+            svgShape.style.stroke = svgShapeConfig.clonedSvgShape.style.stroke;
           }
-        },
+          else {
+            // ???
+          }
+        }
 
+        var fill = this.getFill(stateConfig);
+        if (fill) {
+          svgShape.style.fill = fill;
+        }
+        else {
+          if (svgShapeConfig.clonedSvgShape) {
+            svgShape.style.fill = svgShapeConfig.clonedSvgShape.style.fill;
+          }
+          else {
+            // ???
+          }
+        }
+      }
+    },
 
     onShapeClick(e) {
       for (var entityId in this.entityConfigs) {
@@ -597,7 +634,8 @@
 
     debug(message) {
       var debug = Polymer.dom(this.$.debug).node;
-      $(debug).html($(debug).html() + message + '<br>')
+      $(debug).find('ul').append(`<li>${message}</li>`)
+      $(debug).css('display', 'block');
     },
 
     rgbToHex(rgb) {

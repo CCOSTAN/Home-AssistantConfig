@@ -1,10 +1,10 @@
- SVG shapes */
+/* SVG shapes */
 
 svg, svg * {
   vector-effect: non-scaling-stroke !important;
   pointer-events: all !important;
 }
-/*
+
 /* Hover over */
 
 .entity:hover {
@@ -85,7 +85,21 @@ svg, svg * {
 
 /* Text Objects */
 
+.text-appear {
+  fill: black !important;
+  fill-opacity: 1;
+  stroke: black !important;
+  stroke-width: 1;
+  stroke-opacity:0.1;
+}
 
+.text-disappear {
+  fill: grey !important;
+  fill-opacity: 0.25;
+  stroke: yellow !important;
+  stroke-width: 30;
+  stroke-opacity: 0.25;
+}
 /* Presence */
 .presence-on {
   fill: #00ff00 !important;
@@ -107,12 +121,13 @@ svg, svg * {
 /* Buttons */
 
 .button-on {
-  fill: lime !important;
+  fill: blue !important;
   fill-opacity: 0.25;
 }
 
 .button-off {
-
+  fill: grey !important;
+  fill-opacity: 0;
 }
 
 /* Rooms */
