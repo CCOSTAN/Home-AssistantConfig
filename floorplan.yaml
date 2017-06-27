@@ -32,10 +32,38 @@ groups:
       - state: 'not_home'
         class: 'text-disappear'
 
+  - name: groups
+    entities:
+      - group.bedroom_lights
+      - group.living_room_lights
+      - group.dinette_lights
+      - group.dining_room_lights
+      - group.den_lights
+      - group.foyer_lights
+      - group.office_lights
+      - group.hallway_lights
+      - group.kitchen_lights
+      - group.upstairs_lights
+      - group.garage_lights
+      - group.paiges_room
+      - group.justins_room
+      - group.outdoor_pool_lights
+      - group.outdoor_front_lights
+
+    states:
+      - state: 'on'
+        class: 'room-on'
+      - state: 'off'
+        class: 'room-off'
+
   - name: input_booleans
     entities:
       - input_boolean.house_station
       - input_boolean.guest_mode
+      - input_boolean.meal_time
+      - input_boolean.tv_time
+      - input_boolean.good_night
+      - input_boolean.sleepy_dog
     states:
       - state: 'on'
         class: 'button-on'
