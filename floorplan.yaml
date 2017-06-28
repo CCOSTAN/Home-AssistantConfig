@@ -23,6 +23,7 @@ groups:
     entities:
       - sensor.last_message
     text_template: '${entity.state ? entity.state.replace(/\s{2,}/g,"") : "undefined"}'
+    class_template: 'return "static-text";'
 
 
   - name: Family

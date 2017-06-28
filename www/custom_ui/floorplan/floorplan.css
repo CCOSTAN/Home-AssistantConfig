@@ -7,7 +7,7 @@ svg, svg * {
 /*
 /* Hover over */
 
-.entity:hover {
+.entity:not(.static-text):hover {
   stroke: #03A9F4 !important;
   stroke-width: 1px !important;
   stroke-opacity: 1 !important;
@@ -65,6 +65,10 @@ svg, svg * {
   stroke-width: 1px !important;
 }
 
+.static-text
+{
+ 
+}
 /* Last motion entity */
 
 .last-motion {
