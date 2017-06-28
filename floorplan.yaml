@@ -1,6 +1,7 @@
 name: Alarm Panel
 image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
+pan_zoom:
 
 groups:
 
@@ -8,14 +9,18 @@ groups:
     entities:
       - climate.downstairs
       - climate.upstairs
-    text_template: '${entity.attributes.current_temperature ? entity.attributes.current_temperature : "undefined"}'
+    text_template: '${entity.attributes.current_temperature ? Math.ceil(entity.attributes.current_temperature) : "undefined"}'
 
-  - name: text_states
+  - name: temp_round
     entities:
       - sensor.downstairs_thermostat_humidity
       - sensor.upstairs_thermostat_humidity
       - sensor.dark_sky_temperature
       - sensor.dark_sky_humidity
+    text_template: '${entity.state ? Math.ceil(entity.state) : "undefined"}'
+
+  - name: text_states
+    entities:
       - sensor.last_message
     text_template: '${entity.state ? entity.state.replace(/\s{2,}/g,"") : "undefined"}'
 
@@ -28,36 +33,9 @@ groups:
 
     states:
       - state: 'home'
-        class: 'text-appear'
+        class: 'text-home'
       - state: 'not_home'
-        class: 'text-disappear'
-
-  - name: groups
-    entities:
-      - group.bedroom_lights
-      - group.living_room_lights
-      - group.dinette_lights
-      - group.dining_room_lights
-      - group.den_lights
-      - group.foyer_lights
-      - group.office_lights
-      - group.hallway_lights
-      - group.kitchen_lights
-      - group.upstairs_lights
-      - group.garage_lights
-      - group.paiges_room
-      - group.justins_room
-      - group.outdoor_pool_lights
-      - group.outdoor_front_lights
-    text_template: '${entity.attributes.friendly_name ? entity.attributes.friendly_name.replace("Lights", "") : "undefined"}'
-    states:
-      - state: 'on'
-        class: 'room-on'
-      - state: 'off'
-        class: 'room-off'
-
-    action:
-      service: toggle
+        class: 'text-away'
 
   - name: input_booleans
     entities:
@@ -67,7 +45,9 @@ groups:
       - input_boolean.tv_time
       - input_boolean.good_night
       - input_boolean.sleepy_dog
-    text_template: '${entity.attributes.friendly_name ? entity.attributes.friendly_name : "undefined"}'
+      - group.kitchen_lights
+      - group.living_room_lights
+
     states:
       - state: 'on'
         class: 'button-on'
