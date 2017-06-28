@@ -61,18 +61,7 @@ groups:
     entities:
       - switch.front_landscaping
       - switch.back_landscaping
-      - switch.den_outlet
-      - switch.living_room_outlet
-      - switch.foyer_outlet
       - switch.printer_outlet
-      - switch.front_door_outlet
-      - switch.garage_outlet
-      - switch.living_room_amp
-      - switch.outlet_304_1
-      - switch.outlet_304_2
-      - switch.outlet_304_4
-      - switch.pool_deck
-      - switch.computer_screens
       - switch.kitchen_accents
     states:
       - state: 'on'
@@ -109,11 +98,6 @@ groups:
       - light.k6
       - light.sink
       - light.fridge
-      - light.p1_front_left
-      - light.p1_front_right
-      - light.p1_back_left
-      - light.p1_back_right
-      - light.outdoor_bathroom
       - light.couch_1
       - light.tv_light
       - light.tv_stand_light
@@ -121,13 +105,6 @@ groups:
       - light.master_toilet
       - light.justin_go
       - light.paige_go
-      - light.outdoor_foyer
-      - light.outdoor_sconce_1
-      - light.outdoor_sconce_2
-      - light.outdoor_sconce_3
-      - light.led_garage_large
-      - light.led_garage_small
-      - light.led_outdoor_den
       - light.garage_attic
       - light.upstairs_lamp
     states:
@@ -135,6 +112,28 @@ groups:
         class: 'light-on'
       - state: 'off'
         class: 'light-off'
+    action:
+      service: toggle
+
+  - name: Outdoor Lights
+    entities:
+      - light.p1_front_left
+      - light.p1_front_right
+      - light.p1_back_left
+      - light.p1_back_right
+      - light.outdoor_bathroom
+      - light.outdoor_foyer
+      - light.outdoor_sconce_1
+      - light.outdoor_sconce_2
+      - light.outdoor_sconce_3
+      - light.led_garage_large
+      - light.led_garage_small
+      - light.led_outdoor_den
+    states:
+      - state: 'on'
+        class: 'light-on'
+      - state: 'off'
+        class: 'outdoor-light-off'
     action:
       service: toggle
 
