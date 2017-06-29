@@ -633,9 +633,11 @@
     },
 
     debug(message) {
-      var debug = Polymer.dom(this.$.debug).node;
-      $(debug).find('ul').append(`<li>${message}</li>`)
-      $(debug).css('display', 'block');
+      if ((this.instance.config.warnings === null) || (this.instance.config.warnings !== undefined)) {
+        var debug = Polymer.dom(this.$.debug).node;
+        $(debug).find('ul').append(`<li>${message}</li>`)
+        $(debug).css('display', 'block');
+      }
     },
 
     rgbToHex(rgb) {
