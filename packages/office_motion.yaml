@@ -27,9 +27,17 @@ automation:
         to: 'on'
         from: 'off'
 
+    condition:
+      - condition: state
+        entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        state: 'off'
+      - condition: state
+        entity_id: light.office_lamp
+        state: 'off'
+
     action:
       - service: light.turn_on
-        entity_id: light.office
+        entity_id: light.office_lamp
 
   - alias: 'Motion in the Office - Turn off Light'
     trigger:
@@ -41,6 +49,14 @@ automation:
         for:
           minutes: 3
 
+    condition:
+      - condition: state
+        entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        state: 'off'
+      - condition: state
+        entity_id: light.office_lamp
+        state: 'on'
+
     action:
       - service: light.turn_off
-        entity_id: light.office
+        entity_id: light.office_lamp
