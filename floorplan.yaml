@@ -9,14 +9,19 @@ groups:
     entities:
       - climate.downstairs
       - climate.upstairs
-    text_template: '${entity.attributes.current_temperature ? Math.ceil(entity.attributes.current_temperature) : "undefined"}'
+    text_template: '${entity.attributes.current_temperature ? Math.ceil(entity.attributes.current_temperature) + "°": "undefined"}'
+    class_template: 'return "static-temp";'
+
+  - name: temp_darksky
+    entities:
+      - sensor.dark_sky_temperature
+    text_template: '${entity.state ? Math.ceil(entity.state) + "°": "undefined"}'
     class_template: 'return "static-temp";'
 
   - name: temp_round
     entities:
       - sensor.downstairs_thermostat_humidity
       - sensor.upstairs_thermostat_humidity
-      - sensor.dark_sky_temperature
       - sensor.dark_sky_humidity
     text_template: '${entity.state ? Math.ceil(entity.state) : "undefined"}'
     class_template: 'return "static-temp";'
@@ -24,9 +29,25 @@ groups:
   - name: text_states
     entities:
       - sensor.last_message
+      - sensor.date
+      - sensor.time
     text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
     class_template: 'return "static-text";'
 
+  - name: Alarm
+    entities:
+      - input_boolean.alert_mode
+    text_template: '${entity.state ? entity.state : "undefined"}'
+    states:
+      - state: 'on'
+        class: 'text-home'
+      - state: 'off'
+        class: 'text-away'
+
+  - name: Camera
+    entities:
+      - camera.wu_doppler_weather
+    text_template: '${entity.state ? entity.state : "undefined"}'
 
   - name: Family
     entities:

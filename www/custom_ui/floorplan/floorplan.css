@@ -7,7 +7,7 @@ svg, svg * {
 /*
 /* Hover over */
 
-.entity:hover {
+.entity:hover:not(.static-text):not(.static-temp) {
   stroke: #03A9F4 !important;
   stroke-width: 1px !important;
   stroke-opacity: 1 !important;
@@ -67,14 +67,17 @@ svg, svg * {
 
 .static-text
 {
- text-align: right;
- font-family: inherit;
- font-size: 100px
+  color: #FFFFA6;
+  fill: #FFFFA6;
+  decoration: none
 }
 
 .static-temp
 {
- text-align: center;
+  font-family: monospace;
+  font-size: large;
+  color: #FFFFA6;
+  fill: #FFFFA6;
 }
 /* Last motion entity */
 
