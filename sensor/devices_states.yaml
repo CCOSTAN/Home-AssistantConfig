@@ -117,11 +117,3 @@
       linen_door:
         friendly_name: 'Linen Door'
         value_template: "{{ 'Opened' if is_state('binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0', 'on') else 'Closed' }}"
-
-      front_door:
-        friendly_name: 'Front Door'
-        value_template: "{{ 'Opened' if is_state('binary_sensor.front_door_opened', 'on') else 'Closed' }}"
-
-      sliding_door:
-        friendly_name: 'Sliding Door'
-        value_template: "{{ 'Opened' if is_state('binary_sensor.sliding_door_opened', 'on') else 'Closed' }}"

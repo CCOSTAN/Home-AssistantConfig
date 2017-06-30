@@ -7,11 +7,9 @@
 - alias: Hallway ZWave Enerwave Door Sensors Open
   hide_entity: True
   trigger:
-    - platform: event
-      event_type: zwave.node_event
-      event_data:
-        object_id: enerwave_unknown_type0601_id0903_2
-        basic_level: 255
+    - platform: state
+      entity_id: binary_sensor.pantry_door_sensor_2_0
+      to: 'on'
     - platform: state
       entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
       to: 'on'
@@ -39,11 +37,9 @@
 - alias: ZWave Enerwave Door Sensors Closed
   hide_entity: True
   trigger:
-    - platform: event
-      event_type: zwave.node_event
-      event_data:
-        object_id: enerwave_unknown_type0601_id0903_2
-        basic_level: 0
+    - platform: state
+      entity_id: binary_sensor.pantry_door_sensor_2_0
+      to: 'off'
     - platform: state
       entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
       to: 'off'
@@ -60,11 +56,9 @@
       entity_id: light.k4
       to: 'on'
       for: '00:20:00'
-    - platform: event
-      event_type: zwave.node_event
-      event_data:
-       object_id: enerwave_unknown_type0601_id0903_2
-       basic_level: 0
+    - platform: state
+      entity_id: binary_sensor.pantry_door_sensor_2_0
+      to: 'off'
     - platform: state
       entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
       to: 'off'

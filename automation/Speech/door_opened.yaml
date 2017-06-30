@@ -7,7 +7,7 @@
     - platform: state
       entity_id:
         - binary_sensor.mcu2_gpio5 # back door #
-        - sensor.sliding_door
+        - binary_sensor.MCU2_GPIO12 # Main Slider 
         - binary_sensor.MCU1_GPIO12 # Interior Garage Door #
       to: 'Opened'
       for:
