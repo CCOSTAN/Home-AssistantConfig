@@ -1,7 +1,7 @@
 name: Alarm Panel
 image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
-pan_zoom:
+#pan_zoom:
 
 groups:
 
@@ -10,6 +10,7 @@ groups:
       - climate.downstairs
       - climate.upstairs
     text_template: '${entity.attributes.current_temperature ? Math.ceil(entity.attributes.current_temperature) : "undefined"}'
+    class_template: 'return "static-temp";'
 
   - name: temp_round
     entities:
@@ -18,6 +19,7 @@ groups:
       - sensor.dark_sky_temperature
       - sensor.dark_sky_humidity
     text_template: '${entity.state ? Math.ceil(entity.state) : "undefined"}'
+    class_template: 'return "static-temp";'
 
   - name: text_states
     entities:
@@ -61,7 +63,7 @@ groups:
     entities:
       - switch.front_landscaping
       - switch.back_landscaping
-      - switch.printer_outlet
+#      - switch.printer_outlet
       - switch.kitchen_accents
     states:
       - state: 'on'
@@ -100,7 +102,6 @@ groups:
       - light.fridge
       - light.couch_1
       - light.tv_light
-      - light.tv_stand_light
       - light.bedroom
       - light.master_toilet
       - light.justin_go
@@ -167,13 +168,13 @@ groups:
       - binary_sensor.mcu2_gpio9
       - binary_sensor.mcu2_gpio10
       - binary_sensor.mcu2_gpio12
-      - binary_sensor.mcu2_gpio13
+#      - binary_sensor.mcu2_gpio13
       - binary_sensor.mcu2_gpio14
-      - binary_sensor.mcu2_gpio15
+#      - binary_sensor.mcu2_gpio15
       - binary_sensor.mcu3_gpio4
       - binary_sensor.mcu3_gpio5
       - binary_sensor.mcu3_gpio10
-      - binary_sensor.mcu3_gpio14
+#      - binary_sensor.mcu3_gpio14
       - binary_sensor.kitchen_door_opened
       - binary_sensor.mcu3_light
     states:
