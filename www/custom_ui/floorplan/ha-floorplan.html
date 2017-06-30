@@ -1,6 +1,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://momentjs.com/downloads/moment.js"></script>
-<script src="svg-pan-zoom.min.js"></script>
 
 <dom-module id="ha-floorplan">
 
@@ -71,6 +70,10 @@
       isLoading: {
         type: Boolean,
         value: true,
+      },
+      showHeader: {
+        type: Boolean,
+        value: false,
       },
       timeDifference: {
         type: Number,
@@ -633,7 +636,7 @@
     },
 
     debug(message) {
-      if ((this.instance.config.warnings === null) || (this.instance.config.warnings !== undefined)) {
+      if ((this.config.warnings === null) || (this.config.warnings !== undefined)) {
         var debug = Polymer.dom(this.$.debug).node;
         $(debug).find('ul').append(`<li>${message}</li>`)
         $(debug).css('display', 'block');

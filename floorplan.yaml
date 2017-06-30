@@ -24,7 +24,7 @@ groups:
   - name: text_states
     entities:
       - sensor.last_message
-    text_template: '${entity.state ? entity.state.replace(/\s{2,}/g,"") : "undefined"}'
+    text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
     class_template: 'return "static-text";'
 
 
@@ -63,7 +63,7 @@ groups:
     entities:
       - switch.front_landscaping
       - switch.back_landscaping
-#      - switch.printer_outlet
+      - switch.printer_outlet
       - switch.kitchen_accents
     states:
       - state: 'on'
@@ -168,13 +168,13 @@ groups:
       - binary_sensor.mcu2_gpio9
       - binary_sensor.mcu2_gpio10
       - binary_sensor.mcu2_gpio12
-#      - binary_sensor.mcu2_gpio13
+      - binary_sensor.mcu2_gpio13
       - binary_sensor.mcu2_gpio14
-#      - binary_sensor.mcu2_gpio15
+      - binary_sensor.mcu2_gpio15
       - binary_sensor.mcu3_gpio4
       - binary_sensor.mcu3_gpio5
       - binary_sensor.mcu3_gpio10
-#      - binary_sensor.mcu3_gpio14
+      - binary_sensor.mcu3_gpio14
       - binary_sensor.kitchen_door_opened
       - binary_sensor.mcu3_light
     states:
