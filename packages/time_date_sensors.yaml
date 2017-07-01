@@ -1,22 +1,19 @@
 #-------------------------------------------
 #  Clean data for the Floorplan UI.
 #-------------------------------------------
-
+homeassistant:
+  customize_glob:
+    "sensor.floorplan_*":
+      emulated_hue: False
+      hidden: True
 #---Sensor for Time and Date.-----------------------------
 sensor:
   - platform: template
     sensors:
-      floorplan_weekday:
-        friendly_name: 'Weekday'
+      floorplan_date:
+        friendly_name: 'Date'
         value_template: >-
-          {{- now().strftime("%A")  }}
-
-  - platform: template
-    sensors:
-      floorplan_month:
-        friendly_name: 'Month'
-        value_template: >-
-          {{- now().strftime("%B")  }}
+          {{now().strftime("%A")}}, {{now().strftime("%B")}} {{now().strftime("%d")}}
 
   - platform: template
     sensors:

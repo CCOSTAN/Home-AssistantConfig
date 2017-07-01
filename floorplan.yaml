@@ -29,8 +29,8 @@ groups:
   - name: text_states
     entities:
       - sensor.last_message
-#    - sensor.date
-#      - sensor.time
+      - sensor.floorplan_time
+      - sensor.floorplan_date
     text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
     class_template: 'return "static-text";'
 
@@ -47,7 +47,9 @@ groups:
   - name: Camera
     entities:
       - camera.wu_doppler_weather
-    text_template: '${entity.state ? entity.state : "undefined"}'
+    states:
+      - state: 'idle'
+        class: 'text-home'
 
   - name: Family
     entities:
