@@ -29,10 +29,20 @@ groups:
   - name: text_states
     entities:
       - sensor.last_message
-      - sensor.floorplan_time
-      - sensor.floorplan_date
     text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
     class_template: 'return "static-text";'
+
+  - name: text_font_date
+    entities:
+      - sensor.floorplan_date
+    text_template: '${entity.state ? entity.state : "undefined"}'
+    class_template: 'return "static-text-date";'
+
+  - name: text_font_time
+    entities:
+      - sensor.floorplan_time
+    text_template: '${entity.state ? entity.state : "undefined"}'
+    class_template: 'return "static-text-time";'
 
   - name: Alarm
     entities:

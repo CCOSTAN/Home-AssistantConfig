@@ -7,7 +7,7 @@ svg, svg * {
 /*
 /* Hover over */
 
-.entity:hover:not(.static-text):not(.static-temp) {
+.entity:hover:not(.static-text):not(.static-temp):not(.static-text-date):not:(.static-text-time) {
   stroke: #03A9F4 !important;
   stroke-width: 1px !important;
   stroke-opacity: 1 !important;
@@ -69,17 +69,24 @@ svg, svg * {
 {
   color: #FFFFA6;
   fill: #FFFFA6;
-  font-family: Helvetica;
 }
 
-#sensor.floorplan_time
+.static-text-date
 {
-  font-family: Helvetica;
-  font-size: 100px;
-  color: blue;
-  fill: blue;
+  font-family : Helvetica;
+  font-weight : bold;
+  font-size : 18px;
+  fill : #FFFFA6;
 }
 
+.static-text-time
+{
+  font-family : Helvetica;
+  font-weight : bold;
+  font-size : 38px;
+  color : #FFFFA6;
+  fill: #FFFFA6;
+}
 
 .static-temp
 {
