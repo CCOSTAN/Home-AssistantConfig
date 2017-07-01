@@ -9,12 +9,16 @@
         vertical-align: top;
         position: relative;
       }
+      [hidden] {
+        display: none !important;
+      }
     </style>
 
-    <app-toolbar>
+    <app-toolbar hidden$='{{!showHeader}}'>
       <ha-menu-button narrow='[[narrow]]' show-menu='[[showMenu]]'></ha-menu-button>
       <div main-title>[[panel.title]]</div>
     </app-toolbar>
+
 
     <div class="container">
       <ha-floorplan hass=[[hass]] config=[[panel.config]] is-panel></ha-floorplan>
@@ -40,6 +44,10 @@
       showMenu: {
         type: Boolean,
         value: true,
+      },
+      showHeader: {
+        type: Boolean,
+        value: false,
       },
       panel: {
         type: Object,

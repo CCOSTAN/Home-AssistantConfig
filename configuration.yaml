@@ -99,6 +99,9 @@ logbook:
       - sensor.pihole_dns_queries_today
       - sensor.time
       - sensor.date
+      - sensor.floorplan_date
+      - sensor.floorplan_time
+      - sensor.ha_uptime
 
 
 history:
@@ -117,6 +120,10 @@ history:
      - sensor.pihole_dns_queries_today
      - sensor.since_last_boot
      - sensor.since_last_boot_templated
+     - sensor.floorplan_date
+     - sensor.floorplan_time
+     - sensor.ha_uptime
+     - sensor.time
 
 logger: !include logger.yaml
 recorder: !include recorder.yaml
