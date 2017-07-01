@@ -29,8 +29,8 @@ groups:
   - name: text_states
     entities:
       - sensor.last_message
-      - sensor.date
-      - sensor.time
+#    - sensor.date
+#      - sensor.time
     text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
     class_template: 'return "static-text";'
 
@@ -191,7 +191,6 @@ groups:
       - binary_sensor.mcu2_gpio12
       - binary_sensor.mcu2_gpio13
       - binary_sensor.mcu2_gpio14
-      - binary_sensor.mcu2_gpio15
       - binary_sensor.mcu3_gpio4
       - binary_sensor.mcu3_gpio5
       - binary_sensor.mcu3_gpio10

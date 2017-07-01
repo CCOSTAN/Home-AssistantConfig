@@ -1,0 +1,26 @@
+#-------------------------------------------
+#  Clean data for the Floorplan UI.
+#-------------------------------------------
+
+#---Sensor for Time and Date.-----------------------------
+sensor:
+  - platform: template
+    sensors:
+      floorplan_weekday:
+        friendly_name: 'Weekday'
+        value_template: >-
+          {{- now().strftime("%A")  }}
+
+  - platform: template
+    sensors:
+      floorplan_month:
+        friendly_name: 'Month'
+        value_template: >-
+          {{- now().strftime("%B")  }}
+
+  - platform: template
+    sensors:
+      floorplan_time:
+        friendly_name: 'Time'
+        value_template: >-
+          {{now().strftime("%-I")}}:{{now().strftime("%M")}} {{now().strftime("%p")}}
