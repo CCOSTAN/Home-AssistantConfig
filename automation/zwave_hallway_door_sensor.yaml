@@ -8,10 +8,10 @@
   hide_entity: True
   trigger:
     - platform: state
-      entity_id: binary_sensor.pantry_door_sensor_2_0
+      entity_id: binary_sensor.pantry_door_sensor
       to: 'on'
     - platform: state
-      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
+      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor
       to: 'on'
 
   condition:
@@ -38,10 +38,10 @@
   hide_entity: True
   trigger:
     - platform: state
-      entity_id: binary_sensor.pantry_door_sensor_2_0
+      entity_id: binary_sensor.pantry_door_sensor
       to: 'off'
     - platform: state
-      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
+      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor
       to: 'off'
 
   action:
@@ -57,10 +57,10 @@
       to: 'on'
       for: '00:20:00'
     - platform: state
-      entity_id: binary_sensor.pantry_door_sensor_2_0
+      entity_id: binary_sensor.pantry_door_sensor
       to: 'off'
     - platform: state
-      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor_4_0
+      entity_id: binary_sensor.aeotec_dsb04100_doorwindow_sensor_sensor
       to: 'off'
 
   condition:
