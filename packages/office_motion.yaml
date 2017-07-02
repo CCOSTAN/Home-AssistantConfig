@@ -37,6 +37,9 @@ automation:
       - condition: state
         entity_id: light.office_lamp
         state: 'off'
+      - condition: sun
+        before: sunset
+        before_offset: '-03:00:00'
 
     action:
       - service: light.turn_on
