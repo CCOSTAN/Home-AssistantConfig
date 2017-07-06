@@ -30,9 +30,12 @@ panel_custom:
 
 ios:
 
-group: !include_dir_merge_named group
-device_tracker: !include_dir_merge_list device_tracker
-#discovery:
+discovery:
+  ignore:
+   - samsung_tv
+   - roku
+   - google_cast
+
 updater:
   include_used_components: true
 
@@ -182,6 +185,8 @@ cover:
         password: !secret garadget_password
         name: Small Garage
 
+group: !include_dir_merge_named group
+device_tracker: !include_dir_merge_list device_tracker
 sensor: !include_dir_merge_list sensor
 automation: !include_dir_merge_list automation
 scene: !include_dir_merge_list scene
