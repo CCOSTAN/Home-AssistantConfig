@@ -10,6 +10,6 @@
   action:
     - service: script.speech_engine
       data_template:
-        NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize it within Circle."
+        NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize {{trigger.event.data.host_name}} within Circle."
 
 ##############################################################################
