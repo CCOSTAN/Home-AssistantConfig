@@ -11,7 +11,7 @@
 #       hidden: False
 
 #---Sensor for Fire Tablet-----------------------------
-binary_sensor:
+sensor:
   - platform: mqtt
     state_topic: "wallpanel/alarm 1/sensor/battery"
     name: "Alarm Panel 1 Battery Level"
@@ -29,6 +29,7 @@ binary_sensor:
   - platform: mqtt
     state_topic: "wallpanel/alarm 1/sensor/motion"
     name: "Alarm Panel 1 Motion"
+    value_template: '{{ value_json.value }}'
     device_class: motion
 
   - platform: mqtt
