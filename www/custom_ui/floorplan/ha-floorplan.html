@@ -1,6 +1,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://momentjs.com/downloads/moment.js"></script>
-<script src="https://raw.githubusercontent.com/pkozul/ha-floorplan/master/www/custom_ui/floorplan/svg-pan-zoom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.5.1/dist/svg-pan-zoom.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 
 <dom-module id="ha-floorplan">
@@ -278,7 +278,7 @@
 
                 $(newSvgShape).attr('title', 'test');
 
-                if (this.IsPanZoomEnabled) {
+                if (this.instance.IsPanZoomEnabled) {
                   // Touch screen friendlyness!
                   //var mc = new Hammer(newSvgShape[0]); //went for the custom recognizers
                   var mc = new Hammer.Manager(newSvgShape[0]);
@@ -329,14 +329,28 @@
           }
 
           // Enable pan / zoom if enabled in config
-          if (this.IsPanZoomEnabled) {
-            svgPanZoom($(newSvg)[0], {
+          if (this.instance.IsPanZoomEnabled) {
+            var panZoom = window.panZoom = svgPanZoom($(newSvg)[0], {
               zoomEnabled: true,
               controlIconsEnabled: true,
               fit: true,
               center: true,
               dblClickZoomEnabled: false,
               customEventsHandler: this.instance.getHammerEventHandlers(),
+            });
+
+            $(window).resize(function () {
+              panZoom.resize();
+              panZoom.fit();
+              panZoom.center();
+            });
+
+            document.addEventListener('transitionend', function (event) {
+              if (event.propertyName == 'left') {
+                panZoom.resize();
+                panZoom.fit();
+                panZoom.center();
+              }
             });
           }
 
@@ -799,7 +813,7 @@
     warn(message) {
       if (this.IsWarningsEnabled) {
         var warnings = Polymer.dom(this.$.warnings).node;
-        $(warnings).find('ul').append('<li>${message}</li>')
+        $(warnings).find('ul').append(`<li>${message}</li>`);
         $(warnings).css('display', 'block');
       }
     },
