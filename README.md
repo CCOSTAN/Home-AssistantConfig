@@ -22,9 +22,11 @@ I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi an
 * [Nest Thermostats](http://amzn.to/2eAhB1k) - Smart Thermostat
 * [Nest Protects](http://amzn.to/2poqKhu) - Smart Smoke Detectors
 * [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
+* [Amazon Echo Tap](http://amzn.to/2sz891k)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [Amazon Dash Wand](https://www.amazon.com/Amazon-Dash-Wand-With-Alexa/dp/B01MQMJFDK/ref=sr_1_1_a_it?ie=UTF8&qid=1498928735&sr=8-1&keywords=dash+wand) - Alexa outside by the pool area.
-* [Amazon Fire TV](http://amzn.to/2iiuaNT) - Used for [Wall Mounted Controllers](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)
+* [Amazon Fire TV](http://amzn.to/2iiuaNT)
+* [Amazon Fire Tablets Gen 7](http://amzn.to/2tqlMCW)- Used for [Wall Mounted Controllers](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)
 * [Wink Hub](http://amzn.to/2orGEWo) - Used to connect certain Zwave outlets etc.
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * Mixture of [Hue Colored lights](http://amzn.to/2l2viGK), [White Lights](http://amzn.to/2lEf4Xq) and GE Link bulbs.

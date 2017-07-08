@@ -6,6 +6,20 @@ homeassistant:
   unit_system: imperial
   time_zone: America/New_York
   customize: !include_dir_merge_named customize
+  customize_domain:
+    automation:
+      initial_state: 'on'
+  customize_glob:
+    "automation.*watchdog*":
+      icon: mdi:timer
+    "sensor.dark_sky_*":
+      homebridge_hidden: true
+    "scene.month_*_colors":
+      hidden: true
+      emulated_hue: false
+      homebridge_hidden: true
+
+
   packages: !include_dir_named packages
 
 http:
