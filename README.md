@@ -2,6 +2,7 @@
 [Home Assistant](https://home-assistant.io/) configuration files (YAMLs)
 
 Be sure to :star: my repo so you can keep up to date on the daily progress!
+
 You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my Home Automation Posts.
 
 ![Screenshot of SmartHome](https://i.imgur.com/ffUl23U.jpg)
