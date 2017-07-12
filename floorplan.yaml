@@ -3,7 +3,7 @@ image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
 pan_zoom:
 
-# Example of chaining for multiple replaces. 
+# Example of chaining for multiple replaces.
 # '${entity.state ? entity.state.replace("not_home", "away").replace("Miguel_Work", "At Work") : "undefined"}'
 
 groups:
@@ -93,8 +93,9 @@ groups:
       - state: 'off'
         class: 'button-off'
     action:
+      domain: home-assistant
       service: toggle
-
+      
   - name: switches
     entities:
       - switch.front_landscaping

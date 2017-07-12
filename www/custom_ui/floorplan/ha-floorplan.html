@@ -1,7 +1,6 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://momentjs.com/downloads/moment.js"></script>
-<script src="svg-pan-zoom.min.js"></script>
+<script src="lib/jquery-3.2.1.min.js"></script>
+<script src="lib//moment.min.js"></script>
+<script src="lib/svg-pan-zoom.min.js"></script>
 
 <dom-module id="ha-floorplan">
 
@@ -576,12 +575,19 @@
         var entityConfig = this.entityConfigs[entityId];
         var svgShapeConfig = entityConfig.svgShapeConfigs[e.target.id];
         if (svgShapeConfig) {
-          if (entityConfig.group.action && entityConfig.group.action.service) {
-            var domain = window.HAWS.extractDomain(entityId);
-            this.hass.callService(domain, entityConfig.group.action.service, {
-              entity_id: entityId
-            });
-          } else {
+          if (entityConfig.group.action) {
+            var action = entityConfig.group.action;
+            if (action.service) {
+              var domain = action.domain ? action.domain : window.HAWS.extractDomain(entityId);
+              this.hass.callService(domain, action.service, {
+                entity_id: entityId
+              });
+            }
+            else {
+              this.fire('hass-more-info', { entityId: svgShapeConfig.entityId });
+            }
+          }
+          else {
             this.fire('hass-more-info', { entityId: svgShapeConfig.entityId });
           }
         }
