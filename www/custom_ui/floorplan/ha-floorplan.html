@@ -1,7 +1,7 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://momentjs.com/downloads/moment.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.5.1/dist/svg-pan-zoom.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script src="svg-pan-zoom.min.js"></script>
 
 <dom-module id="ha-floorplan">
 
@@ -68,7 +68,6 @@
       },
       config: {
         type: Object,
-        observer: 'configChanged'
       },
       isLoading: {
         type: Boolean,
@@ -86,14 +85,6 @@
         type: Array,
         value: () => { return []; },
       },
-      IsWarningsEnabled: {
-        type: Boolean,
-        value: false,
-      },
-      IsPanZoomEnabled: {
-        type: Boolean,
-        value: false,
-      },
     },
 
     stopPropagation(e) {
@@ -102,11 +93,6 @@
 
     hassChanged: function (newHass, oldHass) {
       this.handleEntities(newHass.states);
-    },
-
-    configChanged: function (newConfig, oldConfig) {
-      this.IsWarningsEnabled = ((newConfig.warnings === null) || (newConfig.warnings !== undefined));
-      this.IsPanZoomEnabled = ((newConfig.pan_zoom === null) || (newConfig.pan_zoom !== undefined));
     },
 
     onAttached() {
@@ -277,36 +263,8 @@
                 svgShapeConfig.svgShape = newSvgShape[0];
 
                 $(newSvgShape).attr('title', 'test');
-
-                if (this.instance.IsPanZoomEnabled) {
-                  // Touch screen friendlyness!
-                  //var mc = new Hammer(newSvgShape[0]); //went for the custom recognizers
-                  var mc = new Hammer.Manager(newSvgShape[0]);
-
-                  // Tap recognizer with minimal 2 taps
-                  mc.add(new Hammer.Tap({ event: 'doubletap', taps: 2 }));
-
-                  // Single tap recognizer
-                  mc.add(new Hammer.Tap({ event: 'singletap' }));
-
-                  // Press recognizer
-                  mc.add(new Hammer.Press({ event: 'press' }));
-
-                  // We want to recognize this simulatenous, so a quadrupletap will be detected even while a tap has been recognized.
-                  mc.get('doubletap').recognizeWith('singletap');
-
-                  // We only want to trigger a tap, when we don't have detected a doubletap
-                  mc.get('singletap').requireFailure('doubletap');
-
-                  mc.on("doubletap", this.instance.onShapeDoubleClick.bind(this.instance));
-                  mc.on("singletap", this.instance.onShapeClick.bind(this.instance));
-                  mc.on("press", this.instance.onShapePress.bind(this.instance));
-                }
-                else {
-                  $(newSvgShape).on('click', this.instance.onShapeClick.bind(this.instance));
-                  $(newSvgShape).on('dblclick', this.instance.onShapeDoubleClick.bind(this.instance));
-                }
-
+                $(newSvgShape).on('click', this.instance.onShapeClick.bind(this.instance));
+                $(newSvgShape).on('touchstart', this.instance.onShapeClick.bind(this.instance));
                 $(newSvgShape).css('cursor', 'pointer');
                 $(newSvgShape).addClass('ha-entity');
 
@@ -329,28 +287,12 @@
           }
 
           // Enable pan / zoom if enabled in config
-          if (this.instance.IsPanZoomEnabled) {
-            var panZoom = window.panZoom = svgPanZoom($(newSvg)[0], {
+          if ((this.instance.config.pan_zoom === null) || (this.instance.config.pan_zoom !== undefined)) {
+            svgPanZoom($(newSvg)[0], {
               zoomEnabled: true,
               controlIconsEnabled: true,
               fit: true,
               center: true,
-              dblClickZoomEnabled: false,
-              customEventsHandler: this.instance.getHammerEventHandlers(),
-            });
-
-            $(window).resize(function () {
-              panZoom.resize();
-              panZoom.fit();
-              panZoom.center();
-            });
-
-            document.addEventListener('transitionend', function (event) {
-              if (event.propertyName == 'left') {
-                panZoom.resize();
-                panZoom.fit();
-                panZoom.center();
-              }
             });
           }
 
@@ -646,40 +588,6 @@
       }
     },
 
-    onShapeDoubleClick(e) {
-      for (var entityId in this.entityConfigs) {
-        var entityConfig = this.entityConfigs[entityId];
-        var svgShapeConfig = entityConfig.svgShapeConfigs[e.target.id];
-        if (svgShapeConfig) {
-          if (entityConfig.group.doubleclickaction && entityConfig.group.doubleclickaction.service) {
-            var domain = window.HAWS.extractDomain(entityId);
-            this.hass.callService(domain, entityConfig.group.action.service, {
-              entity_id: entityId
-            });
-          } else {
-            this.fire('hass-more-info', { entityId: svgShapeConfig.entityId });
-          }
-        }
-      }
-    },
-
-    onShapePress(e) {
-      for (var entityId in this.entityConfigs) {
-        var entityConfig = this.entityConfigs[entityId];
-        var svgShapeConfig = entityConfig.svgShapeConfigs[e.target.id];
-        if (svgShapeConfig) {
-          if (entityConfig.group.pressaction && entityConfig.group.pressaction.service) {
-            var domain = window.HAWS.extractDomain(entityId);
-            this.hass.callService(domain, entityConfig.group.action.service, {
-              entity_id: entityId
-            });
-          } else {
-            this.fire('hass-more-info', { entityId: svgShapeConfig.entityId });
-          }
-        }
-      }
-    },
-
     getFill(stateConfig) {
       var fill = undefined;
 
@@ -742,64 +650,6 @@
       return serverMoment;
     },
 
-    getHammerEventHandlers() {
-      var eventsHandlers = {
-        haltEventListeners: ['touchstart', 'touchend', 'touchmove', 'touchleave', 'touchcancel'],
-        init: (options) => {
-          var instance = options.instance;
-          var initialScale = 1;
-          var pannedX = 0;
-          var pannedY = 0;
-
-          // Init Hammer
-          // Listen only for pointer and touch events
-          this.hammer = Hammer(options.svgElement, {
-            inputClass: Hammer.SUPPORT_POINTER_EVENTS ? Hammer.PointerEventInput : Hammer.TouchInput
-          });
-
-          // Enable pinch
-          this.hammer.get('pinch').set({ enable: true });
-
-          // Handle double tap
-          //this.hammer.on('doubletap', (ev) => {
-          //  instance.zoomIn();
-          //});
-
-          // Handle pan
-          this.hammer.on('panstart panmove', (ev) => {
-            // On pan start reset panned variables
-            if (ev.type === 'panstart') {
-              pannedX = 0
-              pannedY = 0
-            }
-
-            // Pan only the difference
-            instance.panBy({ x: ev.deltaX - pannedX, y: ev.deltaY - pannedY });
-            pannedX = ev.deltaX;
-            pannedY = ev.deltaY;
-          });
-
-          // Handle pinch
-          this.hammer.on('pinchstart pinchmove', (ev) => {
-            // On pinch start remember initial zoom
-            if (ev.type === 'pinchstart') {
-              initialScale = instance.getZoom();
-              instance.zoom(initialScale * ev.scale);
-            }
-            instance.zoom(initialScale * ev.scale);
-          });
-
-          // Prevent moving the page on some devices when panning over SVG
-          options.svgElement.addEventListener('touchmove', (e) => { e.preventDefault(); });
-        },
-
-        destroy: () => {
-          this.hammer.destroy();
-        }
-      };
-      return eventsHandlers;
-    },
-
     getArray(list) {
       return Array.isArray(list) ? list : Object.keys(list).map(key => list[key]);
     },
@@ -811,9 +661,9 @@
     },
 
     warn(message) {
-      if (this.IsWarningsEnabled) {
+      if ((this.config.warnings === null) || (this.config.warnings !== undefined)) {
         var warnings = Polymer.dom(this.$.warnings).node;
-        $(warnings).find('ul').append(`<li>${message}</li>`);
+        $(warnings).find('ul').append(`<li>${message}</li>`)
         $(warnings).css('display', 'block');
       }
     },
