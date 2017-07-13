@@ -579,6 +579,7 @@
             var action = entityConfig.group.action;
             if (action.service) {
               var domain = action.domain ? action.domain : window.HAWS.extractDomain(entityId);
+              domain = (domain == 'group') ? 'homeassistant' : domain;
               this.hass.callService(domain, action.service, {
                 entity_id: entityId
               });

@@ -10,6 +10,43 @@
            state: 'on'
            color_name: 'Gold'
 
+- name: front_full_brightness
+  entities:
+     group.outdoor_front_lights:
+         state: 'on'
+         color_name: 'White'
+         brightness: 250
+
+- name: month_RWB_colors
+  entities:
+      light.outdoor_foyer:
+          state: 'on'
+          #color_name: 'Cream'
+          rgb_color: [255,253,208]
+          brightness: 30
+      light.outdoor_sconce_3:
+          state: 'on'
+          #color_name: 'Red'
+          rgb_color: [204,0,0]
+      light.outdoor_sconce_2:
+          state: 'on'
+          #color_name: 'White' Smoke
+          rgb_color: [245,245,245]
+      light.outdoor_sconce_1:
+          state: 'on'
+          color_name: 'Blue'
+      light.led_garage_large:
+          state: 'on'
+          #color_name: 'Red'
+          rgb_color: [204,0,0]
+      light.led_garage_small:
+          state: 'on'
+          #color_name: 'White' Smoke
+          rgb_color: [245,245,245]
+      light.led_outdoor_den:
+          state: 'on'
+          color_name: 'Blue'
+
 - name: month_valentine_colors
   entities:
        group.outdoor_front_lights:
@@ -76,25 +113,6 @@
            #color_name: 'Dark Spring Green'
            rgb_color: [23,114,69]
 
-- name: month_RWB_colors
-  entities:
-       light.outdoor_foyer:
-           state: 'on'
-           #color_name: 'Cream'
-           rgb_color: [255,253,208]
-           brightness: 30
-       light.outdoor_sconce_3:
-           state: 'on'
-           #color_name: 'Red'
-           rgb_color: [204,0,0]
-       light.outdoor_sconce_2:
-           state: 'on'
-           #color_name: 'White' Smoke
-           rgb_color: [245,245,245]
-       light.outdoor_sconce_1:
-           state: 'on'
-           color_name: 'Blue'
-
 - name: month_fathers_day_colors
   entities:
       light.outdoor_foyer:
@@ -110,9 +128,9 @@
           state: 'on'
           color_name: 'Blue'
 
-- name: front_full_brightness
+- name: month_halloween_colors
   entities:
        group.outdoor_front_lights:
            state: 'on'
-           color_name: 'White'
-           brightness: 250
+           color_name: 'Orange'
+           #rgb_color: [23,114,69]
