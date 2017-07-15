@@ -9,6 +9,7 @@
         - light.hallway
         - group.foyer_lights
         - light.master_toilet
+        - switch.printer_outlet
       to: 'on'
       for: '00:20:00'
 
@@ -17,11 +18,12 @@
         - light.paige_go
         - light.justin_go
         - group.upstairs
+        - switch.garage_outlet
       to: 'on'
       for: '02:00:00'
 
 #Turn it off!
   action:
-    - service: light.turn_off
+    - service: homeassistant.turn_off
       data_template:
         entity_id: "{{ trigger.entity_id }}"

@@ -8,6 +8,9 @@
       event_type: device_tracker_new_device
 
   action:
+    - wait_template: >-
+        {{ not is_state('media_player.livingroomCC', 'playing') }}
+        
     - service: script.speech_engine
       data_template:
         NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize {{trigger.event.data.host_name}} within Circle."

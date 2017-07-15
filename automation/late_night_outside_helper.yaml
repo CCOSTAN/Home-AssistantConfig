@@ -28,5 +28,6 @@
       entity_id: scene.front_full_brightness
     - service: switch.turn_on
       entity_id: switch.back_landscaping
-#    - wait_template: "{{ states.group.garage_doors.states == 'closed' }}"
-#    - service: script.monthly_color_scene
+    - wait_template: >-
+        {{ states.group.garage_doors.states == 'closed' }}
+    - service: script.monthly_color_scene

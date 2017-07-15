@@ -7,24 +7,18 @@
     - platform: time
       at: '22:00:00'
 
-  condition:
-    - condition: template
-      value_template: >
-        {% if is_state('media_player.livingroomCC', 'playing') %}
-        false
-        {% elif is_state('media_player.whole_house', 'playing') %}
-        false
-        {% else %}
-        true
-        {% endif %}
-
   action:
+    - wait_template: >-
+       {{ not is_state('media_player.livingroomCC', 'playing') }}
+    - wait_template: >-
+       {{ not is_state('media_player.whole_house', 'playing') }}
+
     - service: script.speech_engine
       data_template:
         call_no_announcement: 1
         call_garage_check: 1
         call_window_check: 1
-    - delay:
-        minutes: 3
+    - wait_template: >-
+       {{ not is_state('media_player.livingroomCC', 'playing') }}
     - service: switch.turn_off
       entity_id: switch.living_room_amp

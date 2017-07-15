@@ -9,8 +9,9 @@
 
 dog_bark:
   sequence:
-#    - wait_template: "{{ states.media_player.livingroomCC.states != 'playing' }}"
-#      timeout: 00:00:30
+    - wait_template: >-
+       {{ not is_state('media_player.livingroomCC', 'playing') }}
+      timeout: 00:01:30
     - condition: template
       value_template: >
         {% if is_state('media_player.livingroomCC', 'playing') %}
