@@ -580,9 +580,23 @@
             if (action.service) {
               var domain = action.domain ? action.domain : window.HAWS.extractDomain(entityId);
               domain = (domain == 'group') ? 'homeassistant' : domain;
-              this.hass.callService(domain, action.service, {
-                entity_id: entityId
-              });
+
+              var data = {};
+              if (action.data) {
+                data = action.data;
+              }
+              if (action.data_template) {
+                var entities = this.hass.states;
+                var entityState = entities[entityId];
+
+				var result = this.assemble(action.data_template, entityState, entities);
+                data = JSON.parse(result);
+              }
+
+              if (!data.entity_id)
+                data['entity_id'] = entityId;
+
+              this.hass.callService(domain, action.service, data);
             }
             else {
               this.fire('hass-more-info', { entityId: svgShapeConfig.entityId });
