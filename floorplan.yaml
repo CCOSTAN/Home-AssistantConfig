@@ -2,9 +2,25 @@ name: Alarm Panel
 image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
 #pan_zoom:
+hide_app_toolbar:
+date_format: DD-MMM-YYYY
 
 # Example of chaining for multiple replaces.
 # '${entity.state ? entity.state.replace("not_home", "away").replace("Miguel_Work", "At Work") : "undefined"}'
+
+devices:
+
+  - name: Alarm Panel 1
+    address: B4:7C:9C:9E:85:90
+    entities:
+      - binary_sensor.alarm_panel_1
+      - media_player.alarm_panel_1
+
+  - name: Alarm Panel 2
+    address: 00:FC:8B:4A:D5:CF
+    entities:
+      - binary_sensor.alarm_panel_2
+      - media_player.alarm_panel_2
 
 groups:
 

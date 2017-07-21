@@ -8,35 +8,24 @@ homeassistant:
     "sensor.alarm_panel_*":
       emulated_hue: False
       hidden: False
-  customize:
-    group.fire_tablet:
-      emulated_hue: False
-      hidden: False
 
-#---Sensor for Fire Tablet-----------------------------
-sensor:
-  - platform: mqtt
-    state_topic: "wallpanel/alarm 1/sensor/battery"
-    name: "Alarm Panel 1 Battery Level"
-    value_template: '{{ value_json.value }}'
-    unit_of_measurement: '%'
-    device_class: power
+media_player:
+  - platform: tts_floorplan_speaker
+    name: Alarm Panel 1
+
+  - platform: tts_floorplan_speaker
+    name: Alarm Panel 2
+
+#---Sensors for Fire Tablet-----------------------------
+
+binary_sensor:
 
   - platform: mqtt
-    state_topic: "wallpanel/alarm 1/sensor/battery"
-    name: "Alarm Panel 1 Plugged In"
-    value_template: '{{ value_json.acPlugged }}'
-    device_class: power
+    state_topic: floorplan/alarm_panel_1
+    name: Bedroom Alarm Panel
+    retain: true
 
   - platform: mqtt
-    state_topic: "wallpanel/alarm 1/sensor/motion"
-    name: "Alarm Panel 1 Motion"
-    value_template: '{{ value_json.value }}'
-    device_class: motion
-
-group:
-  fire_tablet:
-    entities:
-      - sensor.alarm_panel_1_battery_level
-      - sensor.alarm_panel_1_motion
-      - sensor.alarm_panel_1_plugged_in
+    state_topic: floorplan/alarm_panel_2
+    name: Entry Alarm Panel
+    retain: true
