@@ -1,0 +1,37 @@
+#####################################################################################
+###  When we get out of bed at night, turn on the accent lights in the bathroom
+## and then turn off the lights when we are back in bed.
+## Also turn on the lights sunset comes. (but only if we are home)
+### connected to [Etekcity Outlets](http://amzn.to/2efNoBP)
+## [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
+#####################################################################################
+
+- alias: Bedtime Accent Lights -
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      to: 'off'
+    - platform: state
+      entity_id: sun.sun
+      to: 'below_horizon'
+      from: 'above_horizon'
+
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+    - condition: state
+      entity_id: group.family
+      state: home
+
+  action:
+    - service: switch.turn_on
+      entity_id: switch.master_bathroom_accents
+    - wait_template: >-
+       {{ not is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off') }}
+    - wait_template: >-
+       {{ not is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off') }}
+    - service: switch.turn_off
+      entity_id: switch.master_bathroom_accents
