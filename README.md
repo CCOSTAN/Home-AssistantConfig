@@ -3,7 +3,7 @@
 
 Be sure to :star: my repo so you can keep up to date on the daily progress!
 
-You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my Home Automation Posts.
+You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 
@@ -42,6 +42,7 @@ I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi an
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
 * [ChromeCast Audios](http://amzn.to/2lE9gNu)
 * [AMPs](http://amzn.to/2j18dlT) - These are cheap but effective for the Dots, Chromecasts or other speakers.
+* [Mixer](http://amzn.to/2v9Zp3x) - This allows me to mix in DOT, music and HA. [Blog Post](http://www.vmwareinfo.com/2017/07/giving-voice-to-smart-home.html)
 * [Etekcity Outlets](http://amzn.to/2efNoBP) - Cheap 6 Buck RF outlet control!
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
@@ -59,7 +60,7 @@ I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi an
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
 **Automations:**
-* Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios.  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
+* Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios and [Mixer](http://amzn.to/2v9Zp3x).  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
 * Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
 * Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.

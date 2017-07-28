@@ -1,12 +1,15 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.4
+  Version: 1.0.5
   https://github.com/pkozul/ha-floorplan
 -->
 
 <script src="lib/jquery-3.2.1.min.js"></script>
 <script src="lib//moment.min.js"></script>
 <script src="lib/svg-pan-zoom.min.js"></script>
+
+<!-- As documented here for chrome, removes the need for touchstart -->
+<meta name="viewport" content="width=device-width">
 
 <dom-module id="ha-floorplan">
 
@@ -112,9 +115,6 @@
         type: Array,
         value: () => { return []; },
       },
-      kioskInfo: {
-        type: Object,
-      },
     },
 
     stopPropagation(e) {
@@ -127,8 +127,6 @@
 
     onAttached() {
       window.onerror = this.handleWindowError.bind(this);
-
-      this.getFully();
 
       if (!this.config.groups) {
         this.isLoading = false;
@@ -150,9 +148,15 @@
         return;
       }
 
-      this.hass.connection.subscribeEvents(() => {}, 'call_service');
+      this.hass.connection.socket.addEventListener('message', event => {
+        let data = JSON.parse(event.data);
 
-      this.hass.connection.socket.addEventListener('message', this.handleWebsocketMessage.bind(this));
+        // Store the time difference between the local web browser and the Home Assistant server
+        if (data.event && data.event.time_fired) {
+          let lastEventFiredTime = moment(data.event.time_fired).toDate();
+          this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
+        }
+      });
 
       this.addExternalCss(() => {
         this.loadFloorPlan(() => {
@@ -164,156 +168,6 @@
       if (this.config.groups.find(entityGroup => entityGroup.state_transitions)) {
         setInterval(this.updateStateTransitions.bind(this), 100);
       }
-    },
-
-    handleWebsocketMessage() {
-      let data = JSON.parse(event.data);
-
-      if (data.event && (data.event.event_type === 'call_service')) {
-        if ((data.event.data.domain === 'media_player') && (data.event.data.service === 'play_media')) {
-          if (this.kioskInfo && (this.kioskInfo.mediaPlayerEntityId === data.event.data.service_data.entity_id[0])) {
-            this.playMedia(data.event.data.service_data.media_content_id);
-          }
-        }
-      }
-
-      // Store the time difference between the local web browser and the Home Assistant server
-      if (data.event && data.event.time_fired) {
-        let lastEventFiredTime = moment(data.event.time_fired).toDate();
-        this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
-      }
-    },
-
-    getFully() {
-      if (typeof fully != "undefined") {
-        let device = this.config.devices.find(x => x.address == fully.getMacAddress());
-        if (!device)
-          return;
-
-        let binarySensorEntityId = device.entities.find(x => x.startsWith('binary_sensor.'));
-        let mediaPlayerEntityId = device.entities.find(x => x.startsWith('media_player.'));
-
-        this.kioskInfo = {
-          binarySensorEntityId: binarySensorEntityId,
-          mediaPlayerEntityId: mediaPlayerEntityId,
-          startUrl: fully.getStartUrl(),
-          currentLocale: fully.getCurrentLocale(),
-          ipAddressv4: fully.getIp4Address(),
-          ipAddressv6: fully.getIp6Address(),
-          macAddrss: fully.getMacAddress(),
-          wifiSSID: fully.getWifiSsid(),
-          serialNumber: fully.getSerialNumber(),
-          deviceId: fully.getDeviceId(),
-          batteryLevel: fully.getBatteryLevel(),
-          screenBrightness: fully.getScreenBrightness(),
-          isScreenOn: fully.getScreenOn(),
-          motionState: 'off',
-        };
-
-        window['onFullyEvent'] = (e) => { window.dispatchEvent(new Event(e)); }
-
-        window.addEventListener('fully.screenOn', this.onFullyScreenOn.bind(this));
-        window.addEventListener('fully.screenOff', this.onFullyScreenOff.bind(this));
-        window.addEventListener('fully.networkDisconnect', this.onFullyNetworkDisconnect.bind(this));
-        window.addEventListener('fully.networkReconnect', this.onFullyNetworkReconnect.bind(this));
-        window.addEventListener('fully.internetDisconnect', this.onFullyInternetDisconnect.bind(this));
-        window.addEventListener('fully.internetReconnect', this.onFullyInternetReconnect.bind(this));
-        window.addEventListener('fully.unplugged', this.onFullyUnplugged.bind(this));
-        window.addEventListener('fully.pluggedAC', this.onFullyPluggedAC.bind(this));
-        window.addEventListener('fully.pluggedUSB', this.onFullyPluggedUSB.bind(this));
-        window.addEventListener('fully.onMotion', this.onFullyMotion.bind(this));
-
-        fully.bind('screenOn', 'onFullyEvent("fully.screenOn");')
-        fully.bind('screenOff', 'onFullyEvent("fully.screenOff");')
-        fully.bind('networkDisconnect', 'onFullyEvent("fully.networkDisconnect");')
-        fully.bind('networkReconnect', 'onFullyEvent("fully.networkReconnect");')
-        fully.bind('internetDisconnect', 'onFullyEvent("fully.internetDisconnect");')
-        fully.bind('internetReconnect', 'onFullyEvent("fully.internetReconnect");')
-        fully.bind('unplugged', 'onFullyEvent("fully.unplugged");')
-        fully.bind('pluggedAC', 'onFullyEvent("fully.pluggedAC");')
-        fully.bind('pluggedUSB', 'onFullyEvent("fully.pluggedUSB");')
-        fully.bind('onMotion', 'onFullyEvent("fully.onMotion");') // Max. one per second
-
-        this.sendKioskState(this.kioskInfo.motionState);
-      }
-      else {
-//        this.debug( "Fully Website Integration Object not found" );
-      }
-    },
-
-    onFullyScreenOn() {
-      this.debug('Screen turned on');
-    },
-
-    onFullyScreenOff() {
-      this.debug('Screen turned off');
-    },
-
-    onFullyNetworkDisconnect() {
-      this.debug('Network disconnected');
-    },
-
-    onFullyNetworkReconnect() {
-      this.debug('Network reconnected');
-    },
-
-    onFullyInternetDisconnect() {
-      this.debug('Internet disconnected');
-    },
-
-    onFullyInternetReconnect() {
-      this.debug('Internet reconnected');
-    },
-
-    onFullyUnplugged() {
-      this.debug('Device unplugged');
-    },
-
-    onFullyPluggedAC() {
-      this.debug('Deviced plugged into AC power');
-    },
-
-    onFullyPluggedUSB() {
-      this.debug('Device plugged into USB');
-    },
-
-    onFullyMotion() {
-      this.sendKioskState(true);
-    },
-
-    sendKioskState(isOn) {
-      clearTimeout(this.sendKioskStateTimer);
-
-      if (!this.kioskInfo.binarySensorEntityId)
-        return;
-
-      this.kioskInfo.motionState = isOn ? 'on' : 'off';
-      let timeout = isOn ? 5000 : 10000;
-
-      let authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
-
-      let payload = { "state": this.kioskInfo.motionState, "mac_address": fully.macAddress };
-
-      jQuery.ajax({
-        type: 'POST',
-        url: `/api/states/${this.kioskInfo.binarySensorEntityId}`,
-        headers: { "X-HA-Access": authToken },
-        data: JSON.stringify(payload),
-        success: function (result) {
-//          this.debug(`Sent state: ${this.kioskInfo.motionState}`);
-//          this.debug(`Setting timeout: ${timeout}`);
-          this.sendKioskStateTimer = setTimeout(() => { this.sendKioskState(false); }, timeout);
-        }.bind(this),
-        error: function(err) {
-//          this.error('Error sending state');
-          this.sendKioskStateTimer = setTimeout(() => { this.sendKioskState(false); }, timeout);
-        }.bind(this)
-      });
-    },
-
-    playMedia(mediaUrl) {
-      let audio = new Audio(mediaUrl);
-      audio.play();
     },
 
     handleWindowError(msg, url, lineNo, columnNo, error) {
@@ -391,7 +245,6 @@
 
               if (svgElement.length) {
                 $(svgElement).on('click', this.instance.onElementClick.bind({ instance: this.instance, elementId: elementId }));
-                $(svgElement).on('touchstart', this.instance.onElementClick.bind({ instance: this.instance, elementId: elementId }));
                 $(svgElement).css('cursor', 'pointer');
 
                 let elementConfig = {
@@ -493,7 +346,6 @@
                   svgElementConfig.svgElement = svgElement[0];
 
                   $(svgElement).on('click', this.instance.onEntityClick.bind({ instance: this.instance, entityId: entityId }));
-                  $(svgElement).on('touchstart', this.instance.onEntityClick.bind({ instance: this.instance, entityId: entityId }));
                   $(svgElement).css('cursor', 'pointer');
                   $(svgElement).addClass('ha-entity');
 
@@ -619,12 +471,6 @@
             this.setHoverOverText(embeddedSvg, entityState);
           }
 
-          if (entityConfig.group.layer_toggle) {
-            let layerId = entityId.split('.')[1] + "_layer"
-            let svgLayerElement = $(svg).find(`[id="${layerId}"]`)[0];
-            svgLayerElement.style.display = (entityState.state == 'on') ? 'inline' : 'none';
-          }
-
           let targetClass = undefined;
           let obsoleteClasses = [];
 
@@ -719,7 +565,6 @@
 
           $(embeddedSvg).find('*').append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
             .on('click', this.onEntityClick.bind({ instance: this, entityId: entityId }))
-            .on('touchstart', this.onEntityClick.bind({ instance: this, entityId: entityId }))
             .css('cursor', 'pointer')
             .addClass('ha-entity');
 
@@ -727,7 +572,6 @@
           let previousEmbeddedSvg = $(svg).find(`[id="${embeddedSvg.attr('id')}"]`);
           $(previousEmbeddedSvg).find('*')
             .off('click')
-            .off('touchstart')
             .remove();
 
           $(svg).append(embeddedSvg);
@@ -744,7 +588,7 @@
       }
 
       if (!$(svgElement).hasClass(className)) {
-        //this.debug(`${entityId}: adding class "${className}" for current state "${entityState.state}" (${svgElement.id})`);
+        //console.log(`${entityId}: adding class "${className}" for current state "${entityState.state}" (${svgElement.id})`);
         $(svgElement).addClass(className);
 
         if ((svgElement.nodeName === 'text')) {
@@ -760,7 +604,7 @@
 
     removeClasses(entityId, svgElement, classes) {
       for (className of classes) {
-        //this.debug(`${entityId}: removing class "${className}" (${svgElement.id})`);
+        //console.log(`${entityId}: removing class "${className}" (${svgElement.id})`);
         if ($(svgElement).hasClass(className)) {
           $(svgElement).removeClass(className);
 
@@ -924,8 +768,9 @@
             data = JSON.parse(result);
           }
 
-          if (!data.entity_id)
+          if (!data.entity_id) {
             data['entity_id'] = entityId;
+          }
 
           this.instance.hass.callService(domain, action.service, data);
         }
@@ -1025,7 +870,6 @@
     },
 
     debug(message) {
-      return;
       let debug = Polymer.dom(this.$.debug).node;
       $(debug).find('ul').append(`<li>${message}</li>`)
       $(debug).css('display', 'block');
@@ -1061,26 +905,7 @@
         Math.round(color1.b * w1 + color2.b * w2)
       ];
       return rgb;
-    },
-
-    // Returns a function, that, as long as it continues to be invoked, will not
-    // be triggered. The function will be called after it stops being called for
-    // N milliseconds. If `immediate` is passed, trigger the function on the
-    // leading edge, instead of the trailing.
-    debounce(func, wait, immediate) {
-      let timeout;
-      return function() {
-        let context = this, args = arguments;
-        let later = function() {
-          timeout = null;
-          if (!immediate) func.apply(context, args);
-        };
-        let callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-      };
-    },
+    }
   });
 
 </script>
