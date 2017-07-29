@@ -16,23 +16,17 @@ sensor:
           friendly_name: 'Tablo TV'
           value_template: "{{ 'Online' if is_state('device_tracker.tablotv', 'home') else 'Offline' }}"
 
-        actiontechap:
-          friendly_name: 'ActionTech AP'
-          value_template: "{{ 'Online' if is_state('device_tracker.actiontechap', 'home') else 'Offline' }}"
+        netgear_ext:
+          friendly_name: 'Netgear Extender'
+          value_template: "{{ 'Online' if is_state('device_tracker.netgear_ext', 'home') else 'Offline' }}"
 
         cisco_ap:
           friendly_name: 'Cisco Main AP'
           value_template: "{{ 'Online' if is_state('device_tracker.cisco_ap', 'home') else 'Offline' }}"
 
-        trendnetap:
-          friendly_name: 'TrendNet AP'
-          value_template: "{{ 'Online' if is_state('device_tracker.trendnetap', 'home') else 'Offline' }}"
-
-
         unifi_ap:
           friendly_name: 'Unifi AP'
           value_template: "{{ 'Online' if is_state('device_tracker.unifi_ap', 'home') else 'Offline' }}"
-
 
         hue_hub_1:
           friendly_name: 'Hue Hub 1'
@@ -41,6 +35,14 @@ sensor:
         hue_hub_2:
           friendly_name: 'Hue Hub 2'
           value_template: "{{ 'Online' if is_state('device_tracker.hue_hub_2', 'home') else 'Offline' }}"
+
+        alarm_panel_1:
+          friendly_name: 'Alarm Panel 1'
+          value_template: "{{ 'Online' if is_state('device_tracker.alarm_panel_1', 'home') else 'Offline' }}"
+
+        alarm_panel_2:
+          friendly_name: 'Alarm Panel 2'
+          value_template: "{{ 'Online' if is_state('device_tracker.alarm_panel_2', 'home') else 'Offline' }}"
 
         alexa_echo:
           friendly_name: 'Alexa Echo'
@@ -138,7 +140,6 @@ group:
       - sensor.speedtest_upload
       - sensor.cisco_ap
       - sensor.actiontechap
-      - sensor.trendnetap
       - sensor.unifi_ap
       - sensor.wii
       - sensor.hue_hub_1
@@ -165,10 +166,13 @@ group:
       - sensor.smart_water_meter
       - sensor.sleep_number_bed
       - sensor.printer
+      - sensor.alarm_panel_1
+      - sensor.alarm_panel_2
       - sensor.NodeMCU1
       - sensor.NodeMCU2
       - sensor.NodeMCU3
       - sensor.carlopihole
+
 
 #-------------------------------------------#-------------------------------------------
 automation:
@@ -203,6 +207,8 @@ automation:
              #- sensor.withings_scale
              - sensor.smart_water_meter
              - sensor.sleep_number_bed
+             - sensor.alarm_panel_1
+             - sensor.alarm_panel_2
              - sensor.nodemcu1
              - sensor.nodemcu2
              - sensor.nodemcu3
