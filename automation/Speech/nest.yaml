@@ -12,10 +12,10 @@
         - sensor.upstairs_thermostat_hvac_state
       from: 'off'
 
-  condition:
-    - condition: template
-      value_template: >-
-        {{ as_timestamp(states.automation.nest_status.attributes.last_triggered) > as_timestamp(now()) - (1800) }}
+  # condition:
+  #   - condition: template
+  #     value_template: >-
+  #       {{ as_timestamp(states.automation.nest_status.attributes.last_triggered) > as_timestamp(now()) - (1800) }}
 
   action:
     - service: script.speech_engine
