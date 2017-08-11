@@ -40,7 +40,7 @@
         entity_id:
           - media_player.LivingRoomCC
         media_content_id: >
-          {% if is_state(group.entry_points, 'on') %}
+          {% if trigger.to_state.state == 'on' %}
           https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/one-tone-chime.mp3
           {% else %}
           https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/two-tone-chime.mp3
