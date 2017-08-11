@@ -18,6 +18,12 @@ binary_sensor:
     payload_off: 0
     device_class: motion
 
+
+input_boolean:
+  daylight_override:
+    name: Daylight Override
+    initial: off
+
 automation:
   - alias: 'Motion in the Office - Turn on Light'
     trigger:
@@ -37,8 +43,13 @@ automation:
       - condition: state
         entity_id: light.office_lamp
         state: 'off'
-      - condition: time
-        after: '18:00:00'
+      - condition: or
+        conditions:
+          - condition: time
+            after: '18:00:00'
+          - condition: state
+            entity_id: input_boolean.daylight_override
+            state: 'on'
 
     action:
       - service: light.turn_on
