@@ -1,5 +1,6 @@
 #-------------------------------------------
-#  Bruh Light Sensor Related Packages
+# Motion Sensor in the office.
+# Find more recipes @ https://github.com/CCOSTAN/Home-AssistantConfig
 #-------------------------------------------
 #------LightSensor Node---http://amzn.to/2oUgj5i
 homeassistant:
@@ -18,7 +19,7 @@ binary_sensor:
     payload_off: 0
     device_class: motion
 
-
+# This boolean gets reset every night in the sunset automation.
 input_boolean:
   daylight_override:
     name: Daylight Override
