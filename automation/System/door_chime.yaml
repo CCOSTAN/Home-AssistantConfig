@@ -1,6 +1,6 @@
 ###################################
-##  cuckoo Clock simulation.
-## Plays the number of cuckoos per hour and 1 on the half hour.
+## @CCOSTAN
+## Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ###################################
 
 - alias: Door Chime
@@ -13,6 +13,9 @@
     - condition: state
       entity_id: group.family
       state: 'home'
+    - condition: time
+      after: '09:30:00'
+      before: '22:00:00'
     - condition: template
       value_template: >
         {% if is_state('media_player.livingroomCC', 'playing') %}
