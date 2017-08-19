@@ -26,7 +26,7 @@
       entity_id: switch.living_room_amp
 
     - service_template: >
-       {% if states.group.living_room_accents.state == 'on' -%}
+       {% if states.group.living_room_accents.state == 'on' or states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
          light.turn_on
        {% else %}
           light.turn_off
