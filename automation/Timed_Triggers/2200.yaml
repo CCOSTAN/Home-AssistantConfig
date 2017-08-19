@@ -35,7 +35,7 @@
         - group.living_room_accents
       data_template:
         color_name: >
-          {% if states.group.entry_points.state == 'on' -%}
+          {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
           red
           {% else %}
           gold
