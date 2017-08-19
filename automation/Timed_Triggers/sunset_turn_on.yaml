@@ -8,7 +8,6 @@
       entity_id: sun.sun
       to: 'below_horizon'
 
-
   action:
     - service: switch.turn_on
       entity_id:
@@ -16,6 +15,7 @@
         - switch.living_room_outlet
         - switch.den_outlet
         - switch.foyer_outlet
+        - switch.master_bathroom_accents
     - service: light.turn_on
       entity_id:
         - group.living_room_accents

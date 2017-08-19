@@ -17,6 +17,10 @@
       entity_id: sun.sun
       to: 'below_horizon'
       from: 'above_horizon'
+    - platform: state
+      entity_id: group.family
+      from: 'not_home'
+      to: 'home'
 
   condition:
     - condition: state
@@ -24,7 +28,7 @@
       state: 'below_horizon'
     - condition: state
       entity_id: group.family
-      state: home
+      state: 'home'
 
   action:
     - service: switch.turn_on
