@@ -4,6 +4,7 @@
 #   - service: script.monthly_color_scene
 #
 #   scenes should be named month_[01-12]_colors (month_06_colors)
+# Color help - http://www.esbnyc.com/explore/tower-lights/calendar
 ######################################################################################################
 
 monthly_color_scene:
@@ -11,41 +12,6 @@ monthly_color_scene:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
-
-    - service: logbook.log
-      data_template:
-        name: "Launching Scene:"
-        message: >
-          "scene.month_
-          {%- if now().strftime("%m%d")|int == 101 -%}
-          new_years_day
-          {%- elif now().strftime("%m%d")|int == 212
-          or now().strftime("%m%d")|int == 220
-          or now().strftime("%m%d")|int == 520
-          or now().strftime("%m%d")|int == 529
-          or now().strftime("%m%d")|int == 614
-          or now().strftime("%m%d")|int == 704
-          or now().strftime("%m%d")|int == 904
-          or now().strftime("%m%d")|int == 911
-          or now().strftime("%m%d")|int == 1111
-          -%}
-          RWB
-          {%- elif now().strftime("%m%d")|int >= 210
-          and now().strftime("%m%d")|int <= 214-%}
-          valentine
-          {%- elif now().strftime("%m%d")|int == 228 -%}
-          marti_gras
-          {%- elif now().strftime("%m%d")|int >= 314
-          and now().strftime("%m%d")|int <= 317-%}
-          st_patty
-          {%- elif now().strftime("%m%d")|int >= 414
-          and now().strftime("%m%d")|int <= 416-%}
-          easter
-          {%- elif now().strftime("%m%d")|int == 505 -%}
-          cinco_de_mayo
-          {%- else -%}
-          standard
-          {%- endif -%}_colors
 
     - service: scene.turn_on
       data_template:
@@ -82,8 +48,23 @@ monthly_color_scene:
           valentine
           {%- elif now().strftime("%m%d")|int == 618 -%}
           fathers_day
-          {%- elif now().strftime("%m%d")|int == 1031 -%}
+          {%- elif now().strftime("%m%d")|int >= 1022
+          and now().strftime("%m%d")|int <= 1031-%}
           halloween
+          {%- elif now().strftime("%m%d")|int >= 1123
+          and now().strftime("%m%d")|int <= 1124-%}
+          halloween
+          {%- elif now().strftime("%m%d")|int >= 1201
+          and now().strftime("%m%d")|int <= 1211-%}
+          christmas
+          {%- elif now().strftime("%m%d")|int >= 1212
+          and now().strftime("%m%d")|int <= 1220-%}
+          hanukkah
+          {%- elif now().strftime("%m%d")|int >= 1221
+          and now().strftime("%m%d")|int <= 1230-%}
+          christmas
+          {%- elif now().strftime("%m%d")|int == 1231 -%}
+          new_years_day
           {%- else -%}
           standard
           {%- endif -%}_colors
@@ -111,7 +92,7 @@ monthly_color_scene:
 # RWB 1009 columbus day
 # 1031 halloween
 # RWB 1111 veterans day
-# 1123 Thanksgiving
+# 1123 Thanksgiving - same as Halloween
 # 1212 Hanukkah start 8 days.
 # 1225 Chrismas
 # 1231 New years eve
