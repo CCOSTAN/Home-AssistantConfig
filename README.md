@@ -8,7 +8,7 @@ You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 
 This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly. :star:
-Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2kNttio) was upgraded to 16GB. (Order 2! - 1 for backup)
+Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2xeBlgf) was upgraded to 16GB. (Order 2! - 1 for backup)
 I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi and Windows for backups.
 
 **Software on the Pi :**

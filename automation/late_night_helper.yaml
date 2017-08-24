@@ -1,5 +1,7 @@
 ###################################
 ##  Late Night lights Section
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ###################################
 - alias: 'Late Night Helper'
   trigger:
@@ -24,7 +26,6 @@
   action:
     - service: light.turn_on
       entity_id:
-        - group.living_room_accents
         - light.living_room_slider
         - light.foyer_door
         - light.fridge
@@ -32,11 +33,8 @@
         - light.S1
         - light.S4
     - service: switch.turn_on
-      entity_id: switch.kitchen_accents
-    - service: switch.turn_on
-      entity_id: switch.living_room_outlet
-    - service: switch.turn_on
-      entity_id: switch.foyer_outlet
+      entity_id:
+        - switch.kitchen_accents
     - delay: '00:05:00'
     - service: light.turn_off
       entity_id:

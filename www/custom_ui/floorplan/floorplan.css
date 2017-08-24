@@ -7,10 +7,21 @@ svg, svg * {
 /*
 /* Hover over */
 
-#cover\.large_garage.window-open {
+/* Interior Garage */
+#binary_sensor\.mcu1_gpio12.window-opened {
   transform: rotate(270deg);
   transform-origin: left;
 }
+/* Back Door */
+#binary_sensor\.mcu2_gpio5.window-opened {
+  transform: rotate(270deg);
+  transform-origin: right;
+}
+#binary_sensor\.kitchen_door_opened.window-opened {
+  transform: rotate(270deg);
+  transform-origin: right;
+}
+
 
 .entity:hover:not(.static-text):not(.static-temp):not(.static-text-date):not:(.static-text-time) {
   stroke: #03A9F4 !important;
