@@ -3,7 +3,7 @@ image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
 #pan_zoom:
 hide_app_toolbar:
-date_format: DD-MMM-YYYY
+date_format: MMM-DD-YYYY
 
 # Example of chaining for multiple replaces.
 # '${entity.state ? entity.state.replace("not_home", "away").replace("Miguel_Work", "At Work") : "undefined"}'
@@ -255,3 +255,42 @@ groups:
         class: 'window-closed'
       - state: 'open'
         class: 'window-open'
+
+  - name: Dark Sky Sensors
+    entities:
+      - sensor.dark_sky_minutely_summary
+    image_template: '
+      var imageName = "";
+
+      switch (entity.attributes.entity_picture) {
+        case "/static/images/darksky/weather-sunny.svg":
+          imageName = "day";
+          break;
+
+        case "/static/images/darksky/weather-night.svg":
+          imageName = "night";
+          break;
+
+        case "/static/images/darksky/weather-partlycloudy.svg":
+          imageName = "cloudy-day-1";
+          break;
+
+        case "/static/images/darksky/weather-cloudy.svg":
+          imageName = "cloudy-night-1";
+          break;
+
+        case "/static/images/darksky/weather-cloudy.svg":
+          imageName = "cloudy";
+          break;
+
+        case "/static/images/darksky/weather-pouring.svg":
+          imageName = "rainy-1";
+          break;
+
+        case "/static/images/darksky/weather-snowy.svg":
+          imageName = "snowy-1";
+          break;
+      }
+
+      return "/local/custom_ui/floorplan/images/weather/" + imageName + ".svg";
+      '
