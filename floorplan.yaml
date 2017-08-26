@@ -119,9 +119,22 @@ groups:
       - switch.printer_outlet
       - switch.kitchen_accents
       - switch.master_bathroom_accents
+      - switch.front_door_outlet
+      - switch.living_room_amp
     states:
       - state: 'on'
         class: 'switch-on'
+      - state: 'off'
+        class: 'switch-off'
+    action:
+      service: toggle
+
+  - name: custom_switches
+    entities:
+      - switch.pool_deck
+    states:
+      - state: 'on'
+        class: 'switch-on-blue'
       - state: 'off'
         class: 'switch-off'
     action:
