@@ -2,10 +2,8 @@
 ## * Special HASS related sensors - Thanks @torn8o
 ###################################################
 
-- platform: command_line
+- platform: version
   name: HA Installed Version
-  command: >-
-      cat /home/hass/.homeassistant/.HA_VERSION
   scan_interval: 86400
 
 - platform: command_line
