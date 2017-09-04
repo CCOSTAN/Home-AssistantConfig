@@ -38,6 +38,8 @@
     - service: light.turn_on
       entity_id:
        - group.living_room_accents
+    - delay:
+        minutes: 2
     - service: script.speech_engine
       data:
        call_garage_check: 1

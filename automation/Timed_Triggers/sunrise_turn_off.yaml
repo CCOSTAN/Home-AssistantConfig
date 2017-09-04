@@ -22,6 +22,12 @@
         - group.outdoor_pool_lights
         - group.all_lights
 
+    - wait_template: >-
+       {{ states.sun.sun.states == 'above_horizon' }}
+    - service: switch.turn_off
+      entity_id:
+        - switch.master_bathroom_accents
+
     - service: input_boolean.turn_off
       entity_id:
         - input_boolean.medicine
