@@ -222,10 +222,10 @@ group:
       - binary_sensor.MCU3_GPIO5
       - binary_sensor.MCU3_GPIO10
       - binary_sensor.MCU3_GPIO14
-  interior_door:
-    entities:
-      - binary_sensor.kitchen_door_opened
-      - binary_sensor.MCU3_Light
+  # interior_door: - Moved out to Doors Group.
+  #   entities:
+  #     - binary_sensor.kitchen_door_opened
+  #     - binary_sensor.MCU3_Light
 #-------------------------------------------#-------------------------------------------
 automation:
   - alias: 'Turn off HVAC in window/door is opened'
