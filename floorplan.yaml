@@ -25,10 +25,7 @@ devices:
 entities:
   - name: input_booleans
     entities:
-      - input_boolean.house_station
       - input_boolean.guest_mode
-      - input_boolean.meal_time
-      - input_boolean.tv_time
       - input_boolean.good_night
       - input_boolean.sleepy_dog
       - group.kitchen_lights
@@ -68,6 +65,8 @@ groups:
   - name: text_states
     entities:
       - sensor.last_message
+      - sensor.usps_mail
+      - sensor.usps_packages
     text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
     class_template: 'return "static-text";'
 
@@ -96,6 +95,7 @@ groups:
   - name: Camera
     entities:
       - camera.wu_doppler_weather
+      - camera.usps_mail
     states:
       - state: 'idle'
         class: 'text-home'

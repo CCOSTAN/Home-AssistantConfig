@@ -7,7 +7,7 @@
     - platform: state
       entity_id:
         - binary_sensor.mcu2_gpio5 # back door #
-        - binary_sensor.MCU2_GPIO12 # Main Slider 
+        - binary_sensor.MCU2_GPIO12 # Main Slider
         - binary_sensor.MCU1_GPIO12 # Interior Garage Door #
       to: 'Opened'
       for:
@@ -20,7 +20,7 @@
         value2: ''
         value3: ''
 
-    - wait_template: "{{ states.media_player.livingroomCC.states != 'playing' }}"
+    - wait_template: "{{ states.media_player.livingroomCC.state != 'playing' }}"
       timeout: 00:01:30
 
     - service: input_boolean.turn_on

@@ -29,5 +29,5 @@
     - service: switch.turn_on
       entity_id: switch.back_landscaping
     - wait_template: >-
-        {{ states.group.garage_doors.states == 'closed' }}
+        {{ states.group.garage_doors.state == 'closed' }}
     - service: script.monthly_color_scene
