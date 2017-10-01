@@ -31,20 +31,32 @@ switch.garage_outlet:
   icon: mdi:power-plug
   assumed_state: true
 
+switch.landscaping:
+  friendly_name: 'Landscaping Lights'
+  emulated_hue: True
+  hidden: True
+  homebridge_hidden: True
 
-switch.ge_outdoor_outle_switch_7_0:
-  friendly_name: 'Back Landscape Lighting'
+switch.back_landscaping:
+  friendly_name: 'Back Landscaping'
   emulated_hue: True
   hidden: False
+  homebridge_hidden: false
   icon: mdi:flower
 
 
-switch.ge_outdoor_outle_switch_8_0:
-  friendly_name: 'Front Landscape Lighting'
+switch.front_landscaping:
+  friendly_name: 'Front Landscaping'
   emulated_hue: True
   hidden: False
+  homebridge_hidden: False
   icon: mdi:flower
 
+switch.pool_deck:
+  friendly_name: 'Pool Deck'
+  emulated_hue: true
+  hidden: False
+  homebridge_hidden: False
 
 switch.kitchen_accent_2:
   friendly_name: 'Kitchen Accents 2'
@@ -99,3 +111,16 @@ switch.printer_outlet:
   hidden: False
   icon: mdi:printer
   assumed_state: true
+
+switch.pihole_temp_disable:
+  friendly_name: 'Pihole Temp Disable'
+  emulated_hue: False
+  hidden: False
+  homebridge_hidden: true
+
+switch.computer_screens:
+  friendly_name: 'Computer Screens'
+  emulated_hue: True
+  hidden: False
+  homebridge_hidden: False
+  icon: mdi:monitor-multiple
