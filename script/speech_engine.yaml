@@ -164,7 +164,7 @@ speech_engine:
             {% if call_responsibilities == 1%}
               {{responsibilities()}}
             {%endif%}
-            {% if now().strftime("%H")|int > 22 %}
+            {% if now().strftime("%H")|int > 21 %}
               {{medicine()}}
             {%endif%}
             {{ value1 }}
