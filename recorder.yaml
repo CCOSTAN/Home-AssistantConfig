@@ -2,8 +2,12 @@
 # recorder
 ############################################################
 
-purge_days: 4
+purge_interval: 2
+purge_keep_days: 5
 exclude:
+  domains:
+    - updater
+    - automation
   entities:
     - sensor.floorplan_date
     - sensor.floorplan_time
