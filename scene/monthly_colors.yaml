@@ -148,10 +148,40 @@
 
 - name: month_halloween_colors
   entities:
+      light.outdoor_foyer:
+          state: 'on'
+          color_name: 'purple'
+      light.outdoor_sconce_1:
+          state: 'on'
+          color_name: 'purple'
+      light.outdoor_sconce_2:
+          state: 'on'
+          color_name: 'purple'
+      light.outdoor_sconce_3:
+          state: 'on'
+          color_name: 'purple'
+      light.led_garage_large:
+          state: 'on'
+          #color_name: 'orange'
+          rgb_color: [127,14,0]
+          brightness: 150
+      light.led_garage_small:
+          state: 'on'
+          #color_name: 'orange'
+          rgb_color: [127,14,0]
+          brightness: 150
+      light.led_outdoor_den:
+          state: 'on'
+          #color_name: 'orange'
+          rgb_color: [127,14,0]
+          brightness: 150
+
+- name: month_thanksgiving
+  entities:
        group.outdoor_front_lights:
            state: 'on'
-           color_name: 'Orange'
-           #rgb_color: [23,114,69]
+           color_name: 'orange'
+
 
 - name: month_hanukkah_colors
   entities:
