@@ -59,6 +59,10 @@ I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi an
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
+<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/3MkgeKFUVKPNW45Vtwu9Abd4/CCOSTAN/Home-AssistantConfig'>
+  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/3MkgeKFUVKPNW45Vtwu9Abd4/CCOSTAN/Home-AssistantConfig.svg' />
+</a>
+
 **Automations:**
 * Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios and [Mixer](http://amzn.to/2v9Zp3x).  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
 * Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
