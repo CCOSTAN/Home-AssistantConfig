@@ -20,12 +20,12 @@ sensor:
           friendly_name: 'Netgear Extender'
           value_template: "{{ 'Online' if is_state('device_tracker.netgear_ext', 'home') else 'Offline' }}"
 
-        cisco_ap:
-          friendly_name: 'Cisco Main AP'
-          value_template: "{{ 'Online' if is_state('device_tracker.cisco_ap', 'home') else 'Offline' }}"
+        study_ap:
+          friendly_name: 'Unifi Study AP'
+          value_template: "{{ 'Online' if is_state('device_tracker.study_ap', 'home') else 'Offline' }}"
 
         unifi_ap:
-          friendly_name: 'Unifi AP'
+          friendly_name: 'Unifi Office AP'
           value_template: "{{ 'Online' if is_state('device_tracker.unifi_ap', 'home') else 'Offline' }}"
 
         hue_hub_1:
@@ -134,7 +134,7 @@ group:
       - sensor.disk_use_
       - sensor.speedtest_download
       - sensor.speedtest_upload
-      - sensor.cisco_ap
+      - sensor.study_ap
       - sensor.actiontechap
       - sensor.unifi_ap
       - sensor.wii
@@ -191,7 +191,7 @@ automation:
              - sensor.chromecast_audio_2
              - sensor.nest_upstairs
              - sensor.nest_downstairs
-             - sensor.cisco_ap
+             - sensor.study_ap
              - sensor.actiontechap
              - sensor.trendnetap
              - sensor.unifi_ap

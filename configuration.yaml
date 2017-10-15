@@ -16,7 +16,7 @@ homeassistant:
       homebridge_hidden: true
     "scene.month_*_colors":
       hidden: true
-      emulated_hue: false
+      emulated_hue_hidden: true
       homebridge_hidden: true
 
 
@@ -47,7 +47,7 @@ ios:
 discovery:
   ignore:
    - samsung_tv
-   - roku
+#   - roku
    - google_cast
 
 updater:
@@ -75,6 +75,9 @@ light 2:
   - platform: flux_led
     automatic_add: True
     devices:
+      192.168.10.216:
+        name: led_garage_snip
+        mode: "rgb"
       192.168.10.214:
         name: led_outdoor_den
         mode: "rgb"
@@ -168,13 +171,12 @@ media_player:
   - platform: cast
 
   - platform: roku
-    host: 192.168.10.107
 
   - platform: samsungtv
     host: 192.168.10.207
     port: 8001
     name: Living Room TV
-    scan_interval: 60
+    scan_interval: 180
 
 tts:
   - platform: amazon_polly
