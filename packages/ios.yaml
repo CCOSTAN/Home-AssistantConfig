@@ -1,0 +1,86 @@
+#-------------------------------------------
+#  Realtime Debugging Related Packages
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  ios:
+    push:
+      categories:
+        - name: Medicine
+          identifier: 'TABLET'
+          actions:
+            - identifier: 'TABLET_TAKEN'
+              title: 'Tablet Taken'
+              activationMode: 'background'
+              authenticationRequired: yes
+              destructive: yes
+              behavior: 'default'
+            - identifier: 'NOT_HOME'
+              title: 'I am not Home'
+              activationMode: 'background'
+              authenticationRequired: yes
+              destructive: no
+
+## - Reminders to take my medicine
+input_boolean:
+  medicine:
+    name: Medicine Reminder
+    initial: off
+    icon: mdi:tablet
+
+automation:
+  - alias: Tablet Already taken
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: TABLET_TAKEN
+    action:
+      - service: notify.ios_carlo_6s
+        data:
+          message: "Great job!"
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.medicine
+
+  - alias: Remind Me Later
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: NOT_HOME
+    action:
+      - wait_template: >-
+          {{ states.device_tracker.carlo.state == 'home' }}
+      - service: notify.ios_carlo_6s
+        data:
+          message: "Now that your home, take your medicine!"
+
+  - alias: Medicine Reminder
+    initial_state: true
+    trigger:
+      - platform: time
+        minutes: '45'
+        seconds: '00'
+      - platform: time
+        at: '21:30:00'
+    condition:
+      condition: and
+      conditions:
+      - condition: time
+        after: '21:30:00'
+      - condition: template
+        value_template: '{{ states.input_boolean.medicine.state == "off" }}'
+    action:
+      - service: notify.ios_carlo_6s
+        data:
+          title: "Medicine Alert!"
+          message: "Please take your Medicine!"
+          data:
+            push:
+              category: "TABLET"
+            action_data:
+              entity_id: foo
+              my_custom_data: bar
+
+## Reminders to take my Medicine! - End.

@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.5
+  Version: 1.0.6
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -189,36 +189,21 @@
     },
 
     addExternalCss(callback) {
-      if (this.config.stylesheet) {
-        let styleSheetUrl = this.config.stylesheet + '?cacheBuster=' + (new Date().getTime());
-
-        let link = document.createElement('link');
-        link.type = 'text/css';
-        link.rel = 'stylesheet';
-        link.href = styleSheetUrl;
-        link.onload = function () {
-          this.instance.onStyleSheetLoaded(e)
-          this.callback();
-        }.bind({ instance: this, callback: callback });
-
-        Polymer.dom(this.root).appendChild(link);
+      if (!this.config.stylesheet) {
+        callback();
       }
-    },
 
-    onStyleSheetLoaded(e) {
-      for (let styleSheet of this.getArray(document.styleSheets)) {
-        if (styleSheet.href && styleSheet.href.indexOf(this.config.stylesheet) >= 0) {
-          this.cssRules = this.getArray(styleSheet.cssRules);
-          return;
+      this.loadStyleSheet(this.config.stylesheet + '?cacheBuster=' + (new Date().getTime()), function (success, link) {
+        if (success) {
+          Polymer.dom(this.instance.root).appendChild(link);
+          let styleSheet = link['sheet'];
+          this.instance.cssRules = this.instance.getArray(styleSheet.cssRules);
+          callback();
         }
-      }
-
-      for (let styleSheet of this.getArray(Polymer.dom(this.root).node.styleSheets)) {
-        if (styleSheet.href && styleSheet.href.indexOf(this.config.stylesheet) >= 0) {
-          this.cssRules = this.getArray(styleSheet.cssRules);
-          return;
+        else {
+          this.instance.error("Error loading stylesheet");
         }
-      }
+      }.bind({ instance: this, callback: callback }));
     },
 
     loadFloorPlan(callback) {
@@ -253,9 +238,11 @@
 
                 this.instance.elementConfigs[elementId] = elementConfig;
 
-                for (let otherElementId of elementGroup.action.data.elements) {
-                  let otherSvgElement = $(svg).find(`[id="${otherElementId}"]`);
-                  $(otherSvgElement).addClass(elementGroup.action.data.default_class);
+                if (elementGroup.action.data.elements) {
+                  for (let otherElementId of elementGroup.action.data.elements) {
+                    let otherSvgElement = $(svg).find(`[id="${otherElementId}"]`);
+                    $(otherSvgElement).addClass(elementGroup.action.data.default_class);
+                  }
                 }
               }
               else {
@@ -741,6 +728,19 @@
                   }
                   break;
               }
+              break;
+
+            default:
+              domain = action.domain
+              let data = action.data ? action.data : {};
+              if (action.data_template) {
+                let entities = this.instance.hass.states;
+                let entityState = entities[entityId];
+                let result = this.instance.assemble(action.data_template, entityState, entities);
+                data = JSON.parse(result);
+              }
+              this.instance.hass.callService(domain, action.service, data);
+              break;
           }
         }
       }
@@ -873,6 +873,43 @@
       let debug = Polymer.dom(this.$.debug).node;
       $(debug).find('ul').append(`<li>${message}</li>`)
       $(debug).css('display', 'block');
+    },
+
+    loadStyleSheet(path, fn, scope) {
+      let head = document.getElementsByTagName('head')[0]; // reference to document.head for appending/ removing link nodes
+      let link = document.createElement('link');           // create the link node
+      link.setAttribute('href', path);
+      link.setAttribute('rel', 'stylesheet');
+      link.setAttribute('type', 'text/css');
+
+      let sheet, cssRules;
+      // get the correct properties to check for depending on the browser
+      if ('sheet' in link) {
+        sheet = 'sheet'; cssRules = 'cssRules';
+      }
+      else {
+        sheet = 'styleSheet'; cssRules = 'rules';
+      }
+
+      let interval_id = setInterval(function () {                     // start checking whether the style sheet has successfully loaded
+        try {
+          if (link[sheet] && link[sheet][cssRules].length) { // SUCCESS! our style sheet has loaded
+            clearInterval(interval_id);                      // clear the counters
+            clearTimeout(timeout_id);
+            fn.call(scope || window, true, link);           // fire the callback with success == true
+          }
+        } catch (e) { } finally { }
+      }, 10),                                                   // how often to check if the stylesheet is loaded
+        timeout_id = setTimeout(function () {       // start counting down till fail
+          clearInterval(interval_id);             // clear the counters
+          clearTimeout(timeout_id);
+          head.removeChild(link);                // since the style sheet didn't load, remove the link node from the DOM
+          fn.call(scope || window, false, link); // fire the callback with success == false
+        }, 15000);                                 // how long to wait before failing
+
+      head.appendChild(link);  // insert the link node into the DOM and start loading the style sheet
+
+      return link; // return the link node;
     },
 
     rgbToHex(rgb) {
