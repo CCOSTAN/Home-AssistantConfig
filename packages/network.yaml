@@ -16,10 +16,6 @@ sensor:
           friendly_name: 'Tablo TV'
           value_template: "{{ 'Online' if is_state('device_tracker.tablotv', 'home') else 'Offline' }}"
 
-        netgear_ext:
-          friendly_name: 'Netgear Extender'
-          value_template: "{{ 'Online' if is_state('device_tracker.netgear_ext', 'home') else 'Offline' }}"
-
         study_ap:
           friendly_name: 'Unifi Study AP'
           value_template: "{{ 'Online' if is_state('device_tracker.study_ap', 'home') else 'Offline' }}"
