@@ -42,6 +42,14 @@ panel_custom:
     url_path: floorplan
     config: !include floorplan.yaml
 
+notify:
+  - platform: ios
+  - name: ios_family
+    platform: group
+    services:
+      - service: ios_staceys_iphone
+      - service: ios_carlo_6s
+
 ios:
   push:
     categories:
