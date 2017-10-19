@@ -32,13 +32,11 @@
         - fri
 
   action:
+    - delay: 00:20:00
     - service: light.turn_on
       entity_id:
         - light.s1
         - light.s4
-    - service: switch.turn_on
-      entity_id: switch.kitchen_accents
-    - delay: 00:01:00
     - service: switch.turn_on
       entity_id: switch.kitchen_accents
     - service: input_boolean.turn_off

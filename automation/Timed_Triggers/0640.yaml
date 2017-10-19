@@ -2,10 +2,10 @@
 ##  Stuff that needs to happen at 06:30am.
 ######################################################################
 
-- alias: 'Timed 630.'
+- alias: 'Timed 640.'
   trigger:
     - platform: time
-      at: '06:50:00'
+      at: '06:40:00'
 
   condition:
     - condition: state
@@ -25,6 +25,7 @@
   action:
     - service: light.turn_on
       entity_id:
-        - group.dining_room_lights
+        - light.d1
+        - light.d2
     - service: switch.turn_on
       entity_id: switch.kitchen_accents
