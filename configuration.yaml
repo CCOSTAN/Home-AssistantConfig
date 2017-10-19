@@ -42,7 +42,23 @@ panel_custom:
     url_path: floorplan
     config: !include floorplan.yaml
 
-# ios:
+ios:
+  push:
+    categories:
+      - name: Medicine
+        identifier: 'TABLET'
+        actions:
+          - identifier: 'TABLET_TAKEN'
+            title: 'Tablet Taken'
+            activationMode: 'background'
+            authenticationRequired: yes
+            destructive: yes
+            behavior: 'default'
+          - identifier: 'NOT_HOME'
+            title: 'I am not Home'
+            activationMode: 'background'
+            authenticationRequired: yes
+            destructive: no
 
 discovery:
   ignore:
