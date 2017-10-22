@@ -32,11 +32,14 @@ automation:
       event_data:
         actionName: NOT_HOME
     action:
+      - service: notify.ios_carlo_6s
+        data:
+          message: "Ok. I will remind you when you get home."
       - wait_template: >-
           {{ states.device_tracker.carlo.state == 'home' }}
       - service: notify.ios_carlo_6s
         data:
-          message: "Now that your home, take your medicine!"
+          message: "Now that your home, please take your medicine!"
 
   - alias: Medicine Reminder
     initial_state: true
@@ -60,9 +63,9 @@ automation:
           message: "Please take your Medicine!"
           data:
             push:
-              category: "TABLET"
+              category: "tablet"
             action_data:
-              entity_id: foo
-              my_custom_data: bar
+              entity_id: light.test
+              my_custom_data: foo_bar
 
 ## Reminders to take my Medicine! - End.

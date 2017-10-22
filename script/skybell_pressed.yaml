@@ -17,3 +17,11 @@ skybell_pressed:
     - service: script.speech_engine
       data:
         value1: 'Please check the Front Door.  Someone Pressed the Doorbell.'
+
+    - service: notify.ios_family
+      data:
+        message: Someone Pressed the Doorbell!
+        data:
+          push:
+            category: camera
+          entity_id: camera.stone_door

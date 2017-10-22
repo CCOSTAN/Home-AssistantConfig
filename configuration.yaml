@@ -53,18 +53,18 @@ ios:
   push:
     categories:
       - name: Medicine
-        identifier: 'TABLET'
+        identifier: 'tablet'
         actions:
           - identifier: 'TABLET_TAKEN'
             title: 'Tablet Taken'
             activationMode: 'background'
-            authenticationRequired: yes
+            authenticationRequired: no
             destructive: yes
-            behavior: 'default'
+
           - identifier: 'NOT_HOME'
             title: 'I am not Home'
             activationMode: 'background'
-            authenticationRequired: yes
+            authenticationRequired: no
             destructive: no
 
 discovery:
