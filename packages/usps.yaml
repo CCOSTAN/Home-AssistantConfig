@@ -9,3 +9,12 @@ usps:
 camera:
   - platform: usps
     scan_interval: 5
+
+group:
+  mail:
+    name: Mailbox Information
+    control: hidden
+    entities:
+      - sensor.usps_mail
+      - sensor.usps_packages
+      - camera.usps_mail
