@@ -1,0 +1,31 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#---Sensor Mail and Packages-----------------------------
+skybell:
+  username: !secret skybell_username
+  password: !secret skybell_password
+
+camera:
+  - platform: usps
+    scan_interval: 5
+
+binary_sensor:
+  - platform: skybell
+    monitored_conditions:
+      - button
+      - motion
+
+light:
+  - platform: skybell
+
+sensor:
+  - platform: skybell
+    monitored_conditions:
+      - chime_level
+
+switch:
+  - platform: skybell
+    monitored_conditions:
+      - do_not_disturb
+      - motion_sensor 
