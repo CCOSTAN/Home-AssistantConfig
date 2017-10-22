@@ -1,14 +1,25 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-#---Sensor Mail and Packages-----------------------------
+###################################
+## [SkyBell HD](http://amzn.to/2dcexIB)
+###################################
+
+homeassistant:
+  customize_glob:
+    "sensor.skybell_*":
+      icon: mdi:camera-front
+      emulated_hue_hidden: True
+      hidden: False
+      homebridge_hidden: True
+
+
 skybell:
   username: !secret skybell_username
   password: !secret skybell_password
 
 camera:
-  - platform: usps
-    scan_interval: 5
+  - platform: skybell
 
 binary_sensor:
   - platform: skybell
@@ -17,15 +28,49 @@ binary_sensor:
       - motion
 
 light:
-  - platform: skybell
+  - platform: skybell   # Part of the Outdoor Front Lights Group
 
 sensor:
   - platform: skybell
     monitored_conditions:
       - chime_level
 
+  - platform: template
+    sensors:
+       skybell:
+         entity_id: binary_sensor.skybell_bear_stone_door_button
+         value_template: "{{ is_state_attr('binary_sensor.skybell_bear_stone_door_buttons', 'status', 'up') }}"
+
 switch:
   - platform: skybell
     monitored_conditions:
       - do_not_disturb
-      - motion_sensor 
+      - motion_sensor
+
+
+
+###################################
+##  Automations
+###################################
+## Doorbell Press
+automation:
+  - alias: 'Log SkyBell Pressed Activity'
+    hide_entity: True
+    trigger:
+       - platform: state
+         entity_id:
+           - binary_sensor.skybell_stone_door_button
+         to: 'on'
+
+    action:
+      - service: script.skybell_pressed
+
+# Motion Sensing
+  - alias: 'Log SkyBell Motion detection'
+    hide_entity: True
+    trigger:
+      - platform: event
+        event_type: skybell_motion
+
+    action:
+      - service: script.front_house_motion
