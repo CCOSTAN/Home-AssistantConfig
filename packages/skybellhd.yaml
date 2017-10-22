@@ -38,8 +38,8 @@ sensor:
   - platform: template
     sensors:
        skybell:
-         entity_id: binary_sensor.skybell_bear_stone_door_button
-         value_template: "{{ is_state_attr('binary_sensor.skybell_bear_stone_door_buttons', 'status', 'up') }}"
+         entity_id: binary_sensor.skybell_stone_door_button
+         value_template: "{{ 'Online' if is_state_attr('binary_sensor.skybell_stone_door_button', 'status', 'up') else 'Offline' }}"
 
 switch:
   - platform: skybell

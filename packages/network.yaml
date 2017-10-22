@@ -72,10 +72,6 @@ sensor:
           friendly_name: 'Rachio Sprinklers'
           value_template: "{{ 'Online' if is_state('device_tracker.rachio', 'home') else 'Offline' }}"
 
-        skybell:
-          friendly_name: 'Skybell Doorbell'
-          value_template: "{{ 'Online' if is_state('device_tracker.skybell', 'home') else 'Offline' }}"
-
         samsungtv:
           friendly_name: 'Samsung TV'
           value_template: "{{ 'Online' if is_state('device_tracker.samsungtv', 'home') else 'Offline' }}"
