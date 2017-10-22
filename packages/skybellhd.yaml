@@ -47,8 +47,6 @@ switch:
       - do_not_disturb
       - motion_sensor
 
-
-
 ###################################
 ##  Automations
 ###################################
@@ -61,6 +59,8 @@ automation:
          entity_id:
            - binary_sensor.skybell_stone_door_button
          to: 'on'
+       - platform: event
+         event_type: skybell_pressed
 
     action:
       - service: script.skybell_pressed
