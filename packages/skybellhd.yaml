@@ -74,7 +74,13 @@ automation:
          event_type: skybell_pressed
 
     action:
+      # Disable this automation
+      - service: automation.turn_off
       - service: script.skybell_pressed
+      - delay:
+          minutes: 1
+      # enable this automation - This prevents duplicate pushes.
+      - service: automation.turn_on
 
 # Motion Sensing
   - alias: 'Log SkyBell Motion detection'
