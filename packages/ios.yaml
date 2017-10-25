@@ -3,6 +3,23 @@
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 #-------------------------------------------
+homeassistant:
+  customize_glob:
+    "sensor.carlo_6s_*":
+      icon: mdi:apple
+      emulated_hue_hidden: True
+    "sensor.staceys_iphone_*":
+      icon: mdi:apple
+      emulated_hue_hidden: True
+
+group:
+  Phones:
+    entities:
+      - sensor.carlo_6s_battery_level
+      - sensor.carlo_6s_battery_state
+      - sensor.staceys_iphone_battery_level
+      - sensor.staceys_iphone_battery_state
+
 ios:
   push:
     categories:

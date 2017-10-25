@@ -13,7 +13,7 @@ homeassistant:
       friendly_name: Total Domains Blocking
       icon: mdi:do-not-disturb
 
-    sensor.pihole_unique_clients:
+    sensor.pihole_dns_unique_clients:
       friendly_name: Unique Clients
       icon: mdi:desktop-classic
 
@@ -62,7 +62,7 @@ group:
   pihole:
     entities:
       - sensor.carlopihole
-      - sensor.unique_clients
+      - sensor.pihole_dns_unique_clients
       - sensor.pihole_dns_queries_today
       - sensor.pihole_ads_blocked_today
       - sensor.pihole_ads_percentage_today
