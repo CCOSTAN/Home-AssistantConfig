@@ -1,0 +1,56 @@
+###############################################################################
+#   @author         :   Mahasri Kalavala
+#   @date           :   10/28/2017
+#   @package        :   Holidays
+#   @description    :   Retrieves the holiday
+###############################################################################
+## Modified for my own fun stuff!
+
+homeassistant:
+  customize:
+
+    sensor.holiday:
+      hidden: true
+      icon: mdi:beach
+      friendly_name: US Holiday
+
+###############################################################################
+# Sensor updates once every 4 hours (14400 seconds) & runs 6 times in 24 hours
+#
+# First it checks for holiday in static section, if that doesn't exist,
+# it checks in the dynamic section. If neither exists, the value will be empty
+###############################################################################
+sensor:
+  - platform: rest
+    resource: https://raw.githubusercontent.com/skalavala/smarthome/master/holidays.json
+    name: Holiday
+    scan_interval: 14400
+    value_template: >
+      {% set today = now().month  ~ '/' ~ now().day  %}
+      {% set holiday =  value_json.MAJOR_US.static[ today ] %}
+      {% if holiday | trim == "" %}
+        {% set today = now().month  ~ '/' ~ now().day ~ '/' ~ now().year %}
+        {% set holiday =  value_json.MAJOR_US.dynamic[ today ] %}
+      {% endif %}
+      {{ holiday }}
+
+###############################################################################
+# Automation that notifies of a Holiday "state" change
+###############################################################################
+automation:
+  - alias: Notify Holiday State Change
+    hide_entity: false
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id: sensor.holiday
+    condition:
+      - condition: template
+        value_template: "{{ states('sensor.holiday') != 'unknown' }}"
+      - condition: template
+        value_template: "{{ states.sensor.holiday.state | trim != '' }}"
+    action:
+      - service: persistent_notification.create
+        data:
+          message: 'Today is {{ states.sensor.holiday.state }}.'
+          title: '{{ states.sensor.holiday.state }}'

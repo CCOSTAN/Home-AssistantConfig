@@ -95,7 +95,6 @@ groups:
     entities:
       - camera.wu_doppler_weather
       - camera.usps_mail
-      - camera.stone_door
     states:
       - state: 'idle'
         class: 'text-home'
@@ -307,3 +306,7 @@ groups:
 
       return "/local/custom_ui/floorplan/images/weather/" + imageName + ".svg";
       '
+
+  - name: Doorbell Camera
+    entities:
+      - camera.stone_door
