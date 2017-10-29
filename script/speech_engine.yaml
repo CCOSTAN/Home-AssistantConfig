@@ -126,34 +126,8 @@ speech_engine:
             {%- endif -%}
           {%- endmacro %}
           {% macro holiday() %}
-            {% if (now().month | int == 1) and (now().day | int == 1) %}
-              Happy New Year!!!.
-            {% elif (now().month | int == 1) and (now().day | int == 15) %}
-              Today is Martin Luther King Jr's Day.
-            {% elif (now().month | int == 2) and (now().day | int == 19) %}
-              Today is President's Day.
-            {% elif (now().month | int == 5) and (now().day | int == 13) %}
-              Happy Mother's Day!.
-            {% elif (now().month | int == 5) and (now().day | int == 28) %}
-              Today is Memorial Day!.
-            {% elif (now().month | int == 6) and (now().day | int == 17) %}
-              Happy Father's Day!.
-            {% elif (now().month | int == 9) and (now().day | int == 3) %}
-              Today is Labor Day!.
-            {% elif (now().month | int == 7) and (now().day | int == 4) %}
-              Happy Independence day!.
-            {% elif (now().month | int == 10) and (now().day | int == 19) %}
-              Today is the festival of lights! Happy Diwali!.
-            {% elif (now().month | int == 11) and (now().day | int == 10) %}
-              Today is a veterans day!.
-            {% elif (now().month | int == 11) and (now().day | int == 23) %}
-              Happy Thanksgiving!.
-            {% elif (now().month | int == 11) and (now().day | int == 24) %}
-              Happy Day after Thanksgiving! or Happy Shopping Day!
-            {% elif (now().month | int == 12) and (now().day | int == 24) %}
-              Better get to bed early tonight! You know who is coming...
-            {% elif (now().month | int == 12) and (now().day | int == 25) %}
-              Merry Christmas!.
+            {% if states.sensor.holiday.state != "" %}
+              Today is {{ states.sensor.holiday.state }}.
             {% endif %}
           {% endmacro %}
           {#  ********************************************* #}
