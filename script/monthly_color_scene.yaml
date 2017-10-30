@@ -17,20 +17,10 @@ monthly_color_scene:
       data_template:
         entity_id: >
           scene.month_
-          {%- if now().strftime("%m%d")|int == 101 -%}
-          new_years_day
-          {%- elif now().strftime("%m%d")|int == 212
-          or now().strftime("%m%d")|int == 220
-          or now().strftime("%m%d")|int == 520
-          or now().strftime("%m%d")|int == 529
-          or now().strftime("%m%d")|int == 614
-          or now().strftime("%m%d")|int == 704
-          or now().strftime("%m%d")|int == 904
-          or now().strftime("%m%d")|int == 911
-          or now().strftime("%m%d")|int == 1009
-          or now().strftime("%m%d")|int == 1111
-          -%}
+          {%- if sensor.flag == "True" -%}
           RWB
+          {%- elif now().strftime("%m%d")|int == 101 -%}
+          new_years_day
           {%- elif now().strftime("%m%d")|int >= 210
           and now().strftime("%m%d")|int <= 214-%}
           valentine
