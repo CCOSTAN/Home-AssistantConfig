@@ -61,7 +61,8 @@ automation:
     initial_state: true
     trigger:
       - platform: state
-        entity_id: sensor.holiday
+        entity_id:
+          - sensor.holiday
     condition:
       - condition: template
         value_template: "{{ states('sensor.holiday') != 'unknown' }}"
