@@ -125,11 +125,11 @@ speech_engine:
             Check out the full moon tonight!
             {%- endif -%}
           {%- endmacro %}
-          {% macro holiday() %}
+          {% macro holiday() -%}
             {% if states.sensor.holiday.state != "" %}
               Today is {{ states.sensor.holiday.state }}.
             {% endif %}
-          {% endmacro %}
+          {% endmacro -%}
           {#  ********************************************* #}
           {#   ******** Start the Speech routines *******   #}
           {#                                                #}
@@ -174,7 +174,7 @@ speech_engine:
             {%endif%}
             {{ value1 }}
             {{([iss, pihole, moon]| random)()}} {# call a Random fact about the house #}
-            {{holiday}}
+            {{holiday()}}
     - service: input_boolean.turn_off
       entity_id:
         - input_boolean.home_stats
