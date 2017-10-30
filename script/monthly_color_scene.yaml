@@ -17,7 +17,7 @@ monthly_color_scene:
       data_template:
         entity_id: >
           scene.month_
-          {%- if sensor.flag == "True" -%}
+          {%- if states.sensor.flag.state == "True" -%}
           RWB
           {%- elif now().strftime("%m%d")|int == 101 -%}
           new_years_day
