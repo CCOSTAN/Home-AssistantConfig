@@ -26,12 +26,18 @@ monthly_color_scene:
           valentine
           {%- elif now().strftime("%m%d")|int == 228 -%}
           marti_gras
-          {%- elif now().strftime("%m%d")|int >= 314
+          {%- elif now().strftime("%m%d")|int == 314 -%}
+          pi
+          {%- elif now().strftime("%m%d")|int >= 315
           and now().strftime("%m%d")|int <= 317-%}
           st_patty
           {%- elif now().strftime("%m%d")|int >= 414
           and now().strftime("%m%d")|int <= 416-%}
           easter
+          {%- elif now().strftime("%m%d")|int == 422 -%}
+          st_patty
+          {%- elif now().strftime("%m%d")|int == 504 -%}
+          starwars
           {%- elif now().strftime("%m%d")|int == 505 -%}
           cinco_de_mayo
           {%- elif now().strftime("%m%d")|int == 514 -%}
