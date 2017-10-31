@@ -12,22 +12,27 @@ homeassistant:
       emulated_hue_hidden: True
       hidden: False
       homebridge_hidden: true
+    sensor.rocket:
+      hidden: False
+      icon: mdi:rocket
+      friendly_name: Rocket Launch
 #-------------------------------------------
 binary_sensor:
   - platform: iss
     show_on_map: False
 #-------------------------------------------
-
+#          {% if today_date == target_date  and day_val.location.id | int == 16 %}
 sensor:
   - platform: rest
     resource: https://launchlibrary.net/1.2.2/launch/next/10
-    name: Rocket
+    scan_interval: 14400
+    name: rocket
     value_template: >-
       {% set rocket_launch_datetime = 0000 %}
       {% for day_val in value_json.launches -%}
         {% set today_date = now().strftime('%B %d') %}
         {% set target_date = day_val.net.split(',')[0] %}
-          {% if today_date == target_date  and day_val.location.id | int == 16 %}
+          {% if today_date == target_date %}
             {% set rocket_launch_datetime = day_val.windowstart.split(' ')[3] %}
           {% endif %}
       {% endfor %}
