@@ -17,6 +17,22 @@ binary_sensor:
   - platform: iss
     show_on_map: False
 #-------------------------------------------
+
+sensor:
+  - platform: rest
+    resource: https://launchlibrary.net/1.2.2/launch/next/10
+    name: Rocket
+    value_template: >-
+      {% set rocket_launch_datetime = 0000 %}
+      {% for day_val in value_json.launches -%}
+        {% set today_date = now().strftime('%B %d') %}
+        {% set target_date = day_val.net.split(',')[0] %}
+          {% if today_date == target_date  and day_val.location.id | int == 16 %}
+            {% set rocket_launch_datetime = day_val.windowstart.split(' ')[3] %}
+          {% endif %}
+      {% endfor %}
+      {{ rocket_launch_datetime }}
+
 # This automation was just moved to a macro in the speech_engine.
 # It's a random fact now.
 
