@@ -445,44 +445,21 @@
             }
           }
 
-          if (entityConfig.group.image_template) {
+          if (entityConfig.group.camera_image_template) {
+            imageUrl = this.assemble(entityConfig.group.camera_image_template, entityState, entities);
+            if (imageUrl && (entityConfig.imageUrl !== imageUrl)) {
+              this.loadCameraImage(imageUrl, entityId, entityState);
+            }
+
+            let image = $(svg).find(`[id="image.${entityId}"]`)[0];
+            this.setHoverOverText(image, entityState);
+          }
+          else if (entityConfig.group.image_template) {
             imageUrl = this.assemble(entityConfig.group.image_template, entityState, entities);
             if (imageUrl && (entityConfig.imageUrl !== imageUrl)) {
-              entityConfig.imageUrl = imageUrl;
-
-              if (imageUrl.indexOf('camera_proxy') >= 0) {
-                let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
-                let $targetElement = $(svg).find(`[id="${entityId}"]`);
-                let $parent = $targetElement.parent();
-                $targetElement.remove();
-
-                let image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                $(image)
-                  .attr('id', $targetElement.attr('id'))
-                  .attr('x', $targetElement.attr('x'))
-                  .attr('y', $targetElement.attr('y'))
-                  .attr('height', $targetElement.attr('height'))
-                  .attr('width', $targetElement.attr('width'))
-                  .appendTo($parent);
-
-                image = $parent.find(`[id="${entityId}"]`)[0];
-                image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl);
-
-                $(image).append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
-                  .on('click', this.onEntityClick.bind({ instance: this, entityId: entityId }))
-                  .css('cursor', 'pointer')
-                  .addClass('ha-entity');
-
-                this.setHoverOverText(image, entityState);
-              }
-              else {
-                this.loadImage(imageUrl, entityId, entityState, (embeddedSvg, entityState) => {
-                  this.setHoverOverText(embeddedSvg, entityState);
-                });
-
-                let embeddedSvg = $(svg).find(`[id="image.${entityId}"]`)[0];
+              this.loadImage(imageUrl, entityId, entityState, (embeddedSvg, entityState) => {
                 this.setHoverOverText(embeddedSvg, entityState);
-              }
+              });
             }
             else {
               let embeddedSvg = $(svg).find(`[id="image.${entityId}"]`)[0];
@@ -567,6 +544,39 @@
 
         $(titleElement).html(titleText);
       });
+    },
+
+    loadCameraImage(imageUrl, entityId, entityState) {
+      let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
+      let $targetElement = $(svg).find(`[id="${entityId}"]`);
+
+      let image;
+      let $parent = $targetElement.parent();
+
+      if (!$targetElement.is('image')) {
+        $targetElement.remove();
+
+        image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        $(image)
+          .attr('id', $targetElement.attr('id'))
+          .attr('x', $targetElement.attr('x'))
+          .attr('y', $targetElement.attr('y'))
+          .attr('height', $targetElement.attr('height'))
+          .attr('width', $targetElement.attr('width'))
+          .appendTo($parent);
+
+        $(image).append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
+          .on('click', this.onEntityClick.bind({ instance: this, entityId: entityId }))
+          .css('cursor', 'pointer')
+          .addClass('ha-entity');
+      }
+
+      image = $parent.find(`[id="${entityId}"]`)[0];
+
+      let cacheBuster = ((imageUrl.indexOf('?') >= 0) ? '&' : '?') + 'cacheBuster=' + (new Date().getTime());
+      image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl + cacheBuster);
+
+      this.setHoverOverText(image, entityState);
     },
 
     loadImage(imageUrl, entityId, entityState, callback) {
@@ -915,7 +925,7 @@
 
     loadStyleSheet(path, fn, scope) {
       let head = document.getElementsByTagName('head')[0]; // reference to document.head for appending/ removing link nodes
-      let link = document.createElement('link');           // create the link node
+      let link = document.createElement('link');     // create the link node
       link.setAttribute('href', path);
       link.setAttribute('rel', 'stylesheet');
       link.setAttribute('type', 'text/css');
@@ -929,21 +939,21 @@
         sheet = 'styleSheet'; cssRules = 'rules';
       }
 
-      let interval_id = setInterval(function () {                     // start checking whether the style sheet has successfully loaded
+      let interval_id = setInterval(function () {       // start checking whether the style sheet has successfully loaded
         try {
           if (link[sheet] && link[sheet][cssRules].length) { // SUCCESS! our style sheet has loaded
-            clearInterval(interval_id);                      // clear the counters
+            clearInterval(interval_id);      // clear the counters
             clearTimeout(timeout_id);
-            fn.call(scope || window, true, link);           // fire the callback with success == true
+            fn.call(scope || window, true, link);     // fire the callback with success == true
           }
         } catch (e) { } finally { }
-      }, 10),                                                   // how often to check if the stylesheet is loaded
-        timeout_id = setTimeout(function () {       // start counting down till fail
-          clearInterval(interval_id);             // clear the counters
+      }, 10),               // how often to check if the stylesheet is loaded
+        timeout_id = setTimeout(function () {   // start counting down till fail
+          clearInterval(interval_id);     // clear the counters
           clearTimeout(timeout_id);
-          head.removeChild(link);                // since the style sheet didn't load, remove the link node from the DOM
+          head.removeChild(link);    // since the style sheet didn't load, remove the link node from the DOM
           fn.call(scope || window, false, link); // fire the callback with success == false
-        }, 15000);                                 // how long to wait before failing
+        }, 15000);         // how long to wait before failing
 
       head.appendChild(link);  // insert the link node into the DOM and start loading the style sheet
 

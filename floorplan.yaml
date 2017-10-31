@@ -307,7 +307,8 @@ groups:
       return "/local/custom_ui/floorplan/images/weather/" + imageName + ".svg";
       '
 
-  - name: Doorbell Camera
+  - name: Camera Images
     entities:
       - camera.stone_door
-    image_template: '${entity.attributes.entity_picture}'
+      - camera.wu_doppler_weather
+    camera_image_template: '${entity.attributes.entity_picture}'
