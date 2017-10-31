@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.6
+  Version: 1.0.7
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -447,15 +447,47 @@
 
           if (entityConfig.group.image_template) {
             imageUrl = this.assemble(entityConfig.group.image_template, entityState, entities);
-            if (entityConfig.imageUrl !== imageUrl) {
+            if (imageUrl && (entityConfig.imageUrl !== imageUrl)) {
               entityConfig.imageUrl = imageUrl;
-              this.loadImage(imageUrl, entityId, entityState, (embeddedSvg, entityState) => {
-                this.setHoverOverText(embeddedSvg, entityState);
-              });
-            }
 
-            let embeddedSvg = $(svg).find(`[id="image.${entityId}"]`)[0];
-            this.setHoverOverText(embeddedSvg, entityState);
+              if (imageUrl.indexOf('camera_proxy') >= 0) {
+                let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
+                let $targetElement = $(svg).find(`[id="${entityId}"]`);
+                let $parent = $targetElement.parent();
+                $targetElement.remove();
+
+                let image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                $(image)
+                  .attr('id', $targetElement.attr('id'))
+                  .attr('x', $targetElement.attr('x'))
+                  .attr('y', $targetElement.attr('y'))
+                  .attr('height', $targetElement.attr('height'))
+                  .attr('width', $targetElement.attr('width'))
+                  .appendTo($parent);
+
+                image = $parent.find(`[id="${entityId}"]`)[0];
+                image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl);
+
+                $(image).append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
+                  .on('click', this.onEntityClick.bind({ instance: this, entityId: entityId }))
+                  .css('cursor', 'pointer')
+                  .addClass('ha-entity');
+
+                this.setHoverOverText(image, entityState);
+              }
+              else {
+                this.loadImage(imageUrl, entityId, entityState, (embeddedSvg, entityState) => {
+                  this.setHoverOverText(embeddedSvg, entityState);
+                });
+
+                let embeddedSvg = $(svg).find(`[id="image.${entityId}"]`)[0];
+                this.setHoverOverText(embeddedSvg, entityState);
+              }
+            }
+            else {
+              let embeddedSvg = $(svg).find(`[id="image.${entityId}"]`)[0];
+              this.setHoverOverText(embeddedSvg, entityState);
+            }
           }
 
           let targetClass = undefined;
@@ -519,16 +551,22 @@
     },
 
     setHoverOverText(element, entityState) {
-      let title = $(element).find('title');
-      if (title.length) {
-        let dateFormat = this.config.date_format ? this.config.date_format : 'DD-MMM-YYYY';
-        let titleText = entityState.attributes.friendly_name + '\n' +
-          'State: ' + entityState.state + '\n' +
-          'Last changed date: ' + moment(entityState.last_changed).format(dateFormat) + '\n' +
-          'Last changed time: ' + moment(entityState.last_changed).format('HH:mm:ss');
+      let dateFormat = this.config.date_format ? this.config.date_format : 'DD-MMM-YYYY';
 
-        $(title).html(titleText);
-      }
+      $(element).find('title').each((i, titleElement) => {
+        let titleText = `${entityState.attributes.friendly_name}\n`;
+        titleText += `State: ${entityState.state}\n\n`;
+
+        Object.keys(entityState.attributes).map(key => {
+          titleText += `${key}: ${entityState.attributes[key]}\n`;
+        });
+        titleText += '\n';
+
+        titleText += `Last changed date: ${moment(entityState.last_changed).format(dateFormat)}\n`;
+        titleText += `Last changed time: ${moment(entityState.last_changed).format('HH:mm:ss')}`;
+
+        $(titleElement).html(titleText);
+      });
     },
 
     loadImage(imageUrl, entityId, entityState, callback) {
