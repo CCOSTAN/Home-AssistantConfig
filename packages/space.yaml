@@ -12,31 +12,49 @@ homeassistant:
       emulated_hue_hidden: True
       hidden: False
       homebridge_hidden: true
-    sensor.rocket:
+    sensor.launch_window:
       hidden: False
       icon: mdi:rocket
-      friendly_name: Rocket Launch
+      friendly_name: Rocket Launch Window
 #-------------------------------------------
 binary_sensor:
   - platform: iss
     show_on_map: False
 #-------------------------------------------
-#          {% if today_date == target_date  and day_val.location.id | int == 16 %}
+
 sensor:
   - platform: rest
     resource: https://launchlibrary.net/1.2.2/launch/next/10
-    scan_interval: 14400
-    name: rocket
+    name: launch window
+    # if the current timestamp is in the launch window
+    # this sensor will return the UTC timestamp of the launch
     value_template: >-
-      {% set rocket_launch_datetime = 0000 %}
-      {% for day_val in value_json.launches -%}
-        {% set today_date = now().strftime('%B %d') %}
-        {% set target_date = day_val.net.split(',')[0] %}
-          {% if today_date == target_date %}
-            {% set rocket_launch_datetime = day_val.windowstart.split(' ')[3] %}
-          {% endif %}
+      {%- for launch in value_json.launches %}
+        {% if launch.location.id == 16 %}
+           {% if strptime(isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
+              True
+           {% endif %}
+           {% elif %}
+              False
+        {% endif %}
       {% endfor %}
-      {{ rocket_launch_datetime }}
+
+
+automation:
+  - alias: Launch Window Approaching
+    trigger:
+      - platform: state
+        entity_id: sensor.launch_window
+    condition:
+      - condition: template
+        value_template: "{{not is_state('sensor.launch_window', '')}}"
+    action:
+      - wait_template: >-
+         {{ is_state('sensor.launch_window', 'True') }}
+      - service: notify.ios_carlo_6s
+        data:
+          message: "Rocket Launch about to happen!"
+
 
 # This automation was just moved to a macro in the speech_engine.
 # It's a random fact now.
