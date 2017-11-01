@@ -22,38 +22,36 @@ binary_sensor:
     show_on_map: False
 #-------------------------------------------
 
-sensor:
-  - platform: rest
-    resource: https://launchlibrary.net/1.2.2/launch/next/10
-    name: launch window
-    # if the current timestamp is in the launch window
-    # this sensor will return the UTC timestamp of the launch
-    value_template: >-
-      {%- for launch in value_json.launches %}
-        {% if launch.location.id == 16 %}
-           {% if strptime(isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
-              True
-           {% endif %}
-           {% elif %}
-              False
-        {% endif %}
-      {% endfor %}
-
-
-automation:
-  - alias: Launch Window Approaching
-    trigger:
-      - platform: state
-        entity_id: sensor.launch_window
-    condition:
-      - condition: template
-        value_template: "{{not is_state('sensor.launch_window', '')}}"
-    action:
-      - wait_template: >-
-         {{ is_state('sensor.launch_window', 'True') }}
-      - service: notify.ios_carlo_6s
-        data:
-          message: "Rocket Launch about to happen!"
+# sensor:
+#   - platform: rest
+#     resource: https://launchlibrary.net/1.2.2/launch/next/10
+#     name: launch window
+#     value_template: >-
+#       {%- for launch in value_json.launches %}
+#         {% if launch.location.id == 16 %}
+#            {% if strptime(isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
+#               True
+#            {% endif %}
+#            {% elif %}
+#               False
+#         {% endif %}
+#       {% endfor %}
+#
+#
+# automation:
+#   - alias: Launch Window Approaching
+#     trigger:
+#       - platform: state
+#         entity_id: sensor.launch_window
+#     condition:
+#       - condition: template
+#         value_template: "{{not is_state('sensor.launch_window', '')}}"
+#     action:
+#       - wait_template: >-
+#          {{ is_state('sensor.launch_window', 'True') }}
+#       - service: notify.ios_carlo_6s
+#         data:
+#           message: "Rocket Launch about to happen!"
 
 
 # This automation was just moved to a macro in the speech_engine.
