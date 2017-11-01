@@ -119,6 +119,7 @@ groups:
       - switch.kitchen_accents
       - switch.master_bathroom_accents
       - switch.front_door_outlet
+      - switch.foyer_outlet
       - switch.living_room_amp
     states:
       - state: 'on'
@@ -196,6 +197,7 @@ groups:
       - light.led_garage_large
       - light.led_garage_small
       - light.led_outdoor_den
+      - light.stone_door
     states:
       - state: 'on'
         class: 'light-on'
@@ -311,4 +313,6 @@ groups:
     entities:
       - camera.stone_door
       - camera.wu_doppler_weather
+      - entity: camera.usps_mail
+        element: camera.usps_mail_image
     camera_image_template: '${entity.attributes.entity_picture}'
