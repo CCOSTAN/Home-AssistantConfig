@@ -22,6 +22,43 @@ binary_sensor:
     show_on_map: False
 #-------------------------------------------
 
+sensor:
+  - platform: rest
+    resource: https://launchlibrary.net/1.2.2/launch/next/10
+    scan_interval: 10
+    name: launch window
+    value_template: >-
+      {%- for launch in value_json.launches %}
+        {% if launch.location.id == 16 %}
+          {% if strptime(launch.isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
+            {% set utc_offset_string = now().strftime('%z') %}
+            {% set utc_offset_direction = utc_offset_string[:1] %}
+            {% set utc_offset_hours = now().strftime('%z')[-4:] %}
+            {% set utc_offset_seconds = (utc_offset_hours| int /100) * 60 * 60 %}
+            {% if utc_offset_direction == '-' %}
+             {{ launch.wsstamp + utc_offset_seconds}}
+            {% else %}
+              {{ launch.wsstamp - utc_offset_seconds}}
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+automation:
+  - alias: Launch Window Approaching
+    trigger:
+      - platform: state
+        entity_id: sensor.launch_window
+    condition:
+      - condition: template
+        value_template: "{{not is_state('sensor.launch_window', '')}}"
+    action:
+      - wait_template: >-
+          {{now() >= sensor.launch_window}}
+      - service: notify.ios_carlo_6s
+        data:
+         message: "Rocket Launch about to happen!"
+
 # sensor:
 #   - platform: rest
 #     resource: https://launchlibrary.net/1.2.2/launch/next/10
