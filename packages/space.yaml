@@ -24,8 +24,8 @@ binary_sensor:
 
 sensor:
   - platform: rest
-    resource: https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/json_data/test_launch.json
-    scan_interval: 10
+    resource: https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/json_data/test_launch.json
+    scan_interval: 30
     name: launch window
     value_template: >-
       {%- for launch in value_json.launches %}
