@@ -12,84 +12,15 @@ homeassistant:
       emulated_hue_hidden: True
       hidden: False
       homebridge_hidden: true
-    sensor.launch_window:
-      hidden: False
-      icon: mdi:rocket
-      friendly_name: Rocket Launch Window
+    # sensor.launch_window:
+    #   hidden: False
+    #   icon: mdi:rocket
+    #   friendly_name: Rocket Launch Window
 #-------------------------------------------
 binary_sensor:
   - platform: iss
     show_on_map: False
 #-------------------------------------------
-
-sensor:
-  - platform: rest
-    resource: https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/json_data/test_launch.json
-    scan_interval: 30
-    name: launch window
-    value_template: >-
-      {%- for launch in value_json.launches %}
-        {% if launch.location.id == 16 %}
-          {% if strptime(launch.isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
-            {% set utc_offset_string = now().strftime('%z') %}
-            {% set utc_offset_direction = utc_offset_string[:1] %}
-            {% set utc_offset_hours = now().strftime('%z')[-4:] %}
-            {% set utc_offset_seconds = (utc_offset_hours| int /100) * 60 * 60 %}
-            {% if utc_offset_direction == '-' %}
-             {{ launch.wsstamp + utc_offset_seconds}}
-            {% else %}
-              {{ launch.wsstamp - utc_offset_seconds}}
-            {% endif %}
-          {% endif %}
-        {% endif %}
-      {% endfor %}
-
-automation:
-  - alias: Launch Window Approaching
-    trigger:
-      - platform: state
-        entity_id: sensor.launch_window
-    condition:
-      - condition: template
-        value_template: "{{not is_state('sensor.launch_window', '')}}"
-    action:
-      # - wait_template: >-
-      #     {{now() >= states('sensor.launch_window')}
-      - service: notify.ios_carlo_6s
-        data:
-         message: "Rocket Launch about to happen!"
-
-# sensor:
-#   - platform: rest
-#     resource: https://launchlibrary.net/1.2.2/launch/next/10
-#     name: launch window
-#     value_template: >-
-#       {%- for launch in value_json.launches %}
-#         {% if launch.location.id == 16 %}
-#            {% if strptime(isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
-#               True
-#            {% endif %}
-#            {% elif %}
-#               False
-#         {% endif %}
-#       {% endfor %}
-#
-#
-# automation:
-#   - alias: Launch Window Approaching
-#     trigger:
-#       - platform: state
-#         entity_id: sensor.launch_window
-#     condition:
-#       - condition: template
-#         value_template: "{{not is_state('sensor.launch_window', '')}}"
-#     action:
-#       - wait_template: >-
-#          {{ is_state('sensor.launch_window', 'True') }}
-#       - service: notify.ios_carlo_6s
-#         data:
-#           message: "Rocket Launch about to happen!"
-
 
 # This automation was just moved to a macro in the speech_engine.
 # It's a random fact now.
