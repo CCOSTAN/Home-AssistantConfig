@@ -53,8 +53,8 @@ automation:
       - condition: template
         value_template: "{{not is_state('sensor.launch_window', '')}}"
     action:
-      - wait_template: >-
-          {{now() >= sensor.launch_window}}
+      # - wait_template: >-
+      #     {{now() >= states('sensor.launch_window')}
       - service: notify.ios_carlo_6s
         data:
          message: "Rocket Launch about to happen!"

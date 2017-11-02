@@ -6,6 +6,10 @@
   trigger:
     - platform: event
       event_type: medicine_dash
+    - platform: state
+      entity_id: input_boolean.medicine
+      to: 'on'
+      from: 'off'
 
   action:
 
