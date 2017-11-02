@@ -14,6 +14,10 @@
     - platform: numeric_state
       entity_id: sensor.dark_sky_precip_intensity
       above: 1
+    - platform: state
+      entity_id: group.family
+      to: 'home'
+      from: 'not_home'
 
   condition:
     condition: and
@@ -41,6 +45,9 @@
       - condition: state
         entity_id: sun.sun
         state: 'above_horizon'
+      - condition: state
+        entity_id: group.family
+        state: 'home'
 
   action:
     - service: light.turn_on
