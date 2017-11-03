@@ -99,3 +99,27 @@ automation:
       - service: script.emergency
         data_template:
           call_garage_open: 1
+
+  - alias: Nest Protect Offline Notify
+    hide_entity: true
+    trigger:
+      platform: state
+      entity_id:
+        - binary_sensor.upstairs_living_room_nest_protect_online
+        - binary_sensor.hallway_nest_protect_kids_hallway_online
+        - binary_sensor.justins_room_nest_protect_online
+        - binary_sensor.kitchen_nest_protect_online
+        - binary_sensor.master_bedroom_nest_protect_online
+        - binary_sensor.master_hallway_nest_protect_online
+        - binary_sensor.paiges_room_nest_protect_paiges_room_online
+        - binary_sensor.upstairs_bedroom_nest_protect_online
+        - binary_sensor.office_nest_protect_online
+      from: 'on'
+
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.alert_mode
+
+      - service: script.speech_engine
+        data_template:
+          value1: "The {{ trigger.to_state.attributes.friendly_name }} in now {{ (trigger.to_state.state)|replace('_', ' ') }}.  Please check immediately."
