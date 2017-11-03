@@ -9,7 +9,7 @@
       value_template: "{{ states('updater.updater') != 'unknown' }}"
 
   action:
-    - service: script.ifttt_notify
+    - service: script.notify_engine
       data_template:
         value1: 'There is a new Version of Home-Assistant Available.'
         value2: "{{ states('updater.updater') }}"

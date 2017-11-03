@@ -14,7 +14,7 @@
         minutes: 2
 
   action:
-    - service: script.ifttt_notify
+    - service: script.notify_engine
       data_template:
         value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
         value2: ''

@@ -12,7 +12,7 @@
       from: 'False'
       to: 'True'
   action:
-    - service: script.ifttt_notify
+    - service: script.notify_engine
       data_template:
         value1: 'Changed IP address:'
         value2: "New IP: {{ states('sensor.exteral_ip') }}"

@@ -17,7 +17,7 @@ automation:
       event_type: feedreader
 
     action:
-      - service: script.ifttt_notify
+      - service: script.notify_engine
         data_template:
           value1: 'There is a new HA Podcast available!'
           value2: 'https://hasspodcast.io/'

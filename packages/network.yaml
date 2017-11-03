@@ -206,7 +206,7 @@ automation:
              minutes: 5
 
     action:
-      - service: script.ifttt_notify
+      - service: script.notify_engine
         data_template:
           value1: 'Device Status:'
           value2: "{{ trigger.to_state.attributes.friendly_name }} is "

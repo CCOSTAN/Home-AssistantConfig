@@ -8,7 +8,7 @@
     - platform: homeassistant
       event: start
   action:
-    - service: script.ifttt_notify
+    - service: script.notify_engine
       data_template:
         value1: 'Startup: Home Assistant is Up and Running!'
         value2: ''

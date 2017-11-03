@@ -10,7 +10,7 @@
       above: 50
 
   action:
-    - service: script.ifttt_notify
+    - service: script.notify_engine
       data_template:
         value1: 'VERY HIGH WINDS:'
         value2: "{{ states('sensor.dark_sky_wind_speed')}}"

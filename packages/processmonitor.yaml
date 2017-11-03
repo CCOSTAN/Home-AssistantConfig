@@ -60,7 +60,7 @@ automation:
              minutes: 1
 
     action:
-      - service: script.ifttt_notify
+      - service: script.notify_engine
         data_template:
           value1: 'Process Status:'
           value2: "{{ trigger.to_state.attributes.friendly_name }} is "
@@ -74,7 +74,7 @@ automation:
         entity_id: sensor.disk_used_
         above: 80
     action:
-      - service: script.ifttt_notify
+      - service: script.notify_engine
         data_template:
           value1: 'Hard Drive Monitor:'
           value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_used_.state }}%!"
@@ -87,7 +87,7 @@ automation:
         entity_id: sensor.disk_used_
         above: 90
     action:
-      - service: script.ifttt_notify
+      - service: script.notify_engine
         data_template:
           value1: 'Hard Drive Monitor:'
           value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_used_.state }}%!"

@@ -57,7 +57,7 @@ automation:
       - platform: state
         entity_id: sensor.launch_window
     action:
-      -  service: script.ifttt_notify
+      -  service: script.notify_engine
          data_template:
            value1: 'Go Outside!  There is a Rocket Launch!'
 

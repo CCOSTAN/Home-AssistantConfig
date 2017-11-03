@@ -5,7 +5,7 @@
     value_template: "{{ is_state_attr('binary_sensor.carlowink', 'update needed', True) }} != False }}"
 
   action:
-    - service: script.ifttt_notify
+    - service: script.notify_engine
       data_template:
         value1: 'Check the Wink Hub.  Update is needed.'
         value2: "{{ states.binary_sensor.carlowink.attributes }}"

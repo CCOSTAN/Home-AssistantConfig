@@ -22,7 +22,7 @@
       value_template: "{{ states('cover.small_garage') == 'closed' }}"
 
   action:
-    - service: script.ifttt_notify
+    - service: script.notify_engine
       data_template:
         value1: 'Check Garage Doors Reflection:'
         value2: "Small: {{ states('sensor.small_garage_reflection_rate')}}"
@@ -73,7 +73,7 @@
                 value_template: "{{ states('cover.small_garage') == 'opened'}}"
 
   action:
-    - service: script.ifttt_notify
+    - service: script.notify_engine
       data_template:
         value1: 'Check Garage Doors:'
         value2: "Small: {{ states('cover.small_garage')}}"
