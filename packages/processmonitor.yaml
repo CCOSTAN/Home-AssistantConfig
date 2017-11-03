@@ -65,6 +65,7 @@ automation:
           value1: 'Process Status:'
           value2: "{{ trigger.to_state.attributes.friendly_name }} is "
           value3: "{{ trigger.to_state.state }}"
+          who: 'carlo'
 
 #-------------------------------------------
 
@@ -79,6 +80,7 @@ automation:
           value1: 'Hard Drive Monitor:'
           value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_used_.state }}%!"
           value3: 'Attempting to clean'
+          who: 'carlo'
       - service: tts.clear_cache
 
   - alias: "Disk Use Alarm"
@@ -91,7 +93,8 @@ automation:
         data_template:
           value1: 'Hard Drive Monitor:'
           value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_used_.state }}%!"
-          value3: ' '
+          who: 'carlo'
+
       - service: persistent_notification.create
         data:
           title: "Hard Drive Monitor:"

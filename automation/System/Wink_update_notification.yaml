@@ -10,6 +10,7 @@
         value1: 'Check the Wink Hub.  Update is needed.'
         value2: "{{ states.binary_sensor.carlowink.attributes }}"
         value3: ''
+        who: 'carlo'
 
     - service: notify.html5
       data_template:
@@ -22,4 +23,4 @@
       data:
         title: "Wink Update Available"
         message: "Wink Update is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
-        notification_id: "update_available"    
+        notification_id: "update_available"
