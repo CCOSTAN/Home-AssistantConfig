@@ -24,8 +24,9 @@ binary_sensor:
 
 sensor:
   - platform: rest
+    scan_interval: 3600
     resource: https://launchlibrary.net/1.2.2/launch/next/10
-    #resource: https://raw.githubusercontent.com/cribbstechnologies/ha_config/master/www/test_launch.json
+    # resource: https://raw.githubusercontent.com/cribbstechnologies/ha_config/master/www/test_launch.json
     name: launch window
     # if the current timestamp is in the launch window
     # this sensor will return the UTC timestamp of the launch
@@ -51,16 +52,27 @@ sensor:
       {% endfor %}
 
 automation:
-  - id: launch_window_approaching
-    alias: Launch Window Approaching
+  - alias: Launch Window Approaching
     trigger:
       - platform: state
         entity_id: sensor.launch_window
-    action:
-      -  service: script.notify_engine
-         data_template:
-           value1: 'Go Outside!  There is a Rocket Launch!'
+    condition:
+        condition: and
+        conditions:
+          - condition: template
+            value_template: "{{states('sensor.launch_window') != 'unknown'}}"
+          - condition: template
+            value_template: "{{as_timestamp(now()) < (states('sensor.launch_window') | float)}}"
 
+    action:
+      - service: script.notify_engine
+        data_template:
+          value1: 'There will be a rocket Launch today - I will notify you later when the launch window starts'
+      - wait_template: >-
+          {{as_timestamp(now()) >= (states('sensor.launch_window') | float)}}
+      - service: script.notify_engine
+        data_template:
+          value1: 'Go Outside!  There is a Rocket Launch!'
 
 # This automation was just moved to a macro in the speech_engine.
 # It's a random fact now.
