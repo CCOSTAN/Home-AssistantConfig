@@ -123,3 +123,7 @@ automation:
       - service: script.speech_engine
         data_template:
           value1: "The {{ trigger.to_state.attributes.friendly_name }} in now {{ (trigger.to_state.state)|replace('_', ' ') }}.  Please check immediately."
+
+      - service: script.ifttt_notify
+        data_template:
+          value1: "The {{ trigger.to_state.attributes.friendly_name }} in now {{ (trigger.to_state.state)|replace('_', ' ') }}.  Please check immediately."

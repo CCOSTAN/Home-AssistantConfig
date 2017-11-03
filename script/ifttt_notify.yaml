@@ -12,8 +12,8 @@
 
 ifttt_notify:
    sequence:
-    - service: ifttt.trigger
-      data_template: {"event":"ifttt_notify", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
+    # - service: ifttt.trigger
+    #   data_template: {"event":"ifttt_notify", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
 
     - service: notify.ios_family
       data_template:
