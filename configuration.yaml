@@ -38,7 +38,7 @@ panel_custom:
   - name: floorplan
     sidebar_title: Alarm Panel
     sidebar_icon: mdi:security-home
-    frontend_url_path: floorplan
+    url_path: floorplan
     config: !include floorplan.yaml
 
 notify:
@@ -53,7 +53,7 @@ notify:
     services:
       - service: ios_staceys_iphone
       - service: ios_carlo_6s
-      
+
 discovery:
   ignore:
    - samsung_tv
