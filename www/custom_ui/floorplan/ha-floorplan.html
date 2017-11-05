@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.7.2 - Aliases and camera_image_template
+  Version: 1.0.7.3 - Fixes
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -363,7 +363,7 @@
                     targetEntities.push({ entityId: entityObject.entity, elementId: entityObject.element });
                   }
                   else {
-                    this.warn(`Cannot find '${entityId}' in HA group configuration`);
+                    this.warn(`Cannot find '${entityObject.entity}' in HA group configuration`);
                   }
                 }
               }
