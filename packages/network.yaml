@@ -32,13 +32,13 @@ sensor:
           friendly_name: 'Hue Hub 2'
           value_template: "{{ 'Online' if is_state('device_tracker.hue_hub_2', 'home') else 'Offline' }}"
 
-        alarm_panel_1:
-          friendly_name: 'Alarm Panel 1'
-          value_template: "{{ 'Online' if is_state('device_tracker.alarm_panel_1', 'home') else 'Offline' }}"
+        bedroom_alarm_panel:
+          friendly_name: 'Bedroom Alarm Panel'
+          value_template: "{{ 'Online' if is_state('device_tracker.bedroom_alarm_panel', 'home') else 'Offline' }}"
 
-        alarm_panel_2:
-          friendly_name: 'Alarm Panel 2'
-          value_template: "{{ 'Online' if is_state('device_tracker.alarm_panel_2', 'home') else 'Offline' }}"
+        entry_alarm_panel:
+          friendly_name: 'Entry Alarm Panel'
+          value_template: "{{ 'Online' if is_state('device_tracker.entry_alarm_panel', 'home') else 'Offline' }}"
 
         alexa_echo:
           friendly_name: 'Alexa Echo'
@@ -154,15 +154,15 @@ group:
       - sensor.smart_water_meter
       - sensor.sleep_number_bed
       - sensor.printer
-      - sensor.alarm_panel_1
-      - sensor.alarm_panel_2
+      - sensor.bedroom_alarm_panel
+      - sensor.entry_alarm_panel
       - sensor.NodeMCU1
       - sensor.NodeMCU2
       - sensor.NodeMCU3
       - sensor.carlopihole
 
 
-#-------------------------------------------#-------------------------------------------
+#-------------------------------------------------------------------------------------
 automation:
   - alias: 'Device Status'
     hide_entity: True
@@ -195,8 +195,8 @@ automation:
              #- sensor.withings_scale
              - sensor.smart_water_meter
              - sensor.sleep_number_bed
-             - sensor.alarm_panel_1
-             - sensor.alarm_panel_2
+             - sensor.bedroom_alarm_panel
+             - sensor.entry_alarm_panel
              - sensor.nodemcu1
              - sensor.nodemcu2
              - sensor.nodemcu3

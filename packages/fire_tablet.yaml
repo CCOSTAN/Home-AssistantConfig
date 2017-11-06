@@ -5,27 +5,30 @@
 #
 homeassistant:
   customize_glob:
-    "sensor.alarm_panel_*":
+    "sensor.*_alarm_panel*":
+      emulated_hue_hidden: True
+      hidden: False
+    "binary_sensor.*_alarm_panel*":
       emulated_hue_hidden: True
       hidden: False
 
 media_player:
   - platform: tts_floorplan_speaker
-    name: Alarm Panel 1
+    name: Bedroom Alarm Panel
 
   - platform: tts_floorplan_speaker
-    name: Alarm Panel 2
+    name: Entry Alarm Panel
 
 #---Sensors for Fire Tablet-----------------------------
 
 binary_sensor:
 
   - platform: mqtt
-    state_topic: floorplan/alarm_panel_1
+    state_topic: floorplan/bedroom_alarm_panel
     name: Bedroom Alarm Panel
     retain: true
 
   - platform: mqtt
-    state_topic: floorplan/alarm_panel_2
+    state_topic: floorplan/entry_alarm_panel
     name: Entry Alarm Panel
     retain: true
