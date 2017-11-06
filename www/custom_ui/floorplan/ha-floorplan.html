@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.7.3 - Fixes
+  Version: 1.0.7.5
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -177,7 +177,12 @@
       }
 
       if (this.isOptionEnabled(this.config.pan_zoom)) {
-        let promise = this.loadScript('local/custom_ui/floorplan/lib/svg-pan-zoom.min.js');
+        let promise = this.loadScript('/local/custom_ui/floorplan/lib/svg-pan-zoom.min.js');
+        promises.push(promise);
+      }
+
+      if (this.isOptionEnabled(this.config.fully_kiosk)) {
+        let promise = this.loadScript('/local/custom_ui/floorplan/lib/fully-kiosk.js');
         promises.push(promise);
       }
 
@@ -189,6 +194,11 @@
 
           if (this.config.groups.find(entityGroup => entityGroup.state_transitions)) {
             setInterval(this.updateStateTransitions.bind(this), 100);
+          }
+
+          if (this.isOptionEnabled(this.config.fully_kiosk)) {
+            this.fullyKiosk = new FullyKiosk(this);
+            this.fullyKiosk.init();
           }
 
           // Enable pan / zoom if enabled in config
@@ -232,10 +242,10 @@
         let script = document.createElement('script');
         script.src = scriptUrl;
         script.onload = () => {
-          resolve(true);
+          return resolve(true);
         };
         script.onerror = (err) => {
-          reject(new URIError(`Cannot load script '${err.target.src}'`));
+          return reject(new URIError(`Cannot load script '${err.target.src}'`));
         };
 
         Polymer.dom(this.root).appendChild(script);
@@ -245,20 +255,20 @@
     addExternalCss(stylesheetUrl) {
       return new Promise((resolve, reject) => {
         if (!this.config.stylesheet) {
-          resolve(true);
+          return resolve(true);
         }
 
-        this.loadStyleSheet(`${stylesheetUrl}?_=${(new Date().getTime())}`, function (success, link) {
+        this.loadStyleSheet(`${stylesheetUrl}?${this.getCacheBuster()}`, function (success, link) {
           if (success) {
             Polymer.dom(this.instance.root).appendChild(link);
             let styleSheet = link['sheet'];
             this.instance.cssRules = this.instance.getArray(styleSheet.cssRules);
-            this.resolve(true);
+            return this.resolve(true);
           }
           else {
-            reject(new URIError("Cannot load stylesheet"));
+            return this.reject(new URIError(`Cannot load stylesheet: ${stylesheetUrl}`));
           }
-        }.bind({ instance: this, resolve: resolve }));
+        }.bind({ instance: this, resolve: resolve, reject: reject }));
       });
     },
 
@@ -281,10 +291,10 @@
     loadFloorPlan() {
       return new Promise((resolve, reject) => {
         jQuery.ajax({
-          url: `${this.config.image}?_=${(new Date().getTime())}`,
+          url: `${this.config.image}?${this.getCacheBuster()}`,
           cache: false,
           error: function (err) {
-            reject(new URIError(`${this.config.image}: ${err.responseText}`));
+            return reject(new URIError(`${this.config.image}: ${err.responseText}`));
           }.bind(this),
           success: (result) => {
             let svg = $(result).find('svg')[0];
@@ -375,18 +385,12 @@
                 let entityInfo = this.entityInfos[entityId];
                 if (!entityInfo) {
                   entityInfo = {
-                    groupInfos: [],
-                    lastState: undefined,
-                    lastChangedTime: undefined,
+                    groupInfos: [], lastState: undefined, lastChangedTime: undefined,
                   };
                   this.entityInfos[entityId] = entityInfo;
                 }
 
-                let groupInfo = {
-                  group: entityGroup,
-                  svgElementInfos: {},
-                  imageUrl: undefined,
-                };
+                let groupInfo = { group: entityGroup, svgElementInfos: {}, };
                 entityInfo.groupInfos.push(groupInfo);
 
                 let svgElement = svgElements.find(svgElement => svgElement.id === elementId);
@@ -395,86 +399,106 @@
                   continue;
                 }
 
+                let originalBBox = svgElement.getBBox();
+
                 if (entityGroup.camera_image_template) {
-                  let $parent = $(svgElement).parent();
-                  $(svgElement).remove();
-
-                  svgElement = $(document.createElementNS('http://www.w3.org/2000/svg', 'image'))
-                    .attr('id', $(svgElement).attr('id'))
-                    .attr('x', $(svgElement).attr('x'))
-                    .attr('y', $(svgElement).attr('y'))
-                    .attr('height', $(svgElement).attr('height'))
-                    .attr('width', $(svgElement).attr('width'))
-                    .appendTo($parent)[0];
-
-                  groupInfo.svgElementInfos[svgElement.id] = {
-                    svgElement: svgElement,
-                    clonedsvgElement: svgElement.cloneNode(true),
-                    entityId: entityId,
-                  };
+                  svgElement = this.replaceWithImage(svgElement);
                 }
                 else if (entityGroup.image_template) {
-                  let $parent = $(svgElement).parent();
-                  let bbox = svgElement.getBBox();
-                  $(svgElement).remove();
-
-                  svgElement = $('<svg />')
-                    .attr('id', $(svgElement).attr('id'))
-                    .appendTo($parent)[0];
-
-                  groupInfo.svgElementInfos[svgElement.id] = {
-                    svgElement: svgElement,
-                    clonedsvgElement: svgElement.cloneNode(true),
-                    entityId: entityId,
-                    bbox: bbox,
-                  };
+                  svgElement = this.replaceWithSvg(svgElement);
                 }
-                else {
-                  groupInfo.svgElementInfos[svgElement.id] = {
-                    svgElement: svgElement,
-                    clonedsvgElement: svgElement.cloneNode(true),
-                    entityId: entityId,
-                  };
-                }
+
+                this.addSvgElementToGroup(svgElement, entityId, groupInfo, originalBBox);
 
                 for (svgElementId in groupInfo.svgElementInfos) {
                   let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
 
-                  let svgElement = $(svgElementInfo.svgElement);
+                  let $svgElement = $(svgElementInfo.svgElement);
 
                   // Create a title element (to support hover over text)
-                  svgElement.append(document.createElementNS('http://www.w3.org/2000/svg', 'title'));
+                  $svgElement.append(document.createElementNS('http://www.w3.org/2000/svg', 'title'));
 
-                  if (svgElement.length) {
-                    svgElementInfo.svgElement = svgElement[0];
+                  if ($svgElement.length) {
+                    svgElementInfo.svgElement = $svgElement[0];
 
-                    $(svgElement).on('click', this.onEntityClick.bind({ instance: this, entityId: entityId, groupInfo: groupInfo }));
-                    $(svgElement).css('cursor', 'pointer');
-                    $(svgElement).addClass('ha-entity');
+                    $svgElement.on('click', this.onEntityClick.bind({ instance: this, entityId: entityId, groupInfo: groupInfo }));
+                    $svgElement.css('cursor', 'pointer');
+                    $svgElement.addClass('ha-entity');
 
-                    if ($(svgElement).is('text') && (svgElement[0].id === elementId)) {
-                      let boundingBox = svgElement[0].getBBox();
-                      let rect = $(document.createElementNS('http://www.w3.org/2000/svg', 'rect'))
-                        .attr('id', entityId + '.background')
-                        .attr('height', boundingBox.height + 1)
-                        .attr('width', boundingBox.width + 2)
-                        .height(boundingBox.height + 1)
-                        .width(boundingBox.width + 2)
-                        .attr('x', boundingBox.x - 1)
-                        .attr('y', boundingBox.y - 0.5)
-                        .css('fill-opacity', 0);
-
-                      $(rect).insertBefore($(svgElement));
+                    if ($svgElement.is('text') && ($svgElement[0].id === elementId)) {
+                      this.addBackgroundRectToText($svgElement[0], entityId);
                     }
                   }
                 }
               }
             }
 
-            resolve(true);
+            return resolve(true);
           }
         });
       });
+    },
+
+    addBackgroundRectToText(svgElement, entityId) {
+      let bbox = svgElement.getBBox();
+
+      let rect = $(document.createElementNS('http://www.w3.org/2000/svg', 'rect'))
+        .attr('id', entityId + '.background')
+        .attr('height', bbox.height + 1)
+        .attr('width', bbox.width + 2)
+        .attr('x', bbox.x - 1)
+        .attr('y', bbox.y - 0.5)
+        .css('fill-opacity', 0);
+
+      $(rect).insertBefore(svgElement);
+    },
+
+    addSvgElementToGroup(svgElement, entityId, groupInfo, originalBBox) {
+      groupInfo.svgElementInfos[svgElement.id] = {
+        svgElement: svgElement,
+        clonedsvgElement: svgElement.cloneNode(true),
+        entityId: entityId,
+        bbox: originalBBox,
+      };
+
+      this.addNestedSvgElementsToGroup(svgElement, entityId, groupInfo);
+    },
+
+    addNestedSvgElementsToGroup(svgElement, entityId, groupInfo) {
+      $(svgElement).find('*').each((i, svgNestedElement) => {
+        groupInfo.svgElementInfos[svgNestedElement.id] = {
+          svgElement: svgNestedElement,
+          clonedsvgElement: svgNestedElement.cloneNode(true),
+          entityId: entityId,
+        };
+      });
+    },
+
+    replaceWithImage(svgElement) {
+      let $parent = $(svgElement).parent();
+      $(svgElement).remove();
+
+      svgElement = $(document.createElementNS('http://www.w3.org/2000/svg', 'image'))
+        .attr('id', $(svgElement).attr('id'))
+        .attr('x', $(svgElement).attr('x'))
+        .attr('y', $(svgElement).attr('y'))
+        .attr('height', $(svgElement).attr('height'))
+        .attr('width', $(svgElement).attr('width'))
+        .appendTo($parent)[0];
+
+      return svgElement;
+    },
+
+    replaceWithSvg(svgElement) {
+      let $parent = $(svgElement).parent();
+      let bbox = svgElement.getBBox();
+      $(svgElement).remove();
+
+      svgElement = $('<svg />')
+        .attr('id', $(svgElement).attr('id'))
+        .appendTo($parent)[0];
+
+      return svgElement;
     },
 
     handleEntities(entities) {
@@ -549,14 +573,14 @@
 
               let rect = $(svgElement).parent().find(`[id="${entityId}.background"]`);
               if (rect.length) {
-                let boundingBox = svgElement.getBBox();
+                let bbox = svgElement.getBBox();
                 $(rect)
-                  .attr('x', boundingBox.x - 1)
-                  .attr('y', boundingBox.y - 0.5)
-                  .attr('height', boundingBox.height + 1)
-                  .attr('width', boundingBox.width + 2)
-                  .height(boundingBox.height + 1)
-                  .width(boundingBox.width + 2);
+                  .attr('x', bbox.x - 1)
+                  .attr('y', bbox.y - 0.5)
+                  .attr('height', bbox.height + 1)
+                  .attr('width', bbox.width + 2)
+                  .height(bbox.height + 1)
+                  .width(bbox.width + 2);
               }
             }
             else if (groupInfo.group.camera_image_template) {
@@ -589,7 +613,7 @@
         }, Promise.resolve());
 
         promiseChain.then(() => {
-          resolve(true);
+          return resolve(true);
         });
       });
     },
@@ -610,7 +634,7 @@
           }
         }
 
-        resolve(true);
+        return resolve(true);
       });
     },
 
@@ -627,8 +651,7 @@
             let svgElement = svgElementInfo.svgElement;
 
             if (!this.cssRules || !this.cssRules.length) {
-              resolve(true);
-              return;
+              return resolve(true);
             }
 
             let wasTransitionHandled = false;
@@ -711,7 +734,7 @@
           }
         }
 
-        resolve(true);
+        return resolve(true);
       });
     },
 
@@ -736,7 +759,7 @@
 
     loadCameraImage(imageUrl, svgElement, entityState) {
       let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
-      let cacheBuster = ((imageUrl.indexOf('?') >= 0) ? '&' : '?') + 'cacheBuster=' + (new Date().getTime());
+      let cacheBuster = ((imageUrl.indexOf('?') >= 0) ? '&' : '?') + this.getCacheBuster();
       svgElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl + cacheBuster);
     },
 
@@ -777,11 +800,11 @@
 
             svgElementInfo.svgElement = embeddedSvg;
 
-            resolve(embeddedSvg);
+            return resolve(embeddedSvg);
           })
           .catch(err => {
             this.error(err);
-            reject(err);
+            return reject(err);
           });
       });
     },
@@ -790,8 +813,7 @@
       return new Promise((resolve, reject) => {
         let cachedSvg = this.imageCache[imageUrl];
         if (cachedSvg) {
-          resolve(cachedSvg);
-          return;
+          return resolve(cachedSvg);
         }
 
         let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
@@ -799,12 +821,12 @@
           url: imageUrl,
           cache: true,
           error: function (err) {
-            reject(new URIError(`${imageUrl}: ${err.responseText}`));
+            return reject(new URIError(`${imageUrl}: ${err.responseText}`));
           }.bind(this),
           success: function (result) {
             let cachedSvg = $(result).find('svg')[0];
             this.imageCache[imageUrl] = cachedSvg;
-            resolve(cachedSvg);
+            return resolve(cachedSvg);
           }.bind(this),
         });
       });
@@ -1122,9 +1144,11 @@
     },
 
     debug(message) {
-      let debug = Polymer.dom(this.$.debug).node;
-      $(debug).find('ul').append(`<li>${message}</li>`)
-      $(debug).css('display', 'block');
+      if (this.isOptionEnabled(this.config.debug)) {
+        let debug = Polymer.dom(this.$.debug).node;
+        $(debug).find('ul').append(`<li>${message}</li>`)
+        $(debug).css('display', 'block');
+      }
     },
 
     loadStyleSheet(path, fn, scope) {
@@ -1150,7 +1174,7 @@
             clearTimeout(timeout_id);
             fn.call(scope || window, true, link);           // fire the callback with success == true
           }
-        } catch (e) { } finally { }
+        } catch (e) { debugger; } finally { }
       }, 10),                                                   // how often to check if the stylesheet is loaded
         timeout_id = setTimeout(function () {       // start counting down till fail
           clearInterval(interval_id);             // clear the counters
@@ -1162,6 +1186,10 @@
       head.appendChild(link);  // insert the link node into the DOM and start loading the style sheet
 
       return link; // return the link node;
+    },
+
+    getCacheBuster() {
+      return 'cacheBuster=' + (new Date().getTime());
     },
 
     rgbToHex(rgb) {
@@ -1194,7 +1222,7 @@
         Math.round(color1.b * w1 + color2.b * w2)
       ];
       return rgb;
-    }
+    },
   });
 
 </script>

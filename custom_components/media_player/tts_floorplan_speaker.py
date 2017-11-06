@@ -1,5 +1,6 @@
 """
 Support for TTS on a Floorplan Speaker
+Version: 1.0.7.5
 
 """
 import voluptuous as vol
