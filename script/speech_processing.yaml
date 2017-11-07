@@ -73,6 +73,15 @@ speech_processing:
     - service: tts.amazon_polly_say
       entity_id:
         - media_player.livingroomCC
+      data_template:
+        message: >
+          <speak>
+          {{speech_message}}
+          </speak>
+        cache: true
+
+    - service: tts.amazon_polly_say
+      entity_id:
         - media_player.entry_alarm_panel
         - media_player.bedroom_alarm_panel
       data_template:
