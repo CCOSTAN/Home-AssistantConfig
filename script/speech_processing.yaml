@@ -71,7 +71,10 @@ speech_processing:
           {% endif %}
 
     - service: tts.amazon_polly_say
-      entity_id: media_player.livingroomCC
+      entity_id:
+        - media_player.livingroomCC
+        - media_player.entry_alarm_panel
+        - media_player.bedroom_alarm_panel
       data_template:
         message: >
           <speak>

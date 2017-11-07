@@ -44,6 +44,8 @@ dog_bark:
     - service: media_player.play_media
       data_template:
         entity_id:
-          - media_player.LivingRoomCC
+          - media_player.livingroomCC
+          - media_player.entry_alarm_panel
+          - media_player.bedroom_alarm_panel
         media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/dog-barking-2-bullmastiff.mp3"
         media_content_type: audio/mp4
