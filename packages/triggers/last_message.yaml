@@ -33,11 +33,11 @@ automation:
 
     action:
       - service: tts.amazon_polly_say
+        entity_id:
+          - media_player.livingroomCC
+          - media_player.entry_alarm_panel
+          - media_player.bedroom_alarm_panel
         data_template:
-          entity_id: >
-            - media_player.livingroomCC
-            - media_player.entry_alarm_panel
-            - media_player.bedroom_alarm_panel
           message: >
             <speak>
             {{states.sensor.last_message.state}}
