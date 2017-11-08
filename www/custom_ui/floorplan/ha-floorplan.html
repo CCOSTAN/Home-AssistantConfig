@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.7.5
+  Version: 1.0.7.7
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -258,10 +258,10 @@
           return resolve(true);
         }
 
-        this.loadStyleSheet(`${stylesheetUrl}?${this.getCacheBuster()}`, function (success, link) {
-          if (success) {
+        this.loadStyleSheet(stylesheetUrl, function (success, link) {
+          if (success && link && link.sheet && link.sheet.cssRules) {
             Polymer.dom(this.instance.root).appendChild(link);
-            let styleSheet = link['sheet'];
+            let styleSheet = link.sheet;
             this.instance.cssRules = this.instance.getArray(styleSheet.cssRules);
             return this.resolve(true);
           }
@@ -291,8 +291,8 @@
     loadFloorPlan() {
       return new Promise((resolve, reject) => {
         jQuery.ajax({
-          url: `${this.config.image}?${this.getCacheBuster()}`,
-          cache: false,
+          url: this.config.image,
+          cache: true,
           error: function (err) {
             return reject(new URIError(`${this.config.image}: ${err.responseText}`));
           }.bind(this),
@@ -588,7 +588,15 @@
               if (imageUrl && (groupInfo.imageUrl !== imageUrl)) {
                 groupInfo.imageUrl = imageUrl;
 
-                this.loadCameraImage(imageUrl, svgElement, entityState);
+                if (groupInfo.cameraImageLoader) {
+                  clearInterval(groupInfo.cameraImageLoader);
+                }
+
+                this.loadCameraImage(imageUrl, svgElement);
+
+                groupInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
+                  this.loadCameraImage(imageUrl, svgElement);
+                }, 10000, imageUrl, svgElement);
               }
             }
             else if (groupInfo.group.image_template) {
@@ -750,17 +758,21 @@
         });
         titleText += '\n';
 
-        titleText += `Last changed date: ${moment(entityState.last_changed).format(dateFormat)}\n`;
-        titleText += `Last changed time: ${moment(entityState.last_changed).format('HH:mm:ss')}`;
+        let lastChanged = moment().to(moment(entityState.last_changed));
+        let lastChangedDate = moment(entityState.last_changed).format(dateFormat);
+        let lastChangedTime = moment(entityState.last_changed).format('HH:mm:ss');
+
+        titleText += `Last changed: ${lastChanged}\n`;
+        titleText += `Last changed: ${lastChangedDate} ${lastChangedTime}`;
 
         $(titleElement).html(titleText);
       });
     },
 
-    loadCameraImage(imageUrl, svgElement, entityState) {
-      let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
-      let cacheBuster = ((imageUrl.indexOf('?') >= 0) ? '&' : '?') + this.getCacheBuster();
-      svgElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl + cacheBuster);
+    loadCameraImage(imageUrl, svgElement) {
+      let time = (new Date()).getTime();
+      svgElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl + '&time=' + time);
+      //svgElement.onload = (e) => {      };
     },
 
     loadImage(svgElementInfo, imageUrl, entityId, entityState, groupInfo) {
@@ -1152,7 +1164,7 @@
     },
 
     loadStyleSheet(path, fn, scope) {
-      let head = document.getElementsByTagName('head')[0]; // reference to document.head for appending/ removing link nodes
+      let head = document.getElementsByTagName('head')[0]; // reference to document.head for appending / removing link nodes
       let link = document.createElement('link');           // create the link node
       link.setAttribute('href', path);
       link.setAttribute('rel', 'stylesheet');
@@ -1167,21 +1179,23 @@
         sheet = 'styleSheet'; cssRules = 'rules';
       }
 
-      let interval_id = setInterval(function () {                     // start checking whether the style sheet has successfully loaded
+      let intervalId = setInterval(function () {                     // start checking whether the style sheet has successfully loaded
         try {
           if (link[sheet] && link[sheet][cssRules].length) { // SUCCESS! our style sheet has loaded
-            clearInterval(interval_id);                      // clear the counters
-            clearTimeout(timeout_id);
+            clearInterval(intervalId);                      // clear the counters
+            clearTimeout(timeoutId);
             fn.call(scope || window, true, link);           // fire the callback with success == true
           }
-        } catch (e) { debugger; } finally { }
-      }, 10),                                                   // how often to check if the stylesheet is loaded
-        timeout_id = setTimeout(function () {       // start counting down till fail
-          clearInterval(interval_id);             // clear the counters
-          clearTimeout(timeout_id);
-          head.removeChild(link);                // since the style sheet didn't load, remove the link node from the DOM
-          fn.call(scope || window, false, link); // fire the callback with success == false
-        }, 15000);                                 // how long to wait before failing
+        }
+        catch (e) { debugger; }
+        finally { }
+      }, 10),                                               // how often to check if the stylesheet is loaded
+        timeoutId = setTimeout(function () {                // start counting down till fail
+          clearInterval(intervalId);                        // clear the counters
+          clearTimeout(timeoutId);
+          head.removeChild(link);                           // since the style sheet didn't load, remove the link node from the DOM
+          fn.call(scope || window, false, link);            // fire the callback with success == false
+        }, 15000);                                          // how long to wait before failing
 
       head.appendChild(link);  // insert the link node into the DOM and start loading the style sheet
 
