@@ -32,4 +32,18 @@ automation:
         to: 'on'
 
     action:
-      - service: script.speech_engine
+      - service: tts.amazon_polly_say
+        data_template:
+          entity_id: >
+            - media_player.livingroomCC
+            - media_player.entry_alarm_panel
+            - media_player.bedroom_alarm_panel
+          message: >
+            <speak>
+            {{states.sensor.last_message.state}}
+            </speak>
+          cache: true
+
+      - service: input_boolean.turn_off
+        entity_id:
+          - input_boolean.lastmsg
