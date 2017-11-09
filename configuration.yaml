@@ -42,6 +42,12 @@ panel_custom:
     url_path: floorplan
     config: !include floorplan.yaml
 
+  - name: alarm_clock
+    sidebar_title: Alarm Clock
+    sidebar_icon: mdi:clock
+    url_path: clock
+    config: !include alarm_clock.yaml    
+    
 notify:
   - platform: ios
   - name: ios_family
