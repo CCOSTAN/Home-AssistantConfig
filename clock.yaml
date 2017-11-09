@@ -64,19 +64,21 @@ groups:
 
   - name: text_states
     entities:
-      - sensor.last_message
+      - entity: sensor.dark_sky_minutely_summary
     text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
     class_template: 'return "static-text";'
 
   - name: text_font_date
     entities:
-      - sensor.floorplan_date
+      - sensor.clock_date
+      - sensor.clock_day
     text_template: '${entity.state ? entity.state : "undefined"}'
     class_template: 'return "static-text-date";'
 
   - name: text_font_time
     entities:
-      - sensor.floorplan_time
+      - sensor.clock_time
+      - entity: sensor.dark_sky_minutely_summary
     text_template: '${entity.state ? entity.state : "undefined"}'
     class_template: 'return "static-text-time";'
 

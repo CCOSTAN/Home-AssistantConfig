@@ -12,6 +12,7 @@ homeassistant:
 #---Sensor for Time and Date.-----------------------------
 sensor:
   - platform: template
+    scan_interval: 30000
     sensors:
       floorplan_date:
         friendly_name: 'Date'
@@ -33,6 +34,7 @@ sensor:
           {{now().strftime("%-I")}}:{{now().strftime("%M")}}
 
   - platform: template
+    scan_interval: 30000
     sensors:
       clock_am_pm:
         friendly_name: 'AM/PM'
@@ -40,6 +42,7 @@ sensor:
           {{now().strftime("%p")}}
 
   - platform: template
+    scan_interval: 30000
     sensors:
       clock_day:
         friendly_name: 'Day'
@@ -47,6 +50,7 @@ sensor:
           {{now().strftime("%A")}}
 
   - platform: template
+    scan_interval: 30000
     sensors:
       clock_date:
         friendly_name: 'Clock Date'
