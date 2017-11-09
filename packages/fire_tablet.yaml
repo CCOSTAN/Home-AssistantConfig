@@ -27,8 +27,40 @@ binary_sensor:
     state_topic: floorplan/bedroom_alarm_panel
     name: Bedroom Alarm Panel
     retain: true
+    emulated_hue_hidden: True
+    hidden: False
 
   - platform: mqtt
     state_topic: floorplan/entry_alarm_panel
     name: Entry Alarm Panel
     retain: true
+    emulated_hue_hidden: True
+    hidden: False
+
+  - platform: mqtt
+    state_topic: floorplan/entry/motion
+    name: Entry Motion
+    retain: true
+    emulated_hue_hidden: True
+    hidden: False
+
+  - platform: mqtt
+    state_topic: floorplan/entry/plugged
+    name: Entry Plug Status
+    retain: true
+    emulated_hue_hidden: True
+    hidden: False
+
+  - platform: mqtt
+    state_topic: floorplan/bedroom/motion
+    name: Bedroom Motion
+    retain: true
+    emulated_hue_hidden: True
+    hidden: False
+
+  - platform: mqtt
+    state_topic: floorplan/bedroom/plugged
+    name: Entry Plug Status
+    retain: true
+    emulated_hue_hidden: True
+    hidden: False
