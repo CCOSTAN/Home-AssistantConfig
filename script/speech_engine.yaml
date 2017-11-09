@@ -137,7 +137,7 @@ speech_engine:
             {% if call_no_announcement != 1 %}
               {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
               Good morning.
-              {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
+              {% elif now().strftime("%H")|int >= 12 and now().strftime("%H")|int < 17%}
               Good afternoon.
               {% else %}
               Good evening.
