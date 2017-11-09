@@ -6,6 +6,9 @@ homeassistant:
     "sensor.floorplan_*":
       emulated_hue_hidden: True
       hidden: True
+    "sensor.clock_*":
+      emulated_hue_hidden: True
+      hidden: True
 #---Sensor for Time and Date.-----------------------------
 sensor:
   - platform: template
@@ -21,3 +24,31 @@ sensor:
         friendly_name: 'Time'
         value_template: >-
           {{now().strftime("%-I")}}:{{now().strftime("%M")}} {{now().strftime("%p")}}
+
+  - platform: template
+    sensors:
+      clock_time:
+        friendly_name: 'Clock Time'
+        value_template: >-
+          {{now().strftime("%-I")}}:{{now().strftime("%M")}}
+
+  - platform: template
+    sensors:
+      clock_am_pm:
+        friendly_name: 'AM/PM'
+        value_template: >-
+          {{now().strftime("%p")}}
+
+  - platform: template
+    sensors:
+      clock_day:
+        friendly_name: 'Day'
+        value_template: >-
+          {{now().strftime("%A")}}
+
+  - platform: template
+    sensors:
+      clock_date:
+        friendly_name: 'Clock Date'
+        value_template: >-
+          {{now().strftime("%B")}} {{now().strftime("%d")}}
