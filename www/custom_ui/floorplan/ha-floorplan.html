@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.7.7
+  Version: 1.0.7.10
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -125,7 +125,11 @@
     },
 
     hassChanged: function (newHass, oldHass) {
-      this.handleEntities(newHass.states);
+      this._debouncer = Polymer.Debouncer.debounce(
+        this._debouncer,
+        Polymer.Async.timeOut.after(1000),
+        () => { this.handleEntities(this.hass.states); }
+      );
     },
 
     isOptionEnabled(option) {
@@ -596,7 +600,7 @@
 
                 groupInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
                   this.loadCameraImage(imageUrl, svgElement);
-                }, 10000, imageUrl, svgElement);
+                }, 60000, imageUrl, svgElement);
               }
             }
             else if (groupInfo.group.image_template) {
@@ -1141,24 +1145,25 @@
       return func(entity, entities, this.hass, this.config);
     },
 
+
     error(message) {
       let errors = Polymer.dom(this.$.errors).node;
-      $(errors).find('ul').append(`<li>${message}</li>`)
+      $(errors).find('ul').append(`<li>${moment().format('YYYY-MMM-DD HH:mm:ss')} ${message}</li>`)
       $(errors).css('display', 'block');
     },
 
     warn(message) {
       if (this.isOptionEnabled(this.config.warnings)) {
         let warnings = Polymer.dom(this.$.warnings).node;
-        $(warnings).find('ul').append(`<li>${message}</li>`)
+        $(warnings).find('ul').append(`<li>${moment().format('YYYY-MMM-DD HH:mm:ss')} ${message}</li>`)
         $(warnings).css('display', 'block');
       }
     },
 
-    debug(message) {
-      if (this.isOptionEnabled(this.config.debug)) {
+    debug(message, isForce) {
+      if (this.isOptionEnabled(this.config.debug) || isForce) {
         let debug = Polymer.dom(this.$.debug).node;
-        $(debug).find('ul').append(`<li>${message}</li>`)
+        $(debug).find('ul').append(`<li>${moment().format('YYYY-MMM-DD HH:mm:ss')} ${message}</li>`)
         $(debug).css('display', 'block');
       }
     },
