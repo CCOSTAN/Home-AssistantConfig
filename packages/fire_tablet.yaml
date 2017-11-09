@@ -26,13 +26,15 @@ binary_sensor:
   - platform: mqtt
     state_topic: floorplan/entry_motion
     name: Entry Motion
+    device_class: motion
     retain: true
     emulated_hue_hidden: True
     hidden: False
 
   - platform: mqtt
     state_topic: floorplan/entry_plugged
-    name: Entry Plug Status
+    name: Entry Plugged
+    device_class: power
     retain: true
     emulated_hue_hidden: True
     hidden: False
@@ -40,13 +42,15 @@ binary_sensor:
   - platform: mqtt
     state_topic: floorplan/bedroom_motion
     name: Bedroom Motion
+    device_class: motion
     retain: true
     emulated_hue_hidden: True
     hidden: False
 
   - platform: mqtt
     state_topic: floorplan/bedroom_plugged
-    name: Bedroom Plug Status
+    name: Bedroom Plugged
+    device_class: power
     retain: true
     emulated_hue_hidden: True
     hidden: False
