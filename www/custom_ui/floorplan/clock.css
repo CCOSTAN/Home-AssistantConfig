@@ -9,7 +9,7 @@ svg, svg * {
 /*
 /* Hover over */
 
-.entity:hover:not(.static-text):not(.static-temp):not(.static-text-date):not:(.static-text-time) {
+.entity:hover:not(.static-text):not(.static-temp):not(.static-text-date):not(.static-text-time) {
   stroke: #03A9F4 !important;
   stroke-width: 1px !important;
   stroke-opacity: 1 !important;
@@ -25,42 +25,43 @@ svg, svg * {
 
 .static-text
 {
-  font-family : Helvetica;
-  font-size : 47px;
-  color : #808080;
-  color : rgb(128, 128, 128);
+  font-size : 47px !important;
+  font-family : Helvetica !important;
+  font-size : 47px !important;
+  color : rgb(128, 128, 128) !important;
 }
 
 .static-text-date
 {
-  font-family : Helvetica;
-  font-size : 47px;
-  color : #808080;
-  color : rgb(128, 128, 128);
-}
-
-.static-text-time
-{
-  font-family: "Rockwell Extra Bold", "Rockwell Bold", monospace;
-  font-size : 380px;
-  color : #00ADEE;
-  color : rgb(0, 173, 238);
-}
-
-.static-text-am_pm
-{
-  font-family: "Rockwell Extra Bold", "Rockwell Bold", monospace;
-  font-size : 47px;
-  color : #00ADEE;
-  color : rgb(0, 173, 238);
+  font-family : Helvetica !important;
+  font-size : 47px !important;
+  color : rgb(128, 128, 128) !important;
 }
 
 .static-temp
 {
-  font-family: Helvetica;
-  font-size: 22px;
-  fill: #FFFFA6;
+  font-size: 47.57px !important;
+  font-family: Helvetica !important;
+  fill: rgb(128, 128, 128) !important;
 }
+
+.static-text-time
+{
+  font-family: "Rockwell Extra Bold", "Rockwell Bold", monospace !important;
+  font-size : 280px !important;
+  color : rgb(0, 173, 238) !important;
+  text-shadow: 0 0 30px #00adee;
+}
+
+.static-text-am_pm
+{
+  font-family: "Rockwell Extra Bold", "Rockwell Bold", monospace !important;
+  font-size : 60px !important;
+  color : rgb(0, 173, 238) !important;
+  text-shadow: 0 0 30px #00adee;
+}
+
+
 /* Last motion entity */
 
 .last-motion {
@@ -113,26 +114,7 @@ svg, svg * {
   fill-opacity: 0.5;
 }
 
-/* Nest Protects */
 
-.protect-on {
-  fill: green !important;
-}
-
-.protect-off {
-  fill: red !important;
-}
-
-/* Windows / Doors / Entry Points */
-
-.window-open {
-  fill: #c60919 !important;
-
-}
-
-.window-closed {
-  fill: #00FFFF !important;
-}
 
 /* Light */
 

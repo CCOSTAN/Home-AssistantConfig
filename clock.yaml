@@ -41,12 +41,12 @@ entities:
       service: toggle
 
 groups:
-  # - name: thermostats_temp
-  #   entities:
-  #     - climate.downstairs
-  #     - climate.upstairs
-  #   text_template: '${entity.attributes.current_temperature ? Math.ceil(entity.attributes.current_temperature) + "°": "undefined"}'
-  #   class_template: 'return "static-temp";'
+  - name: thermostats_temp
+    entities:
+      - climate.downstairs
+      - climate.upstairs
+    text_template: '${entity.attributes.current_temperature ? Math.ceil(entity.attributes.current_temperature) + "°": "undefined"}'
+    class_template: 'return "static-temp";'
 
   - name: temp_darksky
     entities:
