@@ -4,8 +4,8 @@ stylesheet: /local/custom_ui/floorplan/clock.css
 hide_app_toolbar:
 date_format: MMM-DD-YYYY
 fully_kiosk:
-# warnings:
-# debug:
+#warnings:
+#debug:
 
 # Example of chaining for multiple replaces.
 # '${entity.state ? entity.state.replace("not_home", "away").replace("Miguel_Work", "At Work") : "undefined"}'
@@ -29,7 +29,7 @@ fully_kiosk:
 entities:
   - name: input_booleans
     entities:
-      - input_boolean.guest_mode
+      - input_boolean.school_mode
 
     states:
       - state: 'on'
@@ -41,12 +41,12 @@ entities:
       service: toggle
 
 groups:
-  - name: thermostats_temp
-    entities:
-      - climate.downstairs
-      - climate.upstairs
-    text_template: '${entity.attributes.current_temperature ? Math.ceil(entity.attributes.current_temperature) + "°": "undefined"}'
-    class_template: 'return "static-temp";'
+  # - name: thermostats_temp
+  #   entities:
+  #     - climate.downstairs
+  #     - climate.upstairs
+  #   text_template: '${entity.attributes.current_temperature ? Math.ceil(entity.attributes.current_temperature) + "°": "undefined"}'
+  #   class_template: 'return "static-temp";'
 
   - name: temp_darksky
     entities:
@@ -54,19 +54,19 @@ groups:
     text_template: '${entity.state ? Math.ceil(entity.state) + "°": "undefined"}'
     class_template: 'return "static-temp";'
 
-  - name: temp_round
-    entities:
-      - sensor.downstairs_thermostat_humidity
-      - sensor.upstairs_thermostat_humidity
-      - sensor.dark_sky_humidity
-    text_template: '${entity.state ? Math.ceil(entity.state) : "undefined"}'
-    class_template: 'return "static-temp";'
+  # - name: temp_round
+  #   entities:
+  #     - sensor.downstairs_thermostat_humidity
+  #     - sensor.upstairs_thermostat_humidity
+  #     - sensor.dark_sky_humidity
+  #   text_template: '${entity.state ? Math.ceil(entity.state) : "undefined"}'
+  #   class_template: 'return "static-temp";'
 
-  - name: text_states
-    entities:
-      - entity: sensor.dark_sky_minutely_summary
-    text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
-    class_template: 'return "static-text";'
+#   - name: text_states
+#     entities:
+#       - entity: sensor.dark_sky_minutely_summary
+# #    text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
+#     class_template: 'return "static-text";'
 
   - name: text_font_date
     entities:
@@ -78,19 +78,25 @@ groups:
   - name: text_font_time
     entities:
       - sensor.clock_time
-      - entity: sensor.dark_sky_minutely_summary
     text_template: '${entity.state ? entity.state : "undefined"}'
     class_template: 'return "static-text-time";'
 
-  - name: Presence
+  - name: text_font_am_pm
     entities:
-      - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-      - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-    states:
-      - state: 'on'
-        class: 'presence-on'
-      - state: 'off'
-        class: 'presence-off'
+      - sensor.clock_am_pm
+    text_template: '${entity.state ? entity.state : "undefined"}'
+    class_template: 'return "static-text-am_pm";'
+
+
+  # - name: Presence
+  #   entities:
+  #     - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+  #     - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+  #   states:
+  #     - state: 'on'
+  #       class: 'presence-on'
+  #     - state: 'off'
+  #       class: 'presence-off'
 
   - name: Dark Sky Sensors
     entities:
