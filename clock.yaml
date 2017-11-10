@@ -10,7 +10,7 @@ fully_kiosk:
 # Example of chaining for multiple replaces.
 # '${entity.state ? entity.state.replace("not_home", "away").replace("Miguel_Work", "At Work") : "undefined"}'
 
-# devices:
+devices:
 
   # - name: Bedroom Alarm Panel
     # address: B4:7C:9C:9E:85:90
@@ -19,12 +19,12 @@ fully_kiosk:
       # - binary_sensor.bedroom_plugged
       # - media_player.bedroom_alarm_panel
 
-  # - name: Entry Alarm Panel
-    # address: 00:FC:8B:4A:D5:CF
-    # entities:
-      # - binary_sensor.entry_motion
-      # - binary_sensor.entry_plugged
-      # - media_player.entry_alarm_panel
+  - name: Bedroom Clock
+    address: 00:FC:8B:4A:D5:CF
+    entities:
+      - binary_sensor.bedroom_clock_motion
+      - binary_sensor.bedroom_clock_plugged
+      - media_player.bedroom_clock
 
 entities:
   - name: input_booleans
@@ -62,11 +62,11 @@ groups:
   #   text_template: '${entity.state ? Math.ceil(entity.state) : "undefined"}'
   #   class_template: 'return "static-temp";'
 
-#   - name: text_states
-#     entities:
-#       - entity: sensor.dark_sky_minutely_summary
-# #    text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
-#     class_template: 'return "static-text";'
+  - name: text_states
+    entities:
+      - sensor.dark_sky_minutely_summary
+    text_template: '${entity.state ? entity.state : "undefined"}'
+    class_template: 'return "static-text";'
 
   - name: text_font_date
     entities:
