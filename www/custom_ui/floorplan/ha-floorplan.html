@@ -1,11 +1,12 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.7.10
+  Version: 1.0.7.14
   https://github.com/pkozul/ha-floorplan
 -->
 
 <script src="lib/jquery-3.2.1.min.js"></script>
 <script src="lib/moment.min.js"></script>
+<script src="lib/yaml.min.js"></script>
 
 <!-- As documented here for Google Chrome, removes the need for touchstart -->
 <meta name="viewport" content="width=device-width">
@@ -91,6 +92,9 @@
         type: Boolean,
         value: false,
       },
+      _config: {
+        type: Object,
+      },
       config: {
         type: Object,
       },
@@ -102,8 +106,12 @@
         type: Number,
         value: undefined,
       },
+      transitioningEntityIds: {
+        type: Object,
+        value: () => { return new Set(); },
+      },
       entityInfos: {
-        type: Array,
+        type: Object,
         value: () => { return []; },
       },
       elementInfos: {
@@ -139,87 +147,103 @@
     onAttached() {
       window.onerror = this.handleWindowError.bind(this);
 
-      if (!this.config.groups) {
-        this.isLoading = false;
-        this.warn(`Cannot find 'groups' in floorplan configuration`);
-        return;
+      var configPromise;
+
+      if (this._config && this._config.config) {
+        configPromise = this.loadConfig(this._config.config);
+      }
+      else {
+        configPromise = Promise.resolve(this._config);
       }
 
-      let invalidGroups = this.config.groups.filter(x => x.entities && x.elements);
-      if (invalidGroups.length) {
-        this.isLoading = false;
-        this.warn(`A group cannot contain both 'entities' and 'elements' in floorplan configuration`);
-        return;
-      }
+      return configPromise
+        .then(config => {
+          this.config = config;
 
-      invalidGroups = this.config.groups.filter(x => !x.entities && !x.elements);
-      if (invalidGroups.length) {
-        this.isLoading = false;
-        this.warn(`A group must contain either 'entities' or 'elements' in floorplan configuration`);
-        return;
-      }
+          if (!this.config.groups) {
+            this.isLoading = false;
+            this.warn(`Cannot find 'groups' in floorplan configuration`);
+            return;
+          }
 
-      this.hass.connection.socket.addEventListener('message', event => {
-        let data = JSON.parse(event.data);
+          let invalidGroups = this.config.groups.filter(x => x.entities && x.elements);
+          if (invalidGroups.length) {
+            this.isLoading = false;
+            this.warn(`A group cannot contain both 'entities' and 'elements' in floorplan configuration`);
+            return;
+          }
 
-        // Store the time difference between the local web browser and the Home Assistant server
-        if (data.event && data.event.time_fired) {
-          let lastEventFiredTime = moment(data.event.time_fired).toDate();
-          this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
-        }
-      });
+          invalidGroups = this.config.groups.filter(x => !x.entities && !x.elements);
+          if (invalidGroups.length) {
+            this.isLoading = false;
+            this.warn(`A group must contain either 'entities' or 'elements' in floorplan configuration`);
+            return;
+          }
 
-      // Build a list of promises that will run 'in parallel' (i.e. load asynchronously)
-      var promises = [];
+          this.hass.connection.socket.addEventListener('message', event => {
+            let data = JSON.parse(event.data);
 
-      promises.push(this.loadFloorPlan());
+            // Store the time difference between the local web browser and the Home Assistant server
+            if (data.event && data.event.time_fired) {
+              let lastEventFiredTime = moment(data.event.time_fired).toDate();
+              this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
+            }
+          });
 
-      if (this.config.stylesheet) {
-        let promise = this.addExternalCss(this.config.stylesheet)
-          .then(() => this.extractCssRules());
-        promises.push(promise);
-      }
+          // Build a list of promises that will run 'in parallel' (i.e. load asynchronously)
+          var promises = [];
 
-      if (this.isOptionEnabled(this.config.pan_zoom)) {
-        let promise = this.loadScript('/local/custom_ui/floorplan/lib/svg-pan-zoom.min.js');
-        promises.push(promise);
-      }
+          promises.push(this.loadFloorPlan());
 
-      if (this.isOptionEnabled(this.config.fully_kiosk)) {
-        let promise = this.loadScript('/local/custom_ui/floorplan/lib/fully-kiosk.js');
-        promises.push(promise);
-      }
+          if (this.config.stylesheet) {
+            let promise = this.addExternalCss(this.config.stylesheet)
+              .then(() => this.extractCssRules());
+            promises.push(promise);
+          }
 
-      return Promise.all(promises) // wait for all promises to complete
-        .then(() => {
-          this.isLoading = false;
-
-          this.handleEntities(this.hass.states);
-
-          if (this.config.groups.find(entityGroup => entityGroup.state_transitions)) {
-            setInterval(this.updateStateTransitions.bind(this), 100);
+          if (this.isOptionEnabled(this.config.pan_zoom)) {
+            let promise = this.loadScript('/local/custom_ui/floorplan/lib/svg-pan-zoom.min.js');
+            promises.push(promise);
           }
 
           if (this.isOptionEnabled(this.config.fully_kiosk)) {
-            this.fullyKiosk = new FullyKiosk(this);
-            this.fullyKiosk.init();
+            let promise = this.loadScript('/local/custom_ui/floorplan/lib/fully-kiosk.js');
+            promises.push(promise);
           }
 
-          // Enable pan / zoom if enabled in config
-          if (this.isOptionEnabled(this.config.pan_zoom)) {
-            let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
+          return Promise.all(promises) // wait for all promises to complete
+            .then(() => {
+              let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
 
-            svgPanZoom($(svg)[0], {
-              zoomEnabled: true,
-              controlIconsEnabled: true,
-              fit: true,
-              center: true,
+              this.isLoading = false;
+
+              this.handleEntities(this.hass.states, true);
+
+              if (this.config.groups.find(entityGroup => entityGroup.state_transitions)) {
+                setInterval(this.updateStateTransitions.bind(this), 100);
+              }
+
+              if (this.isOptionEnabled(this.config.fully_kiosk)) {
+                this.fullyKiosk = new FullyKiosk(this);
+                this.fullyKiosk.init();
+              }
+
+              // Enable pan / zoom if enabled in config
+              if (this.isOptionEnabled(this.config.pan_zoom)) {
+                let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
+
+                svgPanZoom($(svg)[0], {
+                  zoomEnabled: true,
+                  controlIconsEnabled: true,
+                  fit: true,
+                  center: true,
+                });
+              }
+            })
+            .catch(err => {
+              this.isLoading = false;
+              this.error(err);
             });
-          }
-        })
-        .catch(err => {
-          this.isLoading = false;
-          this.error(err);
         });
     },
 
@@ -239,6 +263,22 @@
       }
 
       return false;
+    },
+
+    loadConfig(configUrl) {
+      return new Promise((resolve, reject) => {
+        jQuery.ajax({
+          url: configUrl,
+          cache: true,
+          error: function (err) {
+            return reject(new URIError(`${configUrl}: ${err.responseText}`));
+          }.bind(this),
+          success: function (result) {
+            let json = yaml.load(result);
+            return resolve(json);
+          }.bind(this),
+        });
+      });
     },
 
     loadScript(scriptUrl) {
@@ -460,7 +500,9 @@
     addSvgElementToGroup(svgElement, entityId, groupInfo, originalBBox) {
       groupInfo.svgElementInfos[svgElement.id] = {
         svgElement: svgElement,
-        clonedsvgElement: svgElement.cloneNode(true),
+        originalStroke: svgElement.style.stroke,
+        originalFill: svgElement.style.fill,
+        originalClasses: this.getArray(svgElement.classList),
         entityId: entityId,
         bbox: originalBBox,
       };
@@ -472,7 +514,9 @@
       $(svgElement).find('*').each((i, svgNestedElement) => {
         groupInfo.svgElementInfos[svgNestedElement.id] = {
           svgElement: svgNestedElement,
-          clonedsvgElement: svgNestedElement.cloneNode(true),
+          originalStroke: svgNestedElement.style.stroke,
+          originalFill: svgNestedElement.style.fill,
+          originalClasses: this.getArray(svgNestedElement.classList),
           entityId: entityId,
         };
       });
@@ -505,19 +549,43 @@
       return svgElement;
     },
 
-    handleEntities(entities) {
+    handleEntities(entities, isFirstTime) {
+      if (!this.config) {
+        return;
+      }
+
+      console.log('********** Handling entity state changes - START **********');
+      console.log(`>>> Transitioning entities: ${this.transitioningEntityIds.size}`);
+
       let entityIds = Object.keys(entities);
 
       let changedEntityIds = [];
+
       for (let entityId of entityIds) {
-        let entityState = entities[entityId];
-
-        let isUsingLastMotion = this.config && this.config.last_motion_entity &&
-          this.config.last_motion_class && entities[this.config.last_motion_entity];
-
         let entityInfo = this.entityInfos[entityId];
-        if (isUsingLastMotion || (entityInfo && (entityInfo.lastState !== entityState.state))) {
-          changedEntityIds.push(entityId);
+        if (entityInfo) {
+          let entityState = entities[entityId];
+
+          if (isFirstTime) {
+            changedEntityIds.push(entityId);
+          }
+
+          if (entityInfo && (entityInfo.lastState !== entityState.state)) {
+            console.log(`Entity changed: ${entityId} (${entities[entityId].state})`);
+            if (changedEntityIds.indexOf(entityId) < 0) {
+              changedEntityIds.push(entityId);
+            }
+          }
+
+          let isAnyTransitioningEntities = (this.transitioningEntityIds.size > 0);
+
+          if (this.config.last_motion_entity && isAnyTransitioningEntities && entityId.startsWith("binary_sensor.") &&
+            this.config.last_motion_class && entities[this.config.last_motion_entity]) {
+            console.log(`... Entity might be used in last motion: ${entityId} (${entities[entityId].state})`);
+            if (changedEntityIds.indexOf(entityId) < 0) {
+              changedEntityIds.push(entityId);
+            }
+          }
         }
       }
 
@@ -525,24 +593,25 @@
         return func.then(() => this.handleEntity(entityId, entities));
       }, Promise.resolve());
 
-      promiseChain.then(() => {
+      return promiseChain.then(() => {
+        console.log('********** Handling entity state changes - END **********');
+        console.log('');
         //console.log('Done!');
       });
     },
 
     handleEntity(entityId, entities) {
       let entityState = entities[entityId];
-
       let entityInfo = this.entityInfos[entityId];
-      if (!entityInfo) {
-        return Promise.resolve(true);
-      }
 
       entityInfo.lastState = entityState.state;
 
       return this.handleEntityUpdateDom(entityId, entities)
-        .then(() => this.handleEntitySetHoverOver(entityId, entities))
-        .then(() => this.handleEntityUpdateCss(entityId, entities));
+        .then(() => {
+          this.handleEntitySetHoverOver(entityId, entities);
+          this.handleEntityUpdateCss(entityId, entities)
+          this.handleEntityUpdateLastMotionCss(entityId, entities);
+        });
     },
 
     handleEntityUpdateDom(entityId, entities) {
@@ -631,142 +700,145 @@
     },
 
     handleEntitySetHoverOver(entityId, entities) {
-      return new Promise((resolve, reject) => {
-        let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
+      let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
 
-        let entityState = entities[entityId];
-        let entityInfo = this.entityInfos[entityId];
+      let entityState = entities[entityId];
+      let entityInfo = this.entityInfos[entityId];
 
-        for (var groupInfo of entityInfo.groupInfos) {
-          for (let svgElementId in groupInfo.svgElementInfos) {
-            let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
-            let svgElement = svgElementInfo.svgElement;
+      for (var groupInfo of entityInfo.groupInfos) {
+        for (let svgElementId in groupInfo.svgElementInfos) {
+          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+          let svgElement = svgElementInfo.svgElement;
 
-            this.setHoverOverText(svgElement, entityState);
-          }
+          this.setHoverOverText(svgElement, entityState);
         }
-
-        return resolve(true);
-      });
+      }
     },
 
     handleEntityUpdateCss(entityId, entities) {
-      return new Promise((resolve, reject) => {
-        let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
+      if (!this.cssRules || !this.cssRules.length) {
+        return;
+      }
 
-        let entityState = entities[entityId];
-        let entityInfo = this.entityInfos[entityId];
+      let entityState = entities[entityId];
+      let entityInfo = this.entityInfos[entityId];
 
-        for (var groupInfo of entityInfo.groupInfos) {
-          for (let svgElementId in groupInfo.svgElementInfos) {
-            let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
-            let svgElement = svgElementInfo.svgElement;
+      for (var groupInfo of entityInfo.groupInfos) {
+        for (let svgElementId in groupInfo.svgElementInfos) {
+          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+          let svgElement = svgElementInfo.svgElement;
 
-            if (!this.cssRules || !this.cssRules.length) {
-              return resolve(true);
-            }
+          let wasTransitionHandled = false;
 
-            let wasTransitionHandled = false;
+          if (groupInfo.group.states && groupInfo.group.state_transitions) {
+            let transitionConfig = groupInfo.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityState.state));
+            if (transitionConfig && transitionConfig.from_state && transitionConfig.to_state && transitionConfig.duration) {
+              // Determine the current time on the server (based on the local vs. server time difference)
+              let serverMoment = this.getServerMoment();
+              let lastChangedMoment = moment(entityState.last_changed);
+              let elapsed = Math.max(serverMoment.diff(lastChangedMoment, 'milliseconds'), 0);
+              let remaining = (transitionConfig.duration * 1000) - elapsed;
 
-            if (groupInfo.group.states && groupInfo.group.state_transitions) {
-              let transitionConfig = groupInfo.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityState.state));
-              if (transitionConfig && transitionConfig.from_state && transitionConfig.to_state && transitionConfig.duration) {
-                // Determine the current time on the server (based on the local vs. server time difference)
-                let serverMoment = this.getServerMoment();
-                let lastChangedMoment = moment(entityState.last_changed);
-                let elapsed = Math.max(serverMoment.diff(lastChangedMoment, 'milliseconds'), 0);
-                let remaining = (transitionConfig.duration * 1000) - elapsed;
-
-                if (remaining > 0) {
-                  entityInfo.lastChangedTime = lastChangedMoment.toDate();
-                }
-                else {
-                  this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
-                }
-                wasTransitionHandled = true;
+              if (remaining > 0) {
+                entityInfo.lastChangedTime = lastChangedMoment.toDate();
               }
-            }
-
-            let targetClass = undefined;
-            let obsoleteClasses = [];
-
-            if (groupInfo.group.class_template) {
-              targetClass = this.evaluate(groupInfo.group.class_template, entityState, entities);
-            }
-
-            let originalClasses = this.getArray(svgElementInfo.clonedsvgElement.classList);
-
-            // Get the config for the current state
-            if (groupInfo.group.states) {
-              let stateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === entityState.state));
-              if (stateConfig && stateConfig.class && !wasTransitionHandled) {
-                targetClass = stateConfig.class;
+              else {
+                this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
               }
+              wasTransitionHandled = true;
+            }
+          }
 
-              // Remove any other previously-added state classes
-              for (let otherStateConfig of groupInfo.group.states) {
-                if (!stateConfig || (otherStateConfig.state !== stateConfig.state)) {
-                  if (otherStateConfig.class && (otherStateConfig.class !== 'ha-entity') && $(svgElement).hasClass(otherStateConfig.class)) {
-                    if (originalClasses.indexOf(otherStateConfig.class) < 0) {
-                      obsoleteClasses.push(otherStateConfig.class);
-                    }
+          let targetClass = undefined;
+          let obsoleteClasses = [];
+
+          if (groupInfo.group.class_template) {
+            targetClass = this.evaluate(groupInfo.group.class_template, entityState, entities);
+          }
+
+          // Get the config for the current state
+          if (groupInfo.group.states) {
+            let stateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === entityState.state));
+            if (stateConfig && stateConfig.class && !wasTransitionHandled) {
+              targetClass = stateConfig.class;
+            }
+
+            // Remove any other previously-added state classes
+            for (let otherStateConfig of groupInfo.group.states) {
+              if (!stateConfig || (otherStateConfig.state !== stateConfig.state)) {
+                if (otherStateConfig.class && (otherStateConfig.class !== 'ha-entity') && $(svgElement).hasClass(otherStateConfig.class)) {
+                  if (svgElementInfo.originalClasses.indexOf(otherStateConfig.class) < 0) {
+                    obsoleteClasses.push(otherStateConfig.class);
                   }
                 }
-              }
-            }
-            else {
-              for (let otherClassName of this.getArray(svgElement.classList)) {
-                if ((otherClassName !== targetClass) && (otherClassName !== 'ha-entity')) {
-                  if (originalClasses.indexOf(otherClassName) < 0) {
-                    obsoleteClasses.push(otherClassName);
-                  }
-                }
-              }
-            }
-
-            // Remove any obsolete classes from the entity
-            this.removeClasses(entityId, svgElement, obsoleteClasses);
-
-            // Add the target class to the entity
-            if (targetClass) {
-              this.addClass(entityId, svgElement, targetClass);
-            }
-
-            if (this.config && this.config.last_motion_entity && this.config.last_motion_class && entities[this.config.last_motion_entity] &&
-              (entityState.attributes.friendly_name === entities[this.config.last_motion_entity].state)) {
-              if (!$(svgElement).hasClass(this.config.last_motion_class)) {
-                $(svgElement).addClass(this.config.last_motion_class);
-              }
-            }
-            else {
-              if ($(svgElement).hasClass(this.config.last_motion_class)) {
-                $(svgElement).removeClass(this.config.last_motion_class);
               }
             }
           }
-        }
+          else {
+            for (let otherClassName of this.getArray(svgElement.classList)) {
+              if ((otherClassName !== targetClass) && (otherClassName !== 'ha-entity')) {
+                if (svgElementInfo.originalClasses.indexOf(otherClassName) < 0) {
+                  obsoleteClasses.push(otherClassName);
+                }
+              }
+            }
+          }
 
-        return resolve(true);
-      });
+          // Remove any obsolete classes from the entity
+          this.removeClasses(entityId, svgElement, obsoleteClasses);
+
+          // Add the target class to the entity
+          if (targetClass) {
+            this.addClass(entityId, svgElement, targetClass);
+          }
+        }
+      }
+    },
+
+    handleEntityUpdateLastMotionCss(entityId, entities) {
+      if (!this.cssRules || !this.cssRules.length) {
+        return;
+      }
+
+      let entityState = entities[entityId];
+      let entityInfo = this.entityInfos[entityId];
+
+      for (var groupInfo of entityInfo.groupInfos) {
+        for (let svgElementId in groupInfo.svgElementInfos) {
+          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+          let svgElement = svgElementInfo.svgElement;
+
+          if (this.config && this.config.last_motion_entity && this.config.last_motion_class && entities[this.config.last_motion_entity] &&
+            (entityState.attributes.friendly_name === entities[this.config.last_motion_entity].state)) {
+            if (!$(svgElement).hasClass(this.config.last_motion_class)) {
+              $(svgElement).addClass(this.config.last_motion_class);
+            }
+          }
+          else {
+            if ($(svgElement).hasClass(this.config.last_motion_class)) {
+              $(svgElement).removeClass(this.config.last_motion_class);
+            }
+          }
+        }
+      }
     },
 
     setHoverOverText(element, entityState) {
       let dateFormat = this.config.date_format ? this.config.date_format : 'DD-MMM-YYYY';
 
       $(element).find('title').each((i, titleElement) => {
+        let lastChanged = moment().to(moment(entityState.last_changed));
+        let lastChangedDate = moment(entityState.last_changed).format(dateFormat);
+        let lastChangedTime = moment(entityState.last_changed).format('HH:mm:ss');
+
         let titleText = `${entityState.attributes.friendly_name}\n`;
-        titleText += `State: ${entityState.state}\n\n`;
+        titleText += `State: ${entityState.state} (${lastChanged})\n\n`;
 
         Object.keys(entityState.attributes).map(key => {
           titleText += `${key}: ${entityState.attributes[key]}\n`;
         });
         titleText += '\n';
 
-        let lastChanged = moment().to(moment(entityState.last_changed));
-        let lastChangedDate = moment(entityState.last_changed).format(dateFormat);
-        let lastChangedTime = moment(entityState.last_changed).format('HH:mm:ss');
-
-        titleText += `Last changed: ${lastChanged}\n`;
         titleText += `Last changed: ${lastChangedDate} ${lastChangedTime}`;
 
         $(titleElement).html(titleText);
@@ -793,7 +865,10 @@
               .attr('height', svgElementInfo.bbox.height)
               .attr('width', svgElementInfo.bbox.width)
               .attr('x', svgElementInfo.bbox.x)
-              .attr('y', svgElementInfo.bbox.y);
+              .attr('y', svgElementInfo.bbox.y)
+              .css('-webkit-perspective:', '1000')
+              .css('-webkit-transform-style', 'preserve-3d')
+              .css('-webkit-backface-visibility', 'hidden');
 
             $(embeddedSvg).find('*').append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
               .on('click', this.onEntityClick.bind({ instance: this, entityId: entityId, groupInfo: groupInfo }))
@@ -819,6 +894,7 @@
             return resolve(embeddedSvg);
           })
           .catch(err => {
+            this.error('2');
             this.error(err);
             return reject(err);
           });
@@ -936,15 +1012,27 @@
                 if (fromFill && toFill) {
                   let elapsed = serverMoment.diff(moment(entityInfo.lastChangedTime), 'milliseconds');
                   if (elapsed < 0) {
+                    if (!this.transitioningEntityIds.has(entityId)) {
+                      this.transitioningEntityIds.add(entityId);
+                    }
+
                     groupInfo.isTransitioning = true;
                     this.setTransitionFill(svgElement, fromFill, toFill, 1);
                   }
                   else {
                     if (elapsed < (transitionConfig.duration * 1000)) {
+                      if (!this.transitioningEntityIds.has(entityId)) {
+                        this.transitioningEntityIds.add(entityId);
+                      }
+
                       groupInfo.isTransitioning = true;
                       this.setTransitionFill(svgElement, fromFill, toFill, elapsed / (transitionConfig.duration * 1000));
                     }
                     else {
+                      if (this.transitioningEntityIds.has(entityId)) {
+                        this.transitioningEntityIds.delete(entityId);
+                      }
+
                       groupInfo.isTransitioning = false;
                       this.setTransitionFill(svgElement, fromFill, toFill, 0);
                       entityInfo.lastChangedTime = undefined;
@@ -972,8 +1060,8 @@
           svgElement.style.stroke = stroke;
         }
         else {
-          if (svgElementInfo.clonedsvgElement) {
-            svgElement.style.stroke = svgElementInfo.clonedsvgElement.style.stroke;
+          if (svgElementInfo.originalStroke) {
+            svgElement.style.stroke = svgElementInfo.originalStroke;
           }
           else {
             // ???
@@ -985,8 +1073,8 @@
           svgElement.style.fill = fill;
         }
         else {
-          if (svgElementInfo.clonedsvgElement) {
-            svgElement.style.fill = svgElementInfo.clonedsvgElement.style.fill;
+          if (svgElementInfo.originalFill) {
+            svgElement.style.fill = svgElementInfo.originalFill;
           }
           else {
             // ???
@@ -1148,14 +1236,14 @@
 
     error(message) {
       let errors = Polymer.dom(this.$.errors).node;
-      $(errors).find('ul').append(`<li>${moment().format('YYYY-MMM-DD HH:mm:ss')} ${message}</li>`)
+      $(errors).find('ul').append(`<li>${moment().format('YYYY-MM-DD HH:mm:ss')} ${message}</li>`)
       $(errors).css('display', 'block');
     },
 
     warn(message) {
       if (this.isOptionEnabled(this.config.warnings)) {
         let warnings = Polymer.dom(this.$.warnings).node;
-        $(warnings).find('ul').append(`<li>${moment().format('YYYY-MMM-DD HH:mm:ss')} ${message}</li>`)
+        $(warnings).find('ul').append(`<li>${moment().format('YYYY-MM-DD HH:mm:ss')} ${message}</li>`)
         $(warnings).css('display', 'block');
       }
     },
@@ -1163,7 +1251,7 @@
     debug(message, isForce) {
       if (this.isOptionEnabled(this.config.debug) || isForce) {
         let debug = Polymer.dom(this.$.debug).node;
-        $(debug).find('ul').append(`<li>${moment().format('YYYY-MMM-DD HH:mm:ss')} ${message}</li>`)
+        $(debug).find('ul').append(`<li>${moment().format('YYYY-MM-DD HH:mm:ss')} ${message}</li>`)
         $(debug).css('display', 'block');
       }
     },
