@@ -21,6 +21,13 @@ homeassistant:
 
   packages: !include_dir_named packages
 
+# cloud:
+#   mode: development
+#   cognito_client_id: !secret cloud_client_id
+#   user_pool_id: !secret cloud_user_pool
+#   region: 'us-east-1'
+#   relayer: !secret cloud_relayer
+
 http:
   base_url: !secret http_base_url
   api_password: !secret http_api_password
@@ -46,7 +53,7 @@ panel_custom:
     sidebar_title: Alarm Clock
     sidebar_icon: mdi:alarm
     url_path: clock
-    config: !include clock.yaml    
+    config: !include clock.yaml
 
 notify:
   - platform: ios

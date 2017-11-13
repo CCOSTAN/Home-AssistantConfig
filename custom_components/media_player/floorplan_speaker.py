@@ -1,6 +1,11 @@
 """
 Support for TTS on a Floorplan Speaker
-Version: 1.0.7.5
+Version: 1.0.7.6
+date: 11/13/2017
+
+"""
+"""
+Support for Floorplan Speaker
 
 """
 import voluptuous as vol
@@ -21,7 +26,7 @@ import re
 import sys
 import time
 
-DEFAULT_NAME = 'TTS Floorplan Speaker'
+DEFAULT_NAME = 'Floorplan Speaker'
 DEFAULT_VOLUME = 1.0
 
 SUPPORT_FLOORPLAN_SPEAKER = SUPPORT_PLAY_MEDIA | SUPPORT_VOLUME_SET

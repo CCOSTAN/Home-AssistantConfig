@@ -3,21 +3,19 @@ image: /local/custom_ui/floorplan/floorplan.svg
 stylesheet: /local/custom_ui/floorplan/floorplan.css
 hide_app_toolbar:
 date_format: MMM-DD-YYYY
-fully_kiosk:
 # warnings:
 # debug:
 
 # Example of chaining for multiple replaces.
 # '${entity.state ? entity.state.replace("not_home", "away").replace("Miguel_Work", "At Work") : "undefined"}'
 
-devices:
+fully_kiosk:
 
   - name: Bedroom Alarm Panel
     address: B4:7C:9C:9E:85:90
-    entities:
-      - binary_sensor.bedroom_motion
-      - binary_sensor.bedroom_plugged
-      - media_player.bedroom_alarm_panel
+    motion_sensor: binary_sensor.bedroom_motion
+    plugged_sensor: binary_sensor.bedroom_plugged
+    media_player: media_player.bedroom_alarm_panel
 
   # - name: Entry Alarm Panel
   #   address: 00:FC:8B:4A:D5:CF
