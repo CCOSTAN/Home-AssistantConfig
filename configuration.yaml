@@ -47,13 +47,17 @@ panel_custom:
     sidebar_title: Alarm Panel
     sidebar_icon: mdi:security-home
     url_path: floorplan
-    config: !include floorplan.yaml
+    config:
+      hide_app_toolbar:
+      config: /local/custom_ui/floorplan/floorplan.yaml
 
   - name: clock
     sidebar_title: Alarm Clock
     sidebar_icon: mdi:alarm
     url_path: clock
-    config: !include clock.yaml
+    config:
+      hide_app_toolbar:
+      config: /local/custom_ui/floorplan/clock.yaml
 
 notify:
   - platform: ios
