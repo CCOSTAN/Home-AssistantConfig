@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.7.14
+  Version: 1.0.7.16
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -147,7 +147,7 @@
     onAttached() {
       window.onerror = this.handleWindowError.bind(this);
 
-      var configPromise;
+      let configPromise;
 
       if (this._config && this._config.config) {
         configPromise = this.loadConfig(this._config.config);
@@ -191,7 +191,7 @@
           });
 
           // Build a list of promises that will run 'in parallel' (i.e. load asynchronously)
-          var promises = [];
+          let promises = [];
 
           promises.push(this.loadFloorPlan());
 
@@ -352,6 +352,12 @@
 
             let svgElements = $(svg).find('*').toArray();
 
+            // Add the last motion entity
+            if (this.config.last_motion_entity) {
+              entityInfo = { groupInfos: [], lastState: undefined, transitionLastChanged: undefined };
+              this.entityInfos[this.config.last_motion_entity] = entityInfo;
+            }
+
             let elementGroups = this.config.groups.filter(x => x.elements);
             for (let elementGroup of elementGroups) {
               for (let elementId of elementGroup.elements) {
@@ -428,9 +434,7 @@
 
                 let entityInfo = this.entityInfos[entityId];
                 if (!entityInfo) {
-                  entityInfo = {
-                    groupInfos: [], lastState: undefined, lastChangedTime: undefined,
-                  };
+                  entityInfo = { groupInfos: [], lastState: undefined, transitionLastChanged: undefined };
                   this.entityInfos[entityId] = entityInfo;
                 }
 
@@ -554,12 +558,21 @@
         return;
       }
 
-      console.log('********** Handling entity state changes - START **********');
-      console.log(`>>> Transitioning entities: ${this.transitioningEntityIds.size}`);
+      let messages = [];
 
       let entityIds = Object.keys(entities);
 
       let changedEntityIds = [];
+
+      let lastMotionEntityInfo, oldLastMotionState, newLastMotionState;
+
+      if (this.config.last_motion_entity && this.config.last_motion_class) {
+        lastMotionEntityInfo = this.entityInfos[this.config.last_motion_entity];
+        if (lastMotionEntityInfo && lastMotionEntityInfo.lastState) {
+          oldLastMotionState = lastMotionEntityInfo.lastState.state;
+          newLastMotionState = entities[this.config.last_motion_entity].state;
+        }
+      }
 
       for (let entityId of entityIds) {
         let entityInfo = this.entityInfos[entityId];
@@ -567,26 +580,62 @@
           let entityState = entities[entityId];
 
           if (isFirstTime) {
-            changedEntityIds.push(entityId);
-          }
-
-          if (entityInfo && (entityInfo.lastState !== entityState.state)) {
-            console.log(`Entity changed: ${entityId} (${entities[entityId].state})`);
+            messages.push(`Entity initial state: ${entityId} (${entities[entityId].state})`);
             if (changedEntityIds.indexOf(entityId) < 0) {
               changedEntityIds.push(entityId);
             }
           }
+          else if (entityInfo.lastState) {
+            let oldState = entityInfo.lastState.state;
+            let newState = entityState.state;
 
-          let isAnyTransitioningEntities = (this.transitioningEntityIds.size > 0);
+            if (entityState.last_changed !== entityInfo.lastState.last_changed) {
+              messages.push(`Entity last changed: ${entityId} (${newState}) at ${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")}`);
+              if (changedEntityIds.indexOf(entityId) < 0) {
+                changedEntityIds.push(entityId);
+              }
+            }
+            else {
+              let oldAttributesText = JSON.stringify(entityInfo.lastState.attributes);
+              let newAttributesText = JSON.stringify(entityState.attributes);
 
-          if (this.config.last_motion_entity && isAnyTransitioningEntities && entityId.startsWith("binary_sensor.") &&
-            this.config.last_motion_class && entities[this.config.last_motion_entity]) {
-            console.log(`... Entity might be used in last motion: ${entityId} (${entities[entityId].state})`);
-            if (changedEntityIds.indexOf(entityId) < 0) {
-              changedEntityIds.push(entityId);
+              if (newAttributesText !== oldAttributesText) {
+                if (entityId.indexOf('media_player') < 0) {
+                  //messages.push(`Entity attributes changed: ${entityId} (${newAttributesText})`);
+                  if (changedEntityIds.indexOf(entityId) < 0) {
+                    changedEntityIds.push(entityId);
+                  }
+                }
+              }
+
+              if (this.config.last_motion_entity && this.config.last_motion_class) {
+                if ((newLastMotionState !== oldLastMotionState) && (entityId.indexOf('binary_sensor') >= 0)) {
+                  let friendlyName = entityState.attributes.friendly_name;
+
+                  if (friendlyName === newLastMotionState) {
+                    messages.push(`Entity is last motion: ${entityId} (${entities[entityId].state})`);
+                    if (changedEntityIds.indexOf(entityId) < 0) {
+                      changedEntityIds.push(entityId);
+                    }
+                  }
+                  else if (friendlyName === oldLastMotionState) {
+                    messages.push(`Entity was last motion: ${entityId} (${entities[entityId].state})`);
+                    if (changedEntityIds.indexOf(entityId) < 0) {
+                      changedEntityIds.push(entityId);
+                    }
+                  }
+                }
+              }
             }
           }
         }
+      }
+
+      if (messages.length) {
+        for (let message of messages) {
+          console.log(message);
+        }
+        console.log('');
       }
 
       let promiseChain = changedEntityIds.reduce((func, entityId) => {
@@ -594,8 +643,6 @@
       }, Promise.resolve());
 
       return promiseChain.then(() => {
-        console.log('********** Handling entity state changes - END **********');
-        console.log('');
         //console.log('Done!');
       });
     },
@@ -604,7 +651,7 @@
       let entityState = entities[entityId];
       let entityInfo = this.entityInfos[entityId];
 
-      entityInfo.lastState = entityState.state;
+      entityInfo.lastState = Object.assign({}, entityState);
 
       return this.handleEntityUpdateDom(entityId, entities)
         .then(() => {
@@ -623,7 +670,7 @@
         let entityState = entities[entityId];
         let entityInfo = this.entityInfos[entityId];
 
-        for (var groupInfo of entityInfo.groupInfos) {
+        for (let groupInfo of entityInfo.groupInfos) {
           for (let svgElementId in groupInfo.svgElementInfos) {
             let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
             let svgElement = svgElementInfo.svgElement;
@@ -705,7 +752,7 @@
       let entityState = entities[entityId];
       let entityInfo = this.entityInfos[entityId];
 
-      for (var groupInfo of entityInfo.groupInfos) {
+      for (let groupInfo of entityInfo.groupInfos) {
         for (let svgElementId in groupInfo.svgElementInfos) {
           let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
           let svgElement = svgElementInfo.svgElement;
@@ -723,7 +770,7 @@
       let entityState = entities[entityId];
       let entityInfo = this.entityInfos[entityId];
 
-      for (var groupInfo of entityInfo.groupInfos) {
+      for (let groupInfo of entityInfo.groupInfos) {
         for (let svgElementId in groupInfo.svgElementInfos) {
           let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
           let svgElement = svgElementInfo.svgElement;
@@ -740,7 +787,7 @@
               let remaining = (transitionConfig.duration * 1000) - elapsed;
 
               if (remaining > 0) {
-                entityInfo.lastChangedTime = lastChangedMoment.toDate();
+                entityInfo.transitionLastChanged = lastChangedMoment.toDate();
               }
               else {
                 this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
@@ -803,7 +850,7 @@
       let entityState = entities[entityId];
       let entityInfo = this.entityInfos[entityId];
 
-      for (var groupInfo of entityInfo.groupInfos) {
+      for (let groupInfo of entityInfo.groupInfos) {
         for (let svgElementId in groupInfo.svgElementInfos) {
           let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
           let svgElement = svgElementInfo.svgElement;
@@ -846,9 +893,24 @@
     },
 
     loadCameraImage(imageUrl, svgElement) {
-      let time = (new Date()).getTime();
-      svgElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl + '&time=' + time);
-      //svgElement.onload = (e) => {      };
+      //let time = (new Date()).getTime();
+      //svgElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl + '&time=' + time);
+
+      jQuery.ajax({
+        url: imageUrl,
+        cache: false,
+        mimeType: 'text/plain; charset=x-user-defined',
+        processData: false,
+        error: function (err) {
+          //throw new URIError(`${imageUrl}: ${err.responseText}`);
+        }.bind(this),
+        success: function (result) {
+          let imageData = 'data:image/jpeg;base64,' + this.base64Encode(result);
+          if ($(svgElement).attr('href') !== imageData) {
+            $(svgElement).attr('href', imageData);
+          }
+        }.bind(this),
+      });
     },
 
     loadImage(svgElementInfo, imageUrl, entityId, entityState, groupInfo) {
@@ -857,7 +919,7 @@
           .then(cachedSvg => {
             let svg = Polymer.dom(this.$.floorplan).querySelector('svg');
 
-            var embeddedSvg = cachedSvg.cloneNode(true);
+            let embeddedSvg = cachedSvg.cloneNode(true);
 
             $(embeddedSvg)
               .attr('id', svgElementInfo.svgElement.id)
@@ -894,7 +956,6 @@
             return resolve(embeddedSvg);
           })
           .catch(err => {
-            this.error('2');
             this.error(err);
             return reject(err);
           });
@@ -986,8 +1047,8 @@
         if (!entityInfo || !entityInfo.groupInfos)
           continue;
 
-        for (var groupInfo of entityInfo.groupInfos) {
-          if (!groupInfo.group.states || !groupInfo.group.state_transitions || (entityInfo.lastChangedTime === undefined))
+        for (let groupInfo of entityInfo.groupInfos) {
+          if (!groupInfo.group.states || !groupInfo.group.state_transitions || !entityInfo.transitionLastChanged)
             continue;
 
           for (let svgElementId in groupInfo.svgElementInfos) {
@@ -999,7 +1060,7 @@
 
             let wasTransitionHandled = false;
 
-            let transitionConfig = groupInfo.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityInfo.lastState));
+            let transitionConfig = groupInfo.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityInfo.lastState.state));
             if (transitionConfig && transitionConfig.from_state && transitionConfig.to_state && transitionConfig.duration) {
               let serverMoment = this.getServerMoment();
               let fromStateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === transitionConfig.from_state));
@@ -1010,7 +1071,7 @@
                 let toFill = this.getFill(toStateConfig);
 
                 if (fromFill && toFill) {
-                  let elapsed = serverMoment.diff(moment(entityInfo.lastChangedTime), 'milliseconds');
+                  let elapsed = serverMoment.diff(moment(entityInfo.transitionLastChanged), 'milliseconds');
                   if (elapsed < 0) {
                     if (!this.transitioningEntityIds.has(entityId)) {
                       this.transitioningEntityIds.add(entityId);
@@ -1035,7 +1096,7 @@
 
                       groupInfo.isTransitioning = false;
                       this.setTransitionFill(svgElement, fromFill, toFill, 0);
-                      entityInfo.lastChangedTime = undefined;
+                      entityInfo.transitionLastChanged = undefined;
                     }
                   }
 
@@ -1053,7 +1114,7 @@
     },
 
     setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo) {
-      let stateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === entityInfo.lastState));
+      let stateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === entityInfo.lastState.state));
       if (stateConfig) {
         let stroke = this.getStroke(stateConfig);
         if (stroke) {
@@ -1297,6 +1358,34 @@
 
     getCacheBuster() {
       return 'cacheBuster=' + (new Date().getTime());
+    },
+
+    base64Encode(str) {
+      let CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+      let out = "", i = 0, len = str.length, c1, c2, c3;
+      while (i < len) {
+        c1 = str.charCodeAt(i++) & 0xff;
+        if (i === len) {
+          out += CHARS.charAt(c1 >> 2);
+          out += CHARS.charAt((c1 & 0x3) << 4);
+          out += "==";
+          break;
+        }
+        c2 = str.charCodeAt(i++);
+        if (i === len) {
+          out += CHARS.charAt(c1 >> 2);
+          out += CHARS.charAt(((c1 & 0x3) << 4) | ((c2 & 0xF0) >> 4));
+          out += CHARS.charAt((c2 & 0xF) << 2);
+          out += "=";
+          break;
+        }
+        c3 = str.charCodeAt(i++);
+        out += CHARS.charAt(c1 >> 2);
+        out += CHARS.charAt(((c1 & 0x3) << 4) | ((c2 & 0xF0) >> 4));
+        out += CHARS.charAt(((c2 & 0xF) << 2) | ((c3 & 0xC0) >> 6));
+        out += CHARS.charAt(c3 & 0x3F);
+      }
+      return out;
     },
 
     rgbToHex(rgb) {
