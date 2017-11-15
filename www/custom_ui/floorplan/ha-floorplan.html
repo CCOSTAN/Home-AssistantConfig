@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.7.16
+  Version: 1.0.7.17
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -580,7 +580,8 @@
           let entityState = entities[entityId];
 
           if (isFirstTime) {
-            messages.push(`Entity initial state: ${entityId} (${entities[entityId].state})`);
+            //messages.push(`Entity initial state: ${entityId} (${entities[entityId].state})`);
+            messages.push(`${entityState.attributes.friendly_name}: ${entities[entityId].state} (initial load)`);
             if (changedEntityIds.indexOf(entityId) < 0) {
               changedEntityIds.push(entityId);
             }
@@ -590,7 +591,8 @@
             let newState = entityState.state;
 
             if (entityState.last_changed !== entityInfo.lastState.last_changed) {
-              messages.push(`Entity last changed: ${entityId} (${newState}) at ${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")}`);
+              //messages.push(`Entity last changed: ${entityId} (${newState}) at ${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")}`);
+              messages.push(`${entityState.attributes.friendly_name}: ${newState} (${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")})`);
               if (changedEntityIds.indexOf(entityId) < 0) {
                 changedEntityIds.push(entityId);
               }
@@ -602,6 +604,7 @@
               if (newAttributesText !== oldAttributesText) {
                 if (entityId.indexOf('media_player') < 0) {
                   //messages.push(`Entity attributes changed: ${entityId} (${newAttributesText})`);
+                  messages.push(`${entityState.attributes.friendly_name}: ${newAttributesText} (${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")})`);
                   if (changedEntityIds.indexOf(entityId) < 0) {
                     changedEntityIds.push(entityId);
                   }
@@ -714,9 +717,13 @@
 
                 this.loadCameraImage(imageUrl, svgElement);
 
-                groupInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
-                  this.loadCameraImage(imageUrl, svgElement);
-                }, 60000, imageUrl, svgElement);
+                if (groupInfo.group.refresh_interval) {
+                  let refreshInterval = parseInt(groupInfo.group.refresh_interval);
+
+                  groupInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
+                    this.loadCameraImage(imageUrl, svgElement);
+                  }, refreshInterval * 1000, imageUrl, svgElement);
+                }
               }
             }
             else if (groupInfo.group.image_template) {
@@ -874,19 +881,24 @@
       let dateFormat = this.config.date_format ? this.config.date_format : 'DD-MMM-YYYY';
 
       $(element).find('title').each((i, titleElement) => {
-        let lastChanged = moment().to(moment(entityState.last_changed));
+        let lastChangedElapsed = moment().to(moment(entityState.last_changed));
         let lastChangedDate = moment(entityState.last_changed).format(dateFormat);
         let lastChangedTime = moment(entityState.last_changed).format('HH:mm:ss');
 
+        let lastUpdatedElapsed = moment().to(moment(entityState.last_updated));
+        let lastUpdatedDate = moment(entityState.last_updated).format(dateFormat);
+        let lastUpdatedTime = moment(entityState.last_updated).format('HH:mm:ss');
+
         let titleText = `${entityState.attributes.friendly_name}\n`;
-        titleText += `State: ${entityState.state} (${lastChanged})\n\n`;
+        titleText += `State: ${entityState.state}\n\n`;
 
         Object.keys(entityState.attributes).map(key => {
           titleText += `${key}: ${entityState.attributes[key]}\n`;
         });
         titleText += '\n';
 
-        titleText += `Last changed: ${lastChangedDate} ${lastChangedTime}`;
+        titleText += `Last changed: ${lastChangedDate} ${lastChangedTime}\n`;
+        titleText += `Last updated: ${lastUpdatedDate} ${lastUpdatedTime}`;
 
         $(titleElement).html(titleText);
       });
