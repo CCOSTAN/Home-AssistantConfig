@@ -281,31 +281,31 @@ groups:
 
       switch (entity.attributes.entity_picture) {
         case "/static/images/darksky/weather-sunny.svg":
-          imageName = "day";
+          imageName = "sunny-1";
           break;
 
         case "/static/images/darksky/weather-night.svg":
-          imageName = "night";
+          imageName = "night-1";
           break;
 
         case "/static/images/darksky/weather-partlycloudy.svg":
+          imageName = "partlycloudy-day-1";
+          break;
+
+        case "/static/images/darksky/weather-cloudy.svg":
+          imageName = "partlycloudy-night-1";
+          break;
+
+        case "/static/images/darksky/weather-cloudy.svg":
           imageName = "cloudy-day-1";
           break;
 
-        case "/static/images/darksky/weather-cloudy.svg":
-          imageName = "cloudy-night-1";
-          break;
-
-        case "/static/images/darksky/weather-cloudy.svg":
-          imageName = "cloudy";
-          break;
-
         case "/static/images/darksky/weather-pouring.svg":
-          imageName = "rainy-1";
+          imageName = "thunder";
           break;
 
         case "/static/images/darksky/weather-snowy.svg":
-          imageName = "snowy-1";
+          imageName = "snowy-day-1";
           break;
       }
 
