@@ -1,6 +1,6 @@
 <!--
   Floorplan for Home Assistant
-  Version: 1.0.7.18
+  Version: 1.0.7.19
   https://github.com/pkozul/ha-floorplan
 -->
 
@@ -126,6 +126,10 @@
         type: Object,
         value: () => { return []; },
       },
+      lastMotionConfig: {
+        type: Object,
+        value: () => { return {}; }
+      },
       imageCache: {
         type: Object,
         value: () => { return {}; }
@@ -145,7 +149,7 @@
     },
 
     isLastMotionEnabled() {
-      return this.config && this.config.last_motion && this.config.last_motion.entity && this.config.last_motion.class;
+      return this.lastMotionConfig && this.config.last_motion.entity && this.config.last_motion.class;
     },
 
     isOptionEnabled(option) {
@@ -168,6 +172,7 @@
         .then(config => {
           this.config = config;
 
+          /*
           if (!this.config.groups) {
             this.isLoading = false;
             this.warn(`Cannot find 'groups' in floorplan configuration`);
@@ -187,6 +192,7 @@
             this.warn(`A group must contain either 'entities' or 'elements' in floorplan configuration`);
             return;
           }
+          */
 
           this.hass.connection.socket.addEventListener('message', event => {
             let data = JSON.parse(event.data);
@@ -211,22 +217,33 @@
             loadLibraryPromises.push(promise);
           }
 
-          if (this.config.stylesheet) {
-            let promise = this.addExternalCss(this.config.stylesheet)
-              .then(() => this.extractCssRules());
-            loadLibraryPromises.push(promise);
-          }
-
           // Build a list of promises that will run 'in parallel' (i.e. load asynchronously)
           let loadPagePromises = [];
 
-          for (let pageConfig of this.config.pages) {
-            let promise = this.loadSvg(pageConfig)
-              .then((svg) => {
-                this.pageInfos[pageConfig.page_id] = {
-                  config: pageConfig,
-                  svg: svg,
-                };
+          for (let pageConfigUrl of this.config.pages) {
+            let promise = this.loadConfig(pageConfigUrl)
+              .then((pageConfig) => {
+                let pageInfo = { config: pageConfig };
+                this.pageInfos[pageInfo.config.page_id] = pageInfo;
+
+                return this.loadSvg(pageInfo)
+                  .then((svg) => {
+                    pageInfo.svg = svg;
+
+                    if (!pageInfo.config.stylesheet) {
+                      return Promise.resolve();
+                    }
+
+                    return this.loadPageCss(pageInfo.config.stylesheet)
+                      .then(() => {
+                        if (pageInfo.config.groups && this.config.groups) {
+                          pageInfo.config.groups = pageInfo.config.groups.concat(this.config.groups);
+                        }
+
+                        this.initPage(pageInfo);
+                        return Promise.resolve();
+                      });
+                  });
               });
             loadPagePromises.push(promise);
           }
@@ -236,6 +253,16 @@
               Promise.all(loadPagePromises) // wait for all promises to complete
                 .then(() => {
                   this.isLoading = false;
+
+                  Object.keys(this.pageInfos).map(key => {
+                    let pageInfo = this.pageInfos[key];
+                    $(pageInfo.svg).css('display', 'none');
+                    $(pageInfo.svg).css('opacity', 1);
+                  });
+
+                  // Show the first page
+                  let pageInfo = this.pageInfos[Object.keys(this.pageInfos)[0]];
+                  $(pageInfo.svg).css('display', 'initial');
 
                   this.handleEntities(this.hass.states, true);
 
@@ -291,7 +318,7 @@
         let script = document.createElement('script');
         script.src = scriptUrl;
         script.onload = () => {
-          return resolve(true);
+          return resolve();
         };
         script.onerror = (err) => {
           return reject(new URIError(`Cannot load script '${err.target.src}'`));
@@ -301,18 +328,14 @@
       });
     },
 
-    addExternalCss(stylesheetUrl) {
+    loadPageCss(stylesheetUrl) {
       return new Promise((resolve, reject) => {
-        if (!this.config.stylesheet) {
-          return resolve(true);
-        }
-
         this.loadStyleSheet(stylesheetUrl, function (success, link) {
           if (success && link && link.sheet && link.sheet.cssRules) {
             Polymer.dom(this.instance.root).appendChild(link);
             let styleSheet = link.sheet;
-            this.instance.cssRules = this.instance.getArray(styleSheet.cssRules);
-            return this.resolve(true);
+            this.instance.cssRules = this.instance.cssRules.concat(this.instance.getArray(styleSheet.cssRules));
+            return this.resolve();
           }
           else {
             return this.reject(new URIError(`Cannot load stylesheet: ${stylesheetUrl}`));
@@ -321,29 +344,13 @@
       });
     },
 
-    extractCssRules() {
-      for (let styleSheet of this.getArray(document.styleSheets)) {
-        if (styleSheet.href && styleSheet.href.indexOf(this.config.stylesheet) >= 0) {
-          this.cssRules = this.getArray(styleSheet.cssRules);
-          return;
-        }
-      }
-
-      for (let styleSheet of this.getArray(Polymer.dom(this.root).node.styleSheets)) {
-        if (styleSheet.href && styleSheet.href.indexOf(this.config.stylesheet) >= 0) {
-          this.cssRules = this.getArray(styleSheet.cssRules);
-          return;
-        }
-      }
-    },
-
-    loadSvg(pageConfig) {
+    loadSvg(pageInfo) {
       return new Promise((resolve, reject) => {
         jQuery.ajax({
-          url: pageConfig.image,
+          url: pageInfo.config.image,
           cache: true,
           error: function (err) {
-            return reject(new URIError(`${pageConfig.image}: ${err.responseText}`));
+            return reject(new URIError(`${pageInfo.config.image}: ${err.responseText}`));
           }.bind(this),
           success: (result) => {
             let svg = $(result).find('svg')[0];
@@ -352,10 +359,7 @@
             $(svg).width('100%');
             $(svg).css('position', this.isPanel ? 'absolute' : 'relative');
             $(svg).css('cursor', 'default');
-
-            if (!this.isOptionEnabled(pageConfig.visible)) {
-              $(svg).css('display', 'none');
-            }
+            $(svg).css('opacity', 0);
 
             Polymer.dom(this.$.floorplan).node.appendChild(svg);
 
@@ -369,148 +373,154 @@
               });
             }
 
-            let svgElements = $(svg).find('*').toArray();
-
-            // Add the last motion entity if required
-            if (this.isLastMotionEnabled()) {
-              entityInfo = { groupInfos: [], lastState: undefined };
-              this.entityInfos[this.config.last_motion.entity] = entityInfo;
-            }
-
-            let elementGroups = this.config.groups.filter(x => x.elements);
-            for (let elementGroup of elementGroups) {
-              for (let elementId of elementGroup.elements) {
-                let svgElement = $(svg).find(`[id="${elementId}"]`);
-
-                if (svgElement.length) {
-                  $(svgElement).on('click', this.onElementClick.bind({ instance: this, elementId: elementId }));
-                  $(svgElement).css('cursor', 'pointer');
-
-                  let elementInfo = {
-                    group: elementGroup,
-                  };
-
-                  this.elementInfos[elementId] = elementInfo;
-
-                  switch (elementGroup.action.service) {
-                    case 'toggle':
-                      for (let otherElementId of elementGroup.action.data.elements) {
-                        let otherSvgElement = $(svg).find(`[id="${otherElementId}"]`);
-                        $(otherSvgElement).addClass(elementGroup.action.data.default_class);
-                      }
-                      break;
-
-                    default:
-                      break;
-                  }
-                }
-                else {
-                  this.warn(`Cannot find '${elementId}' in SVG file`);
-                }
-              }
-            }
-
-            let entityGroups = this.config.groups.filter(x => x.entities);
-            for (let entityGroup of entityGroups) {
-              let targetEntities = [];
-
-              // Split out HA entity groups into separate entities
-              if (entityGroup.groups) {
-                for (let entityId of entityGroup.groups) {
-                  let group = this.hass.states[entityId];
-                  if (group) {
-                    for (let targetEntityId of group.attributes.entity_id) {
-                      targetEntities.push({ entityId: targetEntityId, elementId: targetEntityId });
-                    }
-                  }
-                  else {
-                    this.warn(`Cannot find '${entityId}' in HA group configuration`);
-                  }
-                }
-              }
-
-              // HA entities treated as is
-              if (entityGroup.entities) {
-                let entityIds = entityGroup.entities.filter(x => (typeof x === 'string'));
-                for (let entityId of entityIds) {
-                  let entity = this.hass.states[entityId];
-                  if (entity) {
-                    targetEntities.push({ entityId: entityId, elementId: entityId });
-                  }
-                  else {
-                    this.warn(`Cannot find '${entityId}' in HA group configuration`);
-                  }
-                }
-
-                let entityObjects = entityGroup.entities.filter(x => (typeof x !== 'string'));
-                for (let entityObject of entityObjects) {
-                  let entity = this.hass.states[entityObject.entity];
-                  if (entity) {
-                    targetEntities.push({ entityId: entityObject.entity, elementId: entityObject.element });
-                  }
-                  else {
-                    this.warn(`Cannot find '${entityObject.entity}' in HA group configuration`);
-                  }
-                }
-              }
-
-              for (let entityObject of targetEntities) {
-                let entityId = entityObject.entityId;
-                let elementId = entityObject.elementId;
-
-                let entityInfo = this.entityInfos[entityId];
-                if (!entityInfo) {
-                  entityInfo = { groupInfos: [], lastState: undefined };
-                  this.entityInfos[entityId] = entityInfo;
-                }
-
-                let groupInfo = { group: entityGroup, svgElementInfos: {}, };
-                entityInfo.groupInfos.push(groupInfo);
-
-                let svgElement = svgElements.find(svgElement => svgElement.id === elementId);
-                if (!svgElement) {
-                  this.warn(`Cannot find element '${elementId}' in SVG file`);
-                  continue;
-                }
-
-                let originalBBox = svgElement.getBBox();
-
-                if (entityGroup.camera_image_template) {
-                  svgElement = this.replaceWithImage(svgElement);
-                }
-                else if (entityGroup.image_template) {
-                  svgElement = this.replaceWithSvg(svgElement);
-                }
-
-                this.addSvgElementToGroup(svgElement, entityId, groupInfo, originalBBox);
-
-                for (svgElementId in groupInfo.svgElementInfos) {
-                  let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
-
-                  let $svgElement = $(svgElementInfo.svgElement);
-
-                  // Create a title element (to support hover over text)
-                  $svgElement.append(document.createElementNS('http://www.w3.org/2000/svg', 'title'));
-
-                  if ($svgElement.length) {
-                    svgElementInfo.svgElement = $svgElement[0];
-
-                    $svgElement.on('click', this.onEntityClick.bind({ instance: this, entityId: entityId, groupInfo: groupInfo }));
-                    $svgElement.css('cursor', 'pointer');
-                    $svgElement.addClass('ha-entity');
-
-                    if ($svgElement.is('text') && ($svgElement[0].id === elementId)) {
-                      this.addBackgroundRectToText($svgElement[0], entityId);
-                    }
-                  }
-                }
-              }
-            }
-
             return resolve(svg);
           }
         });
       });
+    },
+
+    initPage(pageInfo) {
+      let svg = pageInfo.svg;
+
+      let svgElements = $(svg).find('*').toArray();
+
+      // Add the last motion entity if required
+      if (pageInfo.config.last_motion && pageInfo.config.last_motion.entity && pageInfo.config.last_motion.class) {
+        this.lastMotionConfig = pageInfo.config.last_motion;
+
+        entityInfo = { groupInfos: [], lastState: undefined };
+        this.entityInfos[pageInfo.config.last_motion.entity] = entityInfo;
+      }
+
+      let elementGroups = pageInfo.config.groups.filter(x => x.elements);
+      for (let elementGroup of elementGroups) {
+        for (let elementId of elementGroup.elements) {
+          let svgElement = $(svg).find(`[id="${elementId}"]`);
+
+          if (svgElement.length) {
+            $(svgElement).on('click', this.onElementClick.bind({ instance: this, elementId: elementId }));
+            $(svgElement).css('cursor', 'pointer');
+
+            let elementInfo = {
+              group: elementGroup,
+            };
+
+            this.elementInfos[elementId] = elementInfo;
+
+            switch (elementGroup.action.service) {
+              case 'toggle':
+                for (let otherElementId of elementGroup.action.data.elements) {
+                  let otherSvgElement = $(svg).find(`[id="${otherElementId}"]`);
+                  $(otherSvgElement).addClass(elementGroup.action.data.default_class);
+                }
+                break;
+
+              default:
+                break;
+            }
+          }
+          else {
+            this.warn(`Cannot find '${elementId}' in SVG file`);
+          }
+        }
+      }
+
+      let entityGroups = pageInfo.config.groups.filter(x => x.entities);
+      for (let entityGroup of entityGroups) {
+        let targetEntities = [];
+
+        // Split out HA entity groups into separate entities
+        if (entityGroup.groups) {
+          for (let entityId of entityGroup.groups) {
+            let group = this.hass.states[entityId];
+            if (group) {
+              for (let targetEntityId of group.attributes.entity_id) {
+                targetEntities.push({ entityId: targetEntityId, elementId: targetEntityId });
+              }
+            }
+            else {
+              this.warn(`Cannot find '${entityId}' in HA group configuration`);
+            }
+          }
+        }
+
+        // HA entities treated as is
+        if (entityGroup.entities) {
+          let entityIds = entityGroup.entities.filter(x => (typeof x === 'string'));
+          for (let entityId of entityIds) {
+            let entity = this.hass.states[entityId];
+            if (entity) {
+              targetEntities.push({ entityId: entityId, elementId: entityId });
+            }
+            else {
+              this.warn(`Cannot find '${entityId}' in HA group configuration`);
+            }
+          }
+
+          let entityObjects = entityGroup.entities.filter(x => (typeof x !== 'string'));
+          for (let entityObject of entityObjects) {
+            let entity = this.hass.states[entityObject.entity];
+            if (entity) {
+              targetEntities.push({ entityId: entityObject.entity, elementId: entityObject.element });
+            }
+            else {
+              this.warn(`Cannot find '${entityObject.entity}' in HA group configuration`);
+            }
+          }
+        }
+
+        for (let entityObject of targetEntities) {
+          let entityId = entityObject.entityId;
+          let elementId = entityObject.elementId;
+
+          let entityInfo = this.entityInfos[entityId];
+          if (!entityInfo) {
+            entityInfo = { groupInfos: [], lastState: undefined };
+            this.entityInfos[entityId] = entityInfo;
+          }
+
+          let groupInfo = { group: entityGroup, svgElementInfos: {}, };
+          entityInfo.groupInfos.push(groupInfo);
+
+          let svgElement = svgElements.find(svgElement => svgElement.id === elementId);
+          if (!svgElement) {
+            this.warn(`Cannot find element '${elementId}' in SVG file`);
+            continue;
+          }
+
+          let originalBBox = svgElement.getBBox();
+
+          if (entityGroup.camera_image_template) {
+            svgElement = this.replaceWithImage(svgElement);
+          }
+          else if (entityGroup.image_template) {
+            svgElement = this.replaceWithSvg(svgElement);
+          }
+
+          this.addSvgElementToGroup(svgElement, entityId, groupInfo, originalBBox);
+
+          for (svgElementId in groupInfo.svgElementInfos) {
+            let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+
+            let $svgElement = $(svgElementInfo.svgElement);
+
+            // Create a title element (to support hover over text)
+            $svgElement.append(document.createElementNS('http://www.w3.org/2000/svg', 'title'));
+
+            if ($svgElement.length) {
+              svgElementInfo.svgElement = $svgElement[0];
+
+              $svgElement.on('click', this.onEntityClick.bind({ instance: this, entityId: entityId, groupInfo: groupInfo }));
+              $svgElement.css('cursor', 'pointer');
+              $svgElement.addClass('ha-entity');
+
+              if ($svgElement.is('text') && ($svgElement[0].id === elementId)) {
+                this.addBackgroundRectToText($svgElement[0], entityId);
+              }
+            }
+          }
+        }
+      }
     },
 
     addBackgroundRectToText(svgElement, entityId) {
@@ -590,11 +600,11 @@
 
       let lastMotionEntityInfo, oldLastMotionState, newLastMotionState;
 
-      if (this.isLastMotionEnabled()) {
-        lastMotionEntityInfo = this.entityInfos[this.config.last_motion.entity];
+      if (this.lastMotionConfig) {
+        lastMotionEntityInfo = this.entityInfos[this.lastMotionConfig.entity];
         if (lastMotionEntityInfo && lastMotionEntityInfo.lastState) {
           oldLastMotionState = lastMotionEntityInfo.lastState.state;
-          newLastMotionState = entities[this.config.last_motion.entity].state;
+          newLastMotionState = entities[this.lastMotionConfig.entity].state;
         }
       }
 
@@ -633,7 +643,7 @@
               }
             }
 
-            if (this.isLastMotionEnabled()) {
+            if (this.lastMotionConfig) {
               if ((newLastMotionState !== oldLastMotionState) && (entityId.indexOf('binary_sensor') >= 0)) {
                 let friendlyName = entityState.attributes.friendly_name;
 
@@ -759,7 +769,7 @@
         }, Promise.resolve());
 
         promiseChain.then(() => {
-          return resolve(true);
+          return resolve();
         });
       });
     },
@@ -951,7 +961,7 @@
     },
 
     handleEntityUpdateLastMotionCss(entityId, entities) {
-      if (!this.isLastMotionEnabled() || !this.cssRules || !this.cssRules.length) {
+      if (!this.lastMotionConfig || !this.cssRules || !this.cssRules.length) {
         return;
       }
 
@@ -963,17 +973,17 @@
           let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
           let svgElement = svgElementInfo.svgElement;
 
-          if (entities[this.config.last_motion.entity] &&
-            (entityState.attributes.friendly_name === entities[this.config.last_motion.entity].state)) {
-            if (!$(svgElement).hasClass(this.config.last_motion.class)) {
-              //this.log(`${entityId}: Adding last motion class '${this.config.last_motion.class}'`);
-              $(svgElement).addClass(this.config.last_motion.class);
+          if (entities[this.lastMotionConfig.entity] &&
+            (entityState.attributes.friendly_name === entities[this.lastMotionConfig.entity].state)) {
+            if (!$(svgElement).hasClass(this.lastMotionConfig.class)) {
+              //this.log(`${entityId}: Adding last motion class '${this.lastMotionConfig.class}'`);
+              $(svgElement).addClass(this.lastMotionConfig.class);
             }
           }
           else {
-            if ($(svgElement).hasClass(this.config.last_motion.class)) {
-              //this.log(`${entityId}: Removing last motion class '${this.config.last_motion.class}'`);
-              $(svgElement).removeClass(this.config.last_motion.class);
+            if ($(svgElement).hasClass(this.lastMotionConfig.class)) {
+              //this.log(`${entityId}: Removing last motion class '${this.lastMotionConfig.class}'`);
+              $(svgElement).removeClass(this.lastMotionConfig.class);
             }
           }
         }
@@ -1190,6 +1200,8 @@
     onElementClick(e) {
       let svgElement = e.target;
 
+      let svg = $(svgElement).parents('svg');
+
       let elementInfo = this.instance.elementInfos[this.elementId];
       if (elementInfo.group.action) {
         let action = elementInfo.group.action;
@@ -1356,7 +1368,6 @@
       let func = new Function('entity', 'entities', 'hass', 'config', functionBody);
       return func(entity, entities, this.hass, this.config);
     },
-
 
     error(message) {
       let errors = Polymer.dom(this.$.errors).node;

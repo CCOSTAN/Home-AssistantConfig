@@ -1,0 +1,14 @@
+date_format: MMM-DD-YYYY
+#warnings:
+#debug:
+
+fully_kiosk:
+
+  - name: Bedroom Clock
+    address: 00:FC:8B:4A:D5:CF
+    motion_sensor: binary_sensor.bedroom_clock_motion
+    plugged_sensor: binary_sensor.bedroom_clock_plugged
+    media_player: media_player.bedroom_clock
+
+pages:
+  -  /local/custom_ui/floorplan/clock.yaml

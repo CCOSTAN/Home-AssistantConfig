@@ -1,20 +1,6 @@
 name: Clock
 image: /local/custom_ui/floorplan/clock.svg
 stylesheet: /local/custom_ui/floorplan/clock.css
-date_format: MMM-DD-YYYY
-#warnings:
-#debug:
-
-# Example of chaining for multiple replaces.
-# '${entity.state ? entity.state.replace("not_home", "away").replace("Miguel_Work", "At Work") : "undefined"}'
-
-fully_kiosk:
-
-  - name: Bedroom Clock
-    address: 00:FC:8B:4A:D5:CF
-    motion_sensor: binary_sensor.bedroom_clock_motion
-    plugged_sensor: binary_sensor.bedroom_clock_plugged
-    media_player: media_player.bedroom_clock
 
 entities:
   - name: input_booleans
