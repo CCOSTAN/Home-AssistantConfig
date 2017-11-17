@@ -32,16 +32,12 @@ sensor:
     # this sensor will return the UTC timestamp of the launch
     value_template: >-
       {%- for launch in value_json.launches %}
-        {% if launch.location.id == 16 %}
-          {# location id 16 is Florida other locations can be found via the api
-            https://launchlibrary.net/1.2/location
-           #}
+        {% if launch.location.id == 16 or launch.location.id == 17 %}
           {% if strptime(launch.isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
             {% set utc_offset_string = now().strftime('%z') %}
             {% set utc_offset_direction = utc_offset_string[:1] %}
             {% set utc_offset_hours = now().strftime('%z')[-4:] %}
             {% set utc_offset_seconds = (utc_offset_hours| int /100) * 60 * 60 %}
-
             {% if utc_offset_direction == '-' %}
              {{ launch.wsstamp - utc_offset_seconds}}
             {% else %}
