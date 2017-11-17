@@ -1,6 +1,6 @@
 /*
 Floorplan Fully Kiosk for Home Assistant
-Version: 1.0.7.14
+Version: 1.0.7.17
 https://github.com/pkozul/ha-floorplan
 */
 
@@ -15,7 +15,7 @@ if (typeof window.FullyKiosk !== 'function') {
 
     init() {
       if (typeof fully === "undefined") {
-        //this.floorplan.error("Fully Kiosk not detected");
+        //this.logError("Fully Kiosk not detected");
         return;
       }
 
@@ -80,27 +80,27 @@ if (typeof window.FullyKiosk !== 'function') {
     }
 
     onFullyScreenOn() {
-      this.debug('Screen turned on');
+      this.logDebug('FULLY_KIOSK', 'Screen turned on');
     }
 
     onFullyScreenOff() {
-      this.debug('Screen turned off');
+      this.logDebug('FULLY_KIOSK', 'Screen turned off');
     }
 
     onFullyNetworkDisconnect() {
-      this.debug('Network disconnected');
+      this.logDebug('FULLY_KIOSK', 'Network disconnected');
     }
 
     onFullyNetworkReconnect() {
-      this.debug('Network reconnected');
+      this.logDebug('FULLY_KIOSK', 'Network reconnected');
     }
 
     onFullyInternetDisconnect() {
-      this.debug('Internet disconnected');
+      this.logDebug('FULLY_KIOSK', 'Internet disconnected');
     }
 
     onFullyInternetReconnect() {
-      this.debug('Internet reconnected');
+      this.logDebug('FULLY_KIOSK', 'Internet reconnected');
     }
 
     onFullyUnplugged() {
@@ -114,7 +114,7 @@ if (typeof window.FullyKiosk !== 'function') {
     }
 
     onFullyPluggedUSB() {
-      this.debug('Device plugged into USB');
+      this.logDebug('FULLY_KIOSK', 'Device plugged into USB');
     }
 
     onFullyMotion() {
@@ -141,14 +141,14 @@ if (typeof window.FullyKiosk !== 'function') {
         headers: { "X-HA-Access": this.authToken },
         data: JSON.stringify(payload),
         success: function (result) {
-          this.debug('Sent kiosk motion state: ' + JSON.stringify(payload));
+          this.logDebug('FULLY_KIOSK', 'Sent kiosk motion state: ' + JSON.stringify(payload));
           this.sendMotionStateTimer = setTimeout(() => {
             this.kioskInfo.isMotionDetected = false;
             this.sendMotionState();
           }, timeout);
         }.bind(this),
         error: function (err) {
-          this.error('Error setting kiosk motion state');
+          this.logError('Error setting kiosk motion state');
           this.sendMotionStateTimer = setTimeout(() => {
             this.kioskInfo.isMotionDetected = false;
             this.sendMotionState();
@@ -172,10 +172,10 @@ if (typeof window.FullyKiosk !== 'function') {
         headers: { "X-HA-Access": this.authToken },
         data: JSON.stringify(payload),
         success: function (result) {
-          this.debug('Sent kiosk plugged state: ' + JSON.stringify(payload));
+          this.logDebug('FULLY_KIOSK', 'Sent kiosk plugged state: ' + JSON.stringify(payload));
         }.bind(this),
         error: function (err) {
-          this.error('Error setting kiosk plugged state');
+          this.logError('Error setting kiosk plugged state');
         }.bind(this)
       });
     }
@@ -199,7 +199,7 @@ if (typeof window.FullyKiosk !== 'function') {
         if ((event.data.domain === 'media_player') && (event.data.service === 'play_media')) {
           let targetEntityId = event.data.service_data.entity_id.find(entityId => (entityId === this.kioskInfo.mediaPlayerEntityId));
           if (targetEntityId) {
-            this.debug(`Playing media: ${event.data.service_data.media_content_id}`);
+            this.logDebug('FULLY_KIOSK', `Playing media: ${event.data.service_data.media_content_id}`);
             this.playMedia(event.data.service_data.media_content_id);
           }
         }
@@ -207,7 +207,7 @@ if (typeof window.FullyKiosk !== 'function') {
         /*
         if ((event.data.domain === 'tts') && (event.data.service === 'google_say')) {
           if (this.kioskInfo.mediaPlayerEntityId === event.data.service_data.entity_id) {
-            this.debug('Playing TTS using Fully Kiosk');
+            this.logDebug('FULLY_KIOSK', 'Playing TTS using Fully Kiosk');
             this.playTextToSpeech(event.data.service_data.message);
           }
         }
@@ -216,12 +216,20 @@ if (typeof window.FullyKiosk !== 'function') {
         'call_service');
     }
 
-    debug(message) {
-      this.floorplan.debug(message);
+    logError(message) {
+      this.floorplan.logError(message);
     }
 
-    error(message) {
-      this.floorplan.error(message);
+    logWarning(message) {
+      this.floorplan.logWarning(message);
+    }
+
+    logInfo(message) {
+      this.floorplan.logInfo(message);
+    }
+
+    logDebug(area, message) {
+      this.floorplan.logDebug(area, message);
     }
   }
 
