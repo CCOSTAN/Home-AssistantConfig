@@ -1,8 +1,9 @@
 <!--
-  Floorplan for Home Assistant
-  Version: 1.0.7.19
-  https://github.com/pkozul/ha-floorplan
--->
+    Floorplan for Home Assistant
+    Version: 1.0.7.23
+    By Petar Kozul
+    https://github.com/pkozul/ha-floorplan
+  -->
 
 <script src="lib/jquery-3.2.1.min.js"></script>
 <script src="lib/moment.min.js"></script>
@@ -25,19 +26,33 @@
         overflow: hidden;
       }
 
-      #errors {
+      #log {
+        max-height: 150px;
+        overflow: auto;
+        background-color: #eee;
+        display: none;
+        padding: 10px;
+      }
+
+      #log ul {
+        list-style-type: none;
+        padding-left: 0px;
+      }
+
+      .error {
         color: #FF0000;
-        display: none;
       }
 
-      #warnings {
+      .warning {
         color: #FF851B;
-        display: none;
       }
 
-      #debug {
+      .info {
+        color: #0000FF;
+      }
+
+      .debug {
         color: #000000;
-        display: none;
       }
     </style>
 
@@ -47,15 +62,8 @@
       </div>
     </template>
 
-    <div id="errors">
-      <ul></ul>
-    </div>
-
-    <div id="warnings">
-      <ul></ul>
-    </div>
-
-    <div id="debug">
+    <div id="log">
+      <a href="#" onclick="$(this).siblings('ul').html('').parent().css('display', 'none');">Clear log</a>
       <ul></ul>
     </div>
 
@@ -107,11 +115,11 @@
         value: undefined,
       },
       pageInfos: {
-        type: Object,
+        type: Array,
         value: () => { return []; },
       },
       entityInfos: {
-        type: Object,
+        type: Array,
         value: () => { return []; },
       },
       elementInfos: {
@@ -123,16 +131,16 @@
         value: () => { return []; },
       },
       entityTransitions: {
-        type: Object,
+        type: Array,
         value: () => { return []; },
       },
       lastMotionConfig: {
-        type: Object,
-        value: () => { return {}; }
+        type: Array,
+        value: () => { return []; }
       },
-      imageCache: {
-        type: Object,
-        value: () => { return {}; }
+      logLevels: {
+        type: Array,
+        value: () => { return []; },
       },
     },
 
@@ -148,169 +156,107 @@
       );
     },
 
-    isLastMotionEnabled() {
-      return this.lastMotionConfig && this.config.last_motion.entity && this.config.last_motion.class;
-    },
-
-    isOptionEnabled(option) {
-      return ((option === null) || (option !== undefined));
-    },
+    /***************************************************************************************************************************/
+    /* Startup
+    /***************************************************************************************************************************/
 
     onAttached() {
       window.onerror = this.handleWindowError.bind(this);
 
-      let configPromise;
+      this.initTimeDifference();
 
-      if (this._config && this._config.config) {
-        getConfigPromise = this.loadConfig(this._config.config);
-      }
-      else {
-        getConfigPromise = Promise.resolve(this._config);
-      }
-
-      getConfigPromise
+      ((this._config && this._config.config) ? this.loadConfig(this._config.config) : Promise.resolve(this._config))
         .then(config => {
           this.config = config;
 
-          /*
-          if (!this.config.groups) {
+          this.getLogLevels();
+
+          if (!this.validateConfig(this.config)) {
             this.isLoading = false;
-            this.warn(`Cannot find 'groups' in floorplan configuration`);
-            return;
+            return Promise.resolve();
           }
 
-          let invalidGroups = this.config.groups.filter(x => x.entities && x.elements);
-          if (invalidGroups.length) {
-            this.isLoading = false;
-            this.warn(`A group cannot contain both 'entities' and 'elements' in floorplan configuration`);
-            return;
-          }
-
-          invalidGroups = this.config.groups.filter(x => !x.entities && !x.elements);
-          if (invalidGroups.length) {
-            this.isLoading = false;
-            this.warn(`A group must contain either 'entities' or 'elements' in floorplan configuration`);
-            return;
-          }
-          */
-
-          this.hass.connection.socket.addEventListener('message', event => {
-            let data = JSON.parse(event.data);
-
-            // Store the time difference between the local web browser and the Home Assistant server
-            if (data.event && data.event.time_fired) {
-              let lastEventFiredTime = moment(data.event.time_fired).toDate();
-              this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
-            }
-          });
-
-          // Build a list of promises that will run 'in parallel' (i.e. load asynchronously)
-          let loadLibraryPromises = [];
-
-          if (this.isOptionEnabled(this.config.pan_zoom)) {
-            let promise = this.loadScript('/local/custom_ui/floorplan/lib/svg-pan-zoom.min.js');
-            loadLibraryPromises.push(promise);
-          }
-
-          if (this.isOptionEnabled(this.config.fully_kiosk)) {
-            let promise = this.loadScript('/local/custom_ui/floorplan/lib/fully-kiosk.js');
-            loadLibraryPromises.push(promise);
-          }
-
-          // Build a list of promises that will run 'in parallel' (i.e. load asynchronously)
-          let loadPagePromises = [];
-
-          for (let pageConfigUrl of this.config.pages) {
-            let promise = this.loadConfig(pageConfigUrl)
-              .then((pageConfig) => {
-                let pageInfo = { config: pageConfig };
-                this.pageInfos[pageInfo.config.page_id] = pageInfo;
-
-                return this.loadSvg(pageInfo)
-                  .then((svg) => {
-                    pageInfo.svg = svg;
-
-                    if (!pageInfo.config.stylesheet) {
-                      return Promise.resolve();
-                    }
-
-                    return this.loadPageCss(pageInfo.config.stylesheet)
-                      .then(() => {
-                        if (pageInfo.config.groups && this.config.groups) {
-                          pageInfo.config.groups = pageInfo.config.groups.concat(this.config.groups);
-                        }
-
-                        this.initPage(pageInfo);
-                        return Promise.resolve();
-                      });
-                  });
-              });
-            loadPagePromises.push(promise);
-          }
-
-          Promise.all(loadLibraryPromises) // wait for all promises to complete
+          return this.loadLibraries()
             .then(() => {
-              Promise.all(loadPagePromises) // wait for all promises to complete
-                .then(() => {
-                  this.isLoading = false;
+              this.initFullyKiosk();
+              return this.config.pages ? this.initMultiPage() : this.initStandard();
+            });
+        })
+        .catch(error => {
+          this.isLoading = false;
+          this.handleError(error);
+        });
+    },
 
-                  Object.keys(this.pageInfos).map(key => {
-                    let pageInfo = this.pageInfos[key];
-                    $(pageInfo.svg).css('display', 'none');
-                    $(pageInfo.svg).css('opacity', 1);
-                  });
-
-                  // Show the first page
-                  let pageInfo = this.pageInfos[Object.keys(this.pageInfos)[0]];
-                  $(pageInfo.svg).css('display', 'initial');
-
-                  this.handleEntities(this.hass.states, true);
-
-                  if (this.isOptionEnabled(this.config.fully_kiosk)) {
-                    this.fullyKiosk = new FullyKiosk(this);
-                    this.fullyKiosk.init();
-                  }
-                })
-                .catch(err => {
-                  this.isLoading = false;
-                  this.error(err);
-                });
+    initMultiPage() {
+      return this.loadPages()
+        .then(() => {
+          this.isLoading = false;
+          return this.handleEntities(this.hass.states, true)
+            .then(() => {
+              this.initPageDisplay();
+              return Promise.resolve();
             });
         });
     },
 
-    handleWindowError(msg, url, lineNo, columnNo, error) {
-      if (msg.toLowerCase().indexOf("script error") >= 0) {
-        this.error('Script error: See browser console for detail');
-      }
-      else {
-        let message = [
-          msg,
-          'URL: ' + url,
-          'Line: ' + lineNo + ', column: ' + columnNo,
-          'Error: ' + JSON.stringify(error)
-        ].join('<br>');
-
-        this.error(message);
-      }
-
-      return false;
+    initStandard() {
+      return this.loadSvg(this.config.image)
+        .then((svg) => {
+          this.config.svg = svg;
+          return this.loadStyleSheet(this.config.stylesheet)
+            .then(() => {
+              return Promise.resolve(this.initSvg(svg, this.config))
+                .then(() => {
+                  this.isLoading = false;
+                  return this.handleEntities(this.hass.states, true)
+                    .then(() => {
+                      this.initPageDisplay();
+                      return Promise.resolve();
+                    });
+                })
+            });
+        });
     },
 
+    getLogLevels() {
+      if (!this.config.log_level) {
+        return;
+      }
+
+      let allLogLevels = {
+        error: ['error'],
+        warning: ['error', 'warning'],
+        info: ['error', 'warning', 'info'],
+        debug: ['error', 'warning', 'info', 'debug'],
+      };
+
+      this.logLevels = allLogLevels[this.config.log_level.toLowerCase()];
+    },
+
+    /***************************************************************************************************************************/
+    /* Loading resources
+    /***************************************************************************************************************************/
+
     loadConfig(configUrl) {
-      return new Promise((resolve, reject) => {
-        jQuery.ajax({
-          url: configUrl,
-          cache: true,
-          error: function (err) {
-            return reject(new URIError(`${configUrl}: ${err.responseText}`));
-          }.bind(this),
-          success: function (result) {
-            let json = yaml.load(result);
-            return resolve(json);
-          }.bind(this),
+      return this.getResource(configUrl, false)
+        .then(config => {
+          return Promise.resolve(yaml.load(config));
         });
-      });
+    },
+
+    loadLibraries() {
+      let promises = [];
+
+      if (this.isOptionEnabled(this.config.pan_zoom)) {
+        promises.push(this.loadScript('/local/custom_ui/floorplan/lib/svg-pan-zoom.min.js'));
+      }
+
+      if (this.isOptionEnabled(this.config.fully_kiosk)) {
+        promises.push(this.loadScript('/local/custom_ui/floorplan/lib/fully-kiosk.js'));
+      }
+
+      return promises.length ? Promise.all(promises) : Promise.resolve();
     },
 
     loadScript(scriptUrl) {
@@ -321,16 +267,57 @@
           return resolve();
         };
         script.onerror = (err) => {
-          return reject(new URIError(`Cannot load script '${err.target.src}'`));
+          reject(new URIError(`${err.target.src}`));
         };
 
         Polymer.dom(this.root).appendChild(script);
       });
     },
 
-    loadPageCss(stylesheetUrl) {
+    loadPages() {
+      let defaultPageConfigUrl = this.config.pages.length ? this.config.pages[0] : undefined; // default page
+
+      let promises = this.config.pages.map(pageConfigUrl =>
+        this.loadPage(pageConfigUrl, (pageConfigUrl === defaultPageConfigUrl)));
+      return promises.length ? Promise.all(promises) : Promise.resolve();
+    },
+
+    loadPage(pageConfigUrl, isDefault) {
+      return this.loadConfig(pageConfigUrl)
+        .then((pageConfig) => {
+          let pageInfo = this.createPageInfo(pageConfig);
+          pageInfo.isDefault = isDefault;
+          return this.loadSvg(pageInfo.config.image)
+            .then((svg) => {
+              pageInfo.svg = svg;
+              return this.loadStyleSheet(pageInfo.config.stylesheet)
+                .then(() => {
+                  return Promise.resolve(this.initSvg(pageInfo.svg, pageInfo.config));
+                });
+            });
+        });
+    },
+
+    createPageInfo(pageConfig, isDefault) {
+      let pageInfo = { config: pageConfig };
+
+      // Merge the page's groups with the main config's groups
+      if (pageInfo.config.groups && this.config.groups) {
+        pageInfo.config.groups = pageInfo.config.groups.concat(this.config.groups);
+      }
+
+      this.pageInfos[pageInfo.config.page_id] = pageInfo;
+
+      return pageInfo;
+    },
+
+    loadStyleSheet(stylesheetUrl) {
       return new Promise((resolve, reject) => {
-        this.loadStyleSheet(stylesheetUrl, function (success, link) {
+        if (!stylesheetUrl) {
+          return resolve();
+        }
+
+        this.loadStyleSheetInternal(stylesheetUrl, function (success, link) {
           if (success && link && link.sheet && link.sheet.cssRules) {
             Polymer.dom(this.instance.root).appendChild(link);
             let styleSheet = link.sheet;
@@ -338,61 +325,153 @@
             return this.resolve();
           }
           else {
-            return this.reject(new URIError(`Cannot load stylesheet: ${stylesheetUrl}`));
+            reject(new URIError(`${stylesheetUrl}`));
           }
         }.bind({ instance: this, resolve: resolve, reject: reject }));
       });
     },
 
-    loadSvg(pageInfo) {
-      return new Promise((resolve, reject) => {
-        jQuery.ajax({
-          url: pageInfo.config.image,
-          cache: true,
-          error: function (err) {
-            return reject(new URIError(`${pageInfo.config.image}: ${err.responseText}`));
-          }.bind(this),
-          success: (result) => {
-            let svg = $(result).find('svg')[0];
+    loadSvg(imageUrl) {
+      return this.getResource(imageUrl, true)
+        .then(result => {
+          let svg = $(result).find('svg')[0];
 
-            $(svg).height('100%');
-            $(svg).width('100%');
-            $(svg).css('position', this.isPanel ? 'absolute' : 'relative');
-            $(svg).css('cursor', 'default');
-            $(svg).css('opacity', 0);
+          $(svg).height('100%');
+          $(svg).width('100%');
+          $(svg).css('position', this.isPanel ? 'absolute' : 'relative');
+          $(svg).css('cursor', 'default');
+          $(svg).css('opacity', 0);
 
-            Polymer.dom(this.$.floorplan).node.appendChild(svg);
+          Polymer.dom(this.$.floorplan).node.appendChild(svg);
 
-            // Enable pan / zoom if enabled in config
-            if (this.isOptionEnabled(this.config.pan_zoom)) {
-              svgPanZoom($(svg)[0], {
-                zoomEnabled: true,
-                controlIconsEnabled: true,
-                fit: true,
-                center: true,
-              });
-            }
-
-            return resolve(svg);
+          // Enable pan / zoom if enabled in config
+          if (this.isOptionEnabled(this.config.pan_zoom)) {
+            svgPanZoom($(svg)[0], {
+              zoomEnabled: true,
+              controlIconsEnabled: true,
+              fit: true,
+              center: true,
+            });
           }
+
+          return Promise.resolve(svg);
         });
+    },
+
+    loadCameraImage(imageUrl, svgElement) {
+      return this.getResource(imageUrl, false, true)
+        .then(imageData => {
+          if ($(svgElement).attr('href') !== imageData) {
+            $(svgElement).attr('href', imageData);
+          }
+          return Promise.resolve(imageData);
+        });
+    },
+
+    loadImage(loadImageInfo) {
+      let svgElementInfo = loadImageInfo.svgElementInfo;
+
+      return this.getResource(loadImageInfo.imageUrl, true)
+        .then(result => {
+          let svg = $(result).find('svg')[0];
+          let embeddedSvg = svg.cloneNode(true);
+
+          $(embeddedSvg)
+            .attr('id', svgElementInfo.svgElement.id)
+            .attr('preserveAspectRatio', 'xMinYMin meet')
+            .attr('height', svgElementInfo.bbox.height)
+            .attr('width', svgElementInfo.bbox.width)
+            .attr('x', svgElementInfo.bbox.x)
+            .attr('y', svgElementInfo.bbox.y)
+            .css('-webkit-perspective:', '1000')
+            .css('-webkit-transform-style', 'preserve-3d')
+            .css('-webkit-backface-visibility', 'hidden');
+
+          $(embeddedSvg).find('*').append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
+            .on('click', this.onEntityClick.bind({ instance: this, entityId: loadImageInfo.entityId, groupInfo: loadImageInfo.groupInfo }))
+            .css('cursor', 'pointer')
+            .addClass('ha-entity');
+
+          // Remove previous SVG
+          let $svg = $(svgElementInfo.svgElement).parents('svg');
+          let previousEmbeddedSvg = $svg.find(`[id="${svgElementInfo.svgElement.id}"]`);
+
+          let $parent = $(previousEmbeddedSvg).parent();
+
+          $(previousEmbeddedSvg).find('*')
+            .off('click');
+
+          $(previousEmbeddedSvg)
+            .off('click')
+            .remove();
+
+          $parent.append(embeddedSvg);
+
+          svgElementInfo.svgElement = embeddedSvg;
+
+          return Promise.resolve(embeddedSvg);
+        })
+    },
+
+    /***************************************************************************************************************************/
+    /* Initialization
+    /***************************************************************************************************************************/
+
+    initTimeDifference() {
+      this.hass.connection.socket.addEventListener('message', event => {
+        let data = JSON.parse(event.data);
+
+        // Store the time difference between the local web browser and the Home Assistant server
+        if (data.event && data.event.time_fired) {
+          let lastEventFiredTime = moment(data.event.time_fired).toDate();
+          this.timeDifference = moment().diff(moment(lastEventFiredTime), 'milliseconds');
+        }
       });
     },
 
-    initPage(pageInfo) {
-      let svg = pageInfo.svg;
+    initFullyKiosk() {
+      if (this.isOptionEnabled(this.config.fully_kiosk)) {
+        this.fullyKiosk = new FullyKiosk(this);
+        this.fullyKiosk.init();
+      }
+    },
+
+    initPageDisplay() {
+      if (this.config.pages) {
+        Object.keys(this.pageInfos).map(key => {
+          let pageInfo = this.pageInfos[key];
+
+          $(pageInfo.svg).css('opacity', 1);
+          $(pageInfo.svg).css('display', pageInfo.isDefault ? 'initial' : 'none'); // Show the first page
+        });
+      }
+      else {
+        // Show the SVG
+        $(this.config.svg).css('opacity', 1);
+        $(this.config.svg).css('display', 'initial');
+      }
+    },
+
+    /***************************************************************************************************************************/
+    /* SVG initialization
+    /***************************************************************************************************************************/
+
+    initSvg(svg, config) {
+      if (!config.groups) {
+        return;
+      }
 
       let svgElements = $(svg).find('*').toArray();
 
       // Add the last motion entity if required
-      if (pageInfo.config.last_motion && pageInfo.config.last_motion.entity && pageInfo.config.last_motion.class) {
-        this.lastMotionConfig = pageInfo.config.last_motion;
+      if (config.last_motion && config.last_motion.entity && config.last_motion.class) {
+        this.lastMotionConfig = config.last_motion;
 
         entityInfo = { groupInfos: [], lastState: undefined };
-        this.entityInfos[pageInfo.config.last_motion.entity] = entityInfo;
+        this.entityInfos[config.last_motion.entity] = entityInfo;
       }
 
-      let elementGroups = pageInfo.config.groups.filter(x => x.elements);
+      let elementGroups = config.groups.filter(x => x.elements);
       for (let elementGroup of elementGroups) {
         for (let elementId of elementGroup.elements) {
           let svgElement = $(svg).find(`[id="${elementId}"]`);
@@ -420,12 +499,12 @@
             }
           }
           else {
-            this.warn(`Cannot find '${elementId}' in SVG file`);
+            this.logWarning(`Cannot find '${elementId}' in SVG file`);
           }
         }
       }
 
-      let entityGroups = pageInfo.config.groups.filter(x => x.entities);
+      let entityGroups = config.groups.filter(x => x.entities);
       for (let entityGroup of entityGroups) {
         let targetEntities = [];
 
@@ -439,7 +518,7 @@
               }
             }
             else {
-              this.warn(`Cannot find '${entityId}' in HA group configuration`);
+              this.logWarning(`Cannot find '${entityId}' in HA group configuration`);
             }
           }
         }
@@ -453,7 +532,7 @@
               targetEntities.push({ entityId: entityId, elementId: entityId });
             }
             else {
-              this.warn(`Cannot find '${entityId}' in HA group configuration`);
+              this.logWarning(`Cannot find '${entityId}' in HA group configuration`);
             }
           }
 
@@ -464,7 +543,7 @@
               targetEntities.push({ entityId: entityObject.entity, elementId: entityObject.element });
             }
             else {
-              this.warn(`Cannot find '${entityObject.entity}' in HA group configuration`);
+              this.logWarning(`Cannot find '${entityObject.entity}' in HA group configuration`);
             }
           }
         }
@@ -484,7 +563,7 @@
 
           let svgElement = svgElements.find(svgElement => svgElement.id === elementId);
           if (!svgElement) {
-            this.warn(`Cannot find element '${elementId}' in SVG file`);
+            this.logWarning(`Cannot find element '${elementId}' in SVG file`);
             continue;
           }
 
@@ -589,537 +668,14 @@
       return svgElement;
     },
 
-    handleEntities(entities, isInitialLoad) {
-      if (!this.config) {
-        return;
-      }
-
-      let entityIds = Object.keys(entities);
-
-      let changedEntityIds = [];
-
-      let lastMotionEntityInfo, oldLastMotionState, newLastMotionState;
-
-      if (this.lastMotionConfig) {
-        lastMotionEntityInfo = this.entityInfos[this.lastMotionConfig.entity];
-        if (lastMotionEntityInfo && lastMotionEntityInfo.lastState) {
-          oldLastMotionState = lastMotionEntityInfo.lastState.state;
-          newLastMotionState = entities[this.lastMotionConfig.entity].state;
-        }
-      }
-
-      for (let entityId of entityIds) {
-        let entityInfo = this.entityInfos[entityId];
-        if (entityInfo) {
-          let entityState = entities[entityId];
-
-          if (isInitialLoad) {
-            this.log('STATE', `${entityId}: ${entities[entityId].state} (initial load)`);
-            if (changedEntityIds.indexOf(entityId) < 0) {
-              changedEntityIds.push(entityId);
-            }
-          }
-          else if (entityInfo.lastState) {
-            let oldState = entityInfo.lastState.state;
-            let newState = entityState.state;
-
-            if (entityState.last_changed !== entityInfo.lastState.last_changed) {
-              this.log('STATE', `${entityId}: ${newState} (last changed ${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")})`);
-              if (changedEntityIds.indexOf(entityId) < 0) {
-                changedEntityIds.push(entityId);
-              }
-            }
-            else {
-              let oldAttributesText = JSON.stringify(entityInfo.lastState.attributes);
-              let newAttributesText = JSON.stringify(entityState.attributes);
-
-              if (newAttributesText !== oldAttributesText) {
-                if (entityId.indexOf('media_player') < 0) {
-                  this.log('STATE', `${entityId}: attributes (last updated ${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")})`);
-                  if (changedEntityIds.indexOf(entityId) < 0) {
-                    changedEntityIds.push(entityId);
-                  }
-                }
-              }
-            }
-
-            if (this.lastMotionConfig) {
-              if ((newLastMotionState !== oldLastMotionState) && (entityId.indexOf('binary_sensor') >= 0)) {
-                let friendlyName = entityState.attributes.friendly_name;
-
-                if (friendlyName === newLastMotionState) {
-                  this.log('LAST_MOTION', `${entityId} (new)`);
-                  if (changedEntityIds.indexOf(entityId) < 0) {
-                    changedEntityIds.push(entityId);
-                  }
-                }
-                else if (friendlyName === oldLastMotionState) {
-                  this.log('LAST_MOTION', `${entityId} (old)`);
-                  if (changedEntityIds.indexOf(entityId) < 0) {
-                    changedEntityIds.push(entityId);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      let promiseChain = changedEntityIds.reduce((func, entityId) => {
-        return func.then(() => this.handleEntity(entityId, entities, isInitialLoad));
-      }, Promise.resolve());
-
-      return promiseChain.then(() => {
-        //this.log('Done!');
-      });
-    },
-
-    handleEntity(entityId, entities, isInitialLoad) {
-      let entityState = entities[entityId];
-      let entityInfo = this.entityInfos[entityId];
-
-      entityInfo.lastState = Object.assign({}, entityState);
-
-      return this.handleEntityUpdateDom(entityId, entities)
-        .then(() => {
-          this.handleEntityUpdateCss(entityId, entities, isInitialLoad)
-          this.handleEntityUpdateLastMotionCss(entityId, entities);
-          this.handleEntitySetHoverOver(entityId, entities);
-        });
-    },
-
-    handleEntityUpdateDom(entityId, entities) {
-      return new Promise((resolve, reject) => {
-        let imagesToLoad = [];
-
-        let entityState = entities[entityId];
-        let entityInfo = this.entityInfos[entityId];
-
-        for (let groupInfo of entityInfo.groupInfos) {
-          for (let svgElementId in groupInfo.svgElementInfos) {
-            let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
-            let svgElement = svgElementInfo.svgElement;
-
-            if ($(svgElement).is('text')) {
-              let text = groupInfo.group.text_template ?
-                this.evaluate(groupInfo.group.text_template, entityState, entities) : entityState.state;
-
-              let tspan = $(svgElement).find('tspan');
-              if (tspan.length) {
-                $(tspan).text(text);
-              }
-              else {
-                let title = $(svgElement).find('title');
-                $(svgElement).text(text);
-                if (title.length) {
-                  $(svgElement).append(title);
-                }
-              }
-
-              let rect = $(svgElement).parent().find(`[id="${entityId}.background"]`);
-              if (rect.length) {
-                let bbox = svgElement.getBBox();
-                $(rect)
-                  .attr('x', bbox.x - 1)
-                  .attr('y', bbox.y - 0.5)
-                  .attr('height', bbox.height + 1)
-                  .attr('width', bbox.width + 2)
-                  .height(bbox.height + 1)
-                  .width(bbox.width + 2);
-              }
-            }
-            else if (groupInfo.group.camera_image_template) {
-              imageUrl = this.evaluate(groupInfo.group.camera_image_template, entityState, entities);
-              if (imageUrl && (groupInfo.imageUrl !== imageUrl)) {
-                groupInfo.imageUrl = imageUrl;
-
-                if (groupInfo.cameraImageLoader) {
-                  clearInterval(groupInfo.cameraImageLoader);
-                }
-
-                this.loadCameraImage(imageUrl, svgElement);
-
-                if (groupInfo.group.refresh_interval) {
-                  let refreshInterval = parseInt(groupInfo.group.refresh_interval);
-
-                  groupInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
-                    this.loadCameraImage(imageUrl, svgElement);
-                  }, refreshInterval * 1000, imageUrl, svgElement);
-                }
-              }
-            }
-            else if (groupInfo.group.image_template) {
-              imageUrl = this.evaluate(groupInfo.group.image_template, entityState, entities);
-              if (groupInfo.imageUrl !== imageUrl) {
-                groupInfo.imageUrl = imageUrl;
-
-                imagesToLoad.push({
-                  svgElementInfo: svgElementInfo,
-                  imageUrl: imageUrl,
-                  entityId: entityId,
-                  entityState: entityState,
-                  groupInfo: groupInfo,
-                });
-              }
-            }
-          }
-        }
-
-        let promiseChain = imagesToLoad.reduce((func, imageToLoad) => {
-          return func.then(() => this.loadImage(imageToLoad.svgElementInfo, imageToLoad.imageUrl, imageToLoad.entityId, imageToLoad.entityState, imageToLoad.groupInfo));
-        }, Promise.resolve());
-
-        promiseChain.then(() => {
-          return resolve();
-        });
-      });
-    },
-
-    handleEntitySetHoverOver(entityId, entities) {
-      let entityState = entities[entityId];
-      let entityInfo = this.entityInfos[entityId];
-
-      for (let groupInfo of entityInfo.groupInfos) {
-        for (let svgElementId in groupInfo.svgElementInfos) {
-          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
-          let svgElement = svgElementInfo.svgElement;
-
-          this.setHoverOverText(svgElement, entityState);
-        }
-      }
-    },
-
-    handleEntityUpdateCss(entityId, entities, isInitialLoad) {
-      if (!this.cssRules || !this.cssRules.length) {
-        return;
-      }
-
-      let entityState = entities[entityId];
-      let entityInfo = this.entityInfos[entityId];
-
-      for (let groupInfo of entityInfo.groupInfos) {
-        for (let svgElementId in groupInfo.svgElementInfos) {
-          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
-          let svgElement = svgElementInfo.svgElement;
-
-          let hasTransitionConfig = false;
-          let wasTransitionApplied = false;
-
-          if (groupInfo.group.states && groupInfo.group.state_transitions) {
-            hasTransitionConfig = true;
-            let transitionConfig = groupInfo.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityState.state));
-            if (transitionConfig && transitionConfig.from_state && transitionConfig.to_state && transitionConfig.duration) {
-              let elapsed = Math.max(moment().diff(moment(entityState.last_changed), 'milliseconds'), 0);
-              let remaining = (transitionConfig.duration * 1000) - elapsed;
-
-              let fromStateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === transitionConfig.from_state));
-              let toStateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === transitionConfig.to_state));
-
-              let fromColor = this.getFill(fromStateConfig);
-              let toColor = this.getFill(toStateConfig);
-
-              if (fromColor && toColor) {
-                if (remaining > 0) {
-                  let transition = this.entityTransitions[entityId];
-                  if (!transition) {
-                    this.log('TRANSITION', `${entityId} (created)`);
-                    transition = {
-                      entityId: entityId,
-                      svgElementInfo: svgElementInfo,
-                      groupInfo: groupInfo,
-                      duration: transitionConfig.duration,
-                      fromStateConfig: fromStateConfig,
-                      toStateConfig: toStateConfig,
-                      fromColor: fromColor,
-                      toColor: toColor,
-                      startMoment: undefined,
-                      endMoment: undefined,
-                      isActive: false,
-                    };
-                    this.entityTransitions[entityId] = transition;
-                  }
-
-                  // Assume the transition starts (or started) when the origin state change occurred
-                  //transition.startMoment = this.serverToLocalMoment(moment(entityState.last_changed));
-                  transition.startMoment = moment();
-                  transition.endMoment = transition.startMoment.clone();
-                  transition.endMoment.add(transition.duration, 'seconds');
-                  //this.log('TRANSITION', `${transition.entityId} (A setting start time to ${transition.startMoment})`);
-                  //this.log('TRANSITION', `${transition.entityId} (A setting end time to ${transition.endMoment})`);
-
-                  // If the transition is not currently running, kick it off
-                  if (!transition.isActive) {
-                    // If this state change just occurred, the transition starts as of now
-                    if (!isInitialLoad) {
-                      let nowMoment = moment();
-                      transition.startMoment = nowMoment.clone();
-                      transition.endMoment = transition.startMoment.clone();
-                      transition.endMoment.add(transition.duration, 'seconds');
-                      //this.log('TRANSITION', `${transition.entityId} (B setting start time to ${transition.startMoment})`);
-                      //this.log('TRANSITION', `${transition.entityId} (B setting end time to ${transition.endMoment})`);
-                    }
-
-                    this.log('TRANSITION', `${transition.entityId}: (start)`);
-                    transition.isActive = true;
-                    this.handleEntityTransition(transition);
-                  }
-                  else {
-                    // If the transition is currently running, it will be extended with latest start / end times
-                    this.log('TRANSITION', `${transition.entityId} (continue)`);
-                  }
-                }
-                else {
-                  this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
-                }
-              }
-              else {
-                this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
-              }
-              wasTransitionApplied = true;
-            }
-          }
-
-          let targetClass = undefined;
-          let obsoleteClasses = [];
-
-          if (groupInfo.group.class_template) {
-            targetClass = this.evaluate(groupInfo.group.class_template, entityState, entities);
-          }
-
-          // Get the config for the current state
-          if (groupInfo.group.states) {
-            let stateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === entityState.state));
-            if (stateConfig && stateConfig.class && !wasTransitionApplied) {
-              targetClass = stateConfig.class;
-            }
-
-            // Remove any other previously-added state classes
-            for (let otherStateConfig of groupInfo.group.states) {
-              if (!stateConfig || (otherStateConfig.state !== stateConfig.state)) {
-                if (otherStateConfig.class && (otherStateConfig.class !== 'ha-entity') && $(svgElement).hasClass(otherStateConfig.class)) {
-                  if (svgElementInfo.originalClasses.indexOf(otherStateConfig.class) < 0) {
-                    obsoleteClasses.push(otherStateConfig.class);
-                  }
-                }
-              }
-            }
-          }
-          else {
-            for (let otherClassName of this.getArray(svgElement.classList)) {
-              if ((otherClassName !== targetClass) && (otherClassName !== 'ha-entity')) {
-                if (svgElementInfo.originalClasses.indexOf(otherClassName) < 0) {
-                  obsoleteClasses.push(otherClassName);
-                }
-              }
-            }
-          }
-
-          // Remove any obsolete classes from the entity
-          if (obsoleteClasses.length) {
-            //this.log(`${entityId}: Removing obsolete classes: ${obsoleteClasses.join(', ')}`);
-            this.removeClasses(entityId, svgElement, obsoleteClasses);
-          }
-
-          // Add the target class to the entity
-          if (targetClass) {
-            if (hasTransitionConfig && !wasTransitionApplied) {
-              let transition = this.entityTransitions[entityId];
-              if (transition && transition.isActive) {
-                this.log('TRANSITION', `${transition.entityId} (cancel)`);
-                transition.isActive = false;
-              }
-            }
-
-            this.addClass(entityId, svgElement, targetClass);
-          }
-        }
-      }
-    },
-
-    handleEntityTransition(transition) {
-      if (!transition.isActive) {
-        return;
-      }
-
-      let nowMoment = moment();
-
-      let isExpired = (nowMoment >= transition.endMoment);
-
-      let ratio = isExpired ? 1 : (nowMoment - transition.startMoment) / (transition.endMoment - transition.startMoment);
-      let color = this.getTransitionColor(transition.fromColor, transition.toColor, ratio);
-      //this.log('TRANSITION', `${transition.entityId} (ratio: ${ratio}, element: ${transition.svgElementInfo.svgElement.id}, fill: ${color})`);
-      transition.svgElementInfo.svgElement.style.fill = color;
-
-      if (isExpired) {
-        transition.isActive = false;
-        this.log('TRANSITION', `${transition.entityId} (end)`);
-        return;
-      }
-
-      setTimeout(() => {
-        this.handleEntityTransition(transition);
-      }, 100);
-    },
-
-    handleEntityUpdateLastMotionCss(entityId, entities) {
-      if (!this.lastMotionConfig || !this.cssRules || !this.cssRules.length) {
-        return;
-      }
-
-      let entityState = entities[entityId];
-      let entityInfo = this.entityInfos[entityId];
-
-      for (let groupInfo of entityInfo.groupInfos) {
-        for (let svgElementId in groupInfo.svgElementInfos) {
-          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
-          let svgElement = svgElementInfo.svgElement;
-
-          if (entities[this.lastMotionConfig.entity] &&
-            (entityState.attributes.friendly_name === entities[this.lastMotionConfig.entity].state)) {
-            if (!$(svgElement).hasClass(this.lastMotionConfig.class)) {
-              //this.log(`${entityId}: Adding last motion class '${this.lastMotionConfig.class}'`);
-              $(svgElement).addClass(this.lastMotionConfig.class);
-            }
-          }
-          else {
-            if ($(svgElement).hasClass(this.lastMotionConfig.class)) {
-              //this.log(`${entityId}: Removing last motion class '${this.lastMotionConfig.class}'`);
-              $(svgElement).removeClass(this.lastMotionConfig.class);
-            }
-          }
-        }
-      }
-    },
-
-    log(level, message) {
-      console.log(`${moment().format("DD-MM-YYYY HH:mm:ss")} ${level} ${message}`);
-    },
-
-    setHoverOverText(element, entityState) {
-      let dateFormat = this.config.date_format ? this.config.date_format : 'DD-MMM-YYYY';
-
-      $(element).find('title').each((i, titleElement) => {
-        let lastChangedElapsed = moment().to(moment(entityState.last_changed));
-        let lastChangedDate = moment(entityState.last_changed).format(dateFormat);
-        let lastChangedTime = moment(entityState.last_changed).format('HH:mm:ss');
-
-        let lastUpdatedElapsed = moment().to(moment(entityState.last_updated));
-        let lastUpdatedDate = moment(entityState.last_updated).format(dateFormat);
-        let lastUpdatedTime = moment(entityState.last_updated).format('HH:mm:ss');
-
-        let titleText = `${entityState.attributes.friendly_name}\n`;
-        titleText += `State: ${entityState.state}\n\n`;
-
-        Object.keys(entityState.attributes).map(key => {
-          titleText += `${key}: ${entityState.attributes[key]}\n`;
-        });
-        titleText += '\n';
-
-        titleText += `Last changed: ${lastChangedDate} ${lastChangedTime}\n`;
-        titleText += `Last updated: ${lastUpdatedDate} ${lastUpdatedTime}`;
-
-        $(titleElement).html(titleText);
-      });
-    },
-
-    loadCameraImage(imageUrl, svgElement) {
-      //let time = (new Date()).getTime();
-      //svgElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', imageUrl + '&time=' + time);
-
-      jQuery.ajax({
-        url: imageUrl,
-        cache: false,
-        mimeType: 'text/plain; charset=x-user-defined',
-        processData: false,
-        error: function (err) {
-          //throw new URIError(`${imageUrl}: ${err.responseText}`);
-        }.bind(this),
-        success: function (result) {
-          let imageData = 'data:image/jpeg;base64,' + this.base64Encode(result);
-          if ($(svgElement).attr('href') !== imageData) {
-            $(svgElement).attr('href', imageData);
-          }
-        }.bind(this),
-      });
-    },
-
-    loadImage(svgElementInfo, imageUrl, entityId, entityState, groupInfo) {
-      return new Promise((resolve, reject) => {
-        this.getImage(imageUrl)
-          .then(cachedSvg => {
-            let embeddedSvg = cachedSvg.cloneNode(true);
-
-            $(embeddedSvg)
-              .attr('id', svgElementInfo.svgElement.id)
-              .attr('preserveAspectRatio', 'xMinYMin meet')
-              .attr('height', svgElementInfo.bbox.height)
-              .attr('width', svgElementInfo.bbox.width)
-              .attr('x', svgElementInfo.bbox.x)
-              .attr('y', svgElementInfo.bbox.y)
-              .css('-webkit-perspective:', '1000')
-              .css('-webkit-transform-style', 'preserve-3d')
-              .css('-webkit-backface-visibility', 'hidden');
-
-            $(embeddedSvg).find('*').append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
-              .on('click', this.onEntityClick.bind({ instance: this, entityId: entityId, groupInfo: groupInfo }))
-              .css('cursor', 'pointer')
-              .addClass('ha-entity');
-
-            // Remove previous SVG
-            let $svg = $(svgElementInfo.svgElement).parents('svg');
-            let previousEmbeddedSvg = $svg.find(`[id="${svgElementInfo.svgElement.id}"]`);
-
-            let $parent = $(previousEmbeddedSvg).parent();
-
-            $(previousEmbeddedSvg).find('*')
-              .off('click');
-
-            $(previousEmbeddedSvg)
-              .off('click')
-              .remove();
-
-            $parent.append(embeddedSvg);
-
-            svgElementInfo.svgElement = embeddedSvg;
-
-            return resolve(embeddedSvg);
-          })
-          .catch(err => {
-            this.error(err);
-            return reject(err);
-          });
-      });
-    },
-
-    getImage(imageUrl) {
-      return new Promise((resolve, reject) => {
-        let cachedSvg = this.imageCache[imageUrl];
-        if (cachedSvg) {
-          return resolve(cachedSvg);
-        }
-
-        jQuery.ajax({
-          url: imageUrl,
-          cache: true,
-          error: function (err) {
-            return reject(new URIError(`${imageUrl}: ${err.responseText}`));
-          }.bind(this),
-          success: function (result) {
-            let cachedSvg = $(result).find('svg')[0];
-            this.imageCache[imageUrl] = cachedSvg;
-            return resolve(cachedSvg);
-          }.bind(this),
-        });
-      });
-    },
-
     addClass(entityId, svgElement, className) {
-      this.log('CLASS', `${entityId} (adding class: ${className})`);
+      this.logDebug('CLASS', `${entityId} (adding class: ${className})`);
 
       if ($(svgElement).hasClass('ha-leave-me-alone')) {
         return;
       }
 
-      //this.log(`Adding class '${className}' to '${entityId}'`);
+      //this.logDebug(`Adding class '${className}' to '${entityId}'`);
       if (!$(svgElement).hasClass(className)) {
         $(svgElement).addClass(className);
 
@@ -1143,9 +699,9 @@
 
     removeClasses(entityId, svgElement, classes) {
       for (className of classes) {
-        this.log('CLASS', `${entityId} (removing class: ${className})`);
+        this.logDebug('CLASS', `${entityId} (removing class: ${className})`);
 
-        //this.log(`Removing class '${className}' from '${entityId}'`);
+        //this.logDebug(`Removing class '${className}' from '${entityId}'`);
         if ($(svgElement).hasClass(className)) {
           $(svgElement).removeClass(className);
 
@@ -1196,6 +752,527 @@
         }
       }
     },
+
+    /***************************************************************************************************************************/
+    /* Entity handling (when states change)
+    /***************************************************************************************************************************/
+
+    handleEntities(entities, isInitialLoad) {
+      if (!this.config) {
+        return;
+      }
+
+      let entityIds = Object.keys(entities);
+
+      let changedEntityIds = [];
+
+      let lastMotionEntityInfo, oldLastMotionState, newLastMotionState;
+
+      if (this.lastMotionConfig) {
+        lastMotionEntityInfo = this.entityInfos[this.lastMotionConfig.entity];
+        if (lastMotionEntityInfo && lastMotionEntityInfo.lastState) {
+          oldLastMotionState = lastMotionEntityInfo.lastState.state;
+          newLastMotionState = entities[this.lastMotionConfig.entity].state;
+        }
+      }
+
+      for (let entityId of entityIds) {
+        let entityInfo = this.entityInfos[entityId];
+        if (entityInfo) {
+          let entityState = entities[entityId];
+
+          if (isInitialLoad) {
+            this.logDebug('STATE', `${entityId}: ${entities[entityId].state} (initial load)`);
+            if (changedEntityIds.indexOf(entityId) < 0) {
+              changedEntityIds.push(entityId);
+            }
+          }
+          else if (entityInfo.lastState) {
+            let oldState = entityInfo.lastState.state;
+            let newState = entityState.state;
+
+            if (entityState.last_changed !== entityInfo.lastState.last_changed) {
+              this.logDebug('STATE', `${entityId}: ${newState} (last changed ${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")})`);
+              if (changedEntityIds.indexOf(entityId) < 0) {
+                changedEntityIds.push(entityId);
+              }
+            }
+            else {
+              let oldAttributesText = JSON.stringify(entityInfo.lastState.attributes);
+              let newAttributesText = JSON.stringify(entityState.attributes);
+
+              if (newAttributesText !== oldAttributesText) {
+                if (entityId.indexOf('media_player') < 0) {
+                  this.logDebug('STATE', `${entityId}: attributes (last updated ${moment(entityInfo.lastState.last_changed).format("DD-MMM-YYYY HH:mm:ss")})`);
+                  if (changedEntityIds.indexOf(entityId) < 0) {
+                    changedEntityIds.push(entityId);
+                  }
+                }
+              }
+            }
+
+            if (this.lastMotionConfig) {
+              if ((newLastMotionState !== oldLastMotionState) && (entityId.indexOf('binary_sensor') >= 0)) {
+                let friendlyName = entityState.attributes.friendly_name;
+
+                if (friendlyName === newLastMotionState) {
+                  this.logDebug('LAST_MOTION', `${entityId} (new)`);
+                  if (changedEntityIds.indexOf(entityId) < 0) {
+                    changedEntityIds.push(entityId);
+                  }
+                }
+                else if (friendlyName === oldLastMotionState) {
+                  this.logDebug('LAST_MOTION', `${entityId} (old)`);
+                  if (changedEntityIds.indexOf(entityId) < 0) {
+                    changedEntityIds.push(entityId);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      let promises = changedEntityIds.map(entityId => this.handleEntity(entityId, entities, isInitialLoad));
+      return Promise.all(promises)
+        .catch(error => {
+          this.handleError(error);
+        });
+    },
+
+    handleEntity(entityId, entities, isInitialLoad) {
+      let entityState = entities[entityId];
+      let entityInfo = this.entityInfos[entityId];
+
+      entityInfo.lastState = Object.assign({}, entityState);
+
+      return this.handleEntityUpdateDom(entityId, entities)
+        .then(() => {
+          this.handleEntityUpdateCss(entityId, entities, isInitialLoad)
+          this.handleEntityUpdateLastMotionCss(entityId, entities);
+          this.handleEntitySetHoverOver(entityId, entities);
+        });
+    },
+
+    handleEntityUpdateDom(entityId, entities) {
+      let loadImagePromises = [];
+
+      let entityState = entities[entityId];
+      let entityInfo = this.entityInfos[entityId];
+
+      for (let groupInfo of entityInfo.groupInfos) {
+        for (let svgElementId in groupInfo.svgElementInfos) {
+          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+
+          if ($(svgElementInfo.svgElement).is('text')) {
+            this.handleEntityUpdateText(entityState, groupInfo, svgElementInfo, entities);
+          }
+          else if (groupInfo.group.camera_image_template) {
+            this.handleEntityUpdateCameraImage(entityState, groupInfo, svgElementInfo, entities);
+          }
+          else if (groupInfo.group.image_template) {
+            let loadImageInfo = this.handleEntityDetermineSvgImage(entityState, groupInfo, svgElementInfo, entities);
+            if (loadImageInfo) {
+              loadImagePromises.push(this.loadImage(loadImageInfo));
+            }
+          }
+        }
+      }
+
+      return loadImagePromises.length ? Promise.all(loadImagePromises) : Promise.resolve();
+    },
+
+    handleEntityUpdateText(entityState, groupInfo, svgElementInfo, entities) {
+      let svgElement = svgElementInfo.svgElement;
+
+      let text = groupInfo.group.text_template ?
+        this.evaluate(groupInfo.group.text_template, entityState, entities) : entityState.state;
+
+      let tspan = $(svgElement).find('tspan');
+      if (tspan.length) {
+        $(tspan).text(text);
+      }
+      else {
+        let title = $(svgElement).find('title');
+        $(svgElement).text(text);
+        if (title.length) {
+          $(svgElement).append(title);
+        }
+      }
+
+      let rect = $(svgElement).parent().find(`[id="${entityState.entity_id}.background"]`);
+      if (rect.length) {
+        let bbox = svgElement.getBBox();
+        $(rect)
+          .attr('x', bbox.x - 1)
+          .attr('y', bbox.y - 0.5)
+          .attr('height', bbox.height + 1)
+          .attr('width', bbox.width + 2)
+          .height(bbox.height + 1)
+          .width(bbox.width + 2);
+      }
+    },
+
+    handleEntityUpdateCameraImage(entityState, groupInfo, svgElementInfo, entities) {
+      let svgElement = svgElementInfo.svgElement;
+
+      imageUrl = this.evaluate(groupInfo.group.camera_image_template, entityState, entities);
+      if (imageUrl && (groupInfo.imageUrl !== imageUrl)) {
+        groupInfo.imageUrl = imageUrl;
+
+        if (groupInfo.cameraImageLoader) {
+          clearInterval(groupInfo.cameraImageLoader);
+        }
+
+        this.loadCameraImage(imageUrl, svgElement)
+          .catch(error => {
+            this.handleError(error);
+          });
+
+        if (groupInfo.group.refresh_interval) {
+          let refreshInterval = parseInt(groupInfo.group.refresh_interval);
+
+          groupInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
+            this.loadCameraImage(imageUrl, svgElement)
+              .catch(error => {
+                this.handleError(error);
+              });
+          }, refreshInterval * 1000, imageUrl, svgElement);
+        }
+      }
+    },
+
+    handleEntityDetermineSvgImage(entityState, groupInfo, svgElementInfo, entities) {
+      imageUrl = this.evaluate(groupInfo.group.image_template, entityState, entities);
+      if (groupInfo.imageUrl !== imageUrl) {
+        groupInfo.imageUrl = imageUrl;
+
+        return {
+          svgElementInfo: svgElementInfo,
+          imageUrl: imageUrl,
+          entityId: entityState.entity_id,
+          entityState: entityState,
+          groupInfo: groupInfo,
+        };
+      }
+
+      return undefined;
+    },
+
+    handleEntitySetHoverOver(entityId, entities) {
+      let entityState = entities[entityId];
+      let entityInfo = this.entityInfos[entityId];
+
+      for (let groupInfo of entityInfo.groupInfos) {
+        for (let svgElementId in groupInfo.svgElementInfos) {
+          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+
+          this.handlEntitySetHoverOverText(svgElementInfo.svgElement, entityState);
+        }
+      }
+    },
+
+    handlEntitySetHoverOverText(element, entityState) {
+      let dateFormat = this.config.date_format ? this.config.date_format : 'DD-MMM-YYYY';
+
+      $(element).find('title').each((i, titleElement) => {
+        let lastChangedElapsed = moment().to(moment(entityState.last_changed));
+        let lastChangedDate = moment(entityState.last_changed).format(dateFormat);
+        let lastChangedTime = moment(entityState.last_changed).format('HH:mm:ss');
+
+        let lastUpdatedElapsed = moment().to(moment(entityState.last_updated));
+        let lastUpdatedDate = moment(entityState.last_updated).format(dateFormat);
+        let lastUpdatedTime = moment(entityState.last_updated).format('HH:mm:ss');
+
+        let titleText = `${entityState.attributes.friendly_name}\n`;
+        titleText += `State: ${entityState.state}\n\n`;
+
+        Object.keys(entityState.attributes).map(key => {
+          titleText += `${key}: ${entityState.attributes[key]}\n`;
+        });
+        titleText += '\n';
+
+        titleText += `Last changed: ${lastChangedDate} ${lastChangedTime}\n`;
+        titleText += `Last updated: ${lastUpdatedDate} ${lastUpdatedTime}`;
+
+        $(titleElement).html(titleText);
+      });
+    },
+
+    handleEntityUpdateCss(entityId, entities, isInitialLoad) {
+      if (!this.cssRules || !this.cssRules.length) {
+        return;
+      }
+
+      let entityState = entities[entityId];
+      let entityInfo = this.entityInfos[entityId];
+
+      for (let groupInfo of entityInfo.groupInfos) {
+        for (let svgElementId in groupInfo.svgElementInfos) {
+          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+          let svgElement = svgElementInfo.svgElement;
+
+          let hasTransitionConfig = false;
+          let wasTransitionApplied = false;
+
+          if (groupInfo.group.states && groupInfo.group.state_transitions) {
+            hasTransitionConfig = true;
+            let transitionConfig = groupInfo.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityState.state));
+            if (transitionConfig && transitionConfig.from_state && transitionConfig.to_state && transitionConfig.duration) {
+              let elapsed = Math.max(moment().diff(moment(entityState.last_changed), 'milliseconds'), 0);
+              let remaining = (transitionConfig.duration * 1000) - elapsed;
+
+              let fromStateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === transitionConfig.from_state));
+              let toStateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === transitionConfig.to_state));
+
+              let fromColor = this.getFill(fromStateConfig);
+              let toColor = this.getFill(toStateConfig);
+
+              if (fromColor && toColor) {
+                if (remaining > 0) {
+                  let transition = this.entityTransitions[entityId];
+                  if (!transition) {
+                    this.logDebug('TRANSITION', `${entityId} (created)`);
+                    transition = {
+                      entityId: entityId,
+                      svgElementInfo: svgElementInfo,
+                      groupInfo: groupInfo,
+                      duration: transitionConfig.duration,
+                      fromStateConfig: fromStateConfig,
+                      toStateConfig: toStateConfig,
+                      fromColor: fromColor,
+                      toColor: toColor,
+                      startMoment: undefined,
+                      endMoment: undefined,
+                      isActive: false,
+                    };
+                    this.entityTransitions[entityId] = transition;
+                  }
+
+                  // Assume the transition starts (or started) when the origin state change occurred
+                  transition.startMoment = this.serverToLocalMoment(moment(entityState.last_changed));
+                  transition.endMoment = transition.startMoment.clone();
+                  transition.endMoment.add(transition.duration, 'seconds');
+
+                  // If the transition is not currently running, kick it off
+                  if (!transition.isActive) {
+                    // If this state change just occurred, the transition starts as of now
+                    if (!isInitialLoad) {
+                      let nowMoment = moment();
+                      transition.startMoment = nowMoment.clone();
+                      transition.endMoment = transition.startMoment.clone();
+                      transition.endMoment.add(transition.duration, 'seconds');
+                    }
+
+                    this.logDebug('TRANSITION', `${transition.entityId}: (start)`);
+                    transition.isActive = true;
+                    this.handleEntityTransition(transition);
+                  }
+                  else {
+                    // If the transition is currently running, it will be extended with latest start / end times
+                    this.logDebug('TRANSITION', `${transition.entityId} (continue)`);
+                  }
+                }
+                else {
+                  this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
+                }
+              }
+              else {
+                this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
+              }
+              wasTransitionApplied = true;
+            }
+          }
+
+          let targetClass = undefined;
+          let obsoleteClasses = [];
+
+          if (groupInfo.group.class_template) {
+            targetClass = this.evaluate(groupInfo.group.class_template, entityState, entities);
+          }
+
+          // Get the config for the current state
+          if (groupInfo.group.states) {
+            let stateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === entityState.state));
+            if (stateConfig && stateConfig.class && !wasTransitionApplied) {
+              targetClass = stateConfig.class;
+            }
+
+            // Remove any other previously-added state classes
+            for (let otherStateConfig of groupInfo.group.states) {
+              if (!stateConfig || (otherStateConfig.state !== stateConfig.state)) {
+                if (otherStateConfig.class && (otherStateConfig.class !== 'ha-entity') && $(svgElement).hasClass(otherStateConfig.class)) {
+                  if (svgElementInfo.originalClasses.indexOf(otherStateConfig.class) < 0) {
+                    obsoleteClasses.push(otherStateConfig.class);
+                  }
+                }
+              }
+            }
+          }
+          else {
+            for (let otherClassName of this.getArray(svgElement.classList)) {
+              if ((otherClassName !== targetClass) && (otherClassName !== 'ha-entity')) {
+                if (svgElementInfo.originalClasses.indexOf(otherClassName) < 0) {
+                  obsoleteClasses.push(otherClassName);
+                }
+              }
+            }
+          }
+
+          // Remove any obsolete classes from the entity
+          if (obsoleteClasses.length) {
+            //this.logDebug(`${entityId}: Removing obsolete classes: ${obsoleteClasses.join(', ')}`);
+            this.removeClasses(entityId, svgElement, obsoleteClasses);
+          }
+
+          // Add the target class to the entity
+          if (targetClass) {
+            if (hasTransitionConfig && !wasTransitionApplied) {
+              let transition = this.entityTransitions[entityId];
+              if (transition && transition.isActive) {
+                this.logDebug('TRANSITION', `${transition.entityId} (cancel)`);
+                transition.isActive = false;
+              }
+            }
+
+            this.addClass(entityId, svgElement, targetClass);
+          }
+        }
+      }
+    },
+
+    handleEntityTransition(transition) {
+      if (!transition.isActive) {
+        return;
+      }
+
+      let nowMoment = moment();
+
+      let isExpired = (nowMoment >= transition.endMoment);
+
+      let ratio = isExpired ? 1 : (nowMoment - transition.startMoment) / (transition.endMoment - transition.startMoment);
+      let color = this.getTransitionColor(transition.fromColor, transition.toColor, ratio);
+      //this.logDebug('TRANSITION', `${transition.entityId} (ratio: ${ratio}, element: ${transition.svgElementInfo.svgElement.id}, fill: ${color})`);
+      transition.svgElementInfo.svgElement.style.fill = color;
+
+      if (isExpired) {
+        transition.isActive = false;
+        this.logDebug('TRANSITION', `${transition.entityId} (end)`);
+        return;
+      }
+
+      setTimeout(() => {
+        this.handleEntityTransition(transition);
+      }, 100);
+    },
+
+    handleEntityUpdateLastMotionCss(entityId, entities) {
+      if (!this.lastMotionConfig || !this.cssRules || !this.cssRules.length) {
+        return;
+      }
+
+      let entityState = entities[entityId];
+      let entityInfo = this.entityInfos[entityId];
+
+      for (let groupInfo of entityInfo.groupInfos) {
+        for (let svgElementId in groupInfo.svgElementInfos) {
+          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+          let svgElement = svgElementInfo.svgElement;
+
+          if (entities[this.lastMotionConfig.entity] &&
+            (entityState.attributes.friendly_name === entities[this.lastMotionConfig.entity].state)) {
+            if (!$(svgElement).hasClass(this.lastMotionConfig.class)) {
+              //this.logDebug(`${entityId}: Adding last motion class '${this.lastMotionConfig.class}'`);
+              $(svgElement).addClass(this.lastMotionConfig.class);
+            }
+          }
+          else {
+            if ($(svgElement).hasClass(this.lastMotionConfig.class)) {
+              //this.logDebug(`${entityId}: Removing last motion class '${this.lastMotionConfig.class}'`);
+              $(svgElement).removeClass(this.lastMotionConfig.class);
+            }
+          }
+        }
+      }
+    },
+
+    /***************************************************************************************************************************/
+    /* Floorplan helper functions
+    /***************************************************************************************************************************/
+
+    isOptionEnabled(option) {
+      return ((option === null) || (option !== undefined));
+    },
+
+    isLastMotionEnabled() {
+      return this.lastMotionConfig && this.config.last_motion.entity && this.config.last_motion.class;
+    },
+
+    validateConfig(config) {
+      let isValid = true;
+
+      if (!config.pages && !config.groups) {
+        this.isLoading = false;
+        this.logWarning(`Cannot find 'pages' nor 'groups' in floorplan configuration`);
+        isValid = false;
+      }
+      else {
+        if (config.pages) {
+          if (!config.pages.length) {
+            this.logWarning(`The 'pages' section must contain one or more pages in floorplan configuration`);
+            isValid = false;
+          }
+        }
+        else {
+          if (!config.groups) {
+            this.logWarning(`Cannot find 'groups' in floorplan configuration`);
+            isValid = false;
+          }
+
+          let invalidGroups = config.groups.filter(x => x.entities && x.elements);
+          if (invalidGroups.length) {
+            this.logWarning(`A group cannot contain both 'entities' and 'elements' in floorplan configuration`);
+            isValid = false;
+          }
+
+          invalidGroups = config.groups.filter(x => !x.entities && !x.elements);
+          if (invalidGroups.length) {
+            this.logWarning(`A group must contain either 'entities' or 'elements' in floorplan configuration`);
+            isValid = false;
+          }
+        }
+      }
+
+      return isValid;
+    },
+
+    localToServerMoment(localMoment) {
+      let serverMoment = localMoment.clone();
+      if (this.timeDifference >= 0)
+        serverMoment.subtract(this.timeDifference, 'milliseconds');
+      else
+        serverMoment.add(Math.abs(this.timeDifference), 'milliseconds');
+      return serverMoment;
+    },
+
+    serverToLocalMoment(serverMoment) {
+      let localMoment = serverMoment.clone();
+      if (this.timeDifference >= 0)
+        localMoment.add(Math.abs(this.timeDifference), 'milliseconds');
+      else
+        localMoment.subtract(this.timeDifference, 'milliseconds');
+      return localMoment;
+    },
+
+    evaluate(code, entity, entities) {
+      let functionBody = (code.indexOf('return') >= 0) ? code : `return \`${code}\`;`;
+      let func = new Function('entity', 'entities', 'hass', 'config', functionBody);
+      return func(entity, entities, this.hass, this.config);
+    },
+
+    /***************************************************************************************************************************/
+    /* Event handlers
+    /***************************************************************************************************************************/
 
     onElementClick(e) {
       let svgElement = e.target;
@@ -1276,6 +1353,10 @@
       }
     },
 
+    /***************************************************************************************************************************/
+    /* Home Assisant helper functions
+    /***************************************************************************************************************************/
+
     callService(action, entityId) {
       let domain = action.domain ? action.domain : window.HAWS.extractDomain(entityId);
       domain = (domain === 'group') ? 'homeassistant' : domain;
@@ -1294,6 +1375,98 @@
       }
 
       this.hass.callService(domain, action.service, data);
+    },
+
+    /***************************************************************************************************************************/
+    /* Logging / error handling functions
+    /***************************************************************************************************************************/
+
+    handleWindowError(msg, url, lineNo, columnNo, error) {
+      this.isLoading = false;
+
+      if (msg.toLowerCase().indexOf("script error") >= 0) {
+        this.logError('Script error: See browser console for detail');
+      }
+      else {
+        let message = [
+          msg,
+          'URL: ' + url,
+          'Line: ' + lineNo + ', column: ' + columnNo,
+          'Error: ' + JSON.stringify(error)
+        ].join('<br>');
+
+        this.logError(message);
+      }
+
+      return false;
+    },
+
+    handleError(error) {
+      let message = error;
+      if (error.stack) {
+        message = `${error.stack}`;
+      }
+      else if (error.message) {
+        message = `${error.message}`;
+      }
+
+      this.log('error', message);
+    },
+
+    logError(message) {
+      this.log('error', message);
+    },
+
+    logWarning(message) {
+      this.log('warning', message);
+    },
+
+    logInfo(message) {
+      this.log('info', message);
+    },
+
+    logDebug(area, message) {
+      this.log('debug', `${area} ${message}`);
+    },
+
+    log(level, message) {
+      let text = `${moment().format("DD-MM-YYYY HH:mm:ss")} ${level.toUpperCase()} ${message}`;
+      console.log(text);
+
+      if (!this.config) {
+        // Always log messages before the config has been loaded
+      }
+      else if (!this.logLevels || !this.logLevels.length || (this.logLevels.indexOf(level) < 0)) {
+        return;
+      }
+
+      let log = Polymer.dom(this.$.log).node;
+      $(log).find('ul').prepend(`<li class="${level}">${text}</li>`)
+      $(log).css('display', 'block');
+    },
+
+    /***************************************************************************************************************************/
+    /* CSS helper functions
+    /***************************************************************************************************************************/
+
+    getStroke(stateConfig) {
+      let stroke = undefined;
+
+      for (let cssRule of this.cssRules) {
+        if (cssRule.selectorText && cssRule.selectorText.indexOf(`.${stateConfig.class}`) >= 0) {
+          if (cssRule.style && cssRule.style.stroke) {
+            if (cssRule.style.stroke[0] === '#') {
+              stroke = cssRule.style.stroke;
+            }
+            else {
+              let rgb = cssRule.style.stroke.substring(4).slice(0, -1).split(',').map(x => parseInt(x));
+              stroke = `#${rgb[0].toString(16)[0]}${rgb[1].toString(16)[0]}${rgb[2].toString(16)[0]}`;
+            }
+          }
+        }
+      }
+
+      return stroke;
     },
 
     getFill(stateConfig) {
@@ -1316,82 +1489,12 @@
       return fill;
     },
 
-    getStroke(stateConfig) {
-      let stroke = undefined;
-
-      for (let cssRule of this.cssRules) {
-        if (cssRule.selectorText && cssRule.selectorText.indexOf(`.${stateConfig.class}`) >= 0) {
-          if (cssRule.style && cssRule.style.stroke) {
-            if (cssRule.style.stroke[0] === '#') {
-              stroke = cssRule.style.stroke;
-            }
-            else {
-              let rgb = cssRule.style.stroke.substring(4).slice(0, -1).split(',').map(x => parseInt(x));
-              stroke = `#${rgb[0].toString(16)[0]}${rgb[1].toString(16)[0]}${rgb[2].toString(16)[0]}`;
-            }
-          }
-        }
-      }
-
-      return stroke;
-    },
-
     getTransitionColor(fromColor, toColor, value) {
       return (value <= 0) ? fromColor :
         ((value >= 1) ? toColor : this.rgbToHex(this.mix(this.hexToRgb(toColor), this.hexToRgb(fromColor), value)));
     },
 
-    localToServerMoment(localMoment) {
-      let serverMoment = localMoment.clone();
-      if (this.timeDifference >= 0)
-        serverMoment.subtract(this.timeDifference, 'milliseconds');
-      else
-        serverMoment.add(Math.abs(this.timeDifference), 'milliseconds');
-      return serverMoment;
-    },
-
-    serverToLocalMoment(serverMoment) {
-      let localMoment = serverMoment.clone();
-      if (this.timeDifference >= 0)
-        localMoment.add(Math.abs(this.timeDifference), 'milliseconds');
-      else
-        localMoment.subtract(this.timeDifference, 'milliseconds');
-      return localMoment;
-    },
-
-    getArray(list) {
-      return Array.isArray(list) ? list : Object.keys(list).map(key => list[key]);
-    },
-
-    evaluate(code, entity, entities) {
-      let functionBody = (code.indexOf('return') >= 0) ? code : `return \`${code}\`;`;
-      let func = new Function('entity', 'entities', 'hass', 'config', functionBody);
-      return func(entity, entities, this.hass, this.config);
-    },
-
-    error(message) {
-      let errors = Polymer.dom(this.$.errors).node;
-      $(errors).find('ul').append(`<li>${moment().format('YYYY-MM-DD HH:mm:ss')} ${message}</li>`)
-      $(errors).css('display', 'block');
-    },
-
-    warn(message) {
-      if (this.isOptionEnabled(this.config.warnings)) {
-        let warnings = Polymer.dom(this.$.warnings).node;
-        $(warnings).find('ul').append(`<li>${moment().format('YYYY-MM-DD HH:mm:ss')} ${message}</li>`)
-        $(warnings).css('display', 'block');
-      }
-    },
-
-    debug(message, isForce) {
-      if (this.isOptionEnabled(this.config.debug) || isForce) {
-        let debug = Polymer.dom(this.$.debug).node;
-        $(debug).find('ul').append(`<li>${moment().format('YYYY-MM-DD HH:mm:ss')} ${message}</li>`)
-        $(debug).css('display', 'block');
-      }
-    },
-
-    loadStyleSheet(path, fn, scope) {
+    loadStyleSheetInternal(path, fn, scope) {
       let head = document.getElementsByTagName('head')[0]; // reference to document.head for appending / removing link nodes
       let link = document.createElement('link');           // create the link node
       link.setAttribute('href', path);
@@ -1427,11 +1530,41 @@
 
       head.appendChild(link);  // insert the link node into the DOM and start loading the style sheet
 
-      return link; // return the link node;
+      return link; // return the link node
     },
 
-    getCacheBuster() {
-      return 'cacheBuster=' + (new Date().getTime());
+    /***************************************************************************************************************************/
+    /* General helper functions
+    /***************************************************************************************************************************/
+
+    getResource(resourceUrl, useCache, isImage) {
+      return new Promise((resolve, reject) => {
+        let options = {
+          url: resourceUrl,
+          cache: (useCache === true),
+          //processData: false,
+          error: (err) => {
+            reject(new URIError(`${resourceUrl}: ${err.responseText}`));
+          },
+          success: (result) => {
+            resolve(isImage ? `data:image/jpeg;base64,${this.base64Encode(result)}` : result);
+          },
+        };
+
+        if (isImage) {
+          options.mimeType = 'text/plain; charset=x-user-defined';
+        }
+
+        jQuery.ajax(options);
+      });
+    },
+
+    /***************************************************************************************************************************/
+    /* Utility functions
+    /***************************************************************************************************************************/
+
+    getArray(list) {
+      return Array.isArray(list) ? list : Object.keys(list).map(key => list[key]);
     },
 
     base64Encode(str) {
@@ -1461,6 +1594,10 @@
       }
       return out;
     },
+
+    /***************************************************************************************************************************/
+    /* Color functions
+    /***************************************************************************************************************************/
 
     rgbToHex(rgb) {
       return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
