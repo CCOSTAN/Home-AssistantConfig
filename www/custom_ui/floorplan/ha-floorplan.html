@@ -1,6 +1,6 @@
 <!--
     Floorplan for Home Assistant
-    Version: 1.0.7.26
+    Version: 1.0.7.32
     By Petar Kozul
     https://github.com/pkozul/ha-floorplan
   -->
@@ -91,7 +91,7 @@
     properties: {
       version: {
         type: String,
-        value: '1.0.7.26',
+        value: '1.0.7.32',
       },
       hass: {
         type: Object,
@@ -171,7 +171,7 @@
 
     onReady() {
       this.handleEntitiesDebounced = this.debounce(() => {
-        this.handleEntities(this.hass.states);
+        return this.handleEntities(this.hass.states);
       }, 100);
     },
 
@@ -184,9 +184,8 @@
         .then(config => {
           this.config = config;
 
-          this.logInfo(`Floorplan v${this.version}`);
-
           this.getLogLevels();
+          this.logInfo(`Floorplan v${this.version}`);
 
           if (!this.validateConfig(this.config)) {
             this.isLoading = false;
@@ -318,9 +317,9 @@
     createPageInfo(pageConfig, isDefault) {
       let pageInfo = { config: pageConfig };
 
-      // Merge the page's groups with the main config's groups
-      if (pageInfo.config.groups && this.config.groups) {
-        pageInfo.config.groups = pageInfo.config.groups.concat(this.config.groups);
+      // Merge the page's rules with the main config's rules
+      if (pageInfo.config.rules && this.config.rules) {
+        pageInfo.config.rules = pageInfo.config.rules.concat(this.config.rules);
       }
 
       this.pageInfos[pageInfo.config.page_id] = pageInfo;
@@ -385,7 +384,7 @@
         });
     },
 
-    loadImage(loadImageInfo) {
+    loadSvgImage(loadImageInfo) {
       let svgElementInfo = loadImageInfo.svgElementInfo;
 
       return this.getResource(loadImageInfo.imageUrl, true)
@@ -405,7 +404,7 @@
             .css('-webkit-backface-visibility', 'hidden');
 
           $(embeddedSvg).find('*').append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
-            .on('click', this.onEntityClick.bind({ instance: this, entityId: loadImageInfo.entityId, groupInfo: loadImageInfo.groupInfo }))
+            .on('click', this.onEntityClick.bind({ instance: this, entityId: loadImageInfo.entityId, ruleInfo: loadImageInfo.ruleInfo }))
             .css('cursor', 'pointer')
             .addClass('ha-entity');
 
@@ -474,7 +473,7 @@
     /***************************************************************************************************************************/
 
     initSvg(svg, config) {
-      if (!config.groups) {
+      if (!config.rules) {
         return;
       }
 
@@ -484,13 +483,17 @@
       if (config.last_motion && config.last_motion.entity && config.last_motion.class) {
         this.lastMotionConfig = config.last_motion;
 
-        entityInfo = { groupInfos: [], lastState: undefined };
+        entityInfo = { ruleInfos: [], lastState: undefined };
         this.entityInfos[config.last_motion.entity] = entityInfo;
       }
 
-      let elementGroups = config.groups.filter(x => x.elements);
-      for (let elementGroup of elementGroups) {
-        for (let elementId of elementGroup.elements) {
+      let elementRules = config.rules.filter(x => x.element || x.elements);
+      for (let elementRule of elementRules) {
+        if (elementRule.element) {
+          elementRule.elements = [ elementRule.element ];
+        }
+
+        for (let elementId of elementRule.elements) {
           let svgElement = $(svg).find(`[id="${elementId}"]`);
 
           if (svgElement.length) {
@@ -498,16 +501,16 @@
             $(svgElement).css('cursor', 'pointer');
 
             let elementInfo = {
-              group: elementGroup,
+              rule: elementRule,
             };
 
             this.elementInfos[elementId] = elementInfo;
 
-            switch (elementGroup.action.service) {
+            switch (elementRule.action.service) {
               case 'toggle':
-                for (let otherElementId of elementGroup.action.data.elements) {
+                for (let otherElementId of elementRule.action.data.elements) {
                   let otherSvgElement = $(svg).find(`[id="${otherElementId}"]`);
-                  $(otherSvgElement).addClass(elementGroup.action.data.default_class);
+                  $(otherSvgElement).addClass(elementRule.action.data.default_class);
                 }
                 break;
 
@@ -521,13 +524,13 @@
         }
       }
 
-      let entityGroups = config.groups.filter(x => x.entities);
-      for (let entityGroup of entityGroups) {
+      let entityRules = config.rules.filter(x => x.entity || x.entities);
+      for (let entityRule of entityRules) {
         let targetEntities = [];
 
         // Split out HA entity groups into separate entities
-        if (entityGroup.groups) {
-          for (let entityId of entityGroup.groups) {
+        if (entityRule.groups) {
+          for (let entityId of entityRule.groups) {
             let group = this.hass.states[entityId];
             if (group) {
               for (let targetEntityId of group.attributes.entity_id) {
@@ -535,32 +538,36 @@
               }
             }
             else {
-              this.logWarning(`Cannot find '${entityId}' in HA group configuration`);
+              this.logWarning(`Cannot find '${entityId}' in Home Assistant groups`);
             }
           }
         }
 
         // HA entities treated as is
-        if (entityGroup.entities) {
-          let entityIds = entityGroup.entities.filter(x => (typeof x === 'string'));
+        if (entityRule.entity) {
+          entityRule.entities = [ entityRule.entity ];
+        }
+
+        if (entityRule.entities) {
+          let entityIds = entityRule.entities.filter(x => (typeof x === 'string'));
           for (let entityId of entityIds) {
             let entity = this.hass.states[entityId];
             if (entity) {
               targetEntities.push({ entityId: entityId, elementId: entityId });
             }
             else {
-              this.logWarning(`Cannot find '${entityId}' in HA group configuration`);
+              this.logWarning(`Cannot find '${entityId}' in Home Assistant entities`);
             }
           }
 
-          let entityObjects = entityGroup.entities.filter(x => (typeof x !== 'string'));
+          let entityObjects = entityRule.entities.filter(x => (typeof x !== 'string'));
           for (let entityObject of entityObjects) {
             let entity = this.hass.states[entityObject.entity];
             if (entity) {
               targetEntities.push({ entityId: entityObject.entity, elementId: entityObject.element });
             }
             else {
-              this.logWarning(`Cannot find '${entityObject.entity}' in HA group configuration`);
+              this.logWarning(`Cannot find '${entityObject.entity}' in Home Assistant entities`);
             }
           }
         }
@@ -571,12 +578,12 @@
 
           let entityInfo = this.entityInfos[entityId];
           if (!entityInfo) {
-            entityInfo = { groupInfos: [], lastState: undefined };
+            entityInfo = { ruleInfos: [], lastState: undefined };
             this.entityInfos[entityId] = entityInfo;
           }
 
-          let groupInfo = { group: entityGroup, svgElementInfos: {}, };
-          entityInfo.groupInfos.push(groupInfo);
+          let ruleInfo = { rule: entityRule, svgElementInfos: {}, };
+          entityInfo.ruleInfos.push(ruleInfo);
 
           let svgElement = svgElements.find(svgElement => svgElement.id === elementId);
           if (!svgElement) {
@@ -586,17 +593,17 @@
 
           let originalBBox = svgElement.getBBox();
 
-          if (entityGroup.camera_image_template) {
+          if (entityRule.entity_picture_template) {
             svgElement = this.replaceWithImage(svgElement);
           }
-          else if (entityGroup.image_template) {
+          else if (entityRule.image_template) {
             svgElement = this.replaceWithSvg(svgElement);
           }
 
-          this.addSvgElementToGroup(svgElement, entityId, groupInfo, originalBBox);
+          this.addSvgElementToRule(svgElement, entityId, ruleInfo, originalBBox);
 
-          for (svgElementId in groupInfo.svgElementInfos) {
-            let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+          for (svgElementId in ruleInfo.svgElementInfos) {
+            let svgElementInfo = ruleInfo.svgElementInfos[svgElementId];
 
             let $svgElement = $(svgElementInfo.svgElement);
 
@@ -606,7 +613,7 @@
             if ($svgElement.length) {
               svgElementInfo.svgElement = $svgElement[0];
 
-              $svgElement.on('click', this.onEntityClick.bind({ instance: this, entityId: entityId, groupInfo: groupInfo }));
+              $svgElement.on('click', this.onEntityClick.bind({ instance: this, entityId: entityId, ruleInfo: ruleInfo }));
               $svgElement.css('cursor', 'pointer');
               $svgElement.addClass('ha-entity');
 
@@ -633,8 +640,8 @@
       $(rect).insertBefore(svgElement);
     },
 
-    addSvgElementToGroup(svgElement, entityId, groupInfo, originalBBox) {
-      groupInfo.svgElementInfos[svgElement.id] = {
+    addSvgElementToRule(svgElement, entityId, ruleInfo, originalBBox) {
+      ruleInfo.svgElementInfos[svgElement.id] = {
         svgElement: svgElement,
         originalStroke: svgElement.style.stroke,
         originalFill: svgElement.style.fill,
@@ -643,12 +650,12 @@
         bbox: originalBBox,
       };
 
-      this.addNestedSvgElementsToGroup(svgElement, entityId, groupInfo);
+      this.addNestedSvgElementsToRule(svgElement, entityId, ruleInfo);
     },
 
-    addNestedSvgElementsToGroup(svgElement, entityId, groupInfo) {
+    addNestedSvgElementsToRule(svgElement, entityId, ruleInfo) {
       $(svgElement).find('*').each((i, svgNestedElement) => {
-        groupInfo.svgElementInfos[svgNestedElement.id] = {
+        ruleInfo.svgElementInfos[svgNestedElement.id] = {
           svgElement: svgNestedElement,
           originalStroke: svgNestedElement.style.stroke,
           originalFill: svgNestedElement.style.fill,
@@ -739,8 +746,8 @@
       }
     },
 
-    setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo) {
-      let stateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === entityInfo.lastState.state));
+    setEntityStyle(svgElementInfo, svgElement, entityInfo, ruleInfo) {
+      let stateConfig = ruleInfo.rule.states.find(stateConfig => (stateConfig.state === entityInfo.lastState.state));
       if (stateConfig) {
         let stroke = this.getStroke(stateConfig);
         if (stroke) {
@@ -782,6 +789,9 @@
           .then(() => {
             return Promise.resolve(changedEntityIds);
           });
+      }
+      else {
+        return Promise.resolve();
       }
     },
 
@@ -880,20 +890,20 @@
       let entityState = entities[entityId];
       let entityInfo = this.entityInfos[entityId];
 
-      for (let groupInfo of entityInfo.groupInfos) {
-        for (let svgElementId in groupInfo.svgElementInfos) {
-          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+      for (let ruleInfo of entityInfo.ruleInfos) {
+        for (let svgElementId in ruleInfo.svgElementInfos) {
+          let svgElementInfo = ruleInfo.svgElementInfos[svgElementId];
 
           if ($(svgElementInfo.svgElement).is('text')) {
-            this.handleEntityUpdateText(entityState, groupInfo, svgElementInfo, entities);
+            this.handleEntityUpdateText(entityState, ruleInfo, svgElementInfo, entities);
           }
-          else if (groupInfo.group.camera_image_template) {
-            this.handleEntityUpdateCameraImage(entityState, groupInfo, svgElementInfo, entities);
+          else if (ruleInfo.rule.entity_picture_template) {
+            this.handleEntityUpdateEntityPicture(entityState, ruleInfo, svgElementInfo, entities);
           }
-          else if (groupInfo.group.image_template) {
-            let loadImageInfo = this.handleEntityDetermineSvgImage(entityState, groupInfo, svgElementInfo, entities);
+          else if (ruleInfo.rule.image_template) {
+            let loadImageInfo = this.handleEntityDetermineSvgImage(entityState, ruleInfo, svgElementInfo, entities);
             if (loadImageInfo) {
-              loadImagePromises.push(this.loadImage(loadImageInfo));
+              loadImagePromises.push(this.loadSvgImage(loadImageInfo));
             }
           }
         }
@@ -902,11 +912,11 @@
       return loadImagePromises.length ? Promise.all(loadImagePromises) : Promise.resolve();
     },
 
-    handleEntityUpdateText(entityState, groupInfo, svgElementInfo, entities) {
+    handleEntityUpdateText(entityState, ruleInfo, svgElementInfo, entities) {
       let svgElement = svgElementInfo.svgElement;
 
-      let text = groupInfo.group.text_template ?
-        this.evaluate(groupInfo.group.text_template, entityState, entities) : entityState.state;
+      let text = ruleInfo.rule.text_template ?
+        this.evaluate(ruleInfo.rule.text_template, entityState, entities) : entityState.state;
 
       let tspan = $(svgElement).find('tspan');
       if (tspan.length) {
@@ -933,15 +943,15 @@
       }
     },
 
-    handleEntityUpdateCameraImage(entityState, groupInfo, svgElementInfo, entities) {
+    handleEntityUpdateEntityPicture(entityState, ruleInfo, svgElementInfo, entities) {
       let svgElement = svgElementInfo.svgElement;
 
-      imageUrl = this.evaluate(groupInfo.group.camera_image_template, entityState, entities);
-      if (imageUrl && (groupInfo.imageUrl !== imageUrl)) {
-        groupInfo.imageUrl = imageUrl;
+      imageUrl = this.evaluate(ruleInfo.rule.entity_picture_template, entityState, entities);
+      if (imageUrl && (ruleInfo.imageUrl !== imageUrl)) {
+        ruleInfo.imageUrl = imageUrl;
 
-        if (groupInfo.cameraImageLoader) {
-          clearInterval(groupInfo.cameraImageLoader);
+        if (ruleInfo.cameraImageLoader) {
+          clearInterval(ruleInfo.cameraImageLoader);
         }
 
         this.loadCameraImage(imageUrl, svgElement)
@@ -949,10 +959,10 @@
             this.handleError(error);
           });
 
-        if (groupInfo.group.refresh_interval) {
-          let refreshInterval = parseInt(groupInfo.group.refresh_interval);
+        if (ruleInfo.rule.refresh_interval) {
+          let refreshInterval = parseInt(ruleInfo.rule.refresh_interval);
 
-          groupInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
+          ruleInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
             this.loadCameraImage(imageUrl, svgElement)
               .catch(error => {
                 this.handleError(error);
@@ -962,17 +972,17 @@
       }
     },
 
-    handleEntityDetermineSvgImage(entityState, groupInfo, svgElementInfo, entities) {
-      imageUrl = this.evaluate(groupInfo.group.image_template, entityState, entities);
-      if (groupInfo.imageUrl !== imageUrl) {
-        groupInfo.imageUrl = imageUrl;
+    handleEntityDetermineSvgImage(entityState, ruleInfo, svgElementInfo, entities) {
+      imageUrl = this.evaluate(ruleInfo.rule.image_template, entityState, entities);
+      if (ruleInfo.imageUrl !== imageUrl) {
+        ruleInfo.imageUrl = imageUrl;
 
         return {
           svgElementInfo: svgElementInfo,
           imageUrl: imageUrl,
           entityId: entityState.entity_id,
           entityState: entityState,
-          groupInfo: groupInfo,
+          ruleInfo: ruleInfo,
         };
       }
 
@@ -983,9 +993,9 @@
       let entityState = entities[entityId];
       let entityInfo = this.entityInfos[entityId];
 
-      for (let groupInfo of entityInfo.groupInfos) {
-        for (let svgElementId in groupInfo.svgElementInfos) {
-          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+      for (let ruleInfo of entityInfo.ruleInfos) {
+        for (let svgElementId in ruleInfo.svgElementInfos) {
+          let svgElementInfo = ruleInfo.svgElementInfos[svgElementId];
 
           this.handlEntitySetHoverOverText(svgElementInfo.svgElement, entityState);
         }
@@ -1027,23 +1037,23 @@
       let entityState = entities[entityId];
       let entityInfo = this.entityInfos[entityId];
 
-      for (let groupInfo of entityInfo.groupInfos) {
-        for (let svgElementId in groupInfo.svgElementInfos) {
-          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+      for (let ruleInfo of entityInfo.ruleInfos) {
+        for (let svgElementId in ruleInfo.svgElementInfos) {
+          let svgElementInfo = ruleInfo.svgElementInfos[svgElementId];
           let svgElement = svgElementInfo.svgElement;
 
           let hasTransitionConfig = false;
           let wasTransitionApplied = false;
 
-          if (groupInfo.group.states && groupInfo.group.state_transitions) {
+          if (ruleInfo.rule.states && ruleInfo.rule.state_transitions) {
             hasTransitionConfig = true;
-            let transitionConfig = groupInfo.group.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityState.state));
+            let transitionConfig = ruleInfo.rule.state_transitions.find(transitionConfig => (transitionConfig.to_state === entityState.state));
             if (transitionConfig && transitionConfig.from_state && transitionConfig.to_state && transitionConfig.duration) {
               let elapsed = Math.max(moment().diff(moment(entityState.last_changed), 'milliseconds'), 0);
               let remaining = (transitionConfig.duration * 1000) - elapsed;
 
-              let fromStateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === transitionConfig.from_state));
-              let toStateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === transitionConfig.to_state));
+              let fromStateConfig = ruleInfo.rule.states.find(stateConfig => (stateConfig.state === transitionConfig.from_state));
+              let toStateConfig = ruleInfo.rule.states.find(stateConfig => (stateConfig.state === transitionConfig.to_state));
 
               let fromColor = this.getFill(fromStateConfig);
               let toColor = this.getFill(toStateConfig);
@@ -1056,7 +1066,7 @@
                     transition = {
                       entityId: entityId,
                       svgElementInfo: svgElementInfo,
-                      groupInfo: groupInfo,
+                      ruleInfo: ruleInfo,
                       duration: transitionConfig.duration,
                       fromStateConfig: fromStateConfig,
                       toStateConfig: toStateConfig,
@@ -1094,11 +1104,11 @@
                   }
                 }
                 else {
-                  this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
+                  this.setEntityStyle(svgElementInfo, svgElement, entityInfo, ruleInfo);
                 }
               }
               else {
-                this.setEntityStyle(svgElementInfo, svgElement, entityInfo, groupInfo);
+                this.setEntityStyle(svgElementInfo, svgElement, entityInfo, ruleInfo);
               }
               wasTransitionApplied = true;
             }
@@ -1107,19 +1117,19 @@
           let targetClass = undefined;
           let obsoleteClasses = [];
 
-          if (groupInfo.group.class_template) {
-            targetClass = this.evaluate(groupInfo.group.class_template, entityState, entities);
+          if (ruleInfo.rule.class_template) {
+            targetClass = this.evaluate(ruleInfo.rule.class_template, entityState, entities);
           }
 
           // Get the config for the current state
-          if (groupInfo.group.states) {
-            let stateConfig = groupInfo.group.states.find(stateConfig => (stateConfig.state === entityState.state));
+          if (ruleInfo.rule.states) {
+            let stateConfig = ruleInfo.rule.states.find(stateConfig => (stateConfig.state === entityState.state));
             if (stateConfig && stateConfig.class && !wasTransitionApplied) {
               targetClass = stateConfig.class;
             }
 
             // Remove any other previously-added state classes
-            for (let otherStateConfig of groupInfo.group.states) {
+            for (let otherStateConfig of ruleInfo.rule.states) {
               if (!stateConfig || (otherStateConfig.state !== stateConfig.state)) {
                 if (otherStateConfig.class && (otherStateConfig.class !== 'ha-entity') && $(svgElement).hasClass(otherStateConfig.class)) {
                   if (svgElementInfo.originalClasses.indexOf(otherStateConfig.class) < 0) {
@@ -1194,9 +1204,9 @@
       let entityState = entities[entityId];
       let entityInfo = this.entityInfos[entityId];
 
-      for (let groupInfo of entityInfo.groupInfos) {
-        for (let svgElementId in groupInfo.svgElementInfos) {
-          let svgElementInfo = groupInfo.svgElementInfos[svgElementId];
+      for (let ruleInfo of entityInfo.ruleInfos) {
+        for (let svgElementId in ruleInfo.svgElementInfos) {
+          let svgElementInfo = ruleInfo.svgElementInfos[svgElementId];
           let svgElement = svgElementInfo.svgElement;
 
           if (entities[this.lastMotionConfig.entity] &&
@@ -1231,9 +1241,9 @@
     validateConfig(config) {
       let isValid = true;
 
-      if (!config.pages && !config.groups) {
+      if (!config.pages && !config.rules) {
         this.isLoading = false;
-        this.logWarning(`Cannot find 'pages' nor 'groups' in floorplan configuration`);
+        this.logWarning(`Cannot find 'pages' nor 'rules' in floorplan configuration`);
         isValid = false;
       }
       else {
@@ -1244,20 +1254,20 @@
           }
         }
         else {
-          if (!config.groups) {
-            this.logWarning(`Cannot find 'groups' in floorplan configuration`);
+          if (!config.rules) {
+            this.logWarning(`Cannot find 'rules' in floorplan configuration`);
             isValid = false;
           }
 
-          let invalidGroups = config.groups.filter(x => x.entities && x.elements);
-          if (invalidGroups.length) {
-            this.logWarning(`A group cannot contain both 'entities' and 'elements' in floorplan configuration`);
+          let invalidRules = config.rules.filter(x => (x.entity || x.entities) && (x.element || x.elements));
+          if (invalidRules.length) {
+            this.logWarning(`A rule cannot contain both 'entities' and 'elements' in floorplan configuration`);
             isValid = false;
           }
 
-          invalidGroups = config.groups.filter(x => !x.entities && !x.elements);
-          if (invalidGroups.length) {
-            this.logWarning(`A group must contain either 'entities' or 'elements' in floorplan configuration`);
+          invalidRules = config.rules.filter(x => !(x.entity || x.entities) && !(x.element || x.elements));
+          if (invalidRules.length) {
+            this.logWarning(`A rule must contain either 'entities' or 'elements' in floorplan configuration`);
             isValid = false;
           }
         }
@@ -1300,8 +1310,8 @@
       let svg = $(svgElement).parents('svg');
 
       let elementInfo = this.instance.elementInfos[this.elementId];
-      if (elementInfo.group.action) {
-        let action = elementInfo.group.action;
+      if (elementInfo.rule.action) {
+        let action = elementInfo.rule.action;
         if (action.service) {
           switch (action.domain) {
             case 'class':
@@ -1357,10 +1367,10 @@
 
     onEntityClick(e) {
       let entityId = this.entityId;
-      let groupInfo = this.groupInfo;
+      let ruleInfo = this.ruleInfo;
 
-      if (groupInfo.group.action) {
-        let action = groupInfo.group.action;
+      if (ruleInfo.rule.action) {
+        let action = ruleInfo.rule.action;
         if (action.service) {
           this.instance.callService(action, entityId);
         }

@@ -8,30 +8,50 @@ homeassistant:
     "sensor.*_alarm_panel*":
       emulated_hue_hidden: True
       hidden: False
-    "binary_sensor.*_alarm_panel*":
-      emulated_hue_hidden: True
+    "input_boolean.clock_snooze":
+      emulated_hue_hidden: False
       hidden: False
 
 media_player:
   - platform: floorplan_speaker
-    name: Bedroom Alarm Panel
+    name: Alarm Clock
+
+#Add to the media_player group.
+
+input_boolean:
+  clock_snooze:
+    name: Clock Snooze
+    initial: off
 
 #---Sensors for Fire Tablet-----------------------------
 
 binary_sensor:
-
   - platform: mqtt
-    state_topic: floorplan/bedroom_motion
-    name: Bedroom Motion
+    state_topic: floorplan/clock_motion
+    name: Clock Motion
     device_class: motion
     retain: true
     emulated_hue_hidden: True
     hidden: False
 
   - platform: mqtt
-    state_topic: floorplan/bedroom_plugged
-    name: Bedroom Plugged
+    state_topic: floorplan/clock_plugged
+    name: Clock Plugged
     device_class: power
     retain: true
     emulated_hue_hidden: True
     hidden: False
+
+automation:
+  - alias: 'Snooze Button off in 10 minutes'
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.clock_snooze
+        to: 'on'
+        from: 'off'
+    action:
+      - delay:
+          minutes: 1
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.clock_snooze

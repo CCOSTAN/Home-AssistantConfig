@@ -2,11 +2,16 @@ name: Clock
 image: /local/custom_ui/floorplan/clock.svg
 stylesheet: /local/custom_ui/floorplan/clock.css
 
-entities:
+rules:
+  - entity: input_boolean.clock_snooze
+    image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "snooze_on" : "snooze"}.svg'
+    action:
+      domain: homeassistant
+      service: toggle
+
   - name: input_booleans
     entities:
       - input_boolean.school_mode
-
     states:
       - state: 'on'
         class: 'button-on'
@@ -16,7 +21,6 @@ entities:
       domain: homeassistant
       service: toggle
 
-groups:
   - name: thermostats_temp
     entities:
       - climate.downstairs
@@ -119,4 +123,4 @@ groups:
     entities:
       - camera.stone_door
       - camera.wu_doppler_weather
-    camera_image_template: '${entity.attributes.entity_picture}'
+    entity_picture_template: '${entity.attributes.entity_picture}'
