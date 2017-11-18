@@ -17,51 +17,53 @@ input_boolean:
     name: House Station
     initial: off
 
-#-----Turn on the Music--------------------------------------
-automation:
-  - alias: 'Play Americas Country on ChromeCast Audio'
+#Moved to the Alarm Clock Package.
 
-    trigger:
-      - platform: state
-        entity_id:
-          - input_boolean.house_station
-        to: 'on'
-        from: 'off'
-
-    action:
-      - service: media_player.turn_off
-        entity_id: media_player.living_room_tv
-
-      - service: media_player.turn_on
-        entity_id: media_player.livingroomCC
-
-      - service: media_player.volume_set
-        entity_id:
-          - media_player.livingroomCC
-        data_template:
-          volume_level: 0.2
-
-      - service: media_player.play_media
-        data_template:
-          entity_id:
-            - media_player.LivingRoomCC
-          media_content_id: "http://listen.181fm.com/181-kickincountry_128k.mp3"
-          #media_content_id: "http://listen.djcmedia.com:80/americascountryhigh"
-          media_content_type: audio/mp4
-
-#-----Turn off the Music--------------------------------------
-  - alias: 'Turn off the Radio'
-
-    trigger:
-      - platform: state
-        entity_id:
-          - input_boolean.house_station
-        to: 'off'
-        from: 'on'
-
-    action:
-      - service: media_player.turn_off
-        entity_id: media_player.livingroomCC
-
-      - service: input_boolean.turn_off
-        entity_id: input_boolean.house_station
+# #-----Turn on the Music--------------------------------------
+# automation:
+#   - alias: 'Play Americas Country on ChromeCast Audio'
+#
+#     trigger:
+#       - platform: state
+#         entity_id:
+#           - input_boolean.house_station
+#         to: 'on'
+#         from: 'off'
+#
+#     action:
+#       - service: media_player.turn_off
+#         entity_id: media_player.living_room_tv
+#
+#       - service: media_player.turn_on
+#         entity_id: media_player.livingroomCC
+#
+#       - service: media_player.volume_set
+#         entity_id:
+#           - media_player.livingroomCC
+#         data_template:
+#           volume_level: 0.2
+#
+#       - service: media_player.play_media
+#         data_template:
+#           entity_id:
+#             - media_player.LivingRoomCC
+#           media_content_id: "http://listen.181fm.com/181-kickincountry_128k.mp3"
+#           #media_content_id: "http://listen.djcmedia.com:80/americascountryhigh"
+#           media_content_type: audio/mp4
+#
+# #-----Turn off the Music--------------------------------------
+#   - alias: 'Turn off the Radio'
+#
+#     trigger:
+#       - platform: state
+#         entity_id:
+#           - input_boolean.house_station
+#         to: 'off'
+#         from: 'on'
+#
+#     action:
+#       - service: media_player.turn_off
+#         entity_id: media_player.livingroomCC
+#
+#       - service: input_boolean.turn_off
+#         entity_id: input_boolean.house_station

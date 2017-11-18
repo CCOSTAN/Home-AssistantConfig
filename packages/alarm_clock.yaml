@@ -37,7 +37,6 @@ binary_sensor:
   - platform: mqtt
     state_topic: floorplan/clock_plugged
     name: Clock Plugged
-    device_class: power
     retain: true
     emulated_hue_hidden: True
     hidden: False
@@ -52,6 +51,40 @@ automation:
         from: 'off'
     action:
       - delay:
-          minutes: 1
+          minutes: 5
       - service: input_boolean.turn_off
         entity_id: input_boolean.clock_snooze
+
+
+#-----Turn on the Music--------------------------------------
+  - alias: 'Play Americas Country on ChromeCast Audio'
+
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.clock_snooze
+        to: 'on'
+        from: 'off'
+
+    action:
+      - service: media_player.play_media
+        data_template:
+          entity_id:
+            - media_player.alarm_clock
+          media_content_id: "http://listen.181fm.com/181-kickincountry_128k.mp3"
+          #media_content_id: "http://listen.djcmedia.com:80/americascountryhigh"
+          media_content_type: audio/mp4
+
+#-----Turn off the Music--------------------------------------
+  - alias: 'Turn off the Radio'
+
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.house_station
+        to: 'off'
+        from: 'on'
+
+    action:
+      - service: media_player.turn_off
+        entity_id: media_player.alarm_clock

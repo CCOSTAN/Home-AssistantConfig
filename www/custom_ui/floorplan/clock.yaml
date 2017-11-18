@@ -9,14 +9,8 @@ rules:
       domain: homeassistant
       service: toggle
 
-  - name: input_booleans
-    entities:
-      - input_boolean.school_mode
-    states:
-      - state: 'on'
-        class: 'button-on'
-      - state: 'off'
-        class: 'button-off'
+  - entity: input_boolean.school_mode
+    image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "school_on" : "school_off"}.svg'
     action:
       domain: homeassistant
       service: toggle
