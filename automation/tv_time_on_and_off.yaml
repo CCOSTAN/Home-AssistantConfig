@@ -17,7 +17,7 @@
       to: 'below_horizon'
       from: 'above_horizon'
     - platform: state
-      entity_id: media_player.living_room
+      entity_id: media_player.living_room_ultra
       to: 'playing'
       from: 'idle'
 
@@ -51,30 +51,3 @@
 
     - service: scene.turn_on
       entity_id: scene.tv_time
-
-
-######################################################################
-##  Turn off the Living room lights when the TV is turned off.
-######################################################################
-
-- alias: TV Time off
-  trigger:
-    - platform: state
-      entity_id: sensor.samsungtv
-      to: 'Offline'
-
-  condition:
-    condition: and
-    conditions:
-      - condition: state
-        entity_id: sun.sun
-        state: 'below_horizon'
-      - condition: state
-        entity_id: input_boolean.guest_mode
-        state: 'off'
-
-  action:
-    service: light.turn_off
-    entity_id:
-      - group.living_room_lights
-      - group.living_room_accents
