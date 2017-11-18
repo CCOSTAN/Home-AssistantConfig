@@ -5,11 +5,8 @@ stylesheet: /local/custom_ui/floorplan/alarm.css
 entities:
   - name: input_booleans
     entities:
-      - input_boolean.guest_mode
-      - input_boolean.good_night
-      - input_boolean.sleepy_dog
-      - group.kitchen_lights
-      - group.living_room_lights
+      - input_boolean.school_mode
+      - input_boolean.clock_snooze
 
     states:
       - state: 'on'
@@ -42,14 +39,6 @@ groups:
     text_template: '${entity.state ? Math.ceil(entity.state) : "undefined"}'
     class_template: 'return "static-temp";'
 
-  - name: text_states
-    entities:
-      - sensor.last_message
-      - sensor.usps_mail
-      - sensor.usps_packages
-    text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
-    class_template: 'return "static-text";'
-
   - name: text_font_date
     entities:
       - sensor.floorplan_date
@@ -62,16 +51,6 @@ groups:
     text_template: '${entity.state ? entity.state : "undefined"}'
     class_template: 'return "static-text-time";'
 
-  - name: Alarm
-    entities:
-      - input_boolean.alert_mode
-    text_template: '${entity.state ? entity.state : "undefined"}'
-    states:
-      - state: 'on'
-        class: 'text-home'
-      - state: 'off'
-        class: 'text-away'
-
   - name: Camera
     entities:
       - camera.wu_doppler_weather
@@ -79,158 +58,6 @@ groups:
     states:
       - state: 'idle'
         class: 'text-home'
-
-  - name: Family
-    entities:
-      - device_tracker.carlo
-      - device_tracker.stacey
-    text_template: '${entity.state ? entity.state.replace("not_home", "away") : "undefined"}'
-
-    states:
-      - state: 'home'
-        class: 'text-home'
-      - state: 'not_home'
-        class: 'text-away'
-
-  - name: switches
-    entities:
-      - switch.front_landscaping
-      - switch.back_landscaping
-      - switch.printer_outlet
-      - switch.kitchen_accents
-      - switch.master_bathroom_accents
-      - switch.front_door_outlet
-      - switch.foyer_outlet
-      - switch.living_room_amp
-      - switch.garage_outlet
-    states:
-      - state: 'on'
-        class: 'switch-on'
-      - state: 'off'
-        class: 'switch-off'
-    action:
-      service: toggle
-
-  - name: custom_switches
-    entities:
-      - switch.pool_deck
-    states:
-      - state: 'on'
-        class: 'light-blue-on'
-      - state: 'off'
-        class: 'outdoor-light-off'
-    action:
-      service: toggle
-
-  - name: Lights
-    entities:
-      - light.kids_hallway
-      - light.bedroom_hallway
-      - light_upstairs_hallway
-      - light.m1_back_left
-      - light.m1_back_right
-      - light.m1_front_left
-      - light.m1_front_right
-      - light.m1_slider
-      - light.office_lamp
-      - light.den_lamp
-      - light.f2
-      - light.f1
-      - light.s1
-      - light.s2
-      - light.s3
-      - light.s4
-      - light.d1
-      - light.d2
-      - light.k1
-      - light.k2
-      - light.k3
-      - light.k4
-      - light.k5
-      - light.k6
-      - light.sink
-      - light.fridge
-      - light.couch_1
-      - light.tv_light
-      - light.bedroom
-      - light.justin_go
-      - light.paige_go
-      - light.garage_attic
-      - light.upstairs_lamp
-    states:
-      - state: 'on'
-        class: 'light-on'
-      - state: 'off'
-        class: 'light-off'
-    action:
-      service: toggle
-
-  - name: Outdoor Lights
-    entities:
-      - light.p1_front_left
-      - light.p1_front_right
-      - light.p1_back_left
-      - light.p1_back_right
-      - light.outdoor_bathroom
-      - light.outdoor_foyer
-      - light.outdoor_sconce_1
-      - light.outdoor_sconce_2
-      - light.outdoor_sconce_3
-      - light.led_garage_large
-      - light.led_garage_small
-      - light.led_outdoor_den
-      - light.stone_door
-    states:
-      - state: 'on'
-        class: 'light-on'
-      - state: 'off'
-        class: 'outdoor-light-off'
-    action:
-      service: toggle
-
-  - name: Nest Protects
-    entities:
-      - binary_sensor.upstairs_living_room_nest_protect_online
-      - binary_sensor.hallway_nest_protect_kids_hallway_online
-      - binary_sensor.justins_room_nest_protect_online
-      - binary_sensor.kitchen_nest_protect_online
-      - binary_sensor.master_bedroom_nest_protect_online
-      - binary_sensor.master_hallway_nest_protect_online
-      - binary_sensor.paiges_room_nest_protect_paiges_room_online
-      - binary_sensor.upstairs_bedroom_nest_protect_online
-      - binary_sensor.office_nest_protect_online
-    states:
-      - state: 'off'
-        class: 'protect-off'
-      - state: 'on'
-        class: 'protect-on'
-
-  - name: Entry Points
-    entities:
-      - binary_sensor.mcu1_gpio4
-      - binary_sensor.mcu1_gpio5
-      - binary_sensor.mcu1_gpio10
-      - binary_sensor.mcu1_gpio12
-      - binary_sensor.mcu1_gpio13
-      - binary_sensor.mcu1_gpio14
-      - binary_sensor.mcu2_gpio4
-      - binary_sensor.mcu2_gpio5
-      - binary_sensor.mcu2_gpio9
-      - binary_sensor.mcu2_gpio10
-      - binary_sensor.mcu2_gpio12
-      - binary_sensor.mcu2_gpio13
-      - binary_sensor.mcu2_gpio14
-      - binary_sensor.mcu3_gpio4
-      - binary_sensor.mcu3_gpio5
-      - binary_sensor.mcu3_gpio10
-      - binary_sensor.mcu3_gpio14
-      - binary_sensor.kitchen_door_opened
-      - binary_sensor.mcu3_light
-    states:
-      - state: 'off'
-        class: 'window-closed'
-      - state: 'on'
-        class: 'window-open'
 
   - name: Presence
     entities:
@@ -241,16 +68,6 @@ groups:
         class: 'presence-on'
       - state: 'off'
         class: 'presence-off'
-
-  - name: Garage Doors
-    entities:
-      - cover.large_garage
-      - cover.small_garage
-    states:
-      - state: 'closed'
-        class: 'window-closed'
-      - state: 'open'
-        class: 'window-open'
 
   - name: Dark Sky Sensors
     entities:
@@ -289,6 +106,25 @@ groups:
       }
 
       return "/local/custom_ui/floorplan/images/weather/" + imageName + ".svg";
+      '
+
+  - name: clock_snooze
+    entities:
+      - input_boolean.clock_snooze
+    image_template: '
+      var imageName = "";
+
+      switch (entity.state) {
+        case "off":
+          imageName = "snooze";
+          break;
+
+        case "/static/images/darksky/weather-night.svg":
+          imageName = "night-1";
+          break;
+      }
+
+      return "/local/custom_ui/floorplan/buttons/" + imageName + ".svg";
       '
 
   - name: Camera Images

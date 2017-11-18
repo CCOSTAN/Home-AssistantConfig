@@ -1,6 +1,6 @@
 <!--
     Floorplan for Home Assistant
-    Version: 1.0.7.25
+    Version: 1.0.7.26
     By Petar Kozul
     https://github.com/pkozul/ha-floorplan
   -->
@@ -91,7 +91,7 @@
     properties: {
       version: {
         type: String,
-        value: '1.0.7.25',
+        value: '1.0.7.26',
       },
       hass: {
         type: Object,
@@ -170,8 +170,6 @@
     /***************************************************************************************************************************/
 
     onReady() {
-      this.logInfo(`Floorplan v${this.version}`);
-
       this.handleEntitiesDebounced = this.debounce(() => {
         this.handleEntities(this.hass.states);
       }, 100);
@@ -185,6 +183,8 @@
       ((this._config && this._config.config) ? this.loadConfig(this._config.config) : Promise.resolve(this._config))
         .then(config => {
           this.config = config;
+
+          this.logInfo(`Floorplan v${this.version}`);
 
           this.getLogLevels();
 
