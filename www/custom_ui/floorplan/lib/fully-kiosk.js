@@ -1,6 +1,6 @@
 /*
 Floorplan Fully Kiosk for Home Assistant
-Version: 1.0.7.17
+Version: 1.0.7.18
 https://github.com/pkozul/ha-floorplan
 */
 
@@ -9,8 +9,12 @@ https://github.com/pkozul/ha-floorplan
 if (typeof window.FullyKiosk !== 'function') {
   class FullyKiosk {
     constructor(floorplan) {
+      this.version = '1.0.7.18';
+
       this.floorplan = floorplan;
       this.authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
+
+      this.logInfo(`Full Kiosk v${this.version}`);
     }
 
     init() {

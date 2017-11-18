@@ -1,6 +1,6 @@
 <!--
     Floorplan for Home Assistant
-    Version: 1.0.7.23
+    Version: 1.0.7.25
     By Petar Kozul
     https://github.com/pkozul/ha-floorplan
   -->
@@ -78,6 +78,7 @@
     is: 'ha-floorplan',
 
     ready() {
+      this.onReady();
     },
 
     attached() {
@@ -88,6 +89,10 @@
     },
 
     properties: {
+      version: {
+        type: String,
+        value: '1.0.7.25',
+      },
       hass: {
         type: Object,
         observer: 'hassChanged'
@@ -142,6 +147,10 @@
         type: Array,
         value: () => { return []; },
       },
+      handleEntitiesDebounced: {
+        type: Object,
+        value: () => { return () => { } },
+      },
     },
 
     stopPropagation(e) {
@@ -149,16 +158,24 @@
     },
 
     hassChanged(newHass, oldHass) {
-      this._handleEntitiesDebouncer = Polymer.Debouncer.debounce(
-        this._handleEntitiesDebouncer,
-        Polymer.Async.timeOut.after(1000),
-        () => { this.handleEntities(this.hass.states); }
-      );
+      if (!this.config) {
+        return;
+      }
+
+      this.handleEntitiesDebounced(); // use debounced wrapper
     },
 
     /***************************************************************************************************************************/
     /* Startup
     /***************************************************************************************************************************/
+
+    onReady() {
+      this.logInfo(`Floorplan v${this.version}`);
+
+      this.handleEntitiesDebounced = this.debounce(() => {
+        this.handleEntities(this.hass.states);
+      }, 100);
+    },
 
     onAttached() {
       window.onerror = this.handleWindowError.bind(this);
@@ -262,7 +279,7 @@
     loadScript(scriptUrl) {
       return new Promise((resolve, reject) => {
         let script = document.createElement('script');
-        script.src = scriptUrl;
+        script.src = this.cacheBuster(scriptUrl);
         script.onload = () => {
           return resolve();
         };
@@ -758,13 +775,20 @@
     /***************************************************************************************************************************/
 
     handleEntities(entities, isInitialLoad) {
-      if (!this.config) {
-        return;
+      let changedEntityIds = this.getChangedEntities(entities, isInitialLoad);
+      if (changedEntityIds && changedEntityIds.length) {
+        let promises = changedEntityIds.map(entityId => this.handleEntity(entityId, entities, isInitialLoad));
+        return Promise.all(promises)
+          .then(() => {
+            return Promise.resolve(changedEntityIds);
+          });
       }
+    },
+
+    getChangedEntities(entities, isInitialLoad) {
+      let changedEntityIds = [];
 
       let entityIds = Object.keys(entities);
-
-      let changedEntityIds = [];
 
       let lastMotionEntityInfo, oldLastMotionState, newLastMotionState;
 
@@ -833,11 +857,7 @@
         }
       }
 
-      let promises = changedEntityIds.map(entityId => this.handleEntity(entityId, entities, isInitialLoad));
-      return Promise.all(promises)
-        .catch(error => {
-          this.handleError(error);
-        });
+      return changedEntityIds;
     },
 
     handleEntity(entityId, entities, isInitialLoad) {
@@ -1497,7 +1517,7 @@
     loadStyleSheetInternal(path, fn, scope) {
       let head = document.getElementsByTagName('head')[0]; // reference to document.head for appending / removing link nodes
       let link = document.createElement('link');           // create the link node
-      link.setAttribute('href', path);
+      link.setAttribute('href', this.cacheBuster(path));
       link.setAttribute('rel', 'stylesheet');
       link.setAttribute('type', 'text/css');
 
@@ -1538,6 +1558,9 @@
     /***************************************************************************************************************************/
 
     getResource(resourceUrl, useCache, isImage) {
+      resourceUrl = this.cacheBuster(resourceUrl);
+      useCache = false;
+
       return new Promise((resolve, reject) => {
         let options = {
           url: resourceUrl,
@@ -1593,6 +1616,28 @@
         out += CHARS.charAt(c3 & 0x3F);
       }
       return out;
+    },
+
+    cacheBuster(url) {
+      return `${url}${(url.indexOf('?') >= 0) ? '&' : '?'}_=${new Date().getTime()}`;
+    },
+
+    debounce(func, wait, immediate) {
+      let timeout;
+      return function () {
+        let context = this, args = arguments;
+
+        let later = function () {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+        };
+
+        let callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+
+        if (callNow) func.apply(context, args);
+      };
     },
 
     /***************************************************************************************************************************/
