@@ -3,15 +3,15 @@
 ## log_level: which can be set to one these: error, warning,  info or debug
 
 date_format: MMM-DD-YYYY
-log_level: error
+log_level: warning
 
 fully_kiosk:
 
-  - name: Bedroom Clock
+  - name: Alarm Clock
     address: 00:FC:8B:4A:D5:CF
-    motion_sensor: binary_sensor.bedroom_clock_motion
-    plugged_sensor: binary_sensor.bedroom_clock_plugged
-    media_player: media_player.bedroom_clock
+    motion_sensor: binary_sensor.clock_motion
+    plugged_sensor: binary_sensor.clock_plugged
+    media_player: media_player.alarm_clock
 
 pages:
   -  /local/custom_ui/floorplan/clock.yaml

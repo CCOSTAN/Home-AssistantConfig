@@ -45,8 +45,8 @@
       data_template:
         entity_id:
           - media_player.livingroomCC
-          - media_player.entry_alarm_panel
-          - media_player.bedroom_alarm_panel
+          - media_player.alarm_clock
+        #  - media_player.bedroom_alarm_panel
         media_content_id: >
           {% if now().strftime("%M")|int == 30 %}
           https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/cuckoo-clock-01.wav

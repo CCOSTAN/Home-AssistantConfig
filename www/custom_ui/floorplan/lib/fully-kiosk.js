@@ -1,6 +1,6 @@
 /*
 Floorplan Fully Kiosk for Home Assistant
-Version: 1.0.7.18
+Version: 1.0.7.23
 https://github.com/pkozul/ha-floorplan
 */
 
@@ -9,17 +9,17 @@ https://github.com/pkozul/ha-floorplan
 if (typeof window.FullyKiosk !== 'function') {
   class FullyKiosk {
     constructor(floorplan) {
-      this.version = '1.0.7.18';
+      this.version = '1.0.7.23';
 
       this.floorplan = floorplan;
       this.authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
-
-      this.logInfo(`Full Kiosk v${this.version}`);
     }
 
     init() {
+      this.logInfo(`Fully Kiosk v${this.version}`);
+
       if (typeof fully === "undefined") {
-        //this.logError("Fully Kiosk not detected");
+        this.logInfo(`Fully Kiosk application is not running on this device`);
         return;
       }
 
@@ -52,6 +52,14 @@ if (typeof window.FullyKiosk !== 'function') {
       };
 
       this.addEventHandlers();
+
+      this.audio = new Audio();
+      this.isAudioPlaying = false;
+      this.audio.addEventListener('play', this.onAudioPlay.bind(this));
+      this.audio.addEventListener('playing', this.onAudioPlaying.bind(this));
+      this.audio.addEventListener('pause', this.onAudioPause.bind(this));
+      this.audio.addEventListener('ended', this.onAudioEnded.bind(this));
+      this.audio.addEventListener('volumechange', this.onAudioVolumeChange.bind(this));
 
       this.sendMotionState();
       this.sendPluggedState();
@@ -128,60 +136,56 @@ if (typeof window.FullyKiosk !== 'function') {
 
     sendMotionState() {
       clearTimeout(this.sendMotionStateTimer);
-
-      if (!this.kioskInfo.motionBinarySensorEntityId)
-        return;
-
-      let payload = {
-        "state": this.kioskInfo.isMotionDetected ? "on" : "off",
-        "mac_address": fully.macAddress
-      };
-
       let timeout = this.kioskInfo.isMotionDetected ? 5000 : 10000;
 
-      jQuery.ajax({
-        type: 'POST',
-        url: `/api/states/${this.kioskInfo.motionBinarySensorEntityId}`,
-        headers: { "X-HA-Access": this.authToken },
-        data: JSON.stringify(payload),
-        success: function (result) {
-          this.logDebug('FULLY_KIOSK', 'Sent kiosk motion state: ' + JSON.stringify(payload));
-          this.sendMotionStateTimer = setTimeout(() => {
-            this.kioskInfo.isMotionDetected = false;
-            this.sendMotionState();
-          }, timeout);
-        }.bind(this),
-        error: function (err) {
-          this.logError('Error setting kiosk motion state');
-          this.sendMotionStateTimer = setTimeout(() => {
-            this.kioskInfo.isMotionDetected = false;
-            this.sendMotionState();
-          }, timeout);
-        }.bind(this)
+      let payload = { state: this.kioskInfo.isMotionDetected ? "on" : "off", };
+      this.sendState(this.kioskInfo.motionBinarySensorEntityId, payload, () => {
+        this.sendMotionStateTimer = setTimeout(() => {
+          this.kioskInfo.isMotionDetected = false;
+          this.sendMotionState();
+        }, timeout);
       });
     }
 
-    sendPluggedState(isOn) {
-      if (!this.kioskInfo.pluggedBinarySensorEntityId)
-        return;
+    sendPluggedState() {
+      let payload = { state: this.kioskInfo.isPluggedIn ? "on" : "off" };
+      this.sendState(this.kioskInfo.pluggedBinarySensorEntityId, payload);
+    }
 
+    onAudioPlay() {
+      this.isAudioPlaying = true;
+      this.sendAudioState();
+    }
+
+    onAudioPlaying() {
+      this.isAudioPlaying = true;
+      this.sendAudioState();
+    }
+
+    onAudioPause() {
+      this.isAudioPlaying = false;
+      this.sendAudioState();
+    }
+
+    onAudioEnded() {
+      this.isAudioPlaying = false;
+      this.sendAudioState();
+    }
+
+    onAudioVolumeChange() {
+      this.sendAudioState();
+    }
+
+    sendAudioState() {
       let payload = {
-        "state": this.kioskInfo.isPluggedIn ? "on" : "off",
-        "mac_address": fully.macAddress
-      };;
+        state: this.isAudioPlaying ? "playing" : "idle",
+        attributes: {
+          address: fully.getMacAddress().toLowerCase(),
+          volume_level: this.audio.volume,
+        }
+      };
 
-      jQuery.ajax({
-        type: 'POST',
-        url: `/api/states/${this.kioskInfo.pluggedBinarySensorEntityId}`,
-        headers: { "X-HA-Access": this.authToken },
-        data: JSON.stringify(payload),
-        success: function (result) {
-          this.logDebug('FULLY_KIOSK', 'Sent kiosk plugged state: ' + JSON.stringify(payload));
-        }.bind(this),
-        error: function (err) {
-          this.logError('Error setting kiosk plugged state');
-        }.bind(this)
-      });
+      this.sendState(this.kioskInfo.mediaPlayerEntityId, payload);
     }
 
     playTextToSpeech(text) {
@@ -189,9 +193,47 @@ if (typeof window.FullyKiosk !== 'function') {
     }
 
     playMedia(mediaUrl) {
-      let audio = new Audio(mediaUrl);
-      audio.volume = 1.0;
-      audio.play();
+      if (mediaUrl) {
+        this.audio.src = mediaUrl;
+      }
+
+      this.logDebug('FULLY_KIOSK', `Playing media: ${this.audio.src}`);
+      this.audio.play();
+    }
+
+    pauseMedia(mediaUrl) {
+      this.logDebug('FULLY_KIOSK', `Pausing media: ${this.audio.src}`);
+      this.audio.pause();
+    }
+
+    setVolume(level) {
+      this.audio.volume = level;
+    }
+
+    sendState(entityId, payload, onSuccess) {
+      if (!entityId) {
+        return;
+      }
+
+      let url = `/api/states/${entityId}`;
+
+      let options = {
+        type: 'POST',
+        url: url,
+        headers: { "X-HA-Access": this.authToken },
+        data: JSON.stringify(payload),
+        success: function (result) {
+          this.logDebug('FULLY_KIOSK', `Posted state: ${url} ${JSON.stringify(payload)}`);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }.bind(this),
+        error: function (error) {
+          this.handleError(new URIError(`Error posting state: ${url}: ${error.responseText}`));
+        }.bind(this)
+      };
+
+      jQuery.ajax(options);
     }
 
     subscribeEvents() {
@@ -200,11 +242,40 @@ if (typeof window.FullyKiosk !== 'function') {
           return;
         }
 
-        if ((event.data.domain === 'media_player') && (event.data.service === 'play_media')) {
-          let targetEntityId = event.data.service_data.entity_id.find(entityId => (entityId === this.kioskInfo.mediaPlayerEntityId));
+        if (event.data.domain === 'media_player') {
+          let targetEntityId;
+          let serviceEntityId = event.data.service_data.entity_id;
+
+          if (Array.isArray(serviceEntityId)) {
+            targetEntityId = serviceEntityId.find(entityId => (entityId === this.kioskInfo.mediaPlayerEntityId));
+          }
+          else {
+            targetEntityId = (serviceEntityId === this.kioskInfo.mediaPlayerEntityId) ? serviceEntityId : undefined;
+          }
+
           if (targetEntityId) {
-            this.logDebug('FULLY_KIOSK', `Playing media: ${event.data.service_data.media_content_id}`);
-            this.playMedia(event.data.service_data.media_content_id);
+            switch (event.data.service) {
+              case 'play_media':
+                this.playMedia(event.data.service_data.media_content_id);
+                break;
+
+              case 'media_play':
+                this.playMedia();
+                break;
+
+              case 'media_pause':
+              case 'media_stop':
+                this.pauseMedia();
+                break;
+
+              case 'volume_set':
+                this.setVolume(event.data.service_data.volume_level);
+                break;
+
+              default:
+                this.logDebug('FULLY_KIOSK', `Service not supported: ${event.data.service}`);
+                break;
+            }
           }
         }
 
@@ -218,6 +289,10 @@ if (typeof window.FullyKiosk !== 'function') {
         */
       },
         'call_service');
+    }
+
+    handleError(message) {
+      this.floorplan.handleError(message);
     }
 
     logError(message) {
