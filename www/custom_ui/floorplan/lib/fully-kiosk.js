@@ -1,6 +1,6 @@
 /*
 Floorplan Fully Kiosk for Home Assistant
-Version: 1.0.7.23
+Version: 1.0.7.25
 https://github.com/pkozul/ha-floorplan
 */
 
@@ -9,7 +9,7 @@ https://github.com/pkozul/ha-floorplan
 if (typeof window.FullyKiosk !== 'function') {
   class FullyKiosk {
     constructor(floorplan) {
-      this.version = '1.0.7.23';
+      this.version = '1.0.7.25';
 
       this.floorplan = floorplan;
       this.authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
@@ -63,6 +63,7 @@ if (typeof window.FullyKiosk !== 'function') {
 
       this.sendMotionState();
       this.sendPluggedState();
+      this.sendMediaPlayerState();
     }
 
     addEventHandlers() {
@@ -135,11 +136,15 @@ if (typeof window.FullyKiosk !== 'function') {
     }
 
     sendMotionState() {
+      if (!this.kioskInfo.motionBinarySensorEntityId) {
+        return;
+      }
+
       clearTimeout(this.sendMotionStateTimer);
       let timeout = this.kioskInfo.isMotionDetected ? 5000 : 10000;
 
-      let payload = { state: this.kioskInfo.isMotionDetected ? "on" : "off", };
-      this.sendState(this.kioskInfo.motionBinarySensorEntityId, payload, () => {
+      let state = this.kioskInfo.isMotionDetected ? "on" : "off";
+      this.sendState(`/api/states/${this.kioskInfo.motionBinarySensorEntityId}`, this.newPayload(state), () => {
         this.sendMotionStateTimer = setTimeout(() => {
           this.kioskInfo.isMotionDetected = false;
           this.sendMotionState();
@@ -148,44 +153,72 @@ if (typeof window.FullyKiosk !== 'function') {
     }
 
     sendPluggedState() {
-      let payload = { state: this.kioskInfo.isPluggedIn ? "on" : "off" };
-      this.sendState(this.kioskInfo.pluggedBinarySensorEntityId, payload);
+      if (!this.kioskInfo.pluggedBinarySensorEntityId) {
+        return;
+      }
+
+      let state = this.kioskInfo.isPluggedIn ? "on" : "off";
+      this.sendState(`/api/states/${this.kioskInfo.pluggedBinarySensorEntityId}`, this.newPayload(state));
+    }
+
+    newPayload(state) {
+      return {
+        state: state,
+        attributes: {
+          volume_level: this.audio.volume,
+          media_content_id: this.audio.src,
+          address: this.kioskInfo.macAddress,
+          //'motionBinarySensorEntityId': 'binary_sensor.entry_motion',
+          //'pluggedBinarySensorEntityId': 'binary_sensor.entry_plugged',
+          //'mediaPlayerEntityId': 'media_player.entry_alarm_panel',
+          //'startUrl': 'https: //petar.kozul.net: 8123/floorplan',
+          //'currentLocale': 'en_US',
+          //'ipAddressv4': '192.168.30.104',
+          //'ipAddressv6': 'FE80: : 8A71: E5FF: FE60: A2A8',
+          mac_address: this.kioskInfo.macAddress,
+          //'wifiSSID': '"Finity"',
+          serial_number: 'G0W0MA0771941EJU',
+          device_id: '6ac37a44-802cb151',
+          battery_level: 16,
+          screen_brightness: 255,
+          //'isScreenOn': True,
+          //'isPluggedIn': True,
+          //'isMotionDetected': False,
+        }
+      };
     }
 
     onAudioPlay() {
       this.isAudioPlaying = true;
-      this.sendAudioState();
+      this.sendMediaPlayerState();
     }
 
     onAudioPlaying() {
       this.isAudioPlaying = true;
-      this.sendAudioState();
+      this.sendMediaPlayerState();
     }
 
     onAudioPause() {
       this.isAudioPlaying = false;
-      this.sendAudioState();
+      this.sendMediaPlayerState();
     }
 
     onAudioEnded() {
       this.isAudioPlaying = false;
-      this.sendAudioState();
+      this.sendMediaPlayerState();
     }
 
     onAudioVolumeChange() {
-      this.sendAudioState();
+      this.sendMediaPlayerState();
     }
 
-    sendAudioState() {
-      let payload = {
-        state: this.isAudioPlaying ? "playing" : "idle",
-        attributes: {
-          address: fully.getMacAddress().toLowerCase(),
-          volume_level: this.audio.volume,
-        }
-      };
+    sendMediaPlayerState() {
+      if (!this.kioskInfo.mediaPlayerEntityId) {
+        return;
+      }
 
-      this.sendState(this.kioskInfo.mediaPlayerEntityId, payload);
+      let state = this.isAudioPlaying ? "playing" : "idle";
+      this.sendState(`/api/fully_kiosk/media_player/${this.kioskInfo.mediaPlayerEntityId}`, this.newPayload(state));
     }
 
     playTextToSpeech(text) {
@@ -193,15 +226,13 @@ if (typeof window.FullyKiosk !== 'function') {
     }
 
     playMedia(mediaUrl) {
-      if (mediaUrl) {
-        this.audio.src = mediaUrl;
-      }
+      this.audio.src = mediaUrl;
 
       this.logDebug('FULLY_KIOSK', `Playing media: ${this.audio.src}`);
       this.audio.play();
     }
 
-    pauseMedia(mediaUrl) {
+    pauseMedia() {
       this.logDebug('FULLY_KIOSK', `Pausing media: ${this.audio.src}`);
       this.audio.pause();
     }
@@ -210,13 +241,7 @@ if (typeof window.FullyKiosk !== 'function') {
       this.audio.volume = level;
     }
 
-    sendState(entityId, payload, onSuccess) {
-      if (!entityId) {
-        return;
-      }
-
-      let url = `/api/states/${entityId}`;
-
+    sendState(url, payload, onSuccess) {
       let options = {
         type: 'POST',
         url: url,
@@ -229,7 +254,7 @@ if (typeof window.FullyKiosk !== 'function') {
           }
         }.bind(this),
         error: function (error) {
-          this.handleError(new URIError(`Error posting state: ${url}: ${error.responseText}`));
+          this.handleError(new URIError(`Error posting state: ${url}`));
         }.bind(this)
       };
 

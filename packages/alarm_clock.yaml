@@ -51,7 +51,7 @@ automation:
         from: 'off'
     action:
       - delay:
-          minutes: 5
+          minutes: 10
       - service: input_boolean.turn_off
         entity_id: input_boolean.clock_snooze
 
@@ -81,10 +81,10 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - input_boolean.house_station
+          - input_boolean.clock_snooze
         to: 'off'
         from: 'on'
 
     action:
-      - service: media_player.turn_off
+      - service: media_player.media_stop
         entity_id: media_player.alarm_clock
