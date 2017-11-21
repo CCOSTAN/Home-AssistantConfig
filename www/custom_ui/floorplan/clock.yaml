@@ -19,8 +19,10 @@ rules:
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "playing") ? "stop" : "radio_on"}.svg'
     action:
       domain: media_player
-      service_template: '${(entity.state === "playing") ? "media_stop" : "media_play"}'
-      data: 'media_content_id: "http://listen.djcmedia.com:80/americascountryhigh", media_content_type: audio/mp4'
+      service_template: '${(entity.state === "playing") ? "media_stop" : "play_media"}'
+      data:
+        media_content_id: http://listen.djcmedia.com:80/americascountryhigh
+        media_content_type: audio/mp4
 
   - name: thermostats_temp
     entities:
@@ -115,4 +117,4 @@ rules:
   - name: Camera Images
     entities:
       - camera.stone_door
-    entity_picture_template: '${entity.attributes.entity_picture}'
+    image_template: '${entity.attributes.entity_picture}'

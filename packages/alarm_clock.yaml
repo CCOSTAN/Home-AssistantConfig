@@ -57,14 +57,14 @@ automation:
 
 
 #-----Turn on the Music--------------------------------------
-  - alias: 'Play Americas Country on ChromeCast Audio'
+  - alias: 'Play Radio when Snooze button is turned off.'
 
     trigger:
       - platform: state
         entity_id:
           - input_boolean.clock_snooze
-        to: 'on'
-        from: 'off'
+        to: 'off'
+        from: 'on'
 
     action:
       - service: media_player.play_media
@@ -76,14 +76,14 @@ automation:
           media_content_type: audio/mp4
 
 #-----Turn off the Music--------------------------------------
-  - alias: 'Turn off the Radio'
+  - alias: 'Turn off the Radio when the snooze is turned on.'
 
     trigger:
       - platform: state
         entity_id:
           - input_boolean.clock_snooze
-        to: 'off'
-        from: 'on'
+        to: 'on'
+        from: 'off'
 
     action:
       - service: media_player.media_stop

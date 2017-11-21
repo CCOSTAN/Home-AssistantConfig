@@ -1,6 +1,6 @@
 <!--
     Floorplan for Home Assistant
-    Version: 1.0.7.35
+    Version: 1.0.7.37
     By Petar Kozul
     https://github.com/pkozul/ha-floorplan
   -->
@@ -91,7 +91,7 @@
     properties: {
       version: {
         type: String,
-        value: '1.0.7.35',
+        value: '1.0.7.37',
       },
       hass: {
         type: Object,
@@ -208,16 +208,16 @@
       return this.loadPages()
         .then(() => {
           this.isLoading = false;
+          this.initPageDisplay();
           return this.handleEntities(true)
             .then(() => {
-              this.initPageDisplay();
               return Promise.resolve();
             });
         });
     },
 
     initStandard() {
-      return this.loadSvg(this.config.image)
+      return this.loadFloorplanSvg(this.config.image)
         .then((svg) => {
           this.config.svg = svg;
           return this.loadStyleSheet(this.config.stylesheet)
@@ -225,9 +225,9 @@
               return Promise.resolve(this.initSvg(svg, this.config))
                 .then(() => {
                   this.isLoading = false;
+                  this.initPageDisplay();
                   return this.handleEntities(true)
                     .then(() => {
-                      this.initPageDisplay();
                       return Promise.resolve();
                     });
                 })
@@ -303,7 +303,7 @@
         .then((pageConfig) => {
           let pageInfo = this.createPageInfo(pageConfig);
           pageInfo.isDefault = isDefault;
-          return this.loadSvg(pageInfo.config.image)
+          return this.loadFloorplanSvg(pageInfo.config.image)
             .then((svg) => {
               pageInfo.svg = svg;
               return this.loadStyleSheet(pageInfo.config.stylesheet)
@@ -347,7 +347,7 @@
       });
     },
 
-    loadSvg(imageUrl) {
+    loadFloorplanSvg(imageUrl) {
       return this.getResource(imageUrl, true)
         .then(result => {
           let svg = $(result).find('svg')[0];
@@ -374,59 +374,78 @@
         });
     },
 
-    loadCameraImage(imageUrl, svgElement) {
+    loadImage(imageUrl, svgElementInfo, entityState, rule) {
+      if (imageUrl.toLowerCase().indexOf('.svg') >= 0) {
+        return this.loadSvgImage(imageUrl, svgElementInfo, entityState, rule);
+      }
+      else {
+        return this.loadBitmapImage(imageUrl, svgElementInfo, entityState, rule);
+      }
+    },
+
+    loadBitmapImage(imageUrl, svgElementInfo, entityState, rule) {
+      let svgElement = svgElementInfo.svgElement; // assume the target element already exists
+
+      if (!$(svgElement).is('image')) {
+        svgElement = this.createImageElement(svgElementInfo.originalSvgElement);
+
+        $(svgElement).append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
+          .on('click', this.onEntityClick.bind({ instance: this, entityId: entityState.entity_id, rule: rule }))
+          .css('cursor', 'pointer')
+          .addClass('ha-entity');
+      }
+
       return this.getResource(imageUrl, false, true)
         .then(imageData => {
           if ($(svgElement).attr('href') !== imageData) {
             $(svgElement).attr('href', imageData);
           }
-          return Promise.resolve(imageData);
+
+          svgElementInfo.svgElement = this.replaceElement(svgElementInfo.svgElement, svgElement);
+
+          return Promise.resolve(svgElement);
         });
     },
 
-    loadSvgImage(loadImageInfo) {
-      let svgElementInfo = loadImageInfo.svgElementInfo;
-
-      return this.getResource(loadImageInfo.imageUrl, true)
+    loadSvgImage(imageUrl, svgElementInfo, entityState, rule) {
+      return this.getResource(imageUrl, true)
         .then(result => {
-          let svg = $(result).find('svg')[0];
-          let embeddedSvg = svg.cloneNode(true);
-
-          $(embeddedSvg)
+          svgElement = $(result).find('svg')[0];
+          $(svgElement)
             .attr('id', svgElementInfo.svgElement.id)
             .attr('preserveAspectRatio', 'xMinYMin meet')
-            .attr('height', svgElementInfo.bbox.height)
-            .attr('width', svgElementInfo.bbox.width)
-            .attr('x', svgElementInfo.bbox.x)
-            .attr('y', svgElementInfo.bbox.y)
+            .attr('height', svgElementInfo.originalBBox.height)
+            .attr('width', svgElementInfo.originalBBox.width)
+            .attr('x', svgElementInfo.originalBBox.x)
+            .attr('y', svgElementInfo.originalBBox.y)
             .css('-webkit-perspective:', '1000')
             .css('-webkit-transform-style', 'preserve-3d')
             .css('-webkit-backface-visibility', 'hidden');
 
-          $(embeddedSvg).find('*').append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
-            .on('click', this.onEntityClick.bind({ instance: this, entityId: loadImageInfo.entityId, rule: loadImageInfo.ruleInfo.rule }))
+          $(svgElement).find('*').append(document.createElementNS('http://www.w3.org/2000/svg', 'title'))
+            .on('click', this.onEntityClick.bind({ instance: this, entityId: entityState.entity_id, rule: rule }))
             .css('cursor', 'pointer')
             .addClass('ha-entity');
 
-          // Remove previous SVG
-          let $svg = $(svgElementInfo.svgElement).parents('svg');
-          let previousEmbeddedSvg = $svg.find(`[id="${svgElementInfo.svgElement.id}"]`);
+          svgElementInfo.svgElement = this.replaceElement(svgElementInfo.svgElement, svgElement);
 
-          let $parent = $(previousEmbeddedSvg).parent();
-
-          $(previousEmbeddedSvg).find('*')
-            .off('click');
-
-          $(previousEmbeddedSvg)
-            .off('click')
-            .remove();
-
-          $parent.append(embeddedSvg);
-
-          svgElementInfo.svgElement = embeddedSvg;
-
-          return Promise.resolve(embeddedSvg);
+          return Promise.resolve(svgElement);
         })
+    },
+
+    replaceElement(prevousSvgElement, svgElement) {
+      let $parent = $(prevousSvgElement).parent();
+
+      $(prevousSvgElement).find('*')
+        .off('click');
+
+      $(prevousSvgElement)
+        .off('click')
+        .remove();
+
+      $parent.append(svgElement);
+
+      return svgElement;
     },
 
     /***************************************************************************************************************************/
@@ -591,16 +610,7 @@
             continue;
           }
 
-          let originalBBox = svgElement.getBBox();
-
-          if (entityRule.entity_picture_template) {
-            svgElement = this.replaceWithImage(svgElement);
-          }
-          else if (entityRule.image_template) {
-            svgElement = this.replaceWithSvg(svgElement);
-          }
-
-          this.addSvgElementToRule(svgElement, entityId, ruleInfo, originalBBox);
+          this.addSvgElementToRule(svgElement, entityId, ruleInfo);
 
           for (svgElementId in ruleInfo.svgElementInfos) {
             let svgElementInfo = ruleInfo.svgElementInfos[svgElementId];
@@ -640,14 +650,15 @@
       $(rect).insertBefore(svgElement);
     },
 
-    addSvgElementToRule(svgElement, entityId, ruleInfo, originalBBox) {
+    addSvgElementToRule(svgElement, entityId, ruleInfo) {
       ruleInfo.svgElementInfos[svgElement.id] = {
+        entityId: entityId,
         svgElement: svgElement,
+        originalSvgElement: svgElement,
         originalStroke: svgElement.style.stroke,
         originalFill: svgElement.style.fill,
         originalClasses: this.getArray(svgElement.classList),
-        entityId: entityId,
-        bbox: originalBBox,
+        originalBBox: svgElement.getBBox(),
       };
 
       this.addNestedSvgElementsToRule(svgElement, entityId, ruleInfo);
@@ -656,40 +667,24 @@
     addNestedSvgElementsToRule(svgElement, entityId, ruleInfo) {
       $(svgElement).find('*').each((i, svgNestedElement) => {
         ruleInfo.svgElementInfos[svgNestedElement.id] = {
+          entityId: entityId,
           svgElement: svgNestedElement,
+          originalSvgElement: svgNestedElement,
           originalStroke: svgNestedElement.style.stroke,
           originalFill: svgNestedElement.style.fill,
           originalClasses: this.getArray(svgNestedElement.classList),
-          entityId: entityId,
+          originalBBox: svgNestedElement.getBBox(),
         };
       });
     },
 
-    replaceWithImage(svgElement) {
-      let $parent = $(svgElement).parent();
-      $(svgElement).remove();
-
-      svgElement = $(document.createElementNS('http://www.w3.org/2000/svg', 'image'))
+    createImageElement(svgElement) {
+      return $(document.createElementNS('http://www.w3.org/2000/svg', 'image'))
         .attr('id', $(svgElement).attr('id'))
         .attr('x', $(svgElement).attr('x'))
         .attr('y', $(svgElement).attr('y'))
         .attr('height', $(svgElement).attr('height'))
-        .attr('width', $(svgElement).attr('width'))
-        .appendTo($parent)[0];
-
-      return svgElement;
-    },
-
-    replaceWithSvg(svgElement) {
-      let $parent = $(svgElement).parent();
-      let bbox = svgElement.getBBox();
-      $(svgElement).remove();
-
-      svgElement = $('<svg />')
-        .attr('id', $(svgElement).attr('id'))
-        .appendTo($parent)[0];
-
-      return svgElement;
+        .attr('width', $(svgElement).attr('width'))[0];
     },
 
     addClass(entityId, svgElement, className) {
@@ -873,14 +868,16 @@
 
       return this.handleEntityUpdateDom(entityId)
         .then(() => {
-          this.handleEntityUpdateCss(entityId, isInitialLoad)
+          this.handleEntityUpdateCss(entityId, isInitialLoad);
           this.handleEntityUpdateLastMotionCss(entityId);
           this.handleEntitySetHoverOver(entityId);
+
+          return Promise.resolve();
         });
     },
 
     handleEntityUpdateDom(entityId) {
-      let loadImagePromises = [];
+      let promises = [];
 
       let entityState = this.hass.states[entityId];
       let entityInfo = this.entityInfos[entityId];
@@ -892,19 +889,13 @@
           if ($(svgElementInfo.svgElement).is('text')) {
             this.handleEntityUpdateText(entityState, ruleInfo, svgElementInfo);
           }
-          else if (ruleInfo.rule.entity_picture_template) {
-            this.handleEntityUpdateEntityPicture(entityState, ruleInfo, svgElementInfo);
-          }
           else if (ruleInfo.rule.image_template) {
-            let loadImageInfo = this.handleEntityDetermineSvgImage(entityState, ruleInfo, svgElementInfo);
-            if (loadImageInfo) {
-              loadImagePromises.push(this.loadSvgImage(loadImageInfo));
-            }
+            promises.push(this.handleEntityUpdateImage(entityState, ruleInfo, svgElementInfo));
           }
         }
       }
 
-      return loadImagePromises.length ? Promise.all(loadImagePromises) : Promise.resolve();
+      return promises.length ? Promise.all(promises) : Promise.resolve();
     },
 
     handleEntityUpdateText(entityState, ruleInfo, svgElementInfo) {
@@ -938,50 +929,36 @@
       }
     },
 
-    handleEntityUpdateEntityPicture(entityState, ruleInfo, svgElementInfo) {
+    handleEntityUpdateImage(entityState, ruleInfo, svgElementInfo) {
       let svgElement = svgElementInfo.svgElement;
 
-      imageUrl = this.evaluate(ruleInfo.rule.entity_picture_template, entityState);
+      let imageUrl = this.evaluate(ruleInfo.rule.image_template, entityState);
       if (imageUrl && (ruleInfo.imageUrl !== imageUrl)) {
         ruleInfo.imageUrl = imageUrl;
 
-        if (ruleInfo.cameraImageLoader) {
-          clearInterval(ruleInfo.cameraImageLoader);
+        if (ruleInfo.imageLoader) {
+          clearInterval(ruleInfo.imageLoader); // cancel any previous image loading for this rule
         }
 
-        this.loadCameraImage(imageUrl, svgElement)
-          .catch(error => {
-            this.handleError(error);
-          });
+        if (ruleInfo.rule.image_refresh_interval) {
+          let refreshInterval = parseInt(ruleInfo.rule.image_refresh_interval);
 
-        if (ruleInfo.rule.refresh_interval) {
-          let refreshInterval = parseInt(ruleInfo.rule.refresh_interval);
-
-          ruleInfo.cameraImageLoader = setInterval((imageUrl, svgElement) => {
-            this.loadCameraImage(imageUrl, svgElement)
+          ruleInfo.imageLoader = setInterval((imageUrl, svgElement) => {
+            this.loadImage(imageUrl, svgElementInfo, entityState, ruleInfo.rule)
               .catch(error => {
                 this.handleError(error);
               });
           }, refreshInterval * 1000, imageUrl, svgElement);
         }
+
+        return this.loadImage(imageUrl, svgElementInfo, entityState, ruleInfo.rule)
+          .catch(error => {
+            this.handleError(error);
+          });
       }
-    },
-
-    handleEntityDetermineSvgImage(entityState, ruleInfo, svgElementInfo) {
-      imageUrl = this.evaluate(ruleInfo.rule.image_template, entityState);
-      if (ruleInfo.imageUrl !== imageUrl) {
-        ruleInfo.imageUrl = imageUrl;
-
-        return {
-          svgElementInfo: svgElementInfo,
-          imageUrl: imageUrl,
-          entityId: entityState.entity_id,
-          entityState: entityState,
-          ruleInfo: ruleInfo,
-        };
+      else {
+        return Promise.resolve();
       }
-
-      return undefined;
     },
 
     handleEntitySetHoverOver(entityId) {
@@ -1372,7 +1349,7 @@
             default:
               this.instance.handleEntityClick(undefined, elementInfo.rule);
               break;
-            }
+          }
         }
       }
     },
