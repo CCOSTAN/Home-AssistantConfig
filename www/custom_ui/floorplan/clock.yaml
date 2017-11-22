@@ -1,4 +1,4 @@
-name: Clock
+page_id: Clock
 image: /local/custom_ui/floorplan/clock.svg
 stylesheet: /local/custom_ui/floorplan/clock.css
 
@@ -6,20 +6,18 @@ rules:
   - entity: input_boolean.clock_snooze
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "snooze_on" : "snooze"}.svg'
     action:
-      domain: homeassistant
-      service: toggle
+      service: homeassistant.toggle
 
   - entity: input_boolean.school_mode
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "school_on" : "school_off"}.svg'
     action:
-      domain: homeassistant
-      service: toggle
+      service: homeassistant.toggle
 
   - entity: media_player.alarm_clock
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "playing") ? "stop" : "radio_on"}.svg'
     action:
       domain: media_player
-      service_template: '${(entity.state === "playing") ? "media_stop" : "play_media"}'
+      service_template: '${(entity.state === "playing") ? "media_player.media_stop" : "media_player.play_media"}'
       data:
         media_content_id: http://listen.djcmedia.com:80/americascountryhigh
         media_content_type: audio/mp4
@@ -61,17 +59,6 @@ rules:
       - sensor.clock_am_pm
     text_template: '${entity.state ? entity.state : "undefined"}'
     class_template: 'return "static-text-am_pm";'
-
-
-  # - name: Presence
-  #   entities:
-  #     - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-  #     - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-  #   states:
-  #     - state: 'on'
-  #       class: 'presence-on'
-  #     - state: 'off'
-  #       class: 'presence-off'
 
   - name: Dark Sky Sensors
     entities:

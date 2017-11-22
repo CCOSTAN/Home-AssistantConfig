@@ -1,0 +1,41 @@
+page_id: clock_config
+image: /local/custom_ui/floorplan/clock_config.svg
+stylesheet: /local/custom_ui/floorplan/clock.css
+
+  - entity: input_datetime.alarm_time
+    text_template: '${entity.state.slice(0, 5)}'
+
+  - entities:
+      - input_number.alarm_time_hours
+      - input_number.alarm_time_minutes
+    text_template: '${("0" + parseInt(entity.state)).slice(-2)}'
+
+  - element: input_number.alarm_time_hours_up
+    action:
+      service: input_number.increment
+      data:
+        entity_id: input_number.alarm_time_hours
+
+  - element: input_number.alarm_time_hours_down
+    action:
+      service: input_number.decrement
+      data:
+        entity_id: input_number.alarm_time_hours
+
+  - element: input_number.alarm_time_minutes_up
+    action:
+      service: input_number.increment
+      data:
+        entity_id: input_number.alarm_time_minutes
+
+  - element: input_number.alarm_time_minutes_down
+    action:
+      service: input_number.decrement
+      data:
+        entity_id: input_number.alarm_time_minutes
+
+  - element: input_datetime.alarm_time_set
+    action:
+      service: automation.trigger
+      data:
+        entity_id: automation.set_alarm_time

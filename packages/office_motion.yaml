@@ -49,6 +49,9 @@ automation:
           - condition: time
             after: '18:00:00'
           - condition: state
+            entity_id: sun.sun
+            state: 'below_horizon'
+          - condition: state
             entity_id: input_boolean.daylight_override
             state: 'on'
 

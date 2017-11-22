@@ -41,6 +41,27 @@ binary_sensor:
     emulated_hue_hidden: True
     hidden: False
 
+input_datetime:
+  alarm_time:
+    name: Alarm time
+    has_date: false
+    has_time: true
+
+input_number:
+  alarm_time_hours:
+    name: Alarm Time Hours
+    initial: 0
+    min: 0
+    max: 23
+    step: 1
+
+  alarm_time_minutes:
+    name: Alarm Time Minutes
+    initial: 0
+    min: 0
+    max: 55
+    step: 5
+
 automation:
   - alias: 'Snooze Button off in 10 minutes'
     trigger:
@@ -88,3 +109,34 @@ automation:
     action:
       - service: media_player.media_stop
         entity_id: media_player.alarm_clock
+
+#----Support for Setting the Alarm--------------------------------------
+
+  - alias: get_alarm_time
+    initial_state: 'on'
+    trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id: input_datetime.alarm_time
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.alarm_time_hours
+          value: "{{ states('input_datetime.alarm_time').split(':')[0] | float }}"
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.alarm_time_minutes
+          value: "{{ states('input_datetime.alarm_time').split(':')[1] | float }}"
+
+  - alias: set_alarm_time
+    initial_state: 'on'
+    trigger:
+      - platform: state
+        entity_id: automation.set_alarm_time
+        to: 'off'
+    action:
+      - service: input_datetime.set_datetime
+        data_template:
+          entity_id: input_datetime.alarm_time
+          time: "{{ '{:02.0f}:{:02.0f}'.format((states('input_number.alarm_time_hours') | int), states('input_number.alarm_time_minutes') | int) }}"
