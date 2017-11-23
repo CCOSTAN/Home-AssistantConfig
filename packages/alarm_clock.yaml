@@ -5,9 +5,6 @@
 #
 homeassistant:
   customize_glob:
-    "sensor.*_alarm_panel*":
-      emulated_hue_hidden: True
-      hidden: False
     "input_boolean.clock_snooze":
       emulated_hue_hidden: False
       hidden: False
@@ -37,6 +34,10 @@ binary_sensor:
 sensor:
   - platform: mqtt
     state_topic: "clock/stacey_alarm_time"
+    name: clock_stacey_alarm_time
+    retain: true
+    emulated_hue_hidden: True
+    hidden: true
 
 input_boolean:
   clock_snooze:
@@ -46,7 +47,7 @@ input_boolean:
 input_number:
   alarm_time_hours:
     name: Alarm Time Hours
-    initial: 8
+    initial: 08
     min: 0
     max: 23
     step: 1
@@ -140,12 +141,8 @@ automation:
         entity_id: automation.set_alarm_time
         to: 'off'
     action:
-      - service: input_datetime.set_datetime
-        data_template:
-          entity_id: sensor.clock_stacey_alarm_time
-          time: "{{ '{:02.0f}:{:02.0f}'.format((states('input_number.alarm_time_hours') | int), states('input_number.alarm_time_minutes') | int) }}"
       - service: mqtt.publish
         data_template:
-          payload: '{{ states("sensor.clock_stacey_alarm_time") }}'
+          payload_template: "{{ '{:02.0f}:{:02.0f}'.format((states('input_number.alarm_time_hours') | int), states('input_number.alarm_time_minutes') | int) }}"
           topic: 'clock/stacey_alarm_time'
           retain: true
