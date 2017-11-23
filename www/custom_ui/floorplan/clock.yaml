@@ -10,7 +10,7 @@ rules:
       data:
         page_id: clock_config
 
-  - entity: input_datetime.alarm_time
+  - entity: sensor.clock_stacey_alarm_time
     text_template: '${entity.state.slice(0, 5)}'
 
 
