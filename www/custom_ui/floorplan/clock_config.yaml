@@ -2,6 +2,14 @@ page_id: clock_config
 image: /local/custom_ui/floorplan/clock_config.svg
 stylesheet: /local/custom_ui/floorplan/clock.css
 
+rules:
+
+  - element: floorplan.clock_button
+    action:
+      service: page.navigate
+      data:
+        page_id: clock
+
   - entity: input_datetime.alarm_time
     text_template: '${entity.state.slice(0, 5)}'
 
@@ -39,3 +47,99 @@ stylesheet: /local/custom_ui/floorplan/clock.css
       service: automation.trigger
       data:
         entity_id: automation.set_alarm_time
+
+  - element: input_datetime.alarm_time_get
+    action:
+      service: automation.trigger
+      data:
+        entity_id: automation.get_alarm_time
+
+  - entity: input_boolean.clock_snooze
+    image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "snooze_on" : "snooze"}.svg'
+    action:
+      service: homeassistant.toggle
+
+  - entity: input_boolean.school_mode
+    image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "school_on" : "school_off"}.svg'
+    action:
+      service: homeassistant.toggle
+
+  - entity: media_player.alarm_clock
+    image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "playing") ? "stop" : "radio_on"}.svg'
+    action:
+      domain: media_player
+      service_template: '${(entity.state === "playing") ? "media_player.media_stop" : "media_player.play_media"}'
+      data:
+        media_content_id: http://listen.djcmedia.com:80/americascountryhigh
+        media_content_type: audio/mp4
+
+  - name: temp_darksky
+    entities:
+      - sensor.dark_sky_temperature
+    text_template: '${entity.state ? Math.ceil(entity.state) + "°": "undefined"}'
+    class_template: 'return "static-temp";'
+
+  - name: text_states
+    entities:
+      - sensor.dark_sky_minutely_summary
+    text_template: '${entity.state ? entity.state : "undefined"}'
+    class_template: 'return "static-text";'
+
+  - name: text_font_date
+    entities:
+      - sensor.clock_date
+      - sensor.clock_day
+    text_template: '${entity.state ? entity.state : "undefined"}'
+    class_template: 'return "static-text-date";'
+
+  - name: text_font_time
+    entities:
+      - sensor.clock_time
+    text_template: '${entity.state ? entity.state : "undefined"}'
+    class_template: 'return "static-text-time";'
+
+  - name: Dark Sky Sensors
+    entities:
+      - entity: sensor.dark_sky_minutely_summary
+        element: sensor.dark_sky_minutely_summary_icon
+
+    image_template: '
+      var imageName = "";
+
+      switch (entity.attributes.entity_picture) {
+        case "/static/images/darksky/weather-sunny.svg":
+          imageName = "sunny-1";
+          break;
+
+        case "/static/images/darksky/weather-night.svg":
+          imageName = "night-1";
+          break;
+
+        case "/static/images/darksky/weather-partlycloudy.svg":
+          imageName = "partlycloudy-day-1";
+          break;
+
+        case "/static/images/darksky/weather-cloudy.svg":
+          imageName = "partlycloudy-night-1";
+          break;
+
+        case "/static/images/darksky/weather-cloudy.svg":
+          imageName = "cloudy-day-1";
+          break;
+
+        case "/static/images/darksky/weather-pouring.svg":
+          imageName = "thunder";
+          break;
+
+        case "/static/images/darksky/weather-snowy.svg":
+          imageName = "snowy-day-1";
+          break;
+      }
+
+      return "/local/custom_ui/floorplan/images/weather/" + imageName + ".svg";
+      '
+
+  - name: Camera Images
+    entities:
+      - camera.stone_door
+    image_template: '${entity.attributes.entity_picture}'

@@ -1,8 +1,19 @@
-page_id: Clock
+page_id: clock
 image: /local/custom_ui/floorplan/clock.svg
 stylesheet: /local/custom_ui/floorplan/clock.css
 
 rules:
+
+  - element: floorplan.clock_button
+    action:
+      service: page.navigate
+      data:
+        page_id: clock_config
+
+  - entity: input_datetime.alarm_time
+    text_template: '${entity.state.slice(0, 5)}'
+
+
   - entity: input_boolean.clock_snooze
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "snooze_on" : "snooze"}.svg'
     action:
@@ -59,6 +70,17 @@ rules:
       - sensor.clock_am_pm
     text_template: '${entity.state ? entity.state : "undefined"}'
     class_template: 'return "static-text-am_pm";'
+
+
+  # - name: Presence
+  #   entities:
+  #     - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+  #     - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+  #   states:
+  #     - state: 'on'
+  #       class: 'presence-on'
+  #     - state: 'off'
+  #       class: 'presence-off'
 
   - name: Dark Sky Sensors
     entities:

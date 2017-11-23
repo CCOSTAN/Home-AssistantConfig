@@ -86,7 +86,15 @@ automation:
           - input_boolean.clock_snooze
         to: 'off'
         from: 'on'
-
+      - platform: template
+        value_template: '{{ (states.sensor.time.state.split(":")[0] + ":" + states.sensor.time.state.split(":")[1]) == "{:02.0f}:{:02.0f}".format((states("input_number.alarm_time_hours") | int), states("input_number.alarm_time_minutes") | int) }}'
+    condition:
+      - condition: state
+        entity_id: input_boolean.school_mode
+        state: 'on'
+      - condition: state
+        entity_id: group.family
+        state: 'home'
     action:
       - service: media_player.play_media
         data_template:
