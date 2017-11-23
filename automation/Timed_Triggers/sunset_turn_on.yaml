@@ -9,6 +9,7 @@
     - platform: state
       entity_id: sun.sun
       to: 'below_horizon'
+      from: 'above_horizon'
 
   action:
     - service: light.turn_on
@@ -34,7 +35,6 @@
        - switch.living_room_outlet
        - switch.den_outlet
        - switch.foyer_outlet
-       - switch.kitchen_accents
     - service: light.turn_on
       entity_id:
        - group.living_room_accents

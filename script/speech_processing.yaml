@@ -27,23 +27,9 @@ speech_processing:
               state: 'on'
         - condition: or
           conditions:
-            - condition: time
-              after: '09:00:00'
-              before: '21:30:00'
             - condition: state
-              entity_id: input_boolean.alert_mode
-              state: 'on'
-        - condition: or
-          conditions:
-            - condition: template
-              value_template: >
-                {% if is_state('media_player.livingroomCC', 'playing') %}
-                false
-                {% elif is_state('media_player.whole_house', 'playing') %}
-                false
-                {% else %}
-                true
-                {% endif %}
+              entity_id: group.bed
+              state: 'off'
             - condition: state
               entity_id: input_boolean.alert_mode
               state: 'on'
