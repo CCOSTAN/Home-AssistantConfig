@@ -27,9 +27,14 @@ speech_processing:
               state: 'on'
         - condition: or
           conditions:
-            - condition: state
-              entity_id: group.bed
-              state: 'off'
+            - condition: and
+              conditions:
+                - condition: state
+                  entity_id: group.bed
+                  state: 'off'
+                - condition: time
+                  after: '08:00:00'
+                  before: '20:00:00'
             - condition: state
               entity_id: input_boolean.alert_mode
               state: 'on'
