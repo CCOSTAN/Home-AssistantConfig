@@ -1,6 +1,6 @@
 <!--
     Floorplan for Home Assistant
-    Version: 1.0.7.41
+    Version: 1.0.7.43
     By Petar Kozul
     https://github.com/pkozul/ha-floorplan
   -->
@@ -120,7 +120,7 @@
     },
 
     onAttached() {
-      this.loadScript('/local/custom_ui/floorplan/ha-floorplan.js')
+      this.loadScript('/local/custom_ui/floorplan/lib/floorplan.js')
         .then(() => {
           this.floorplan = new Floorplan();
           this.floorplan.init(Polymer.dom(this.root).node, this.hass,
