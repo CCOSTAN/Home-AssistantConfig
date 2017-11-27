@@ -43,8 +43,6 @@ rules:
   - name: text_states
     entities:
       - sensor.last_message
-      - sensor.usps_mail
-      - sensor.usps_packages
     text_template: '${entity.state ? entity.state.replace(/\s{3,}/g,"") : "undefined"}'
     class_template: 'return "static-text";'
 
