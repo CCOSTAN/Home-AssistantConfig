@@ -1,0 +1,44 @@
+#-------------------------------------------
+#  Fire Tablet Alarm Panel -
+#  http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html
+#-------------------------------------------
+#
+homeassistant:
+  customize_glob:
+    "sensor.*_alarm_panel*":
+      emulated_hue_hidden: True
+      hidden: False
+    "binary_sensor.*_alarm_panel*":
+      emulated_hue_hidden: True
+      hidden: False
+
+media_player:
+  - platform: floorplan_speaker
+    name: Bedroom Alarm Panel
+
+#---Sensors for Fire Tablet-----------------------------
+
+light:
+
+  - platform: mqtt_json
+    name: Bedroom Screensaver
+    state_topic: floorplan/bedroom_screensaver
+    command_topic: floorplan/bedroom_screensaver/set
+    brightness: true
+
+binary_sensor:
+
+  - platform: mqtt
+    state_topic: floorplan/bedroom_motion
+    name: Bedroom Motion
+    device_class: motion
+    retain: true
+    emulated_hue_hidden: True
+    hidden: False
+
+  - platform: mqtt
+    state_topic: floorplan/bedroom_plugged
+    name: Bedroom Plugged
+    retain: true
+    emulated_hue_hidden: True
+    hidden: False

@@ -81,13 +81,20 @@ automation:
         seconds: '00'
       - platform: time
         at: '21:30:00'
+      - platform: state
+        entity_id: device_tracker.carlo
+        to: 'home'
+
     condition:
-      condition: and
-      conditions:
       - condition: time
         after: '21:30:00'
-      - condition: template
-        value_template: '{{ states.input_boolean.medicine.state == "off" }}'
+      - condition: state
+        entity_id: device_tracker.carlo
+        state: 'home'
+      - condition: state
+        entity_id: input_boolean.medicine
+        state: 'off'
+
     action:
       - service: notify.ios_carlo_6s
         data:
