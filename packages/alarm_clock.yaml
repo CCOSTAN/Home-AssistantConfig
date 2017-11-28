@@ -31,6 +31,13 @@ binary_sensor:
     emulated_hue_hidden: True
     hidden: False
 
+light:
+  - platform: mqtt_json
+    name: Clock Screensaver
+    state_topic: floorplan/clock_screensaver
+    command_topic: floorplan/clock_screensaver/set
+    brightness: true
+
 sensor:
   - platform: mqtt
     state_topic: "clock/stacey_alarm_time"
@@ -69,7 +76,7 @@ automation:
         to: 'off'
         from: 'on'
       - platform: template
-        value_template: '{{ (states.sensor.time.state.split(":")[0] + ":" + states.sensor.time.state.split(":")[1]) == "{:02.0f}:{:02.0f}".format((states("input_number.alarm_time_hours") | int), states("input_number.alarm_time_minutes") | int) }}'
+        value_template: '{{states.sensor.time.state == states.sensor.clock_stacey_alarm_time.state}}'
     condition:
       - condition: state
         entity_id: input_boolean.school_mode
@@ -106,18 +113,3 @@ automation:
     action:
       - service: media_player.media_stop
         entity_id: media_player.alarm_clock
-
-#----Support for Setting the Alarm--------------------------------------
-
-  - alias: set_alarm_time
-    initial_state: 'on'
-    trigger:
-      - platform: state
-        entity_id: automation.set_alarm_time
-        to: 'off'
-    action:
-      - service: mqtt.publish
-        data_template:
-          payload_template: "{{ '{:02.0f}:{:02.0f}'.format((states('input_number.alarm_time_hours') | int), states('input_number.alarm_time_minutes') | int) }}"
-          topic: 'clock/stacey_alarm_time'
-          retain: true

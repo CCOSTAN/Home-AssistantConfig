@@ -18,6 +18,14 @@ media_player:
 
 #---Sensors for Fire Tablet-----------------------------
 
+light:
+
+  - platform: mqtt_json
+    name: Bedroom Screensaver
+    state_topic: floorplan/bedroom_screensaver
+    command_topic: floorplan/bedroom_screensaver/set
+    brightness: true
+
 binary_sensor:
 
   - platform: mqtt

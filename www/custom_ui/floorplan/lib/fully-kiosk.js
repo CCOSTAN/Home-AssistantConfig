@@ -1,6 +1,6 @@
 /*
 Floorplan Fully Kiosk for Home Assistant
-Version: 1.0.7.25
+Version: 1.0.7.29
 https://github.com/pkozul/ha-floorplan
 */
 
@@ -9,17 +9,20 @@ https://github.com/pkozul/ha-floorplan
 if (typeof window.FullyKiosk !== 'function') {
   class FullyKiosk {
     constructor(floorplan) {
-      this.version = '1.0.7.25';
+      this.version = '1.0.7.29';
 
       this.floorplan = floorplan;
       this.authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
+
+      this.fullyInfo = {};
+      this.fullyState = {};
     }
 
     init() {
-      this.logInfo(`Fully Kiosk v${this.version}`);
+      this.logInfo('VERSION', `Fully Kiosk v${this.version}`);
 
       if (typeof fully === "undefined") {
-        this.logInfo(`Fully Kiosk application is not running on this device`);
+        this.logInfo('FULLY_KIOSK', `Fully Kiosk application is not running on this device`);
         return;
       }
 
@@ -27,15 +30,32 @@ if (typeof window.FullyKiosk !== 'function') {
 
       let device = this.floorplan.config && this.floorplan.config.fully_kiosk &&
         this.floorplan.config.fully_kiosk.find(x => x.address.toLowerCase() == macAddress);
-      if (!device)
+      if (!device) {
         return;
+      }
 
-      this.subscribeEvents();
+      this.fullyInfo = this.getFullyInfo(device);
 
-      this.kioskInfo = {
+      this.updateFullyState();
+
+      this.initAudio();
+      this.addAudioEventHandlers();
+      this.addFullyEventHandlers();
+      this.subscribeHomeAssistantEvents();
+
+      this.sendMotionState();
+      this.sendPluggedState();
+      this.sendScreensaverState();
+      this.sendMediaPlayerState();
+    }
+
+    getFullyInfo(device) {
+      return {
         motionBinarySensorEntityId: device.motion_sensor,
         pluggedBinarySensorEntityId: device.plugged_sensor,
+        screensaverLightEntityId: device.screensaver_light,
         mediaPlayerEntityId: device.media_player,
+
         startUrl: fully.getStartUrl(),
         currentLocale: fully.getCurrentLocale(),
         ipAddressv4: fully.getIp4Address(),
@@ -44,29 +64,33 @@ if (typeof window.FullyKiosk !== 'function') {
         wifiSSID: fully.getWifiSsid(),
         serialNumber: fully.getSerialNumber(),
         deviceId: fully.getDeviceId(),
-        batteryLevel: fully.getBatteryLevel(),
-        screenBrightness: fully.getScreenBrightness(),
-        isScreenOn: fully.getScreenOn(),
-        isPluggedIn: fully.isPlugged(),
+
         isMotionDetected: false,
+        isScreensaverOn: false,
       };
+    }
 
-      this.addEventHandlers();
+    updateFullyState() {
+      this.fullyState.batteryLevel = fully.getBatteryLevel();
+      this.fullyState.screenBrightness = fully.getScreenBrightness();
+      this.fullyState.isScreenOn = fully.getScreenOn();
+      this.fullyState.isPluggedIn = fully.isPlugged();
+    }
 
+    initAudio() {
       this.audio = new Audio();
       this.isAudioPlaying = false;
+    }
+
+    addAudioEventHandlers() {
       this.audio.addEventListener('play', this.onAudioPlay.bind(this));
       this.audio.addEventListener('playing', this.onAudioPlaying.bind(this));
       this.audio.addEventListener('pause', this.onAudioPause.bind(this));
       this.audio.addEventListener('ended', this.onAudioEnded.bind(this));
       this.audio.addEventListener('volumechange', this.onAudioVolumeChange.bind(this));
-
-      this.sendMotionState();
-      this.sendPluggedState();
-      this.sendMediaPlayerState();
     }
 
-    addEventHandlers() {
+    addFullyEventHandlers() {
       window['onFullyEvent'] = (e) => { window.dispatchEvent(new Event(e)); }
 
       window.addEventListener('fully.screenOn', this.onFullyScreenOn.bind(this));
@@ -79,6 +103,8 @@ if (typeof window.FullyKiosk !== 'function') {
       window.addEventListener('fully.pluggedAC', this.onFullyPluggedAC.bind(this));
       window.addEventListener('fully.pluggedUSB', this.onFullyPluggedUSB.bind(this));
       window.addEventListener('fully.onMotion', this.onFullyMotion.bind(this));
+      window.addEventListener('fully.onScreensaverStart', this.onFullyScreensaverStart.bind(this));
+      window.addEventListener('fully.onScreensaverStop', this.onFullyScreensaverStop.bind(this));
 
       fully.bind('screenOn', 'onFullyEvent("fully.screenOn");')
       fully.bind('screenOff', 'onFullyEvent("fully.screenOff");')
@@ -90,6 +116,8 @@ if (typeof window.FullyKiosk !== 'function') {
       fully.bind('pluggedAC', 'onFullyEvent("fully.pluggedAC");')
       fully.bind('pluggedUSB', 'onFullyEvent("fully.pluggedUSB");')
       fully.bind('onMotion', 'onFullyEvent("fully.onMotion");') // Max. one per second
+      fully.bind('onScreensaverStart', 'onFullyEvent("fully.onScreensaverStart");')
+      fully.bind('onScreensaverStop', 'onFullyEvent("fully.onScreensaverStop");')
     }
 
     onFullyScreenOn() {
@@ -117,73 +145,99 @@ if (typeof window.FullyKiosk !== 'function') {
     }
 
     onFullyUnplugged() {
-      this.kioskInfo.isPluggedIn = false;
+      this.logDebug('FULLY_KIOSK', 'Unplugged AC');
+      this.fullyState.isPluggedIn = false;
       this.sendPluggedState();
     }
 
     onFullyPluggedAC() {
-      this.kioskInfo.isPluggedIn = true;
+      this.logDebug('FULLY_KIOSK', 'Plugged AC');
+      this.fullyState.isPluggedIn = true;
       this.sendPluggedState();
     }
 
     onFullyPluggedUSB() {
+      this.logDebug('FULLY_KIOSK', 'Unplugged USB');
       this.logDebug('FULLY_KIOSK', 'Device plugged into USB');
     }
 
     onFullyMotion() {
-      this.kioskInfo.isMotionDetected = true;
+      this.fullyState.isMotionDetected = true;
+      this.logDebug('FULLY_KIOSK', 'Motion detected');
       this.sendMotionState();
     }
 
+    onFullyScreensaverStart() {
+      this.fullyState.isScreensaverOn = true;
+      this.logDebug('FULLY_KIOSK', 'Screensaver started');
+      this.sendScreensaverState();
+    }
+
+    onFullyScreensaverStop() {
+      this.fullyState.isScreensaverOn = false;
+      this.logDebug('FULLY_KIOSK', 'Screensaver stopped');
+      this.sendScreensaverState();
+    }
+
     sendMotionState() {
-      if (!this.kioskInfo.motionBinarySensorEntityId) {
+      if (!this.fullyInfo.motionBinarySensorEntityId) {
         return;
       }
 
       clearTimeout(this.sendMotionStateTimer);
-      let timeout = this.kioskInfo.isMotionDetected ? 5000 : 10000;
+      let timeout = this.fullyState.isMotionDetected ? 5000 : 10000;
 
-      let state = this.kioskInfo.isMotionDetected ? "on" : "off";
-      this.sendState(`/api/states/${this.kioskInfo.motionBinarySensorEntityId}`, this.newPayload(state), () => {
+      let state = this.fullyState.isMotionDetected ? "on" : "off";
+      this.sendState(`/api/states/${this.fullyInfo.motionBinarySensorEntityId}`, this.newPayload(state), () => {
         this.sendMotionStateTimer = setTimeout(() => {
-          this.kioskInfo.isMotionDetected = false;
+          this.fullyState.isMotionDetected = false;
           this.sendMotionState();
+
+          // Send other states as well
+          this.sendPluggedState();
+          this.sendScreensaverState();
+          this.sendMediaPlayerState();
         }, timeout);
       });
     }
 
     sendPluggedState() {
-      if (!this.kioskInfo.pluggedBinarySensorEntityId) {
+      if (!this.fullyInfo.pluggedBinarySensorEntityId) {
         return;
       }
 
-      let state = this.kioskInfo.isPluggedIn ? "on" : "off";
-      this.sendState(`/api/states/${this.kioskInfo.pluggedBinarySensorEntityId}`, this.newPayload(state));
+      let state = this.fullyState.isPluggedIn ? "on" : "off";
+      this.sendState(`/api/states/${this.fullyInfo.pluggedBinarySensorEntityId}`, this.newPayload(state));
+    }
+
+    sendScreensaverState() {
+      if (!this.fullyInfo.screensaverLightEntityId) {
+        return;
+      }
+
+      let state = this.fullyState.isScreensaverOn ? "on" : "off";
+      this.sendState(`/api/states/${this.fullyInfo.screensaverLightEntityId}`, this.newPayload(state));
     }
 
     newPayload(state) {
+      this.updateFullyState();
+
       return {
         state: state,
+        brightness: this.fullyState.screenBrightness,
         attributes: {
           volume_level: this.audio.volume,
           media_content_id: this.audio.src,
-          address: this.kioskInfo.macAddress,
-          //'motionBinarySensorEntityId': 'binary_sensor.entry_motion',
-          //'pluggedBinarySensorEntityId': 'binary_sensor.entry_plugged',
-          //'mediaPlayerEntityId': 'media_player.entry_alarm_panel',
-          //'startUrl': 'https: //petar.kozul.net: 8123/floorplan',
-          //'currentLocale': 'en_US',
-          //'ipAddressv4': '192.168.30.104',
-          //'ipAddressv6': 'FE80: : 8A71: E5FF: FE60: A2A8',
-          mac_address: this.kioskInfo.macAddress,
-          //'wifiSSID': '"Finity"',
+          address: this.fullyInfo.macAddress,
+          mac_address: this.fullyInfo.macAddress,
           serial_number: 'G0W0MA0771941EJU',
           device_id: '6ac37a44-802cb151',
-          battery_level: 16,
-          screen_brightness: 255,
-          //'isScreenOn': True,
-          //'isPluggedIn': True,
-          //'isMotionDetected': False,
+          battery_level: this.fullyState.batteryLevel,
+          screen_brightness: this.fullyState.screenBrightness,
+          _isScreenOn: this.fullyState.isScreenOn,
+          _isPluggedIn: this.fullyState.isPluggedIn,
+          _isMotionDetected: this.fullyState.isMotionDetected,
+          _isScreensaverOn: this.fullyState.isScreensaverOn,
         }
       };
     }
@@ -213,27 +267,44 @@ if (typeof window.FullyKiosk !== 'function') {
     }
 
     sendMediaPlayerState() {
-      if (!this.kioskInfo.mediaPlayerEntityId) {
+      if (!this.fullyInfo.mediaPlayerEntityId) {
         return;
       }
 
       let state = this.isAudioPlaying ? "playing" : "idle";
-      this.sendState(`/api/fully_kiosk/media_player/${this.kioskInfo.mediaPlayerEntityId}`, this.newPayload(state));
+      this.sendState(`/api/fully_kiosk/media_player/${this.fullyInfo.mediaPlayerEntityId}`, this.newPayload(state));
+    }
+
+    /*  Functions */
+
+    setScreenBrightness(brightness) {
+      fully.setScreenBrightness(brightness);
+    }
+
+    startScreensaver() {
+      this.logInfo('FULLY_KIOSK', `Starting screensaver`);
+      fully.startScreensaver();
+    }
+
+    stopScreensaver() {
+      this.logInfo('FULLY_KIOSK', `Stopping screensaver`);
+      fully.stopScreensaver();
     }
 
     playTextToSpeech(text) {
+      this.logInfo('FULLY_KIOSK', `Playing text-to-speech: ${text}`);
       fully.textToSpeech(text);
     }
 
     playMedia(mediaUrl) {
       this.audio.src = mediaUrl;
 
-      this.logDebug('FULLY_KIOSK', `Playing media: ${this.audio.src}`);
+      this.logInfo('FULLY_KIOSK', `Playing media: ${this.audio.src}`);
       this.audio.play();
     }
 
     pauseMedia() {
-      this.logDebug('FULLY_KIOSK', `Pausing media: ${this.audio.src}`);
+      this.logInfo('FULLY_KIOSK', `Pausing media: ${this.audio.src}`);
       this.audio.pause();
     }
 
@@ -261,21 +332,41 @@ if (typeof window.FullyKiosk !== 'function') {
       jQuery.ajax(options);
     }
 
-    subscribeEvents() {
+    subscribeHomeAssistantEvents() {
+      /*
       this.floorplan.hass.connection.subscribeEvents((event) => {
-        if (!this.kioskInfo || !this.kioskInfo.mediaPlayerEntityId) {
-          return;
-        }
+      },
+        'state_changed');
+      */
 
-        if (event.data.domain === 'media_player') {
+      this.floorplan.hass.connection.subscribeEvents((event) => {
+        if (this.fullyInfo.screensaverLightEntityId && (event.data.domain === 'light')) {
+          if (event.data.service_data.entity_id.toString() === this.fullyInfo.screensaverLightEntityId) {
+            switch (event.data.service) {
+              case 'turn_on':
+                this.startScreensaver();
+                break;
+
+              case 'turn_off':
+                this.stopScreensaver();
+                break;
+            }
+
+            let brightness = event.data.service_data.brightness;
+            if (brightness) {
+              this.setScreenBrightness(brightness);
+            }
+          }
+        }
+        else if (this.fullyInfo.mediaPlayerEntityId && (event.data.domain === 'media_player')) {
           let targetEntityId;
           let serviceEntityId = event.data.service_data.entity_id;
 
           if (Array.isArray(serviceEntityId)) {
-            targetEntityId = serviceEntityId.find(entityId => (entityId === this.kioskInfo.mediaPlayerEntityId));
+            targetEntityId = serviceEntityId.find(entityId => (entityId === this.fullyInfo.mediaPlayerEntityId));
           }
           else {
-            targetEntityId = (serviceEntityId === this.kioskInfo.mediaPlayerEntityId) ? serviceEntityId : undefined;
+            targetEntityId = (serviceEntityId === this.fullyInfo.mediaPlayerEntityId) ? serviceEntityId : undefined;
           }
 
           if (targetEntityId) {
@@ -298,7 +389,7 @@ if (typeof window.FullyKiosk !== 'function') {
                 break;
 
               default:
-                this.logDebug('FULLY_KIOSK', `Service not supported: ${event.data.service}`);
+                this.logWarning('FULLY_KIOSK', `Service not supported: ${event.data.service}`);
                 break;
             }
           }
@@ -306,7 +397,7 @@ if (typeof window.FullyKiosk !== 'function') {
 
         /*
         if ((event.data.domain === 'tts') && (event.data.service === 'google_say')) {
-          if (this.kioskInfo.mediaPlayerEntityId === event.data.service_data.entity_id) {
+          if (this.fullyInfo.mediaPlayerEntityId === event.data.service_data.entity_id) {
             this.logDebug('FULLY_KIOSK', 'Playing TTS using Fully Kiosk');
             this.playTextToSpeech(event.data.service_data.message);
           }
@@ -324,12 +415,12 @@ if (typeof window.FullyKiosk !== 'function') {
       this.floorplan.logError(message);
     }
 
-    logWarning(message) {
-      this.floorplan.logWarning(message);
+    logWarning(area, message) {
+      this.floorplan.logWarning(area, message);
     }
 
-    logInfo(message) {
-      this.floorplan.logInfo(message);
+    logInfo(area, message) {
+      this.floorplan.logInfo(area, message);
     }
 
     logDebug(area, message) {
