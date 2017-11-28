@@ -27,9 +27,7 @@
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.office' }}"
     - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.clock' }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.bedroom_screensaver' }}"
+      value_template: "{{ trigger.event.data.entity_id.split('_')[1] != 'screensaver' }}"
     - condition: template
       value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
     - condition: template
