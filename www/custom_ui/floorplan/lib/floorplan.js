@@ -1,6 +1,6 @@
 /*
  Floorplan for Home Assistant
- Version: 1.0.7.43
+ Version: 1.0.7.44
  By Petar Kozul
  https://github.com/pkozul/ha-floorplan
 */
@@ -10,7 +10,7 @@
 if (typeof window.Floorplan !== 'function') {
 class Floorplan {
  constructor() {
-   this.version = '1.0.7.43';
+   this.version = '1.0.7.44';
    this.doc = {};
    this.hass = {};
    this.openMoreInfo = () => { };
@@ -374,8 +374,8 @@ class Floorplan {
    let actions = [];
 
    let startup = this.config.startup;
-   if (startup && (startup.action || startup.actions)) {
-     actions = actions.concat(startup.actions ? startup.actions : [startup.action]);
+   if (startup && startup.action) {
+     actions = actions.concat(Array.isArray(startup.action) ? startup.action : [startup.action]);
    }
 
    if (this.config.pages) {
@@ -383,8 +383,8 @@ class Floorplan {
        let pageInfo = this.pageInfos[key];
 
        let startup = pageInfo.config.startup;
-       if (startup && (startup.action || startup.actions)) {
-         actions = actions.concat(startup.actions ? startup.actions : [startup.action]);
+       if (startup && startup.action) {
+         actions = actions.concat(Array.isArray(startup.action) ? startup.action : [startup.action]);
        }
      }
    }
@@ -561,7 +561,7 @@ class Floorplan {
        $(svgElement).off('click').on('click', this.onElementClick.bind({ instance: this, svgElementInfo: svgElementInfo, elementId: elementId, rule: rule }));
        $(svgElement).css('cursor', 'pointer');
 
-       let actions = rule.actions ? rule.actions : [rule.action];
+       let actions = Array.isArray(rule.action) ? rule.action : [rule.action];
        for (let action of actions) {
          if (action) {
            switch (action.service) {
@@ -1288,7 +1288,7 @@ class Floorplan {
  }
 
  onActionClick(svgElementInfo, entityId, elementId, rule) {
-   if (!rule || !(rule.action || rule.actions)) {
+   if (!rule || !rule.action) {
      if (entityId && (rule.more_info !== false)) {
        this.openMoreInfo(entityId);
      }
@@ -1297,7 +1297,7 @@ class Floorplan {
 
    let calledServiceCount = 0;
 
-   let actions = rule.actions ? rule.actions : [rule.action];
+   let actions = Array.isArray(rule.action) ? rule.action : [rule.action];
    for (let action of actions) {
      if (action.service || action.service_template) {
        let actionService = this.getActionService(action, entityId);

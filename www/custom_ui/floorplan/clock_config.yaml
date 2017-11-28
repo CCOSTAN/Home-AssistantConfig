@@ -2,6 +2,17 @@ page_id: clock_config
 image: /local/custom_ui/floorplan/clock_config.svg
 stylesheet: /local/custom_ui/floorplan/clock.css
 
+startup:
+  actions:
+    - service: floorplan.variable_set
+      data:
+        variable: floorplan.hours
+        value_template: 'return parseInt(entities["sensor.clock_stacey_alarm_time"].state.slice(0, 2));'
+    - service: floorplan.variable_set
+      data:
+        variable: floorplan.minutes
+        value_template: 'return parseInt(entities["sensor.clock_stacey_alarm_time"].state.slice(3, 5));'
+
 rules:
 
   - element: floorplan.clock_button
@@ -14,45 +25,50 @@ rules:
     text_template: '${entity.state.slice(0, 5)}'
 
   - entities:
-      - input_number.alarm_time_hours
-      - input_number.alarm_time_minutes
-    text_template: '${("0" + parseInt(entity.state)).slice(-2)}'
+    -  floorplan.hours
+    -  floorplan.minutes
+    text_template: '${("0" + entity.state).slice(-2)}'
 
-  - element: input_number.alarm_time_hours_up
+  - entity: floorplan.hours
+    element: input_number.alarm_time_hours_up
     action:
-      service: input_number.increment
+      service: floorplan.variable_set
       data:
-        entity_id: input_number.alarm_time_hours
+        variable: floorplan.hours
+        value_template: '${(parseInt(entity.state) + 1) % 24}'
 
-  - element: input_number.alarm_time_hours_down
+  - entity: floorplan.hours
+    element: input_number.alarm_time_hours_down
     action:
-      service: input_number.decrement
+      service: floorplan.variable_set
       data:
-        entity_id: input_number.alarm_time_hours
+        variable: floorplan.hours
+        value_template: '${((parseInt(entity.state) - 1) + 24) % 24}'
 
-  - element: input_number.alarm_time_minutes_up
+  - entity: floorplan.minutes
+    element: input_number.alarm_time_minutes_up
     action:
-      service: input_number.increment
+      service: floorplan.variable_set
       data:
-        entity_id: input_number.alarm_time_minutes
+        variable: floorplan.minutes
+        value_template: '${((parseInt(entity.state / 5) * 5) + 5) % 60}'
 
-  - element: input_number.alarm_time_minutes_down
+  - entity: floorplan.minutes
+    element: input_number.alarm_time_minutes_down
     action:
-      service: input_number.decrement
+      service: floorplan.variable_set
       data:
-        entity_id: input_number.alarm_time_minutes
+        variable: floorplan.minutes
+        value_template: '${(((parseInt(entity.state / 5) * 5) - 5) + 60) % 60}'
 
-  - element: input_datetime.alarm_time_set
+  - element: floorplan.save_alarm_time_button
     action:
-      service: automation.trigger
-      data:
-        entity_id: automation.set_alarm_time
-
-  - element: input_datetime.alarm_time_get
-    action:
-      service: automation.trigger
-      data:
-        entity_id: automation.get_alarm_time
+      service: mqtt.publish
+      data_template: '{
+        "payload": "${entities[`floorplan.hours`].state}:${entities[`floorplan.minutes`].state}",
+        "topic": "clock/stacey_alarm_time",
+        "retain": true
+      }'
 
   - entity: input_boolean.clock_snooze
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "snooze_on" : "snooze"}.svg'

@@ -44,21 +44,6 @@ input_boolean:
     name: Clock Snooze
     initial: off
 
-input_number:
-  alarm_time_hours:
-    name: Alarm Time Hours
-    initial: 08
-    min: 0
-    max: 23
-    step: 1
-
-  alarm_time_minutes:
-    name: Alarm Time Minutes
-    initial: 30
-    min: 0
-    max: 55
-    step: 5
-
 automation:
   - alias: 'Snooze Button off in 10 minutes'
     trigger:
@@ -123,23 +108,6 @@ automation:
         entity_id: media_player.alarm_clock
 
 #----Support for Setting the Alarm--------------------------------------
-
-  - alias: get_alarm_time
-    initial_state: 'on'
-    trigger:
-      - platform: homeassistant
-        event: start
-      - platform: state
-        entity_id: sensor.clock_stacey_alarm_time
-    action:
-      - service: input_number.set_value
-        data_template:
-          entity_id: input_number.alarm_time_hours
-          value: "{{ states('sensor.clock_stacey_alarm_time').split(':')[0] | float }}"
-      - service: input_number.set_value
-        data_template:
-          entity_id: input_number.alarm_time_minutes
-          value: "{{ states('sensor.clock_stacey_alarm_time').split(':')[1] | float }}"
 
   - alias: set_alarm_time
     initial_state: 'on'
