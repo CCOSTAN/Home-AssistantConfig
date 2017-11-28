@@ -6,7 +6,7 @@
   trigger:
     - platform: event
       event_type: state_changed
-  
+
   condition:
     - condition: state
       entity_id: group.family
@@ -30,7 +30,7 @@
       value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
     - condition: template
       value_template: "{{ trigger.event.data.old_state.state == 'off' }}"
-   
+
   action:
     - service: light.turn_on
       data_template:
@@ -42,8 +42,7 @@
           {%- elif hour >= 8 and hour <20  -%}
             255
           {%- elif hour >= 20 and hour <24  -%}
-            40  
+            40
           {%- else -%}
             15
           {%- endif %}
-   
