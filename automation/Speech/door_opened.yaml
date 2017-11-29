@@ -17,8 +17,6 @@
     - service: script.notify_engine
       data_template:
         value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
-        value2: ''
-        value3: ''
 
     - wait_template: "{{ states.media_player.livingroomCC.state != 'playing' }}"
       timeout: 00:01:30

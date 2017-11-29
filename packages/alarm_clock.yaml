@@ -65,6 +65,22 @@ automation:
       - service: input_boolean.turn_off
         entity_id: input_boolean.clock_snooze
 
+#Turn on the clock - turn off the screensaver so we can see it.
+  - alias: Turn off Screensaver so we can see the time
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+          - light.bedroom_screensaver
+        to: 'off'
+
+    action:
+      - service: light.turn_off
+        entity_id: light.clock_screensaver
+      - wait_template: "{{ is_state(trigger.entity_id, 'on') }}"
+      - service: light.turn_on
+        entity_id: light.clock_screensaver
 
 #-----Turn on the Music--------------------------------------
   - alias: 'Play Radio when Snooze button is turned off.'
