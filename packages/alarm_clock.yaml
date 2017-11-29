@@ -92,8 +92,11 @@ automation:
         to: 'off'
         from: 'on'
       - platform: template
-        value_template: '{{states.sensor.time.state == states.sensor.clock_stacey_alarm_time.state}}'
+        value_template: '{{states.sensor.clock_time.state == states.sensor.clock_stacey_alarm_time.state}}'
     condition:
+      - condition: state
+        entity_id: sensor.clock_am_pm
+        state: 'AM'
       - condition: state
         entity_id: input_boolean.school_mode
         state: 'on'
