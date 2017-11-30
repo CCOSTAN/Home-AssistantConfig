@@ -18,6 +18,10 @@ skybell_pressed:
       data:
         value1: 'Please check the Front Door.  Someone Pressed the Doorbell.'
 
+    - service: script.tweet_engine
+      data:
+        tweet: 'Oh, that tickled. Someone just pressed the SkyBell Doorbell. (http://amzn.to/2dcexIB)'
+
     - service: notify.ios_family
       data:
         message: Someone Pressed the Doorbell!

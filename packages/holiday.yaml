@@ -73,3 +73,7 @@ automation:
         data:
           message: 'Today is {{ states.sensor.holiday.state }}.'
           title: '{{ states.sensor.holiday.state }}'
+
+      - service: script.tweet_engine
+        data:
+          tweet: 'Horray! Today is {{ states.sensor.holiday.state }}. Time to adjust the outside light colors!'     
