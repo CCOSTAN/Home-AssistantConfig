@@ -15,9 +15,9 @@ speech_processing:
         payload: 'This Message is from {{now().strftime("%-I")}}:{{now().strftime("%M")}} {{now().strftime("%p")}}. {{speech_message}}'
         retain: true
 
-    - service: script.tweet_engine
-      data:
-        tweet: '{{speech_message}}'
+    - service: notify.BearStoneHA
+      data_template:
+        message: "{{ speech_message}}"
 
     - condition: and
       conditions:

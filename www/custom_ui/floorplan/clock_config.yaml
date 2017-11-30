@@ -2,6 +2,14 @@ page_id: clock_config
 image: /local/custom_ui/floorplan/clock_config.svg
 stylesheet: /local/custom_ui/floorplan/clock.css
 
+variables:
+  - name: floorplan.hours
+  - name: floorplan.minutes
+
+defaults:
+  hover_over: false
+  more_info: false
+
 startup:
   action:
     - service: floorplan.variable_set
