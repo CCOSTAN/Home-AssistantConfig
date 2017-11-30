@@ -1,0 +1,19 @@
+#-------------------------------------------
+#  This is the configuration account for @BearStoneHA - My Home's automated twitter account.
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "input_select.log_*":
+#       icon: mdi:bug
+#       emulated_hue_hidden: True
+#       hidden: False
+
+notify:
+  - name: BearStoneHA
+    platform: twitter
+    consumer_key: !secret twitter_consumer_key
+    consumer_secret: !secret twitter_consumer_secret
+    access_token: !secret twitter_access_token
+    access_token_secret: !secret twitter_access_token_secret

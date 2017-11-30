@@ -118,6 +118,8 @@ automation:
           #media_content_id: "http://listen.181fm.com/181-kickincountry_128k.mp3"
           media_content_id: "http://listen.djcmedia.com:80/americascountryhigh"
           media_content_type: audio/mp4
+      - service: light.turn_off
+        entity_id: light.clock_screensaver
 
 #-----Turn off the Music--------------------------------------
   - alias: 'Turn off the Radio when the snooze is turned on.'
