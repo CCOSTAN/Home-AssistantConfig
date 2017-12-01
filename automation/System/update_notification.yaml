@@ -13,8 +13,11 @@
       data_template:
         value1: 'There is a new Version of Home-Assistant Available.'
         value2: "{{ states('updater.updater') }}"
-        value3: ''
         who: 'carlo'
+
+    - service: script.tweet_engine
+      data:
+        tweet: "New version of @Home_Assistant! Cannot wait for @CCostan to install it! - {{ states('updater.updater') }}"
 
     - service: notify.html5
       data_template:
