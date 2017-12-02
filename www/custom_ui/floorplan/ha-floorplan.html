@@ -1,6 +1,6 @@
 <!--
     Floorplan for Home Assistant
-    Version: 1.0.7.45
+    Version: 1.0.7.50
     By Petar Kozul
     https://github.com/pkozul/ha-floorplan
   -->
@@ -82,10 +82,6 @@
   Polymer({
     is: 'ha-floorplan',
 
-    attached() {
-      this.onAttached();
-    },
-
     properties: {
       hass: {
         type: Object,
@@ -115,11 +111,19 @@
       },
     },
 
+    attached() {
+      this.onAttached();
+    },
+
     stopPropagation(e) {
       e.stopPropagation();
     },
 
     onAttached() {
+      this.initFloorplan();
+    },
+
+    initFloorplan() {
       this.loadScript('/local/custom_ui/floorplan/lib/floorplan.js')
         .then(() => {
           this.floorplan = new Floorplan();
@@ -139,7 +143,7 @@
         })
         .catch((error) => {
           this.setIsLoading(false);
-          console.error(error);
+          this.logError(error);
         });
     },
 
@@ -160,7 +164,7 @@
           reject(new URIError(`${err.target.src}`));
         };
 
-        Polymer.dom(this.root).appendChild(script);
+        Polymer.dom(this.root).node.appendChild(script);
       });
     },
 
@@ -174,6 +178,14 @@
 
     cacheBuster(url) {
       return `${url}${(url.indexOf('?') >= 0) ? '&' : '?'}_=${new Date().getTime()}`;
+    },
+
+    logError(message) {
+      console.error(message);
+
+      let log = Polymer.dom(this.$.log).node;
+      $(log).find('ul').prepend(`<li class="${level}">${text}</li>`)
+      $(log).css('display', 'block');
     },
   });
 
