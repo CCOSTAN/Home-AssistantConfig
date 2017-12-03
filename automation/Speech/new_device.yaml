@@ -10,9 +10,13 @@
   action:
     - wait_template: >-
         {{ not is_state('media_player.livingroomCC', 'playing') }}
-        
+
     - service: script.speech_engine
       data_template:
         NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize {{trigger.event.data.host_name}} within Circle."
+
+    - service: script.tweet_engine
+      data_template:
+        tweet:  "New Device on the Network! @MeetCircle (http://amzn.to/2eAgaA6) let's me know & I lock it down!"
 
 ##############################################################################
