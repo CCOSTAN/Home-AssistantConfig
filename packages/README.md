@@ -5,6 +5,10 @@ Be sure to :star: my repo so you can keep up to date on the daily progress!
 
 This section is for the packages.  (It's being slowly built out)
 
+**Twitter Account**
+You can see my home in action by following it's Twitter account [@BearStoneHA](https://twitter.com/BearStoneHA)
+Home Assistant live tweets activities in the house on it's own dedicated Social Media Account.
+
 **Alarm System**
 You can find out about how I swapped out my ADT for 3 NodeMCUs [here](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html).
 

@@ -18,6 +18,31 @@ notify:
     access_token: !secret twitter_access_token
     access_token_secret: !secret twitter_access_token_secret
 
+automation:
+  - alias: 'New Twitter follower!'
+    hide_entity: True
+    trigger:
+      - platform: event
+        event_type: new_follower
+    action:
+      - service: media_player.play_media
+        data_template:
+          entity_id:
+            - media_player.livingroomCC
+          media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3"
+          media_content_type: audio/mp4
+
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "New Follower! Enjoy the Journey!",
+            "I have a new follower, I just sounded a chirp in the house.",
+            "Each new follower makes me sound a chirp in the house.",
+            "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower, I sound a chirp! Like now!"
+            ] | random + "(https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3)"}}
+
+
 # {% macro moon() -%}
 # {%- if states.sensor.moon.state == 'Full moon' -%}
 # Check out the full moon tonight!
