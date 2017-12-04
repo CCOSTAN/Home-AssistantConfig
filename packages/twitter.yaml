@@ -42,6 +42,34 @@ automation:
             "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower, I sound a chirp! Like now!"
             ] | random + "(https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3)"}}
 
+######################################################################
+##  Good night Routine
+######################################################################
+
+  - alias: 'Good Night tweet'
+    trigger:
+      - platform: state
+        entity_id: group.bed
+        to: 'on'
+        from: 'off'
+
+    condition:
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+
+    action:
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "Bed status: {{states.sensor.sleep_number_bed.state }} Family status: In Bed.",
+            "Shutting down all the lights inside since it is time for bed.",
+            "Lights out.  Get a good nights rest.",
+            "Tonights @SleepNumber number is {{states.sensor.sleepnumber_carlo_carlo_sleepnumber.state}}. Time for bed.",
+            "The @SleepNumber bed tells me when everyone is in bed & time for lights out."
+            ] | random + "(http://amzn.to/2kxdXXI)"}}
+
 
 # {% macro moon() -%}
 # {%- if states.sensor.moon.state == 'Full moon' -%}
