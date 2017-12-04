@@ -38,11 +38,11 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "New Follower! Enjoy the Journey!",
-            "I have a new follower, I just sounded a chirp in the house.",
-            "Each new follower makes me sound a chirp in the house.",
-            "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower, I sound a chirp! Like now!"
-            ] | random + "(https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3)"}}
+            "Hey @{{Value1}}! Enjoy the Journey!",
+            "I have a new follower (@{{Value1}}), I just sounded a chirp in the house.",
+            "Each new follower like (@{{Value1}}) makes me sound a chirp in the house.",
+            "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower, I sound a chirp! Like (@{{Value1}})!"
+            ] | random + "#follome"}}
 
 ######################################################################
 ##  Good night tweet
