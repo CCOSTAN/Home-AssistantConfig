@@ -10,6 +10,8 @@
 #       emulated_hue_hidden: True
 #       hidden: False
 
+#Random number - https://www.random.org/integers/?num=1&min=1&max=10&col=1&base=10&format=plain&rnd=new
+
 notify:
   - name: BearStoneHA
     platform: twitter
@@ -43,21 +45,20 @@ automation:
             ] | random + "(https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3)"}}
 
 ######################################################################
-##  Good night Routine
+##  Good night tweet
 ######################################################################
 
   - alias: 'Good Night tweet'
+    hide_entity: True
     trigger:
       - platform: state
         entity_id: group.bed
         to: 'on'
         from: 'off'
-
     condition:
       - condition: state
         entity_id: sun.sun
         state: 'below_horizon'
-
     action:
       - service: script.tweet_engine
         data_template:
