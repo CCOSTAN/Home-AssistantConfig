@@ -6,4 +6,5 @@ tweet_engine:
    sequence:
     - service: notify.BearStoneHA
       data_template:
-        status: '{{ tweet }} #IOT #SmartHome'
+        message: '{{ tweet }} #IOT #SmartHome'
+        media_id: '{{ media_id }}'
