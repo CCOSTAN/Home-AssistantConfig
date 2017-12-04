@@ -17,7 +17,7 @@
 
     - service: script.tweet_engine
       data:
-        tweet: "New version of @Home_Assistant! Cannot wait for @CCostan to install it! - {{ states('updater.updater') }} #IOT #SmartHome"
+        tweet: "New version of @Home_Assistant! Cannot wait for @CCostan to install it! - {{ states('updater.updater') }}"
 
     - service: notify.html5
       data_template:

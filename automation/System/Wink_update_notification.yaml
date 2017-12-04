@@ -24,3 +24,11 @@
         title: "Wink Update Available"
         message: "Wink Update is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
         notification_id: "update_available"
+
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "Check @TheWinkApp Hub @CCostan. Update is needed. {{ states.binary_sensor.carlowink.attributes }}",
+          "New update from @TheWinkApp.  Hop to it @CCostan"
+          ] | random + "(http://amzn.to/2orGEWo)"}}

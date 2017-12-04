@@ -19,6 +19,11 @@
         - group.living_room_lights
     - service: input_boolean.turn_off
       entity_id: input_boolean.meal_time
-    - service: script.speechcon
+    - service: script.tweet_engine
       data_template:
-        speechcon: "bon_appetit"
+        tweet: >
+          {{ [
+          "Someone just triggered MealTime scene.  TV off and kitchen lights on.",
+          "SOmeone triggered MealTime in the Kitchen. Open for Breakfast, Lunch and Dinner!",
+          "MmMM, Smells good - Food is ready in the kitchen!"
+          ] | random + "(http://amzn.to/2dSVbK4)"}}

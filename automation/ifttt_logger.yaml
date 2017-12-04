@@ -18,3 +18,13 @@
         payload: '{{ states("sensor.date") }}'
         topic: 'ifttt/rachio/watering_time'
         retain: true
+
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "Just finished watering the lawn with @_Rachio.",
+          "The lawn looked thirsty so I watered it.",
+          "My lawn looks great and we definately do not water it nearly as much as everyone else.",
+          ".@CCostan does not even think about watering the lawn. Me and @_Rachio take care of that."
+          ] | random + "(http://amzn.to/2eoPKBW)"}}

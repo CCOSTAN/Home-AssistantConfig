@@ -19,3 +19,11 @@
         minutes: 1
     # enable this automation - This prevents duplicate pushes.
     - service: automation.turn_on
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "Someone just flipped my Daylight Sensor. Let there be light! (http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)",
+          "Press a dash button, You get LIGHT!",
+          "I normally do not put lights on in the day unless someone MANUALLY requests it."
+          ] | random + "(http://amzn.to/2dPKZhM)"}}

@@ -134,3 +134,12 @@ automation:
     action:
       - service: media_player.media_stop
         entity_id: media_player.alarm_clock
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "Sleepy Heads, Someone just pressed snooze!",
+            "Fine, 10 more minutes of snoozy sleep!",
+            "The @SleepNumber bed is TOO comfy, They just hit the snooze button. (http://amzn.to/2kxdXXI)"
+            "Seriously, 10 more minutes & you MUST get up!"
+            ] | random + "(http://www.vmwareinfo.com/2017/11/building-worlds-greatest-smart-alarm.html)"}}

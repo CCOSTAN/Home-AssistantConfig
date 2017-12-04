@@ -35,3 +35,12 @@ automation:
           title: "New HA Podcast available"
           message: "New Podcast available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
           notification_id: "update_available"
+
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "There is a new HA Podcast available! @DanGeek & Crew rock it out!",
+            "Mine and @DanGeek Favorite Podcast just came out!",
+            "Mine & @CCostan Favorite Podcast just came out!"
+            ] | random + "(https://hasspodcast.io/)"}}

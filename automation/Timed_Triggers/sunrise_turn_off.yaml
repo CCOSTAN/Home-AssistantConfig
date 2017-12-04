@@ -35,3 +35,12 @@
         - input_boolean.medicine
         - input_boolean.daylight_override
         - input_boolean.guest_mode
+
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "Even though they are sleeping, I still turn off the outdoor lights before sunrise. (http://amzn.to/2q17R4S)",
+          "It was a beautiful sunrise.  Time to turn off the exterior lights. (http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
+          "If the sun is out, we do not need the exterior lights on. (http://amzn.to/2q17R4S)"
+          ] | random + "#HomeAutomation"}}

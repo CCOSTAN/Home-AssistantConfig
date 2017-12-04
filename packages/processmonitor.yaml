@@ -67,6 +67,10 @@ automation:
           value3: "{{ trigger.to_state.state }}"
           who: 'carlo'
 
+      - service: script.tweet_engine
+        data:
+          tweet: "Oh NO! {{ trigger.to_state.attributes.friendly_name }} is now {{ trigger.to_state.state }}. #ProcessMonitor"
+
 #-------------------------------------------
 
   - alias: "Self Heal Disk Use Alarm"

@@ -37,7 +37,10 @@ automation:
         - input_select.log_level
 #        - input_select.log_component
     action:
-      service: logger.set_level
-      data_template:
-#        {{ states.input_select.log_component.state }}: "{{ states.input_select.log_level.state }}"
-        homeassistant.components: "{{ states.input_select.log_level.state }}"
+      - service: logger.set_level
+        data_template:
+          homeassistant.components: "{{ states.input_select.log_level.state }}"
+
+      - service: script.tweet_engine
+        data:
+          tweet: "My logging level has just been set to {{ states.input_select.log_level.state }}"

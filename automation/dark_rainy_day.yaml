@@ -62,4 +62,13 @@
         value1: "It is getting a little dark inside the house because of the {{trigger.entity_id.split('_')[2]|replace('precip','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}} outside.  I will turn on some extra lights in the living room."
         call_window_check: 1
         call_garage_check: 1
+
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "If it gets dark or rainy at home, I turn on some interior lights.",
+          "It is getting a little dark inside the house because of the {{trigger.entity_id.split('_')[2]|replace('precip','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}} outside.  I will turn on some lights.",
+          "When it gets dark inside, lighting can make you feel better and see better! So Light on! (http://amzn.to/2lEf4Xq)"
+          ] | random + "#AutomatedLighting"}}
 ######################################################################

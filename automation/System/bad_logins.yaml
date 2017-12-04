@@ -9,9 +9,18 @@
     value_template: "{{ states('persistent_notification.httplogin') != 'unknown' }}"
 
   action:
-    service: script.notify_engine
-    data_template:
-      value1: 'Bad Login: '
-      value2: 'There was a Hack attempt!'
-      value3: 'Go Check the GUI for details.'
-      who: 'carlo'
+    - service: script.notify_engine  
+      data_template:
+        value1: 'Bad Login: '
+        value2: 'There was a Hack attempt!'
+        value3: 'Go Check the GUI for details.'
+        who: 'carlo'
+
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "Seriously, I am a Smart Home. I am logging your hack attempt.",
+          "If you do not know the password, you get locked out and IP banned.",
+          "Three Strikes and you are OUT! IP Banned."
+          ] | random + "#Security"}}
