@@ -99,13 +99,12 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "Someone just added {{value1}} to the shopping list.",
-            "New item added to the shopping list. {{value1}}",
-            "Lights out.  Get a good nights rest.",
-            "Tonights @SleepNumber number is {{states.sensor.sleepnumber_carlo_carlo_sleepnumber.state}}. Time for bed.",
-            "The @SleepNumber bed tells me when everyone is in bed & time for lights out."
-            ] | random + "(http://amzn.to/2kxdXXI)"}}
-            
+            "Someone just added something to the shopping list via Alexa (http://amzn.to/2kosqHP)",
+            "New item added to the shopping list via Alexa. (http://amzn.to/2jhw8jb)",
+            "More items to the shopping list via Alexa. (http://amzn.to/2jT5Xi5)",
+            "Someone just asked Alexa to add something to the family shopping list."
+            ] | random + "#Productivity"}}
+
 # {% macro moon() -%}
 # {%- if states.sensor.moon.state == 'Full moon' -%}
 # Check out the full moon tonight!
