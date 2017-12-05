@@ -31,6 +31,8 @@ automation:
         data_template:
           entity_id:
             - media_player.livingroomCC
+            - media_player.bedroom_alarm_panel
+            - media_player.alarm_clock
           media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3"
           media_content_type: audio/mp4
 
@@ -38,11 +40,11 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "Hey @{{Value1}}! Enjoy the Journey!",
-            "I have a new follower (@{{Value1}}), I just sounded a chirp in the house.",
-            "Each new follower like (@{{Value1}}) makes me sound a chirp in the house.",
-            "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower, I sound a chirp! Like (@{{Value1}})!"
-            ] | random + "#follome"}}
+            "Hey @{{trigger.event.event_data.value1}}! Enjoy the Journey!",
+            "I have a new follower (@{{trigger.event.event_data.value1}}), I just sounded a chirp in the house.",
+            "Boom! (@{{trigger.event.data.value1}}) makes me sound a chirp in the house for the follow.",
+            "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower like (@{{trigger.event.event_data.value1}}), I sound a chirp!"
+            ] | random + " #follome"}}
 
 ######################################################################
 ##  Good night tweet
@@ -71,6 +73,21 @@ automation:
             "The @SleepNumber bed tells me when everyone is in bed & time for lights out."
             ] | random + "(http://amzn.to/2kxdXXI)"}}
 
+  - alias: 'New Scale Tweet!'
+    hide_entity: True
+    trigger:
+      - platform: event
+        event_type: withing_scale
+    action:
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "Someone just stepped on the WiThings scale!",
+            "Checking thier weight on the WiThings Scale.",
+            "Even the Scale is connected and someone just stepped on it.",
+            "New weight logged on the scale by @CCostan. I will let him disclose the numbers though."
+            ] | random + " #Fitness (http://amzn.to/2APkINm)"}}
 
 # {% macro moon() -%}
 # {%- if states.sensor.moon.state == 'Full moon' -%}
