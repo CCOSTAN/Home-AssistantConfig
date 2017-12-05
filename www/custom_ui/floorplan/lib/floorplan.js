@@ -1,6 +1,6 @@
 /*
  Floorplan for Home Assistant
- Version: 1.0.7.51
+ Version: 1.0.7.55
  By Petar Kozul
  https://github.com/pkozul/ha-floorplan
 */
@@ -14,7 +14,7 @@
 
   class Floorplan {
     constructor() {
-      this.version = '1.0.7.51';
+      this.version = '1.0.7.55';
       this.doc = {};
       this.hass = {};
       this.openMoreInfo = () => { };
@@ -104,7 +104,7 @@
           this.config.svg = svg;
           return this.loadStyleSheet(this.config.stylesheet)
             .then(() => {
-              return Promise.resolve(this.initFloorplan(svg, this.config))
+              return this.initFloorplan(svg, this.config)
                 .then(() => {
                   this.setIsLoading(false);
                   this.initPageDisplay();
@@ -256,23 +256,22 @@
     }
 
     loadStyleSheet(stylesheetUrl) {
-      return new Promise((resolve, reject) => {
-        if (!stylesheetUrl) {
-          return resolve();
-        }
+      if (!stylesheetUrl) {
+        return Promise.resolve();
+      }
 
-        this.loadStyleSheetInternal(stylesheetUrl, function (success, link) {
-          if (success && link && link.sheet && link.sheet.cssRules) {
-            this.instance.doc.appendChild(link);
-            let styleSheet = link.sheet;
-            this.instance.cssRules = this.instance.cssRules.concat(this.instance.getArray(styleSheet.cssRules));
-            return this.resolve();
-          }
-          else {
-            reject(new URIError(`${stylesheetUrl}`));
-          }
-        }.bind({ instance: this, resolve: resolve, reject: reject }));
-      });
+      return this.fetchTextResource(stylesheetUrl, false)
+        .then(stylesheet => {
+          let link = document.createElement('style');
+          link.type = 'text/css';
+          link.innerHTML = stylesheet;
+          this.doc.appendChild(link);
+
+          let cssRules = this.getArray(link.sheet.cssRules);
+          this.cssRules = this.cssRules.concat(cssRules);
+
+          return Promise.resolve();
+        });
     }
 
     loadFloorplanSvg(imageUrl, pageInfo, masterPageInfo) {
@@ -555,13 +554,15 @@
 
     initFloorplan(svg, config) {
       if (!config.rules) {
-        return;
+        return Promise.resolve();;
       }
 
       let svgElements = $(svg).find('*').toArray();
 
       this.initLastMotion(config, svg, svgElements);
       this.initRules(config, svg, svgElements);
+
+      return Promise.resolve();;
     }
 
     initLastMotion(config, svg, svgElements) {
@@ -630,7 +631,7 @@
           if ($svgElement.is('text') && ($svgElement[0].id === elementId)) {
             let backgroundSvgElement = svgElements.find(svgElement => svgElement.id === ($svgElement[0].id + '.background'));
             if (!backgroundSvgElement) {
-              this.addBackgroundRectToText($svgElement[0]);
+              this.addBackgroundRectToText(svgElementInfo);
             }
             else {
               svgElementInfo.alreadyHadBackground = true;
@@ -724,7 +725,7 @@
           if ($svgElement.is('text') && ($svgElement[0].id === elementId)) {
             let backgroundSvgElement = svgElements.find(svgElement => svgElement.id === ($svgElement[0].id + '.background'));
             if (!backgroundSvgElement) {
-              this.addBackgroundRectToText($svgElement[0]);
+              this.addBackgroundRectToText(svgElementInfo);
             }
             else {
               svgElementInfo.alreadyHadBackground = true;
@@ -755,7 +756,9 @@
       }
     }
 
-    addBackgroundRectToText(svgElement) {
+    addBackgroundRectToText(svgElementInfo) {
+      let svgElement = svgElementInfo.svgElement;
+
       let bbox = svgElement.getBBox();
 
       let rect = $(document.createElementNS('http://www.w3.org/2000/svg', 'rect'))
@@ -1088,14 +1091,19 @@
       if (!svgElementInfo.alreadyHadBackground) {
         let rect = $(svgElement).parent().find(`[id="${entityId}.background"]`);
         if (rect.length) {
-          let bbox = svgElement.getBBox();
-          $(rect)
-            .attr('x', bbox.x - 1)
-            .attr('y', bbox.y - 0.5)
-            .attr('height', bbox.height + 1)
-            .attr('width', bbox.width + 2)
-            .height(bbox.height + 1)
-            .width(bbox.width + 2);
+          if ($(svgElement).css('display') != 'none') {
+            let parentSvg = $(svgElement).parents('svg').eq(0);
+            if ($(parentSvg).css('display') !== 'none') {
+              let bbox = svgElement.getBBox();
+              $(rect)
+                .attr('x', bbox.x - 1)
+                .attr('y', bbox.y - 0.5)
+                .attr('height', bbox.height + 1)
+                .attr('width', bbox.width + 2)
+                .height(bbox.height + 1)
+                .width(bbox.width + 2);
+            }
+          }
         }
       }
     }
@@ -1384,14 +1392,8 @@
 
       let ratio = isExpired ? 1 : (nowMoment - transition.startMoment) / (transition.endMoment - transition.startMoment);
       let color = this.getTransitionColor(transition.fromColor, transition.toColor, ratio);
-
       //this.logDebug('TRANSITION', `${transition.entityId} (ratio: ${ratio}, element: ${transition.svgElementInfo.svgElement.id}, fill: ${color})`);
       transition.svgElementInfo.svgElement.style.fill = color;
-      $(transition.svgElementInfo.svgElement).find('*').each((i, svgNestedElement) => {
-        if (!$(svgNestedElement).hasClass('ha-leave-me-alone')) {
-          svgNestedElement.style.fill = color;
-        }
-      });
 
       if (isExpired) {
         transition.isActive = false;
@@ -1835,45 +1837,6 @@
     getTransitionColor(fromColor, toColor, value) {
       return (value <= 0) ? fromColor :
         ((value >= 1) ? toColor : this.rgbToHex(this.mix(this.hexToRgb(toColor), this.hexToRgb(fromColor), value)));
-    }
-
-    loadStyleSheetInternal(path, fn, scope) {
-      let head = document.getElementsByTagName('head')[0]; // reference to document.head for appending / removing link nodes
-      let link = document.createElement('link');           // create the link node
-      link.setAttribute('href', this.cacheBuster(path));
-      link.setAttribute('rel', 'stylesheet');
-      link.setAttribute('type', 'text/css');
-
-      let sheet, cssRules;
-      // get the correct properties to check for depending on the browser
-      if ('sheet' in link) {
-        sheet = 'sheet'; cssRules = 'cssRules';
-      }
-      else {
-        sheet = 'styleSheet'; cssRules = 'rules';
-      }
-
-      let intervalId = setInterval(function () {                     // start checking whether the style sheet has successfully loaded
-        try {
-          if (link[sheet] && link[sheet][cssRules].length) { // SUCCESS! our style sheet has loaded
-            clearInterval(intervalId);                      // clear the counters
-            clearTimeout(timeoutId);
-            fn.call(scope || window, true, link);           // fire the callback with success == true
-          }
-        }
-        catch (e) { console.error(e); debugger; }
-        finally { }
-      }, 10),                                               // how often to check if the stylesheet is loaded
-        timeoutId = setTimeout(function () {                // start counting down till fail
-          clearInterval(intervalId);                        // clear the counters
-          clearTimeout(timeoutId);
-          head.removeChild(link);                           // since the style sheet didn't load, remove the link node from the DOM
-          fn.call(scope || window, false, link);            // fire the callback with success == false
-        }, 15000);                                          // how long to wait before failing
-
-      head.appendChild(link);  // insert the link node into the DOM and start loading the style sheet
-
-      return link; // return the link node
     }
 
     /***************************************************************************************************************************/
