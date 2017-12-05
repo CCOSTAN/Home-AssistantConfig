@@ -32,7 +32,6 @@ automation:
           entity_id:
             - media_player.livingroomCC
             - media_player.bedroom_alarm_panel
-            - media_player.alarm_clock
           media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3"
           media_content_type: audio/mp4
 
@@ -89,6 +88,24 @@ automation:
             "New weight logged on the scale by @CCostan. I will let him disclose the numbers though."
             ] | random + " #Fitness (http://amzn.to/2APkINm)"}}
 
+
+  - alias: 'Shopping list tweet'
+    hide_entity: True
+    trigger:
+      - platform: event
+        event_type: shopping_list
+    action:
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "Someone just added {{value1}} to the shopping list.",
+            "New item added to the shopping list. {{value1}}",
+            "Lights out.  Get a good nights rest.",
+            "Tonights @SleepNumber number is {{states.sensor.sleepnumber_carlo_carlo_sleepnumber.state}}. Time for bed.",
+            "The @SleepNumber bed tells me when everyone is in bed & time for lights out."
+            ] | random + "(http://amzn.to/2kxdXXI)"}}
+            
 # {% macro moon() -%}
 # {%- if states.sensor.moon.state == 'Full moon' -%}
 # Check out the full moon tonight!

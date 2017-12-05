@@ -111,6 +111,11 @@ automation:
         entity_id: group.family
         state: 'home'
     action:
+      - service: media_player.volume_set
+        data_template:
+          entity_id:
+            - media_player.alarm_clock
+          volume_level: 0.5
       - service: media_player.play_media
         data_template:
           entity_id:

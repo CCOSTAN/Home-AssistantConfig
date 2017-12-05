@@ -1,28 +1,38 @@
 /*
-Floorplan Fully Kiosk for Home Assistant
-Version: 1.0.7.29
-https://github.com/pkozul/ha-floorplan
+  Floorplan Fully Kiosk for Home Assistant
+  Version: 1.0.7.39
+  By Petar Kozul
+  https://github.com/pkozul/ha-floorplan
 */
 
 'use strict';
 
-if (typeof window.FullyKiosk !== 'function') {
+(function () {
+  if (typeof window.FullyKiosk === 'function') {
+    return;
+  }
+
   class FullyKiosk {
     constructor(floorplan) {
-      this.version = '1.0.7.29';
+      this.version = '1.0.7.39';
 
       this.floorplan = floorplan;
       this.authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
 
       this.fullyInfo = {};
       this.fullyState = {};
+      this.iBeacons = {};
     }
+
+    /***************************************************************************************************************************/
+    /* Initialization
+    /***************************************************************************************************************************/
 
     init() {
       this.logInfo('VERSION', `Fully Kiosk v${this.version}`);
 
       if (typeof fully === "undefined") {
-        this.logInfo('FULLY_KIOSK', `Fully Kiosk application is not running on this device`);
+        this.logInfo('FULLY_KIOSK', `Fully Kiosk is not running or not enabled. You can enable it via Settings > Other Settings > Enable Website Integration (PLUS).`);
         return;
       }
 
@@ -34,9 +44,14 @@ if (typeof window.FullyKiosk !== 'function') {
         return;
       }
 
+      if (!navigator.geolocation) {
+        this.logInfo('FULLY_KIOSK', "Geolocation is not supported or not enabled. You can enable it via Settings > Web Content Settings > Enable Geolocation Access (PLUS) and on the device via Google Settings > Location > Fully Kiosk Browser.");
+      }
+
       this.fullyInfo = this.getFullyInfo(device);
 
       this.updateFullyState();
+      this.updateCurrentPosition();
 
       this.initAudio();
       this.addAudioEventHandlers();
@@ -47,6 +62,11 @@ if (typeof window.FullyKiosk !== 'function') {
       this.sendPluggedState();
       this.sendScreensaverState();
       this.sendMediaPlayerState();
+    }
+
+    initAudio() {
+      this.audio = new Audio();
+      this.isAudioPlaying = false;
     }
 
     getFullyInfo(device) {
@@ -67,6 +87,8 @@ if (typeof window.FullyKiosk !== 'function') {
 
         isMotionDetected: false,
         isScreensaverOn: false,
+
+        supportsGeolocation: (navigator.geolocation != undefined),
       };
     }
 
@@ -77,10 +99,9 @@ if (typeof window.FullyKiosk !== 'function') {
       this.fullyState.isPluggedIn = fully.isPlugged();
     }
 
-    initAudio() {
-      this.audio = new Audio();
-      this.isAudioPlaying = false;
-    }
+    /***************************************************************************************************************************/
+    /* Set up event handlers
+    /***************************************************************************************************************************/
 
     addAudioEventHandlers() {
       this.audio.addEventListener('play', this.onAudioPlay.bind(this));
@@ -93,18 +114,28 @@ if (typeof window.FullyKiosk !== 'function') {
     addFullyEventHandlers() {
       window['onFullyEvent'] = (e) => { window.dispatchEvent(new Event(e)); }
 
-      window.addEventListener('fully.screenOn', this.onFullyScreenOn.bind(this));
-      window.addEventListener('fully.screenOff', this.onFullyScreenOff.bind(this));
-      window.addEventListener('fully.networkDisconnect', this.onFullyNetworkDisconnect.bind(this));
-      window.addEventListener('fully.networkReconnect', this.onFullyNetworkReconnect.bind(this));
-      window.addEventListener('fully.internetDisconnect', this.onFullyInternetDisconnect.bind(this));
-      window.addEventListener('fully.internetReconnect', this.onFullyInternetReconnect.bind(this));
-      window.addEventListener('fully.unplugged', this.onFullyUnplugged.bind(this));
-      window.addEventListener('fully.pluggedAC', this.onFullyPluggedAC.bind(this));
-      window.addEventListener('fully.pluggedUSB', this.onFullyPluggedUSB.bind(this));
-      window.addEventListener('fully.onMotion', this.onFullyMotion.bind(this));
-      window.addEventListener('fully.onScreensaverStart', this.onFullyScreensaverStart.bind(this));
-      window.addEventListener('fully.onScreensaverStop', this.onFullyScreensaverStop.bind(this));
+      window['onFullyIBeaconEvent'] = (e, uuid, major, minor, distance) => {
+        let event = new CustomEvent(e, {
+          detail: { uuid: uuid, major: major, minor: minor, distance: distance, timestamp: new Date() }
+        });
+        window.dispatchEvent(event);
+      }
+
+      window.addEventListener('fully.screenOn', this.onScreenOn.bind(this));
+      window.addEventListener('fully.screenOff', this.onScreenOff.bind(this));
+      window.addEventListener('fully.networkDisconnect', this.onNetworkDisconnect.bind(this));
+      window.addEventListener('fully.networkReconnect', this.onNetworkReconnect.bind(this));
+      window.addEventListener('fully.internetDisconnect', this.onInternetDisconnect.bind(this));
+      window.addEventListener('fully.internetReconnect', this.onInternetReconnect.bind(this));
+      window.addEventListener('fully.unplugged', this.onUnplugged.bind(this));
+      window.addEventListener('fully.pluggedAC', this.onPluggedAC.bind(this));
+      window.addEventListener('fully.pluggedUSB', this.onPluggedUSB.bind(this));
+      window.addEventListener('fully.onScreensaverStart', this.onScreensaverStart.bind(this));
+      window.addEventListener('fully.onScreensaverStop', this.onScreensaverStop.bind(this));
+      window.addEventListener('fully.onBatteryLevelChanged', this.onBatteryLevelChanged.bind(this));
+      window.addEventListener('fully.onMotion', this.onMotion.bind(this));
+      window.addEventListener('fully.onMovement', this.onMovement.bind(this));
+      window.addEventListener('fully.onIBeacon', this.onIBeacon.bind(this));
 
       fully.bind('screenOn', 'onFullyEvent("fully.screenOn");')
       fully.bind('screenOff', 'onFullyEvent("fully.screenOff");')
@@ -115,132 +146,111 @@ if (typeof window.FullyKiosk !== 'function') {
       fully.bind('unplugged', 'onFullyEvent("fully.unplugged");')
       fully.bind('pluggedAC', 'onFullyEvent("fully.pluggedAC");')
       fully.bind('pluggedUSB', 'onFullyEvent("fully.pluggedUSB");')
-      fully.bind('onMotion', 'onFullyEvent("fully.onMotion");') // Max. one per second
       fully.bind('onScreensaverStart', 'onFullyEvent("fully.onScreensaverStart");')
       fully.bind('onScreensaverStop', 'onFullyEvent("fully.onScreensaverStop");')
+      fully.bind('onBatteryLevelChanged', 'onFullyEvent("fully.onBatteryLevelChanged");')
+      fully.bind('onMotion', 'onFullyEvent("fully.onMotion");') // Max. one per second
+      fully.bind('onMovement', 'onFullyEvent("fully.onMovement");')
+      fully.bind('onIBeacon', 'onFullyIBeaconEvent("fully.onIBeacon", "$id1", "$id2", "$id3", $distance);')
     }
 
-    onFullyScreenOn() {
+    /***************************************************************************************************************************/
+    /* Fully Kiosk events
+    /***************************************************************************************************************************/
+
+    onScreenOn() {
       this.logDebug('FULLY_KIOSK', 'Screen turned on');
     }
 
-    onFullyScreenOff() {
+    onScreenOff() {
       this.logDebug('FULLY_KIOSK', 'Screen turned off');
     }
 
-    onFullyNetworkDisconnect() {
+    onNetworkDisconnect() {
       this.logDebug('FULLY_KIOSK', 'Network disconnected');
     }
 
-    onFullyNetworkReconnect() {
+    onNetworkReconnect() {
       this.logDebug('FULLY_KIOSK', 'Network reconnected');
     }
 
-    onFullyInternetDisconnect() {
+    onInternetDisconnect() {
       this.logDebug('FULLY_KIOSK', 'Internet disconnected');
     }
 
-    onFullyInternetReconnect() {
+    onInternetReconnect() {
       this.logDebug('FULLY_KIOSK', 'Internet reconnected');
     }
 
-    onFullyUnplugged() {
+    onUnplugged() {
       this.logDebug('FULLY_KIOSK', 'Unplugged AC');
       this.fullyState.isPluggedIn = false;
       this.sendPluggedState();
     }
 
-    onFullyPluggedAC() {
+    onPluggedAC() {
       this.logDebug('FULLY_KIOSK', 'Plugged AC');
       this.fullyState.isPluggedIn = true;
       this.sendPluggedState();
     }
 
-    onFullyPluggedUSB() {
+    onPluggedUSB() {
       this.logDebug('FULLY_KIOSK', 'Unplugged USB');
       this.logDebug('FULLY_KIOSK', 'Device plugged into USB');
     }
 
-    onFullyMotion() {
-      this.fullyState.isMotionDetected = true;
-      this.logDebug('FULLY_KIOSK', 'Motion detected');
-      this.sendMotionState();
-    }
-
-    onFullyScreensaverStart() {
+    onScreensaverStart() {
       this.fullyState.isScreensaverOn = true;
       this.logDebug('FULLY_KIOSK', 'Screensaver started');
       this.sendScreensaverState();
     }
 
-    onFullyScreensaverStop() {
+    onScreensaverStop() {
       this.fullyState.isScreensaverOn = false;
       this.logDebug('FULLY_KIOSK', 'Screensaver stopped');
       this.sendScreensaverState();
     }
 
-    sendMotionState() {
-      if (!this.fullyInfo.motionBinarySensorEntityId) {
-        return;
+    onBatteryLevelChanged() {
+      this.logDebug('FULLY_KIOSK', 'Battery level changed');
+    }
+
+    onMotion() {
+      this.fullyState.isMotionDetected = true;
+      this.logDebug('FULLY_KIOSK', 'Motion detected');
+      this.sendMotionState();
+    }
+
+    onMovement() {
+      this.logDebug('FULLY_KIOSK', 'Movement detected');
+
+      if (this.fullyInfo.supportsGeolocation) {
+        this.updateCurrentPosition()
+          .then(() => {
+            this.sendMotionState();
+          });
       }
-
-      clearTimeout(this.sendMotionStateTimer);
-      let timeout = this.fullyState.isMotionDetected ? 5000 : 10000;
-
-      let state = this.fullyState.isMotionDetected ? "on" : "off";
-      this.sendState(`/api/states/${this.fullyInfo.motionBinarySensorEntityId}`, this.newPayload(state), () => {
-        this.sendMotionStateTimer = setTimeout(() => {
-          this.fullyState.isMotionDetected = false;
-          this.sendMotionState();
-
-          // Send other states as well
-          this.sendPluggedState();
-          this.sendScreensaverState();
-          this.sendMediaPlayerState();
-        }, timeout);
-      });
     }
 
-    sendPluggedState() {
-      if (!this.fullyInfo.pluggedBinarySensorEntityId) {
-        return;
-      }
+    onIBeacon(e) {
+      let iBeacon = e.detail;
 
-      let state = this.fullyState.isPluggedIn ? "on" : "off";
-      this.sendState(`/api/states/${this.fullyInfo.pluggedBinarySensorEntityId}`, this.newPayload(state));
+      this.logDebug('FULLY_KIOSK', `iBeacon (${JSON.stringify(iBeacon)})`);
+
+      let iBeaconId = iBeacon.uuid;
+      iBeaconId += (iBeacon.major ? `_${iBeacon.major}` : '');
+      iBeaconId += (iBeacon.minor ? `_${iBeacon.minor}` : '');
+
+      this.iBeacons[iBeaconId] = iBeacon;
+
+      this.sendMotionState();
+
+      this.sendIBeaconState(iBeacon);
     }
 
-    sendScreensaverState() {
-      if (!this.fullyInfo.screensaverLightEntityId) {
-        return;
-      }
-
-      let state = this.fullyState.isScreensaverOn ? "on" : "off";
-      this.sendState(`/api/states/${this.fullyInfo.screensaverLightEntityId}`, this.newPayload(state));
-    }
-
-    newPayload(state) {
-      this.updateFullyState();
-
-      return {
-        state: state,
-        brightness: this.fullyState.screenBrightness,
-        attributes: {
-          volume_level: this.audio.volume,
-          media_content_id: this.audio.src,
-          address: this.fullyInfo.macAddress,
-          mac_address: this.fullyInfo.macAddress,
-          serial_number: 'G0W0MA0771941EJU',
-          device_id: '6ac37a44-802cb151',
-          battery_level: this.fullyState.batteryLevel,
-          screen_brightness: this.fullyState.screenBrightness,
-          _isScreenOn: this.fullyState.isScreenOn,
-          _isPluggedIn: this.fullyState.isPluggedIn,
-          _isMotionDetected: this.fullyState.isMotionDetected,
-          _isScreensaverOn: this.fullyState.isScreensaverOn,
-        }
-      };
-    }
+    /***************************************************************************************************************************/
+    /* HTML5 Audio
+    /***************************************************************************************************************************/
 
     onAudioPlay() {
       this.isAudioPlaying = true;
@@ -266,16 +276,116 @@ if (typeof window.FullyKiosk !== 'function') {
       this.sendMediaPlayerState();
     }
 
+    /***************************************************************************************************************************/
+    /* Send state to Home Assistant
+    /***************************************************************************************************************************/
+
+    sendMotionState() {
+      if (!this.fullyInfo.motionBinarySensorEntityId) {
+        return;
+      }
+
+      clearTimeout(this.sendMotionStateTimer);
+      let timeout = this.fullyState.isMotionDetected ? 5000 : 10000;
+
+      let state = this.fullyState.isMotionDetected ? "on" : "off";
+      this.PostToHomeAssistant(`/api/states/${this.fullyInfo.motionBinarySensorEntityId}`, this.newPayload(state), () => {
+        this.sendMotionStateTimer = setTimeout(() => {
+          this.fullyState.isMotionDetected = false;
+          this.sendMotionState();
+
+          // Send other states as well
+          this.sendPluggedState();
+          this.sendScreensaverState();
+          this.sendMediaPlayerState();
+        }, timeout);
+      });
+    }
+
+    sendPluggedState() {
+      if (!this.fullyInfo.pluggedBinarySensorEntityId) {
+        return;
+      }
+
+      let state = this.fullyState.isPluggedIn ? "on" : "off";
+      this.PostToHomeAssistant(`/api/states/${this.fullyInfo.pluggedBinarySensorEntityId}`, this.newPayload(state));
+    }
+
+    sendScreensaverState() {
+      if (!this.fullyInfo.screensaverLightEntityId) {
+        return;
+      }
+
+      let state = this.fullyState.isScreensaverOn ? "on" : "off";
+      this.PostToHomeAssistant(`/api/states/${this.fullyInfo.screensaverLightEntityId}`, this.newPayload(state));
+    }
+
     sendMediaPlayerState() {
       if (!this.fullyInfo.mediaPlayerEntityId) {
         return;
       }
 
       let state = this.isAudioPlaying ? "playing" : "idle";
-      this.sendState(`/api/fully_kiosk/media_player/${this.fullyInfo.mediaPlayerEntityId}`, this.newPayload(state));
+      this.PostToHomeAssistant(`/api/fully_kiosk/media_player/${this.fullyInfo.mediaPlayerEntityId}`, this.newPayload(state));
     }
 
-    /*  Functions */
+    sendIBeaconState(iBeacon) {
+      if (!this.fullyInfo.motionBinarySensorEntityId) {
+        return;
+      }
+
+      let payload = {
+        mac: undefined,
+        dev_id: iBeacon.uuid,
+        host_name: undefined,
+        location_name: this.fullyInfo.macAddress,
+        gps: this.position ? [this.position.coords.latitude, this.position.coords.longitude] : undefined,
+        gps_accuracy: undefined,
+        battery: undefined,
+
+        uuid: iBeacon.uuid,
+        major: iBeacon.major,
+        minor: iBeacon.minor,
+      };
+
+      //this.PostToHomeAssistant(`/api/services/device_tracker/see`, payload);
+
+      let fullyId = this.fullyInfo.macAddress.replace(/[:-]/g, "_");
+      let payload = { topic: `room_presence/${fullyId}`, payload: `{ \"id\": \"${iBeacon.uuid}\", \"distance\": ${iBeacon.distance} }` };
+      this.floorplan.hass.callService('mqtt', 'publish', payload);
+    }
+
+    newPayload(state) {
+      this.updateFullyState();
+
+      let payload = {
+        state: state,
+        brightness: this.fullyState.screenBrightness,
+        attributes: {
+          volume_level: this.audio.volume,
+          media_content_id: this.audio.src,
+          address: this.fullyInfo.macAddress,
+          mac_address: this.fullyInfo.macAddress,
+          serial_number: this.fullyInfo.serialNumber,
+          device_id: this.fullyInfo.deviceId,
+          battery_level: this.fullyState.batteryLevel,
+          screen_brightness: this.fullyState.screenBrightness,
+          _isScreenOn: this.fullyState.isScreenOn,
+          _isPluggedIn: this.fullyState.isPluggedIn,
+          _isMotionDetected: this.fullyState.isMotionDetected,
+          _isScreensaverOn: this.fullyState.isScreensaverOn,
+          _latitude: this.position && this.position.coords.latitude,
+          _longitude: this.position && this.position.coords.longitude,
+          _iBeacons: JSON.stringify(Object.keys(this.iBeacons).map(iBeaconId => this.iBeacons[iBeaconId])),
+        }
+      };
+
+      return payload;
+    }
+
+    /***************************************************************************************************************************/
+    /* Geolocation
+    /***************************************************************************************************************************/
 
     setScreenBrightness(brightness) {
       fully.setScreenBrightness(brightness);
@@ -312,7 +422,7 @@ if (typeof window.FullyKiosk !== 'function') {
       this.audio.volume = level;
     }
 
-    sendState(url, payload, onSuccess) {
+    PostToHomeAssistant(url, payload, onSuccess) {
       let options = {
         type: 'POST',
         url: url,
@@ -407,11 +517,38 @@ if (typeof window.FullyKiosk !== 'function') {
         'call_service');
     }
 
+    /***************************************************************************************************************************/
+    /* Geolocation
+    /***************************************************************************************************************************/
+
+    updateCurrentPosition() {
+      if (!navigator.geolocation) {
+        return Promise.resolve(undefined);
+      }
+
+      return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            this.logDebug('FULLY_KIOSK', `Current location: latitude: ${position.coords.latitude}, longitude: ${position.coords.longitude}`);
+            this.position = position;
+            resolve(position);
+          },
+          (err) => {
+            this.logError('FULLY_KIOSK', 'Unable to retrieve location');
+            reject(err);
+          });
+      })
+    }
+
+    /***************************************************************************************************************************/
+    /* Errors / logging
+    /***************************************************************************************************************************/
+
     handleError(message) {
       this.floorplan.handleError(message);
     }
 
-    logError(message) {
+    logError(area, message) {
       this.floorplan.logError(message);
     }
 
@@ -426,7 +563,29 @@ if (typeof window.FullyKiosk !== 'function') {
     logDebug(area, message) {
       this.floorplan.logDebug(area, message);
     }
+
+    /***************************************************************************************************************************/
+    /* Utility functions
+    /***************************************************************************************************************************/
+
+    debounce(func, wait, immediate) {
+      let timeout;
+      return function () {
+        let context = this, args = arguments;
+
+        let later = function () {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+        };
+
+        let callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+
+        if (callNow) func.apply(context, args);
+      };
+    }
   }
 
   window.FullyKiosk = FullyKiosk;
-}
+}).call(this);

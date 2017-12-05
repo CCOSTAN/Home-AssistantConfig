@@ -1,6 +1,6 @@
 <!--
     Floorplan for Home Assistant
-    Version: 1.0.7.50
+    Version: 1.0.7.51
     By Petar Kozul
     https://github.com/pkozul/ha-floorplan
   -->
@@ -79,49 +79,46 @@
 </dom-module>
 
 <script>
-  Polymer({
-    is: 'ha-floorplan',
+  class HaFloorplan extends window.hassMixins.EventsMixin(Polymer.Element)  {
+    static get is() { return 'ha-floorplan'; }
 
-    properties: {
-      hass: {
-        type: Object,
-        observer: 'hassChanged'
-      },
-      inDialog: {
-        type: Boolean,
-        value: false,
-      },
-      isPanel: {
-        type: Boolean,
-        value: false,
-      },
-      _config: {
-        type: Object,
-      },
-      config: {
-        type: Object,
-      },
-      isLoading: {
-        type: Boolean,
-        value: true,
-      },
-      flooplan: {
-        type: Object,
-        value: undefined,
-      },
-    },
+    static get properties() {
+      return {
+        hass: {
+          type: Object,
+          observer: 'hassChanged'
+        },
+        inDialog: {
+          type: Boolean,
+          value: false,
+        },
+        isPanel: {
+          type: Boolean,
+          value: false,
+        },
+        config: {
+          type: Object,
+        },
+        isLoading: {
+          type: Boolean,
+          value: true,
+        },
+        flooplan: {
+          type: Object,
+          value: undefined,
+        },
+      };
+    }
 
-    attached() {
-      this.onAttached();
-    },
+    connectedCallback() {
+      super.connectedCallback();
+
+      this.initFloorplan();
+    }
 
     stopPropagation(e) {
       e.stopPropagation();
-    },
-
-    onAttached() {
-      this.initFloorplan();
-    },
+    }
 
     initFloorplan() {
       this.loadScript('/local/custom_ui/floorplan/lib/floorplan.js')
@@ -133,7 +130,7 @@
             hass: this.hass,
             openMoreInfo: this.openMoreInfo.bind(this),
             setIsLoading: this.setIsLoading.bind(this),
-            config: (this._config && this._config.config) ? this._config.config : this.config,
+            config: (this.config && this.config.config) || this.config,
           };
 
           this.floorplan.init(options)
@@ -145,13 +142,13 @@
           this.setIsLoading(false);
           this.logError(error);
         });
-    },
+    }
 
     hassChanged(newHass, oldHass) {
       if (this.floorplan) {
         this.floorplan.hassChanged(newHass, oldHass);
       }
-    },
+    }
 
     loadScript(scriptUrl) {
       return new Promise((resolve, reject) => {
@@ -166,27 +163,29 @@
 
         Polymer.dom(this.root).node.appendChild(script);
       });
-    },
+    }
 
     openMoreInfo(entityId) {
       this.fire('hass-more-info', { entityId: entityId });
-    },
+    }
 
     setIsLoading(isLoading) {
       this.isLoading = isLoading;
-    },
+    }
 
     cacheBuster(url) {
       return `${url}${(url.indexOf('?') >= 0) ? '&' : '?'}_=${new Date().getTime()}`;
-    },
+    }
 
     logError(message) {
       console.error(message);
 
       let log = Polymer.dom(this.$.log).node;
-      $(log).find('ul').prepend(`<li class="${level}">${text}</li>`)
+      $(log).find('ul').prepend(`<li class="error">${message}</li>`)
       $(log).css('display', 'block');
-    },
-  });
+    }
+  }
+
+  customElements.define(HaFloorplan.is, HaFloorplan);
 
 </script>
