@@ -36,6 +36,11 @@ automation:
           media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3"
           media_content_type: audio/mp4
 
+      - service: logbook.log
+        data_template:
+          name: "New follower "
+          message: "1 {{trigger.event.event_data.value1}} 2 {{trigger.event.data.value1}} data {{trigger.event.data}}"
+
       - service: script.tweet_engine
         data_template:
           tweet: >
