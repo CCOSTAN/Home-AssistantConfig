@@ -36,18 +36,21 @@ automation:
           media_content_type: audio/mp4
 
       - service: script.tweet_engine
-        data_template:
-          tweet: >
-            {{ [
-            "One more follower {{trigger.event.data.value1}}! Chirp the Bird!! ",
-            "I have a new follower ({{trigger.event.data.value1}}), I just sounded a chirp in the house.",
-            "Boom! {{trigger.event.data.value1}} Makes me sound a chirp in the house for the follow.",
-            "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower ({{trigger.event.data.value1}}), I sound a chirp!"
-            ] | random + [
-            "#ThanksForTheFollow",
-            "#MakingitChirp",
-            "(http://www.vmwareinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)"
-            ]}}
+        data:
+          user: "{{ trigger.event.data.value1 }}"
+          tweet: [
+            [
+              "One more follower %(user)s! Chirp the Bird!!",
+              "I have a new follower (%(user)s), I just sounded a chirp in the house.",
+              "Boom! %(user)s Makes me sound a chirp in the house for the follow.",
+              "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower (%(user)s), I sound a chirp!"
+            ],
+            [
+              "#ThanksForTheFollow",
+              "#MakingitChirp",
+              "(http://www.vmwareinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)"
+            ]
+          ]
 
 
 ######################################################################
