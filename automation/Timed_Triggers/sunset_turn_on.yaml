@@ -30,8 +30,8 @@
         tweet: >
           {{ [
           "Right before sunset, I turn on the outdoor lights. (http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
-          "Since it gets dark around sunset, I turn on the landscaping lights. (http://amzn.to/2q17R4S)",
-          "Since it is sunset, I will turn on the exterior lights. (http://amzn.to/2jUBSBE)"
+          "Since it gets dark around sunset, I turn on the landscaping lights.",
+          "Since it is sunset, I will turn on the exterior lights."
           ] | random + "#Sunset"}}
     - wait_template: >-
        {{ states.group.family.state == 'home' }}

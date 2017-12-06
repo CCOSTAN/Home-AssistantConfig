@@ -25,4 +25,4 @@
 
     - service: script.tweet_engine
       data_template:
-        tweet:  "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}} (http://amzn.to/2eAhB1k)"
+        tweet:  "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."

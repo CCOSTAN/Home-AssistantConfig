@@ -76,6 +76,7 @@ automation:
       platform: time
       at: '23:50:00'
     action:
+      - delay: '00:{{ (range(1, 9)|random|int) }}:00'
       - service: script.tweet_engine
         data:
           tweet: "Daily Pi-Hole stats ({{states.sensor.carlopihole.state}}): I blocked {{states.sensor.pihole_ads_blocked_today.state}} ads. That is {{states.sensor.pihole_ads_percentage_blocked_today.state}}% of my internet traffic."
@@ -85,6 +86,7 @@ automation:
       platform: time
       at: '04:30:00'
     action:
+      - delay: '{{ (range(1, 6)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
       - service: script.tweet_engine
         data:
           tweet: "There are currently {{states.sensor.pihole_dns_unique_clients.state}} clients on my network."

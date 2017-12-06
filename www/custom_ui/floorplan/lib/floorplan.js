@@ -1,6 +1,6 @@
 /*
  Floorplan for Home Assistant
- Version: 1.0.7.55
+ Version: 1.0.7.57
  By Petar Kozul
  https://github.com/pkozul/ha-floorplan
 */
@@ -14,7 +14,7 @@
 
   class Floorplan {
     constructor() {
-      this.version = '1.0.7.55';
+      this.version = '1.0.7.57';
       this.doc = {};
       this.hass = {};
       this.openMoreInfo = () => { };
@@ -278,6 +278,7 @@
       return this.fetchTextResource(imageUrl, true)
         .then(result => {
           let svg = $(result).siblings('svg')[0];
+          svg = svg ? svg : $(result);
 
           if (pageInfo) {
             $(svg).attr('id', pageInfo.config.page_id);
@@ -378,6 +379,7 @@
           this.logDebug('IMAGE', `${entityId} (setting image: ${imageUrl})`);
 
           let svgElement = $(result).siblings('svg')[0];
+          svgElement = svgElement ? svgElement : $(result);
 
           let height = Number.parseFloat($(svgElement).attr('height'));
           let width = Number.parseFloat($(svgElement).attr('width'));
@@ -1206,8 +1208,10 @@
         for (let svgElementId in ruleInfo.svgElementInfos) {
           let svgElementInfo = ruleInfo.svgElementInfos[svgElementId];
 
-          let wasTransitionApplied = this.handleEntityUpdateTransitionCss(entityInfo, ruleInfo, svgElementInfo, isInitialLoad);
-          this.handleUpdateCss(entityInfo, svgElementInfo, ruleInfo, wasTransitionApplied);
+          if (svgElementInfo.svgElement) { // images may not have been updated yet
+            let wasTransitionApplied = this.handleEntityUpdateTransitionCss(entityInfo, ruleInfo, svgElementInfo, isInitialLoad);
+            this.handleUpdateCss(entityInfo, svgElementInfo, ruleInfo, wasTransitionApplied);
+          }
         }
       }
     }
@@ -1322,10 +1326,12 @@
         }
       }
       else {
-        for (let otherClassName of this.getArray(svgElement.classList)) {
-          if ((otherClassName !== targetClass) && (otherClassName !== 'ha-entity')) {
-            if (svgElementInfo.originalClasses.indexOf(otherClassName) < 0) {
-              obsoleteClasses.push(otherClassName);
+        if (svgElement.classList) {
+          for (let otherClassName of this.getArray(svgElement.classList)) {
+            if ((otherClassName !== targetClass) && (otherClassName !== 'ha-entity')) {
+              if (svgElementInfo.originalClasses.indexOf(otherClassName) < 0) {
+                obsoleteClasses.push(otherClassName);
+              }
             }
           }
         }
@@ -1673,9 +1679,11 @@
       let actionService = this.getActionService(action, entityId, svgElement);
       let actionData = this.getActionData(action, entityId, svgElement);
 
+      /*
       if (!actionData.entity_id && entityId) {
         actionData.entity_id = entityId;
       }
+      */
 
       this.hass.callService(this.getDomain(actionService), this.getService(actionService), actionData);
     }

@@ -73,7 +73,7 @@ rules:
     action:
       service: mqtt.publish
       data_template: '{
-        "payload": "${entities[`floorplan.hours`].state}:${entities[`floorplan.minutes`].state}",
+        "payload": "${("0"+ entities[`floorplan.hours`].state).slice(-2)}:${("0" + entities[`floorplan.minutes`].state).slice(-2)}",
         "topic": "clock/stacey_alarm_time",
         "retain": true
       }'

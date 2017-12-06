@@ -70,7 +70,7 @@ automation:
             "Lights out.  Get a good nights rest.",
             "Tonights @SleepNumber number is {{states.sensor.sleepnumber_carlo_carlo_sleepnumber.state}}. Time for bed.",
             "The @SleepNumber bed tells me when everyone is in bed & time for lights out."
-            ] | random + "(http://amzn.to/2kxdXXI)"}}
+            ] | random + "# DigitalSleep"}}
 
   - alias: 'New Scale Tweet!'
     hide_entity: True
@@ -83,10 +83,10 @@ automation:
           tweet: >
             {{ [
             "Someone just stepped on the WiThings scale!",
-            "Checking thier weight on the WiThings Scale.",
+            "Checking thier weight on the WiThings Scale. (http://amzn.to/2APkINm)",
             "Even the Scale is connected and someone just stepped on it.",
             "New weight logged on the scale by @CCostan. I will let him disclose the numbers though."
-            ] | random + " #Fitness (http://amzn.to/2APkINm)"}}
+            ] | random + " #Fitness"}}
 
 
   - alias: 'Shopping list tweet'
@@ -99,8 +99,8 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "Someone just added something to the shopping list via Alexa (http://amzn.to/2kosqHP)",
-            "New item added to the shopping list via Alexa. (http://amzn.to/2jhw8jb)",
+            "Someone just added something to the shopping list via Alexa",
+            "New item added to the shopping list via Alexa.",
             "More items to the shopping list via Alexa. (http://amzn.to/2jT5Xi5)",
             "Someone just asked Alexa to add something to the family shopping list."
             ] | random + "#Productivity"}}
