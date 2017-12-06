@@ -18,9 +18,6 @@
       data_template:
         value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
 
-    - wait_template: "{{ states.media_player.livingroomCC.state != 'playing' }}"
-      timeout: 00:01:30
-
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode
 
