@@ -1,0 +1,43 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "*.*_sleep_hours":
+#       unit_of_measurement: hours
+#       icon: mdi:sleep
+#       emulated_hue_hidden: True
+#       hidden: False
+#-------------------------------------------
+neato:
+  username: !secret neato_username
+  password: !secret neato_password
+#-------------------------------------------
+group:
+  Neato:
+    entities:
+      - camera.carloneato_cleaning_map
+      - switch.carloneato_schedule
+      - vacuum.carloneato
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+automation:
+  - alias: 'Vacuum -Tweet'
+    trigger:
+      - platform: state
+        entity_id: vacuum.carloneato
+        to: 'on'
+        from: 'off'
+    action:
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "Turning on the @Neato Vacuum to clean the first floor.",
+            "Everyday I have the Neato Botvac go out and clean the house on its own.",
+            "Since we have a cat that sheds all day, we have @Neato go out daily to clean.",
+            "Sending out @Neato Vacuum to clean the house now."
+            ] | random + " Battery Level:{{states.vacuum.carloneato.attributes.battery_level }} #Robots"}}
