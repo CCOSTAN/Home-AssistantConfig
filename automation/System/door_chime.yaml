@@ -15,7 +15,6 @@
       state: 'home'
     - condition: time
       after: '09:30:00'
-      before: '22:00:00'
     - condition: template
       value_template: >
         {% if is_state('media_player.livingroomCC', 'playing') %}
