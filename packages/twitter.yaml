@@ -38,11 +38,12 @@ automation:
       - service: script.tweet_engine
         data:
           user: "{{ trigger.event.data.value1 }}"
+          location: "{{ trigger.event.data.location }}"
           tweet: [
             [
-              "One more follower %(user)s! Chirp the Bird!!",
+              "One more follower %(user)s! Chirp the Bird from %(location)s!!",
               "I have a new follower (%(user)s), I just sounded a chirp in the house.",
-              "Boom! %(user)s Makes me sound a chirp in the house for the follow.",
+              "Boom! %(user)s follow makes me sound a chirp in the house all the way from %(location)s.",
               "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower (%(user)s), I sound a chirp!"
             ],
             [
@@ -88,11 +89,12 @@ automation:
     action:
       - service: script.tweet_engine
         data_template:
+          weight: "{{ trigger.event.data.weight }}"
           tweet: >
             {{ [
             "Someone just stepped on the WiThings scale!",
             "Checking thier weight on the WiThings Scale. (http://amzn.to/2APkINm)",
-            "Even the Scale is connected and someone just stepped on it.",
+            "Even the Scale is connected and someone just stepped on it with %(weight). ",
             "New weight logged on the scale by @CCostan. I will let him disclose the numbers though."
             ] | random + " #Fitness"}}
 
@@ -105,12 +107,13 @@ automation:
     action:
       - service: script.tweet_engine
         data_template:
+          item: "{{ trigger.event.data.value1 }}"
           tweet: >
             {{ [
-            "Someone just added something to the shopping list via Alexa",
-            "New item added to the shopping list via Alexa.",
+            "Someone just added %(item)s to the shopping list via Alexa",
+            "%(item)s added to the shopping list via Alexa.",
             "More items to the shopping list via Alexa. (http://amzn.to/2jT5Xi5)",
-            "Someone just asked Alexa to add something to the family shopping list."
+            "Someone just asked Alexa to add %(item)s to the family shopping list."
             ] | random + "#Productivity"}}
 
 # {% macro moon() -%}
