@@ -117,19 +117,13 @@ automation:
       - service: script.tweet_engine
         data_template:
           tweet: >-
-            {% set item = trigger.event.data.value1 %}
             {% set phrases = [
-            "Someone just added " ~ item ~ " to the shopping list via Alexa",
-            item ~ " added to the shopping list via Alexa.",
-            "More items to the shopping list via Alexa. (http://amzn.to/2jT5Xi5)",
-            "Someone just asked Alexa to add " ~ item ~ " to the family shopping list."
+            "Someone just addedsomething to the #shopping list via Alexa",
+            "An item was just added to the #shopping list via #Alexa.",
+            "More items to the #shopping list via Alexa. (http://amzn.to/2jT5Xi5)",
+            "Someone just asked Alexa to add something #cool to the family shopping list."
             ] %}
             {% set hashtags = [
               "#Productivity"
             ] %}
             {{ phrases|random ~ " " ~ hashtags|random }}
-
-# {% macro moon() -%}
-# {%- if states.sensor.moon.state == 'Full moon' -%}
-# Check out the full moon tonight!
-# {%- endif -%}

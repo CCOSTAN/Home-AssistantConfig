@@ -29,15 +29,15 @@ automation:
     trigger:
       - platform: state
         entity_id: vacuum.carloneato
-        to: 'on'
-        from: 'off'
+        to: 'off'
+        from: 'on'
     action:
       - service: script.tweet_engine
         data_template:
           tweet: >
             {{ [
-            "Turning on the @Neato Vacuum to clean the first floor. Cleaned {{states.vacuum.carloneato.attributes.clean_area}} square feet already.",
+            "#Neato returning to base. Cleaned {{states.vacuum.carloneato.attributes.clean_area}} square feet already.",
             "Everyday I have the Neato Botvac go out and clean the house on its own.",
             "Since we have a cat that sheds all day, we have @Neato go out daily to clean.",
-            "Sending out @Neato Vacuum to clean the house now. Cleaned {{states.vacuum.carloneato.attributes.clean_area}} square feet already."
+            "Time rechange @Neato Vacuum. Cleaned {{states.vacuum.carloneato.attributes.clean_area}} square feet already."
             ] | random + " Battery Level:{{states.vacuum.carloneato.attributes.battery_level }} #Robots"}}
