@@ -8,14 +8,4 @@ tweet_engine:
     - service: notify.BearStoneHA
       data_template:
         message: >-
-          {%- if tweet is not string and tweet is sequence -%}
-            {%- set space = joiner(' ') -%}
-            {%- set tweet -%}
-              {% for phrases in tweet -%}
-                {{- space() -}}
-                {{- phrases|random|format(user=user) -}}
-              {%- endfor -%}
-            {%- endset -%}
-          {%- endif -%}
-
           {{ tweet }} #IOT #SmartHome

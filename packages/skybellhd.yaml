@@ -93,13 +93,15 @@ automation:
     action:
       - service: script.front_house_motion
 
-# Turn SkyBell Light back on if it's turned off. Like any Good Watchdog.
+# Turn SkyBell Light and Neato Schedule back on if it's turned off. Like any Good Watchdog.
 
-  - alias: Automated SkyBell WatchDog!
+  - alias: Automated Mismatch WatchDog!
+    hide_entity: True
     trigger:
       - platform: state
         entity_id:
           - light.stone_door
+          - switch.carloneato_schedule
         to: 'off'
 
   #Turn it back on!

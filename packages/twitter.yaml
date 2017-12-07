@@ -36,22 +36,22 @@ automation:
           media_content_type: audio/mp4
 
       - service: script.tweet_engine
-        data:
-          user: "{{ trigger.event.data.value1 }}"
-          location: "{{ trigger.event.data.location }}"
-          tweet: [
-            [
-              "One more follower %(user)s! Chirp the Bird from %(location)s!!",
-              "I have a new follower (%(user)s), I just sounded a chirp in the house.",
-              "Boom! %(user)s follow makes me sound a chirp in the house all the way from %(location)s.",
-              "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower (%(user)s), I sound a chirp!"
-            ],
-            [
+        data_template:
+          tweet: >-
+            {% set handle = trigger.event.data.value1 %}
+            {% set location = trigger.event.data.location %}
+            {% set phrases = [
+              "One more follower " ~ handle ~ "! Chirp the Bird from " ~ location ~ "!!",
+              "I have a new follower " ~ handle ~ ", I just sounded a chirp in the house.",
+              "Boom! " ~ handle ~ " follow makes me sound a chirp in the house all the way from " ~ location ~ ".",
+              "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower " ~ handle ~ ", I sound a chirp!"
+            ] %}
+            {% set hashtags = [
               "#ThanksForTheFollow",
               "#MakingitChirp",
               "(http://www.vmwareinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)"
-            ]
-          ]
+            ] %}
+            {{ phrases|random ~ " " ~ hashtags|random }}
 
 
 ######################################################################
@@ -72,14 +72,20 @@ automation:
     action:
       - service: script.tweet_engine
         data_template:
-          tweet: >
-            {{ [
-            "Bed status: {{states.sensor.sleep_number_bed.state }} Family status: In Bed.",
-            "Shutting down all the lights inside since it is time for bed.",
-            "Lights out.  Get a good nights rest.",
-            "Tonights @SleepNumber number is {{states.sensor.sleepnumber_carlo_carlo_sleepnumber.state}}. Time for bed.",
-            "The @SleepNumber bed tells me when everyone is in bed & time for lights out."
-            ] | random + "# DigitalSleep"}}
+          tweet: >-
+            {% set bed_status = states.sensor.sleep_number_bed.state %}
+            {% set sleepnumber = states.sensor.sleepnumber_carlo_carlo_sleepnumber.state %}
+            {% set phrases = [
+              "Bed status: " ~ bed_status ~ " Family status: In Bed.",
+              "Shutting down all the lights inside since it is time for bed.",
+              "Lights out.  Get a good nights rest.",
+              "Tonights @SleepNumber number is " ~ sleepnumber ~ ". Time for bed.",
+              "The @SleepNumber bed tells me when everyone is in bed & time for lights out."
+            ] %}
+            {% set hashtags = [
+              "#DigitalSleep"
+            ] %}
+            {{ phrases|random ~ " " ~ hashtags|random }}
 
   - alias: 'New Scale Tweet!'
     hide_entity: True
@@ -89,15 +95,18 @@ automation:
     action:
       - service: script.tweet_engine
         data_template:
-          weight: "{{ trigger.event.data.weight }}"
-          tweet: >
-            {{ [
+          tweet: >-
+            {% set weight = trigger.event.data.weight %}
+            {% set phrases = [
             "Someone just stepped on the WiThings scale!",
             "Checking thier weight on the WiThings Scale. (http://amzn.to/2APkINm)",
-            "Even the Scale is connected and someone just stepped on it with %(weight). ",
+            "Even the Scale is connected and someone just stepped on it with " ~ weight ~ " lbs.",
             "New weight logged on the scale by @CCostan. I will let him disclose the numbers though."
-            ] | random + " #Fitness"}}
-
+            ] %}
+            {% set hashtags = [
+              "#Fitness"
+            ] %}
+            {{ phrases|random ~ " " ~ hashtags|random }}
 
   - alias: 'Shopping list tweet'
     hide_entity: True
@@ -107,14 +116,18 @@ automation:
     action:
       - service: script.tweet_engine
         data_template:
-          item: "{{ trigger.event.data.value1 }}"
-          tweet: >
-            {{ [
-            "Someone just added %(item)s to the shopping list via Alexa",
-            "%(item)s added to the shopping list via Alexa.",
+          tweet: >-
+            {% set item = trigger.event.data.value1 %}
+            {% set phrases = [
+            "Someone just added " ~ item ~ " to the shopping list via Alexa",
+            item ~ " added to the shopping list via Alexa.",
             "More items to the shopping list via Alexa. (http://amzn.to/2jT5Xi5)",
-            "Someone just asked Alexa to add %(item)s to the family shopping list."
-            ] | random + "#Productivity"}}
+            "Someone just asked Alexa to add " ~ item ~ " to the family shopping list."
+            ] %}
+            {% set hashtags = [
+              "#Productivity"
+            ] %}
+            {{ phrases|random ~ " " ~ hashtags|random }}
 
 # {% macro moon() -%}
 # {%- if states.sensor.moon.state == 'Full moon' -%}
