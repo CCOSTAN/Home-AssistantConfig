@@ -29,7 +29,7 @@ speech_engine:
     - service: script.speech_processing
       data_template:
         media_player: >-
-            {% if media_player is none %}
+            {% if media_player | length == 0 %}
               {% set media_player = [
                 'media_player.livingroomcc',
                 'media_player.alarm_clock',

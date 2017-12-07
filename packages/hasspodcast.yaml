@@ -19,20 +19,20 @@ automation:
     action:
       - service: script.notify_engine
         data_template:
-          value1: 'There is a new HA Podcast available!'
+          value1: 'There is a new HA Podcast available for {{trigger.event.data.title}}.'
           value2: 'https://hasspodcast.io/'
           who: 'carlo'
 
       - service: notify.html5
         data_template:
           title: "New HA Podcast available"
-          message: "New HA Podcast - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+          message: "New HA Podcast - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }} {{trigger.event.data.title}}"
           data:
             url: "https://hasspodcast.io/"
 
       - service: persistent_notification.create
         data_template:
-          title: "New HA Podcast available"
+          title: "{{trigger.event.data.title}}"
           message: "New Podcast available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
           notification_id: "update_available"
 
