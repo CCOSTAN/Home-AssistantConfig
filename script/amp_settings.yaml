@@ -34,10 +34,10 @@ amp_settings:
           {% endif %}
           {{volume_level}}
 
-      # - condition: state
-      #   entity_id: switch.living_room_amp
-      #   state: 'off'
-      #
-      # - service: switch.turn_on
-      #   data:
-      #     entity_id: switch.living_room_amp
+    - condition: state
+      entity_id: switch.living_room_amp
+      state: 'off'
+
+    - service: switch.turn_on
+      data:
+        entity_id: switch.living_room_amp
