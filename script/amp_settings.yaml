@@ -1,0 +1,43 @@
+######################################################################################################
+###Standardize AMP settings.
+## @CCOSTAN
+## Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+######################################################################################################
+
+amp_settings:
+  sequence:
+    - service: media_player.volume_set
+      data_template:
+        entity_id: >-
+            {% if media_player | length == 0 %}
+              {% set media_player = [
+                'media_player.livingroomcc',
+                'media_player.alarm_clock',
+                'media_player.bedroom_alarm_panel'
+              ] %}
+            {% endif %}
+
+            {% if media_player is not string and media_player is sequence %}
+              {% set media_player = media_player|join(', ') %}
+            {% endif %}
+
+            {{ media_player }}
+        volume_level: >-
+          {% if volume_level | length == 0 %}
+            {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
+              0.3
+            {% elif now().strftime('%H')|int > 12 and now().strftime('%H')|int < 20 %}
+              0.5
+            {% else %}
+              0.3
+            {% endif %}
+          {% endif %}
+          {{volume_level}}
+
+      # - condition: state
+      #   entity_id: switch.living_room_amp
+      #   state: 'off'
+      #
+      # - service: switch.turn_on
+      #   data:
+      #     entity_id: switch.living_room_amp

@@ -19,17 +19,17 @@ sensor:
       - "activities/steps"
       - "devices/battery"
 #-------------------------------------------
-# group:
-#   Neato:
-#     entities:
-#       - camera.carloneato_cleaning_map
-#       - switch.carloneato_schedule
-#       - vacuum.carloneato
+group:
+  fitbit:
+    entities:
+      - sensor.steps
+      - sensor.weight
+      - sensor.one_battery
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
 ##############################################################################
 automation:
-  - alias: 'Battery Alert'
+  - alias: 'Missing Fitbit Alert'
     initial_state: 'on'
     trigger:
       - platform: time
@@ -46,17 +46,17 @@ automation:
           value1: "Your current fitbit steps are {{ states('sensor.steps') }} - You probably do not have it."
           who: 'carlo'
 
-      - service: script.tweet_engine
-        data_template:
-          tweet: >-
-            {% set steps = states.sensor.steps.state %}
-            {% set phrases = [
-            ".@CCostan should make sure he has his fitbit on since he only has " ~ steps ~ " steps.",
-            ".@CCostan is definately up but only has " ~ steps ~ " steps so I guess he forgot his @fitbit".
-            ] %}
-            {% set hashtags = [
-              "#Reminder",
-              "#AI_is_Better_at_Remembering_things",
-              "#fitness"
-            ] %}
-            {{ phrases|random ~ " " ~ hashtags|random }}
+      # - service: script.tweet_engine
+      #   data_template:
+      #     tweet: >-
+      #       {% set steps = states.sensor.steps.state %}
+      #       {% set phrases = [
+      #       ".@CCostan should make sure he has his fitbit on since he only has " ~ steps ~ " steps.",
+      #       ".@CCostan is definately up but only has " ~ steps ~ " steps so I guess he forgot his @fitbit".
+      #       ] %}
+      #       {% set hashtags = [
+      #         "#Reminder",
+      #         "#AI_is_Better_at_Remembering_things",
+      #         "#fitness"
+      #       ] %}
+      #       {{ phrases|random ~ " " ~ hashtags|random }}

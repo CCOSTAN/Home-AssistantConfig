@@ -5,7 +5,25 @@
 #  We block the auto adjust brightness routines for the tablets.
 # Use ALARM and Floorplan for the security system.
 
+group:
+  firetablets:
+    entities:
+      - binary_sensor.bedroom_motion
+      - binary_sensor.bedroom_plugged
+      - binary_sensor.clock_motion
+      - binary_sensor.clock_plugged
+
 # automation:
+#
+#   - alias: 'Enable battery help!'
+#     trigger:
+#       - platform: state
+#         entity_id:
+#           - binary_sensor.clock_plugged
+#           - binary_sensor.bedroom_plugged
+#         to: 'off'
+#         from: 'on'
+#
 #   - alias: 'Cry when the Battery is about to die. '
 #     trigger:
 #       - platform: state

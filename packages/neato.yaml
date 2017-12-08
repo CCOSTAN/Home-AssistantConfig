@@ -36,8 +36,8 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "#Neato returning to base. Cleaned {{states.vacuum.carloneato.attributes.clean_area}} square feet already.",
+            "#Neato returning to base. Vacuumed up a TON.",
             "Everyday I have the Neato Botvac go out and clean the house on its own.",
             "Since we have a cat that sheds all day, we have @Neato go out daily to clean.",
-            "Time rechange @Neato Vacuum. Cleaned {{states.vacuum.carloneato.attributes.clean_area}} square feet already."
+            "Time rechange @Neato Vacuum."
             ] | random + " Battery Level:{{states.vacuum.carloneato.attributes.battery_level }} #Robots"}}
