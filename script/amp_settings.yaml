@@ -23,7 +23,7 @@ amp_settings:
 
             {{ media_player }}
         volume_level: >-
-          {% if volume_level | length == 0 %}
+          {% if volume_level is none %}
             {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
               0.3
             {% elif now().strftime('%H')|int > 12 and now().strftime('%H')|int < 20 %}

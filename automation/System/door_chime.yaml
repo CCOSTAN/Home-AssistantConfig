@@ -29,12 +29,12 @@
         media_player: 'media_player.livingroomcc'
         volume_level: 0.22
     - wait_template: >-
-        {{ states.switch.living_room_amp.state != 'on' }}
+        {{ states.switch.living_room_amp.state == 'on' }}
 
     - service: media_player.play_media
       data_template:
         entity_id: >
-          {% if states.group.bed.state != 'of' %}
+          {% if states.group.bed.state == 'off' %}
           media_player.livingroomCC
           {% else %}
           - media_player.alarm_clock
