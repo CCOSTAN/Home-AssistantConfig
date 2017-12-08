@@ -46,17 +46,6 @@ automation:
           value1: "Your current fitbit steps are {{ states('sensor.steps') }} - You probably do not have it."
           who: 'carlo'
 
-      # - service: script.tweet_engine
-      #   data_template:
-      #     tweet: >-
-      #       {% set steps = states.sensor.steps.state %}
-      #       {% set phrases = [
-      #       ".@CCostan should make sure he has his fitbit on since he only has " ~ steps ~ " steps.",
-      #       ".@CCostan is definately up but only has " ~ steps ~ " steps so I guess he forgot his @fitbit".
-      #       ] %}
-      #       {% set hashtags = [
-      #         "#Reminder",
-      #         "#AI_is_Better_at_Remembering_things",
-      #         "#fitness"
-      #       ] %}
-      #       {{ phrases|random ~ " " ~ hashtags|random }}
+      - service: script.tweet_engine
+        data_template:
+          tweet: ".@CCostan currently has {{ states('sensor.steps') }} fitbit steps - He probably does not have it on him."
