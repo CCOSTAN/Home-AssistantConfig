@@ -26,6 +26,11 @@ automation:
     trigger:
       - platform: event
         event_type: new_follower
+
+    condition:
+      - condition: state
+        entity_id: group.bed
+        state: 'off'
     action:
       - service: media_player.play_media
         data_template:
