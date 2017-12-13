@@ -7,7 +7,7 @@
     - platform: state
       entity_id: switch.living_room_amp
       to: 'on'
-      for: '00:20:00'
+      for: '00:10:00'
     - platform: state
       entity_id: media_player.livingroomCC
       to: 'off'
@@ -31,20 +31,11 @@
       - condition: and
         conditions:
           - condition: state
-            entity_id: sun.sun
-            state: 'below_horizon'
-          - condition: state
             entity_id: input_boolean.guest_mode
             state: 'off'
-          - condition: template
-            value_template: >
-              {% if is_state('media_player.livingroomCC', 'playing') %}
-              false
-              {% elif is_state('media_player.whole_house', 'playing') %}
-              false
-              {% else %}
-              true
-              {% endif %}
+          - condition: state
+            entity_id: group.bed
+            state: 'on'
 
   action:
     - service: switch.turn_off
