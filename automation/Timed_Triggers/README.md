@@ -6,7 +6,7 @@ Be sure to :star: my repo so you can keep up to date on the daily progress!
 This directory is primarily used for automations that are triggered via time.  Daily, monthly, seasonally or on the hour.
 
 **Time Based Automation TimeLine**
-```
+
 ALL DAY LONG:
 Checks to see if we are away.
 Cuckoo Clock goes off each hour and on the half.
@@ -35,8 +35,6 @@ SUNSET:
 10:00 PM Speech Notifications are disabled for the house. (except under ALERT mode) and AMP is shut.
 02:00 AM ** Late Night Help Deactivated **
 02:31 AM Heal ZWave Network
-02:35 AM Clear out daily TTS cache
-```
 
 #Still have questions on my Config?
 Follow me on twitter : [@CCostan](https://twitter.com/ccostan)

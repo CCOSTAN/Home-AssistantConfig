@@ -58,7 +58,6 @@ I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi an
 * [NodeMCU Development Boards](http://amzn.to/2ou0NON) hooked into the alarm system wires for [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html). - [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.htmll)
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
-
 <a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/3MkgeKFUVKPNW45Vtwu9Abd4/CCOSTAN/Home-AssistantConfig'>
   <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/3MkgeKFUVKPNW45Vtwu9Abd4/CCOSTAN/Home-AssistantConfig.svg' />
 </a>
