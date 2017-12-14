@@ -54,7 +54,8 @@ switch:
       pihole_temp_disable:
         command_on: "curl -X GET 'http://192.168.10.11/admin/api.php?enable&auth='"
         command_off: "curl -X GET 'http://192.168.10.11/admin/api.php?disable=3600&auth='"
-#        command_state: "curl -X GET 'http://192.168.10.11/admin/api.php?status'"
+        command_state: "curl -X GET 'http://192.168.10.11/admin/api.php?status'| grep enabled"
+        # just need to add | grep enabled now you have status! :)
 #        value_template: "{{ value_json.status == 'enabled' }}
 
 #-------------------------------------------
