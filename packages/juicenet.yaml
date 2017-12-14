@@ -1,0 +1,37 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "*.*_sleep_hours":
+#       unit_of_measurement: hours
+#       icon: mdi:sleep
+#       emulated_hue_hidden: True
+#       hidden: False
+#-------------------------------------------
+
+juicenet:
+    access_token: !secret juicenet_access_token
+
+#############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+# automation:
+#   - alias: 'Missing Fitbit Alert'
+#     initial_state: 'on'
+#     trigger:
+#       - platform: time
+#         at: '11:00:00'
+#     condition:
+#       condition: template
+#       value_template: >
+#         {%- if sensor.steps < 1000 -%}
+#           true
+#         {%- endif -%}
+#     action:
+#       - service: script.notify_engine
+#         data_template:
+#           value1: "Your current fitbit steps are {{ states('sensor.steps') }} - You probably do not have it."
+#           who: 'carlo'
