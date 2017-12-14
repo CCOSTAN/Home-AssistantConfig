@@ -5,8 +5,7 @@ Be sure to :star: my repo so you can keep up to date on the daily progress!
 
 You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).
 
-You can also see my home in action by following it's Twitter account [@BearStoneHA](https://twitter.com/BearStoneHA)
-![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
+![Screenshot of Home Assistant Header](https://i.imgur.com/vjDH1LJ.png)
 
 This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly. :star:
 Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2xeBlgf) was upgraded to 16GB. (Order 2! - 1 for backup)
@@ -135,7 +134,7 @@ SUNSET:
 #Todo List
 I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github.
 Feel free to join the conversations there.
-
+![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 ![Screenshot of Home View](https://i.imgur.com/UlUiKTX.png)
 ![Screenshot of Garage Door View](https://i.imgur.com/zotvUKp.png)
 ![Screenshot of Lights](https://i.imgur.com/KKCPaLJ.png)
