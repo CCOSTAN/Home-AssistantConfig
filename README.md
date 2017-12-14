@@ -98,49 +98,12 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
 * Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.  Plays across the whole house on my [ChromeCast Audios](http://amzn.to/2lE9gNu)
 
-**Time Based Automation TimeLine**
-```
-ALL DAY LONG:
-Checks to see if we are away.
-Cuckoo Clock goes off each hour and on the half.
-
-SUNRISE minus 1 hour
-     Turn off ALL SWITCHES
-     Turn off ALL LIGHTS
-05:00 AM ** Light Brightness helper 50 Brightness **
-06:00 AM ( on school days) : Turn on Dining Room lights, Kitchen Accents and start Kid's bedroom [Hue Go](http://amzn.to/2iB36Ii) wake up lights.
-06:51 AM Turn on Dinette lights, Turn off Dining Room Lights and Kitchen Accents
-07:51 AM Turn on Kitchen Lights
-08:00 AM ** Light Brightness helper FULL 255 Brightness **
-08:31 AM (on school days) Turn off ALL interior lights.
-09:00 AM Speech Notifications are enabled for the house.
-
-SUNSET:
-     Turn on Den Outlet, Living Room Outlet, Dining Room Outlet, Outdoor Bathroom light, TV lights
-     Activate Monthly Front Lighting Scene
-     Check if Garage Door is open (Every 60 minutes)
-     ** Kitchen Light/Accent Helper Activated **
-
-08:00 PM ** Late Night Helper is active **
-08:00 PM ** Light Brightness helper 35 Brightness **
-08:00 PM TV time Scene triggered if the TV is on.
-09:00 PM Turn on [Hue Go](http://amzn.to/2iB36Ii) lights for the kid's rooms and start fading down.
-10:00 PM Speech Notifications are disabled for the house. (except under ALERT mode) and AMP is shut.
-02:00 AM ** Late Night Help Deactivated **
-02:31 AM Heal ZWave Network
-02:35 AM Clear out daily TTS cache
-```
-
 #Todo List
 I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github.
 Feel free to join the conversations there.
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
-![Screenshot of Home View](https://i.imgur.com/UlUiKTX.png)
-![Screenshot of Garage Door View](https://i.imgur.com/zotvUKp.png)
-![Screenshot of Lights](https://i.imgur.com/KKCPaLJ.png)
-![Screenshot of More](https://i.imgur.com/rg6lhJz.png)
-![Screenshot of Even More](https://i.imgur.com/SlglNh3.png)
-![Screenshot of Last one](https://i.imgur.com/sTsYQi4.png)
+![Screenshot of Alarm Clock View](https://i.imgur.com/mLMrky1.jpg)
+![Screenshot of Alarm View](https://i.imgur.com/nad2gq0.png)
 
 **All files are now being edited with [Atom](https://atom.io/).**
 
