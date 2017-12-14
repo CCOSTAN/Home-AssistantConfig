@@ -24,20 +24,3 @@ group:
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
 ##############################################################################
-automation:
-  - alias: 'Vacuum -Tweet'
-    trigger:
-      - platform: state
-        entity_id: vacuum.carloneato
-        to: 'off'
-        from: 'on'
-    action:
-      - service: script.tweet_engine
-        data_template:
-          tweet: >
-            {{ [
-            "#Neato returning to base. Vacuumed up a TON.",
-            "Everyday I have the Neato Botvac go out and clean the house on its own.",
-            "Since we have a cat that sheds all day, we have @Neato go out daily to clean.",
-            "Time rechange @Neato Vacuum."
-            ] | random + " Battery Level:{{states.vacuum.carloneato.attributes.battery_level }} #Robots"}}

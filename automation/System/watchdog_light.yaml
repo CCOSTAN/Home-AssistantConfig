@@ -25,12 +25,3 @@
     - service: homeassistant.turn_off
       data_template:
         entity_id: "{{ trigger.entity_id }}"
-
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "They obviously left the {{ trigger.to_state.attributes.friendly_name }} on. So I turned it off. (http://amzn.to/2l2viGK)",
-          "{{ trigger.to_state.attributes.friendly_name }} has been on for 20 minutes.  I will turn it off. (http://amzn.to/2efNoBP)",
-          "It is my job to turn off forgotten lights like {{ trigger.to_state.attributes.friendly_name }}. (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html) "
-          ] | random + "#SavingEnergy"}}

@@ -15,10 +15,6 @@
         value2: "{{ states('updater.updater') }}"
         who: 'carlo'
 
-    - service: script.tweet_engine
-      data:
-        tweet: "New version of @Home_Assistant! Cannot wait for @CCostan to install it! - {{ states('updater.updater') }} (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)"
-
     - service: notify.html5
       data_template:
         title: "Update Available"

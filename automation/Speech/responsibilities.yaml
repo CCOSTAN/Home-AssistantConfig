@@ -13,18 +13,3 @@
     - service: script.speech_engine
       data:
         call_responsibilities: 1
-
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "Time to tell the kids if it is their day to do the chores.",
-          "The kids ask about chores and I tell them if it's their day or not.",
-          "I am in charge of which kid does what chore and whether it is garbage night or not.",
-          "I am the keeper of the schedules. If it is garbage night, I let them know."
-          ] | random + [
-          " (http://www.vmwareinfo.com/2017/07/giving-voice-to-smart-home.html)",
-          " #ParentingWin)",
-          " #DigitalParenting",
-          " #ThirdParent"
-          ] | random }}

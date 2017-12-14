@@ -51,12 +51,3 @@
 
     - service: scene.turn_on
       entity_id: scene.tv_time
-
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "Dim the lights, it is time for TV Time.",
-          "Someone just turned on the @RokuPlayer. Time to dim the lights.",
-          "Someone just turned on @TabloTV on the @RokuPlayer so I will dim the lights in the living room."
-          ] | random + " #TVTime"}}

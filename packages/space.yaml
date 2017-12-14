@@ -70,46 +70,5 @@ automation:
         data_template:
           value1: 'Go Outside!  There is a Rocket Launch!'
 
-      - service: script.tweet_engine
-        data_template:
-          tweet: 'There is a Rocket launch happening right now!  I can see it if I look closely. @BrianCribbs #SpaceX #Space'
-
 # This automation was also moved to a macro in the speech_engine.
 # It's a random fact now.
-
-  - alias: 'ISS is above Me -Tweet'
-
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.iss
-        to: 'on'
-        from: 'off'
-
-    action:
-      - service: script.tweet_engine
-        data_template:
-          tweet: >
-            {{ [
-            "The ISS is above me right now!",
-            "The International Space Station flys by once a day & that time is NOW! (For me)",
-            "I can look up RIGHT NOW and see the ISS.",
-            "The International Space Station Rocks! And it's above me RIGHT NOW!"
-            ] | random + " #Space"}}
-
-  - alias: 'Full Moon -Tweet'
-    trigger:
-      - platform: state
-        entity_id: sensor.moon
-        to: 'Full Moon'
-    action:
-      - delay: '{{ (range(1, 6)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
-      - service: script.tweet_engine
-        data_template:
-          tweet: >
-            {{ [
-            "There is a Full Moon out tonight!",
-            "Wish my solar panels picked up Moon rays.  Full Moon out tonight.",
-            "Turn down the lights, there is a Full Moon out tonight.",
-            "Get out your telescopes, it'll be a Full Moon out tonight!"
-            ] | random + "#Space"}}

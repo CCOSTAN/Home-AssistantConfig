@@ -45,7 +45,3 @@ automation:
         data_template:
           value1: "Your current fitbit steps are {{ states('sensor.steps') }} - You probably do not have it."
           who: 'carlo'
-
-      - service: script.tweet_engine
-        data_template:
-          tweet: ".@CCostan currently has {{ states('sensor.steps') }} fitbit steps - He probably does not have it on him."

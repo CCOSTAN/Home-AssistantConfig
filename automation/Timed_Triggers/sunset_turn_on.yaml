@@ -21,24 +21,12 @@
     - service: script.speech_engine
       data:
         call_dark_outside: 1
-        call_window_check: 1 
+        call_window_check: 1
     - service: homeassistant.turn_on
       entity_id:
         - switch.front_landscaping
     - service: script.monthly_color_scene
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "Right before sunset, I turn on the outdoor lights.",
-          "Since it gets dark around sunset, I turn on the landscaping lights.",
-          "Since it is sunset, I will turn on the exterior lights."
-          ] | random + [
-          "#Sunset",
-          "#HomeAutomation",
-          "AccentLighting",
-          "(http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)"
-          ]}}
+  
     - wait_template: >-
        {{ states.group.family.state == 'home' }}
     - service: switch.turn_on

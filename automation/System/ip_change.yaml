@@ -19,11 +19,4 @@
         value3: ' - Be sure to Change DNS!'
         who: 'carlo'
 
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "That's weird. Looks like my IP address changed. @CCostan, please check it out.",
-          "Time to update @GoDaddy @CCostan. Looks like my IP address changed."
-          ] | random }}
 ##############################################################################

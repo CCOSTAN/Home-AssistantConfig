@@ -13,14 +13,5 @@
         value1: 'Startup: Home Assistant is Up and Running!'
         who: 'carlo'
 
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "Home Assistant has been restarted. Most likely a software update!",
-          "Sorry for the restart but there is new code and I cannot wait to use it.",
-          "Just a quick restart of #homeassistant to get the newly written code."
-          ] | random + "(https://github.com/CCOSTAN/Home-AssistantConfig/commits/master)"}}
-
     - service: light.turn_off
       entity_id: group.hallway_lights

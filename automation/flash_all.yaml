@@ -17,12 +17,3 @@
 
     - service: input_boolean.turn_off
       entity_id: input_boolean.flash
-
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "Party time! Some just flashed all the lights!",
-          "Maybe I am possessed! All the lights in the house just flashed!",
-          "So much fun when someone says #Alexa Flash the lights!"
-          ] | random + "#PartyTricks"}}

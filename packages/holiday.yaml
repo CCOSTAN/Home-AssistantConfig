@@ -73,18 +73,3 @@ automation:
         data:
           message: 'Today is {{ states.sensor.holiday.state }}.'
           title: '{{ states.sensor.holiday.state }}'
-      - delay: '{{ (range(4, 8)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
-      - service: script.tweet_engine
-        data_template:
-          tweet: >
-            {{ [
-            "Today is {{ states.sensor.holiday.state }}. Time to adjust the outside light colors!",
-            "Today is {{ states.sensor.holiday.state }}.",
-            "Is today {{ states.sensor.holiday.state }}?",
-            "Just checked with Alexa & today is {{ states.sensor.holiday.state }}."
-            ] | random + [
-            " #DayOff",
-            "(http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
-            "(http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
-            "#{{ states.sensor.holiday.state }}"
-            ] | random }}

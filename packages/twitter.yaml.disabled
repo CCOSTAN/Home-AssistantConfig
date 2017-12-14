@@ -59,39 +59,6 @@ automation:
             {{ phrases|random ~ " " ~ hashtags|random }}
 
 
-######################################################################
-##  Good night tweet
-######################################################################
-
-  - alias: 'Good Night tweet'
-    hide_entity: True
-    trigger:
-      - platform: state
-        entity_id: group.bed
-        to: 'on'
-        from: 'off'
-    condition:
-      - condition: state
-        entity_id: sun.sun
-        state: 'below_horizon'
-    action:
-      - service: script.tweet_engine
-        data_template:
-          tweet: >-
-            {% set bed_status = states.sensor.sleep_number_bed.state %}
-            {% set sleepnumber = states.sensor.sleepnumber_carlo_carlo_sleepnumber.state %}
-            {% set phrases = [
-              "Bed status: " ~ bed_status ~ " Family status: In Bed.",
-              "Shutting down all the lights inside since it is time for bed.",
-              "Lights out.  Get a good nights rest.",
-              "Tonights @SleepNumber number is " ~ sleepnumber ~ ". Time for bed.",
-              "The @SleepNumber bed tells me when everyone is in bed & time for lights out."
-            ] %}
-            {% set hashtags = [
-              "#DigitalSleep"
-            ] %}
-            {{ phrases|random ~ " " ~ hashtags|random }}
-
   - alias: 'New Scale Tweet!'
     hide_entity: True
     trigger:
@@ -110,25 +77,5 @@ automation:
             ] %}
             {% set hashtags = [
               "#Fitness"
-            ] %}
-            {{ phrases|random ~ " " ~ hashtags|random }}
-
-  - alias: 'Shopping list tweet'
-    hide_entity: True
-    trigger:
-      - platform: event
-        event_type: shopping_list
-    action:
-      - service: script.tweet_engine
-        data_template:
-          tweet: >-
-            {% set phrases = [
-            "Someone just addedsomething to the #shopping list via Alexa",
-            "An item was just added to the #shopping list via #Alexa.",
-            "More items to the #shopping list via Alexa. (http://amzn.to/2jT5Xi5)",
-            "Someone just asked Alexa to add something #cool to the family shopping list."
-            ] %}
-            {% set hashtags = [
-              "#Productivity"
             ] %}
             {{ phrases|random ~ " " ~ hashtags|random }}

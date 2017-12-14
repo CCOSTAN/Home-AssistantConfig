@@ -31,15 +31,6 @@
       data_template:
         value1: 'Took Medicine today.'
         who: "parents"
-
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "Via a Dash button, I know that @CCostan just took his medicine. (http://amzn.to/2dPKZhM)",
-          "If @CCostan does not take his medicine, I remind him. He just took it though.",
-          "IOS actions and Dash buttons help me keep track of @CCostan daily medicine intake. Just took one."
-          ] | random + " #Health"}}
     - delay:
         minutes: 1
     - service: automation.turn_on

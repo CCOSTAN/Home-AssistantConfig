@@ -19,15 +19,6 @@
     - service: light.turn_on
       entity_id: group.upstairs
 
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "Finally, someone came upstairs.",
-          "I feel someone upstairs!",
-          "Motion detected upstairs..."
-          ] | random + " #SecondFloor"}}
-
 - alias: 'Upstairs Light Turn off'
   trigger:
     - platform: event

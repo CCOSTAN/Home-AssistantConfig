@@ -19,11 +19,3 @@
         - group.living_room_lights
     - service: input_boolean.turn_off
       entity_id: input_boolean.meal_time
-    - service: script.tweet_engine
-      data_template:
-        tweet: >
-          {{ [
-          "Someone just triggered MealTime scene.  TV off and kitchen lights on.",
-          "Someone triggered MealTime in the Kitchen. Open for Breakfast, Lunch and Dinner!",
-          "MmMM, Smells good - Food is ready in the kitchen! (http://amzn.to/2dSVbK4)"
-          ] | random + "#Dash_Buttons"}}
