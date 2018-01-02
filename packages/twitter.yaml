@@ -134,11 +134,13 @@ automation:
             "{{states.sensor.doorbell_presses.state}} doorbell presses occurred in the last 24 hours.",
             "I keep the average humidity of the house at {{states.sensor.downstairs_thermostat_humidity.state}} percent. Outside is {{states.sensor.dark_sky_humidity.state}} #Nest (http://amzn.to/2BWNk5N)",
             "Outside is {{states.sensor.dark_sky_temperature.state}}. I keep the average temperature at {{states.sensor.downstairs_thermostat_temperature.state}}. #Nest (http://amzn.to/2BWNk5N)",
+            "I know that it will be {{states.sensor.dark_sky_minutely_summary.state}} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",
             "Average internet stats are Download: {{states.sensor.speedtest_download.state}} Mbit/s & Upload {{states.sensor.speedtest_upload.state}} Mbit/s.",
-            "Todays Sleep Number is {{states.sensor.sleepnumber_carlo_stacey_sleepnumber.state}}. Wifi connected Bed! #SleepStat (http://amzn.to/2D10BcQ)",
+            "Todays Sleep Number is {{states.sensor.sleepnumber_carlo_stacey_sleepnumber.state}}. Wifi connected Bed FTW! #SleepStat (http://amzn.to/2D10BcQ)",
             "Our Sleep Number is {{states.sensor.sleepnumber_carlo_carlo_sleepnumber.state}}. Wifi connected Bed! #SleepStat (http://amzn.to/2D10BcQ)",
             "The current UV index is {{states.sensor.dark_sky_uv_index.state}} and the Moon is {{states.sensor.moon.state}}.  #Space",
             "Home Assistant has been running for {{states.sensor.ha_uptime.state}} minutes. (https://github.com/CCOSTAN/Home-AssistantConfig)",
-            "My @getspectrum internet download speed is about {{states.sensor.speedtest_download.state}} Mbit/s and I am a #cordcutter. @ "
+            "My @getspectrum internet download speed is about {{states.sensor.speedtest_download.state}} Mbit/s and I am a #cordcutter. @TabloTV",
+            "Average Cloud Coverage: {{states.sensor.dark_sky_cloud_coverage.state}}%, Average Temp: {{states.sensor.dark_sky_temperature.state}}°F #Solar"
             ] | random + " #RandomStat"}}
       - service: automation.turn_on
