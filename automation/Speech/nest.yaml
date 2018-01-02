@@ -1,0 +1,24 @@
+######################################################################
+##  Announce when one of the nests kick in
+## Announce over all Chromecast Audios
+######################################################################
+- alias: 'Nest Status'
+
+  trigger:
+
+    - platform: state
+      entity_id:
+        - sensor.downstairs_thermostat_hvac_state
+        - sensor.upstairs_thermostat_hvac_state
+      from: 'off'
+
+  # condition:
+  #   - condition: template
+  #     value_template: >-
+  #       {{ as_timestamp(states.automation.nest_status.attributes.last_triggered) > as_timestamp(now()) - (1800) }}
+
+  action:
+    - service: script.speech_engine
+      data_template:
+        NestStatus: "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."
+        call_window_check: 1

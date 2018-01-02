@@ -1,0 +1,52 @@
+######################################################################
+##  Stuff that needs to happen at 10pm.
+######################################################################
+
+- alias: 'Shut down AMP in Living room'
+  trigger:
+    - platform: time
+      at: '22:00:00'
+
+  action:
+    - wait_template: >-
+       {{ not is_state('media_player.livingroomCC', 'playing') }}
+    - wait_template: >-
+       {{ not is_state('media_player.whole_house', 'playing') }}
+
+    - service: script.speech_engine
+      data_template:
+        call_no_announcement: 1
+        call_garage_check: 1
+        call_window_check: 1
+
+    - service: light.turn_on
+      entity_id:
+        - group.living_room_accents
+      data_template:
+        color_name: >
+          {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
+          red
+          {% else %}
+          gold
+          {% endif %}
+
+    - wait_template: >-
+       {{ not is_state('group.entry_points', 'on') }}
+    - wait_template: >-
+       {{ is_state('group.all_covers', 'closed') }}
+
+    - wait_template: >-
+       {{ not is_state('media_player.livingroomCC', 'playing') }}
+    - service: switch.turn_off
+      entity_id: switch.living_room_amp
+
+    - service: light.turn_on
+      entity_id:
+        - group.living_room_accents
+      data_template:
+        color_name: >
+          {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
+          red
+          {% else %}
+          gold
+          {% endif %}

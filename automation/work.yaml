@@ -1,0 +1,22 @@
+######################################################################
+##  Time to work - Set it up!
+######################################################################
+
+- alias: Time to Work
+  trigger:
+    - platform: state
+      entity_id: input_boolean.work
+      to: 'on'
+      from: 'off'
+
+  action:
+    - service: light.turn_off
+      entity_id:
+        - group.dinette_lights
+        - group.kitchen_lights
+        - group.living_room_lights
+    - service: light.turn_on
+      entity_id:
+        - light.office_lamp
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.work

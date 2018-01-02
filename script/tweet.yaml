@@ -1,0 +1,11 @@
+######################################################################################################
+###Script to send notifications to Twitter as @BearStoneHA.
+## Enhancements by @dale3h
+######################################################################################################
+
+tweet_engine:
+   sequence:
+    - service: notify.BearStoneHA
+      data_template:
+        message: >-
+          {{ tweet }} #IOT #SmartHome

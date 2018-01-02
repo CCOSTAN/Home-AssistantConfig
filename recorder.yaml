@@ -1,0 +1,28 @@
+############################################################
+# recorder
+############################################################
+#db_url: sqlite:///data/home-assistant_v2.db
+purge_interval: 1
+purge_keep_days: 5
+exclude:
+  domains:
+    - updater
+    - automation
+  entities:
+    - group.motion
+    - group.doors
+    - sensor.floorplan_date
+    - sensor.floorplan_time
+    - sensor.ha_uptime
+    - sensor.time
+    - sensor.weather_apparent_temperature
+    - sensor.weather_humidity
+    - sensor.weather_icon
+    - sensor.weather_precip_intensity
+    - sensor.weather_precip_probability
+    - sensor.weather_summary
+    - sensor.weather_temperature
+    - sensor.weather_hourly_summary
+    - sensor.weather_daily_summary
+    - sensor.weather_wind_speed
+    - sun.sun

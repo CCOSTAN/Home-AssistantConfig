@@ -1,0 +1,29 @@
+##############################################################################
+###  Detect when things are on and forgotten about. Like any Good Watchdog.
+##############################################################################
+
+##############################################################################
+
+- alias: "NOTIFY IF IP CHANGES"
+  hide_entity: True
+  trigger:
+    - platform: state
+      entity_id: sensor.ipchange
+      from: 'False'
+      to: 'True'
+  action:
+    - service: script.notify_engine
+      data_template:
+        value1: 'Changed IP address:'
+        value2: "New IP: {{ states('sensor.exteral_ip') }}"
+        value3: ' - Be sure to Change DNS!'
+        who: 'carlo'
+
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "That's weird. Looks like my IP address changed. @CCostan, please check it out.",
+          "Time to update @GoDaddy @CCostan. Looks like my IP address changed."
+          ] | random + " #HomeAutomation"}}
+##############################################################################

@@ -1,0 +1,73 @@
+###################################
+##  ZWave Section -
+##  Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0).
+###################################
+
+##############################################################
+- alias: Hallway ZWave Enerwave Door Sensors Open
+  hide_entity: True
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.hallway_pantry_opened
+      to: 'on'
+    - platform: state
+      entity_id: binary_sensor.hallway_linen_opened
+      to: 'on'
+
+  condition:
+    condition: or
+    conditions:
+      - condition: sun
+        after: sunset
+        after_offset: '-03:00:00'
+      - condition: numeric_state
+        entity_id: sensor.dark_sky_cloud_coverage
+        above: 50
+
+  action:
+    - service: light.turn_on
+      entity_id:
+        - light.kids_hallway
+        - light.k4
+    - delay: 00:20:00
+    - service: light.turn_off
+      entity_id: light.kids_hallway
+
+##############################################################
+- alias: ZWave Enerwave Door Sensors Closed
+  hide_entity: True
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.hallway_pantry_opened
+      to: 'off'
+    - platform: state
+      entity_id: binary_sensor.hallway_linen_opened
+      to: 'off'
+
+  action:
+    service: light.turn_off
+    entity_id: light.kids_hallway
+
+##############################################################
+- alias: Shutdown Helper light
+  hide_entity: True
+  trigger:
+    - platform: state
+      entity_id: light.k4
+      to: 'on'
+      for: '00:20:00'
+    - platform: state
+      entity_id: binary_sensor.hallway_pantry_opened
+      to: 'off'
+    - platform: state
+      entity_id: binary_sensor.hallway_linen_opened
+      to: 'off'
+
+  condition:
+    condition: state
+    entity_id: light.k1
+    state: 'off'
+
+  action:
+    - service: light.turn_off
+      entity_id: light.k4

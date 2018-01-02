@@ -1,0 +1,32 @@
+######################################################################
+##  Some home facts when we get back home from being away.
+######################################################################
+- alias: 'Home Stats'
+
+  trigger:
+    - platform: state
+      entity_id:
+        - group.family
+      from: 'not_home'
+      to: 'home'
+      for: '00:03:00'
+
+    - platform: state
+      entity_id: input_boolean.home_stats
+      to: 'on'
+      from: 'off'
+
+  action:
+
+    - wait_template: >-
+       {{ is_state('group.garage_doors', 'closed') }}
+      timeout: 00:05:30
+
+    - service: script.speech_engine
+      data:
+        call_inside_weather: 1
+        call_responsibilities: 1
+        call_outside_weather: 1
+        call_garage_check: 1
+        call_window_check: 1
+        call_light_check: 1

@@ -1,0 +1,76 @@
+######################################################################################################
+###Script to actually send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
+  # action:
+    # service: script.speech_engine
+    # message:
+# # @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+######################################################################################################
+
+speech_processing:
+  sequence:
+    - service: mqtt.publish
+      data_template:
+        topic: 'polly/lastmsg'
+        payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message }}"
+        retain: true
+
+    - condition: and
+      conditions:
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: group.family
+              state: 'home'
+            - condition: state
+              entity_id: input_boolean.guest_mode
+              state: 'on'
+        - condition: or
+          conditions:
+            - condition: and
+              conditions:
+                - condition: state
+                  entity_id: group.bed
+                  state: 'off'
+                - condition: time
+                  after: '08:00:00'
+                  before: '20:00:00'
+            - condition: state
+              entity_id: input_boolean.alert_mode
+              state: 'on'
+        - condition: state
+          entity_id: input_boolean.speech_notifications
+          state: 'on'
+
+    - service: switch.turn_on
+      data:
+        entity_id: switch.living_room_amp
+
+    - service: media_player.volume_set
+      data_template:
+        entity_id: >
+          {{ media_player }}
+        volume_level: >-
+          {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
+            0.3
+          {% elif now().strftime('%H')|int > 12 and now().strftime('%H')|int < 20 %}
+            0.5
+          {% else %}
+            0.3
+          {% endif %}
+
+    - service: tts.amazon_polly_say
+      data_template:
+        entity_id: >
+          {{ media_player }}
+        message: >-
+          <speak>
+            {{ speech_message }}
+          </speak>
+        cache: true
+
+    - service: input_boolean.turn_off
+      data:
+        entity_id:
+          - input_boolean.alert_mode
+          - input_boolean.lastmsg

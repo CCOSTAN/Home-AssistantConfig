@@ -1,0 +1,69 @@
+#-------------------------------------------
+#  Radio Related Packages
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+#------Whole House Radio Enabled via Emulated Hue----------------------------
+homeassistant:
+  customize:
+    input_boolean.house_station:
+      icon: mdi:radio
+      friendly_name: House Station
+      emulated_hue_hidden: False
+      hidden: False
+#---Use this Boolean to trigger via GUI or Alexa------------------------------
+input_boolean:
+  house_station:
+    name: House Station
+    initial: off
+
+#Moved to the Alarm Clock Package.
+
+# #-----Turn on the Music--------------------------------------
+# automation:
+#   - alias: 'Play Americas Country on ChromeCast Audio'
+#
+#     trigger:
+#       - platform: state
+#         entity_id:
+#           - input_boolean.house_station
+#         to: 'on'
+#         from: 'off'
+#
+#     action:
+#       - service: media_player.turn_off
+#         entity_id: media_player.living_room_tv
+#
+#       - service: media_player.turn_on
+#         entity_id: media_player.livingroomCC
+#
+#       - service: media_player.volume_set
+#         entity_id:
+#           - media_player.livingroomCC
+#         data_template:
+#           volume_level: 0.2
+#
+#       - service: media_player.play_media
+#         data_template:
+#           entity_id:
+#             - media_player.LivingRoomCC
+#           media_content_id: "http://listen.181fm.com/181-kickincountry_128k.mp3"
+#           #media_content_id: "http://listen.djcmedia.com:80/americascountryhigh"
+#           media_content_type: audio/mp4
+#
+# #-----Turn off the Music--------------------------------------
+#   - alias: 'Turn off the Radio'
+#
+#     trigger:
+#       - platform: state
+#         entity_id:
+#           - input_boolean.house_station
+#         to: 'off'
+#         from: 'on'
+#
+#     action:
+#       - service: media_player.turn_off
+#         entity_id: media_player.livingroomCC
+#
+#       - service: input_boolean.turn_off
+#         entity_id: input_boolean.house_station

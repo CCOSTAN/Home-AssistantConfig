@@ -1,0 +1,23 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# More information : https://github.com/SmilyOrg/screenmqtt
+#-------------------------------------------
+homeassistant:
+  customize:
+    switch.computer_screens:
+      friendly_name: 'Computer Screens'
+      icon: mdi:monitor-multiple
+      emulated_hue_hidden: False
+      hidden: False
+      homebridge_hidden: False
+
+#-------------------------------------------
+switch:
+  - platform: mqtt
+    name: computer_screens
+    state_topic: 'carlo-ultra/monitor/all/power/state'
+    command_topic: 'carlo-ultra/monitor/all/power/command'
+
+#-------------------------------------------
+#group - Added to group.interior_switches

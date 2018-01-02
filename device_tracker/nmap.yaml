@@ -1,0 +1,7 @@
+- platform: nmap_tracker
+  hosts: 192.168.10.1/24
+  track_new_devices: no
+  exclude:
+    - 192.168.10.10
+#  scan_options: " --privileged -sP "
+# consider_home: 1800 - Added to known_devices.yaml instead on a device by device basis.

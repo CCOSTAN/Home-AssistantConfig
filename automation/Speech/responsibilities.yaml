@@ -1,0 +1,15 @@
+######################################################################
+##  Who's day is it anyway? Pretty sure my parent's didn't code to figure this out.
+######################################################################
+- alias: 'responsibilities'
+
+  trigger:
+
+    - platform: state
+      entity_id: input_boolean.responsibilities
+      to: 'on'
+
+  action:
+    - service: script.speech_engine
+      data:
+        call_responsibilities: 1

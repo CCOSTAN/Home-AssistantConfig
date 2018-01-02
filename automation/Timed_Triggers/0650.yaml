@@ -1,0 +1,38 @@
+######################################################################
+##  Stuff that needs to happen at 08:30am.
+######################################################################
+
+- alias: 'Kids 650.'
+  trigger:
+    - platform: time
+      at: '06:50:00'
+
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: home
+    - condition: state
+      entity_id: input_boolean.school_mode
+      state: 'on'
+    - condition: time
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+
+  action:
+    - service: light.turn_on
+      entity_id:
+        - light.d1
+        - light.d2
+        - group.kitchen_lights
+    - service: light.turn_off
+      entity_id:
+        - group.dining_room_lights
+
+    - wait_template: >-
+       {{ states.sun.sun.state == 'above_horizon' }}
+    - service: switch.turn_off
+      entity_id: switch.kitchen_accents

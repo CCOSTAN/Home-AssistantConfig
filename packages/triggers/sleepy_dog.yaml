@@ -1,0 +1,49 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize:
+    input_boolean.sleepy_dog:
+      friendly_name: 'Sleepy Dog'
+      icon: mdi:bell-sleep
+      emulated_hue_hidden: False
+      hidden: False
+#-------------------------------------------
+input_boolean:
+  sleepy_dog:
+    name: Sleep Dog
+    initial: off
+
+#-------------------------------------------
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+
+automation:
+  - alias: 'Snooze the Dog for 30 minutes'
+    trigger:
+      - platform: state
+        entity_id: input_boolean.sleepy_dog
+        to: 'on'
+
+    action:
+    # Disable automation for 30 minutes
+      - service: automation.turn_off
+        entity_id: automation.guard_dog
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.sleepy_dog
+      - service: script.speech_engine
+        data_template:
+          call_no_announcement: 1
+          value1: >
+            {{ [
+            "The dogs have been put away for the next 30 minutes.",
+            "I will let sleeping dogs lie for the next 30 minutes.",
+            "You will not be bothered by the sound of dogs barking for at least 30 minutes.",
+            "Sleepy Dog activated. Molly is our only watch cat for the next 30 minutes."
+            ] |random }}
+      - delay:
+          minutes: 30
+      - service: automation.turn_on
+        entity_id: automation.guard_dog

@@ -1,0 +1,59 @@
+###################################
+##  Late Night lights Section
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+###################################
+- alias: 'Late Night Helper outside'
+  trigger:
+    - platform: state
+      entity_id: group.all_covers
+      to: 'open'
+    - platform: state
+      entity_id: sun.sun
+      to: 'below_horizon'
+      from: 'above_horizon'
+
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+      - condition: state
+        entity_id: group.all_covers
+        state: 'open'
+
+  action:
+    - service: scene.turn_on
+      entity_id: scene.front_full_brightness
+    - service: light.turn_on
+      entity_id:
+        - group.living_room_accents
+      data_template:
+        color_name: >
+          {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
+          red
+          {% else %}
+          gold
+          {% endif %}
+    - service: switch.turn_on
+      entity_id:
+        - switch.master_bathroom_accents
+        - switch.back_landscaping
+        - switch.front_door_outlet
+        - switch.living_room_outlet
+        - switch.den_outlet
+        - switch.foyer_outlet
+    - wait_template: >-
+        {{ states.group.garage_doors.state == 'closed' }}
+    - service: script.monthly_color_scene
+    - service: light.turn_on
+      entity_id:
+        - group.living_room_accents
+      data_template:
+        color_name: >
+          {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
+          red
+          {% else %}
+          gold
+          {% endif %}

@@ -1,0 +1,135 @@
+######################################################################
+##  Awesome [Etekcity Outlets](http://amzn.to/2efNoBP) control via RF
+### connected to
+## [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
+######################################################################
+
+- platform: tplink
+  name: Living_Room_Amp
+  host: 192.168.10.116
+
+# Thanks to @ZOMBU2 for providing me with the right firmware - http://cn-fwversions.ibroadlink.com/firmware/download/10026/20028.bin
+- platform: broadlink
+  host: 192.168.10.218
+  mac: '34:EA:34:CC:CE:25'
+  switches:
+    kitchen_accents:
+      friendly_name: "Kitchen Accents"
+      command_on: 'sjcyAAcSBxMHEgcSBxIUBgcTBxIIEhMGBxITBggSFAYHEhQGBxIHExQGFAYIEwcSFAYTBge8AAAAAAAA'
+      command_off: 'stgyAAcTBxMHEwcSBxMTBgcTBxMHExMHBxMUBgcTEwcHExMHBxMHExMHEwcTBxMHBxMHEwe9AAAAAAAA'
+
+    kitchen_accents_2:
+      friendly_name: "Kitchen Accents 2"
+      command_on: 'sjcyAAcSBxMHEgcSBxIUBgcTBxIIEhMGBxITBggSFAYHEhQGBxIHExQGFAYIEwcSFAYTBge8AAAAAAAA'
+      command_off: 'stgyAAcTBxMHEwcSBxMTBgcTBxMHExMHBxMUBgcTEwcHExMHBxMHExMHEwcTBxMHBxMHEwe9AAAAAAAA'
+
+    den_outlet:
+      friendly_name: "Den Outlet"
+      command_on: 'sjgyAAgSEwYHEhQGBxIIEgcSFAYHEhMGBxIUBgcSFAYUBhMGBxMHEggSBxIHEgcSFAYUBge+AAAAAAAA'
+      command_off: 'slUyAAcSFAYHEhQGBxMHEgcTFAYHEhQGBxIUBgcSFAYTBhMHBxIHEwcSBxMTBhMHBxMHEwe+AAAAAAAA'
+
+    foyer_outlet:
+      friendly_name: "Foyer Outlet"
+      command_on: 'sh8yAAcSBxMHEwcTBxIUBgcTBxMHExMGEwcTBwcTFAYHExMHBxMHEwcSBxMHEgcSEwcTBge9AAAAAAAA'
+      command_off: 'skIyAAcTBxIHEgcSBxMTBgcTBxIHExQGEwYUBgcTEwcHExQGBxMHEgcTBxITBxMGBxMHEge8AAAAAAAA'
+
+
+# - platform: rpi_rf
+#   gpio: 17
+#   switches:
+# # Outlet 1412_1 - ALSO Controls # Outlet 304_1
+#     master_bathroom_accents:
+#       protocol: 1
+#       pulselength: 186
+#       code_on: 5264691
+#       code_off: 5264700
+#       signal_repetitions: 40
+#
+# # Outlet 304_1 Controlled by Outlet 1412_1
+#     master_bathroom_accents_2:
+#       protocol: 1
+#       pulselength: 186
+#       code_on: 5330227
+#       code_off: 5330236
+#       signal_repetitions: 40
+#
+#   # Outlet 1412_3
+# #    Living_Room_Amp:
+#     1412_3_Outlet:
+#       protocol: 1
+#       pulselength: 186
+#       code_on: 5265155
+#       code_off: 5265164
+#       signal_repetitions: 40
+#
+# # Outlet 1412_2
+#     1412_2_Outlet:
+#       protocol: 1
+#       pulselength: 186
+#       code_on: 5264835
+#       code_off: 5264844
+#       signal_repetitions: 40
+#
+# # # Outlet 311_5
+# #     Foyer_Outlet:
+# #       protocol: 1
+# #       pulselength: 186
+# #       code_on: 292099
+# #       code_off: 292108
+# #       signal_repetitions: 40
+#
+# # # Outlet 311_1
+# #     Kitchen_Accents:
+# #       protocol: 1
+# #       pulselength: 186
+# #       code_on: 283955
+# #       code_off: 283964
+# #       signal_repetitions: 40
+# #
+# # # Outlet 311_2 : Responds to 311_1 as well.
+# #     Kitchen_Accent_2:
+# #       protocol: 1
+# #       pulselength: 186
+# #       code_on: 284099
+# #       code_off: 284108
+# #       signal_repetitions: 40
+#
+# # Outlet 311_3
+#     Printer_Outlet:
+#       protocol: 1
+#       pulselength: 186
+#       code_on: 284419
+#       code_off: 284428
+#       signal_repetitions: 40
+#
+# # Outlet 311_4
+#     Front_Door_Outlet:
+#       protocol: 1
+#       pulselength: 186
+#       code_on: 285955
+#       code_off: 285964
+#       signal_repetitions: 50
+#
+# # Outlet 304_2
+#     Living_Room_Outlet:
+#       protocol: 1
+#       pulselength: 186
+#       code_on: 5330371
+#       code_off: 5330380
+#       signal_repetitions: 40
+#
+# # # Outlet 304_3
+# #     Den_Outlet:
+# #       protocol: 1
+# #       pulselength: 186
+# #       code_on: 5330691
+# #       code_off: 5330700
+# #       signal_repetitions: 50
+#
+# # Outlet_304_4
+#     Garage_Outlet:
+#       protocol: 1
+#       pulselength: 186
+#       code_on: 5332227
+#       code_off: 5332236
+#       signal_repetitions: 40

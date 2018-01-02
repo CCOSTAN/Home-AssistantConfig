@@ -1,0 +1,29 @@
+###################################
+##  Uses IFTTT to trigger rain delay with rachio
+###################################
+
+- alias: Rachio_Rain_Delay
+  hide_entity: True
+  trigger:
+    - platform: numeric_state
+      entity_id:
+        - sensor.dark_sky_precip_intensity_max
+        - sensor.dark_sky_precip_intensity
+      above: 0.5
+    - platform: numeric_state
+      entity_id: sensor.dark_sky_wind_speed
+      above: 20
+
+  action:
+    - service: ifttt.trigger
+      data_template: {"event":"Rachio_Rain_Delay"}
+
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "Looks like Rain, Pausing the @_Rachio for 24 hours. (http://amzn.to/2eoPKBW)",
+          "Since it is going to rain tomorrow, I'll pause @_Rachio for 24 hours.",
+          "No reason to water the grass if it's going to rain tomorrow. pausing @_Rachio for 24 hours.",
+          "Mother Nature is watering the grass today so I can pause @_Rachio for 24 hours."
+          ] | random + " #SavingWater"}}

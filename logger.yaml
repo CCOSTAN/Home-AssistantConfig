@@ -1,0 +1,31 @@
+############################################################
+#
+# Logger  You can filter anything betwen the []'s in the logger.
+#
+############################################################
+
+# Log Severities: notset, debug, info, warn, warning, error, fatal, critical
+
+default: info
+logs:
+  aiohttp.access: critical
+  aiohttp.server: critical
+  custom_components.media_player.floorplan_speaker: error
+  homeassistant.core: error
+  homeassistant.components.automation: warn
+  homeassistant.components.binary_sensor: error
+  homeassistant.components.climate.nest: warn
+  homeassistant.components.device_tracker: error
+  homeassistant.components.discovery: warn
+  homeassistant.components.feedreader: warn
+  homeassistant.components.http: warn
+  homeassistant.components.media_player: warn
+  homeassistant.components.sensor.pi_hole: critical
+  homeassistant.components.recorder: error
+  homeassistant.components.sensor.darksky: warn
+  homeassistant.components.zwave: warn
+  homeassistant.helpers.script: info
+  homeassistant.helpers.entity: critical
+  homeassistant.exceptions: info
+  py.warnings: error
+  root: warn

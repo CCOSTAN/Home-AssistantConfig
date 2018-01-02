@@ -1,0 +1,39 @@
+######################################################################
+##  Stuff that needs to happen at 08:30am.
+######################################################################
+
+- alias: 'Kids left for the day.'
+  trigger:
+    - platform: time
+      at: '08:30:00'
+
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: home
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.school_mode
+      state: 'on'
+    - condition: time
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+  action:
+    - wait_template: >-
+       {{ is_state('group.garage_doors', 'open') }}
+    - service: light.turn_off
+      entity_id:
+        - group.all_lights
+    - service: switch.turn_off
+      entity_id: switch.kitchen_accents
+    - wait_template: >-
+       {{ is_state('group.bed', 'off') }}
+    - service: light.turn_on
+      entity_id:
+        - group.kitchen_lights

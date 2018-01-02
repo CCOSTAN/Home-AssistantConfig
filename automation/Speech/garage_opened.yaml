@@ -1,0 +1,28 @@
+######################################################################
+##  Garage Status Announcements
+######################################################################
+- alias: 'Garage Opened'
+
+  trigger:
+    - platform: state
+      entity_id:
+        - cover.large_garage
+        - cover.small_garage
+      from: 'closed'
+      to: 'open'
+      for: '00:02:30'
+
+  action:
+    - service_template: >
+       {% set hour=states("sensor.time").split(':')[0] | int %}
+       {% if hour >= 7 and hour <= 9 and states.input_boolean.school_mode.state == 'on'%}
+         input_boolean.turn_off
+       {% else %}
+          input_boolean.turn_on
+       {% endif %}
+      entity_id: input_boolean.alert_mode
+
+    - service: script.speech_engine
+      data_template:
+        value1: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        call_garage_check: 1

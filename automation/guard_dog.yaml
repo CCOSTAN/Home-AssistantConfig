@@ -1,0 +1,24 @@
+######################################################################
+##  Speak Max!  Speak Max!!
+######################################################################
+
+- alias: Guard Dog
+  trigger:
+    - platform: state
+      entity_id: input_boolean.guard_dog
+      to: 'on'
+      from: 'off'
+    - platform: state
+      entity_id: binary_sensor.front_door_opened
+      to: 'on'
+      from: 'off'
+
+  condition:
+    - condition: state
+      entity_id: group.all_covers
+      state: 'closed'
+
+  action:
+    - service: script.dog_bark
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.guard_dog

@@ -1,0 +1,370 @@
+#Color Table
+# http://www.colorhexa.com/color-names
+
+#    service: scene.turn_on
+#    entity_id: scene.month_standard_colors
+
+- name: month_standard_colors
+  entities:
+       group.outdoor_front_lights:
+           state: 'on'
+           color_name: 'Gold'
+
+- name: front_full_brightness
+  entities:
+     group.outdoor_front_lights:
+         state: 'on'
+         color_name: 'White'
+         brightness: 250
+
+- name: month_RWB_colors
+  entities:
+      light.outdoor_foyer:
+          state: 'on'
+          #color_name: 'Cream'
+          rgb_color: [255,253,208]
+          brightness: 30
+      light.stone_door:
+          state: 'on'
+          #color_name: 'Cream'
+          rgb_color: [204,0,0]
+      light.outdoor_sconce_3:
+          state: 'on'
+          #color_name: 'Red'
+          rgb_color: [204,0,0]
+      light.outdoor_sconce_2:
+          state: 'on'
+          #color_name: 'White' Smoke
+          rgb_color: [245,245,245]
+      light.outdoor_sconce_1:
+          state: 'on'
+          color_name: 'Blue'
+      light.led_garage_large:
+          state: 'on'
+          #color_name: 'Red'
+          rgb_color: [204,0,0]
+      light.led_garage_snip:
+          state: 'on'
+          #color_name: 'Red'
+          rgb_color: [204,0,0]
+      light.led_garage_small:
+          state: 'on'
+          #color_name: 'White' Smoke
+          rgb_color: [245,245,245]
+      light.led_outdoor_den:
+          state: 'on'
+          color_name: 'Blue'
+
+- name: month_valentine_colors
+  entities:
+       group.outdoor_front_lights:
+           state: 'on'
+           color_name: 'Crimson'
+
+- name: month_marti_gras_colors
+  entities:
+       light.outdoor_foyer:
+           state: 'on'
+           color_name: 'Gold'
+       light.stone_door:
+           state: 'on'
+           color_name: 'Purple'
+       light.outdoor_sconce_1:
+           state: 'on'
+           color_name: 'Purple'
+       light.outdoor_sconce_2:
+           state: 'on'
+           color_name: 'Gold'
+       light.outdoor_sconce_3:
+           state: 'on'
+           color_name: 'Purple'
+       light.led_garage_large:
+           state: 'on'
+           color_name: 'Green'
+       light.led_garage_snip:
+           state: 'on'
+           color_name: 'Green'
+       light.led_garage_small:
+           state: 'on'
+           color_name: 'Green'
+       light.led_outdoor_den:
+           state: 'on'
+           color_name: 'Green'
+
+- name: month_st_patty_colors
+  entities:
+       group.outdoor_front_lights:
+           state: 'on'
+           #color_name: 'Dark Spring Green'
+           rgb_color: [23,114,69]
+
+- name: month_pi_colors
+  entities:
+       group.outdoor_front_lights:
+           state: 'on'
+           rgb_color: [3,14,159]
+
+- name: month_easter_colors
+  entities:
+       light.outdoor_foyer:
+           state: 'on'
+           # color_name: 'Lavender'
+           rgb_color: [244,187,255]
+       light.stone_door:
+           state: 'on'
+           color_name: 'yellow'
+       light.outdoor_sconce_1:
+           state: 'on'
+           #color_name: 'Bubble Gum'
+           rgb_color: [255,193,204]
+       light.outdoor_sconce_2:
+           state: 'on'
+           #color_name: 'Lavender'
+           rgb_color: [244,187,255]
+       light.outdoor_sconce_3:
+           state: 'on'
+           #color_name: 'Bubble Gum'
+           rgb_color: [255,193,204]
+       light.led_garage_large:
+           state: 'on'
+           color_name: 'Green'
+       light.led_garage_snip:
+           state: 'on'
+           color_name: 'Green'
+       light.led_garage_small:
+           state: 'on'
+           color_name: 'Green'
+       light.led_outdoor_den:
+           state: 'on'
+           color_name: 'Green'
+
+- name: month_starwars_colors
+  entities:
+       light.outdoor_foyer:
+           state: 'on'
+           # color_name: 'Red'
+           rgb_color: [204,0,0]
+       light.stone_door:
+           state: 'on'
+           color_name: 'yellow'
+       light.outdoor_sconce_1:
+           state: 'on'
+           #color_name: 'White' Smoke
+           rgb_color: [245,245,245]
+       light.outdoor_sconce_2:
+           state: 'on'
+           #color_name: 'White' Smoke
+           rgb_color: [245,245,245]
+       light.outdoor_sconce_3:
+           state: 'on'
+           #color_name: 'White' Smoke
+           rgb_color: [245,245,245]
+       light.led_garage_large:
+           state: 'on'
+           # color_name: 'Red'
+           rgb_color: [204,0,0]
+       light.led_garage_snip:
+           state: 'on'
+           # color_name: 'Red'
+           rgb_color: [204,0,0]
+       light.led_garage_small:
+           state: 'on'
+           # color_name: 'Red'
+           rgb_color: [204,0,0]
+       light.led_outdoor_den:
+           state: 'on'
+           # color_name: 'Red'
+           rgb_color: [204,0,0]
+
+- name: month_cinco_de_mayo_colors
+  entities:
+       light.outdoor_foyer:
+           state: 'on'
+           # color_name: 'Red'
+           rgb_color: [204,0,0]
+       light.stone_door:
+           state: 'on'
+           # color_name: 'Red'
+           rgb_color: [204,0,0]
+       light.outdoor_sconce_1:
+           state: 'on'
+           # color_name: 'Red'
+           rgb_color: [204,0,0]
+       light.outdoor_sconce_2:
+           state: 'on'
+           #color_name: 'White' Smoke
+           rgb_color: [245,245,245]
+       light.outdoor_sconce_3:
+           state: 'on'
+           #color_name: 'Dark Spring Green'
+           rgb_color: [23,114,69]
+       light.led_garage_large:
+           state: 'on'
+           color_name: 'Red'
+       light.led_garage_snip:
+           state: 'on'
+           color_name: 'Red'
+       light.led_garage_small:
+           state: 'on'
+           color_name: 'Green'
+       light.led_outdoor_den:
+           state: 'on'
+           color_name: 'white'
+
+- name: month_fathers_day_colors
+  entities:
+      light.outdoor_foyer:
+          state: 'on'
+          color_name: 'Orange'
+      light.stone_door:
+          state: 'on'
+          color_name: 'Orange'
+      light.outdoor_sconce_1:
+          state: 'on'
+          color_name: 'Blue'
+      light.outdoor_sconce_2:
+          state: 'on'
+          color_name: 'Orange'
+      light.outdoor_sconce_3:
+          state: 'on'
+          color_name: 'Blue'
+
+- name: month_halloween_colors
+  entities:
+      light.outdoor_foyer:
+          state: 'on'
+          color_name: 'purple'
+      light.stone_door:
+          state: 'on'
+          #color_name: 'orange'
+          rgb_color: [127,14,0]
+      light.outdoor_sconce_1:
+          state: 'on'
+          color_name: 'purple'
+      light.outdoor_sconce_2:
+          state: 'on'
+          color_name: 'purple'
+      light.outdoor_sconce_3:
+          state: 'on'
+          color_name: 'purple'
+      light.led_garage_large:
+          state: 'on'
+          #color_name: 'orange'
+          rgb_color: [127,14,0]
+          brightness: 150
+      light.led_garage_snip:
+          state: 'on'
+          #color_name: 'orange'
+          rgb_color: [127,14,0]
+          brightness: 150
+      light.led_garage_small:
+          state: 'on'
+          #color_name: 'orange'
+          rgb_color: [127,14,0]
+          brightness: 150
+      light.led_outdoor_den:
+          state: 'on'
+          #color_name: 'orange'
+          rgb_color: [127,14,0]
+          brightness: 150
+
+- name: month_thanksgiving_colors
+  entities:
+       group.outdoor_front_lights:
+           state: 'on'
+           color_name: 'orange'
+
+
+- name: month_hanukkah_colors
+  entities:
+      light.outdoor_foyer:
+          state: 'on'
+          color_name: 'white'
+      light.stone_door:
+          state: 'on'
+          color_name: 'blue'
+      light.outdoor_sconce_1:
+          state: 'on'
+          color_name: 'blue'
+      light.outdoor_sconce_2:
+          state: 'on'
+          color_name: 'white'
+      light.outdoor_sconce_3:
+          state: 'on'
+          color_name: 'blue'
+      light.led_garage_large:
+          state: 'on'
+          color_name: 'Blue'
+      light.led_garage_snip:
+          state: 'on'
+          color_name: 'Blue'
+      light.led_garage_small:
+          state: 'on'
+          color_name: 'white'
+      light.led_outdoor_den:
+          state: 'on'
+          color_name: 'blue'
+
+- name: month_christmas_colors
+  entities:
+      light.outdoor_foyer:
+          state: 'on'
+          color_name: 'red'
+      light.stone_door:
+          state: 'on'
+          color_name: 'green'
+      light.outdoor_sconce_1:
+          state: 'on'
+          color_name: 'red'
+      light.outdoor_sconce_2:
+          state: 'on'
+          color_name: 'red'
+      light.outdoor_sconce_3:
+          state: 'on'
+          color_name: 'red'
+      light.led_garage_large:
+          state: 'on'
+          color_name: 'green'
+          effect: green_fade
+      light.led_garage_snip:
+          state: 'on'
+          color_name: 'green'
+          effect: green_fade
+      light.led_garage_small:
+          state: 'on'
+          color_name: 'green'
+          effect: green_fade
+      light.led_outdoor_den:
+          state: 'on'
+          color_name: 'green'
+          effect: green_fade
+
+- name: month_new_years_day_colors
+  entities:
+      light.outdoor_foyer:
+          state: 'on'
+          color_name: 'red'
+      light.stone_door:
+          state: 'on'
+          color_name: 'yellow'
+      light.outdoor_sconce_1:
+          state: 'on'
+          color_name: 'blue'
+      light.outdoor_sconce_2:
+          state: 'on'
+          color_name: 'yellow'
+      light.outdoor_sconce_3:
+          state: 'on'
+          color_name: 'orange'
+      light.led_garage_large:
+          state: 'on'
+          color_name: 'green'
+      light.led_garage_snip:
+          state: 'on'
+          color_name: 'green'
+      light.led_garage_small:
+          state: 'on'
+          color_name: 'purple'
+      light.led_outdoor_den:
+          state: 'on'
+          color_name: 'violet'

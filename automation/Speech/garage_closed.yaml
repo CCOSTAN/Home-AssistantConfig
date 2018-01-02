@@ -1,0 +1,19 @@
+######################################################################
+##  Garage Status Announcements - Only during normal hours.
+######################################################################
+- alias: 'Garage Door closed'
+
+  trigger:
+    - platform: state
+      entity_id:
+        - cover.large_garage
+        - cover.small_garage
+      from: 'open'
+      to: 'closed'
+      for: '00:02:00'
+
+  action:
+    - service: script.speech_engine
+      data_template:
+        DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        call_garage_check: 1

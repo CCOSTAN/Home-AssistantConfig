@@ -1,0 +1,34 @@
+- name: TV Time
+  entities:
+       light.M1_front_left:
+           state: off
+           transition: 10
+       light.M1_front_right:
+           state: off
+           transition: 10
+       light.M1_slider:
+           state: off
+           transition: 10
+       light.M1_back_right:
+           state: on
+           transition: 10
+           brightness: 1
+       light.M1_back_left:
+           state: on
+           transition: 40
+           brightness: 1
+       light.tv_stand_light:
+           state: on
+           transition: 400
+           color_name: 'Gold'
+           brightness: 150
+       light.tv_light:
+           state: on
+           transition: 400
+           color_name: 'Gold'
+           brightness: 125
+       light.couch_1:
+           state: on
+           transition: 400
+           color_name: 'Gold'
+           brightness: 255

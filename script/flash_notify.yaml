@@ -1,0 +1,16 @@
+######################################################################################################
+###Script to turn on Front light FULL bright for 15m when motion is detected and then return to the normal colors.
+#  action:
+#   - service: script.flash_notify
+#
+######################################################################################################
+
+flash_notify:
+  sequence:
+    - service: light.turn_on
+      entity_id:
+        - light.m1_slider
+        - light.office_lamp
+        - light.outdoor_foyer
+      data:
+        flash: long

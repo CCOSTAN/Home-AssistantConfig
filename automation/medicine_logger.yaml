@@ -1,0 +1,36 @@
+###################################
+##  LOG Medicine
+###################################
+- alias: 'Log Medicine Activity'
+  hide_entity: True
+  trigger:
+    - platform: event
+      event_type: medicine_dash
+    - platform: state
+      entity_id: input_boolean.medicine
+      to: 'on'
+      from: 'off'
+
+  action:
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.medicine
+    - service: automation.turn_off
+      entity_id: automation.log_medicine_activity
+    - service: logbook.log
+      data:
+        name: "Medicine Push"
+        message: "Took Medicine today."
+
+    - service: mqtt.publish
+      data_template:
+        payload: '{{ states("sensor.date") }}'
+        topic: 'dash/medicine/medicine_time'
+        retain: true
+
+    - service: script.notify_engine
+      data_template:
+        value1: 'Took Medicine today.'
+        who: "parents"
+    - delay:
+        minutes: 1
+    - service: automation.turn_on

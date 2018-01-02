@@ -1,0 +1,50 @@
+##############################################################################
+###  Detect when lights are turned on and adjust them accordingly based on time.
+###  Code by @JesseWebDotCom
+##############################################################################
+- alias: detect lights and adjust the brightness when turned on based on time
+  trigger:
+    - platform: event
+      event_type: state_changed
+
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: 'home'
+    - condition: state
+      entity_id: input_boolean.alert_mode
+      state: 'off'
+    - condition: template
+      value_template: "{{ trigger.event.data is not none }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id is not none }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('.')[0] == 'light' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.tv' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.couch' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.office' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[1] != 'screensaver' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.old_state.state == 'off' }}"
+
+  action:
+    - service: light.turn_on
+      data_template:
+        entity_id: "{{ trigger.event.data.entity_id }}"
+        brightness: >
+          {% set hour=states("sensor.time").split(':')[0] | int %}
+          {%- if hour >= 5 and hour < 8  -%}
+            50
+          {%- elif hour >= 8 and hour <20  -%}
+            255
+          {%- elif hour >= 20 and hour <24  -%}
+            40
+          {%- else -%}
+            15
+          {%- endif %}

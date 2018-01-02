@@ -1,0 +1,144 @@
+#-------------------------------------------
+#  This is the configuration account for @BearStoneHA - My Home's automated twitter account.
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "input_select.log_*":
+#       icon: mdi:bug
+#       emulated_hue_hidden: True
+#       hidden: False
+
+#Random number - https://www.random.org/integers/?num=1&min=1&max=10&col=1&base=10&format=plain&rnd=new
+
+notify:
+  - name: BearStoneHA
+    platform: twitter
+    consumer_key: !secret twitter_consumer_key
+    consumer_secret: !secret twitter_consumer_secret
+    access_token: !secret twitter_access_token
+    access_token_secret: !secret twitter_access_token_secret
+
+### Building out some Historical stats for tweeting. #####################
+sensor:
+
+  - platform: history_stats
+    name: Doorbell Presses
+    entity_id: binary_sensor.skybell_stone_door_button
+    state: 'on'
+    type: count
+    end: '{{ now() }}'
+    duration:
+      hours: 24
+
+  - platform: history_stats
+    name: Landscaping Light time
+    entity_id: group.landscaping
+    state: 'on'
+    type: time
+    end: '{{ now() }}'
+    duration:
+      hours: 24
+
+#############################################################
+
+automation:
+  - alias: 'New Twitter follower!'
+    hide_entity: True
+    trigger:
+      - platform: event
+        event_type: new_follower
+
+    condition:
+      - condition: state
+        entity_id: group.bed
+        state: 'off'
+    action:
+      - service: media_player.play_media
+        data_template:
+          entity_id:
+            - media_player.livingroomCC
+            - media_player.bedroom_alarm_panel
+          media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/twitter-chirp.mp3"
+          media_content_type: audio/mp4
+
+      - service: script.tweet_engine
+        data_template:
+          tweet: >-
+            {% set handle = trigger.event.data.value1 %}
+            {% set location = trigger.event.data.location %}
+            {% set phrases = [
+              "Thanks for the Follow " ~ handle ~ "! Chirp the Bird from " ~ location ~ "!!",
+              "Hey " ~ handle ~ "Thanks for the Follow from " ~ location ~ " !",
+              "New follower " ~ handle ~ " from " ~ location ~ ", I just sounded a chirp in the house.",
+              "Boom! The " ~ location ~ " follow from " ~ handle ~ " makes me sound a chirp in the house.",
+              "Wanna know who is super cool? "~ handle ~" IS!!! Thanks for making me CHIRP!",
+              "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower like " ~ handle ~ ", I sound a chirp!"
+            ] %}
+            {% set hashtags = [
+              "#ThanksForTheFollow",
+              "#FollowBack",
+              "#ChirpTheHouse",
+              "#FollowMe",
+              "#MakingitChirp",
+              "(http://www.vmwareinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)"
+            ] %}
+            {{ phrases|random ~ " " ~ hashtags|random }}
+
+  - alias: 'Closed Github Issue'
+    hide_entity: True
+    trigger:
+      - platform: event
+        event_type: closed_github
+
+    action:
+      - service: script.tweet_engine
+        data_template:
+          tweet: >-
+            {% set repo = trigger.event.data.repo %}
+            {% set issue = trigger.event.data.issue %}
+            {% set issueurl = trigger.event.data.issueurl %}
+            {% set phrases = [
+              "New Code Alert: " ~ issue ~ "(" ~ issueurl ~ "). Repo: (https://github.com/CCOSTAN/Home-AssistantConfig/commits/master) "
+            ] %}
+            {% set hashtags = [
+              "#Github",
+              "#HomeAutomation",
+              "#SmartHomeCode"
+            ] %}
+            {{ phrases|random ~ " " ~ hashtags|random }}
+
+
+  - alias: 'Random House stats'
+    hide_entity: True
+    trigger:
+      - platform: time
+        hours: '/4'
+        minutes: 01
+        seconds: 00
+
+    action:
+      - service: automation.turn_off
+      - delay: '0{{ range(0,2) | random | int }}:{{ range(10,59) | random | int }}:00'
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "The number of Doorbell presses today was {{states.sensor.doorbell_presses.state}}",
+            "The #Landscaping lights where on for about {{states.sensor.landscaping_lights_time.state}} yesterday.",
+            "So far, I have prevented {{states.sensor.pihole_ads_blocked_today.state}} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
+            "{{states.sensor.doorbell_presses.state}} people came to the door today and pressed the bell.",
+            "The Pi has been running for {{states.sensor.since_last_boot_templated.state}}",
+            "I am running Home Assistant version {{states.sensor.ha_installed_version.state}} (https://github.com/CCOSTAN/Home-AssistantConfig)",
+            "{{states.sensor.doorbell_presses.state}} doorbell presses occurred in the last 24 hours.",
+            "I keep the average humidity of the house at {{states.sensor.downstairs_thermostat_humidity.state}} percent. Outside is {{states.sensor.dark_sky_humidity.state}} #Nest (http://amzn.to/2BWNk5N)",
+            "Outside is {{states.sensor.dark_sky_temperature.state}}. I keep the average temperature at {{states.sensor.downstairs_thermostat_temperature.state}}. #Nest (http://amzn.to/2BWNk5N)",
+            "Average internet stats are Download: {{states.sensor.speedtest_download.state}} Mbit/s & Upload {{states.sensor.speedtest_upload.state}} Mbit/s.",
+            "Todays Sleep Number is {{states.sensor.sleepnumber_carlo_stacey_sleepnumber.state}}. Wifi connected Bed! #SleepStat (http://amzn.to/2D10BcQ)",
+            "Our Sleep Number is {{states.sensor.sleepnumber_carlo_carlo_sleepnumber.state}}. Wifi connected Bed! #SleepStat (http://amzn.to/2D10BcQ)",
+            "The current UV index is {{states.sensor.dark_sky_uv_index.state}} and the Moon is {{states.sensor.moon.state}}.  #Space",
+            "Home Assistant has been running for {{states.sensor.ha_uptime.state}} minutes. (https://github.com/CCOSTAN/Home-AssistantConfig)",
+            "My @getspectrum internet download speed is about {{states.sensor.speedtest_download.state}} Mbit/s and I am a #cordcutter. @ "
+            ] | random + " #RandomStat"}}
+      - service: automation.turn_on

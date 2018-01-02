@@ -1,0 +1,49 @@
+######################################################################
+##  Good night Routine
+######################################################################
+
+- alias: 'Good Night Trigger'
+  trigger:
+    - platform: state
+      entity_id: input_boolean.good_night
+      to: 'on'
+      from: 'off'
+    - platform: state
+      entity_id:
+        - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      to: 'on'
+
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: state
+      entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      state: 'on'
+
+  action:
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.good_night
+
+    - service: script.speech_engine
+      data_template:
+        value1: >
+          {{ [
+          "Sleep Tight, Don't let the bedbugs bite.",
+          "Have pleasant dreams",
+          "As they say in the Navy, See you in the rise."
+          "Dream pleasant dreams.  Tomorrow is a new day.",
+          "Early sleep and early wake up gives health and makes you grow.",
+          "Good night, good night! Parting is such sweet sorrow that I shall say goodnight till it is Morrow.",
+          "There is a time for many words, and there is also a time for sleep.",
+          "This good night isn’t meant to bring an end to this day. It’s intended to wish you awesomeness in what lies ahead.",
+          "Stuff your worries in your pillow, wrap your troubles in your blanket and spread your anxieties on your sheets. When you wake up tomorrow, you may have dirty linen, but more importantly, you’ll have a fresh mind and a happy heart. Good night."
+          ] | random }}
+    - service: script.interior_off

@@ -1,0 +1,47 @@
+#-------------------------------------------
+#  RSS Podcast Alerting function Packages
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+
+#-------------------------------------------
+feedreader:
+    urls:
+      - https://hasspodcast.io/feed/podcast
+#-------------------------------------------
+
+automation:
+  - alias: Send notification of RSS feed title when updated
+    trigger:
+      platform: event
+      event_type: feedreader
+
+    action:
+      - service: script.notify_engine
+        data_template:
+          value1: 'There is a new HA Podcast available for {{trigger.event.data.title}}.'
+          value2: 'https://hasspodcast.io/'
+          who: 'carlo'
+
+      - service: notify.html5
+        data_template:
+          title: "New HA Podcast available"
+          message: "New HA Podcast - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }} {{trigger.event.data.title}}"
+          data:
+            url: "https://hasspodcast.io/"
+
+      - service: persistent_notification.create
+        data_template:
+          title: "{{trigger.event.data.title}}"
+          message: "New Podcast available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+          notification_id: "update_available"
+
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "There is a new HA Podcast available! @DanGeek, @rohank9, @philhawthorne & Crew rock it out (#HomeAutomation Style!)!",
+            "Mine and @DanGeek Favorite Podcast just came out!",
+            "Listen to @rohank9 and the HA Podcast crew on thier new #HomeAutomation episode!",
+            "Mine & @CCostan Favorite Podcast just came out! Thanks @DanGeek!"
+            ] | random + "(https://hasspodcast.io/)"}}

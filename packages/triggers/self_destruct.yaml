@@ -1,0 +1,66 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize:
+    input_boolean.self_destruct:
+      friendly_name: 'Self Destruct'
+      icon: mdi:skull
+      emulated_hue_hidden: False
+      hidden: False
+#-------------------------------------------
+input_boolean:
+  self_destruct:
+    name: Self Destruct
+    initial: off
+
+#-------------------------------------------
+##############################################################################
+###  Pretend to blow up the house..
+##############################################################################
+
+automation:
+  - alias: 'Self Destruct sequence'
+    trigger:
+      - platform: state
+        entity_id: input_boolean.self_destruct
+        to: 'on'
+
+    action:
+    - service: media_player.turn_on
+      entity_id: media_player.livingroomCC
+
+    - service: switch.turn_on
+      entity_id: switch.living_room_amp
+    - delay: '00:00:05'
+
+    - service: media_player.volume_set
+      entity_id:
+        - media_player.livingroomCC
+      data:
+        volume_level: 0.22
+
+    - service: media_player.play_media
+      entity_id:
+          - media_player.livingroomCC
+          - media_player.entry_alarm_panel
+          - media_player.bedroom_alarm_panel
+      data_template:
+        media_content_id: >
+          "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/speechcons/self_destruct.mp3"
+        media_content_type: audio/mp4
+    - service: light.turn_on
+      entity_id:
+        - group.all_lights
+      data:
+        flash: long
+    - service: switch.turn_off
+      entity_id:
+        - group.all_switches
+    - service: light.turn_off
+      entity_id:
+        - group.all_lights
+    - service: input_boolean.turn_off
+      entity_id:
+        - input_boolean.self_destruct

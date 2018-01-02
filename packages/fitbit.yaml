@@ -1,0 +1,64 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "*.*_sleep_hours":
+#       unit_of_measurement: hours
+#       icon: mdi:sleep
+#       emulated_hue_hidden: True
+#       hidden: False
+#-------------------------------------------
+sensor:
+  - platform: fitbit
+    clock_format: 12H
+    monitored_resources:
+      - "body/weight"
+      - "activities/steps"
+      - "devices/battery"
+#-------------------------------------------
+group:
+  fitbit:
+    entities:
+      - sensor.steps
+      - sensor.weight
+      - sensor.one_battery
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+automation:
+  - alias: 'Missing Fitbit Alert'
+    initial_state: 'on'
+    trigger:
+      - platform: time
+        at: '11:00:00'
+    condition:
+      condition: template
+      value_template: >
+        {%- if sensor.steps < 1000 -%}
+          true
+        {%- endif -%}
+    action:
+      - service: script.notify_engine
+        data_template:
+          value1: "Your current fitbit steps are {{ states('sensor.steps') }} - You probably do not have it."
+          who: 'carlo'
+
+  - alias: 'Fitbit 10k'
+    initial_state: 'on'
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.steps
+        above: 10000
+
+    action:
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "Somebody just hit {{ states('sensor.steps') }} steps on the #Fitbit!",
+            "Keep on moving.  Somebody just hit {{ states('sensor.steps') }} steps.",
+            "#Fitness Tracking at home BY the home. Somebody just hit {{ states('sensor.steps') }} steps"
+            ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Self #Data"}}

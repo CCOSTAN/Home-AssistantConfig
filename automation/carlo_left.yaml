@@ -1,0 +1,12 @@
+######################################################################
+##  Turn off my Office light whenever I leave the house.
+######################################################################
+- alias: 'Carlo has left the building'
+  trigger:
+    - platform: state
+      entity_id: device_tracker.carlo
+      to: not_home 
+
+  action:
+    - service: light.turn_off
+      entity_id: light.office_lamp

@@ -1,0 +1,115 @@
+#-------------------------------------------
+#  Space Related Packages
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+#------ISS----------------------------------
+homeassistant:
+  customize:
+    binary_sensor.iss:
+      icon: mdi:satellite-variant
+      friendly_name: ISS Visibility
+      emulated_hue_hidden: True
+      hidden: False
+      homebridge_hidden: true
+    sensor.launch_window:
+      hidden: False
+      icon: mdi:rocket
+      friendly_name: Rocket Launch Window
+#-------------------------------------------
+binary_sensor:
+  - platform: iss
+    show_on_map: False
+#-------------------------------------------
+
+sensor:
+  - platform: rest
+    scan_interval: 3600
+    resource: https://launchlibrary.net/1.2.2/launch/next/10
+    # resource: https://raw.githubusercontent.com/cribbstechnologies/ha_config/master/www/test_launch.json
+    name: launch window
+    # if the current timestamp is in the launch window
+    # this sensor will return the UTC timestamp of the launch
+    value_template: >-
+      {%- for launch in value_json.launches %}
+        {% if launch.location.id == 16 or launch.location.id == 17 %}
+          {% if strptime(launch.isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
+            {% set utc_offset_string = now().strftime('%z') %}
+            {% set utc_offset_direction = utc_offset_string[:1] %}
+            {% set utc_offset_hours = now().strftime('%z')[-4:] %}
+            {% set utc_offset_seconds = (utc_offset_hours| int /100) * 60 * 60 %}
+            {% if utc_offset_direction == '-' %}
+             {{ launch.wsstamp - utc_offset_seconds}}
+            {% else %}
+              {{ launch.wsstamp + utc_offset_seconds}}
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+automation:
+  - alias: Launch Window Approaching
+    trigger:
+      - platform: state
+        entity_id: sensor.launch_window
+    condition:
+        condition: and
+        conditions:
+          - condition: template
+            value_template: "{{states('sensor.launch_window') != 'unknown'}}"
+          - condition: template
+            value_template: "{{as_timestamp(now()) < (states('sensor.launch_window') | float)}}"
+
+    action:
+      - service: script.notify_engine
+        data_template:
+          value1: 'There will be a rocket Launch today - I will notify you later when the launch window starts'
+      - wait_template: >-
+          {{as_timestamp(now()) >= (states('sensor.launch_window') | float)}}
+      - service: script.notify_engine
+        data_template:
+          value1: 'Go Outside!  There is a Rocket Launch!'
+
+      - service: script.tweet_engine
+        data_template:
+          tweet: 'There is a Rocket launch happening right now!  I can see it if I look closely. @BrianCribbs #SpaceX #Space'
+
+# This automation was also moved to a macro in the speech_engine.
+# It's a random fact now.
+
+  - alias: 'ISS is above Me -Tweet'
+
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.iss
+        to: 'on'
+        from: 'off'
+
+    action:
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "The ISS is above me right now!",
+            "The International Space Station flys by once a day & that time is NOW! (For me)",
+            "I can look up RIGHT NOW and see the ISS.",
+            "The International Space Station Rocks! And it's above me RIGHT NOW!"
+            ] | random + " #Space"}}
+
+  - alias: 'Full Moon -Tweet'
+    trigger:
+      - platform: state
+        entity_id: sensor.moon
+        to: 'Full Moon'
+    action:
+      - delay: '{{ (range(1, 6)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "There is a Full Moon out tonight!",
+            "Wish my solar panels picked up Moon rays.  Full Moon out tonight.",
+            "Turn down the lights, there is a Full Moon out tonight.",
+            "Get out your telescopes, it'll be a Full Moon out tonight!"
+            ] | random + "#Space"}}

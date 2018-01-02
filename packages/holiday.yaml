@@ -1,0 +1,91 @@
+###############################################################################
+#   @author         :   Mahasri Kalavala
+#   @date           :   10/28/2017
+#   @package        :   Holidays
+#   @description    :   Retrieves the holiday
+###############################################################################
+## Modified for my own fun stuff!
+
+homeassistant:
+  customize:
+
+    sensor.holiday:
+      hidden: true
+      icon: mdi:beach
+      friendly_name: US Holiday
+    sensor.flag:
+      hidden: true
+      icon: mdi:flag
+      friendly_name: Flag Day
+
+###############################################################################
+# Sensor updates once every 4 hours (14400 seconds) & runs 6 times in 24 hours
+#
+# First it checks for holiday in static section, if that doesn't exist,
+# it checks in the dynamic section. If neither exists, the value will be empty
+###############################################################################
+sensor:
+  - platform: rest
+    resource: https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/json_data/holidays.json
+    name: Holiday
+    scan_interval: 14400
+    value_template: >
+      {% set today = now().month  ~ '/' ~ now().day  %}
+      {% set holiday =  value_json.MAJOR_US.static[ today ] %}
+      {% if holiday | trim == "" %}
+        {% set today = now().month  ~ '/' ~ now().day ~ '/' ~ now().year %}
+        {% set holiday =  value_json.MAJOR_US.dynamic[ today ] %}
+      {% endif %}
+      {{ holiday }}
+
+  - platform: rest
+    resource: http://www.webcal.fi/cal.php?id=335&format=json&start_year=current_year&end_year=2017&tz=America%2FNew_York
+    name: Flag
+    scan_interval: 14400
+    value_template: >-
+      {% set is_flag_day = False %}
+      {%- for day_val in value_json -%}
+        {% set now_string = now().strftime('%Y-%m-%d') %}
+        {%- if day_val.date == now_string and day_val.flag_day == 1-%}
+          {% set is_flag_day = True %}
+        {%- endif -%}
+      {% endfor %}
+      {{is_flag_day}}
+
+###############################################################################
+# Automation that notifies of a Holiday "state" change
+###############################################################################
+automation:
+  - alias: Notify Holiday State Change
+    hide_entity: false
+    initial_state: true
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.holiday
+    condition:
+      - condition: template
+        value_template: "{{ states('sensor.holiday') != 'unknown' }}"
+      - condition: template
+        value_template: "{{ states.sensor.holiday.state | trim != '' }}"
+    action:
+      - service: persistent_notification.create
+        data:
+          message: 'Today is {{ states.sensor.holiday.state }}.'
+          title: '{{ states.sensor.holiday.state }}'
+
+      - delay: '{{ (range(4, 8)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "Today is {{ states.sensor.holiday.state }}. Time to adjust the outside light colors!",
+            "Today is {{ states.sensor.holiday.state }}.",
+            "Is today {{ states.sensor.holiday.state }}?",
+            "Just checked with Alexa & today is {{ states.sensor.holiday.state }}."
+            ] | random + [
+            " #DayOff",
+            "(http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
+            "(http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
+            "#{{ states.sensor.holiday.state }}"
+            ] | random }}

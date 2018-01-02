@@ -1,0 +1,86 @@
+###################################
+## Garadget Stuff -  [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor
+##
+###################################
+
+- alias: Garadget Reflection Rates
+  hide_entity: True
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.large_garage_reflection_rate
+      below: 85
+#      for: '00:05:00'
+    - platform: numeric_state
+      entity_id: sensor.small_garage_reflection_rate
+      below: 85
+#      for: '00:05:00'
+
+  condition:
+    - condition: template
+      value_template: "{{ states('cover.large_garage') == 'closed' }}"
+    - condition: template
+      value_template: "{{ states('cover.small_garage') == 'closed' }}"
+
+  action:
+    - service: script.notify_engine
+      data_template:
+        value1: 'Check Garage Doors Reflection:'
+        value2: "Small: {{ states('sensor.small_garage_reflection_rate')}}"
+        value3: "Large: {{ states('sensor.large_garage_reflection_rate')}}"
+        who: "carlo"
+
+##############################################################################
+
+- alias: Is the Garage door Open at night - Checks every 30 minutes or 5 minutes after we drive away.
+  hide_entity: True
+  trigger:
+    - platform: time
+      minutes: '/45'
+      seconds: 00
+    - platform: state
+      entity_id: group.family
+      to: not_home
+      for: 00:05:00
+    - platform: state
+      entity_id: input_boolean.tv_time
+      to: 'on'
+      from: 'off'
+
+  condition:
+    condition: or
+    conditions:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: group.family
+            state: not_home
+            for: 00:05:00
+          - condition: or
+            conditions:
+              - condition: template
+                value_template: "{{ states('cover.large_garage') == 'opened' }}"
+              - condition: template
+                value_template: "{{ states('cover.small_garage') == 'opened' }}"
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: 'below_horizon'
+          - condition: or
+            conditions:
+              - condition: template
+                value_template: "{{ states('cover.large_garage') == 'opened' }}"
+              - condition: template
+                value_template: "{{ states('cover.small_garage') == 'opened'}}"
+
+  action:
+    - service: script.notify_engine
+      data_template:
+        value1: 'Check Garage Doors:'
+        value2: "Small: {{ states('cover.small_garage')}}"
+        value3: "Large: {{ states('cover.large_garage')}}"
+        who: "family"
+
+    - service: script.speech_engine
+      data_template:
+        value1: "Please check the garage doors. The Small garage is {{ states('cover.small_garage')}} and the large garage is {{ states('cover.large_garage')}}"

@@ -1,0 +1,49 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize:
+    input_boolean.lastmsg:
+      friendly_name: 'Repeat Message'
+      icon: mdi:repeat-once
+      emulated_hue_hidden: False
+      hidden: False
+#-------------------------------------------
+input_boolean:
+  lastmsg:
+    name: Last Message
+    initial: off
+#-------------------------------------------
+sensor:
+  - platform: mqtt
+    state_topic: "polly/lastmsg"
+    name: "Last Message"
+##############################################################################
+###  Automations -
+##############################################################################
+
+automation:
+  - alias: 'Repeat Last Message'
+
+    trigger:
+      - platform: state
+        entity_id: input_boolean.lastmsg
+        to: 'on'
+
+    action:
+      - service: tts.amazon_polly_say
+        entity_id:
+          - media_player.livingroomCC
+          - media_player.entry_alarm_panel
+          - media_player.bedroom_alarm_panel
+        data_template:
+          message: >
+            <speak>
+            {{states.sensor.last_message.state}}
+            </speak>
+          cache: true
+
+      - service: input_boolean.turn_off
+        entity_id:
+          - input_boolean.lastmsg

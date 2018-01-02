@@ -1,0 +1,58 @@
+#-------------------------------------------
+#  Fire Tablet Alarm Panel -
+#  http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html
+#-------------------------------------------
+#
+# homeassistant:
+#   customize_glob:
+#     "sensor.*_alarm_panel*":
+#       emulated_hue_hidden: True
+#       hidden: False
+#     "binary_sensor.*_alarm_panel*":
+#       emulated_hue_hidden: True
+#       hidden: False
+
+sensor:
+  - platform: template
+    sensors:
+      low_battery:
+        friendly_name: 'Low Battery'
+        value_template: >
+          {%- set threshold = 15 -%}
+          {%- set domains = ['light', 'switch', 'sensor', 'zwave', 'lock', 'binary_sensor'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] if ((item.attributes.battery_level is defined and item.attributes['battery_level'] | int < threshold) or ("battery" in item.name | lower and ((item.state | int < threshold and item.state|int != 0) or item.state | lower == "low" or item.state | lower == "unknown"))) -%}
+              {{ item.attributes.friendly_name }} (
+              {%- if item.attributes.battery_level is defined -%}
+                {{ item.attributes.battery_level}}
+              {%- else -%}
+                {{item.state}}
+              {%- endif -%}%)
+              {%- if not loop.last -%}
+                {{', '}}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endfor -%}
+
+
+automation:
+  - alias: 'Battery Alert'
+    initial_state: 'on'
+    trigger:
+      - platform: time
+        at: '10:00:00'
+      - platform: time
+        at: '18:00:00'
+    condition:
+      condition: template
+      value_template: "{% if states('sensor.low_battery') %}true{% endif %}"
+    action:
+      - service: persistent_notification.create
+        data_template:
+          title: Low Battery
+          message: "{{ states('sensor.low_battery') }}"
+          notification_id: low-battery-alert
+      - service: script.notify_engine
+        data_template:
+          value1: "Low battery levels: {{ states('sensor.low_battery') }}"
+          who: 'carlo'

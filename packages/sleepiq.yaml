@@ -1,0 +1,54 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize_glob:
+    "sensor.*_sleep_hours":
+      unit_of_measurement: hours
+      icon: mdi:sleep
+      emulated_hue_hidden: True
+      hidden: False
+  # customize:
+  #   sensor.Carlo_sleep_hours:
+  #     friendly_name: 'Carlo Slept last night'
+  #   sensor.Stacey_sleep_hours:
+  #     friendly_name: 'Stacey Slept last night'
+
+#-------------------------------------------
+sleepiq:
+  username: !secret sleepiq_username
+  password: !secret sleepiq_password
+#-------------------------------------------
+# sensor:
+#   - platform: history_stats
+#     name: Carlo_sleep_hours
+#     entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+#     state: 'on'
+#     type: time
+#     end: '{{ now() }}'
+#     duration:
+#       hours: 24
+#
+#   - platform: history_stats
+#     name: Stacey_sleep_hours
+#     entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+#     state: 'on'
+#     type: time
+#     end: '{{ now() }}'
+#     duration:
+#       hours: 24
+
+group:
+  bed:
+    entities:
+      - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      - sensor.sleepnumber_carlo_carlo_sleepnumber
+#      - sensor.Carlo_sleep_hours
+      - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      - sensor.sleepnumber_carlo_stacey_sleepnumber
+#      - sensor.Stacey_sleep_hours
+
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################

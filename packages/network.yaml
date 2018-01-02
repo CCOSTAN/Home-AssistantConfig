@@ -1,0 +1,218 @@
+#-------------------------------------------
+#  Network Related Packages
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+
+#-------------------------------------------
+sensor:
+  - platform: template
+    sensors:
+        wii:
+          friendly_name: 'Wii'
+          value_template: "{{ 'Online' if is_state('device_tracker.wii', 'home') else 'Offline' }}"
+
+        tablotv:
+          friendly_name: 'Tablo TV'
+          value_template: "{{ 'Online' if is_state('device_tracker.tablotv', 'home') else 'Offline' }}"
+
+        study_ap:
+          friendly_name: 'Unifi Study AP'
+          value_template: "{{ 'Online' if is_state('device_tracker.study_ap', 'home') else 'Offline' }}"
+
+        unifi_ap:
+          friendly_name: 'Unifi Office AP'
+          value_template: "{{ 'Online' if is_state('device_tracker.unifi_ap', 'home') else 'Offline' }}"
+
+        hue_hub_1:
+          friendly_name: 'Hue Hub 1'
+          value_template: "{{ 'Online' if is_state('device_tracker.hue_hub_1', 'home') else 'Offline' }}"
+
+        hue_hub_2:
+          friendly_name: 'Hue Hub 2'
+          value_template: "{{ 'Online' if is_state('device_tracker.hue_hub_2', 'home') else 'Offline' }}"
+
+        bedroom_alarm_panel:
+          friendly_name: 'Bedroom Alarm Panel'
+          value_template: "{{ 'Online' if is_state('device_tracker.bedroom_alarm_panel', 'home') else 'Offline' }}"
+
+        entry_alarm_panel:
+          friendly_name: 'Entry Alarm Panel'
+          value_template: "{{ 'Online' if is_state('device_tracker.entry_alarm_panel', 'home') else 'Offline' }}"
+
+        alexa_echo:
+          friendly_name: 'Alexa Echo'
+          value_template: "{{ 'Online' if is_state('device_tracker.alexa_echo', 'home') else 'Offline' }}"
+
+        amazon_dot:
+          friendly_name: 'Amazon Dot'
+          value_template: "{{ 'Online' if is_state('device_tracker.amazon_dot', 'home') else 'Offline' }}"
+
+        amazon_fire_stick:
+          friendly_name: 'Amazon Fire Stick'
+          value_template: "{{ 'Online' if is_state('device_tracker.amazon_fire_stick', 'home') else 'Offline' }}"
+
+        printer:
+          friendly_name: 'Printer'
+          value_template: "{{ 'Online' if is_state('device_tracker.printer', 'home') else 'Offline' }}"
+
+        circle:
+          friendly_name: 'Disney Circle'
+          value_template: "{{ 'Online' if is_state('device_tracker.circle', 'home') else 'Offline' }}"
+
+        nest_downstairs:
+          friendly_name: 'Downstairs Nest'
+          value_template: "{{ 'Online' if is_state('device_tracker.nest_downstairs', 'home') else 'Offline' }}"
+
+        nest_upstairs:
+          friendly_name: 'Upstairs Nest'
+          value_template: "{{ 'Online' if is_state('device_tracker.nest_upstairs', 'home') else 'Offline' }}"
+
+        rachio:
+          friendly_name: 'Rachio Sprinklers'
+          value_template: "{{ 'Online' if is_state('device_tracker.rachio', 'home') else 'Offline' }}"
+
+        samsungtv:
+          friendly_name: 'Samsung TV'
+          value_template: "{{ 'Online' if is_state('device_tracker.samsungtv', 'home') else 'Offline' }}"
+
+        chromecast_audio_1:
+          friendly_name: 'ChromeCast Audio 1'
+          value_template: "{{ 'Online' if is_state('device_tracker.chromecast_audio_1', 'home') else 'Offline' }}"
+
+        chromecast_audio_2:
+          friendly_name: 'ChromeCast Audio 2'
+          value_template: "{{ 'Online' if is_state('device_tracker.chromecast_audio_2', 'home') else 'Offline' }}"
+
+        large_garage:
+          friendly_name: 'Large Garage'
+          value_template: "{{ 'Online' if is_state('device_tracker.large_garage', 'home') else 'Offline' }}"
+
+        small_garage:
+          friendly_name: 'Small Garage'
+          value_template: "{{ 'Online' if is_state('device_tracker.small_garage', 'home') else 'Offline' }}"
+
+        rgb_led_outdoor_den:
+          friendly_name: 'RGB LED Outdoor Den'
+          value_template: "{{ 'Online' if is_state('device_tracker.rgb_led_outdoor_den', 'home') else 'Offline' }}"
+
+        rgb_led_garage_large:
+          friendly_name: 'RGB LED Garage Large'
+          value_template: "{{ 'Online' if is_state('device_tracker.rgb_led_garage_large', 'home') else 'Offline' }}"
+
+        rgb_led_garage_small:
+          friendly_name: 'RGB LED Garage Small'
+          value_template: "{{ 'Online' if is_state('device_tracker.rgb_led_garage_small', 'home') else 'Offline' }}"
+
+        smart_water_meter:
+          friendly_name: 'Smart Water Meter'
+          value_template: "{{ 'Online' if is_state('device_tracker.smart_water_meter', 'home') else 'Offline' }}"
+
+        sleep_number_bed:
+          friendly_name: 'Sleep Number Bed'
+          value_template: "{{ 'Online' if is_state('device_tracker.sleep_number_bed', 'home') else 'Offline' }}"
+
+        withings_scale:
+          friendly_name: 'WiThings Scale'
+          value_template: "{{ 'Online' if is_state('device_tracker.withings_scale', 'home') else 'Offline' }}"
+
+#-------------------------------------------
+group:
+  network:
+    entities:
+      - sensor.ha_installed_version
+      - sensor.ha_uptime
+      - sensor.since_last_boot_templated
+      - sensor.disk_used_
+      - sensor.speedtest_download
+      - sensor.speedtest_upload
+      - sensor.study_ap
+      - sensor.actiontechap
+      - sensor.unifi_ap
+      - sensor.wii
+      - sensor.hue_hub_1
+      - sensor.hue_hub_2
+      - binary_sensor.carlowink
+      - sensor.tablotv
+      - sensor.alexa_echo
+      - sensor.amazon_dot
+      - sensor.circle
+      - sensor.rachio
+      - sensor.skybell
+      - sensor.samsungtv
+      - sensor.chromecast_audio_1
+      - sensor.chromecast_audio_2
+      - sensor.amazon_fire_stick
+      - sensor.nest_upstairs
+      - sensor.nest_downstairs
+      - sensor.large_garage
+      - sensor.small_garage
+      - sensor.rgb_led_garage_large
+      - sensor.rgb_led_garage_small
+      - sensor.rgb_led_outdoor_den
+      - sensor.withings_scale
+      - sensor.smart_water_meter
+      - sensor.sleep_number_bed
+      - sensor.printer
+      - sensor.bedroom_alarm_panel
+      - sensor.entry_alarm_panel
+      - sensor.NodeMCU1
+      - sensor.NodeMCU2
+      - sensor.NodeMCU3
+      - sensor.carlopihole
+
+
+#-------------------------------------------------------------------------------------
+automation:
+  - alias: 'Device Status'
+    hide_entity: True
+    trigger:
+         - platform: state
+           entity_id:
+             - sensor.wii
+             - sensor.Hue_Hub_1
+             - sensor.Hue_Hub_2
+             - sensor.tablotv
+             - sensor.alexa_echo
+             - sensor.amazon_dot
+             - sensor.circle
+             - sensor.rachio
+             - sensor.skybell
+             - sensor.printer
+             - sensor.chromecast_audio_1
+             - sensor.chromecast_audio_2
+             - sensor.nest_upstairs
+             - sensor.nest_downstairs
+             - sensor.study_ap
+             - sensor.actiontechap
+             - sensor.trendnetap
+             - sensor.unifi_ap
+             - sensor.small_garage
+             - sensor.large_garage
+             - sensor.rgb_led_garage_large
+             - sensor.rgb_led_garage_small
+             - sensor.rgb_led_outdoor_den
+             #- sensor.withings_scale
+             - sensor.smart_water_meter
+             - sensor.sleep_number_bed
+             - sensor.bedroom_alarm_panel
+             - sensor.entry_alarm_panel
+             - sensor.nodemcu1
+             - sensor.nodemcu2
+             - sensor.nodemcu3
+             - sensor.carlopihole
+           to: 'offline'
+           for:
+             minutes: 5
+
+    action:
+      - service: script.notify_engine
+        data_template:
+          value1: 'Device Status:'
+          value2: "{{ trigger.to_state.attributes.friendly_name }} is "
+          value3: "{{ trigger.to_state.state }}"
+          who: 'carlo'
+
+      - service: script.speech_engine
+        data_template:
+          value1: "{{ trigger.to_state.attributes.friendly_name }} is now {{ trigger.to_state.state }}"

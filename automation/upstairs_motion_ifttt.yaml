@@ -1,0 +1,32 @@
+# Uses the Nest thermostat to turn on lights and turn them off upstairs.
+
+- alias: 'Upstairs Light Turn on'
+  trigger:
+    - platform: event
+      event_type: upstairs_light_on
+    - platform: state
+      entity_id: binary_sensor.upstairs_away_mode
+      to: 'off'
+
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+    - condition: time
+      before: '23:45'
+
+  action:
+    - service: light.turn_on
+      entity_id: group.upstairs
+
+- alias: 'Upstairs Light Turn off'
+  trigger:
+    - platform: event
+      event_type: upstairs_light_off
+    - platform: state
+      entity_id: binary_sensor.upstairs_away_mode
+      to: 'on'
+
+  action:
+    service: light.turn_off
+    entity_id: group.upstairs

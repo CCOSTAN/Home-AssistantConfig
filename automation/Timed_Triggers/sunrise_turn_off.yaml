@@ -1,0 +1,46 @@
+      ###################################
+##  Sunrise and Sunset stuff
+###################################
+
+- alias: 'Sunset Stuff off'
+  trigger:
+    - platform: sun
+      event: sunrise
+      offset: '-02:00:00'
+
+  action:
+    - service: script.interior_off
+    - service: homeassistant.turn_off
+      entity_id:
+        - group.landscaping
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "Even though they are sleeping, I still turn off the outdoor lights before sunrise.",
+          "It was a beautiful sunrise.  Time to turn off the exterior lights. (http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
+          "If the sun is out, we do not need the exterior lights on. (http://amzn.to/2q17R4S)",
+          "The sun is up so it's time to turn the outside lights off.  Lucky for my family, I have them covered!"
+          ] | random + "#HomeAutomation"}}
+
+    - delay: '00:{{ (range(1, 55)|random|int) }}:00'
+    - service: light.turn_off
+      entity_id:
+        - group.exterior_lights
+        - group.outdoor_front_lights
+        - group.outdoor_pool_lights
+        - group.all_lights
+
+    - wait_template: >-
+       {{ states.sun.sun.state == 'above_horizon' }}
+    - service: homeassistant.turn_off
+      entity_id:
+        - switch.master_bathroom_accents
+        - group.exterior_lights
+        - group.outdoor_front_lights
+
+    - service: input_boolean.turn_off
+      entity_id:
+        - input_boolean.medicine
+        - input_boolean.daylight_override
+        - input_boolean.guest_mode

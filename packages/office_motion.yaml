@@ -1,0 +1,79 @@
+#-------------------------------------------
+# Motion Sensor in the office.
+# Find more recipes @ https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+#------LightSensor Node---http://amzn.to/2oUgj5i
+homeassistant:
+  customize:
+    binary_sensor.office_motion:
+      friendly_name: Office Motion Sensor
+      emulated_hue_hidden: True
+      hidden: False
+#---Sensor for Light-----------------------------
+binary_sensor:
+  - platform: mqtt
+    state_topic: "NodeMCU4/Motion/Motion"
+    name: "Office_Motion"
+    payload_on: 1
+    payload_off: 0
+    device_class: motion
+
+# This boolean gets reset every night in the sunset automation.
+# Gets turned on by dash button automation primarily.
+input_boolean:
+  daylight_override:
+    name: Daylight Override
+    initial: off
+
+automation:
+  - alias: 'Motion in the Office - Turn on Light'
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.office_motion
+        to: 'on'
+        from: 'off'
+
+    condition:
+      - condition: state
+        entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        state: 'off'
+      - condition: state
+        entity_id: group.family
+        state: 'home'
+      - condition: state
+        entity_id: light.office_lamp
+        state: 'off'
+      - condition: or
+        conditions:
+          - condition: time
+            after: '18:00:00'
+          - condition: state
+            entity_id: sun.sun
+            state: 'below_horizon'
+          - condition: state
+            entity_id: input_boolean.daylight_override
+            state: 'on'
+
+    action:
+      - service: light.turn_on
+        entity_id: light.office_lamp
+
+  - alias: 'Motion in the Office - Turn off Light'
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.office_motion
+        to: 'off'
+        from: 'on'
+        for:
+          minutes: 3
+
+    condition:
+      - condition: state
+        entity_id: light.office_lamp
+        state: 'on'
+
+    action:
+      - service: light.turn_off
+        entity_id: light.office_lamp

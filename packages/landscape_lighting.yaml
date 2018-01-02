@@ -1,0 +1,55 @@
+#-------------------------------------------
+#  Landscape Lighting Packages
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize:
+    switch.back_landscaping:
+      friendly_name: 'Back Landscaping'
+      icon: mdi:flower
+      emulated_hue_hidden: False
+      hidden: False
+    switch.front_landscaping:
+      friendly_name: 'Front Landscaping'
+      icon: mdi:flower
+      emulated_hue_hidden: False
+      hidden: False
+    group.landscaping:
+      friendly_name: 'Landscaping Lights'
+      emulated_hue_hidden: False
+      hidden: False
+#-------------------------------------------
+group:
+  landscaping:
+    entities:
+      - switch.front_landscaping
+      - switch.back_landscaping
+#-------------------------------------------
+# Automation : Added to Sunset_ON
+# Automation : Added to Sunset_OFF
+# Automation : Added to Away. (Switches off Back Landscaping)
+# Automation : Added to Late Night Helper Outside (Switches Back lights on)
+automation:
+    - alias: 'Back Landscape lights off'
+      trigger:
+        - platform: state
+          entity_id:
+            - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+            - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+          to: 'on'
+
+      condition:
+        - condition: state
+          entity_id: sun.sun
+          state: 'below_horizon'
+        - condition: state
+          entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+          state: 'on'
+
+      action:
+        - service: switch.turn_off
+          entity_id: switch.back_landscaping

@@ -1,0 +1,61 @@
+#####################################################################################
+###  If the Kitchen Lights go on for more than 10 minutes, turn off the accent lights
+### connected to [Etekcity Outlets](http://amzn.to/2efNoBP)
+## [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2)
+#####################################################################################
+
+- alias: Kitchen lights on - Accent lights off
+  trigger:
+    - platform: state
+      entity_id: group.kitchen_lights
+      to: 'on'
+      for: '00:05:00'
+
+  condition:
+    - condition: state
+      entity_id: switch.kitchen_accents
+      state: 'on'
+
+  action:
+    - service: switch.turn_off
+      entity_id: switch.kitchen_accents
+
+##############################################################################
+
+- alias: Kitchen lights off - turn on Accent lights
+  trigger:
+    - platform: state
+      entity_id: group.kitchen_lights
+      to: 'off'
+      for: '00:05:00'
+    - platform: state
+      entity_id: sun.sun
+      to: 'below_horizon'
+      from: 'above_horizon'
+
+  condition:
+    - condition: sun
+      after: 'sunset'
+    - condition: state
+      entity_id: group.kitchen_lights
+      state: 'off'
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          state: 'off'
+        - condition: state
+          entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+          state: 'off'
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: group.family
+          state: 'home'
+        - condition: state
+          entity_id: input_boolean.guest_mode
+          state: 'on'
+
+  action:
+    - service: switch.turn_on
+      entity_id: switch.kitchen_accents

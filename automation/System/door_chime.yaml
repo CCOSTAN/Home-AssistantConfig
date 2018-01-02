@@ -1,0 +1,40 @@
+###################################
+## @CCOSTAN
+## Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+###################################
+
+- alias: Door Chime
+  trigger:
+    - platform: state
+      entity_id:
+        - group.entry_points
+
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: 'home'
+
+  action:
+    - service: script.amp_settings
+      data:
+        media_player: 'media_player.livingroomcc'
+        volume_level: 0.22
+    - wait_template: >-
+        {{ states.switch.living_room_amp.state == 'on' }}
+
+    - service: media_player.play_media
+      data_template:
+        entity_id: >
+          {% if states.group.bed.state == 'off' %}
+          media_player.livingroomCC
+          {% else %}
+          - media_player.alarm_clock
+          - media_player.bedroom_alarm_panel
+          {% endif %}
+        media_content_id: >
+          {% if trigger.to_state.state == 'on' %}
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/one-tone-chime.mp3
+          {% else %}
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/two-tone-chime.mp3
+          {% endif %}
+        media_content_type: audio/mp4

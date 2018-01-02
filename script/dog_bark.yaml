@@ -1,0 +1,51 @@
+######################################################################################################
+###Script to send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
+  # action:
+    # service: script.dog_bark
+    # data_template:
+      # value1: 'Startup: Home Assistant is Up and Running!'
+
+######################################################################################################
+
+dog_bark:
+  sequence:
+    - wait_template: >-
+       {{ not is_state('media_player.livingroomCC', 'playing') }}
+      timeout: 00:01:30
+    - condition: template
+      value_template: >
+        {% if is_state('media_player.livingroomCC', 'playing') %}
+        false
+        {% else %}
+        true
+        {% endif %}
+    - condition: state
+      entity_id: input_boolean.speech_notifications
+      state: 'on'
+    - service: switch.turn_on
+      entity_id: switch.living_room_amp
+
+    - service: media_player.turn_on
+      entity_id: media_player.livingroomCC
+
+    - service: media_player.volume_set
+      entity_id:
+        - media_player.livingroomCC
+      data_template:
+        volume_level: >
+          {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
+          0.45
+          {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
+          0.7
+          {% else %}
+          0.40
+          {% endif %}
+
+    - service: media_player.play_media
+      data_template:
+        entity_id:
+          - media_player.livingroomCC
+          - media_player.entry_alarm_panel
+          - media_player.bedroom_alarm_panel
+        media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/dog-barking-2-bullmastiff.mp3"
+        media_content_type: audio/mp4

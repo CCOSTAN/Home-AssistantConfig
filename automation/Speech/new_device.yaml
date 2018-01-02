@@ -1,0 +1,25 @@
+##############################################################################
+###  New Device has connected to the network.  let everyone know.
+##############################################################################
+
+- alias: "New device connected"
+  trigger:
+    - platform: event
+      event_type: device_tracker_new_device
+
+  action:
+    - wait_template: >-
+        {{ not is_state('media_player.livingroomCC', 'playing') }}
+
+    - service: script.speech_engine
+      data_template:
+        NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize {{trigger.event.data.host_name}} within Circle."
+
+    - service: script.tweet_engine
+      data_template:
+        tweet: >
+          {{ [
+          "New Device on the Network! @MeetCircle has alerted me me and now it is locked down.",
+          "Constant monitoring of the network by @MeetCircle has detected a new device in the environment."
+          ] | random + " (http://amzn.to/2eAgaA6)"}}
+##############################################################################

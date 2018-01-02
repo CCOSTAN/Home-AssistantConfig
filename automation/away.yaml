@@ -1,0 +1,25 @@
+######################################################################
+##  Shut it all down.  No one is here
+######################################################################
+
+- alias: 'Away Mode'
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.downstairs_away_mode
+      to: 'on'
+    - platform: state
+      entity_id: group.family
+      to: 'not_home'
+
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: 'not_home'
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+
+  action:
+    - service: script.interior_off
+    - service: switch.turn_off
+      entity_id: switch.back_landscaping

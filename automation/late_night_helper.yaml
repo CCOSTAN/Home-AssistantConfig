@@ -1,0 +1,46 @@
+###################################
+##  Late Night lights Section
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+###################################
+- alias: 'Late Night Helper'
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.downstairs_away_mode
+      to: 'off'
+    - platform: state
+      entity_id: group.family
+      to: home
+
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+      - condition: state
+        entity_id: group.bed
+        state: 'off'
+
+  action:
+    - service: light.turn_on
+      entity_id:
+        - light.living_room_slider
+        - light.foyer_door
+        - light.fridge
+        - light.M1_front_right
+        - light.S1
+        - light.S4
+    - service: switch.turn_on
+      entity_id:
+        - switch.kitchen_accents
+    - delay: '00:05:00'
+    - service: light.turn_off
+      entity_id:
+        - light.S1
+        - light.S4
+        - light.foyer_door
+        - light.fridge
+        - light.living_room_slider
+        - light.M1_front_right

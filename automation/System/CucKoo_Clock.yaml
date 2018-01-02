@@ -1,0 +1,56 @@
+###################################
+##  cuckoo Clock simulation.
+## Plays the number of cuckoos per hour and 1 on the half hour.
+###################################
+
+- alias: Cuckoo Clock
+  trigger:
+    - platform: time
+      minutes: 00
+      seconds: 20
+    - platform: time
+      minutes: 30
+      seconds: 00
+
+  condition:
+    - condition: time
+      after: '09:30:00'
+      before: '21:30:00'
+    - condition: state
+      entity_id: group.family
+      state: 'home'
+    - condition: template
+      value_template: >
+        {% if is_state('media_player.livingroomCC', 'playing') %}
+          false
+        {% else %}
+          true
+        {% endif %}
+
+  action:
+    - service: media_player.turn_on
+      entity_id: media_player.livingroomCC
+
+    - service: switch.turn_on
+      entity_id: switch.living_room_amp
+    - delay: '00:00:05'
+
+    - service: media_player.volume_set
+      entity_id:
+        - media_player.livingroomCC
+      data:
+        volume_level: 0.22
+
+    - service: media_player.play_media
+      data_template:
+        entity_id:
+          - media_player.livingroomCC
+          - media_player.alarm_clock
+        #  - media_player.bedroom_alarm_panel
+        media_content_id: >
+          {% if now().strftime("%M")|int == 30 %}
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/cuckoo-clock-01.wav
+          {% else %}
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/cuckoo-clock-{{now().strftime("%I")}}.wav
+          {% endif %}
+        media_content_type: audio/mp4

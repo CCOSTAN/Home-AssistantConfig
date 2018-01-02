@@ -1,0 +1,124 @@
+#-------------------------------------------
+#  PiHole ad Blocking Related Packages
+#-------------------------------------------
+homeassistant:
+  customize:
+
+    sensor.pihole_ads_percentage_today:
+      friendly_name: Percentage of Ad Traffic Blocked
+      unit_of_measurement: '%'
+      icon: mdi:ticket-percent
+
+    sensor.pihole_domains_being_blocked:
+      friendly_name: Total Domains Blocking
+      icon: mdi:do-not-disturb
+
+    sensor.pihole_dns_unique_clients:
+      friendly_name: Unique Clients
+      icon: mdi:desktop-classic
+
+    sensor.pihole_ads_blocked_today:
+      friendly_name: Ads Blocked Today
+      icon: mdi:do-not-disturb
+
+    sensor.pihole_dns_queries_today:
+      friendly_name: DNS Queries Today
+      icon: mdi:note-text
+
+    sensor.carlopihole:
+      friendly_name: Pi Hole Server
+      icon: mdi:filter-variant
+
+    group.pihole:
+      homebridge_hidden: true
+#-------------------------------------------
+sensor:
+  - platform: pi_hole
+    host: 192.168.10.11
+    monitored_conditions:
+      - dns_queries_today
+      - ads_blocked_today
+      - ads_percentage_today
+      - unique_clients
+
+######Custom Version sensor
+  # - platform: command_line
+  #   command: "pihole -v -p -c"
+  #   name: 'pihole_version_current'
+  #   value_template: '{{ value[28:] }}'
+  #   scan_interval: 86400
+  #
+  # - platform: command_line
+  #   command: "pihole -v -p -l"
+  #   name: 'pihole_version_latest'
+  #   value_template: '{{ value[27:] }}'
+  #   scan_interval: 86400
+
+  - platform: template
+    sensors:
+      carlopihole:
+        friendly_name: 'Carlo-PiHole'
+        value_template: "{{ 'Online' if is_state('device_tracker.carlopihole', 'home') else 'Offline' }}"
+
+      # pi_hole_version:
+      #   value_template: "{%- if states.sensor.pihole_version_current.state == states.sensor.pihole_version_latest.state -%}{{states.sensor.pihole_version_current.state}} {% else %}{{states.sensor.pihole_version_latest.state}} Available{% endif%}"
+      #   icon_template: >-
+      #     {% if states.sensor.pihole_version_current.state == states.sensor.pihole_version_latest.state %}
+      #       mdi:checkbox-marked
+      #     {% else %}
+      #       mdi:checkbox-blank-outline
+      #     {% endif %}
+
+# Pi-Hole switch
+switch:
+  - platform: command_line
+    switches:
+      pihole_temp_disable:
+        command_on: "curl -X GET 'http://192.168.10.11/admin/api.php?enable&auth='"
+        command_off: "curl -X GET 'http://192.168.10.11/admin/api.php?disable=3600&auth='"
+#        command_state: "curl -X GET 'http://192.168.10.11/admin/api.php?status'| grep enabled"
+#        value_template: "{{ value_json.status == 'enabled' }}
+
+#-------------------------------------------
+group:
+  pihole:
+    entities:
+      - sensor.carlopihole
+      - sensor.pi_hole_version
+      - sensor.pihole_dns_unique_clients
+      - sensor.pihole_dns_queries_today
+      - sensor.pihole_ads_blocked_today
+      - sensor.pihole_ads_percentage_today
+      - sensor.pihole_ads_percentage_blocked_today
+      - switch.pihole_temp_disable
+#-------------------------------------------
+
+
+automation:
+  - alias: PiHole Daily stats Tweet!
+    trigger:
+      platform: time
+      at: '23:50:00'
+    action:
+      - delay: '00:{{ (range(1, 9)|random|int) }}:00'
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "I blocked {{states.sensor.pihole_ads_blocked_today.state}} ads. That is {{states.sensor.pihole_ads_percentage_blocked_today.state}}% of my internet traffic.",
+            "Today was a good day! Why, you ask? Because I blocked {{states.sensor.pihole_ads_blocked_today.state}} ads via Pi-Hole!",
+            ] | random + " #PiHole #Security Status:({{states.sensor.carlopihole.state}})"}}
+
+  - alias: PiHole Daily Client Tweet!
+    trigger:
+      platform: time
+      at: '04:30:00'
+    action:
+      - delay: '{{ (range(1, 6)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "There are currently {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
+            "As reported by #Ubiquity Routers, There are {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
+            ] | random + "#Security http://amzn.to/2D2AfXS"}}

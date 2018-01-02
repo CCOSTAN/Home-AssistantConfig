@@ -1,0 +1,46 @@
+#-------------------------------------------
+#  Realtime Debugging Related Packages
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+homeassistant:
+  customize_glob:
+    "input_select.log_*":
+      icon: mdi:bug
+      emulated_hue_hidden: True
+      hidden: False
+
+#-------------------------------------------
+input_select:
+  log_level:
+    name: Log Level
+    options:
+      - critical
+      - fatal
+      - error
+      - warning
+      - warn
+      - info
+      - debug
+      - notset
+    initial: warn
+
+###################################
+##  Dynamically set the log levels without having to restart HASS or edit configuration.yaml
+#- Thanks @VDRainer
+###################################
+automation:
+  - alias: Log Level
+    trigger:
+      platform: state
+      entity_id:
+        - input_select.log_level
+#        - input_select.log_component
+    action:
+      - service: logger.set_level
+        data_template:
+          homeassistant.components: "{{ states.input_select.log_level.state }}"
+
+      - service: script.tweet_engine
+        data:
+          tweet: "My logging level has just been set to {{ states.input_select.log_level.state }}"

@@ -1,0 +1,36 @@
+###################################
+## Garadget_Stuff -  [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor
+###################################
+
+- platform: template
+  sensors:
+    small_garage_status:
+      friendly_name: 'State of the door'
+      value_template: '{{ states.cover.small_garage.state }}'
+    small_garage_time_in_state:
+      friendly_name: 'Time Since Change'
+      value_template: '{{ states.cover.small_garage.attributes["time_in_state"] }}'
+    small_garage_wifi_signal_strength:
+      friendly_name: 'WiFi strength'
+      value_template: '{{ states.cover.small_garage.attributes["wifi_signal_strength"] }}'
+      unit_of_measurement: 'dB'
+    small_garage_reflection_rate:
+      friendly_name: 'Reflection Rate'
+      value_template: '{{ states.cover.small_garage.attributes["sensor_reflection_rate"] }}'
+
+
+- platform: template
+  sensors:
+    large_garage_status:
+      friendly_name: 'State of the door'
+      value_template: '{{ states.cover.large_garage.state }}'
+    large_garage_time_in_state:
+      friendly_name: 'Time Since Change'
+      value_template: '{{ states.cover.large_garage.attributes["time_in_state"] }}'
+    large_garage_wifi_signal_strength:
+      friendly_name: 'WiFi strength'
+      value_template: '{{ states.cover.large_garage.attributes["wifi_signal_strength"] }}'
+      unit_of_measurement: 'dB'
+    large_garage_reflection_rate:
+      friendly_name: 'Reflection Rate'
+      value_template: '{{ states.cover.large_garage.attributes["sensor_reflection_rate"] }}'

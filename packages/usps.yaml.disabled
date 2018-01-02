@@ -1,0 +1,20 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#---Sensor Mail and Packages-----------------------------
+usps:
+  username: !secret myusps_username
+  password: !secret myusps_password
+
+camera:
+  - platform: usps
+    scan_interval: 5
+
+group:
+  mail:
+    name: Mailbox Information
+    control: hidden
+    entities:
+      - sensor.usps_mail
+      - sensor.usps_packages
+      - camera.usps_mail

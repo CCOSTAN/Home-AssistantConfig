@@ -1,0 +1,79 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+#-------------------------------------------
+homeassistant:
+  customize_glob:
+    "*.carlojuice*":
+      emulated_hue_hidden: True
+      homebridge_hidden: True
+      hidden: False
+#-------------------------------------------
+juicenet:
+    access_token: !secret juicenet_access_token
+
+group:
+  juicenet:
+    name: JuiceBox Charger
+    control: hidden
+    entities:
+      - sensor.carlojuice_amps
+      - sensor.carlojuice_charge_time
+      - sensor.carlojuice_charging_status
+      - sensor.carlojuice_energy_added
+      - sensor.carlojuice_temperature
+      - sensor.carlojuice_voltage
+      - sensor.carlojuice_watts
+
+#############################################################################
+###  Automations - Alerts related to the JuiceBox (http://amzn.to/2AZVQ37)
+##############################################################################
+automation:
+  - alias: 'Car Charging Alerts'
+    initial_state: 'on'
+    trigger:
+      - platform: state
+        entity_id: sensor.carlojuice_charging_status
+
+    action:
+      - service: script.notify_engine
+        data_template:
+          value1: "The Garage charger is now in {{ states('sensor.carlojuice_charging_status') }} mode."
+          who: 'parents'
+
+  - alias: 'JuiceBox AMP Alert!'
+    initial_state: 'on'
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.carlojuice_amps
+        above: 24
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.alert_mode
+
+      - service: script.notify_engine
+        data_template:
+          value1: "The Juice Box Charger is pulling {{ states('sensor.carlojuice_amps') }} AMPs.  This is above the safety mark of 30.  Please unplug charger immediately."
+          who: 'parents'
+
+      - service: script.speech_engine
+        data_template:
+          value1: "The Juice Box Charger is pulling {{ states('sensor.carlojuice_amps') }} AMPs.  This is above the safety mark of 30.  Please unplug charger immediately."
+
+  - alias: 'JuiceBox Tweet Stat!'
+    initial_state: 'on'
+    trigger:
+      - platform: state
+        entity_id: sensor.carlojuice_charging_status
+        from: 'charging'
+    action:
+      - delay: '0{{ range(0,4) | random | int }}:00:00'
+      - service: script.tweet_engine
+        data_template:
+          tweet: >
+            {{ [
+            "The #Chevy Bolt Charged for {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes and Juiced up add {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs.",
+            "The last charging session was {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes. Added {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs ",
+            "The Juice Box Pro add {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs to the #Chevy #BoltEV in {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes."
+            ] | random + " (http://amzn.to/2zlQIUI) #Electric #Solar"}}

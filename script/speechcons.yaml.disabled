@@ -1,0 +1,48 @@
+######################################################################################################
+###Script to send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
+  # action:
+    # service: script.speechcons
+    # data_template:
+      # speechcon: 'Bazinga'
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+######################################################################################################
+
+speechcon:
+  sequence:
+    - condition: template
+      value_template: >
+        {% if is_state('media_player.livingroomCC', 'playing') %}
+        false
+        {% else %}
+        true
+        {% endif %}
+    - condition: state
+      entity_id: input_boolean.speech_notifications
+      state: 'on'
+    - service: switch.turn_on
+      entity_id: switch.living_room_amp
+
+    - service: media_player.turn_on
+      entity_id: media_player.livingroomCC
+
+    - service: media_player.volume_set
+      entity_id:
+        - media_player.livingroomCC
+      data_template:
+        volume_level: >
+          {% if now().strftime("%H")|int < 12 and now().strftime("%H")|int > 6%}
+          0.3
+          {% elif now().strftime("%H")|int > 12 and now().strftime("%H")|int < 17%}
+          0.6
+          {% else %}
+          0.3
+          {% endif %}
+
+    - service: media_player.play_media
+      entity_id:
+        - media_player.LivingRoomCC
+      data_template:
+        media_content_id: >
+          "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/speechcons/{{speechcon}}._TTH_.mp3"
+        media_content_type: audio/mp4

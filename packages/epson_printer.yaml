@@ -1,0 +1,90 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# inspired by https://community.home-assistant.io/t/epson-wf-3540-ink-level-monitoring/21813
+#-------------------------------------------
+homeassistant:
+  customize_glob:
+    "sensor.epson_ink_level_*":
+      icon: mdi:cup-water
+      emulated_hue_hidden: True
+      hidden: False
+      homebridge_hidden: True
+#-------------------------------------------
+sensor:
+  - platform: command_line
+    name: Epson Ink Level Black
+    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_K.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100; exit }'
+    unit_of_measurement: '%'
+    scan_interval: 14400
+
+  - platform: command_line
+    name: Epson Ink Level Magenta
+    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_M.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
+    unit_of_measurement: '%'
+    scan_interval: 14400
+
+  - platform: command_line
+    name: Epson Ink Level Yellow
+    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_Y.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
+    unit_of_measurement: '%'
+    scan_interval: 14400
+
+  - platform: command_line
+    name: Epson Ink Level Cyan
+    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_C.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
+    unit_of_measurement: '%'
+    scan_interval: 14400
+
+  - platform: command_line
+    name: Epson Ink Level Photo Black
+    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_K.PNG/ {i++}i==2 && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100; exit }'
+    unit_of_measurement: '%'
+    scan_interval: 14400
+#-------------------------------------------
+group:
+  epson_printer:
+    name: Epson Printer Info
+    control: hidden
+    entities:
+      - sensor.epson_ink_level_black
+      - sensor.epson_ink_level_cyan
+      - sensor.epson_ink_level_magenta
+      - sensor.epson_ink_level_yellow
+      - sensor.epson_ink_level_photo_black
+#-------------------------------------------
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+
+automation:
+  - alias: 'Printer Ink Alert'
+    initial_state: 'on'
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.epson_ink_level_black
+          - sensor.epson_ink_level_magenta
+          - sensor.epson_ink_level_photo_black
+          - sensor.epson_ink_level_yellow
+          - sensor.epson_ink_level_cyan
+        below: 25
+    condition:
+      condition: time
+      weekday:
+        - wed
+    action:
+      - service: persistent_notification.create
+        data_template:
+          title: Low Ink
+          message: "{{ trigger.to_state.attributes.friendly_name }} is at {{ trigger.to_state.state }} "
+          notification_id: low-battery-alert
+      - service: script.notify_engine
+        data_template:
+          value1: "{{ trigger.to_state.attributes.friendly_name }} is at {{ trigger.to_state.state }} "
+          who: 'carlo'
+      - service: script.tweet_engine
+        data:
+          tweet: 'Looks like my {{ trigger.to_state.attributes.friendly_name }} is LOW. @CCostan - Get me some more (http://amzn.to/2AnpFwD)'
+
+#-------------------------------------------

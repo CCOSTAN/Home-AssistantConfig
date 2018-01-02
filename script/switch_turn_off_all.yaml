@@ -1,0 +1,13 @@
+######################################################################################################
+###Script to shut switches with a 30 second delay to not trample codes
+###  Sample Call
+#  action:
+#   - service: script.switch_turn_off_all
+######################################################################################################
+
+switch_turn_off_all:
+  sequence:
+    - service: switch.turn_off
+      entity_id: group.interior_switches
+    - service: switch.turn_off
+      entity_id: switch.living_room_amp

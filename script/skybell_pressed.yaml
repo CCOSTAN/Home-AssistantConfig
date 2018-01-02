@@ -1,0 +1,27 @@
+######################################################################################################
+###[SkyBell HD](http://amzn.to/2dcexIB)
+# Script to turn on Front light FULL bright for 15m when motion is detected and then return to the normal colors.
+#  action:
+#   - service: script.skybell_pressed
+#
+######################################################################################################
+
+skybell_pressed:
+  sequence:
+    - service: logbook.log
+      data:
+        name: "SkyBell HD Doorbell:"
+        message: "Someone Pressed the Doorbell."
+
+    - service: script.flash_notify
+    - service: script.speech_engine
+      data:
+        value1: 'Please check the Front Door.  Someone Pressed the Doorbell.'
+
+    - service: notify.ios_family
+      data:
+        message: Someone Pressed the Doorbell!
+        data:
+          push:
+            category: camera
+          entity_id: camera.stone_door

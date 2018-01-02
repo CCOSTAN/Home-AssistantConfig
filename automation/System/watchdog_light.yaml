@@ -1,0 +1,27 @@
+##############################################################################
+###  Detect when things are on and forgotten about. Like any Good Watchdog.
+##############################################################################
+
+- alias: Automated Light WatchDog!
+  trigger:
+    - platform: state
+      entity_id:
+        - light.hallway
+        - group.hallway_lights
+        - group.foyer_lights
+        - switch.printer_outlet
+      to: 'on'
+      for: '00:20:00'
+
+    - platform: state
+      entity_id:
+        - group.upstairs
+        - switch.garage_outlet
+      to: 'on'
+      for: '02:00:00'
+
+#Turn it off!
+  action:
+    - service: homeassistant.turn_off
+      data_template:
+        entity_id: "{{ trigger.entity_id }}"

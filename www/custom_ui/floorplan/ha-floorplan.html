@@ -1,0 +1,191 @@
+<!--
+    Floorplan for Home Assistant
+    Version: 1.0.7.51
+    By Petar Kozul
+    https://github.com/pkozul/ha-floorplan
+  -->
+
+<script src="lib/jquery-3.2.1.min.js"></script>
+<script src="lib/moment.min.js"></script>
+<script src="lib/yaml.min.js"></script>
+
+<!-- As documented here for Google Chrome, removes the need for touchstart -->
+<meta name="viewport" content="width=device-width">
+
+<dom-module id="ha-floorplan">
+
+  <template>
+    <style>
+      #floorplan {
+        width: 100%;
+        height: 100%;
+      }
+
+      .loading-container {
+        text-align: center;
+        padding: 8px;
+      }
+
+      .loading {
+        height: 0px;
+        overflow: hidden;
+      }
+
+      #log {
+        max-height: 150px;
+        overflow: auto;
+        background-color: #eee;
+        display: none;
+        padding: 10px;
+      }
+
+      #log ul {
+        list-style-type: none;
+        padding-left: 0px;
+      }
+
+      .error {
+        color: #FF0000;
+      }
+
+      .warning {
+        color: #FF851B;
+      }
+
+      .info {
+        color: #0000FF;
+      }
+
+      .debug {
+        color: #000000;
+      }
+    </style>
+
+    <template is='dom-if' if='[[isLoading]]'>
+      <div class='loading-container'>
+        <paper-spinner active alt='Loading'></paper-spinner>
+      </div>
+    </template>
+
+    <div id="log">
+      <a href="#" onclick="$(this).siblings('ul').html('').parent().css('display', 'none');">Clear log</a>
+      <ul></ul>
+    </div>
+
+    <div id="floorplan" on-tap="stopPropagation"></div>
+
+  </template>
+
+</dom-module>
+
+<script>
+  class HaFloorplan extends window.hassMixins.EventsMixin(Polymer.Element)  {
+    static get is() { return 'ha-floorplan'; }
+
+    static get properties() {
+      return {
+        hass: {
+          type: Object,
+          observer: 'hassChanged'
+        },
+        inDialog: {
+          type: Boolean,
+          value: false,
+        },
+        isPanel: {
+          type: Boolean,
+          value: false,
+        },
+        config: {
+          type: Object,
+        },
+        isLoading: {
+          type: Boolean,
+          value: true,
+        },
+        flooplan: {
+          type: Object,
+          value: undefined,
+        },
+      };
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+
+      this.initFloorplan();
+    }
+
+    stopPropagation(e) {
+      e.stopPropagation();
+    }
+
+    initFloorplan() {
+      this.loadScript('/local/custom_ui/floorplan/lib/floorplan.js')
+        .then(() => {
+          this.floorplan = new Floorplan();
+
+          let options = {
+            doc: Polymer.dom(this.root).node,
+            hass: this.hass,
+            openMoreInfo: this.openMoreInfo.bind(this),
+            setIsLoading: this.setIsLoading.bind(this),
+            config: (this.config && this.config.config) || this.config,
+          };
+
+          this.floorplan.init(options)
+            .then(() => {
+              this.setIsLoading(false);
+            });
+        })
+        .catch((error) => {
+          this.setIsLoading(false);
+          this.logError(error);
+        });
+    }
+
+    hassChanged(newHass, oldHass) {
+      if (this.floorplan) {
+        this.floorplan.hassChanged(newHass, oldHass);
+      }
+    }
+
+    loadScript(scriptUrl) {
+      return new Promise((resolve, reject) => {
+        let script = document.createElement('script');
+        script.src = this.cacheBuster(scriptUrl);
+        script.onload = () => {
+          return resolve();
+        };
+        script.onerror = (err) => {
+          reject(new URIError(`${err.target.src}`));
+        };
+
+        Polymer.dom(this.root).node.appendChild(script);
+      });
+    }
+
+    openMoreInfo(entityId) {
+      this.fire('hass-more-info', { entityId: entityId });
+    }
+
+    setIsLoading(isLoading) {
+      this.isLoading = isLoading;
+    }
+
+    cacheBuster(url) {
+      return `${url}${(url.indexOf('?') >= 0) ? '&' : '?'}_=${new Date().getTime()}`;
+    }
+
+    logError(message) {
+      console.error(message);
+
+      let log = Polymer.dom(this.$.log).node;
+      $(log).find('ul').prepend(`<li class="error">${message}</li>`)
+      $(log).css('display', 'block');
+    }
+  }
+
+  customElements.define(HaFloorplan.is, HaFloorplan);
+
+</script>
