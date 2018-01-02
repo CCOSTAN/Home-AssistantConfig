@@ -125,8 +125,8 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "The number of Doorbell presses today was {{states.sensor.doorbell_presses.state}}",
-            "The #Landscaping lights where on for about {{states.sensor.landscaping_lights_time.state}} yesterday.",
+            "The number of Doorbell presses yesterday was {{states.sensor.doorbell_presses.state}}",
+            "The #Landscaping lights where on for about {{states.sensor.landscaping_light_time.attributes.value}} yesterday.",
             "So far, I have prevented {{states.sensor.pihole_ads_blocked_today.state}} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
             "{{states.sensor.doorbell_presses.state}} people came to the door today and pressed the bell.",
             "The Pi has been running for {{states.sensor.since_last_boot_templated.state}}",
