@@ -120,6 +120,7 @@ automation:
 
     action:
       - service: automation.turn_off
+        entity_id: automation.random_house_stats
       - delay: '0{{ range(0,2) | random | int }}:{{ range(10,59) | random | int }}:00'
       - service: script.tweet_engine
         data_template:
@@ -144,3 +145,5 @@ automation:
             "Average Cloud Coverage: {{states.sensor.dark_sky_cloud_coverage.state}}%, Average Temp: {{states.sensor.dark_sky_temperature.state}}°F #Solar"
             ] | random + " #RandomStat"}}
       - service: automation.turn_on
+        entity_id: automation.random_house_stats
+

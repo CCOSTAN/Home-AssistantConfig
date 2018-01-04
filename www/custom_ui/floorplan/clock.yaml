@@ -9,7 +9,7 @@ variables:
 defaults:
   hover_over: false
   more_info: false
-  
+
 rules:
 
   - element: floorplan.clock_button
@@ -19,7 +19,7 @@ rules:
         page_id: clock_config
 
   - entity: sensor.clock_stacey_alarm_time
-    text_template: '${entity.state.slice(0, 5)}'
+    text_template: '${entity.state ? entity.state.slice(0, 5) : "00:00"}'
 
 
   - entity: input_boolean.clock_snooze

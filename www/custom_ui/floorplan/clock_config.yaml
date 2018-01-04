@@ -15,11 +15,11 @@ startup:
     - service: floorplan.variable_set
       data:
         variable: floorplan.hours
-        value_template: 'return parseInt(entities["sensor.clock_stacey_alarm_time"].state.slice(0, 2));'
+        value_template: '${parseInt(entities["sensor.clock_stacey_alarm_time"].state.slice(0, 2)) ? parseInt(entities["sensor.clock_stacey_alarm_time"].state.slice(0, 2)): "00"}'
     - service: floorplan.variable_set
       data:
         variable: floorplan.minutes
-        value_template: 'return parseInt(entities["sensor.clock_stacey_alarm_time"].state.slice(3, 5));'
+        value_template: '${parseInt(entities["sensor.clock_stacey_alarm_time"].state.slice(3, 5)) ? parseInt(entities["sensor.clock_stacey_alarm_time"].state.slice(3, 5)): "00"}'
 
 rules:
 
@@ -30,7 +30,7 @@ rules:
         page_id: clock
 
   - entity: sensor.clock_stacey_alarm_time
-    text_template: '${entity.state.slice(0, 5)}'
+    text_template: '${entity.state ? entity.state.slice(0, 5) : "00:00"}'
 
   - entities:
     -  floorplan.hours
@@ -73,7 +73,7 @@ rules:
     action:
       service: mqtt.publish
       data_template: '{
-        "payload": "${("0"+ entities[`floorplan.hours`].state).slice(-2)}:${("0" + entities[`floorplan.minutes`].state).slice(-2)}",
+        "payload": "${(("0" + (parseInt((entities[`floorplan.hours`].state).slice(-2)) + 24) % 24)).slice(-2)}:${("0" + (((parseInt(entities[`floorplan.minutes`].state) / 5) * 5) % 60)).slice(-2)}",
         "topic": "clock/stacey_alarm_time",
         "retain": true
       }'

@@ -71,12 +71,13 @@ automation:
          entity_id:
            - binary_sensor.skybell_stone_door_button
          to: 'on'
-       - platform: event
-         event_type: skybell_pressed
+       # - platform: event
+       #   event_type: skybell_pressed
 
     action:
       # Disable this automation
       - service: automation.turn_off
+        entity_id: automation.log_skybell_pressed_activity
       - service: script.skybell_pressed
       - delay:
           minutes: 1
