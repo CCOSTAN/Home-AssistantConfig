@@ -38,9 +38,6 @@ SUNSET:
 
 #Still have questions on my Config?
 Follow me on twitter : [@CCostan](https://twitter.com/ccostan)
+Follow the Smart Home on twitter : [@BearStoneHA](https://twitter.com/BearStoneHA)
 
 You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).
-
-<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/3MkgeKFUVKPNW45Vtwu9Abd4/CCOSTAN/Home-AssistantConfig'>
-  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/3MkgeKFUVKPNW45Vtwu9Abd4/CCOSTAN/Home-AssistantConfig.svg' />
-</a>
