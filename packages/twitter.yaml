@@ -123,10 +123,15 @@ automation:
         hours: '/4'
         minutes: 01
         seconds: 00
-
+    condition:
+      - condition: template
+        value_template: >
+          {%- if states.automation.random_house_stats.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 10000 }}
+          {%- else -%}
+            true
+          {%- endif -%}
     action:
-      - service: automation.turn_off
-        entity_id: automation.random_house_stats
       - delay: '0{{ range(0,2) | random | int }}:{{ range(10,59) | random | int }}:00'
       - service: script.tweet_engine
         data_template:
@@ -150,5 +155,3 @@ automation:
             "My @getspectrum internet download speed is about {{states.sensor.speedtest_download.state}} Mbit/s and I am a #cordcutter. @TabloTV",
             "Average Cloud Coverage: {{states.sensor.dark_sky_cloud_coverage.state}}%, Average Temp: {{states.sensor.dark_sky_temperature.state}}°F #Solar"
             ] | random + " #RandomStat"}}
-      - service: automation.turn_on
-        entity_id: automation.random_house_stats

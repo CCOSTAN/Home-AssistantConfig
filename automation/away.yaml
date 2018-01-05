@@ -10,6 +10,9 @@
     - platform: state
       entity_id: group.family
       to: 'not_home'
+    - platform: state
+      entity_id: input_boolean.good_night
+      to: 'on'
 
   condition:
     - condition: state
@@ -23,3 +26,5 @@
     - service: script.interior_off
     - service: switch.turn_off
       entity_id: switch.back_landscaping
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.good_night

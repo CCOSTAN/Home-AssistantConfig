@@ -74,15 +74,17 @@ automation:
        # - platform: event
        #   event_type: skybell_pressed
 
+    condition:
+      - condition: template
+        value_template: >
+          {%- if states.binary_sensor.skybell_stone_door_button.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.skybell_stone_door_button.attributes.last_triggered)) > 200 }}
+          {%- else -%}
+            true
+          {%- endif -%}
+
     action:
-      # Disable this automation
-      - service: automation.turn_off
-        entity_id: automation.log_skybell_pressed_activity
       - service: script.skybell_pressed
-      - delay:
-          minutes: 1
-      # enable this automation - This prevents duplicate pushes.
-      - service: automation.turn_on
       - service: script.tweet_engine
         data_template:
           tweet: >
