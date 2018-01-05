@@ -41,6 +41,12 @@ sensor:
     duration:
       hours: 24
 
+group:
+  tweet_stats:
+    entities:
+      - sensor.doorbell_presses
+      - sensor.landscaping_light_time
+
 #############################################################
 
 automation:
@@ -146,4 +152,3 @@ automation:
             ] | random + " #RandomStat"}}
       - service: automation.turn_on
         entity_id: automation.random_house_stats
-

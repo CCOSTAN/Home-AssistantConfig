@@ -16,25 +16,25 @@ homeassistant:
       homebridge_hidden: true
     "scene.month_*_colors":
       hidden: true
-      emulated_hue_hidden: true
       homebridge_hidden: true
 
   packages: !include_dir_named packages
 
-# cloud:
-#   alexa:
-#     filter:
-#       # include_entities:
-#       #   - light.kitchen
-#       include_domains:
-#         - switch
-#         - covers
-#         - group
-#       # exclude_entities:
-#       #   - light.living_room
-#       # exclude_domains:
-#       #   - light
-#       #   - media_player
+config:
+cloud:
+  alexa:
+    filter:
+      # include_entities:
+      #   - light.kitchen
+      include_domains:
+        - switch
+        - cover
+        - group
+      # exclude_entities:
+      #   - light.living_room
+      # exclude_domains:
+      #   - light
+      #   - media_player
 
 http:
   base_url: !secret http_base_url
@@ -91,37 +91,20 @@ updater:
   include_used_components: true
 
 sun:
-# for when 0.60.1 is released.
-# hue:
-#   bridges:
-#     - host: 192.168.10.75
-#       filename: phue.conf
-#       allow_unreachable: true
-#       allow_in_emulated_hue: false
-#       allow_hue_groups: false
-#     - host: 192.168.10.76
-#       filename: phue2.conf
-#       allow_unreachable: true
-#       allow_in_emulated_hue: false
-#       allow_hue_groups: false
+hue:
+  bridges:
+    - host: 192.168.10.75
+      filename: phue.conf
+      allow_unreachable: true
+      allow_hue_groups: false
+
+    - host: 192.168.10.76
+      filename: phue2.conf
+      allow_unreachable: true
+      allow_hue_groups: false
 
 light:
-  - platform: hue
-    host: 192.168.10.75
-    filename: phue.conf
-    allow_unreachable: true
-    allow_in_emulated_hue: false
-    allow_hue_groups: false
-
-light 2:
-  - platform: hue
-    host: 192.168.10.76
-    filename: phue2.conf
-    allow_unreachable: true
-    allow_in_emulated_hue: false
-    allow_hue_groups: false
-
-# Reference : https://www.flexfireleds.com/pages/Comparison-between-3528-LEDs-and-5050-LEDs.html
+  # Reference : https://www.flexfireleds.com/pages/Comparison-between-3528-LEDs-and-5050-LEDs.html
   - platform: flux_led
     automatic_add: True
     devices:
@@ -138,10 +121,10 @@ light 2:
         name: led_garage_small
         mode: "rgb"
 
-emulated_hue:
-  host_ip: 192.168.10.10
-  listen_port: 8300
-  expose_by_default: false
+# emulated_hue:
+#   host_ip: 192.168.10.10
+#   listen_port: 8300
+#   expose_by_default: false
 
 ifttt:
   key: !secret ifttt_key
