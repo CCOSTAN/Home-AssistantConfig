@@ -24,14 +24,34 @@ config:
 cloud:
   alexa:
     filter:
-      # include_entities:
-      #   - light.kitchen
+      include_entities:
+        - group.all_lights
+        - group.all_switches
+        - group.interior_lights
+        - group.bedroom_lights
+        - group.living_room_lights
+        - group.living_room_accents
+        - group.dinette_lights
+        - group.dining_room_lights
+        - group.den_lights
+        - group.foyer_lights
+        - group.office_lights
+        - group.hallway_lights
+        - group.kitchen_lights
+        - group.upstairs_lights
+        - group.outdoor_pool_lights
+        - group.garage_lights
+        - group.paiges_room
+        - group.justins_room
+        - group.Exterior_Lights
+        - group.outdoor_pool_lights
+        - group.outdoor_front_lights
+        - group.landscaping
       include_domains:
         - switch
         - cover
-        - group
-      # exclude_entities:
-      #   - light.living_room
+#      exclude_entities:
+
       # exclude_domains:
       #   - light
       #   - media_player
