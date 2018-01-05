@@ -24,4 +24,18 @@
       {%- endif -%}
       {{ ', ' }}
     {%- endif -%}
-    {{ '%02d' % hours }}:{{ '%02d' % minutes }}
+    {%- if hours > 0 -%}
+      {%- if hours == 1 -%}
+        1 hour
+      {%- else -%}
+        {{ hours }} hours
+      {%- endif -%}
+      {{ ', ' }}
+    {%- endif -%}
+    {%- if minutes > 0 -%}
+      {%- if minutes == 1 -%}
+        1 minute
+      {%- else -%}
+        {{ minutes }} minutes
+      {%- endif -%}
+    {%- endif -%}
