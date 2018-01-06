@@ -6,7 +6,7 @@
 homeassistant:
   customize_glob:
     "input_boolean.clock_snooze":
-      emulated_hue_hidden: False
+      
       hidden: False
 
 media_player:
@@ -21,14 +21,14 @@ binary_sensor:
     name: Clock Motion
     device_class: motion
     retain: true
-    emulated_hue_hidden: True
+    
     hidden: False
 
   - platform: mqtt
     state_topic: floorplan/clock_plugged
     name: Clock Plugged
     retain: true
-    emulated_hue_hidden: True
+    
     hidden: False
 
 light:
@@ -43,7 +43,7 @@ sensor:
     state_topic: "clock/stacey_alarm_time"
     name: clock_stacey_alarm_time
     retain: true
-    emulated_hue_hidden: True
+    
     hidden: true
 
 input_boolean:

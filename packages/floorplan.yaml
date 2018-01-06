@@ -6,10 +6,10 @@
 homeassistant:
   customize_glob:
     "sensor.*_alarm_panel*":
-      emulated_hue_hidden: True
+      
       hidden: False
     "binary_sensor.*_alarm_panel*":
-      emulated_hue_hidden: True
+      
       hidden: False
 
 media_player:
@@ -33,12 +33,12 @@ binary_sensor:
     name: Bedroom Motion
     device_class: motion
     retain: true
-    emulated_hue_hidden: True
+    
     hidden: False
 
   - platform: mqtt
     state_topic: floorplan/bedroom_plugged
     name: Bedroom Plugged
     retain: true
-    emulated_hue_hidden: True
+    
     hidden: False
