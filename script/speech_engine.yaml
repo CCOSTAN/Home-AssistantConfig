@@ -141,12 +141,6 @@ speech_engine:
             {% endif -%}
           {%- endmacro -%}
 
-          {%- macro pihole() -%}
-            {% if states.sensor.pihole_ads_blocked_today.state|int > 10000 -%}
-              We blocked {{ states.sensor.pihole_ads_blocked_today.state }} ads. That is {{ states.sensor.pihole_ads_percentage_blocked_today.state }}% of our internet traffic.
-            {% endif -%}
-          {%- endmacro -%}
-
           {%- macro moon() -%}
             {%- if states.sensor.moon.state == 'Full moon' -%}
               Check out the full moon tonight!
@@ -221,7 +215,7 @@ speech_engine:
           {% endif %}
 
           {# call a Random fact about the house #}
-          {{ ([iss, pihole, moon]|random)() }}
+          {{ ([iss, moon]|random)() }}
 
           {{ holiday() }}
 

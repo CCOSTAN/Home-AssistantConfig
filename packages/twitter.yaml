@@ -120,7 +120,7 @@ automation:
     hide_entity: True
     trigger:
       - platform: time
-        hours: '/4'
+        hours: '/3'
         minutes: 01
         seconds: 00
     condition:
@@ -140,8 +140,12 @@ automation:
             "The number of Doorbell presses yesterday was {{states.sensor.doorbell_presses.state}}",
             "The #Landscaping lights where on for about {{states.sensor.landscaping_light_time.attributes.value}} yesterday.",
             "So far, I have prevented {{states.sensor.pihole_ads_blocked_today.state}} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
+            "Pi-hole (http://www.pi-hole.net) has serviced {{states.sensor.pihole_dns_queries_today.state}} DNS requests today! #PiZero"
             "{{states.sensor.doorbell_presses.state}} people came to the door today and pressed the bell.",
-            "The Pi has been running for {{states.sensor.since_last_boot_templated.state}}",
+            "The #Docker Host has been running for {{states.sensor.since_last_boot_templated.state}}",
+            "The #Docker Host for Home Assistant is using {{states.sensor.disk_used_.state}}% of the hard drive currently. "
+            "The {{states.media_player.living_room_ultra.attributes.friendly_name}} #Roku is playing #{{states.media_player.living_room_ultra.attributes.app_name}}.",
+            "The {{states.media_player.upstairs_living_room.attributes.friendly_name}} #Roku is playing #{{states.media_player.upstairs_living_room.attributes.app_name}}. (http://amzn.to/2lYZEup)",
             "I am running Home Assistant version {{states.sensor.ha_installed_version.state}} (https://github.com/CCOSTAN/Home-AssistantConfig)",
             "{{states.sensor.doorbell_presses.state}} doorbell presses occurred in the last 24 hours.",
             "I keep the average humidity of the house at {{states.sensor.downstairs_thermostat_humidity.state}} percent. Outside is {{states.sensor.dark_sky_humidity.state}} #Nest (http://amzn.to/2BWNk5N)",
@@ -153,5 +157,5 @@ automation:
             "The current UV index is {{states.sensor.dark_sky_uv_index.state}} and the Moon is {{states.sensor.moon.state}}.  #Space",
             "Home Assistant has been running for {{states.sensor.ha_uptime.state}} minutes. (https://github.com/CCOSTAN/Home-AssistantConfig)",
             "My @getspectrum internet download speed is about {{states.sensor.speedtest_download.state}} Mbit/s and I am a #cordcutter. @TabloTV",
-            "Average Cloud Coverage: {{states.sensor.dark_sky_cloud_coverage.state}}%, Average Temp: {{states.sensor.dark_sky_temperature.state}}°F #Solar"
+            "Average Cloud Coverage: {{states.sensor.dark_sky_cloud_coverage.state}}%, Average Temp: {{states.sensor.dark_sky_temperature.state}}°F #Solar (http://www.vmwareinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)"
             ] | random + " #RandomStat"}}
