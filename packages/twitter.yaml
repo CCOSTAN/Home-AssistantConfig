@@ -88,6 +88,7 @@ automation:
               "#ChirpTheHouse",
               "#FollowMe",
               "#MakingitChirp",
+              "(http://www.vmwareinfo.com/2017/12/giving-house-twitter-account.html)",
               "(http://www.vmwareinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)"
             ] %}
             {{ phrases|random ~ " " ~ hashtags|random }}
@@ -140,7 +141,7 @@ automation:
             "The number of Doorbell presses yesterday was {{states.sensor.doorbell_presses.state}}",
             "The #Landscaping lights where on for about {{states.sensor.landscaping_light_time.attributes.value}} yesterday.",
             "So far, I have prevented {{states.sensor.pihole_ads_blocked_today.state}} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
-            "Pi-hole (http://www.pi-hole.net) has serviced {{states.sensor.pihole_dns_queries_today.state}} DNS requests today! #PiZero"
+            "Pi-hole (http://www.pi-hole.net) has serviced {{states.sensor.pihole_dns_queries_today.state}} DNS requests today! #PiZero",
             "{{states.sensor.doorbell_presses.state}} people came to the door today and pressed the bell.",
             "The #Docker Host has been running for {{states.sensor.since_last_boot_templated.state}}",
             "The #Docker Host for Home Assistant is using {{states.sensor.disk_used_.state}}% of the hard drive currently. "

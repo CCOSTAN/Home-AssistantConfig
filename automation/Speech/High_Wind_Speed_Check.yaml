@@ -7,14 +7,28 @@
   trigger:
     - platform: numeric_state
       entity_id: sensor.dark_sky_wind_speed
-      above: 50
+      above: 24
+    - platform: numeric_state
+      entity_id: sensor.dark_sky_wind_speed
+      above: 40
+    - platform: numeric_state
+      entity_id: sensor.dark_sky_wind_speed
+      above: 60
 
+  condition:
+    - condition: template
+      value_template: >
+        {%- if states.automation.high_wind_speed_notification.attributes.last_triggered -%}
+          {{ (as_timestamp(now()) - as_timestamp(states.automation.high_wind_speed_notification.attributes.last_triggered)) > 3600 }}
+        {%- else -%}
+          true
+        {%- endif -%}
+        
   action:
     - service: script.notify_engine
       data_template:
         value1: 'VERY HIGH WINDS:'
         value2: "{{ states('sensor.dark_sky_wind_speed')}}"
-        value3: ' '
 
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode
@@ -22,7 +36,14 @@
     - service: script.speech_engine
       data_template:
         value1: >
-          "ATTENTION: The wind speed is now {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  Please make sure everyone is inside for safety."
+          {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
+          {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
+             HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors!
+          {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
+             Warning! Wind speed is {{windspeed}} MPH. FIND SHELTER IMMEDIATELY!
+          {% elif ( windspeed > 60 ) %}
+             HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS!
+          {% endif %}
         call_window_check: 1
         call_garage_check: 1
 
@@ -31,7 +52,11 @@
     - service: script.tweet_engine
       data_template:
         tweet: >
-          {{ [
-          "Wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, I'm going to close the @garadget doors.",
-          "Getting pretty windy! {{ states('sensor.dark_sky_wind_speed')|round}}MPH. Time to ask @Garadget to close the garage doors."
-          ] | random + "(http://amzn.to/2jQLpVQ)"}}
+          {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
+          {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
+             HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors! #Florida #Weather (http://amzn.to/2jQLpVQ)
+          {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
+             Current Wind Speed is : {{windspeed}} mph! Warning! #Florida #Weather (http://amzn.to/2jQLpVQ) FIND SHELTER IMMEDIATELY! #Florida #Weather (http://amzn.to/2jQLpVQ)
+          {% elif ( windspeed > 60 ) %}
+             Current Wind Speed is : {{windspeed}} mph! HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS! #Florida #Weather (http://amzn.to/2jQLpVQ)
+          {% endif %}
