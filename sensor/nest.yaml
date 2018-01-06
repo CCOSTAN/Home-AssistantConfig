@@ -1,6 +1,18 @@
 ###################################################
 ## * [Nest Thermostats](http://amzn.to/2eAhB1k)
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ###################################################
+
+- platform: nest
+  monitored_conditions:
+#     - 'temperature'
+#     - 'target'
+     - 'humidity'
+#     - 'operation_mode'
+#     - 'last_connection'
+#     - 'co_status'
+#     - 'smoke_status'
 
 - platform: template
   sensors:
