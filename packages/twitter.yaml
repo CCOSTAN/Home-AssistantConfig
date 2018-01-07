@@ -7,7 +7,7 @@
 #   customize_glob:
 #     "input_select.log_*":
 #       icon: mdi:bug
-#       
+#
 #       hidden: False
 
 #Random number - https://www.random.org/integers/?num=1&min=1&max=10&col=1&base=10&format=plain&rnd=new
@@ -28,6 +28,15 @@ sensor:
     entity_id: binary_sensor.skybell_stone_door_button
     state: 'on'
     type: count
+    end: '{{ now() }}'
+    duration:
+      hours: 24
+
+  - platform: history_stats
+    name: HVAC Time
+    entity_id: sensor.downstairs_thermostat_hvac_state
+    state: 'on'
+    type: time
     end: '{{ now() }}'
     duration:
       hours: 24
