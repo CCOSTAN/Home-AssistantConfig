@@ -77,5 +77,5 @@ automation:
             {{ [
             "The #Chevy Bolt Charged for {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes and Juiced up add {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs.",
             "The last charging session was {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes. Added {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs ",
-            "The Juice Box Pro add {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs to the #Chevy #BoltEV in {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes."
+            "The Juice Box Pro added {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs to the #Chevy #BoltEV in {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes."
             ] | random + " (http://amzn.to/2zlQIUI) #Electric #Solar"}}
