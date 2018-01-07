@@ -47,7 +47,9 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.carlojuice_amps
-        above: 24.5
+        above: 24
+        for:
+          minutes: 2
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.alert_mode
