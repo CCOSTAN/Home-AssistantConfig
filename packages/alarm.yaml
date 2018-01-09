@@ -7,15 +7,15 @@ homeassistant:
   customize_glob:
     "device_tracker.nodemcu*":
       icon: mdi:chip
-      
+
       hidden: True
     "sensor.nodemcu*":
       icon: mdi:alarm-bell
-      
+
       hidden: False
     "binary_sensor.mcu?_gpio*":
       icon: mdi:security-home
-      
+
       hidden: False
 
   customize:
@@ -288,6 +288,37 @@ automation:
         data:
           entity_id: climate.downstairs
           operation_mode: 'auto'
+
+#-------------------------------------------#-------------------------------------------
+  - alias: 'Alarm lights in Living room'
+    trigger:
+      - platform: state
+        entity_id:
+          - group.entry_points
+      - platform: state
+        entity_id: group.all_covers
+
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: sun.sun
+          state: 'below_horizon'
+        - condition: state
+          entity_id: group.bed
+          state: 'off'
+
+    action:
+      - service: light.turn_on
+        entity_id:
+          - group.living_room_accents
+        data_template:
+          color_name: >
+            {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
+            red
+            {% else %}
+            gold
+            {% endif %}
 
 #-------------------------------------------#---
   - alias: "Panel Door opened"
