@@ -147,11 +147,22 @@ speech_engine:
             {%- endif -%}
           {%- endmacro -%}
 
+          # {%- macro uv() -%}
+          #   {% if states.sensor.dark_sky_uv_index.state|int >= 6 and <= 7.9 %}
+          #     Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  You should wear sunscreen if going outside.
+          #   {% elif states.sensor.dark_sky_uv_index.state|int >= 8 and <=10.9 %}
+          #     Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  This is VERY HIGH. Be sure wear sunscreen and re-apply.
+          #   {% elif states.sensor.dark_sky_uv_index.state|int >= 11
+          #     Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  This is EXTREME. You should be very cautious going outside.
+          #   {% endif %}
+          # {%- endmacro -%}
+
           {%- macro holiday() -%}
             {% if states.sensor.holiday.state != '' %}
               Today is {{ states.sensor.holiday.state }}.
             {% endif %}
           {%- endmacro -%}
+
 
           {# ********************************************* #}
           {#  ******** Start the Speech routines ********  #}
@@ -215,9 +226,7 @@ speech_engine:
           {% endif %}
 
           {# call a Random fact about the house #}
-          {{ ([iss, moon]|random)() }}
-
-          {{ holiday() }}
+          {{ ([iss, moon, uv, holiday]|random)() }}
 
     - service: input_boolean.turn_off
       data:
