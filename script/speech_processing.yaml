@@ -43,9 +43,8 @@ speech_processing:
           state: 'on'
 
     - service: switch.turn_on
-      data:
-        entity_id: switch.living_room_amp
-
+      entity_id: switch.living_room_amp
+      
     - service: media_player.volume_set
       data_template:
         entity_id: >

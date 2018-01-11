@@ -1,0 +1,26 @@
+######################################################################
+##  Stuff that needs to happen when we are both out of bed.
+######################################################################
+
+- alias: 'Time to wake up!'
+  trigger:
+    - platform: state
+      entity_id: group.bed
+      to: 'off'
+
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: home
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+    - condition: time
+      after: '07:00:00'
+      before: '11:00:00'
+  action:
+    - service: light.turn_on
+      entity_id:
+        - group.kitchen_lights
+    - service: switch.turn_on
+      entity_id: switch.living_room_amp

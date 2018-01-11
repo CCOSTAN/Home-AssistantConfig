@@ -32,8 +32,3 @@
         - group.all_lights
     - service: switch.turn_off
       entity_id: switch.kitchen_accents
-    - wait_template: >-
-       {{ is_state('group.bed', 'off') }}
-    - service: light.turn_on
-      entity_id:
-        - group.kitchen_lights
