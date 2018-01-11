@@ -11,4 +11,8 @@ tweet_engine:
           {{ tweet }} #IOT #SmartHome
 
     - service: ifttt.trigger
-      data_template: {"event":"Facebook_Post", "Value1":" ~ tweet ~ "}
+      data_template:
+        event: >-
+          "Facebook_Post"
+        value1: >-
+          {{ tweet }}
