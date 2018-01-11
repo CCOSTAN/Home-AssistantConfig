@@ -17,7 +17,3 @@ Modified by [@CCOSTAN](https://twitter.com/ccostan)
 Repo : https://github.com/beed2112/condo
 
 This is a map of the script references from my repo.
-
-<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/3MkgeKFUVKPNW45Vtwu9Abd4/CCOSTAN/Home-AssistantConfig'>
-  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/3MkgeKFUVKPNW45Vtwu9Abd4/CCOSTAN/Home-AssistantConfig.svg' />
-</a>
