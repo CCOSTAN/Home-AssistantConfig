@@ -6,17 +6,20 @@
 
 tweet_engine:
    sequence:
-    - service: notify.BearStoneHA
+    - service: mqtt.publish
       data_template:
-        message: >-
-          {{ tweet }} #IOT #SmartHome
+        topic: 'ifttt/message'
+        payload: "{{ tweet }}"
+        retain: true
 
-
-
-    - service: ifttt.trigger
-      data_template:
-        event: >-
-          facebook_tweet
-        value1: >
-          {% set facebook_tweet = tweet %}
-          {{ facebook_tweet }} #IOT #SmartHome
+    # - service: notify.BearStoneHA
+    #   data_template:
+    #     message: >-
+    #       {{ tweet }} #IOT #SmartHome
+    #
+    # - service: ifttt.trigger
+    #   data_template:
+    #     event: >-
+    #       facebook_tweet
+    #     value1: >
+    #         {{states.sensor.ifttt_formatted_message.state}} #IOT #SmartHome

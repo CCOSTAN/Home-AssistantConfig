@@ -7,7 +7,7 @@ homeassistant:
   customize_glob:
     "input_select.log_*":
       icon: mdi:bug
-      
+
       hidden: False
 
 #-------------------------------------------
@@ -42,5 +42,5 @@ automation:
           homeassistant.components: "{{ states.input_select.log_level.state }}"
 
       - service: script.tweet_engine
-        data:
+        data_template:
           tweet: "My logging level has just been set to {{ states.input_select.log_level.state }}"
