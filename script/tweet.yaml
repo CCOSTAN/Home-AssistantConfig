@@ -9,13 +9,18 @@ tweet_engine:
     - service: mqtt.publish
       data_template:
         topic: 'ifttt/message'
-        payload: "{{ tweet }}"
+        payload: >-
+          {{ tweet }}
         retain: true
 
-    # - service: notify.BearStoneHA
-    #   data_template:
-    #     message: >-
-    #       {{ tweet }} #IOT #SmartHome
+    - service: notify.BearStoneHA
+      data_template:
+        message: >-
+          {{ tweet }} #IOT #SmartHome
+
+    - service: ifttt.trigger
+      data_template: {"event":"facebook_tweet", "value1":"{{ tweet }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
+
     #
     # - service: ifttt.trigger
     #   data_template:
