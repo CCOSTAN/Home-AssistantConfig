@@ -1,5 +1,6 @@
 ######################################################################################################
 ###Script to send notifications to Twitter as @BearStoneHA.
+## Publish on Facebook as well - https://www.facebook.com/BearStoneHA/
 ## Enhancements by @dale3h
 ######################################################################################################
 
@@ -10,9 +11,12 @@ tweet_engine:
         message: >-
           {{ tweet }} #IOT #SmartHome
 
+
+
     - service: ifttt.trigger
       data_template:
         event: >-
           facebook_tweet
-        value1: >-
-          {{ tweet }}
+        value1: >
+          {% set facebook_tweet = tweet %}
+          {{ facebook_tweet }} #IOT #SmartHome

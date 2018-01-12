@@ -20,10 +20,10 @@
           "Since it gets dark around sunset, I turn on the landscaping lights.",
           "Since it is sunset, I will turn on the exterior lights."
           ] | random + [
-          "#Sunset",
-          "#HomeAutomation",
-          "AccentLighting",
-          "(http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)"
+          " #Sunset",
+          " #HomeAutomation",
+          " #AccentLighting",
+          " (http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)"
           ] | random }}
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.speech_engine
