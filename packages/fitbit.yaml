@@ -62,12 +62,3 @@ automation:
             "Keep on moving.  Somebody just hit {{ states('sensor.steps') }} steps.",
             "#Fitness Tracking at home BY the home. Somebody just hit {{ states('sensor.steps') }} steps"
             ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Self #Data"}}
-
-      - service: script.speech_engine
-        data_template:
-          value1: >
-            {{ [
-            "Somebody just hit {{ states('sensor.steps') }} steps on the #Fitbit!",
-            "Keep on moving.  Somebody just hit {{ states('sensor.steps') }} steps.",
-            "#Fitness Tracking at home BY the home. Somebody just hit {{ states('sensor.steps') }} steps"
-            ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Self #Data"}}
