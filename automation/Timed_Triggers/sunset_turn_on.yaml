@@ -39,7 +39,7 @@
     - service: light.turn_on
       entity_id: light.outdoor_bathroom
       data:
-        brightness: 10
+        brightness: 20
     - wait_template: >-
        {{ states.group.family.state == 'home' }}
     - service: switch.turn_on
