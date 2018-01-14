@@ -7,7 +7,7 @@ homeassistant:
   customize:
     binary_sensor.office_motion:
       friendly_name: Office Motion Sensor
-      
+
       hidden: False
 #---Sensor for Light-----------------------------
 binary_sensor:
@@ -67,7 +67,7 @@ automation:
         to: 'off'
         from: 'on'
         for:
-          minutes: 3
+          minutes: 2
 
     condition:
       - condition: state
