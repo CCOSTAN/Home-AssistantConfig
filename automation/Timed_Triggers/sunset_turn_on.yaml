@@ -37,11 +37,9 @@
         - switch.front_landscaping
     - service: script.monthly_color_scene
     - service: light.turn_on
+      entity_id: light.outdoor_bathroom
       data:
-        entity_id:
-          - light.outdoor_bathroom
-        brightness: 35
-
+        brightness: 10
     - wait_template: >-
        {{ states.group.family.state == 'home' }}
     - service: switch.turn_on
