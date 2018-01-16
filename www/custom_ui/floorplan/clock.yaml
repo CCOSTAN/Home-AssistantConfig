@@ -25,12 +25,16 @@ rules:
   - entity: input_boolean.clock_snooze
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "snooze_on" : "snooze"}.svg'
     action:
-      service: homeassistant.toggle
+      service: input_boolean.toggle
+      data:
+        entity_id: input_boolean.clock_snooze
 
   - entity: input_boolean.school_mode
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "on") ? "school_on" : "school_off"}.svg'
     action:
-      service: homeassistant.toggle
+      service: input_boolean.toggle
+      data:
+        entity_id: input_boolean.school_mode
 
   - entity: media_player.alarm_clock
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "playing") ? "stop" : "radio_on"}.svg'
