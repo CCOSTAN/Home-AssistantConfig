@@ -1,8 +1,8 @@
 /*
-  Floorplan Fully Kiosk for Home Assistant
-  Version: 1.0.7.42
-  By Petar Kozul
-  https://github.com/pkozul/ha-floorplan
+Floorplan Fully Kiosk for Home Assistant
+Version: 1.0.7.50
+By Petar Kozul
+https://github.com/pkozul/ha-floorplan
 */
 
 'use strict';
@@ -14,14 +14,16 @@
 
   class FullyKiosk {
     constructor(floorplan) {
-      this.version = '1.0.7.42';
+      this.version = '1.0.7.50';
 
       this.floorplan = floorplan;
       this.authToken = (window.localStorage && window.localStorage.authToken) ? window.localStorage.authToken : '';
 
       this.fullyInfo = {};
       this.fullyState = {};
-      this.iBeacons = {};
+      this.beacons = {};
+
+      this.throttledFunctions = {};
     }
 
     /***************************************************************************************************************************/
@@ -30,6 +32,13 @@
 
     init() {
       this.logInfo('VERSION', `Fully Kiosk v${this.version}`);
+
+      /*
+      let uuid = 'a445425b-c718-461c-a876-aa647abd99d4';
+      let deviceId = uuid.replace(/[-_]/g, '').toUpperCase();
+      let payload = { room: 'entry hall', id: uuid, distance: 123.45 };
+      this.PostToHomeAssistant(`/api/room_presence/${deviceId}`, payload);
+      */
 
       if (typeof fully === "undefined") {
         this.logInfo('FULLY_KIOSK', `Fully Kiosk is not running or not enabled. You can enable it via Settings > Other Settings > Enable Website Integration (PLUS).`);
@@ -75,6 +84,8 @@
         pluggedBinarySensorEntityId: device.plugged_sensor,
         screensaverLightEntityId: device.screensaver_light,
         mediaPlayerEntityId: device.media_player,
+
+        locationName: device.presence_detection ? device.presence_detection.location_name : undefined,
 
         startUrl: fully.getStartUrl(),
         currentLocale: fully.getCurrentLocale(),
@@ -134,8 +145,15 @@
       window.addEventListener('fully.onScreensaverStop', this.onScreensaverStop.bind(this));
       window.addEventListener('fully.onBatteryLevelChanged', this.onBatteryLevelChanged.bind(this));
       window.addEventListener('fully.onMotion', this.onMotion.bind(this));
-      window.addEventListener('fully.onMovement', this.onMovement.bind(this));
-      window.addEventListener('fully.onIBeacon', this.onIBeacon.bind(this));
+
+      if (this.fullyInfo.supportsGeolocation) {
+        window.addEventListener('fully.onMovement', this.onMovement.bind(this));
+      }
+
+      if (this.fullyInfo.locationName) {
+        this.logInfo('KIOSK', 'Listening for beacon messages');
+        window.addEventListener('fully.onIBeacon', this.onIBeacon.bind(this));
+      }
 
       fully.bind('screenOn', 'onFullyEvent("fully.screenOn");')
       fully.bind('screenOff', 'onFullyEvent("fully.screenOff");')
@@ -221,8 +239,19 @@
       this.sendMotionState();
     }
 
-    onMovement() {
-      this.logDebug('FULLY_KIOSK', 'Movement detected');
+    onMovement(e) {
+      let functionId = 'onMovement';
+      let throttledFunc = this.throttledFunctions[functionId];
+      if (!throttledFunc) {
+        throttledFunc = this.throttle(this.onMovementThrottled.bind(this), 10000);
+        this.throttledFunctions[functionId] = throttledFunc;
+      }
+
+      return throttledFunc(e);
+    }
+
+    onMovementThrottled() {
+      this.logDebug('FULLY_KIOSK', 'Movement detected (throttled)');
 
       if (this.fullyInfo.supportsGeolocation) {
         this.updateCurrentPosition()
@@ -233,19 +262,28 @@
     }
 
     onIBeacon(e) {
-      let iBeacon = e.detail;
+      let functionId = e.detail.uuid;
+      let throttledFunc = this.throttledFunctions[functionId];
+      if (!throttledFunc) {
+        throttledFunc = this.throttle(this.onIBeaconThrottled.bind(this), 10000);
+        this.throttledFunctions[functionId] = throttledFunc;
+      }
 
-      this.logDebug('FULLY_KIOSK', `iBeacon (${JSON.stringify(iBeacon)})`);
+      return throttledFunc(e);
+    }
 
-      let iBeaconId = iBeacon.uuid;
-      iBeaconId += (iBeacon.major ? `_${iBeacon.major}` : '');
-      iBeaconId += (iBeacon.minor ? `_${iBeacon.minor}` : '');
+    onIBeaconThrottled(e) {
+      let beacon = e.detail;
 
-      this.iBeacons[iBeaconId] = iBeacon;
+      this.logDebug('FULLY_KIOSK', `Received (throttled) beacon message (${JSON.stringify(beacon)})`);
 
-      this.sendMotionState();
+      let beaconId = beacon.uuid;
+      beaconId += (beacon.major ? `_${beacon.major}` : '');
+      beaconId += (beacon.minor ? `_${beacon.minor}` : '');
 
-      this.sendIBeaconState(iBeacon);
+      this.beacons[beaconId] = beacon;
+
+      this.sendBeaconState(beacon);
     }
 
     /***************************************************************************************************************************/
@@ -329,30 +367,61 @@
       this.PostToHomeAssistant(`/api/fully_kiosk/media_player/${this.fullyInfo.mediaPlayerEntityId}`, this.newPayload(state));
     }
 
-    sendIBeaconState(iBeacon) {
+    sendBeaconState(beacon) {
       if (!this.fullyInfo.motionBinarySensorEntityId) {
         return;
       }
 
+      /*
+      let payload = {
+        name: this.fullyInfo.locationName,
+        address: this.fullyInfo.macAddress,
+        device: beacon.uuid,
+        beaconUUID: beacon.uuid,
+        latitude: this.position ? this.position.coords.latitude : undefined,
+        longitude: this.position ? this.position.coords.longitude : undefined,
+        entry: 1,
+      }
+      this.PostToHomeAssistant(`/api/geofency`, payload, undefined, false);
+      */
+
+      /*
       let payload = {
         mac: undefined,
-        dev_id: iBeacon.uuid.replace(/-/g, '_'),
+        dev_id: beacon.uuid.replace(/-/g, '_'),
         host_name: undefined,
         location_name: this.fullyInfo.macAddress,
         gps: this.position ? [this.position.coords.latitude, this.position.coords.longitude] : undefined,
         gps_accuracy: undefined,
         battery: undefined,
 
-        uuid: iBeacon.uuid,
-        major: iBeacon.major,
-        minor: iBeacon.minor,
+        uuid: beacon.uuid,
+        major: beacon.major,
+        minor: beacon.minor,
       };
 
-      //this.PostToHomeAssistant(`/api/services/device_tracker/see`, payload);
+      this.PostToHomeAssistant(`/api/services/device_tracker/see`, payload);
+      */
 
+      /*
       let fullyId = this.fullyInfo.macAddress.replace(/[:-]/g, "_");
-      payload = { topic: `room_presence/${fullyId}`, payload: `{ \"id\": \"${iBeacon.uuid}\", \"distance\": ${iBeacon.distance} }` };
+      payload = { topic: `room_presence/${fullyId}`, payload: `{ \"id\": \"${beacon.uuid}\", \"distance\": ${beacon.distance} }` };
       this.floorplan.hass.callService('mqtt', 'publish', payload);
+      */
+
+      let deviceId = beacon.uuid.replace(/[-_]/g, '').toUpperCase();
+
+      let payload = {
+        room: this.fullyInfo.locationName,
+        uuid: beacon.uuid,
+        major: beacon.major,
+        minor: beacon.minor,
+        distance: beacon.distance,
+        latitude: this.position ? this.position.coords.latitude : undefined,
+        longitude: this.position ? this.position.coords.longitude : undefined,
+      };
+
+      this.PostToHomeAssistant(`/api/room_presence/${deviceId}`, payload);
     }
 
     newPayload(state) {
@@ -376,7 +445,7 @@
           _isScreensaverOn: this.fullyState.isScreensaverOn,
           _latitude: this.position && this.position.coords.latitude,
           _longitude: this.position && this.position.coords.longitude,
-          _iBeacons: JSON.stringify(Object.keys(this.iBeacons).map(iBeaconId => this.iBeacons[iBeaconId])),
+          _beacons: JSON.stringify(Object.keys(this.beacons).map(beaconId => this.beacons[beaconId])),
         }
       };
 
@@ -568,22 +637,152 @@
     /* Utility functions
     /***************************************************************************************************************************/
 
-    debounce(func, wait, immediate) {
-      let timeout;
-      return function () {
-        let context = this, args = arguments;
+    debounce(func, wait, options) {
+      let lastArgs,
+        lastThis,
+        maxWait,
+        result,
+        timerId,
+        lastCallTime
 
-        let later = function () {
-          timeout = null;
-          if (!immediate) func.apply(context, args);
-        };
+      let lastInvokeTime = 0
+      let leading = false
+      let maxing = false
+      let trailing = true
 
-        let callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+      if (typeof func != 'function') {
+        throw new TypeError('Expected a function')
+      }
+      wait = +wait || 0
+      if (options) {
+        leading = !!options.leading
+        maxing = 'maxWait' in options
+        maxWait = maxing ? Math.max(+options.maxWait || 0, wait) : maxWait
+        trailing = 'trailing' in options ? !!options.trailing : trailing
+      }
 
-        if (callNow) func.apply(context, args);
-      };
+      function invokeFunc(time) {
+        const args = lastArgs
+        const thisArg = lastThis
+
+        lastArgs = lastThis = undefined
+        lastInvokeTime = time
+        result = func.apply(thisArg, args)
+        return result
+      }
+
+      function leadingEdge(time) {
+        // Reset any `maxWait` timer.
+        lastInvokeTime = time
+        // Start the timer for the trailing edge.
+        timerId = setTimeout(timerExpired, wait)
+        // Invoke the leading edge.
+        return leading ? invokeFunc(time) : result
+      }
+
+      function remainingWait(time) {
+        const timeSinceLastCall = time - lastCallTime
+        const timeSinceLastInvoke = time - lastInvokeTime
+        const timeWaiting = wait - timeSinceLastCall
+
+        return maxing
+          ? Math.min(timeWaiting, maxWait - timeSinceLastInvoke)
+          : timeWaiting
+      }
+
+      function shouldInvoke(time) {
+        const timeSinceLastCall = time - lastCallTime
+        const timeSinceLastInvoke = time - lastInvokeTime
+
+        // Either this is the first call, activity has stopped and we're at the
+        // trailing edge, the system time has gone backwards and we're treating
+        // it as the trailing edge, or we've hit the `maxWait` limit.
+        return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
+          (timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait))
+      }
+
+      function timerExpired() {
+        const time = Date.now()
+        if (shouldInvoke(time)) {
+          return trailingEdge(time)
+        }
+        // Restart the timer.
+        timerId = setTimeout(timerExpired, remainingWait(time))
+      }
+
+      function trailingEdge(time) {
+        timerId = undefined
+
+        // Only invoke if we have `lastArgs` which means `func` has been
+        // debounced at least once.
+        if (trailing && lastArgs) {
+          return invokeFunc(time)
+        }
+        lastArgs = lastThis = undefined
+        return result
+      }
+
+      function cancel() {
+        if (timerId !== undefined) {
+          clearTimeout(timerId)
+        }
+        lastInvokeTime = 0
+        lastArgs = lastCallTime = lastThis = timerId = undefined
+      }
+
+      function flush() {
+        return timerId === undefined ? result : trailingEdge(Date.now())
+      }
+
+      function pending() {
+        return timerId !== undefined
+      }
+
+      function debounced(...args) {
+        const time = Date.now()
+        const isInvoking = shouldInvoke(time)
+
+        lastArgs = args
+        lastThis = this
+        lastCallTime = time
+
+        if (isInvoking) {
+          if (timerId === undefined) {
+            return leadingEdge(lastCallTime)
+          }
+          if (maxing) {
+            // Handle invocations in a tight loop.
+            timerId = setTimeout(timerExpired, wait)
+            return invokeFunc(lastCallTime)
+          }
+        }
+        if (timerId === undefined) {
+          timerId = setTimeout(timerExpired, wait)
+        }
+        return result
+      }
+      debounced.cancel = cancel
+      debounced.flush = flush
+      debounced.pending = pending
+      return debounced
+    }
+
+    throttle(func, wait, options) {
+      let leading = true
+      let trailing = true
+
+      if (typeof func != 'function') {
+        throw new TypeError('Expected a function');
+      }
+      if (options) {
+        leading = 'leading' in options ? !!options.leading : leading
+        trailing = 'trailing' in options ? !!options.trailing : trailing
+      }
+      return this.debounce(func, wait, {
+        'leading': leading,
+        'maxWait': wait,
+        'trailing': trailing
+      })
     }
   }
 

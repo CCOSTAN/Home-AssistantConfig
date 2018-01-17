@@ -24,7 +24,7 @@
           ] | random + "#HomeAutomation"}}
 
     - delay: '00:{{ (range(1, 55)|random|int) }}:00'
-    - service: light.turn_off
+    - service: homeassistant.turn_off
       entity_id:
         - group.exterior_lights
         - group.outdoor_front_lights

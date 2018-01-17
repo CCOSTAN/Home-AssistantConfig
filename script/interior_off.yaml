@@ -7,7 +7,7 @@
 
 interior_off:
   sequence:
-    - service: light.turn_off
+    - service: homeassistant.turn_off
       entity_id:
         - group.interior_lights
     - service: script.switch_turn_off_all

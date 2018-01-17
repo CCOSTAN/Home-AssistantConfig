@@ -15,8 +15,6 @@ rules:
         class: 'button-on'
       - state: 'off'
         class: 'button-off'
-    action:
-      service: homeassistant.toggle
 
   - name: thermostats_temp
     entities:
@@ -95,8 +93,6 @@ rules:
         class: 'switch-on'
       - state: 'off'
         class: 'switch-off'
-    action:
-      service: homeassistant.toggle
 
   - name: custom_switches
     entities:
@@ -106,8 +102,6 @@ rules:
         class: 'light-blue-on'
       - state: 'off'
         class: 'outdoor-light-off'
-    action:
-      service: homeassistant.toggle
 
   - name: Lights
     entities:
@@ -149,8 +143,6 @@ rules:
         class: 'light-on'
       - state: 'off'
         class: 'light-off'
-    action:
-      service: homeassistant.toggle
 
   - name: Outdoor Lights
     entities:
@@ -172,8 +164,6 @@ rules:
         class: 'light-on'
       - state: 'off'
         class: 'outdoor-light-off'
-    action:
-      service: homeassistant.toggle
 
   - name: Nest Protects
     entities:

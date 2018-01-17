@@ -54,6 +54,13 @@ sensor:
     duration:
       hours: 24
 
+  - platform: rest
+    name: July 4th Countdown
+    resource: http://api.wolframalpha.com/v1/result?appid=JIUY8U-4V8KY45VT1&i=How%20many%20days%20until%204th%20July%202018
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200```
+
 group:
   tweet_stats:
     entities:
@@ -164,7 +171,7 @@ automation:
             "I am running Home Assistant version {{states.sensor.ha_installed_version.state}} (https://github.com/CCOSTAN/Home-AssistantConfig)",
             "{{states.sensor.doorbell_presses.state}} doorbell presses occurred in the last 24 hours.",
             "I keep the average humidity of the house at {{states.sensor.downstairs_thermostat_humidity.state}} percent. Outside is {{states.sensor.dark_sky_humidity.state}} #Nest (http://amzn.to/2BWNk5N)",
-            "Outside is {{states.sensor.dark_sky_temperature.state}}. I keep the average temperature at {{states.sensor.downstairs_thermostat_temperature.state}}. #Nest (http://amzn.to/2BWNk5N)",
+            "Outside is {{states.sensor.dark_sky_temperature.state}}. I keep the average temperature at {{states.sensor.downstairs_thermostat_temperature.state}}. #Weather (http://amzn.to/2BWNk5N)",
             "I know that it will be {{states.sensor.dark_sky_minutely_summary.state}} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",
             "Average internet stats are Download: {{states.sensor.speedtest_download.state}} Mbit/s & Upload {{states.sensor.speedtest_upload.state}} Mbit/s.",
             "Todays Sleep Number is {{states.sensor.sleepnumber_carlo_stacey_sleepnumber.state}}. Wifi connected Bed FTW! #SleepStat (http://amzn.to/2D10BcQ)",
