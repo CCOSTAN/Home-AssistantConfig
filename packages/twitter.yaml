@@ -54,12 +54,12 @@ sensor:
     duration:
       hours: 24
 
-  - platform: rest
-    name: July 4th Countdown
-    resource: http://api.wolframalpha.com/v1/result?appid=JIUY8U-4V8KY45VT1&i=How%20many%20days%20until%204th%20July%202018
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200```
+  # - platform: rest
+  #   name: July 4th Countdown
+  #   resource: http://api.wolframalpha.com/v1/result?appid=JIUY8U-4V8KY45VT1&i=How%20many%20days%20until%204th%20July%202018
+  #   value_template: "{{ (value|replace(' days', '')) | int }}"
+  #   unit_of_measurement: Days
+  #   scan_interval: 43200```
 
 group:
   tweet_stats:
