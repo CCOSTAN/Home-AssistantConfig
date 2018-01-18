@@ -9,7 +9,7 @@ homeassistant:
   customize_glob:
     "sensor.skybell_*":
       icon: mdi:camera-front
-      
+
       hidden: False
       homebridge_hidden: True
 
@@ -50,7 +50,6 @@ sensor:
   - platform: template
     sensors:
        skybell:
-         entity_id: binary_sensor.skybell_stone_door_button
          value_template: "{{ 'Online' if is_state_attr('binary_sensor.skybell_stone_door_button', 'status', 'up') else 'Offline' }}"
 
 switch:

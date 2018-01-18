@@ -6,7 +6,7 @@
       event_type: upstairs_light_on
     - platform: state
       entity_id: binary_sensor.upstairs_away_mode
-      to: 'off'
+      to: 'False'
 
   condition:
     - condition: state
@@ -25,7 +25,7 @@
       event_type: upstairs_light_off
     - platform: state
       entity_id: binary_sensor.upstairs_away_mode
-      to: 'on'
+      to: 'True'
 
   action:
     service: light.turn_off
