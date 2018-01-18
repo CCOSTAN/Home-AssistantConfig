@@ -12,12 +12,6 @@
 #       hidden: False
 #-------------------------------------------
 sensor:
-  - platform: bitcoin
-    display_options:
-      - exchangerate
-      - market_price_usd
-      - trade_volume_btc
-
   - platform: alpha_vantage
     api_key: !secret vantage_api
     symbols:
@@ -29,13 +23,14 @@ sensor:
         to: USD
         name: Bitcoin
 #-------------------------------------------
-# group:
-#   fitbit:
-#     entities:
-#       - sensor.steps
-#       - sensor.weight
-#       - sensor.one_battery
+group:
+  finance:
+    entities:
+      - sensor.tesla
+      - sensor.bitcoin
+
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
 ##############################################################################
 #automation:
+#Tweets pushed out to twitter.
