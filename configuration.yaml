@@ -51,12 +51,17 @@ cloud:
         - switch
         - cover
         - input_boolean
-#      exclude_entities:
-
+      # exclude_entities:
       # exclude_domains:
       #   - light
       #   - media_player
-
+    entity_config:
+      group.kitchen_lights:
+        display_categories: LIGHT
+      group.bedroom_lights:
+        display_categories: LIGHT
+      group.upstairs_lights:
+        display_categories: LIGHT
 http:
   base_url: !secret http_base_url
   # server_port: !secret http_port

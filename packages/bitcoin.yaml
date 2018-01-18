@@ -1,0 +1,41 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "*.*_sleep_hours":
+#       unit_of_measurement: hours
+#       icon: mdi:sleep
+#
+#       hidden: False
+#-------------------------------------------
+sensor:
+  - platform: bitcoin
+    display_options:
+      - exchangerate
+      - market_price_usd
+      - trade_volume_btc
+
+  - platform: alpha_vantage
+    api_key: !secret vantage_api
+    symbols:
+      - name: Tesla
+        currency: USD
+        symbol: TSLA
+    foreign_exchange:
+      - from: BTC
+        to: USD
+        name: Bitcoin
+#-------------------------------------------
+# group:
+#   fitbit:
+#     entities:
+#       - sensor.steps
+#       - sensor.weight
+#       - sensor.one_battery
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+#automation:
