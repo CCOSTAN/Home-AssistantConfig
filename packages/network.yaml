@@ -17,15 +17,46 @@ sensor:
                 if (item.attributes.source_type is defined and item.state != 'home' and item.attributes.friendly_name not in
                 [
                   'Chromecast Audio 2',
+                  'Carlo',
                   'Entry Alarm Panel',
                   'Dash Button',
                   'Master Bedroom Roku',
                   'Brother Printer',
+                  'Stacey',
                   'Wii',
                   'Withings Scale'
                   ])
                   and(as_timestamp(now()) - as_timestamp(item.last_changed)) > 600 -%}
               {{ item.attributes.friendly_name }}
+              {%- if not loop.last -%}
+                {{'
+                '}}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endfor -%}
+
+  - platform: template
+    sensors:
+      network_detail:
+        friendly_name: 'Network Monitor Detail'
+        value_template: >
+          {%- set domains = ['device_tracker'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain]
+                if (item.attributes.source_type is defined and item.state != 'home' and item.attributes.friendly_name not in
+                [
+                  'Chromecast Audio 2',
+                  'Carlo',
+                  'Entry Alarm Panel',
+                  'Dash Button',
+                  'Master Bedroom Roku',
+                  'Brother Printer',
+                  'Stacey',
+                  'Wii',
+                  'Withings Scale'
+                  ])
+                  and(as_timestamp(now()) - as_timestamp(item.last_changed)) > 600 -%}
+              {{ item.attributes.friendly_name }} - {{((as_timestamp(now()) - as_timestamp(item.last_changed))/60) | round() }} minutes
               {%- if not loop.last -%}
                 {{'
                 '}}
@@ -43,7 +74,7 @@ group:
       - sensor.speedtest_download
       - sensor.speedtest_upload
       - binary_sensor.carlowink
-      - sensor.network
+      - sensor.network_detail
 #-------------------------------------------------------------------------------------
 automation:
   - alias: 'Device Status'
@@ -58,6 +89,7 @@ automation:
       - service: script.notify_engine
         data_template:
           value1: 'Offline Devices:'
+          value2: '{{((as_timestamp(now()) - as_timestamp(item.last_changed))/60) | round() }} minutes'
           value3: "{{ trigger.to_state.state }}"
           who: 'carlo'
 
