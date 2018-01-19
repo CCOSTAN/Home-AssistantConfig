@@ -6,10 +6,10 @@
 # homeassistant:
 #   customize_glob:
 #     "sensor.*_alarm_panel*":
-#       
+#
 #       hidden: False
 #     "binary_sensor.*_alarm_panel*":
-#       
+#
 #       hidden: False
 
 sensor:
@@ -33,7 +33,6 @@ sensor:
               {%- endif -%}
             {%- endfor -%}
           {%- endfor -%}
-
 
 automation:
   - alias: 'Battery Alert'

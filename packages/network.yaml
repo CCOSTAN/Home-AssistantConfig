@@ -14,8 +14,7 @@ sensor:
           {%- set domains = ['device_tracker'] -%}
           {%- for domain in domains -%}
             {%- for item in states[domain] if (item.attributes.source_type is defined and item.state != 'home') -%}
-              {{ item.attributes.friendly_name }} -
-              {{item.state}}
+              {{ item.attributes.friendly_name }}
               {%- if not loop.last -%}
                 {{', '}}
               {%- endif -%}
@@ -40,19 +39,15 @@ automation:
     trigger:
          - platform: state
            entity_id:
-             - sensor.wii
-           to: 'Offline'
-           for:
-             minutes: 5
+             - sensor.network
 
     action:
       - service: script.notify_engine
         data_template:
-          value1: 'Device Status:'
-          value2: "{{ trigger.to_state.attributes.friendly_name }} is "
+          value1: 'Offline Devices:'
           value3: "{{ trigger.to_state.state }}"
           who: 'carlo'
 
       - service: script.speech_engine
         data_template:
-          value1: "{{ trigger.to_state.attributes.friendly_name }} is now {{ trigger.to_state.state }}"
+          value1: "The following Devices are in an Offline state {{ trigger.to_state.state }}"

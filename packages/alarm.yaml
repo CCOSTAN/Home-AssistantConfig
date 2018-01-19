@@ -8,10 +8,6 @@ homeassistant:
     "device_tracker.nodemcu*":
       icon: mdi:chip
 
-      hidden: True
-    "sensor.nodemcu*":
-      icon: mdi:alarm-bell
-
       hidden: False
     "binary_sensor.mcu?_gpio*":
       icon: mdi:security-home
@@ -182,24 +178,6 @@ binary_sensor:
 #   elephant:
 #     name: Elephant
 #     initial: off
-#-------------------------------------------
-sensor:
-  - platform: template
-    sensors:
-      nodemcu1:
-        friendly_name: 'NodeMCU1'
-        value_template: "{{ 'Online' if is_state('device_tracker.NodeMCU1', 'home') else 'Offline' }}"
-  - platform: template
-    sensors:
-      nodemcu2:
-        friendly_name: 'NodeMCU2'
-        value_template: "{{ 'Online' if is_state('device_tracker.NodeMCU2', 'home') else 'Offline' }}"
-  - platform: template
-    sensors:
-      nodemcu3:
-        friendly_name: 'NodeMCU3'
-        value_template: "{{ 'Online' if is_state('device_tracker.NodeMCU3', 'home') else 'Offline' }}"
-
 #-------------------------------------------
 group:
   entry_points:

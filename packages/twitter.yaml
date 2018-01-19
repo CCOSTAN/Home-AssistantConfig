@@ -23,10 +23,6 @@ notify:
 ### Building out some Historical stats for tweeting. #####################
 sensor:
 
-  - platform: mqtt
-    state_topic: "ifttt/message"
-    name: "ifttt formatted message"
-
   - platform: history_stats
     name: Doorbell Presses
     entity_id: binary_sensor.skybell_stone_door_button
