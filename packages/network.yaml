@@ -13,14 +13,23 @@ sensor:
         value_template: >
           {%- set domains = ['device_tracker'] -%}
           {%- for domain in domains -%}
-            {%- for item in states[domain] if (item.attributes.source_type is defined and item.state != 'home') -%}
+            {%- for item in states[domain]
+                if (item.attributes.source_type is defined and item.state != 'home' and item.attributes.friendly_name not in
+                [
+                  'Chromecast Audio 2',
+                   'Entry Alarm Panel',
+                   'Dash Button',
+                   'Master Bedroom Roku',
+                   'Wii',
+                   'Withings Scale'
+                  ]) -%}
               {{ item.attributes.friendly_name }}
               {%- if not loop.last -%}
                 {{', '}}
               {%- endif -%}
             {%- endfor -%}
           {%- endfor -%}
-#-------------------------------------------
+
 group:
   network:
     entities:
@@ -31,15 +40,16 @@ group:
       - sensor.speedtest_download
       - sensor.speedtest_upload
       - binary_sensor.carlowink
-
+      - sensor.network
 #-------------------------------------------------------------------------------------
 automation:
   - alias: 'Device Status'
     hide_entity: True
     trigger:
-         - platform: state
-           entity_id:
-             - sensor.network
+      - platform: state
+        entity_id:
+          - sensor.network
+          - binary_sensor.carlowink
 
     action:
       - service: script.notify_engine
@@ -48,6 +58,6 @@ automation:
           value3: "{{ trigger.to_state.state }}"
           who: 'carlo'
 
-      - service: script.speech_engine
-        data_template:
-          value1: "The following Devices are in an Offline state {{ trigger.to_state.state }}"
+      # - service: script.speech_engine
+      #   data_template:
+      #     value1: "The following Devices are in an Offline state {{ trigger.to_state.state }}"

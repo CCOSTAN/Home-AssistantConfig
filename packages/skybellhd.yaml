@@ -47,11 +47,6 @@ sensor:
     monitored_conditions:
       - chime_level
 
-  - platform: template
-    sensors:
-       skybell:
-         value_template: "{{ 'Online' if is_state_attr('binary_sensor.skybell_stone_door_button', 'status', 'up') else 'Offline' }}"
-
 switch:
   - platform: skybell
     monitored_conditions:
