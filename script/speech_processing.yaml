@@ -12,7 +12,7 @@ speech_processing:
     - service: mqtt.publish
       data_template:
         topic: 'polly/lastmsg'
-        payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message }}"
+        payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | truncate(254)}}"
         retain: true
 
     - condition: and

@@ -25,7 +25,7 @@ sensor:
                   'Withings Scale'
                   ])
                   and(as_timestamp(now()) - as_timestamp(item.last_changed)) > 600 -%}
-              {{ item.attributes.friendly_name }} - {{((as_timestamp(now()) - as_timestamp(item.last_changed))/60) | round() }} minutes
+              {{ item.attributes.friendly_name }}
               {%- if not loop.last -%}
                 {{'
                 '}}
