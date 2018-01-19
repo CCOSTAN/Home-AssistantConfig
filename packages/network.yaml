@@ -17,15 +17,18 @@ sensor:
                 if (item.attributes.source_type is defined and item.state != 'home' and item.attributes.friendly_name not in
                 [
                   'Chromecast Audio 2',
-                   'Entry Alarm Panel',
-                   'Dash Button',
-                   'Master Bedroom Roku',
-                   'Wii',
-                   'Withings Scale'
-                  ]) -%}
-              {{ item.attributes.friendly_name }}
+                  'Entry Alarm Panel',
+                  'Dash Button',
+                  'Master Bedroom Roku',
+                  'Brother Printer',
+                  'Wii',
+                  'Withings Scale'
+                  ])
+                  and(as_timestamp(now()) - as_timestamp(item.last_changed)) > 600 -%}
+              {{ item.attributes.friendly_name }} - {{((as_timestamp(now()) - as_timestamp(item.last_changed))/60) | round() }} minutes
               {%- if not loop.last -%}
-                {{', '}}
+                {{'
+                '}}
               {%- endif -%}
             {%- endfor -%}
           {%- endfor -%}
