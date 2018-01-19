@@ -89,8 +89,7 @@ automation:
       - service: script.notify_engine
         data_template:
           value1: 'Offline Devices:'
-          value2: '{{((as_timestamp(now()) - as_timestamp(item.last_changed))/60) | round() }} minutes'
-          value3: "{{ trigger.to_state.state }}"
+          value3: "{{ states.sensor.network_detail.state }}"
           who: 'carlo'
 
       # - service: script.speech_engine
