@@ -45,10 +45,13 @@ sensor:
             {%- for item in states[domain]
                 if (item.attributes.source_type is defined and item.state != 'home' and item.attributes.friendly_name not in
                 [
+                  'Carlo_Bolt_EV',
                   'Chromecast Audio 2',
                   'Carlo',
                   'Entry Alarm Panel',
                   'Dash Button',
+                  'Ipmdemounit',
+                  'Living Room Roku',
                   'Master Bedroom Roku',
                   'Brother Printer',
                   'Stacey',
@@ -66,6 +69,7 @@ sensor:
 
 group:
   network:
+    control: hidden
     entities:
       - sensor.ha_installed_version
       - sensor.ha_uptime
@@ -75,6 +79,66 @@ group:
       - sensor.speedtest_upload
       - binary_sensor.carlowink
       - sensor.network_detail
+
+# # Create full group with Loop!:
+# {% for state in states.device_tracker-%}
+# - {{ state.entity_id | lower }}
+# {{ ' '}}
+# {%- endfor -%}.
+
+  network_detail:
+    control: hidden
+    view: yes
+    entities:
+      - device_tracker.alexa_echo
+      - device_tracker.amazon_dot_2
+      - device_tracker.amazon_fire_stick
+      - device_tracker.amazon_tap
+      - device_tracker.bedroom_alarm_panel
+      - device_tracker.brother_printer
+      - device_tracker.carlo
+      - device_tracker.carlo_bolt
+      - device_tracker.carlo_laptop
+      - device_tracker.carlobhmain
+      - device_tracker.carlopihole
+      - device_tracker.chromecast_audio_1
+      - device_tracker.chromecast_audio_2
+      - device_tracker.circle
+      - device_tracker.entry_alarm_panel
+      - device_tracker.gatorade_dash
+      - device_tracker.hue_hub_1
+      - device_tracker.hue_hub_2
+      - device_tracker.ipmdemounit
+      - device_tracker.juicebox
+      - device_tracker.justin_dot
+      - device_tracker.large_garage
+      - device_tracker.living_room_amp_outlet
+      - device_tracker.living_room_roku
+      - device_tracker.living_room_ultra
+      - device_tracker.master_bedroom_roku
+      - device_tracker.nest_downstairs
+      - device_tracker.nest_upstairs
+      - device_tracker.nodemcu1
+      - device_tracker.nodemcu2
+      - device_tracker.nodemcu3
+      - device_tracker.nodemcu4
+      - device_tracker.noon_switch
+      - device_tracker.rachio
+      - device_tracker.rgb_led_garage_large
+      - device_tracker.rgb_led_garage_small
+      - device_tracker.rgb_led_outdoor_den
+      - device_tracker.rm_pro
+      - device_tracker.samsungtv
+      - device_tracker.skybell
+      - device_tracker.sleep_number_bed
+      - device_tracker.small_garage
+      - device_tracker.smart_water_meter
+      - device_tracker.stacey
+      - device_tracker.study_ap
+      - device_tracker.tablotv
+      - device_tracker.unifi_ap_office
+      - device_tracker.wii
+      - device_tracker.withings_scale
 #-------------------------------------------------------------------------------------
 automation:
   - alias: 'Device Status'
