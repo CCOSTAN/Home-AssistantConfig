@@ -47,6 +47,7 @@ sensor:
                 [
                   'Carlo_Bolt_EV',
                   'Chromecast Audio 2',
+                  'JuiceBox',
                   'Carlo',
                   'Entry Alarm Panel',
                   'Dash Button',
@@ -69,7 +70,6 @@ sensor:
 
 group:
   network:
-    control: hidden
     entities:
       - sensor.ha_installed_version
       - sensor.ha_uptime
@@ -87,8 +87,6 @@ group:
 # {%- endfor -%}.
 
   network_detail:
-    control: hidden
-    view: yes
     entities:
       - device_tracker.alexa_echo
       - device_tracker.amazon_dot_2
@@ -109,7 +107,6 @@ group:
       - device_tracker.hue_hub_1
       - device_tracker.hue_hub_2
       - device_tracker.ipmdemounit
-      - device_tracker.juicebox
       - device_tracker.justin_dot
       - device_tracker.large_garage
       - device_tracker.living_room_amp_outlet
