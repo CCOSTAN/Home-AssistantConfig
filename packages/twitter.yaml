@@ -32,14 +32,14 @@ sensor:
     duration:
       hours: 24
 
-  # - platform: history_stats
-  #   name: HVAC Time
-  #   entity_id: sensor.downstairs_thermostat_hvac_state
-  #   state: 'on'
-  #   type: time
-  #   end: '{{ now() }}'
-  #   duration:
-  #     hours: 24
+  - platform: history_stats
+    name: Speech time
+    entity_id: media_player.livingroomCC
+    state: 'playing'
+    type: time
+    end: '{{ now() }}'
+    duration:
+      hours: 24
 
   - platform: history_stats
     name: Landscaping Light time
