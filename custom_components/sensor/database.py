@@ -11,7 +11,7 @@ from homeassistant.helpers.entity import Entity
 
 _LOGGER = logging.getLogger(__name__)
 
-PATH = "/Users/hass/.homeassistant/home-assistant_v2.db"
+PATH = "/config/home-assistant_v2.db"
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):

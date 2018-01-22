@@ -162,6 +162,7 @@ automation:
             "{{states.sensor.doorbell_presses.state}} people came to the door today and pressed the bell.",
             "The #Docker Host has been running for {{states.sensor.since_last_boot_templated.state}}",
             "The #Docker Host for Home Assistant is using {{states.sensor.disk_used_.state}}% of the hard drive currently. ",
+            "My Home Assistant Database is currently using {{states.sensor.database_sensor.state}} MBs. Thanks! @robmarkcole for this #Stat - (https://github.com/robmarkcole/HASS-filesize-sensor)",
             "The {{states.media_player.living_room_ultra.attributes.friendly_name}} #Roku is playing #{{states.media_player.living_room_ultra.attributes.app_name}}.",
             "The {{states.media_player.upstairs_living_room.attributes.friendly_name}} #Roku is playing #{{states.media_player.upstairs_living_room.attributes.app_name}}. (http://amzn.to/2lYZEup)",
             "I am running Home Assistant version {{states.sensor.ha_installed_version.state}} (https://github.com/CCOSTAN/Home-AssistantConfig)",
