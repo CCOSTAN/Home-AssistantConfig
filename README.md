@@ -89,7 +89,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH.
 * (IFTTT) Add a 1 day rain delay to [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if it is going to rain tomorrow.
-* (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricance warning.
+* (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
 * (IFTTT) Trigger Good Night routine when I step on the [Withings](http://amzn.to/2kr78nW) scale after 10pm.
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
