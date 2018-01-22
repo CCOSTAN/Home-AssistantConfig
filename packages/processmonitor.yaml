@@ -6,7 +6,7 @@
 #   customize:
 #     sensor.process_mosquitto:
 #       friendly_name: 'Mosquitto'
-#       
+#
 #       hidden: False
 
 #-------------------------------------------
@@ -17,7 +17,7 @@ sensor:
       - type: since_last_boot
       - type: disk_use_percent
         arg: /
-
+  - platform: database
 #-------------------------------------------
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.

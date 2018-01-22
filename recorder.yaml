@@ -3,7 +3,7 @@
 ############################################################
 #db_url: sqlite:///data/home-assistant_v2.db
 purge_interval: 1
-purge_keep_days: 3
+purge_keep_days: 7
 exclude:
   domains:
     - updater
@@ -15,8 +15,11 @@ exclude:
   entities:
     - binary_sensor.bedroom_motion
     - binary_sensor.clock_motion
+    - binary_sensor.skybell_stone_door_button
+    - binary_sensor.office_motion
     - sensor.bitcoin
     - sensor.carlo_6s_battery_state
+    - sensor.carlo_6s_battery_level
     - sensor.clock_am_pm
     - sensor.clock_date
     - sensor.clock_day
@@ -45,6 +48,7 @@ exclude:
     - sensor.large_garage_wifi_signal_strength
     - sensor.last_message
     - sensor.low_battery
+    - sensor.medicine_time
     - sensor.network
     - sensor.network_detail
     - sensor.pihole_ads_blocked_today
@@ -53,11 +57,14 @@ exclude:
     - sensor.pihole_dns_unique_clients
     - sensor.since_last_boot
     - sensor.since_last_boot_templated
+    - sensor.skybell_stone_door_chime_level
     - sensor.small_garage_reflection_rate
     - sensor.small_garage_time_in_state
     - sensor.small_garage_wifi_signal_strength
     - sensor.staceys_iphone_battery_level
+    - sensor.staceys_iphone_battery_state
     - sensor.tesla
     - sensor.time
+    - sensor.rachio_watering_time
     - sun.sun
     - zone.home
