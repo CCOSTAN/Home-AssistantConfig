@@ -59,7 +59,7 @@ I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi an
 * [Pi Zero](http://amzn.to/2ougZQ3) with [Wireless Nub](http://amzn.to/2q38rg4) running Pi-Hole and smacking down internet ads left and right!
 * [NodeMCU Development Boards](http://amzn.to/2ou0NON) hooked into the alarm system wires for [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html). - [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)
 * [JuiceBox Pro 40 EVSE](http://amzn.to/2AIdSdx) - Used to Charge the Bolt EV.
-
+* [Chevy Bolt Electric Car](http://amzn.to/2DRP83a) - Monitor Charging status of Electric Vehicle.
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
 **Automations:**

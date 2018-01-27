@@ -2,7 +2,7 @@
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ###################################
-## [Chevy Bolt](http://amzn.to/2dcexIB)
+## [Chevy Bolt](http://amzn.to/2DRP83a)
 ###################################
 
 # homeassistant:
@@ -13,62 +13,20 @@
 #       hidden: False
 #       homebridge_hidden: True
 
-# group:
-#   skybell:
-#     name: Skybell HD Front Door
-#     control: hidden
-#     entities:
-#       - binary_sensor.skybell_stone_door_button
-#       - binary_sensor.skybell_stone_door_motion
-#       - camera.stone_door
-#       - sensor.skybell_stone_door_chime_level
-#       - sensor.skybell_stone_door_motion_sensor
-#       - switch.skybell_stone_door_do_not_disturb
-#       - switch.skybell_stone_door_motion_sensor
+group:
+  bolt:
+    name: Chevy Bolt EV
+    control: hidden
+    entities:
+      - device_tracker.Carlo_Bolt_EV
+      - binary_sensor.mychevy_plugged_in
+      - sensor.mychevy_charge_mode
+      - sensor.mychevy_charging
+      - sensor.mychevy_evcharge
+      - sensor.mychevy_mileage
+      - sensor.mychevy_range
+      - sensor.mychevy_status
 
 mychevy:
   username: !secret mychevy_email
   password: !secret mychevy_password
-
-
-###################################
-##  Automations
-###################################
-## Doorbell Press
-# automation:
-#   - alias: 'Log SkyBell Pressed Activity'
-#     hide_entity: True
-#     trigger:
-#        - platform: state
-#          entity_id:
-#            - binary_sensor.skybell_stone_door_button
-#          to: 'on'
-#        # - platform: event
-#        #   event_type: skybell_pressed
-#
-#     condition:
-#       - condition: template
-#         value_template: >
-#           {%- if states.binary_sensor.skybell_stone_door_button.attributes.last_triggered -%}
-#             {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.skybell_stone_door_button.attributes.last_triggered)) > 200 }}
-#           {%- else -%}
-#             true
-#           {%- endif -%}
-#
-#     action:
-#       - service: script.skybell_pressed
-#       - service: script.tweet_engine
-#         data_template:
-#           tweet: >
-#             {{ [
-#             "Oh, that tickled. Someone just pressed the @MySkyBell.",
-#             "Ouch! That hurt. Who touched the SkyBell Doorbell?",
-#             "Someone just poked me in the @MySkybell!",
-#             "I see you! You are at the @MySkyBell and you just pressed it.",
-#             "Someone answer my door.  Someone just pressed the doorbell."
-#             ] | random + [
-#             " #Security",
-#             " (http://amzn.to/2dcexIB)",
-#             " (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
-#             " #HomeAutomation"
-#             ] | random }}
