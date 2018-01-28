@@ -61,7 +61,12 @@ speech_processing:
     - service: tts.amazon_polly_say
       data_template:
         entity_id: >
-          {{ media_player }}
+          {% if states.group.bed.state == 'off' %}
+          media_player.livingroomCC
+          {% else %}
+          - media_player.alarm_clock
+          - media_player.bedroom_alarm_panel
+          {% endif %}
         message: >-
           <speak>
             {{ speech_message }}

@@ -4,6 +4,9 @@
 #db_url: sqlite:///data/home-assistant_v2.db
 purge_interval: 1
 purge_keep_days: 7
+include:
+  entities:
+    - group.landscaping
 exclude:
   domains:
     - updater
@@ -15,7 +18,6 @@ exclude:
   entities:
     - binary_sensor.bedroom_motion
     - binary_sensor.clock_motion
-    - binary_sensor.skybell_stone_door_button
     - binary_sensor.office_motion
     - sensor.bitcoin
     - sensor.carlo_6s_battery_state
