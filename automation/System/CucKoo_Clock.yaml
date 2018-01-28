@@ -14,7 +14,7 @@
 
   condition:
     - condition: time
-      after: '09:30:00'
+      after: '09:29:00'
       before: '21:30:00'
     - condition: state
       entity_id: group.family
@@ -28,25 +28,22 @@
         {% endif %}
 
   action:
-    - service: media_player.turn_on
-      entity_id: media_player.livingroomCC
-
-    - service: switch.turn_on
-      entity_id: switch.living_room_amp
-    - delay: '00:00:05'
-
-    - service: media_player.volume_set
-      entity_id:
-        - media_player.livingroomCC
+    - service: script.amp_settings
       data:
+        media_player: 'media_player.livingroomcc'
         volume_level: 0.22
+    - wait_template: >-
+        {{ states.switch.living_room_amp.state == 'on' }}
 
     - service: media_player.play_media
       data_template:
-        entity_id:
-          - media_player.livingroomCC
+        entity_id: >
+          {% if states.group.bed.state == 'off' %}
+          media_player.livingroomCC
+          {% else %}
           - media_player.alarm_clock
-        #  - media_player.bedroom_alarm_panel
+          - media_player.bedroom_alarm_panel
+          {% endif %}
         media_content_id: >
           {% if now().strftime("%M")|int == 30 %}
           https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/sounds/cuckoo-clock-01.wav

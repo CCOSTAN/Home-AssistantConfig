@@ -37,6 +37,9 @@ amp_settings:
     - condition: state
       entity_id: switch.living_room_amp
       state: 'off'
+    - condition: state
+      entity_id: group.bed
+      state: 'off'
 
     - service: switch.turn_on
       data:
