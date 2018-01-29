@@ -37,7 +37,7 @@ automation:
     condition:
       condition: template
       value_template: >
-        {%- if sensor.steps < 1000 -%}
+        {%- if states.sensor.steps.state.replace(",", "")|int < 1000 -%}
           true
         {%- endif -%}
     action:
@@ -49,10 +49,16 @@ automation:
   - alias: 'Fitbit 10k'
     initial_state: 'on'
     trigger:
-      - platform: numeric_state
-        entity_id: sensor.steps
-        above: 10000
-
+      - platform: state
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        to: 'on'
+    condition:
+      - condition: template
+        value_template: >
+          {%- if states.sensor.steps.state.replace(",", "")|int > 10000 -%}
+            true
+          {%- endif -%}
     action:
       - service: script.tweet_engine
         data_template:
@@ -61,4 +67,4 @@ automation:
             "Somebody just hit {{ states('sensor.steps') }} steps on the #Fitbit!",
             "Keep on moving.  Somebody just hit {{ states('sensor.steps') }} steps.",
             "#Fitness Tracking at home BY the home. Somebody just hit {{ states('sensor.steps') }} steps"
-            ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Self #Data"}}
+            ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Fitness #Self #Data"}}
