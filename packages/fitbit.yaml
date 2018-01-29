@@ -65,6 +65,6 @@ automation:
           tweet: >
             {{ [
             "Somebody just hit {{ states('sensor.steps') }} steps on the #Fitbit!",
-            "Keep on moving.  Somebody just hit {{ states('sensor.steps') }} steps.",
+            "Keep on moving.  Somebody just hit {{ states('sensor.steps') }} #Fitbit steps.",
             "#Fitness Tracking at home BY the home. Somebody just hit {{ states('sensor.steps') }} steps"
-            ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Fitness #Self #Data"}}
+            ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Self #Data"}}
