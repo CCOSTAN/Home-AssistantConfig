@@ -32,8 +32,6 @@
       data:
         media_player: 'media_player.livingroomcc'
         volume_level: 0.22
-    - wait_template: >-
-        {{ states.switch.living_room_amp.state == 'on' }}
 
     - service: media_player.play_media
       data_template:

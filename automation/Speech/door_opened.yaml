@@ -1,21 +1,29 @@
 ######################################################################
-##  Garage Status Announcements
+##  Door Open Announcements
 ######################################################################
 - alias: 'Door Opened'
 
   trigger:
     - platform: state
       entity_id:
-        - binary_sensor.mcu2_gpio5 # back door #
+        - binary_sensor.mcu1_gpio5 # Front door #
+        - binary_sensor.mcu2_gpio5 # Back door #
         - binary_sensor.MCU2_GPIO12 # Main Slider
         - binary_sensor.MCU1_GPIO12 # Interior Garage Door #
-      to: 'Opened'
-      for:
-        minutes: 2
+      from: 'off'
+
+  condition:
+    - condition: state
+      entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      state: 'on'
 
   action:
     - service: script.notify_engine
       data_template:
+        who: "parents"
         value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
 
     - service: input_boolean.turn_on
