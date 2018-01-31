@@ -23,7 +23,7 @@
   action:
     - service: script.notify_engine
       data_template:
-        who: "parents"
+        who: 'parents'
         value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
 
     - service: input_boolean.turn_on

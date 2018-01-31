@@ -1,0 +1,29 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "*.*_sleep_hours":
+#       unit_of_measurement: hours
+#       icon: mdi:sleep
+#
+#       hidden: False
+#-------------------------------------------
+sensor:
+  platform: minecraft
+  name: Bear Stone
+  server: 192.168.10.10
+#-------------------------------------------
+# group:
+#   finance:
+#     entities:
+#       - sensor.tesla
+#       - sensor.bitcoin
+
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+#automation:
+#Tweets pushed out to twitter.
