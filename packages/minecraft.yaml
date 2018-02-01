@@ -31,10 +31,18 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.bear_stone
-        to: '1/10'
+
+    condition:
+      - condition: template
+        value_template: >
+          {% if states.sensor.bear_stone.state|int == 0 %}
+            false
+          {% else %}
+            true
+          {% endif %}
 
     action:
       - service: script.notify_engine
         data_template:
-          value1: "The following users are online: {{ states.sensor.bear_stone.attributes.users_online }}"
+          value1: "There are {{states.sensor.bear_stone.state}} Minecraft users online: {{ states.sensor.bear_stone.attributes.users_online }}"
           who: 'carlo'
