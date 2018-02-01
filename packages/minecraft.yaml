@@ -31,15 +31,7 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.bear_stone
-
-    condition:
-      - condition: template
-        value_template: >
-          {% if not is_state('sensor.bear_stone', '0/10') %}
-            false
-          {% else %}
-            true
-          {% endif %}
+        to: '1/10'
 
     action:
       - service: script.notify_engine

@@ -4,8 +4,8 @@ Sensor to check the status of a Minecraft server.
 """
 import logging
 from homeassistant.helpers.entity import Entity
-ATTR_PING = 'Ping'
-ATTR_USERS = 'Users Online'
+ATTR_USERS = 'users_online'
+ATTR_MAX = 'users_max'
 ATTR_MOTD = 'MOTD'
 ATTR_VERSION = 'Version'
 ICON = 'mdi:minecraft'
@@ -58,8 +58,8 @@ class MCServerSensor(Entity):
         """Update device state."""
         status = self._mcserver.lookup(self._server).status()
         query = self._mcserver.lookup(self._server).query()
-        self._state = str(status.players.online) + '/' + str(status.players.max)
-        self._ping = status.latency
+        self._state = str(status.players.online)
+        self._max = str(status.players.max)
         self._users = query.players.names
         self._motd = query.motd
         self._version = query.software.version
@@ -69,8 +69,8 @@ class MCServerSensor(Entity):
     def device_state_attributes(self):
         """Return the state attributes."""
         return {
-       ATTR_PING: self._ping,
        ATTR_USERS: self._users,
+       ATTR_MAX: self._max,
        ATTR_MOTD: self._motd,
        ATTR_VERSION: self._version
         }
