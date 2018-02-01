@@ -148,6 +148,15 @@ automation:
           - sensor.network
           - binary_sensor.carlowink
 
+    condition:
+      - condition: template
+        value_template: >
+          {% if not is_state('sensor.network_detail', ' ') %}
+            false
+          {% else %}
+            true
+          {% endif %}
+
     action:
       - service: script.notify_engine
         data_template:
