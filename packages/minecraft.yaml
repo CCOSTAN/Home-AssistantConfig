@@ -57,3 +57,11 @@ automation:
             {% else %}
               green
             {% endif %}
+
+      - service: light.turn_on
+        entity_id:
+          - light.justin_go
+        data:
+          flash: long
+          
+      - service: script.flash_notify
