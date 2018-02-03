@@ -42,20 +42,24 @@ automation:
           {% endif %}
 
     action:
-      - service: script.notify_engine
-        data_template:
-          value1: "There are {{states.sensor.bear_stone.state}} Minecraft users online: {{ states.sensor.bear_stone.attributes.users_online }}"
-          who: 'carlo'
-
-      - service: light.turn_on
+      - service_template: >
+            {% if states.sensor.bear_stone.state|int == 0 %}
+              light.turn_on
+            {% else %}
+              light.turn_off
+            {% endif %}
         entity_id:
           - light.justin_go
         data_template:
           color_name: >
             {% if states.sensor.bear_stone.state|int == 1 %}
               gold
-            {% else %}
+            {% elif states.sensor.bear_stone.state|int == 2 %}
               green
+            {% elif states.sensor.bear_stone.state|int == 3 %}
+              blue
+            {% else %}
+              red
             {% endif %}
 
       - service: light.turn_on
@@ -63,5 +67,5 @@ automation:
           - light.justin_go
         data:
           flash: long
-          
+
       - service: script.flash_notify
