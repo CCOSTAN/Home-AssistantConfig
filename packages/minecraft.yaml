@@ -43,7 +43,7 @@ automation:
 
     action:
       - service_template: >
-            {% if states.sensor.bear_stone.state|int == 0 %}
+            {% if states.sensor.bear_stone.state|int > 0 %}
               light.turn_on
             {% else %}
               light.turn_off
@@ -67,5 +67,3 @@ automation:
           - light.justin_go
         data:
           flash: long
-
-      - service: script.flash_notify
