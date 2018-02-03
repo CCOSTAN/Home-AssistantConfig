@@ -46,3 +46,14 @@ automation:
         data_template:
           value1: "There are {{states.sensor.bear_stone.state}} Minecraft users online: {{ states.sensor.bear_stone.attributes.users_online }}"
           who: 'carlo'
+
+      - service: light.turn_on
+        entity_id:
+          - light.justin_go
+        data_template:
+          color_name: >
+            {% if states.sensor.bear_stone.state|int == 1 %}
+              gold
+            {% else %}
+              green
+            {% endif %}

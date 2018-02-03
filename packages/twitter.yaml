@@ -181,5 +181,6 @@ automation:
             "My @getspectrum internet download speed is about {{states.sensor.speedtest_download.state}} Mbit/s and I am a #cordcutter. @TabloTV",
             "I am keeping track of the current #Tesla stock price. It is {{ states.sensor.tesla.state  | round }} dollars. #Solar",
             "I am keeping track of the current #Bitcoin prices. It is {{ states.sensor.bitcoin.state  | round }} dollars. #BTC",
+            "There are {{states.sensor.bear_stone.state}} #Minecraft users online at the momemt. #KidStat",
             "Average Cloud Coverage: {{states.sensor.dark_sky_cloud_coverage.state}}%, Average Temp: {{states.sensor.dark_sky_temperature.state}}°F #Solar (http://www.vmwareinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)"
             ] | random + " #RandomStat"}}
