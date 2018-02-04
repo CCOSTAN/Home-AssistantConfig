@@ -47,12 +47,6 @@ automation:
               red
             {% endif %}
 
-      - service: light.turn_on
-        entity_id:
-          - light.justin_go
-        data:
-          flash: long
-
       - service_template: >
             {% if states.sensor.bear_stone.state|int > 0 %}
               light.turn_on
@@ -60,3 +54,9 @@ automation:
               light.turn_off
             {% endif %}
         entity_id: light.justin_go
+
+      - service: light.turn_on
+        entity_id:
+          - light.justin_go
+        data:
+          flash: short
