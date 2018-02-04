@@ -58,8 +58,9 @@ class MCServerSensor(Entity):
         """Update device state."""
         status = self._mcserver.lookup(self._server).status()
         query = self._mcserver.lookup(self._server).query()
-        self._state = str(status.players.online)
-        self._max = str(status.players.max)
+        self._state = status.players.online
+        #self._max = str(status.players.max)
+        self._max = status.players.max
         self._users = query.players.names
         self._motd = query.motd
         self._version = query.software.version

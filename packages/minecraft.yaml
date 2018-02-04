@@ -32,24 +32,9 @@ automation:
       - platform: state
         entity_id: sensor.bear_stone
 
-    condition:
-      - condition: template
-        value_template: >
-          {% if states.sensor.bear_stone.state|int == 0 %}
-            false
-          {% else %}
-            true
-          {% endif %}
-
     action:
-      - service_template: >
-            {% if states.sensor.bear_stone.state|int > 0 %}
-              light.turn_on
-            {% else %}
-              light.turn_off
-            {% endif %}
-        entity_id:
-          - light.justin_go
+      - service: light.turn_on
+        entity_id: light.justin_go
         data_template:
           color_name: >
             {% if states.sensor.bear_stone.state|int == 1 %}
@@ -67,3 +52,11 @@ automation:
           - light.justin_go
         data:
           flash: long
+
+      - service_template: >
+            {% if states.sensor.bear_stone.state|int > 0 %}
+              light.turn_on
+            {% else %}
+              light.turn_off
+            {% endif %}
+        entity_id: light.justin_go
