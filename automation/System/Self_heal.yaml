@@ -3,20 +3,24 @@
 ##  Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0).
 ###################################
 
-- alias: Heal ZWave Nightly
+- alias: Heal Components Nightly
   hide_entity: True
   trigger:
     platform: time
     at: '2:31:00'
   action:
 #    - service: zwave.heal_network - Not needed anymore since I've migrated to Wink.
+    - service: homeassistant.turn_on
+      entity_id: switch.bedroom_restart_on
 
     - service: script.tweet_engine
       data_template:
         tweet: >
           {{ [
-          "While they sleep, I self heal the Z-Wave network with Wink.",
-          "Nightly Z-WAVE Self heals keep all the gear in check! (http://amzn.to/2q17R4S)",
-          "Every night at 2:31am, I do my self-heal and rebuild the ZWAVE network.",
-          "Without my Nightly ZWave Self Heal, things get a little whackado."
-          ] | random + " #SelfHeal #ZWave"}}
+          "While they sleep, I self heal the #Z-Wave network with #Wink. (http://amzn.to/2E9Vax2)",
+          "2:30am, Time to restart the #Amazon Alarm Panels for a fresh start in the morning. (http://www.vmwareinfo.com/2017/08/project-update-visualization-of-home.html)",
+          "Restarting the #Amazon Fire Tablets nightly to clear memory issues or any other bugs (http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)",
+          "Nightly #Z-WAVE Self heals keep all the gear in check! (http://amzn.to/2q17R4S)",
+          "Every night at 2:31am, I do my self-heal and rebuild the #ZWAVE network.",
+          "Without my Nightly #ZWave Self Heal, things get a little whackado."
+          ] | random + " #SelfHeal "}}

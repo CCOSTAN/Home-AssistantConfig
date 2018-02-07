@@ -6,15 +6,21 @@
 homeassistant:
   customize_glob:
     "sensor.*_alarm_panel*":
-      
       hidden: False
     "binary_sensor.*_alarm_panel*":
-      
       hidden: False
 
 media_player:
   - platform: floorplan_speaker
     name: Bedroom Alarm Panel
+
+switch:
+  - platform: command_line
+    switches:
+      bedroom_restart:
+        command_on: !secret bedroom_restart_on
+        friendly_name: Restart Bedroom Panel
+        # This restart switch is called from the Self_heal nightly Automation.
 
 #---Sensors for Fire Tablet-----------------------------
 
@@ -33,12 +39,10 @@ binary_sensor:
     name: Bedroom Motion
     device_class: motion
     retain: true
-    
     hidden: False
 
   - platform: mqtt
     state_topic: floorplan/bedroom_plugged
     name: Bedroom Plugged
     retain: true
-    
     hidden: False
