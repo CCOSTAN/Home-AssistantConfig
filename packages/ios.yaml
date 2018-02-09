@@ -9,6 +9,18 @@
 #
 #     "sensor.staceys_iphone_*":
 
+notify:
+  - platform: ios
+  - name: ios_family
+    platform: group
+    services:
+      - service: ios_staceys_iphone
+      - service: ios_carlo_6s
+  - name: ios_parents
+    platform: group
+    services:
+      - service: ios_staceys_iphone
+      - service: ios_carlo_6s
 
 group:
   Phones:
