@@ -13,7 +13,10 @@ You can follow my home's breaking news and tweet statistics via twitter  [BearSt
 Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2xeBlgf) was upgraded to 16GB. (Order 2! - 1 for backup)
 I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi and Windows for backups.~~
 
-**Software on the Pi :**
+As of 2018, I have migrated everything to a Docker based platform.  You can read all about it here:
+[Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
+
+**Software on the Docker Host :**
 * [Home Assistant](https://home-assistant.io/) ,
 * [Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
