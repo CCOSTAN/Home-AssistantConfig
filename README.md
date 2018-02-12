@@ -9,9 +9,9 @@ You can follow my home's breaking news and tweet statistics via twitter  [BearSt
 
 ![Screenshot of Home Assistant Header](https://i.imgur.com/vjDH1LJ.png)
 
-This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)  I update it pretty regularly. :star:
-Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2xeBlgf) was upgraded to 16GB. (Order 2! - 1 for backup)
-I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi and Windows for backups.
+--This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)--  I update it pretty regularly. :star:
+--Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2xeBlgf) was upgraded to 16GB. (Order 2! - 1 for backup)
+I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi and Windows for backups.--
 
 **Software on the Pi :**
 * [Home Assistant](https://home-assistant.io/) ,
@@ -46,6 +46,7 @@ I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi an
 * [AMPs](http://amzn.to/2j18dlT) - These are cheap but effective for the Dots, Chromecasts or other speakers.
 * [Mixer](http://amzn.to/2v9Zp3x) - This allows me to mix in DOT, music and HA. [Blog Post](http://www.vmwareinfo.com/2017/07/giving-voice-to-smart-home.html)
 * [Etekcity Outlets](http://amzn.to/2efNoBP) - Cheap 6 Buck RF outlet control!
+* [RM Pro by Broadlink](http://amzn.to/2z6IZtH) - Cheap control over the above Outlets - Plus Infared Controls.
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * [Nintendo Wii](http://amzn.to/2l2qIYY)
