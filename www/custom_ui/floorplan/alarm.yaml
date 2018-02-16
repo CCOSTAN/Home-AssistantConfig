@@ -69,6 +69,7 @@ rules:
     entities:
       - device_tracker.carlo
       - device_tracker.stacey
+      - device_tracker.juicebox
     text_template: '${entity.state ? entity.state.replace("not_home", "away") : "undefined"}'
 
     states:
@@ -228,6 +229,17 @@ rules:
         class: 'window-closed'
       - state: 'open'
         class: 'window-open'
+
+  - name: Juicebox
+    entities:
+      - sensor.carlojuice_charging_status
+    states:
+      - state: 'charging'
+        class: 'juicebox-charging'
+      - state: 'standby'
+        class: 'juicebox-standby'
+      - state: 'plugged'
+        class: 'juicebox-plugged'
 
   - name: Dark Sky Sensors
     entities:
