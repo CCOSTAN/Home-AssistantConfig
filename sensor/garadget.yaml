@@ -18,6 +18,17 @@
       friendly_name: 'Reflection Rate'
       value_template: '{{ states.cover.small_garage.attributes["sensor_reflection_rate"] }}'
 
+- platform: mqtt
+  name: 'Small Garage Brightness'
+  state_topic: 'garadget/GSmall/status'
+  unit_of_measurement: '%'
+  value_template: '{{ value_json.bright }}'
+
+- platform: mqtt
+  name: 'Large Garage Brightness'
+  state_topic: 'garadget/GLarge/status'
+  unit_of_measurement: '%'
+  value_template: '{{ value_json.bright }}'
 
 - platform: template
   sensors:

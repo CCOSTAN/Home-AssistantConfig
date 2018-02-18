@@ -19,7 +19,7 @@ I have put 2 [GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S) conneted to
 
 **Nest Protects**
 You can find my [Nest protects](http://amzn.to/2poqKhu) write up [here](http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html).
-![Screenshot of Protects](https://i.imgur.com/hUAaIiF.png)
+![Screenshot of Protects](https://i.imgur.com/hUAaIiF.png) and thermostats [here](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
 
 **Neato Vacuum**
 I can control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
