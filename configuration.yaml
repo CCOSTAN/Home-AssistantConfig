@@ -240,18 +240,6 @@ wink:
   # password: !secret wink_password
   # local_control: True
 
-cover:
-  platform: garadget
-  covers:
-      !secret large_garage_id:
-        username: !secret garadget_username
-        password: !secret garadget_password
-        name: Large Garage
-      !secret small_garage_id:
-        username: !secret garadget_username
-        password: !secret garadget_password
-        name: Small Garage
-
 group: !include_dir_merge_named group
 device_tracker: !include_dir_merge_list device_tracker
 sensor: !include_dir_merge_list sensor

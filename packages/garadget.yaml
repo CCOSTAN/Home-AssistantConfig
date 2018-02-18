@@ -1,0 +1,95 @@
+#-------------------------------------------
+# # @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+## Garadget_Stuff -  [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor
+#-------------------------------------------
+
+cover:
+  platform: garadget
+  covers:
+      !secret large_garage_id:
+        username: !secret garadget_username
+        password: !secret garadget_password
+        name: Large Garage
+      !secret small_garage_id:
+        username: !secret garadget_username
+        password: !secret garadget_password
+        name: Small Garage
+
+sensor:
+  - platform: template
+    sensors:
+      small_garage_status:
+        friendly_name: 'State of the door'
+        value_template: '{{ states.cover.small_garage.state }}'
+      small_garage_time_in_state:
+        friendly_name: 'Time Since Change'
+        value_template: '{{ states.cover.small_garage.attributes["time_in_state"] }}'
+      small_garage_wifi_signal_strength:
+        friendly_name: 'WiFi strength'
+        value_template: '{{ states.cover.small_garage.attributes["wifi_signal_strength"] }}'
+        unit_of_measurement: 'dB'
+      small_garage_reflection_rate:
+        friendly_name: 'Reflection Rate'
+        value_template: '{{ states.cover.small_garage.attributes["sensor_reflection_rate"] }}'
+
+  - platform: mqtt
+    name: 'Small Garage Brightness'
+    state_topic: 'garadget/Garadget Small/status'
+    unit_of_measurement: '%'
+    value_template: '{{ value_json.bright }}'
+
+  - platform: template
+    sensors:
+      large_garage_status:
+        friendly_name: 'State of the door'
+        value_template: '{{ states.cover.large_garage.state }}'
+      large_garage_time_in_state:
+        friendly_name: 'Time Since Change'
+        value_template: '{{ states.cover.large_garage.attributes["time_in_state"] }}'
+      large_garage_wifi_signal_strength:
+        friendly_name: 'WiFi strength'
+        value_template: '{{ states.cover.large_garage.attributes["wifi_signal_strength"] }}'
+        unit_of_measurement: 'dB'
+      large_garage_reflection_rate:
+        friendly_name: 'Reflection Rate'
+        value_template: '{{ states.cover.large_garage.attributes["sensor_reflection_rate"] }}'
+
+  - platform: mqtt
+    name: 'Large Garage Brightness'
+    state_topic: 'garadget/Garadget Large/status'
+    unit_of_measurement: '%'
+    value_template: '{{ value_json.bright }}'
+    
+group:
+  garage_doors:
+    name: Garage doors
+    entities:
+      - cover.large_garage
+      - sensor.large_garage_status
+      - sensor.large_garage_time_in_state
+      - sensor.large_garage_wifi_signal_strength
+      - sensor.large_garage_reflection_rate
+      - sensor.large_garage_brightness
+      - cover.small_garage
+      - sensor.small_garage_status
+      - sensor.small_garage_time_in_state
+      - sensor.small_garage_wifi_signal_strength
+      - sensor.small_garage_reflection_rate
+      - sensor.small_garage_brightness
+
+automation:
+  - alias: 'Update Garage Brightness'
+    trigger:
+      - platform: time
+        minutes: '/2'
+        seconds: 00
+    action:
+      - service: mqtt.publish
+        data:
+          topic: "garadget/Garadget Small/command"
+          payload: "get-status"
+      - service: mqtt.publish
+        data:
+          topic: "garadget/Garadget Large/command"
+          payload: "get-status"

@@ -15,3 +15,13 @@
 
     - service: light.turn_off
       entity_id: group.hallway_lights
+
+    - service: mqtt.publish
+      data:
+        topic: "garadget/Garadget Small/command"
+        payload: "get-status"
+
+    - service: mqtt.publish
+      data:
+        topic: "garadget/Garadget Large/command"
+        payload: "get-status"
