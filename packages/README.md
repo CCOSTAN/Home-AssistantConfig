@@ -21,6 +21,10 @@ I have put 2 [GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S) conneted to
 You can find my [Nest protects](http://amzn.to/2poqKhu) write up [here](http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html).
 ![Screenshot of Protects](https://i.imgur.com/hUAaIiF.png) and thermostats [here](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
 
+<td>
+<tr>
+<a href="https://www.amazon.com/Nest-Protect-Carbon-Monoxide-Generation/dp/B00XV1RD0K/ref=as_li_ss_il?s=hi&ie=UTF8&qid=1519154145&sr=1-4&keywords=nest+protect&linkCode=li1&tag=vmw0a-20&linkId=7002d3f6bb9c7680a653a1658a89d453" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00XV1RD0K&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00XV1RD0K" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></tr></td>
+
 **Neato Vacuum**
 I can control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
 ![Screenshot of D7 Vacuum](https://i.imgur.com/jLikEk6.png)
