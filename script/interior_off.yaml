@@ -14,3 +14,5 @@ interior_off:
     - service: media_player.turn_off
       entity_id:
         - group.media_players
+    - service: ifttt.trigger
+      data_template: {"event":"noon_off"}
