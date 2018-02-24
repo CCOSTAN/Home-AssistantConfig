@@ -1,10 +1,7 @@
 # [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
-[Home Assistant](https://home-assistant.io/) configuration files (YAMLs)
 
 Be sure to :star: my repo so you can keep up to date on the daily progress!
-
 You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).
-
 You can follow my home's breaking news and tweet statistics via twitter  [BearStoneHA](https://twitter.com/bearstoneha)
 
 ![Screenshot of Home Assistant Header](https://i.imgur.com/vjDH1LJ.png)
@@ -12,13 +9,6 @@ You can follow my home's breaking news and tweet statistics via twitter  [BearSt
  As of 2018, I have migrated everything to a Docker based platform.  You can read all about it here:
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
 ---
-
-|Battery Backups -[Blog](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)|
-|:---:|
-|UPS number 1|UPS Number 2|UPS Number 3|
-|:---:|:---:|:---:|
-|<a href="https://www.amazon.com/APC-Back-UPS-Battery-Protector-BE425M/dp/B01HDC236Q/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519445552&sr=1-2&keywords=apc+450&linkCode=li2&tag=vmw0a-20&linkId=efbdf7bdfad7bd607e099d34bd1f2688" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01HDC236Q&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />|
-
 **Software on the Docker Host :**
 * [Home Assistant](https://home-assistant.io/) ,
 * [Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
@@ -26,6 +16,16 @@ You can follow my home's breaking news and tweet statistics via twitter  [BearSt
 * [HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
 * Unifi controller to manage [APs](http://amzn.to/2mBSfE9)
+
+![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
+
+**Devices I have :**
+|Battery Backups -[Blog](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)|
+|:---:|
+|UPS number 1|UPS Number 2|UPS Number 3|
+|:---:|:---:|:---:|
+|<a href="https://www.amazon.com/APC-Back-UPS-Battery-Protector-BE425M/dp/B01HDC236Q/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519445552&sr=1-2&keywords=apc+450&linkCode=li2&tag=vmw0a-20&linkId=efbdf7bdfad7bd607e099d34bd1f2688" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01HDC236Q&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />|
+
 
 **Devices I have :**
 * [Ubiquiti Networks Unifi 802.11ac Pro](http://amzn.to/2mBSfE9) This keeps me warm with it's Wifi rays blanketing the house. Also used as a presence Tracker for iPhones/People.
@@ -110,7 +110,6 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 #Todo List
 I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github.
 Feel free to join the conversations there.
-![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 ![Screenshot of Alarm Clock View](https://i.imgur.com/mLMrky1.jpg)
 ![Screenshot of Alarm View](https://i.imgur.com/nad2gq0.png)
 
