@@ -1,21 +1,22 @@
 # [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
 
-Be sure to :star: my repo so you can keep up to date on the daily progress!
-You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).
-You can follow my home's breaking news and tweet statistics via twitter  [BearStoneHA](https://twitter.com/bearstoneha)
+Be sure to :star: my repo so you can keep up to date on the daily progress!</br>
+You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).</br>
+You can follow my home's breaking news and tweet statistics via twitter [@BearStoneHA](https://twitter.com/bearstoneha) or [Facebook/BearStoneHA](https://www.facebook.com/BearStoneHA)</br>
 
 ![Screenshot of Home Assistant Header](https://i.imgur.com/vjDH1LJ.png)
 
- As of 2018, I have migrated everything to a Docker based platform.  You can read all about it here:
+As of 2018, I have migrated everything to a Docker based platform.  You can read all about it here:
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
----
-**Software on the Docker Host :**
-* [Home Assistant](https://home-assistant.io/) ,
-* [Dasher](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
-* SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
-* [HomeBridge](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
+<hr>
+**Notable Software on my Laptop Host :**
+* [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
+* [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
-* Unifi controller to manage [APs](http://amzn.to/2mBSfE9)
+* SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
+* [Dasher Container](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
+* [HomeBridge Container](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
+* Unifi controller Container to manage [APs](http://amzn.to/2mBSfE9)
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 
