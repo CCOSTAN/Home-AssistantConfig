@@ -9,6 +9,7 @@ You can follow my home's breaking news and tweet statistics via twitter [@BearSt
 As of 2018, I have migrated everything to a Docker based platform.  You can read all about it here:
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
 <hr>
+
 **Notable Software on my Laptop Host :**
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
