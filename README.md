@@ -43,7 +43,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 <tr><td colspan="3">
 There aren't really automations for the Batteries yet.  Electricity is the life blood for the house and only really the Tesla Battery has smarts so maybe in the future, you'll see a Powerwall automation in this space.</td></tr>
 
-<tr><td colspan="3">
+<tr><td colspan="4">
 
 **Networking**
 </td></tr>
@@ -55,11 +55,15 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 [Ubiquiti Networks Unifi 802.11ac Lite](http://amzn.to/2mBSfE9)
 </td><td align="center">
 
+[NetGear 16 Port unmanaged Switch](http://amzn.to/2GJwyIb)
+</td><td align="center">
+
 [Circle by Disney](http://amzn.to/2eAgaA6)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/Ubiquiti-Networks-802-11ac-Dual-Radio-UAP-AC-PRO-US/dp/B015PRO512/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519453280&sr=1-1&keywords=unifi+ac+pro&linkCode=li1&tag=vmw0a-20&linkId=a51eb66ad64455d857f9b50cd7ffb796" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B015PRO512&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B015PRO512" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Ubiquiti-Unifi-Ap-AC-Lite-UAPACLITEUS/dp/B015PR20GY/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519453311&sr=1-1&keywords=unifi+ac+lite&linkCode=li1&tag=vmw0a-20&linkId=9e888012791a02c582fe8f42bb9b7246" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B015PR20GY&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B015PR20GY" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/NETGEAR-Ethernet-Unmanaged-Lifetime-Protection/dp/B01AX8XHRQ/ref=as_li_ss_il?ie=UTF8&qid=1519509807&sr=8-3&keywords=16+port+gigabit+switch&th=1&linkCode=li1&tag=vmw0a-20&linkId=63c057df0c463d473e2466490e93f5a8" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01AX8XHRQ&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01AX8XHRQ" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Circle-Disney-Parental-Controls-Connected/dp/B019RC1EI8/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519453110&sr=1-1-spons&keywords=circle+disney&psc=1&linkCode=li2&tag=vmw0a-20&linkId=8bfecf20fdfee716f0e0c43a2f4becbd" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B019RC1EI8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B019RC1EI8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
-<tr><td colspan="3">
+<tr><td colspan="4">
 
 Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses 'NMAP' for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.</td></tr>
 
