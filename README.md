@@ -22,8 +22,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 
 **Devices I have:**
-<table><tr><td colspan="3">
-
+<table align="center" border=0><tr><td colspan="3">
 Battery Backups -[Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
 </td></tr>
 <tr><td>
