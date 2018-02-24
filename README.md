@@ -60,7 +60,8 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 </td><td align="center"><a href="https://www.amazon.com/Ubiquiti-Unifi-Ap-AC-Lite-UAPACLITEUS/dp/B015PR20GY/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519453311&sr=1-1&keywords=unifi+ac+lite&linkCode=li1&tag=vmw0a-20&linkId=9e888012791a02c582fe8f42bb9b7246" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B015PR20GY&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B015PR20GY" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Circle-Disney-Parental-Controls-Connected/dp/B019RC1EI8/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519453110&sr=1-1-spons&keywords=circle+disney&psc=1&linkCode=li2&tag=vmw0a-20&linkId=8bfecf20fdfee716f0e0c43a2f4becbd" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B019RC1EI8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B019RC1EI8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="3">
-Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses NMAP for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.</td></tr>
+
+Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses 'NMAP' for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.</td></tr>
 
 <tr><td colspan="4">
 
@@ -122,24 +123,52 @@ Handy Automations:
 We also leverage the Fire Tablets as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.
 </td></tr>
 
+<tr><td colspan="4">
+
+**Nest Products and SleepIQ** - [Thermostat Blog post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
+</td></tr>
+<tr><td align="center">
+
+[Nest Thermostats](http://amzn.to/2eAhB1k)
+</td><td align="center">
+
+[Nest Protects](http://amzn.to/2poqKhu)
+</td><td align="center">
+
+[Withings](http://amzn.to/2kr78nW)
+</td><td align="center">
+
+[SleepNumber Bed i8](http://amzn.to/2kxdXXI)</td></tr>
+<tr><td align="center"><a href="https://www.amazon.com/gp/product/B0131RG6VK/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=cdcad716f0b691a5834b32f2a0cf6fa3" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0131RG6VK&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0131RG6VK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Nest-Protect-smoke-carbon-monoxide/dp/B00XV1RD0K/ref=as_li_ss_il?s=hi&ie=UTF8&qid=1493663203&sr=1-1&keywords=nest+protect&linkCode=li1&tag=vmw0a-20&linkId=f0092afb267bf40d55e38596ea352e09" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00XV1RD0K&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00XV1RD0K" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Personal-Comfort-A8-Bed-Number/dp/B00CHSOZZO/ref=as_li_ss_il?ie=UTF8&qid=1486673583&sr=8-3&keywords=sleep+number+bed+i8&linkCode=li1&tag=vmw0a-20&linkId=f1f1d759913d1767734a12c7cddeaa32" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00CHSOZZO&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00CHSOZZO" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Withings-Body-Composition-Wi-Fi-Scale/dp/B01F3LJ2RW/ref=as_li_ss_il?ie=UTF8&qid=1486665271&sr=8-2&keywords=withings+scale&th=1&linkCode=li1&tag=vmw0a-20&linkId=6e239a882226db5a94b4194249d13d2f" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01F3LJ2RW&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01F3LJ2RW" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+<tr><td colspan="4">
+
+This group of devices is basically for additional presence control.  The Nest thermostats and Protects basically run themselves.  The thermostat 'away' mode triggers my away scripts which turn items off.  The Protects are SOLID [smoke detectors](http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html).  They really came in handy during [Irma](http://www.vmwareinfo.com/2017/09/smart-home-lessons-from-hurricane-irma.html).  The SleepIQ bed adds to my presence detection.  It will notify HA if either side of the bed is occupied.  More controls are coming but I use this extensively. The WiThings scale also triggers morning and goodnight routines depending on when I step on it during the day.</br>
+Handy Automations:
+* Turn off lights when Nest Thermostats detects we are away. (Upstairs and Downstairs)
+* Turn on Upstairs lights if Nest Thermostats detects people and it's nighttime.
+* (IFTTT) Trigger Good Night routine when I step on the Withings scale after 10pm.
+* Turn on bathroom accent lights when either of us steps out of bed at night. Turns them back off when we are back in bed.
+* Turn off all interior lights when the last person gets into bed.
+* Silence all Voice notifications if anyone is in bed.  Redirect to Fire Tablets.
+
+</td></tr>
 </table>
 </p>
 
 
 
 **Devices I have:** LEGACY SECTION being migrated up.
-* [Nest Thermostats](http://amzn.to/2eAhB1k) - Smart Thermostat - [Blog Post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
-* [Nest Protects](http://amzn.to/2poqKhu) - Smart Smoke Detectors - [Blog Post](http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
-* - Used for [Wall Mounted Controllers](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)
 * [Wink Hub](http://amzn.to/2orGEWo) - Used to connect certain Zwave outlets etc.
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * Mixture of [Hue Colored lights](http://amzn.to/2l2viGK), [White Lights](http://amzn.to/2lEf4Xq) and GE Link bulbs.
 * [Hue Go](http://amzn.to/2iB36Ii) - Great lights for the kids since they have an actual button on them for control.
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
 * [GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S) - These control my Landscape lighting and connect up to my Wink.
-* [Withings](http://amzn.to/2kr78nW) - Smart Weight scale
 * [SkyBell HD](http://amzn.to/2dcexIB)
 * [Rokus](http://amzn.to/2dpn89c) for all streaming
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
@@ -151,12 +180,10 @@ We also leverage the Fire Tablets as TTS endpoints.  During certain times of the
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * [Nintendo Wii](http://amzn.to/2l2qIYY)
-* Home Assistant Cloud Component pushes all Switch, Group, input_boolean, script and scene information to Alexa for First Class Control!
 * [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)!
 * [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2mnmbk8) - [Outdoor Housing](http://amzn.to/2m2dG0X) - Finished Product [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71) - [Blog Post](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)
 * [Phyn Smart Water Main ShutOff/Leak Detector] (http://www.phyn.com/) - Beta test to monitor Water usage and Leaks centrally.
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
-* [SleepNumber Bed i8](http://amzn.to/2kxdXXI) - Has SleepIQ to track occupancy and sleep habits.  Tied into HA.
 * [MX8 Zodiac Pool Robot](http://amzn.to/2nAGvPf) - Not YET hooked up HA, but working on it.
 * [Pi Zero](http://amzn.to/2ougZQ3) with [Wireless Nub](http://amzn.to/2q38rg4) running Pi-Hole and smacking down internet ads left and right!
 * [NodeMCU Development Boards](http://amzn.to/2ou0NON) hooked into the alarm system wires for [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html). - [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)
@@ -175,8 +202,6 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
 * Turn on Hallway light for no more than 20 minutes when Pantry door is opened.
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
-* Turn on Upstairs light if [Nest Thermostats](http://amzn.to/2eAhB1k) detects people and it's nighttime.
-* Turn off lights when [Nest Thermostats](http://amzn.to/2eAhB1k) detects we are away. (Upstairs and Downstairs)
 * Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Rainy days trigger extra light inside the house.
@@ -189,7 +214,6 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH.
 * (IFTTT) Add a 1 day rain delay to [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if it is going to rain tomorrow.
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
-* (IFTTT) Trigger Good Night routine when I step on the [Withings](http://amzn.to/2kr78nW) scale after 10pm.
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
