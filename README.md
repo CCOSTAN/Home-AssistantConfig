@@ -115,8 +115,10 @@ Handy automations include:
 
 Mobile devices are a critical part of my Home Automation.  They establish presence in the house and are the basis for many automations.  Home? Turn on the lights.  Leave? Turn them all off kind of thing.  The Tablets are for the awesome FloorPlan that you see in the images.  We have 2 in the house mounted for quick consumption of all the HA data in a glance.</br>
 Handy Automations:
-* IFTTT and IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DNS.
+* IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DNS.
 * Turn on certain lights and switches when we get home.  Turn off most interior lights when we leave the house.
+* Reminders to take my medicine sent as IOS notifications ONLY when I arrive back home for the night.
+
 We also leverage the Fire Tablets as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.
 </td></tr>
 
