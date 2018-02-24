@@ -26,7 +26,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 <table align="center" border=0>
 <tr><td colspan="3">
 
-**Battery Backups** - [Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
+**Battery Backups** - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
 </td></tr>
 <tr><td align="center">
 
@@ -65,7 +65,7 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 
 <tr><td colspan="4">
 
-**Alexa Echo Devices** - [Blog Post](http://www.vmwareinfo.com/2017/09/new-alexa-goodies-announced.html)
+**Alexa Echo Devices** - [Alexa Device Blog Post](http://www.vmwareinfo.com/2017/09/new-alexa-goodies-announced.html)
 </td></tr>
 <tr><td align="center">
 
@@ -125,7 +125,7 @@ We also leverage the Fire Tablets as TTS endpoints.  During certain times of the
 
 <tr><td colspan="4">
 
-**Nest Products and SleepIQ** - [Thermostat Blog post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
+**Nest Products and SleepIQ** - [Thermostat Basics Blog post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
 </td></tr>
 <tr><td align="center">
 
@@ -135,10 +135,10 @@ We also leverage the Fire Tablets as TTS endpoints.  During certain times of the
 [Nest Protects](http://amzn.to/2poqKhu)
 </td><td align="center">
 
-[Withings](http://amzn.to/2kr78nW)
+[SleepNumber Bed i8](http://amzn.to/2kxdXXI)
 </td><td align="center">
 
-[SleepNumber Bed i8](http://amzn.to/2kxdXXI)</td></tr>
+[Withings](http://amzn.to/2kr78nW)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B0131RG6VK/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=cdcad716f0b691a5834b32f2a0cf6fa3" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0131RG6VK&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0131RG6VK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Nest-Protect-smoke-carbon-monoxide/dp/B00XV1RD0K/ref=as_li_ss_il?s=hi&ie=UTF8&qid=1493663203&sr=1-1&keywords=nest+protect&linkCode=li1&tag=vmw0a-20&linkId=f0092afb267bf40d55e38596ea352e09" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00XV1RD0K&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00XV1RD0K" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Personal-Comfort-A8-Bed-Number/dp/B00CHSOZZO/ref=as_li_ss_il?ie=UTF8&qid=1486673583&sr=8-3&keywords=sleep+number+bed+i8&linkCode=li1&tag=vmw0a-20&linkId=f1f1d759913d1767734a12c7cddeaa32" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00CHSOZZO&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00CHSOZZO" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -153,6 +153,40 @@ Handy Automations:
 * Turn on bathroom accent lights when either of us steps out of bed at night. Turns them back off when we are back in bed.
 * Turn off all interior lights when the last person gets into bed.
 * Silence all Voice notifications if anyone is in bed.  Redirect to Fire Tablets.
+
+</td></tr>
+
+<tr><td colspan="4">
+
+**Voice Notifications** - [Giving Voice to the Smart Home Blog Post](http://www.vmwareinfo.com/2017/07/giving-voice-to-smart-home.html)
+</td></tr>
+<tr><td align="center">
+
+[ChromeCast Audios](http://amzn.to/2EO8Gqt)
+</td><td align="center">
+
+[AMPs](http://amzn.to/2j18dlT)
+</td><td align="center">
+
+[Mixer](http://amzn.to/2v9Zp3x)
+</td><td align="center">
+
+[TP-Link Smart Plug](http://amzn.to/2EQS3e0)</td></tr>
+
+<tr><td align="center"><a href="http://amzn.to/2EO8Gqt" target="_blank"><img border="0" src="https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4532/4532100_sd.jpg;maxHeight=240;maxWidth=250" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0131RG6VK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Kinter-MA-180-Computer-Amplifier-Charging/dp/B006AMF2R8/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B006AMF2R8&pd_rd_r=7YM4TST4HMXQK46KH4F6&pd_rd_w=v8lnG&pd_rd_wg=QJNYk&psc=1&refRID=7YM4TST4HMXQK46KH4F6&linkCode=li1&tag=vmw0a-20&linkId=0620a70d225103fcbce65b56d3c60304" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B006AMF2R8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B006AMF2R8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B0002BG2S6/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=661b1661a02cc502753e56f7062754c4" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0002BG2S6&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0002BG2S6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/TP-Link-Required-Assistant-Certified-Refurbished/dp/B076TVG9LN/ref=as_li_ss_il?s=hi&ie=UTF8&qid=1519508426&sr=1-9&keywords=tp+link+smart+plug&linkCode=li1&tag=vmw0a-20&linkId=434c37cfb04765acf0f73d4bc08b2acd" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B076TVG9LN&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B076TVG9LN" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />></td></tr>
+<tr><td colspan="4">
+
+To me, Voice is the coolest part of the smart home.  It gives it personality.  It's something not just anyone has and helps your house stand apart from the pack.  I use the [Amazon Polly TTS](https://home-assistant.io/components/tts/) component since it sounds the closest to Alexa.  This gives a seemless transition from Alexa to Home Assistant responding.  Most think it is just one system.  The mixer allows TTS to mix right in over Music.  The TP-Link Outlet  is used to turn off the Mixer and AMP when we do not need it.  It's a great inexpensive solution.</br>
+Handy Automations:
+* Turn off all the voice devices when we are not home or in bed.
+* All voice notifications are pushed though a speech engine.  Random words and sentances are used to give the house some personality.
+* Voice announcements whenever someone comes home.
+* Voice notifications for all sorts of things related to the house.  (Temps, presence, doors open, windows open, garage door statuses, sunset.)
+
+Once you can teach your house to talk, you just keep expanding on it's vocabulary. It's addicting. :) 
 
 </td></tr>
 </table>
@@ -172,10 +206,6 @@ Handy Automations:
 * [SkyBell HD](http://amzn.to/2dcexIB)
 * [Rokus](http://amzn.to/2dpn89c) for all streaming
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
-* [ChromeCast Audios](http://amzn.to/2lE9gNu)
-* [AMPs](http://amzn.to/2j18dlT) - These are cheap but effective for the Dots, Chromecasts or other speakers.
-* [Mixer](http://amzn.to/2v9Zp3x) - This allows me to mix in DOT, music and HA. [Blog Post](http://www.vmwareinfo.com/2017/07/giving-voice-to-smart-home.html)
-* [Etekcity Outlets](http://amzn.to/2efNoBP) - Cheap 6 Buck RF outlet control!
 * [RM Pro by Broadlink](http://amzn.to/2z6IZtH) - Cheap control over the above Outlets - Plus Infared Controls.
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
@@ -194,7 +224,6 @@ Handy Automations:
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
 **Automations:** LEGACY SECTION being migrated up.
-* Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios and [Mixer](http://amzn.to/2v9Zp3x).  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
 * Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Notifications when the garage door is left open at night or when we leave the house.
 * (IFTTT) Logging entries in Logbooks for [Rachio Sprinkler system](http://amzn.to/2eoPKBW), and [SkyBell HD](http://amzn.to/2dcexIB).
@@ -208,7 +237,6 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * Check the UV Rays for the day and let us know if we need sun tan lotion over the TTS system.
 * Detects when lights are turned on and adjusts them to correct brightness based on time of day.
 * Leverage Alexa, IFTTT and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
-* Turn on [AMPs](http://amzn.to/2j18dlT) when Chromecast reports 'Playing'.  Turn them off when we are done streaming music.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH.
