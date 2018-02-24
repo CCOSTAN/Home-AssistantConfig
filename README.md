@@ -28,13 +28,13 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 **Battery Backups** - [Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
 </td></tr>
-<tr><td>
+<tr><td align="center">
 
 [3 Prong UPS](http://amzn.to/2HJerU8)
-</td><td>
+</td><td align="center">
 
 [2 Prong UPS](http://amzn.to/2CijVG3)
-</td><td>
+</td><td align="center">
 
 [Tesla Powerwall 2](http://www.vmwareinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/APC-Back-UPS-Battery-Protector-BE425M/dp/B01HDC236Q/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519445552&sr=1-2&keywords=apc+450&linkCode=li2&tag=vmw0a-20&linkId=efbdf7bdfad7bd607e099d34bd1f2688" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01HDC236Q&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -47,13 +47,13 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 
 **Networking**
 </td></tr>
-<tr><td>
+<tr><td align="center">
 
 [Ubiquiti Networks Unifi 802.11ac Pro](http://amzn.to/2mBSfE9)
-</td><td>
+</td><td align="center">
 
 [Ubiquiti Networks Unifi 802.11ac Lite](http://amzn.to/2mBSfE9)
-</td><td>
+</td><td align="center">
 
 [Circle by Disney](http://amzn.to/2eAgaA6)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/Ubiquiti-Networks-802-11ac-Dual-Radio-UAP-AC-PRO-US/dp/B015PRO512/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519453280&sr=1-1&keywords=unifi+ac+pro&linkCode=li1&tag=vmw0a-20&linkId=a51eb66ad64455d857f9b50cd7ffb796" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B015PRO512&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B015PRO512" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -66,16 +66,16 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 
 **Alexa Echo Devices** - [Blog Post](http://www.vmwareinfo.com/2017/09/new-alexa-goodies-announced.html)
 </td></tr>
-<tr><td>
+<tr><td align="center">
 
 [Amazon Echo](http://amzn.to/2dSVbK4)
-</td><td>
+</td><td align="center">
 
 [Amazon Echo DOT](http://amzn.to/2e3vHFQ)
-</td><td>
+</td><td align="center">
 
 [Amazon Echo Tap](http://amzn.to/2sz891k)
-</td><td>
+</td><td align="center">
 
 [Amazon Dash Wand](https://www.amazon.com/Amazon-Dash-Wand-With-Alexa/dp/B01MQMJFDK/ref=sr_1_1_a_it?ie=UTF8&qid=1498928735&sr=8-1&keywords=dash+wand)
 </td></tr>
