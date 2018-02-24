@@ -9,12 +9,16 @@ You can follow my home's breaking news and tweet statistics via twitter  [BearSt
 
 ![Screenshot of Home Assistant Header](https://i.imgur.com/vjDH1LJ.png)
 
-~~This is my Home Assistant Configuration created with the All In One installer [expanded to 16GB.](https://community.home-assistant.io/t/expanding-partition-on-sd-card-for-raspberry-pi-with-noobs-pre-installed/2036)--  I update it pretty regularly. :star:
-Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0). I've also added a [433Mhz Transmitter and receiver](http://amzn.to/2dceNY2).  The main [SD Card](http://amzn.to/2xeBlgf) was upgraded to 16GB. (Order 2! - 1 for backup)
-I use an [SD Card reader](http://amzn.to/2l2w9as) to swap SD cards between Pi and Windows for backups.~~
-
 As of 2018, I have migrated everything to a Docker based platform.  You can read all about it here:
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
+
+<table>
+<tr><td> Battery Backups -[Blog](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html) </td></tr>
+  <tr>
+    <td><iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ss&ref=as_ss_li_til&ad_type=product_link&tracking_id=vmw0a-20&marketplace=amazon&region=US&placement=B00KH07WRC&asins=B00KH07WRC&linkId=d63386010fc0925a1f143d0be2fd58b1&show_border=true&link_opens_in_new_window=true"></iframe></td>
+    <td><iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="//ws-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&OneJS=1&Operation=GetAdHtml&MarketPlace=US&source=ss&ref=as_ss_li_til&ad_type=product_link&tracking_id=vmw0a-20&marketplace=amazon&region=US&placement=B01HDC236Q&asins=B01HDC236Q&linkId=094a8592ee2388816c4a3f2dc4349378&show_border=true&link_opens_in_new_window=true"></iframe></td>
+    <td><iframe style="width:120px;height:240px;" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" src="https://lh3.googleusercontent.com/-V8NMHkiKFIY/Wkgpf7T-WDI/AAAAAAADihs/fp5yNzjrQ5sKgFkafXhllLYsD7yM3tGBgCHMYCw/image_thumb5?imgmax=800"></iframe></td>
+  </tr>
 
 **Software on the Docker Host :**
 * [Home Assistant](https://home-assistant.io/) ,
