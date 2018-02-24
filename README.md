@@ -87,11 +87,36 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 
 <tr><td colspan="4">
 
-The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing [Whole House Music](http://www.vmwareinfo.com/2017/08/multi-room-audio-for-echo-its-finally.html) are where Echoes excel!  The Wand is pool side for quick commands and controlling the music if need be.
+The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing [Whole House Music](http://www.vmwareinfo.com/2017/08/multi-room-audio-for-echo-its-finally.html) are where Echoes excel!  The Wand is pool side for quick commands and controlling the music if need be.</br>
 Handy automations include:
 * Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
+* Guest mode to disable certain interior automations. Trigger via Alexa. 'Alexa, Turn on Guest Mode.'
 * Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
 * Context aware lighting control. - Read about it here: [Blog Post](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
+</td></tr>
+
+<tr><td colspan="3">
+
+**Mobile Devices and Tablets** - [FloorPlan Blog post](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)
+</td></tr>
+<tr><td align="center">
+
+[iPads](http://amzn.to/2l2qyRb)
+</td><td align="center">
+
+[iPhones](http://amzn.to/2l9Yoq9)
+</td><td align="center">
+
+[Amazon Fire Tablets Gen 7](http://amzn.to/2tqlMCW)</td></tr>
+<tr><td align="center"><a href="https://www.amazon.com/Apple-MH182LL-9-7-Inch-Retina-Display/dp/B00OTWPEBK/ref=as_li_ss_il?s=pc&rps=1&ie=UTF8&qid=1487044765&sr=1-3&keywords=ipad&refinements=p_89:Apple,p_85:2470955011,p_n_condition-type:2224371011&linkCode=li1&tag=vmw0a-20&linkId=d4e62510b64106355f3788ea04bff8a0" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00OTWPEBK&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00OTWPEBK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Apple-iPhone-Plus-Unlocked-16GB/dp/B00YD54J8W/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519496432&sr=1-2&keywords=iphone+6s+plus&linkCode=li1&tag=vmw0a-20&linkId=a6a638b1381a5f06fbdfa68803b85bc0" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00YD54J8W&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00YD54J8W" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B01GEW27DA/ref=as_li_ss_il?pf_rd_m=ATVPDKIKX0DER&pf_rd_s=merchandised-search-3&pf_rd_r=KD86VCJHSV0EMS5CE9X0&pf_rd_t=101&pf_rd_p=fd2d9d15-ec29-430a-9a27-8452e7595935&pf_rd_i=6669703011&linkCode=li1&tag=vmw0a-20&linkId=d8f65714966098710f7f53ac7d14e2d7" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01GEW27DA&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GEW27DA" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+<tr><td colspan="3">
+Mobile devices are a critical part of my Home Automation.  They establish presence in the house and are the basis for many automations.  Home? Turn on the lights.  Leave? Turn them all off kind of thing.  The Tablets are for the awesome FloorPlan that you see in the images.  We have 2 in the house mounted for quick consumption of all the HA data in a glance.</br>
+Handy Automations:
+* IFTTT and IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DNS.
+* Turn on certain lights and switches when we get home.  Turn off most interior lights when we leave the house.
+We also leverage the Fire Tablets as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.
 </td></tr>
 
 </table>
@@ -100,14 +125,11 @@ Handy automations include:
 
 
 **Devices I have:**
-* Lots of iOS Devices ([iPads](http://amzn.to/2l2qyRb), iPods, [iPhones](http://amzn.to/2l9Yoq9))
 * [Nest Thermostats](http://amzn.to/2eAhB1k) - Smart Thermostat - [Blog Post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
 * [Nest Protects](http://amzn.to/2poqKhu) - Smart Smoke Detectors - [Blog Post](http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)
-
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
-*  - Alexa outside by the pool area.
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
-* [Amazon Fire Tablets Gen 7](http://amzn.to/2tqlMCW)- Used for [Wall Mounted Controllers](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)
+* - Used for [Wall Mounted Controllers](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)
 * [Wink Hub](http://amzn.to/2orGEWo) - Used to connect certain Zwave outlets etc.
 * [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * Mixture of [Hue Colored lights](http://amzn.to/2l2viGK), [White Lights](http://amzn.to/2lEf4Xq) and GE Link bulbs.
@@ -144,8 +166,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 **Automations:**
 * Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios and [Mixer](http://amzn.to/2v9Zp3x).  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
 
-* Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
-* IFTTT and IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
+.
 * Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Notifications when the garage door is left open at night or when we leave the house.
 * (IFTTT) Logging entries in Logbooks for [Rachio Sprinkler system](http://amzn.to/2eoPKBW), and [SkyBell HD](http://amzn.to/2dcexIB).
@@ -155,7 +176,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Turn on Upstairs light if [Nest Thermostats](http://amzn.to/2eAhB1k) detects people and it's nighttime.
 * Turn off lights when [Nest Thermostats](http://amzn.to/2eAhB1k) detects we are away. (Upstairs and Downstairs)
-* Turn on some lights and switches when we get home
+
 * Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Rainy days trigger extra light inside the house.
