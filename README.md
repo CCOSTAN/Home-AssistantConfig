@@ -75,7 +75,7 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 </td><td>
 
 [Amazon Echo Tap](http://amzn.to/2sz891k)
-</td></tr>
+</td><td>
 
 [Amazon Dash Wand](https://www.amazon.com/Amazon-Dash-Wand-With-Alexa/dp/B01MQMJFDK/ref=sr_1_1_a_it?ie=UTF8&qid=1498928735&sr=8-1&keywords=dash+wand)
 </td></tr>
@@ -86,9 +86,12 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 </td><td><a href="https://www.amazon.com/Amazon-Dash-Wand-With-Alexa/dp/B01MQMJFDK/ref=sr_1_1_a_it?ie=UTF8&qid=1498928735&sr=8-1&keywords=dash+wand" target="_blank"><img border="0" src="https://images-na.ssl-images-amazon.com/images/I/41YvRl%2B4zXL.jpg" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B019RC1EI8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 
 <tr><td colspan="4">
-The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing Whole House Music are where Echoes excel.  The Wand is pool side for quick commands and controlling the music if need be.
 
-Another really nice feature of the Echoes is context aware lighting control. - Read abotu it here: [Blog](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
+The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing [Whole House Music](http://www.vmwareinfo.com/2017/08/multi-room-audio-for-echo-its-finally.html) are where Echoes excel!  The Wand is pool side for quick commands and controlling the music if need be.
+Handy automations include:
+* Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
+* Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
+* Context aware lighting control. - Read about it here: [Blog Post](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
 </td></tr>
 
 </table>
@@ -140,8 +143,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 
 **Automations:**
 * Voice Notifications via the [AMPs](http://amzn.to/2j18dlT) connected to ChromeCast Audios and [Mixer](http://amzn.to/2v9Zp3x).  Accomplished via the [~~Google~~ Amazon Polly TTS](https://home-assistant.io/components/tts/) component.
-* Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
-* Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
+
 * Guest mode to disable certain interior automations. Trigger via Alexa & IFTTT.
 * IFTTT and IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DSN.
 * Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
