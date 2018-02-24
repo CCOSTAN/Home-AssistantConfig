@@ -21,7 +21,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 
-**Devices I have:**
+**Devices I have in no particular order:**
 <p align="center">
 <table align="center" border=0>
 <tr><td colspan="3">
@@ -62,6 +62,35 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 <tr><td colspan="3">
 Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses NMAP for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.</td></tr>
 
+<tr><td colspan="4">
+
+**Alexa Echo Devices** - [Blog Post](http://www.vmwareinfo.com/2017/09/new-alexa-goodies-announced.html)
+</td></tr>
+<tr><td>
+
+[Amazon Echo](http://amzn.to/2dSVbK4)
+</td><td>
+
+[Amazon Echo DOT](http://amzn.to/2e3vHFQ)
+</td><td>
+
+[Amazon Echo Tap](http://amzn.to/2sz891k)
+</td></tr>
+
+[Amazon Dash Wand](https://www.amazon.com/Amazon-Dash-Wand-With-Alexa/dp/B01MQMJFDK/ref=sr_1_1_a_it?ie=UTF8&qid=1498928735&sr=8-1&keywords=dash+wand)
+</td></tr>
+
+<tr><td><a href="https://www.amazon.com/dp/B06XCM9LJ4/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=75fd6d904f7f8f9fadc5df5f58885070" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B06XCM9LJ4&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B06XCM9LJ4" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td><a href="https://www.amazon.com/dp/B01DFKC2SO/ref=as_li_ss_il?pf_rd_m=ATVPDKIKX0DER&pf_rd_p=3513574162&pd_rd_wg=GV26W&pf_rd_r=BF6FZAN507DHV9T9NH7N&pf_rd_s=desktop-rhs-carousels&pf_rd_t=301&pd_rd_i=B01DFKC2SO&pd_rd_w=B5QwO&pf_rd_i=echo+wand&pd_rd_r=43a86d85-1a06-44dc-8687-19f8ecdcb3f0&ie=UTF8&qid=1519494311&sr=1&linkCode=li1&tag=vmw0a-20&linkId=63be4bb6452239422fb0434d837aebb0" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01DFKC2SO&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01DFKC2SO" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td><a href="https://www.amazon.com/Amazon-Tap-Portable-Wireless-Bluetooth-Speaker-with-WiFi-Alexa/dp/B01BH83OOM/ref=as_li_ss_il?s=amazon-devices&ie=UTF8&qid=1519494386&sr=1-1&keywords=tap&linkCode=li1&tag=vmw0a-20&linkId=aa78f9e75ac6ba9569323d5ab0f890b0" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01BH83OOM&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01BH83OOM" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td><a href="https://www.amazon.com/Amazon-Dash-Wand-With-Alexa/dp/B01MQMJFDK/ref=sr_1_1_a_it?ie=UTF8&qid=1498928735&sr=8-1&keywords=dash+wand" target="_blank"><img border="0" src="https://images-na.ssl-images-amazon.com/images/I/41YvRl%2B4zXL.jpg" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B019RC1EI8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+
+<tr><td colspan="4">
+The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing Whole House Music are where Echoes excel.  The Wand is pool side for quick commands and controlling the music if need be.
+
+Another really nice feature of the Echoes is context aware lighting control. - Read abotu it here: [Blog](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
+</td></tr>
+
 </table>
 </p>
 
@@ -71,10 +100,9 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 * Lots of iOS Devices ([iPads](http://amzn.to/2l2qyRb), iPods, [iPhones](http://amzn.to/2l9Yoq9))
 * [Nest Thermostats](http://amzn.to/2eAhB1k) - Smart Thermostat - [Blog Post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
 * [Nest Protects](http://amzn.to/2poqKhu) - Smart Smoke Detectors - [Blog Post](http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)
-* [Amazon Echo](http://amzn.to/2dSVbK4) and [DOT](http://amzn.to/2e3vHFQ)
-* [Amazon Echo Tap](http://amzn.to/2sz891k)
+
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
-* [Amazon Dash Wand](https://www.amazon.com/Amazon-Dash-Wand-With-Alexa/dp/B01MQMJFDK/ref=sr_1_1_a_it?ie=UTF8&qid=1498928735&sr=8-1&keywords=dash+wand) - Alexa outside by the pool area.
+*  - Alexa outside by the pool area.
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
 * [Amazon Fire Tablets Gen 7](http://amzn.to/2tqlMCW)- Used for [Wall Mounted Controllers](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)
 * [Wink Hub](http://amzn.to/2orGEWo) - Used to connect certain Zwave outlets etc.
