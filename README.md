@@ -26,7 +26,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 <table align="center" border=0>
 <tr><td colspan="3">
 
-**Battery Backups** - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
+[**Battery Backups**](#battery) - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
 </td></tr>
 <tr><td align="center">
 
@@ -185,9 +185,42 @@ To me, Voice is the coolest part of the smart home.  It gives it personality.  I
 * All voice notifications are pushed though a speech engine.  Random words and sentances are used to give the house some personality.
 * Voice announcements whenever someone comes home.
 * Voice notifications for all sorts of things related to the house.  (Temps, presence, doors open, windows open, garage door statuses, sunset.)
+* Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.
 
 Once you can teach your house to talk, you just keep expanding on it's vocabulary. It's addicting. :)
+</td></tr>
 
+<tr><td colspan="4">
+
+**Various Hubs** - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)
+</td></tr>
+<tr><td align="center">
+
+[Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
+</td><td align="center">
+
+[Wink Hub](http://amzn.to/2orGEWo)
+</td><td align="center">
+
+[RM Pro by Broadlink](http://amzn.to/2z6IZtH)
+</td><td align="center">
+
+[NodeMCU Development Boards](http://amzn.to/2ou0NON)</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/gp/product/B016H0QZ7I/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=234a9104238b7189c169a7623239653c" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B016H0QZ7I&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B016H0QZ7I" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Wink-PWHUB-WH18-Connected-Home-Hub/dp/B00PV6GAI4/ref=as_li_ss_il?s=hi&ie=UTF8&qid=1492110362&sr=1-2&keywords=wink+hub&linkCode=li1&tag=vmw0a-20&linkId=96b7546e6151c2005994454bd51d8c47" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00PV6GAI4&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00PV6GAI4" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/BroadLink-Automation-Universal-Compatible-Smartphones/dp/B0742CXGHY/ref=as_li_ss_il?ie=UTF8&qid=1513802853&sr=8-1-spons&keywords=rm+pro&psc=1&linkCode=li1&tag=vmw0a-20&linkId=ffaddc7ae224eefefc32e0c8f27dce72" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0742CXGHY&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0742CXGHY" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B010O1G1ES/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=8f30ebb6868e9060be331dd297b75119" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B010O1G1ES&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B010O1G1ES" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+<tr><td colspan="4">
+
+The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights.  Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.  The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).
+* Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
+* Turn on Hallway light for no more than 20 minutes when Pantry door is opened.
+* Detects when lights are turned on and adjusts them to correct brightness based on time of day.
+* Shut down HVAC system if a Window or Door is left open for more than 5 minutes.
+* Play chime on all window and door open/closes.
+
+Think of the Hubs each as bridges for HA to talk to various hardware around the house.
 </td></tr>
 </table>
 </p>
@@ -197,8 +230,6 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 **Devices I have:** LEGACY SECTION being migrated up.
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
-* [Wink Hub](http://amzn.to/2orGEWo) - Used to connect certain Zwave outlets etc.
-* [Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 * Mixture of [Hue Colored lights](http://amzn.to/2l2viGK), [White Lights](http://amzn.to/2lEf4Xq) and GE Link bulbs.
 * [Hue Go](http://amzn.to/2iB36Ii) - Great lights for the kids since they have an actual button on them for control.
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
@@ -206,7 +237,6 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 * [SkyBell HD](http://amzn.to/2dcexIB)
 * [Rokus](http://amzn.to/2dpn89c) for all streaming
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
-* [RM Pro by Broadlink](http://amzn.to/2z6IZtH) - Cheap control over the above Outlets - Plus Infared Controls.
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * [Nintendo Wii](http://amzn.to/2l2qIYY)
@@ -216,7 +246,6 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
 * [MX8 Zodiac Pool Robot](http://amzn.to/2nAGvPf) - Not YET hooked up HA, but working on it.
 * [Pi Zero](http://amzn.to/2ougZQ3) with [Wireless Nub](http://amzn.to/2q38rg4) running Pi-Hole and smacking down internet ads left and right!
-* [NodeMCU Development Boards](http://amzn.to/2ou0NON) hooked into the alarm system wires for [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html). - [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)
 * [JuiceBox Pro 40 EVSE](http://amzn.to/2AIdSdx) - Used to Charge the Bolt EV.
 * [Chevy Bolt Electric Car](http://amzn.to/2DRP83a) - Monitor Charging status of Electric Vehicle.
 * [Epson ET-7700 Printer](http://amzn.to/2HaiBUK) - All Printing with HA monitored Ink levels.
@@ -227,16 +256,12 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Notifications when the garage door is left open at night or when we leave the house.
 * (IFTTT) Logging entries in Logbooks for [Rachio Sprinkler system](http://amzn.to/2eoPKBW), and [SkyBell HD](http://amzn.to/2dcexIB).
-* Auto Heal ZWave at 2:30am
-* Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
-* Turn on Hallway light for no more than 20 minutes when Pantry door is opened.
+* Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Rainy days trigger extra light inside the house.
 * Check the UV Rays for the day and let us know if we need sun tan lotion over the TTS system.
-* Detects when lights are turned on and adjusts them to correct brightness based on time of day.
-* Leverage Alexa, IFTTT and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH.
@@ -246,7 +271,6 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
 * Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
-* Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.  Plays across the whole house on my [ChromeCast Audios](http://amzn.to/2lE9gNu)
 
 #Todo List
 I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github.
