@@ -26,7 +26,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 <table align="center" border=0>
 <tr><td colspan="3">
 
-[**Battery Backups**](#battery) - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
+**Battery Backups** - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
 </td></tr>
 <tr><td align="center">
 
@@ -222,6 +222,37 @@ The Hubs help the home communicate across all the various protocols running in t
 
 Think of the Hubs each as bridges for HA to talk to various hardware around the house.
 </td></tr>
+
+
+<tr><td colspan="4">
+
+**Lights and Switches** - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)
+</td></tr>
+<tr><td align="center">
+
+[Hue Colored lights](http://amzn.to/2l2viGK)
+</td><td align="center">
+
+[GE Link Lightbulbs](http://amzn.to/2GJ66i5)
+</td><td align="center">
+
+[Hue Go](http://amzn.to/2iB36Ii)
+</td><td align="center">
+
+[Etekcity Outlets](http://amzn.to/2efNoBP)</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/Philips-464503-Generation-Richer-Android/dp/B01KJYSOHM/ref=as_li_ss_il?s=hi&ie=UTF8&qid=1487045409&sr=1-3&keywords=hue+a19&linkCode=li1&tag=vmw0a-20&linkId=a4c6acf8f2672a5ba341f731d377b724" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01KJYSOHM&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01KJYSOHM" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/GE-Starter-PLINK-SKIT-Wireless-Lighting/dp/B01GWF4RE6/ref=as_li_ss_il?ie=UTF8&qid=1519537605&sr=8-2-fkmr1&keywords=ge+link+bulb+br30&linkCode=li1&tag=vmw0a-20&linkId=b4e6f6acdca3db68322d0679fcc388b7" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01GWF4RE6&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GWF4RE6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Philips-Lighting-Works-Amazon-Alexa/dp/B014H2P53I/ref=as_li_ss_il?ie=UTF8&qid=1482862179&sr=8-1-spons&keywords=hue+go&psc=1&linkCode=li1&tag=vmw0a-20&linkId=4f9fd0d242273d079f661fa389b2eec1" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B014H2P53I&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B014H2P53I" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B00DQELHBS/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=2d11a4b4ee3994189b3136c3b5726e37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00DQELHBS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00DQELHBS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+<tr><td colspan="4">
+
+Almost all my lights are white GE Link lights.  I bought them early on before Hue came out with inexpensive white A19s.  Even Ikea has great lights now.  Colored lights are in the front sconces and also used in the living room.  The Go lights are specifically for the kids since they are both wireless and also have a button on them making them very tactile for kids.  The EtekCity outlets are the most inexpensive reliable outlets out there.  I have them deployed all over the house as accent lighting with some rope lights in most of the home's cut outs.
+* Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
+* Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
+* Turns living room lights 'red' when a Window or Door is opened past sunset.  Resets to yellow/gold when all dors/windows are closed.
+
+</td></tr>
 </table>
 </p>
 
@@ -230,8 +261,6 @@ Think of the Hubs each as bridges for HA to talk to various hardware around the 
 **Devices I have:** LEGACY SECTION being migrated up.
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
-* Mixture of [Hue Colored lights](http://amzn.to/2l2viGK), [White Lights](http://amzn.to/2lEf4Xq) and GE Link bulbs.
-* [Hue Go](http://amzn.to/2iB36Ii) - Great lights for the kids since they have an actual button on them for control.
 * [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
 * [GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S) - These control my Landscape lighting and connect up to my Wink.
 * [SkyBell HD](http://amzn.to/2dcexIB)
@@ -257,7 +286,6 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * Notifications when the garage door is left open at night or when we leave the house.
 * (IFTTT) Logging entries in Logbooks for [Rachio Sprinkler system](http://amzn.to/2eoPKBW), and [SkyBell HD](http://amzn.to/2dcexIB).
 * Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
-* Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Rainy days trigger extra light inside the house.
@@ -267,7 +295,6 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH.
 * (IFTTT) Add a 1 day rain delay to [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if it is going to rain tomorrow.
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
-* Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
 * Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
