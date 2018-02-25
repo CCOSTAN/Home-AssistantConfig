@@ -12,7 +12,12 @@
 ######################################################################################################
 
 notify_engine:
-   sequence:
+  sequence:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: input_boolean.text_notifications
+          state: 'on'
     # - service: ifttt.trigger
     #   data_template: {"event":"notify_engine", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
 

@@ -247,10 +247,10 @@ Think of the Hubs each as bridges for HA to talk to various hardware around the 
 </td><td align="center"><a href="https://www.amazon.com/gp/product/B00DQELHBS/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=2d11a4b4ee3994189b3136c3b5726e37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00DQELHBS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00DQELHBS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-Almost all my lights are white GE Link lights.  I bought them early on before Hue came out with inexpensive white A19s.  Even Ikea has great lights now.  Colored lights are in the front sconces and also used in the living room.  The Go lights are specifically for the kids since they are both wireless and also have a button on them making them very tactile for kids.  The EtekCity outlets are the most inexpensive reliable outlets out there.  I have them deployed all over the house as accent lighting with some rope lights in most of the home's cut outs.
+Almost all my lights (40+) are white GE Link lights.  I bought them early on before Hue came out with inexpensive white A19s.  Even Ikea has great lights now.  Colored lights are in the front sconces and also used in the living room.  The Go lights are specifically for the kids since they are both wireless and also have a button on them making them very tactile for kids.  The EtekCity outlets are the most inexpensive ($6) yet reliable outlets out there.  I have them deployed all over the house as accent lighting with some rope lights in most of the home's cut outs.
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
-* Turns living room lights 'red' when a Window or Door is opened past sunset.  Resets to yellow/gold when all dors/windows are closed.
+* Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all dors/windows are closed.
 
 </td></tr>
 </table>
