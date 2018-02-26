@@ -281,7 +281,37 @@ The great outdoors can be automated too!  Mainly lights but also the sprinkler s
 * (IFTTT) Add a 1 day rain delay to Rachio Sprinkler system if it is going to rain tomorrow also logged to MQTT.
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
 * Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior and backyardlights when we go to sleep.
+</td></tr>
 
+<tr><td colspan="4">
+
+#### Outdoor LED Accents - [DIY Blog Post](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71)
+</td></tr>
+<tr><td align="center">
+
+[LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE)
+</td><td align="center">
+
+[LED Strip kits](http://amzn.to/2gJYfZ5)
+</td><td align="center">
+
+[Aluminum light Diffusers](http://amzn.to/2CIId82)
+</td><td align="center">
+
+[Outdoor Housing](http://amzn.to/2m2dG0X)
+</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/SUPERNIGHT-Wireless-Controller-Working-Android/dp/B01JZ2SI6Q/ref=as_li_ss_il?_encoding=UTF8&psc=1&refRID=FX6BGFGVPYK6254PKDX6&linkCode=li1&tag=vmw0a-20&linkId=ac3510bace93a5f1c88e3e8b3f1e2b70" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01JZ2SI6Q&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01JZ2SI6Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B01CUILC3I/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=d57407e3dcacf7ce8c6df2b8ae652492" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01CUILC3I&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01CUILC3I" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/JIRVY-Aluminum-Installation-Diffuser-Mounting/dp/B01JZ5STLC/ref=as_li_ss_il?ie=UTF8&qid=1519665434&sr=8-5&keywords=led+strip+light+diffusers&linkCode=li1&tag=vmw0a-20&linkId=25ae2cc71aee64f53fbe03b53bbd0d06" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01JZ5STLC&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01JZ5STLC" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/E984f-Car-Conduit-Body-1-Rigid/dp/B000HEHGRY/ref=as_li_ss_il?s=car&ie=UTF8&qid=1487638168&sr=8-1&keywords=1%22+LL+BODY&linkCode=li1&tag=vmw0a-20&linkId=fcd347cbeb753ac641f5ded9dada08e9" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B000HEHGRY&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B000HEHGRY" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td></tr>
+<tr><td colspan="4">
+
+Mentioned above, this is one of my favorite projects for the house.  The ability to completely change the look of the house on the drop of a dime and on a dime budget is awesome.  Read the blog post linked above for all the parts details but here are some automations I love.
+* Chaange the front colors of the LED lights based on holidays.
+* When the garage doors open, change all lights in the front of the house to bright white.
+* On motion, turn all the lights to a bright white outside for a random amount of time before resuming the daily color choice.
 </td></tr>
 </table>
 </p>
@@ -296,8 +326,7 @@ The great outdoors can be automated too!  Mainly lights but also the sprinkler s
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
-* [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)!
-* [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2mnmbk8) - [Outdoor Housing](http://amzn.to/2m2dG0X) - Finished Product [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71) - [Blog Post](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)
+* [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)! -
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
 * [Pi Zero](http://amzn.to/2ougZQ3) with [Wireless Nub](http://amzn.to/2q38rg4) running Pi-Hole and smacking down internet ads left and right!
 * [JuiceBox Pro 40 EVSE](http://amzn.to/2AIdSdx) - Used to Charge the Bolt EV.
