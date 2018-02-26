@@ -1,4 +1,4 @@
- [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
+# [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
 
 Be sure to :star: my repo so you can keep up to date on the daily progress!</br>
 You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).</br>
@@ -10,7 +10,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
 <hr>
 
-**Notable Software on my Laptop Host:**
+### Notable Software on my Laptop Host:
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
@@ -21,12 +21,12 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 
-**Devices I have in no particular order:**
+### Devices I have in no particular order:
 <p align="center">
 <table align="center" border=0>
 <tr><td colspan="3">
 
-**Battery Backups** - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
+### Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
 </td></tr>
 <tr><td align="center">
 
@@ -45,7 +45,7 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 
 <tr><td colspan="4">
 
-**Networking**
+### Networking
 </td></tr>
 <tr><td align="center">
 
