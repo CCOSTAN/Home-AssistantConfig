@@ -60,7 +60,7 @@ sensor:
     state_topic: 'garadget/Garadget Large/status'
     unit_of_measurement: '%'
     value_template: '{{ value_json.bright }}'
-    
+
 group:
   garage_doors:
     name: Garage doors
@@ -82,7 +82,7 @@ automation:
   - alias: 'Update Garage Brightness'
     trigger:
       - platform: time
-        minutes: '/2'
+        minutes: '/5'
         seconds: 00
     action:
       - service: mqtt.publish

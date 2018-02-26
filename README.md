@@ -223,7 +223,6 @@ The Hubs help the home communicate across all the various protocols running in t
 Think of the Hubs each as bridges for HA to talk to various hardware around the house.
 </td></tr>
 
-
 <tr><td colspan="4">
 
 **Lights and Switches** - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)
@@ -251,6 +250,38 @@ Almost all my lights (40+) are white GE Link lights.  I bought them early on bef
 * Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all dors/windows are closed.
+</td></tr>
+
+<tr><td colspan="4">
+
+**Outdoor Landscaping**
+</td></tr>
+<tr><td align="center">
+
+[Rachio Sprinkler system](http://amzn.to/2eoPKBW)
+</td><td align="center">
+
+[GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S)
+</td><td align="center">
+
+[Phyn Smart Water Main ShutOff/Leak Detector] (http://www.phyn.com/)
+</td><td align="center">
+
+[Outdoor LED Lighting](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)
+</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/gp/product/B01D1NMLJU/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=32eaaee1a47e3f0841694b2f65b33f20" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01D1NMLJU&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01D1NMLJU" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/GE-Wireless-Lighting-Control-12720/dp/B0013V8K3O/ref=as_li_ss_il?ie=UTF8&qid=1494360163&sr=8-1&keywords=ge+zwave+outdoor&linkCode=li1&tag=vmw0a-20&linkId=14fea62a5ea952ae7e575d3ec9f83d8f" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0013V8K3O&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0013V8K3O" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="http://www.phyn.com/" target="_blank"><img border="0" src="http://www.phyn.com/wp-content/uploads/2017/12/1920_01_product_intro-1.png" width="200" height="200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-RfNOR7YThbY/WZnY6Gjw4zI/AAAAAAADYrw/IxBE2KmxW9YuLMtj9qgxAWyb5vHdgSrBACHMYCw/IMG_2660_thumb%255B9%255D?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+<tr><td colspan="4">
+
+The great outdoors can be automated too!  Mainly lights but also the sprinkler system and water supply.  The Phyn leak detector was announced in CES.  It looks for abnormal flows and if senses them, alerts me and shuts water main.  The GE Outlets are hooked up to my 12v transformers allowing me to turn the landscaping lights on and off.  The LED strips are DIY and the recipe is in the next section.
+* (IFTTT) Stop watering grass via Rachio Sprinkler system if winds are greater than 20 MPH.
+* (IFTTT) Add a 1 day rain delay to Rachio Sprinkler system if it is going to rain tomorrow also logged to MQTT.
+* (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
+* Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior and backyardlights when we go to sleep.
+* Colorize all Front Outdoor lights daily according to a Holiday schedule.
 
 </td></tr>
 </table>
@@ -261,19 +292,14 @@ Almost all my lights (40+) are white GE Link lights.  I bought them early on bef
 **Devices I have:** LEGACY SECTION being migrated up.
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [Amazon Fire TV](http://amzn.to/2iiuaNT)
-* [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
-* [GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S) - These control my Landscape lighting and connect up to my Wink.
 * [SkyBell HD](http://amzn.to/2dcexIB)
 * [Rokus](http://amzn.to/2dpn89c) for all streaming
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
-* [Nintendo Wii](http://amzn.to/2l2qIYY)
 * [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)!
 * [LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE) with [LED Strip kits](http://amzn.to/2gJYfZ5) - ~100 Feet. These are great [Power supplies](http://amzn.to/2mnmbk8) - [Outdoor Housing](http://amzn.to/2m2dG0X) - Finished Product [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71) - [Blog Post](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)
-* [Phyn Smart Water Main ShutOff/Leak Detector] (http://www.phyn.com/) - Beta test to monitor Water usage and Leaks centrally.
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
-* [MX8 Zodiac Pool Robot](http://amzn.to/2nAGvPf) - Not YET hooked up HA, but working on it.
 * [Pi Zero](http://amzn.to/2ougZQ3) with [Wireless Nub](http://amzn.to/2q38rg4) running Pi-Hole and smacking down internet ads left and right!
 * [JuiceBox Pro 40 EVSE](http://amzn.to/2AIdSdx) - Used to Charge the Bolt EV.
 * [Chevy Bolt Electric Car](http://amzn.to/2DRP83a) - Monitor Charging status of Electric Vehicle.
@@ -284,17 +310,11 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 **Automations:** LEGACY SECTION being migrated up.
 * Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
 * Notifications when the garage door is left open at night or when we leave the house.
-* (IFTTT) Logging entries in Logbooks for [Rachio Sprinkler system](http://amzn.to/2eoPKBW), and [SkyBell HD](http://amzn.to/2dcexIB).
 * Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
-* Turn on some outdoor Lights at Sunset or if it gets darkish in the house, Turn off 4 hours before sunrise.  Turn off interior lights when we go to sleep.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Rainy days trigger extra light inside the house.
-* Check the UV Rays for the day and let us know if we need sun tan lotion over the TTS system.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
-* (IFTTT) Stop watering grass via [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if winds are greater than 20 MPH.
-* (IFTTT) Add a 1 day rain delay to [Rachio Sprinkler system](http://amzn.to/2eoPKBW) if it is going to rain tomorrow.
-* (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
 * Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
