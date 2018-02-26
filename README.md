@@ -10,7 +10,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
 <hr>
 
-### Notable Software on my Laptop Host:
+#### Notable Software on my Laptop Host:
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
@@ -281,7 +281,6 @@ The great outdoors can be automated too!  Mainly lights but also the sprinkler s
 * (IFTTT) Add a 1 day rain delay to Rachio Sprinkler system if it is going to rain tomorrow also logged to MQTT.
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
 * Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior and backyardlights when we go to sleep.
-* Colorize all Front Outdoor lights daily according to a Holiday schedule.
 
 </td></tr>
 </table>

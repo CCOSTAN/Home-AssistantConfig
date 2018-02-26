@@ -9,10 +9,6 @@
       to: 'on'
       from: 'off'
     - platform: state
-      entity_id: sensor.samsungtv
-      to: 'Online'
-      from: 'Offline'
-    - platform: state
       entity_id: sun.sun
       to: 'below_horizon'
       from: 'above_horizon'
@@ -30,9 +26,6 @@
         entity_id: group.family
         state: home
       - condition: state
-        entity_id: sensor.samsungtv
-        state: 'Online'
-      - condition: state
         entity_id: sun.sun
         state: 'below_horizon'
       - condition: state
@@ -40,6 +33,9 @@
         state: 'off'
       - condition: time
         after: '20:00:00'
+      - condition: state
+        entity_id: media_player.living_room_ultra
+        state: 'playing'
 
   action:
     - service: input_boolean.turn_off
