@@ -1,16 +1,15 @@
 <h1 align="center">
-  <br>
-  <a href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Markdownify" width="200"></a>
+  <a href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Configuration
-  <br>
 </h1>
+<h4 align="center">Be sure to :star: my repo so you can keep up to date on the daily progress!.</h4>
+<div align="center">
+  <h4>
+    <img src="https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master"/>
+    <span> | </span>
+    <img src="https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/>
 
-
-
-## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home Assistant Configuration by [@CCostan](http://www.twitter.com/ccostan)
-[![GitHub stars](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig)
-Be sure to :star: my repo so you can keep up to date on the daily progress!
 <div align="center">
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
