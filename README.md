@@ -1,5 +1,6 @@
 ## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home Assistant Configuration by [@ccostan](http://www.twitter.com/ccostan)
-Be sure to :star: my repo so you can keep up to date on the daily progress! [![GitHub stars](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig)
+[![GitHub stars](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig)
+Be sure to :star: my repo so you can keep up to date on the daily progress!
 <div align="center">
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
