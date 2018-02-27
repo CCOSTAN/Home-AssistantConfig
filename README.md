@@ -9,6 +9,7 @@
     <img src="https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master"/>
     <span> | </span>
     <img src="https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/>
+  </h4>
 </div>
 <div align="center">
   <h4>
@@ -40,7 +41,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
 <hr>
 
-#### Notable Software on my Laptop Host:
+![https://i.imgur.com/jenwiaA.png] #### Notable Software on my Laptop Host:
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
@@ -55,7 +56,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 
 <p align="center">
 <table align="center" border=0>
-<tr><td colspan="4">
+<tr><td colspan="4"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#------bear-stone-smart-home-configuration" target="_blank"><img src="https://i.imgur.com/jenwiaA.png" border="0" alt="" style="border:none !important; margin:0px !important;"></a>
 
 #### Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
 </td></tr>
@@ -416,5 +417,5 @@ Feel free to join the conversations there.
 
 **All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
 
-#Still have questions on my Config?
-Message me on twitter : [@CCostan](https://twitter.com/ccostan)
+#**Still have questions on my Config?**
+**Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
