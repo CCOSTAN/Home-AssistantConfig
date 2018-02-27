@@ -23,8 +23,41 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 
-#### Devices I have in no particular order:
+#### Device List:
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
+
+<div align="center">
+  <h3>
+    <a href="https://choo.io">
+      Website
+    </a>
+    <span> | </span>
+    <a href="https://github.com/choojs/choo-handbook">
+      Handbook
+    </a>
+    <span> | </span>
+    <a href="https://github.com/YerkoPalma/awesome-choo">
+      Ecosystem
+    </a>
+    <span> | </span>
+    <!-- <a href="https://github.com/trainyard/choo-cli"> -->
+    <!--   CLI -->
+    <!-- </a> -->
+    <!-- <span> | </span> -->
+    <a href="https://github.com/choojs/choo/blob/master/.github/CONTRIBUTING.md">
+      Contributing
+    </a>
+    <span> | </span>
+    <a href="https://www.reddit.com/r/choojs/">
+      Reddit
+    </a>
+    <span> | </span>
+    <a href="https://webchat.freenode.net/?channels=choo">
+      Chat
+    </a>
+  </h3>
+</div>
+
 <p align="center">
 <table align="center" border=0>
 <tr><td colspan="3">
