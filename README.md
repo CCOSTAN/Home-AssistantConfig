@@ -1,9 +1,9 @@
-## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
+## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home Assistant Configuration by [@ccostan](http://www.twitter.com/ccostan)
 
 [![GitHub stars](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig)
 Be sure to :star: my repo so you can keep up to date on the daily progress!
 <div align="center">
-  <h3>
+  <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
       Blog
     </a>
@@ -16,14 +16,14 @@ Be sure to :star: my repo so you can keep up to date on the daily progress!
       Devices
     </a>
     <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#todo-list">
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
       Todo List
     </a>
     <span> | </span>
     <a href="https://twitter.com/BearStoneHA">
       House News
     </a>
-  </h3>
+  </h4>
 </div>
 
 ![Screenshot of Home Assistant Header](https://i.imgur.com/vjDH1LJ.png)
