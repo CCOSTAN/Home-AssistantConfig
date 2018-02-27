@@ -1,8 +1,14 @@
-## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
+## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan) [![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&logo=twitter&label=Follow)](https://twitter.com/ccostan)
 
-Be sure to :star: my repo so you can keep up to date on the daily progress!</br>
+
+[![GitHub stars](https://img.shields.io/github/stars/badges/shields.svg?style=social&logo=github&label=Stars)](https://github.com/CCOSTAN/Home-AssistantConfig)
+ Be sure to :star: my repo so you can keep up to date on the daily progress!
+[![GitHub commit activity the past week, 4 weeks, year](https://img.shields.io/github/commit-activity/y/eslint/eslint.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig)
+</br>
 You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).</br>
 You can follow my home's breaking news and tweet statistics via twitter [@BearStoneHA](https://twitter.com/bearstoneha) or [Facebook/BearStoneHA](https://www.facebook.com/BearStoneHA)</br>
+
+[![Twitter Follow](https://img.shields.io/twitter/follow/espadrine.svg?style=social&logo=twitter&label=Follow)](https://twitter.com/bearstoneha)
 
 ![Screenshot of Home Assistant Header](https://i.imgur.com/vjDH1LJ.png)
 
