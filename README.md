@@ -22,6 +22,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 
 #### Devices I have in no particular order:
+Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 <p align="center">
 <table align="center" border=0>
 <tr><td colspan="3">
@@ -309,14 +310,46 @@ The great outdoors can be automated too!  Mainly lights but also the sprinkler s
 <tr><td colspan="4">
 
 Mentioned above, this is one of my favorite projects for the house.  The ability to completely change the look of the house on the drop of a dime and on a dime budget is awesome.  Read the blog post linked above for all the parts details but here are some automations I love.
-* Chaange the front colors of the LED lights based on holidays.
+* Change the front colors of the LED lights based on holidays.  The best part is the LED controller works with HA right out of the box.  No fiddling around with it at all.  HUGE Plus in my book.
 * When the garage doors open, change all lights in the front of the house to bright white.
 * On motion, turn all the lights to a bright white outside for a random amount of time before resuming the daily color choice.
 </td></tr>
+
+<tr><td colspan="4">
+
+#### Garage Gadgets
+</td></tr>
+<tr><td align="center">
+
+[Garadget](http://amzn.to/2jQLpVQ)
+</td><td align="center">
+
+[JuiceBox Pro 40 EVSE](http://amzn.to/2AIdSdx)
+</td><td align="center">
+
+[Chevy Bolt Electric Car](http://amzn.to/2DRP83a)
+</td><td align="center">
+
+[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)
+</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/Garadget-Smart-Garage-Door-Controller/dp/B01KUZ2JPS/ref=as_li_ss_il?ie=UTF8&qid=1484586045&sr=8-1&keywords=garadget&linkCode=li1&tag=vmw0a-20&linkId=101764295722498f3480d5bde92dd462" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01KUZ2JPS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01KUZ2JPS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/JuiceBox-Pro-40-JuiceNet-WiFi-equipped/dp/B00UB9R4KO/ref=as_li_ss_il?ie=UTF8&qid=1513288386&sr=8-1&keywords=juicenet+pro&linkCode=li1&tag=vmw0a-20&linkId=ed6b7856822f7ab226362fb0ee6d6b98" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00UB9R4KO&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00UB9R4KO" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/RUIYA-2017-Chevrolet-Bolt-EV/dp/B0749M3H4T/ref=as_li_ss_il?s=automotive&ie=UTF8&qid=1519709074&sr=1-3&keywords=chevy+bolt+ev&linkCode=li1&tag=vmw0a-20&linkId=adb82bb2de7bbd3e02da216b176b26be" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0749M3H4T&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0749M3H4T" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html" target="_blank"><img border="0" src="https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large" width="70" height="150" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B000HEHGRY" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td></tr>
+<tr><td colspan="4">
+
+Garage doors, Cars, charging stations.  Going green.  All part of a complete home automation setup.  The garage door openers are probably the most important.  No one wants to forget that they left them open when they've left or gone to bed.  Closing forgotten garage doors makes it all worth it.
+* Notifications when the garage door is left open at night or when we leave the house.
+* Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
+* Tweet out chargin status of the car and how many KwH were charged in a session. #Stat
+* Monitor AMPs and Voltage and alert if charge ever goes over 24A to prevent breaker tripping. (Juicebox is software derated to 24A on a 30A circuit.)
+
+</td></tr>
+
 </table>
 </p>
-
-
 
 **Devices I have:** LEGACY SECTION being migrated up.
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
@@ -325,19 +358,13 @@ Mentioned above, this is one of my favorite projects for the house.  The ability
 * [Rokus](http://amzn.to/2dpn89c) for all streaming
 * [Samsung Smart TV](http://amzn.to/2efNNnq)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
-* [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor - "[Siri, are my garage doors closed?](https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large)"
 * [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)! -
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
 * [Pi Zero](http://amzn.to/2ougZQ3) with [Wireless Nub](http://amzn.to/2q38rg4) running Pi-Hole and smacking down internet ads left and right!
-* [JuiceBox Pro 40 EVSE](http://amzn.to/2AIdSdx) - Used to Charge the Bolt EV.
-* [Chevy Bolt Electric Car](http://amzn.to/2DRP83a) - Monitor Charging status of Electric Vehicle.
 * [Epson ET-7700 Printer](http://amzn.to/2HaiBUK) - All Printing with HA monitored Ink levels.
 
-Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
-
 **Automations:** LEGACY SECTION being migrated up.
-* Monitor the reflection rates of [Garadget](http://amzn.to/2jQLpVQ) and notify when they being to drop too low when closed (indicating a shift in the controller)
-* Notifications when the garage door is left open at night or when we leave the house.
+
 * Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
 * Rainy days trigger extra light inside the house.
@@ -347,8 +374,8 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
 * Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
 
-#Todo List
-I've moved this entire section to the [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github.
+### Todo List
+The [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github is where I store all my wishful ideas and future enhancements.
 Feel free to join the conversations there.
 ![Screenshot of Alarm Clock View](https://i.imgur.com/mLMrky1.jpg)
 ![Screenshot of Alarm View](https://i.imgur.com/nad2gq0.png)
