@@ -55,11 +55,11 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
 <p align="center">
-<table align="center" border=0>
+<table align="center" border=0><div>
 <tr><td colspan="4"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#------bear-stone-smart-home-configuration" target="_blank"><img src="https://i.imgur.com/jenwiaA.png" border="0" alt="" style="border:none !important; margin:0px !important;"></a>
 
 #### Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
-</td></tr>
+</div></td></tr>
 <tr><td align="center">
 
 [3 Prong UPS](http://amzn.to/2HJerU8)
