@@ -1,6 +1,7 @@
 ## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home Assistant Configuration by [@CCostan](http://www.twitter.com/ccostan)
 [![GitHub stars](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig)
 Be sure to :star: my repo so you can keep up to date on the daily progress!
+<div align="center">
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
       Blog
@@ -63,7 +64,6 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 </td><td align="center"><a href="http://www.vmwareinfo.com/2018/01/going-green-to-save-some-green-in-2018.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-V8NMHkiKFIY/Wkgpf7T-WDI/AAAAAAADihs/fp5yNzjrQ5sKgFkafXhllLYsD7yM3tGBgCHMYCw/image_thumb5?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://twitter.com/BearStoneHA" target="_blank"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/www/custom_ui/floorplan/images/branding/twitter_profile.png" width="125" height="125" border="0" alt="" style="border:none !important; margin:0px !important;"></a></td></tr>
 
-<div align="center">
 <tr><td colspan="4">
 There aren't really automations for the Batteries yet.  Electricity is the life blood for the house and only really the Tesla Battery has smarts so maybe in the future, you'll see a Powerwall automation in this space.</td></tr>
 
