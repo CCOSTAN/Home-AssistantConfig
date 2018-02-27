@@ -1,4 +1,4 @@
-## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home Assistant Configuration by [@ccostan](http://www.twitter.com/ccostan)
+## [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home Assistant Configuration by [@ccostan](http://www.twitter.com/ccostan)![Project Logo](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/www/custom_ui/floorplan/images/branding/twitter_profile.png)
 [![GitHub stars](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig)
 Be sure to :star: my repo so you can keep up to date on the daily progress!
 <div align="center">
