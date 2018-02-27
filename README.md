@@ -41,7 +41,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
 <hr>
 
-![https://i.imgur.com/jenwiaA.png] #### Notable Software on my Laptop Host:
+#### Notable Software on my Laptop Host:
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
@@ -56,10 +56,10 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 
 <p align="center">
 <table align="center" border=0>
-<tr><td colspan="4"><div><a href="https://github.com/CCOSTAN/Home-AssistantConfig#------bear-stone-smart-home-configuration" target="_blank"><img src="https://i.imgur.com/jenwiaA.png" border="0" alt="" style="border:none !important; margin:0px !important;"></a>
+<tr><td colspan="4">
 
 #### Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
-</div></td></tr>
+</td></tr>
 <tr><td align="center">
 
 [3 Prong UPS](http://amzn.to/2HJerU8)
