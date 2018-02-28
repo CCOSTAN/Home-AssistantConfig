@@ -108,7 +108,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 <table align="center" border="0">
 <tr><td colspan="4">
 
-#### <a name="battery"></a>Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)<a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="15" ></a>
+#### <a name="battery"></a>Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)<a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="30" ></a>
 </td></tr>
 <tr><td align="center">
 
