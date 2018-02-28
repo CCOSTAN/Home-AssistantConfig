@@ -55,7 +55,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
 <p align="center"><a name="devices"></a>
-<table align="center" border=0>
+<table align="center" border="0">
 <tr><td colspan="3">
 
 #### <a name="Battery"></a>Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
