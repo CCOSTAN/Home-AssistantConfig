@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="top" href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Configuration
 </h1>
@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/>
   </h4>
 </div>
-<div align="center">
+<div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
       Blog
@@ -41,7 +41,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
 <hr>
 
-#### Notable Software on my Laptop Host:
+#### <a name="Software"></a>Notable Software on my Laptop Host:
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
@@ -54,11 +54,11 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
-<p align="center">
+<p align="center"><a name="devices"></a>
 <table align="center" border=0>
 <tr><td colspan="4">
 
-#### Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
+#### <a name="Battery"></a>Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)
 </td></tr>
 <tr><td align="center">
 
@@ -412,6 +412,7 @@ TV Automations are super cool.  Turn on a movie and the lights begin to dim auto
 * Rainy days trigger extra subtle light (TV back lights and other accent lighting) inside the house.
 
 </td></tr>
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </table>
 </p>
 
