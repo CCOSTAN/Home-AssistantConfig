@@ -41,7 +41,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 [Migration Blog Post](http://www.vmwareinfo.com/2018/02/journey-to-docker.html)
 <hr>
 
-#### <a name="Software"></a>Notable Software on my Laptop Host:
+#### <a name="software"></a>Notable Software on my Laptop Host:
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
@@ -76,7 +76,8 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 
 <tr><td colspan="4">
 There aren't really automations for the Batteries yet.  Electricity is the life blood for the house and only really the Tesla Battery has smarts so maybe in the future, you'll see a Powerwall automation in this space.</td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Networking
@@ -100,7 +101,8 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 <tr><td colspan="4">
 
 Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses 'NMAP' for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.  Most things are Wifi connected but a good gigabit switch is needed for a good foundation.</td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Alexa Echo Devices - [Alexa Device Blog Post](http://www.vmwareinfo.com/2017/09/new-alexa-goodies-announced.html)
@@ -132,7 +134,8 @@ The Alexa devices in my house are for automation overrides.  They are primarily 
 * Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
 * Context aware lighting control. - Read about it here: [Blog Post](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="3">
 
 #### Mobile Devices and Tablets - [FloorPlan Blog post](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)
@@ -158,7 +161,8 @@ Mobile devices are a critical part of my Home Automation.  They establish presen
 
 We also leverage the Fire Tablets as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Nest Products and SleepIQ - [Thermostat Basics Blog post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)
@@ -190,7 +194,8 @@ This group of devices is basically for additional presence control.  The Nest th
 * Silence all Voice notifications if anyone is in bed.  Redirect to Fire Tablets.
 
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Voice Notifications - [Giving Voice to the Smart Home Blog Post](http://www.vmwareinfo.com/2017/07/giving-voice-to-smart-home.html)
@@ -223,7 +228,8 @@ To me, Voice is the coolest part of the smart home.  It gives it personality.  I
 
 Once you can teach your house to talk, you just keep expanding on it's vocabulary. It's addicting. :)
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Various Hubs - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)
@@ -256,7 +262,8 @@ The Hubs help the home communicate across all the various protocols running in t
 
 Think of the Hubs each as bridges for HA to talk to various hardware around the house.
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Lights and Switches - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)
@@ -285,7 +292,8 @@ Almost all my lights (40+) are white GE Link lights.  I bought them early on bef
 * Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
 * Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all dors/windows are closed.
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Outdoor Landscaping
@@ -316,7 +324,8 @@ The great outdoors can be automated too!  Mainly lights but also the sprinkler s
 * (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
 * Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior and backyardlights when we go to sleep.
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Outdoor LED Accents - [DIY Blog Post](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71)
@@ -347,7 +356,8 @@ Mentioned above, this is one of my favorite projects for the house.  The ability
 * When the garage doors open, change all lights in the front of the house to bright white.
 * On motion, turn all the lights to a bright white outside for a random amount of time before resuming the daily color choice.
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### Garage Gadgets
@@ -380,7 +390,8 @@ Garage doors, Cars, charging stations.  Going green.  All part of a complete hom
 * Monitor AMPs and Voltage and alert if charge ever goes over 24A to prevent breaker tripping. (Juicebox is software derated to 24A on a 30A circuit.)
 
 </td></tr>
-
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 <tr><td colspan="4">
 
 #### TVs and Streaming Devices
@@ -412,7 +423,8 @@ TV Automations are super cool.  Turn on a movie and the lights begin to dim auto
 * Rainy days trigger extra subtle light (TV back lights and other accent lighting) inside the house.
 
 </td></tr>
-<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+<tr><td colspan="4" align="right"><a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+</td></tr>
 </table>
 </p>
 
