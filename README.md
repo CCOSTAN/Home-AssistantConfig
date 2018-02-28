@@ -7,8 +7,8 @@
 <div align="center">
   <h4>
     <img src="https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master"/>
-    <span> | </span>
     <img src="https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/>
+    <img src="https://img.shields.io/github/last-commit/google/skia.svg?style=plasticr"/>
   </h4>
 </div>
 <div align="center"><a name="menu"></a>
