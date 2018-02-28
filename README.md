@@ -381,15 +381,43 @@ Garage doors, Cars, charging stations.  Going green.  All part of a complete hom
 
 </td></tr>
 
+<tr><td colspan="4">
+
+#### TVs and Streaming Devices
+</td></tr>
+<tr><td align="center">
+
+[Samsung Smart TV](http://amzn.to/2efNNnq)
+</td><td align="center">
+
+[Rokus](http://amzn.to/2dpn89c)
+</td><td align="center">
+
+[Amazon Fire TV](http://amzn.to/2iiuaNT)
+</td><td align="center">
+
+[Synology NVR 1218](http://amzn.to/2COe9aU)
+</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/gp/product/B01E69WHP6/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=79e660c2282e440c3c8b31d25b17a0e5" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01E69WHP6&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01E69WHP6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B015YF5YIS/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=07825717389526f853834332ad3bb5db" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B015YF5YIS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B015YF5YIS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B00ZV9RDKK/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=59fea2aad1b87b0227fc69a5617b620f" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00ZV9RDKK&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00ZV9RDKK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Synology-Network-Recorder-NVR1218-Diskless/dp/B075MVPNKF/ref=as_li_ss_il?ie=UTF8&qid=1519789547&sr=8-1&keywords=synology+nvr1218&linkCode=li1&tag=vmw0a-20&linkId=05131cd523a8ff0913446699a1e12ed9" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B075MVPNKF&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B075MVPNKF" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td></tr>
+<tr><td colspan="4">
+
+TV Automations are super cool.  Turn on a movie and the lights begin to dim automatically.  It's super cool.  Out TVs are back lit with [Hue Lightstrips](http://amzn.to/2FGbPpL) so we can do some pretty neat effects with automations.  We are #CordCutters as well so all out TV is streamed to the Rokus.  FireTV for party games and the Snyology, I'll talk about later in the Survellance section.
+* If any Doors or Windows are open, the TV backlights turn Red.
+* When the Roku reports we are watching Plex or [TabloTV](http://amzn.to/2HQaf59), TV Time scene is triggered dimming 2 of 4 living room lights.
+* Rainy days trigger extra subtle light (TV back lights and other accent lighting) inside the house.
+
+</td></tr>
 </table>
 </p>
 
 **Devices I have:** LEGACY SECTION being migrated up.
 * [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
-* [Amazon Fire TV](http://amzn.to/2iiuaNT)
 * [SkyBell HD](http://amzn.to/2dcexIB)
-* [Rokus](http://amzn.to/2dpn89c) for all streaming
-* [Samsung Smart TV](http://amzn.to/2efNNnq)
 * [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
 * [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)! -
 * [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
@@ -400,7 +428,6 @@ Garage doors, Cars, charging stations.  Going green.  All part of a complete hom
 
 * Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
 * Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
-* Rainy days trigger extra light inside the house.
 * (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
 * (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
 * On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
