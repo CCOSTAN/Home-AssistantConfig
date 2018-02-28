@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a name="top" href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="logo" href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Configuration
 </h1>
@@ -55,10 +55,60 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
 <p align="center"><a name="devices"></a>
+  <h4>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#battery">
+      Batteries
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#networking">
+      Networking
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#alexa">
+      Alexa
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#mobiledevices">
+      Mobile Devices
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#nest">
+      Nest
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#voice">
+      Voice
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#hubs">
+      Hubs
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#lights">
+      Lights
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#landscaping">
+      Landscaping
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#LED">
+      DIY LED Lights
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#garage">
+      Garage
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#TV">
+      TV Streaming
+    </a>
+  </h4>
+
 <table align="center" border="0">
 <tr><td colspan="4">
 
-#### <a name="Battery"></a>Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)<a href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### <a name="battery"></a>Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)<a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -79,7 +129,7 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 
 <tr><td colspan="4">
 
-#### Networking <a name="networking" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Networking <a name="networking" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -103,7 +153,7 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 
 <tr><td colspan="4">
 
-#### Alexa Echo Devices - [Alexa Device Blog Post](http://www.vmwareinfo.com/2017/09/new-alexa-goodies-announced.html)<a name="alexa" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Alexa Echo Devices - [Alexa Device Blog Post](http://www.vmwareinfo.com/2017/09/new-alexa-goodies-announced.html)<a name="alexa" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -135,7 +185,7 @@ The Alexa devices in my house are for automation overrides.  They are primarily 
 
 <tr><td colspan="3">
 
-#### Mobile Devices and Tablets - [FloorPlan Blog post](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)<a name="mobiledevices" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Mobile Devices and Tablets - [FloorPlan Blog post](http://www.vmwareinfo.com/2017/07/visualizing-smart-home-using-home.html)<a name="mobiledevices" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -161,7 +211,7 @@ We also leverage the Fire Tablets as TTS endpoints.  During certain times of the
 
 <tr><td colspan="4">
 
-#### Nest Products and SleepIQ - [Thermostat Basics Blog post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)<a name="nest" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Nest Products and SleepIQ - [Thermostat Basics Blog post](http://www.vmwareinfo.com/2018/02/smart-home-basics-thermostats.html)<a name="nest" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -193,7 +243,7 @@ This group of devices is basically for additional presence control.  The Nest th
 
 <tr><td colspan="4">
 
-#### Voice Notifications - [Giving Voice to the Smart Home Blog Post](http://www.vmwareinfo.com/2017/07/giving-voice-to-smart-home.html)<a name="voice" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Voice Notifications - [Giving Voice to the Smart Home Blog Post](http://www.vmwareinfo.com/2017/07/giving-voice-to-smart-home.html)<a name="voice" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -226,7 +276,7 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 
 <tr><td colspan="4">
 
-#### Various Hubs - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="hubs" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Various Hubs - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="hubs" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -259,7 +309,7 @@ Think of the Hubs each as bridges for HA to talk to various hardware around the 
 
 <tr><td colspan="4">
 
-#### Lights and Switches - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="lights" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Lights and Switches - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="lights" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -288,7 +338,7 @@ Almost all my lights (40+) are white GE Link lights.  I bought them early on bef
 
 <tr><td colspan="4">
 
-#### Outdoor Landscaping <a name="landscaping" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Outdoor Landscaping <a name="landscaping" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -319,7 +369,7 @@ The great outdoors can be automated too!  Mainly lights but also the sprinkler s
 
 <tr><td colspan="4">
 
-#### Outdoor LED Accents - [DIY Blog Post](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Outdoor LED Accents - [DIY Blog Post](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -350,7 +400,7 @@ Mentioned above, this is one of my favorite projects for the house.  The ability
 
 <tr><td colspan="4">
 
-#### Garage Gadgets <a name="garage" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### Garage Gadgets <a name="garage" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -383,7 +433,7 @@ Garage doors, Cars, charging stations.  Going green.  All part of a complete hom
 
 <tr><td colspan="4">
 
-#### TVs and Streaming Devices <a name="TV" href="https://github.com/CCOSTAN/Home-AssistantConfig#top"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+#### TVs and Streaming Devices <a name="TV" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -435,7 +485,8 @@ TV Automations are super cool.  Turn on a movie and the lights begin to dim auto
 * When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
 * Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
 
-### Todo List
+### Todo List <a name="TODO" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
+
 The [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github is where I store all my wishful ideas and future enhancements.
 Feel free to join the conversations there.
 ![Screenshot of Alarm Clock View](https://i.imgur.com/mLMrky1.jpg)
@@ -446,4 +497,4 @@ Feel free to join the conversations there.
 **All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
 
 #**Still have questions on my Config?**
-**Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
+**Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)<a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://3.bp.blogspot.com/-AZqy13Jw2AM/WTdD0TwimUI/AAAAAAADSC8/Z_pnBeTZaUEcpcYE9QkYKFnLTlBX9q-XQCLcB/s1600/arrow-147-48.ico" width="15" ></a>
