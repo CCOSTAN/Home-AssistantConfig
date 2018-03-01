@@ -56,7 +56,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
-<p align="center">
+<div align="center">
   <h4>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#battery">
       Batteries
@@ -114,6 +114,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
       Sensors
     </a>
   </h4>
+</div>
 
 <table align="center" border="0">
 <tr><td colspan="4">
