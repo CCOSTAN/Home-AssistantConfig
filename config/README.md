@@ -12,7 +12,7 @@
   </h4>
 </div>
 <p><font size="3">
-This is the main directory of the Repo.  You will find more helpful ReadMe files in the directoies as you browse them.  Not all but each day I add more.  I use a configuration type called split configuration.  So my main configuration.yaml file is broken out into many different files located in the directories.  Be sure to visit the package directory where practically self contained YAML files exist that you can easily drop into your configurations to be up and running fast with various automations and components. </p>
+This is the main directory of the Repo.  You will find more helpful ReadMe files in the directoies as you browse them.  Not all but each day I add more.  I use a configuration type called split configuration.  So my main configuration.yaml file is broken out into many different files located in the directories.  Be sure to visit the package directory where practically self contained YAML files exist that you can easily drop into your configurations to be up and running fast with various automations and components.  You can also subscribe via RSS to every commit I make in this repo by clicking the Feed icon on the bottom of this page. </p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
@@ -40,3 +40,5 @@ This is the main directory of the Repo.  You will find more helpful ReadMe files
 
 **Still have questions on my Config?**
 **Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
+
+<p align="center"><a align="center" target="_blank" href="http://feeds.feedburner.com/~r/RecentCommitsToBearStoneHA/~6/1"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>
