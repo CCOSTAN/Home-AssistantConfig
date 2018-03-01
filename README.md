@@ -12,7 +12,7 @@
   </h4>
 </div>
 <p><font size="3">
-This Repo is designed for Smart Home inspiration.  The configuration, devices, layout and linked Blog posts should help inspire you to jump head first into the IOT world.  This is the live working configuration of <strong>my Smart Home</strong>. Use the menu links to jump between sections.  All of the code is under the <em>config</em> directory and free to use and contribute.</p>
+This Repo is designed for Smart Home inspiration.  The configuration, devices, layout and linked Blog posts should help inspire you to jump head first into the IOT world.  This is the live working configuration of <strong>my Smart Home</strong>. Use the menu links to jump between sections.  All of the code is under the <em>config</em> directory and free to use and contribute to.</p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
@@ -105,6 +105,14 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#TV">
       TV Streaming
     </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#cameras">
+      Cameras and Security
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#sensors">
+      Sensors
+    </a>
   </h4>
 
 <table align="center" border="0">
@@ -195,11 +203,15 @@ The Alexa devices in my house are for automation overrides.  They are primarily 
 </td><td align="center">
 
 [iPhones](http://amzn.to/2l9Yoq9)
-</td><td align="center" colspan="2">
+</td><td align="center">
+
+[Dash Buttons](http://amzn.to/2GT8Olb)
+</td><td align="center">
 
 [Amazon Fire Tablets Gen 7](http://amzn.to/2tqlMCW)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/Apple-MH182LL-9-7-Inch-Retina-Display/dp/B00OTWPEBK/ref=as_li_ss_il?s=pc&rps=1&ie=UTF8&qid=1487044765&sr=1-3&keywords=ipad&refinements=p_89:Apple,p_85:2470955011,p_n_condition-type:2224371011&linkCode=li1&tag=vmw0a-20&linkId=d4e62510b64106355f3788ea04bff8a0" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00OTWPEBK&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00OTWPEBK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Apple-iPhone-Plus-Unlocked-16GB/dp/B00YD54J8W/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519496432&sr=1-2&keywords=iphone+6s+plus&linkCode=li1&tag=vmw0a-20&linkId=a6a638b1381a5f06fbdfa68803b85bc0" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00YD54J8W&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00YD54J8W" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/dp/B01LBT5R4C/ref=as_li_ss_il?pf_rd_m=ATVPDKIKX0DER&pf_rd_p=3513574162&pd_rd_wg=4vNzA&pf_rd_r=BMHPKYH1TNHS6FMGPM1W&pf_rd_s=desktop-rhs-carousels&pf_rd_t=301&pd_rd_i=B01LBT5R4C&pd_rd_w=rAJHr&pf_rd_i=dash+buttons&pd_rd_r=8d7da293-87d3-4f01-abb8-63c056bf1287&ie=UTF8&qid=1519874820&sr=1&linkCode=li1&tag=vmw0a-20&linkId=b0c04cec66976418b6209c49e83e906b" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01LBT5R4C&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01LBT5R4C" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center" colspan="2"><a href="http://www.vmwareinfo.com/2017/08/project-update-visualization-of-home.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-UdtxP-RNPxM/WZNRjcEJ6hI/AAAAAAADYfY/Vum9wiL5qYAO3frTAi2MdqK1vH6qBTb9gCHMYCw/image3_thumb%255B2%255D?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GEW27DA" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
@@ -465,27 +477,70 @@ TV Automations are super cool.  Turn on a movie and the lights begin to dim auto
 
 </td></tr>
 
+<tr><td colspan="4">
+
+#### Cameras <a name="cameras" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="22" ></a>
+</td></tr>
+<tr><td align="center">
+
+[SkyBell HD](http://amzn.to/2dcexIB)
+</td><td align="center">
+
+[Foscam 1080p Outdoor Camera](http://amzn.to/2ExKrMe)
+</td><td align="center">
+
+[Surveillance Drives](http://amzn.to/2G3iBEF)
+</td><td align="center">
+
+[Fake Dog](http://amzn.to/2CMo1lr)
+</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/gp/product/B01IAB9ZME/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=15e34e628e5538b1ebc1babd1273e055" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01IAB9ZME&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01IAB9ZME" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Foscam-Security-Real-time-Optional-Available/dp/B074JKSWRG/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B074JKSWRG&pd_rd_r=GRPPAA4VDE1Y7WX33ZZY&pd_rd_w=q3jUI&pd_rd_wg=yLL8z&psc=1&refRID=GRPPAA4VDE1Y7WX33ZZY&dpID=41fpF9wDdUL&preST=_SY300_QL70_&dpSrc=detail&linkCode=li1&tag=vmw0a-20&linkId=ab255f7f9dd51e7cebf9a35fb17aff37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B074JKSWRG&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B074JKSWRG" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Purple-Surveillance-Hard-Disk-Drive/dp/B071KVB4F8/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B071KVB4F8&pd_rd_r=DWVV1KCN076E00JJ0PAF&pd_rd_w=lJDs2&pd_rd_wg=kPV6t&refRID=DWVV1KCN076E00JJ0PAF&dpID=41Sx3aSPsFL&preST=_SY300_QL70_&dpSrc=detail&th=1&linkCode=li1&tag=vmw0a-20&linkId=604b42004480db7749802c9ed69f7564" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B071KVB4F8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B071KVB4F8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Magnet-America-Bull-Mastiff/dp/B005MZVBYW/ref=as_li_ss_il?s=amazon-devices&ie=UTF8&qid=1519875291&sr=8-11&keywords=bull+mastiff&linkCode=li1&tag=vmw0a-20&linkId=ee6fdeb91ac2a4aa0e77ba673c1def4b" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B005MZVBYW&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B005MZVBYW" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td></tr>
+<tr><td colspan="4">
+
+Cameras are both for security and data sensors.  They can trigger motion events, lighting conditions or for doorbells, when someone presses it. When all else fails though, a good recording of a Bull Mastiff is sure to do the trick!
+* On motion from Doorbell turns front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
+* When someone rings the Doorbell, the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
+</td></tr>
+
+<tr><td colspan="4">
+
+#### Sensors <a name="sensors" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="22" ></a>
+</td></tr>
+<tr><td align="center">
+
+[Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
+</td><td align="center">
+
+[Pi Zero](http://amzn.to/2ougZQ3)
+</td><td align="center">
+
+[Wireless Nub](http://amzn.to/2q38rg4)
+</td><td align="center">
+
+[Epson ET-7700 Printer](http://amzn.to/2HaiBUK)
+</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/gp/product/B01GK5D1PE/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=0dd26a63d1c8b0c402febd3fb0e781b2" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01GK5D1PE&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GK5D1PE" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Raspberry-Zero-v1-3-Development-Board/dp/B01L3IU6XS/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1493171499&sr=1-8&keywords=pi+zero&linkCode=li1&tag=vmw0a-20&linkId=c06f2374a5d545b83e94d1d6a585b941" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01L3IU6XS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01L3IU6XS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B00GFAN498/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=9e4d8bebb941539cdf3d7ccd9e47e54c" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00GFAN498&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00GFAN498" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Epson-Expression-Wireless-Supertank-Ethernet/dp/B074V4N9JM/ref=as_li_ss_il?s=office-products&ie=UTF8&qid=1518544601&sr=1-7&keywords=epson+ecotank+printer&linkCode=li1&tag=vmw0a-20&linkId=188ed765c4f960ee11a7c9155ecd039a" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B074V4N9JM&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B074V4N9JM" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td></tr>
+<tr><td colspan="4">
+
+Sensors add data to Home Assistant.  Most of my Doors and windows are hardwired but for some interior doors, I also have the wireless sensors.  They connect to my Wink Hub.  [PiHole](https://pi-hole.net/) is running on my PiZero.  It's super easy to install and runs DNS, DHCP and ad blocking for the whole house on a great little 5v form factor.
+* Tweet out daily Pi Hole stats. (Ads Blocked and % of bandwidth saved.)
+* Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
+* Sound door chimes whenever doors open or close.
+* Watch and alert on Home Assistant's Disk usage and Pi Zero. Get alerts before Pi Zero runs out of space on the [SD Card](http://amzn.to/2kNttio).
+</td></tr>
+
 </table>
 </p>
-
-**Devices I have:** LEGACY SECTION being migrated up.
-* [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
-* [SkyBell HD](http://amzn.to/2dcexIB)
-* [Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
-* [iTeadStudio](https://www.itead.cc/) [goodies](https://twitter.com/ccostan/status/793119824008384512) - [SonOff](http://amzn.to/2l2sx8g) and a [Slampher](http://amzn.to/2l2gmIx)! -
-* [Aeon Labs AEDSB09104ZWUS Aeotec Z-Wave Smart Energy Monitor Meter](http://amzn.to/2l5wEDo) to measure energy usage in the home.
-* [Pi Zero](http://amzn.to/2ougZQ3) with [Wireless Nub](http://amzn.to/2q38rg4) running Pi-Hole and smacking down internet ads left and right!
-* [Epson ET-7700 Printer](http://amzn.to/2HaiBUK) - All Printing with HA monitored Ink levels.
-
-**Automations:** LEGACY SECTION being migrated up.
-
-* Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
-* Turn on lights during school days for a morning routine for the kids and wife. Has No School overide boolean in GUI.
-* (IFTTT) Blink ALL lights at 9:30 to remind me to take medicine. (also Alexa Alert)
-* (IFTTT) Blink Office lights 15 minutes before ANY meeting on my calendar (using IFTTT)
-* On motion from [SkyBell HD Doorbell](http://amzn.to/2dcexIB) (IFTTT) Turn front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
-* When someone rings the Doorbell (IFTTT), the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
-* Watch and alert on Home Assistant's Disk usage. Get alerts before Pi runs out of space on the [SD Card](http://amzn.to/2kNttio).
 
 ### Todo List <a name="TODO" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="22" ></a>
 
