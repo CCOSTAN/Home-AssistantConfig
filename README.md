@@ -11,6 +11,8 @@
     <img src="https://img.shields.io/github/last-commit/google/skia.svg?style=plasticr"/>
   </h4>
 </div>
+<p><font size="3">
+This Repo is designed for Smart Home inspiration.  The configuration, devices, layout and linked Blog posts should help inspire you to jump head first into the IOT world.  This is the live working configuration of my Smart Home. Use the menu links to jump between sections.  All of the code is under the <em>config</em> directory and free to use and contribute.</p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
