@@ -19,7 +19,7 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
       Blog
     </a>
     <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#battery-backups---ups-blog-write-up">
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices">
       Devices
     </a>
     <span> | </span>
@@ -52,11 +52,11 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 * [HomeBridge Container](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
 * Unifi controller Container to manage [APs](http://amzn.to/2mBSfE9)
 
-![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
+![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)<a name="devices"></a>
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
-<p align="center"><a name="devices"></a>
+<p align="center">
   <h4>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#battery">
       Batteries
