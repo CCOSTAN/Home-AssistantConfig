@@ -42,6 +42,15 @@ sensor:
       hours: 24
 
   - platform: history_stats
+    name: TV time
+    entity_id: media_player.living_room_ultra
+    state: 'playing'
+    type: time
+    end: '{{ now() }}'
+    duration:
+      hours: 24
+
+  - platform: history_stats
     name: Landscaping Light time
     entity_id: group.landscaping
     state: 'on'
@@ -49,6 +58,15 @@ sensor:
     end: '{{ now() }}'
     duration:
       hours: 24
+
+  - platform: history_stats
+    name: Bolt Charging time
+    entity_id: sensor.carlojuice_charging_status
+    state: 'charging'
+    type: time
+    end: '{{ now() }}'
+    duration:
+      days: 7
 
   # - platform: rest
   #   name: July 4th Countdown
@@ -64,6 +82,8 @@ group:
       - sensor.landscaping_light_time
       - sensor.hvac_time
       - sensor.speech_time
+      - sensor.tv_time
+      - sensor.bolt_charging_time
 
 #############################################################
 
