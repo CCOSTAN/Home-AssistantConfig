@@ -34,6 +34,10 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
     <a href="https://www.facebook.com/BearStoneHA">
       Facebook
     </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
+      Code
+    </a>
   </h4>
 </div>
 
@@ -216,7 +220,7 @@ The Alexa devices in my house are for automation overrides.  They are primarily 
 </td><td align="center" colspan="2"><a href="http://www.vmwareinfo.com/2017/08/project-update-visualization-of-home.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-UdtxP-RNPxM/WZNRjcEJ6hI/AAAAAAADYfY/Vum9wiL5qYAO3frTAi2MdqK1vH6qBTb9gCHMYCw/image3_thumb%255B2%255D?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GEW27DA" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-Mobile devices are a critical part of my Home Automation.  They establish presence in the house and are the basis for many automations.  Home? Turn on the lights.  Leave? Turn them all off kind of thing. We use [NMAP](https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config/device_tracker) for presence detection. 
+Mobile devices are a critical part of my Home Automation.  They establish presence in the house and are the basis for many automations.  Home? Turn on the lights.  Leave? Turn them all off kind of thing. We use [NMAP](https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config/device_tracker) for presence detection.
 * IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DNS.
 * Turn on certain lights and switches when we get home.  Turn off most interior lights when we leave the house.
 * Reminders to take my medicine sent as IOS notifications ONLY when I arrive back home for the night.

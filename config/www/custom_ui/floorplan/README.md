@@ -34,6 +34,10 @@ We use the NMAP component for device tracking.  I've considered using the Unifi 
     <a href="https://www.facebook.com/BearStoneHA">
       Facebook
     </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
+      Code
+    </a>
   </h4>
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
