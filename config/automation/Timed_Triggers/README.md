@@ -6,9 +6,9 @@
 <h4 align="center">Be sure to :star: my repo so you can keep up to date on the daily progress!.</h4>
 <div align="center">
   <h4>
-    <img src="https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master"/>
-    <img src="https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/>
-    <img src="https://img.shields.io/github/last-commit/google/skia.svg?style=plasticr"/>
+    <a href="https://travis-ci.org/CCOSTAN/Home-AssistantConfig"><img src="https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master"/></a>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/stargazers"><img src="https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/></a>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/commits/master"><img src="https://img.shields.io/github/last-commit/google/skia.svg?style=plasticr"/></a>
   </h4>
 </div>
 <div align="center"><a name="menu"></a>
