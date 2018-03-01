@@ -1,14 +1,43 @@
-# [![Build Status](https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master)](https://travis-ci.org/CCOSTAN/Home-AssistantConfig) Home-Assistant Config by [@ccostan](http://www.twitter.com/ccostan)
-[Home Assistant](https://home-assistant.io/) configuration files (YAMLs)
-
-Be sure to :star: my repo so you can keep up to date on the daily progress!
+<h1 align="center">
+  <a name="logo" href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <br>
+  Bear Stone Smart Home Configuration
+</h1>
+<h4 align="center">Be sure to :star: my repo so you can keep up to date on the daily progress!.</h4>
+<div align="center">
+  <h4>
+    <img src="https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master"/>
+    <img src="https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/>
+    <img src="https://img.shields.io/github/last-commit/google/skia.svg?style=plasticr"/>
+  </h4>
+</div>
+<p><font size="3">
+We use the NMAP component for device tracking.  I've considered using the Unifi component since i have the Unifi contrainer running but haven't seen the need yet.  The NMAP presence sensing is SOLID so why mess with it?</p>
+<div align="center"><a name="menu"></a>
+  <h4>
+    <a href="http://www.vmwareinfo.com/search/label/iot">
+      Blog
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices">
+      Devices
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
+      Todo List
+    </a>
+    <span> | </span>
+    <a href="https://twitter.com/BearStoneHA">
+      Smart Home Stats
+    </a>
+    <span> | </span>
+    <a href="https://www.facebook.com/BearStoneHA">
+      Facebook
+    </a>
+  </h4>
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
+<a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="50" ></a>
 
-This is the first directory you need for a successful Floorplan installation!
-
-#Still have questions on my Config?
-Follow me on twitter : [@CCostan](https://twitter.com/ccostan)
-Follow the Smart Home on twitter : [@BearStoneHA](https://twitter.com/BearStoneHA)
-
-You can also vist my [Blog](http://www.vmwareinfo.com/search/label/iot) for all of my [Home Automation Posts](http://www.vmwareinfo.com/search/label/iot).
+**Still have questions on my Config?**
+**Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)

@@ -160,7 +160,7 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 </td><td align="center"><a href="https://www.amazon.com/Circle-Disney-Parental-Controls-Connected/dp/B019RC1EI8/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519453110&sr=1-1-spons&keywords=circle+disney&psc=1&linkCode=li2&tag=vmw0a-20&linkId=8bfecf20fdfee716f0e0c43a2f4becbd" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B019RC1EI8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B019RC1EI8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses 'NMAP' for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.  Most things are Wifi connected but a good gigabit switch is needed for a good foundation.</td></tr>
+Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses '' for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.  Most things are Wifi connected but a good gigabit switch is needed for a good foundation.</td></tr>
 
 <tr><td colspan="4">
 
@@ -216,12 +216,12 @@ The Alexa devices in my house are for automation overrides.  They are primarily 
 </td><td align="center" colspan="2"><a href="http://www.vmwareinfo.com/2017/08/project-update-visualization-of-home.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-UdtxP-RNPxM/WZNRjcEJ6hI/AAAAAAADYfY/Vum9wiL5qYAO3frTAi2MdqK1vH6qBTb9gCHMYCw/image3_thumb%255B2%255D?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GEW27DA" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-Mobile devices are a critical part of my Home Automation.  They establish presence in the house and are the basis for many automations.  Home? Turn on the lights.  Leave? Turn them all off kind of thing.  The Tablets are for the awesome FloorPlan that you see in the images.  We have 2 in the house mounted for quick consumption of all the HA data in a glance.
+Mobile devices are a critical part of my Home Automation.  They establish presence in the house and are the basis for many automations.  Home? Turn on the lights.  Leave? Turn them all off kind of thing. We use [NMAP](https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config/device_tracker) for presence detection. 
 * IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DNS.
 * Turn on certain lights and switches when we get home.  Turn off most interior lights when we leave the house.
 * Reminders to take my medicine sent as IOS notifications ONLY when I arrive back home for the night.
 
-We also leverage the Fire Tablets as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.
+The Tablets are for the awesome FloorPlan that you see in the images.  We have 2 in the house mounted for quick consumption of all the HA data in a glance.  We also leverage them as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.
 </td></tr>
 
 <tr><td colspan="4">
