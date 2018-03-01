@@ -12,7 +12,7 @@
   </h4>
 </div>
 <p><font size="3">
-We use the NMAP component for device tracking.  I've considered using the Unifi component since i have the Unifi contrainer running but haven't seen the need yet.  The NMAP presence sensing is SOLID so why mess with it?</p>
+This is the main Floorplan directory.  My install has 2 floorplan installs.  One is the Alarm (which is standard house floorplan) and the other is Clock which is an alarm clock with a much different SVG file.  I have the most up to date configuration for floorplan so you can use my files as documentation for much of the newer features of Floorplan Kiosk.</p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
