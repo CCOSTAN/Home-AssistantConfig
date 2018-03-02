@@ -205,9 +205,18 @@ Defining Guest Mode - /config/input_boolean/home_modes.yaml#L1-L4</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml#L25-L27>
 Using Guest mode as a condition - /config/script/speech_engine.yaml#L25-L27</a><br>
 <p></details>
-
-* Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
-* Context aware lighting control. - Read about it here: [Blog Post](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
+<details>
+<summary>Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.'</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/input_boolean/hidden_booleans.yaml#L5-L7>
+Defining responsibilities trigger - /config/input_boolean/hidden_booleans.yaml#L5-L7</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml#L56-L68>
+Responsibility Speech Code - /config/script/speech_engine.yaml#L56-L68</a><br>
+<p></details>
+<details>
+<summary>Context aware lighting control.</summary><p align="center">
+<a href=http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html>
+Read about it here on vCloudInfo.com</a><br>
+<p></details>
 </td></tr>
 
 <tr><td colspan="4">
