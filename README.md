@@ -164,7 +164,8 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 </td><td align="center"><a href="https://www.amazon.com/Circle-Disney-Parental-Controls-Connected/dp/B019RC1EI8/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519453110&sr=1-1-spons&keywords=circle+disney&psc=1&linkCode=li2&tag=vmw0a-20&linkId=8bfecf20fdfee716f0e0c43a2f4becbd" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B019RC1EI8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B019RC1EI8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses '' for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.  Most things are Wifi connected but a good gigabit switch is needed for a good foundation.</td></tr>
+Using the APs (3 of them), The house monitors all Connected devices for Online/Offline status and uses '' for presence detection.  Any critical device down for more than 5 minutes and an alert is sent out. Circle is a Parental Control device.  When a new device is discovered on the network, HA notifies us and also plays a TTS reminder over the speakers to classify in Circle.  Most things are Wifi connected but a good gigabit switch is needed for a good foundation.
+</td></tr>
 
 <tr><td colspan="4">
 
@@ -192,10 +193,24 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 <tr><td colspan="4">
 
 The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing [Whole House Music](http://www.vmwareinfo.com/2017/08/multi-room-audio-for-echo-its-finally.html) are where Echoes excel!  The Wand is pool side for quick commands and controlling the music if need be.
-* Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.
-* Guest mode to disable certain interior automations. Trigger via Alexa. 'Alexa, Turn on Guest Mode.'
+<details>
+  <summary>* Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.</summary>
+  * [Last Message Package](https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/triggers/last_message.yaml)
+</details>
+<summary>* Guest mode to disable certain interior automations. Trigger via Alexa. 'Alexa, Turn on Guest Mode.'</summary>
+* [Defining Guest Mode](https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/input_boolean/home_modes.yaml#L1-L4)
+* [Using Guest mode as a condition](https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml#L25-L27)
+</details>
+
+
 * Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
 * Context aware lighting control. - Read about it here: [Blog Post](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
+<details>
+  <summary>Expand for Automation Links</summary>
+  * [Last Message Package](https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/triggers/last_message.yaml)
+  * [Defining Guest Mode](https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/input_boolean/home_modes.yaml#L1-L4)
+  * [Using Guest mode as a condition](https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml#L25-L27)
+</details>
 </td></tr>
 
 <tr><td colspan="4">
