@@ -194,17 +194,17 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 
 The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing [Whole House Music](http://www.vmwareinfo.com/2017/08/multi-room-audio-for-echo-its-finally.html) are where Echoes excel!  The Wand is pool side for quick commands and controlling the music if need be.
 <details>
-  <summary>Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.</summary>
+  <summary>Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.</summary><p align="center">
   <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/triggers/last_message.yaml>
   Last Message Package - /config/packages/triggers/last_message.yaml</a><br>
-</details>
+<p></details>
 <details>
-<summary>Guest mode to disable certain interior automations. Trigger via Alexa. 'Alexa, Turn on Guest Mode.'</summary>
+<summary>Guest mode to disable certain interior automations. Trigger via Alexa. 'Alexa, Turn on Guest Mode.'</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/input_boolean/home_modes.yaml#L1-L4>
 Defining Guest Mode - /config/input_boolean/home_modes.yaml#L1-L4</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml#L25-L27>
 Using Guest mode as a condition - /config/script/speech_engine.yaml#L25-L27</a><br>
-</details>
+<p></details>
 
 * Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
 * Context aware lighting control. - Read about it here: [Blog Post](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
