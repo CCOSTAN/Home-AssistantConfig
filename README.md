@@ -205,7 +205,7 @@ The Alexa devices in my house are for automation overrides.  They are primarily 
 * Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.
 * Context aware lighting control. - Read about it here: [Blog Post](http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html)
 <details>
-  <summary>Expand for Automation Links</summary>
+  <summary>Expand for Automation Links</summary> 
 
   <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/triggers/last_message.yaml>Last Message Package</a><br>
   <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/input_boolean/home_modes.yaml#L1-L4>Defining Guest Mode</a><br>
