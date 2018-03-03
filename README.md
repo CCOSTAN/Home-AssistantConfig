@@ -242,11 +242,28 @@ Read about it here on vCloudInfo.com</a><br>
 <tr><td colspan="4">
 
 Mobile devices are a critical part of my Home Automation.  They establish presence in the house and are the basis for many automations.  Home? Turn on the lights.  Leave? Turn them all off kind of thing. We use [NMAP](https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config/device_tracker) for presence detection.
-* IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and [External IP changes](https://community.home-assistant.io/t/detect-if-ip-changes/6830) for DNS.
-* Turn on certain lights and switches when we get home.  Turn off most interior lights when we leave the house.
-* Reminders to take my medicine sent as IOS notifications ONLY when I arrive back home for the night.
+<summary>IOS Notifications for Offline Devices, BadLogins, HA Startups, new HA versions and IP Changes for DNS.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/ip_change.yaml>
+External IP changes - /config/automation/System/ip_change.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/network.yaml>
+Network Monitor package - /config/packages/network.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/away.yaml>
+Away triggers -/config/automation/away.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/interior_off.yaml>
+Shut interior script -/config/script/interior_off.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/late_night_helper.yaml>
+Late night Helper Automation -/config/automation/late_night_helper.yaml</a><br>
+<p></details>
+<summary>Reminders to take my medicine sent as IOS notifications ONLY when I arrive back home for the night.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/ios.yaml>
+IOS Package - /config/automation/System/ip_change.yaml</a><br>
+<p></details>
 
 The Tablets are for the awesome FloorPlan that you see in the images.  We have 2 in the house mounted for quick consumption of all the HA data in a glance.  We also leverage them as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.
+<summary>Custom Component Fire Tablet Media Player</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config/custom_components/media_player>
+Kiosk TTS Custom component - /config/custom_components/media_player</a><br>
+<p></details>
 </td></tr>
 
 <tr><td colspan="4">
