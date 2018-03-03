@@ -254,19 +254,19 @@ Away triggers -/config/automation/away.yaml</a><br>
 Shut interior script -/config/script/interior_off.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/late_night_helper.yaml>
 Late night Helper Automation -/config/automation/late_night_helper.yaml</a><br>
-<p></details>
+</details>
 <details>
 <summary>Reminders to take my medicine sent as IOS notifications ONLY when I arrive back home for the night.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/ios.yaml>
 IOS Package - /config/automation/System/ip_change.yaml</a><br>
-<p></details>
-
-The Tablets are for the awesome FloorPlan that you see in the images.  We have 2 in the house mounted for quick consumption of all the HA data in a glance.  We also leverage them as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.
+</details>
+<p>
+The Tablets are for the awesome FloorPlan that you see in the images.  We have 2 in the house mounted for quick consumption of all the HA data in a glance.  We also leverage them as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.</p>
 <details>
 <summary>Custom Component Fire Tablet Media Player</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config/custom_components/media_player>
 Kiosk TTS Custom component - /config/custom_components/media_player</a><br>
-<p></details>
+</details>
 </td></tr>
 
 <tr><td colspan="4">
