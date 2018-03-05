@@ -292,12 +292,38 @@ Kiosk TTS Custom component - /config/custom_components/media_player</a><br>
 <tr><td colspan="4">
 
 This group of devices is basically for additional presence control.  The Nest thermostats and Protects basically run themselves.  The thermostat 'away' mode triggers my away scripts which turn items off.  The Protects are SOLID [smoke detectors](http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html).  They really came in handy during [Irma](http://www.vmwareinfo.com/2017/09/smart-home-lessons-from-hurricane-irma.html).  The SleepIQ bed adds to my presence detection.  It will notify HA if either side of the bed is occupied.  More controls are coming but I use this extensively. The WiThings scale also triggers morning and goodnight routines depending on when I step on it during the day.
-* Turn off lights when Nest Thermostats detects we are away. (Upstairs and Downstairs)
-* Turn on Upstairs lights if Nest Thermostats detects people and it's nighttime.
-* (IFTTT) Trigger Good Night routine when I step on the Withings scale after 10pm.
-* Turn on bathroom accent lights when either of us steps out of bed at night. Turns them back off when we are back in bed.
-* Turn off all interior lights when the last person gets into bed.
-* Silence all Voice notifications if anyone is in bed.  Redirect to Fire Tablets.
+<details>
+<summary>Turn off lights when Nest Thermostats detects we are away. (Upstairs and Downstairs)</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/away.yaml#L7-L9>
+Away scripting - /config/automation/away.yaml#L7-L9</a><br>
+</details>
+<details>
+<summary>Turn on Upstairs lights if Nest Thermostats detects people and it's nighttime.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/upstairs_motion_ifttt.yaml#L3-L20>
+Upstairs Automation - /config/automation/upstairs_motion_ifttt.yaml</a><br>
+</details>
+<details>
+<summary>(IFTTT) Trigger Good Night routine when I step on the Withings scale after 10pm.</summary><p align="center">
+<a href=http://amzn.to/2CZNMyK>
+WiThings Scale</a><br>
+</details>
+<details>
+<summary>Turn on bathroom accent lights when either of us steps out of bed at night. Turns them back off when we are back in bed.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/master_bath_accents.yaml>
+Master Bath Automation - /config/automation/master_bath_accents.yaml</a><br>
+</details>
+<details>
+<summary>Turn off all interior lights when the last person gets into bed.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/good_night.yaml#L11-L15>
+Good night Automation - /config/automation/good_night.yaml</a><br>
+</details>
+<details>
+<summary>Silence all Voice notifications if anyone is in bed.  Redirect to Fire Tablets.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/Timed_Triggers/2200.yaml>
+Timed AMP turnoff Automation - /config/automation/Timed_Triggers/2200.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/amp_settings.yaml>
+AMP redirect script - /config/script/amp_settings.yam</a><br>
+</details>
 
 </td></tr>
 
