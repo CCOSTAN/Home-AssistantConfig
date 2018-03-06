@@ -45,5 +45,5 @@ Custom Components.  Comstimes I use them for temporary fixes to existing compone
 **Still have questions on my Config?**
 **Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
 <!-- Subscribe Section -->
-<a href="http://eepurl.com/dmXFYz"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a>.
+<a href="http://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a>.
 <!-- Subscribe Section END-->
