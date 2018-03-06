@@ -40,7 +40,8 @@ This is the main directory of the Repo.  You will find more helpful ReadMe files
 
 **Still have questions on my Config?**
 **Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
-
-<p align="center">[Subscribe to Blog Updates via EMail](http://eepurl.com/dmXFYz)</p>
+<!-- Subscribe Section -->
+<a href="http://eepurl.com/dmXFYz"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="" ></a>.
+<!-- Subscribe Section END-->
 
 <p align="center"><a align="center" target="_blank" href="http://feeds.feedburner.com/~r/RecentCommitsToBearStoneHA/~6/1"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>

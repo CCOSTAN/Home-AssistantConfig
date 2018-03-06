@@ -40,3 +40,6 @@ You can definately read more about my voice implimentations in my blog posts (li
 
 **Still have questions on my Config?**
 **Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
+<!-- Subscribe Section -->
+<a href="http://eepurl.com/dmXFYz"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="" ></a>.
+<!-- Subscribe Section END-->

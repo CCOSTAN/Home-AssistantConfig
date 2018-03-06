@@ -626,6 +626,9 @@ Feel free to join the conversations there.
 **All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
 
 #**Still have questions on my Config?**
-**Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)<a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="22" ></a>
+**Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
 
-[Affiliate Disclosure](http://www.vmwareinfo.com/p/affiliate-disclosure.html) | [Subscribe to Blog Updates via EMail](http://eepurl.com/dmXFYz)
+<a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="22" ></a><br>
+<a href="http://eepurl.com/dmXFYz"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
+<a href="http://eepurl.com/dmXFYz"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="" ></a><p align="right">
+[Affiliate Disclosure](http://www.vmwareinfo.com/p/affiliate-disclosure.html)
