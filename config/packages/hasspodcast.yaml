@@ -7,9 +7,9 @@
 #-------------------------------------------
 feedreader:
     urls:
-      - https://hasspodcast.io/feed/podcast
-      - http://feeds.feedburner.com/IPMer?format=xml
-# - http://feeds.feedburner.com/RecentCommitsToBearStoneHA
+      - https://hasspodcast.io/feed/podcast #HA Podcast Feed
+      - https://us12.campaign-archive.com/feed?u=45cab4343ffdbeb9667c28a26&id=e01847e94f #This is CCOSTAN's Smart Home Blog feed
+# - http://feeds.feedburner.com/RecentCommitsToBearStoneHA - This is the Repo Commit feed.
 #-------------------------------------------
 
 automation:
@@ -21,32 +21,26 @@ automation:
     action:
       - service: script.notify_engine
         data_template:
-          value1: 'There is a new HA Podcast available for {{trigger.event.data.title}}.'
-          value2: 'https://hasspodcast.io/'
+          value1: 'There is a new RSS item available for {{trigger.event.data.title}}.'
+          value2: '{{trigger.event.data.link}}'
           who: 'carlo'
 
       - service: notify.html5
         data_template:
-          title: "New HA Podcast available"
-          message: "New HA Podcast - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }} {{trigger.event.data.title}}"
+          title: "New RSS Item available"
+          message: "New RSS Item - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }} {{trigger.event.data.title}}"
           data:
-            url: "https://hasspodcast.io/"
+            url: "{{trigger.event.data.link}}"
 
       - service: persistent_notification.create
         data_template:
           title: "{{trigger.event.data.title}}"
-          message: "New Podcast available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+          message: "New RSS item available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
           notification_id: "update_available"
 
       - service: script.tweet_engine
         data_template:
-          tweet: >
-            {{ [
-            "There is a new HA Podcast available! @DanGeek, @rohank9, @philhawthorne & Crew rock it out (#HomeAutomation Style!)!",
-            "Mine and @DanGeek Favorite Podcast just came out!",
-            "Listen to @rohank9 and the HA Podcast crew on thier new #HomeAutomation episode!",
-            "Mine & @CCostan Favorite Podcast just came out! Thanks @DanGeek!"
-            ] | random + "(https://hasspodcast.io/)"}}
+          tweet: 'Check it out! {{trigger.event.data.title}} - {{trigger.event.data.link}}'
 
       - service: script.notify_engine
         data_template:

@@ -107,30 +107,30 @@ automation:
           media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/twitter-chirp.mp3"
           media_content_type: audio/mp4
 
-      - service: script.tweet_engine
-        data_template:
-          tweet: >-
-            {% set handle = trigger.event.data.value1 %}
-            {% set location = trigger.event.data.location %}
-            {% set phrases = [
-              "Thanks for the Follow " ~ handle ~ "! Chirp the Bird from " ~ location ~ "!!",
-              "Hey " ~ handle ~ "! Thanks for the Follow from " ~ location ~ " !",
-              "Sending a #Chirp to " ~ handle ~ " in " ~ location ~ "!",
-              "New follower " ~ handle ~ " from " ~ location ~ ", I just sounded a chirp in the house.",
-              "Boom! The " ~ location ~ " follow from " ~ handle ~ " makes me sound a chirp in the house.",
-              "Wanna know who is super cool? "~ handle ~" IS!!! Thanks for making me CHIRP!",
-              "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower like " ~ handle ~ ", I sound a chirp!"
-            ] %}
-            {% set hashtags = [
-              "#ThanksForTheFollow",
-              "#FollowBack",
-              "#ChirpTheHouse",
-              "#FollowMe",
-              "#MakingitChirp",
-              "(http://www.vmwareinfo.com/2017/12/giving-house-twitter-account.html)",
-              "(http://www.vmwareinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)"
-            ] %}
-            {{ phrases|random ~ " " ~ hashtags|random }}
+      # - service: script.tweet_engine
+      #   data_template:
+      #     tweet: >-
+      #       {% set handle = trigger.event.data.value1 %}
+      #       {% set location = trigger.event.data.location %}
+      #       {% set phrases = [
+      #         "Thanks for the Follow " ~ handle ~ "! Chirp the Bird from " ~ location ~ "!!",
+      #         "Hey " ~ handle ~ "! Thanks for the Follow from " ~ location ~ " !",
+      #         "Sending a #Chirp to " ~ handle ~ " in " ~ location ~ "!",
+      #         "New follower " ~ handle ~ " from " ~ location ~ ", I just sounded a chirp in the house.",
+      #         "Boom! The " ~ location ~ " follow from " ~ handle ~ " makes me sound a chirp in the house.",
+      #         "Wanna know who is super cool? "~ handle ~" IS!!! Thanks for making me CHIRP!",
+      #         "If the AMP (http://amzn.to/2j18dlT) is on & I get a new follower like " ~ handle ~ ", I sound a chirp!"
+      #       ] %}
+      #       {% set hashtags = [
+      #         "#ThanksForTheFollow",
+      #         "#FollowBack",
+      #         "#ChirpTheHouse",
+      #         "#FollowMe",
+      #         "#MakingitChirp",
+      #         "(http://www.vmwareinfo.com/2017/12/giving-house-twitter-account.html)",
+      #         "(http://www.vmwareinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)"
+      #       ] %}
+      #       {{ phrases|random ~ " " ~ hashtags|random }}
 
   - alias: 'Closed Github Issue'
     hide_entity: True
