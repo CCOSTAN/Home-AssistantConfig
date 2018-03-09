@@ -40,7 +40,7 @@ automation:
 
       - service: script.tweet_engine
         data_template:
-          tweet: 'Check it out! {{trigger.event.data.title}} - {{trigger.event.data.link}}'
+          tweet: '{{trigger.event.data.title}} - {{trigger.event.data.link}}'
 
       - service: script.notify_engine
         data_template:
