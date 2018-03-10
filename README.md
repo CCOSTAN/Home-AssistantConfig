@@ -351,12 +351,28 @@ AMP redirect script - /config/script/amp_settings.yam</a><br>
 <tr><td colspan="4">
 
 To me, Voice is the coolest part of the smart home.  It gives it personality.  It's something not just anyone has and helps your house stand apart from the pack.  I use the [Amazon Polly TTS](https://home-assistant.io/components/tts/) component since it sounds the closest to Alexa.  This gives a seemless transition from Alexa to Home Assistant responding.  Most think it is just one system.  The mixer allows TTS to mix right in over Music.  The TP-Link Outlet  is used to turn off the Mixer and AMP when we do not need it.  It's a great inexpensive solution.
-* Turn off all the voice devices when we are not home or in bed.
-* All voice notifications are pushed though a speech engine.  Random words and sentances are used to give the house some personality.
-* Voice announcements whenever someone comes home.
-* Voice notifications for all sorts of things related to the house.  (Temps, presence, doors open, windows open, garage door statuses, sunset.)
-* Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.
-
+<summary>Turn off all the voice devices when we are not home or in bed.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/away.yaml>
+Away Automation - /config/automation/away.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/good_night.yaml>
+Good Night Automation - /config/automation/good_night.yaml</a><br>
+</details>
+<summary>All voice notifications are pushed though a speech engine.  Random words and sentances are used to give the house some personality..</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml>
+Speech Engine - /config/script/speech_engine.yaml</a><br>
+</details>
+<summary>Voice announcements whenever someone comes home.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/Speech/announcements.yaml>
+People Greeter - /config/automation/Speech/announcements.yaml</a><br>
+</details>
+<summary>Voice notifications for all sorts of things related to the house. (Temps, presence, doors open, windows open, garage door statuses, sunset.)</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml>
+Speech Macros are called by automation scripts - /script/speech_engine.yaml</a><br>
+</details>
+<summary>Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/CucKoo_Clock.yaml>
+Cuckoo Clock - /config/automation/System/CucKoo_Clock.yaml</a><br>
+</details><br>
 Once you can teach your house to talk, you just keep expanding on it's vocabulary. It's addicting. :)
 </td></tr>
 
