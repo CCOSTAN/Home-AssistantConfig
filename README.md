@@ -406,7 +406,7 @@ The Hubs help the home communicate across all the various protocols running in t
 Kitchen Accents Automation - /config/automation/kitchen_lights_and_accents.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/master_bath_accents.yaml>
 Master Bath Accents Automation - /config/automation/master_bath_accents.yamll</a><br>
-</details>  
+</details>
 <summary>Turn on Hallway light for no more than 20 minutes when Pantry door is opened.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/zwave_hallway_door_sensor.yaml>
 Hallway Automation - /config/automation/zwave_hallway_door_sensor.yaml</a><br>
@@ -451,9 +451,18 @@ Think of the Hubs each as bridges for HA to talk to various hardware around the 
 <tr><td colspan="4">
 
 Almost all my lights (40+) are white GE Link lights.  I bought them early on before Hue came out with inexpensive white A19s.  Even Ikea has great lights now.  Colored lights are in the front sconces and also used in the living room.  The Go lights are specifically for the kids since they are both wireless and also have a button on them making them very tactile for kids.  The EtekCity outlets are the most inexpensive ($6) yet reliable outlets out there.  I have them deployed all over the house as accent lighting with some rope lights in most of the home's cut outs.
-* Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)
-* Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.
-* Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all dors/windows are closed.
+<summary>Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/tv_time_on_and_off.yaml>
+TV Time Automations - /config/automation/tv_time_on_and_off.yaml</a><br>
+</details>
+<summary>Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/holiday.yaml>
+Holiday Lights package - /config/packages/holiday.yaml</a><br>
+</details>
+<summary>Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all doors/windows are closed.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L289-L299>
+DIY Alarm package - /config/packages/alarm.yaml</a><br>
+</details>
 </td></tr>
 
 <tr><td colspan="4">
