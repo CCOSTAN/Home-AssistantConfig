@@ -400,11 +400,29 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 <tr><td colspan="4">
 
 The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights.  Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.  The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).
-* Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.
-* Turn on Hallway light for no more than 20 minutes when Pantry door is opened.
-* Detects when lights are turned on and adjusts them to correct brightness based on time of day.
-* Shut down HVAC system if a Window or Door is left open for more than 5 minutes.
-* Play chime on all window and door open/closes.
+
+<summary>Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/kitchen_lights_and_accents.yaml>
+Kitchen Accents Automation - /config/automation/kitchen_lights_and_accents.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/master_bath_accents.yaml>
+Master Bath Accents Automation - /config/automation/master_bath_accents.yamll</a><br>
+</details>  
+<summary>Turn on Hallway light for no more than 20 minutes when Pantry door is opened.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/zwave_hallway_door_sensor.yaml>
+Hallway Automation - /config/automation/zwave_hallway_door_sensor.yaml</a><br>
+</details>
+<summary>Detects when lights are turned on and adjusts them to correct brightness based on time of day.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/detect_and_adjust_lights.yaml>
+Auto Light adjustment Automation - /config/automation/System/detect_and_adjust_lights.yaml</a><br>
+</details>
+<summary>Shut down HVAC system if a Window or Door is left open for more than 5 minutes.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L209>
+HVAC Watchdog Automation - /config/packages/alarm.yaml#L209</a><br>
+</details>
+<summary>Play chime on all window and door open/closes.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/door_chime.yaml>
+Door Chime Automation - /config/automation/System/door_chime.yaml</a><br>
+</details>
 
 Think of the Hubs each as bridges for HA to talk to various hardware around the house.
 </td></tr>
