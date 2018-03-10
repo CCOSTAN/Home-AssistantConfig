@@ -351,24 +351,25 @@ AMP redirect script - /config/script/amp_settings.yam</a><br>
 <tr><td colspan="4">
 
 To me, Voice is the coolest part of the smart home.  It gives it personality.  It's something not just anyone has and helps your house stand apart from the pack.  I use the [Amazon Polly TTS](https://home-assistant.io/components/tts/) component since it sounds the closest to Alexa.  This gives a seemless transition from Alexa to Home Assistant responding.  Most think it is just one system.  The mixer allows TTS to mix right in over Music.  The TP-Link Outlet  is used to turn off the Mixer and AMP when we do not need it.  It's a great inexpensive solution.
+<details>
 <summary>Turn off all the voice devices when we are not home or in bed.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/away.yaml>
 Away Automation - /config/automation/away.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/good_night.yaml>
 Good Night Automation - /config/automation/good_night.yaml</a><br>
-</details>
+</details><details>
 <summary>All voice notifications are pushed though a speech engine.  Random words and sentances are used to give the house some personality..</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml>
 Speech Engine - /config/script/speech_engine.yaml</a><br>
-</details>
+</details><details>
 <summary>Voice announcements whenever someone comes home.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/Speech/announcements.yaml>
 People Greeter - /config/automation/Speech/announcements.yaml</a><br>
-</details>
+</details><details>
 <summary>Voice notifications for all sorts of things related to the house. (Temps, presence, doors open, windows open, garage door statuses, sunset.)</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml>
 Speech Macros are called by automation scripts - /script/speech_engine.yaml</a><br>
-</details>
+</details><details>
 <summary>Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/CucKoo_Clock.yaml>
 Cuckoo Clock - /config/automation/System/CucKoo_Clock.yaml</a><br>
@@ -401,24 +402,25 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 
 The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights.  Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.  The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).
 
+<details>
 <summary>Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/kitchen_lights_and_accents.yaml>
 Kitchen Accents Automation - /config/automation/kitchen_lights_and_accents.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/master_bath_accents.yaml>
 Master Bath Accents Automation - /config/automation/master_bath_accents.yamll</a><br>
-</details>
+</details><details>
 <summary>Turn on Hallway light for no more than 20 minutes when Pantry door is opened.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/zwave_hallway_door_sensor.yaml>
 Hallway Automation - /config/automation/zwave_hallway_door_sensor.yaml</a><br>
-</details>
+</details><details>
 <summary>Detects when lights are turned on and adjusts them to correct brightness based on time of day.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/detect_and_adjust_lights.yaml>
 Auto Light adjustment Automation - /config/automation/System/detect_and_adjust_lights.yaml</a><br>
-</details>
+</details><details>
 <summary>Shut down HVAC system if a Window or Door is left open for more than 5 minutes.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L209>
 HVAC Watchdog Automation - /config/packages/alarm.yaml#L209</a><br>
-</details>
+</details><details>
 <summary>Play chime on all window and door open/closes.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/door_chime.yaml>
 Door Chime Automation - /config/automation/System/door_chime.yaml</a><br>
@@ -451,14 +453,15 @@ Think of the Hubs each as bridges for HA to talk to various hardware around the 
 <tr><td colspan="4">
 
 Almost all my lights (40+) are white GE Link lights.  I bought them early on before Hue came out with inexpensive white A19s.  Even Ikea has great lights now.  Colored lights are in the front sconces and also used in the living room.  The Go lights are specifically for the kids since they are both wireless and also have a button on them making them very tactile for kids.  The EtekCity outlets are the most inexpensive ($6) yet reliable outlets out there.  I have them deployed all over the house as accent lighting with some rope lights in most of the home's cut outs.
+<details>
 <summary>Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/tv_time_on_and_off.yaml>
 TV Time Automations - /config/automation/tv_time_on_and_off.yaml</a><br>
-</details>
+</details><details>
 <summary>Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/holiday.yaml>
 Holiday Lights package - /config/packages/holiday.yaml</a><br>
-</details>
+</details><details>
 <summary>Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all doors/windows are closed.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L289-L299>
 DIY Alarm package - /config/packages/alarm.yaml</a><br>
