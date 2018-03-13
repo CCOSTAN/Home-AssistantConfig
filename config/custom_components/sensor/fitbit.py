@@ -189,7 +189,7 @@ def request_app_setup(hass, config, add_devices, config_path,
     submit = "I have saved my Client ID and Client Secret into {}.".format(config_path)
 
     _CONFIGURING['fitbit'] = configurator.request_config(
-        'Fitbit  ( {} )').format(config.get(CONF_FILENAME), fitbit_configuration_callback,
+        'Fitbit  ( {} )'.format(config.get(CONF_FILENAME)), fitbit_configuration_callback,
         description=description, submit_caption=submit,
         description_image="/static/images/config_fitbit_app.png"
     )
