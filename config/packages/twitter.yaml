@@ -146,7 +146,7 @@ automation:
             {% set issue = trigger.event.data.issue %}
             {% set issueurl = trigger.event.data.issueurl %}
             {% set phrases = [
-              "New Code Available: " ~ issue ~ " " ~ issueurl
+              "New Code: " ~ issue ~ " " ~ issueurl
             ] %}
             {% set hashtags = [
               "#Github",
