@@ -165,8 +165,8 @@ def request_app_setup(hass, config, add_devices, config_path,
         if os.path.isfile(config_path):
             config_file = load_json(config_path)
             if config_file == DEFAULT_CONFIG:
-                error_msg = ("You didn't correctly modify the {}}",
-                             " please try again").format(config_path)
+                error_msg = ("You didn't correctly modify the file",
+                                " please try again")
                 configurator.notify_errors(_CONFIGURING['fitbit'],
                                            error_msg)
             else:
