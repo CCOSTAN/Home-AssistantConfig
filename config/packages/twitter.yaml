@@ -146,7 +146,7 @@ automation:
             {% set issue = trigger.event.data.issue %}
             {% set issueurl = trigger.event.data.issueurl %}
             {% set phrases = [
-              "New Code Alert: " ~ issue ~ "(" ~ issueurl ~ "). Repo: (https://github.com/CCOSTAN/Home-AssistantConfig/commits/master) "
+              "New Code Available: " ~ issue ~ " " ~ issueurl
             ] %}
             {% set hashtags = [
               "#Github",
@@ -154,7 +154,13 @@ automation:
               "#SmartHomeCode"
             ] %}
             {{ phrases|random ~ " " ~ hashtags|random }}
-
+          data_template:
+            media: >-
+              {% set pictures = [
+                "/config/www/custom_ui/floorplan/images/repo_ad.png",
+                "/config/www/custom_ui/floorplan/images/repo_ad2.png"
+              ] %}
+              {{ pictures|random }}
 
   - alias: 'Random House stats'
     hide_entity: True
