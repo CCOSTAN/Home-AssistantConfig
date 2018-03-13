@@ -13,20 +13,20 @@
 #-------------------------------------------
 sensor:
   - platform: fitbit
-    filename: carlo.conf
+    # filename: fitbit-carlo.conf
     clock_format: 12H
     monitored_resources:
       - "body/weight"
       - "activities/steps"
       - "devices/battery"
 
-  - platform: fitbit
-    filename: stacey.conf
-    clock_format: 12H
-    monitored_resources:
-      - "body/weight"
-      - "activities/steps"
-      - "devices/battery"
+  # - platform: fitbit
+  #   filename: fitbit-stacey.conf
+  #   clock_format: 12H
+  #   monitored_resources:
+  #     - "body/weight"
+  #     - "activities/steps"
+  #     - "devices/battery"
 #-------------------------------------------
 group:
   fitbit:
