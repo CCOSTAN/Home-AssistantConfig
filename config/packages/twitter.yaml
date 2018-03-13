@@ -153,13 +153,12 @@ automation:
               "#SmartHomeCode"
             ] %}
             {{ phrases|random ~ " " ~ hashtags|random }}
-          data_template:
-            media: >-
-              {% set pictures = [
-                "/config/www/custom_ui/floorplan/images/repo_ad.png",
-                "/config/www/custom_ui/floorplan/images/repo_ad2.png"
-              ] %}
-              {{ pictures|random }}
+          image: >-
+            {% set pictures = [
+              "/config/www/custom_ui/floorplan/images/repo_ad.png",
+              "/config/www/custom_ui/floorplan/images/repo_ad2.png"
+            ] %}
+            {{ pictures|random }}
 
   - alias: 'Random House stats'
     hide_entity: True
