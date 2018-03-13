@@ -139,7 +139,7 @@ automation:
         event_type: closed_github
 
     action:
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
           tweet: >-
             {% set repo = trigger.event.data.repo %}
@@ -179,7 +179,7 @@ automation:
       - delay: '0{{ range(0,2) | random | int }}:{{ range(10,59) | random | int }}:00'
       - service: script.tweet_engine
         data_template:
-          tweet: >
+          tweet: >-
             {{ [
             "Beep. Bop. Beep. Boop.  I am a #Bot run by @CCostan",
             "The number of Doorbell presses yesterday was {{states.sensor.doorbell_presses.state}}",
