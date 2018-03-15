@@ -38,9 +38,14 @@ automation:
           message: "New RSS item available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
           notification_id: "update_available"
 
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
           tweet: '{{trigger.event.data.title}} - {{trigger.event.data.link}}'
+          image: >-
+            {% set pictures = [
+              "/config/www/custom_ui/floorplan/images/branding/BearStoneParty.png"
+            ] %}
+            {{ pictures|random }}
 
       - service: script.notify_engine
         data_template:
