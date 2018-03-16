@@ -407,7 +407,7 @@ The Hubs help the home communicate across all the various protocols running in t
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/kitchen_lights_and_accents.yaml>
 Kitchen Accents Automation - /config/automation/kitchen_lights_and_accents.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/master_bath_accents.yaml>
-Master Bath Accents Automation - /config/automation/master_bath_accents.yamll</a><br>
+Master Bath Accents Automation - /config/automation/master_bath_accents.yaml</a><br>
 </details><details>
 <summary>Turn on Hallway light for no more than 20 minutes when Pantry door is opened.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/zwave_hallway_door_sensor.yaml>
@@ -584,11 +584,27 @@ Motion automations - /config/script/front_house_motion.yaml</a><br>
 <tr><td colspan="4">
 
 Garage doors, Cars, charging stations.  Going green.  All part of a complete home automation setup.  The garage door openers are probably the most important.  No one wants to forget that they left them open when they've left or gone to bed.  Closing forgotten garage doors makes it all worth it.
-* Notifications when the garage door is left open at night or when we leave the house.
-* Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)
-* Tweet out chargin status of the car and how many KwH were charged in a session. #Stat
-* Monitor AMPs and Voltage and alert if charge ever goes over 24A to prevent breaker tripping. (Juicebox is software derated to 24A on a 30A circuit.)
 
+<details>
+<summary>Notifications when the garage door is left open at night or when we leave the house.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/Speech/garage_closed.yaml>
+Garage Speech Automations - /config/automation/Speech/garage_closed.yaml</a><br>
+</details>
+<details>
+<summary>Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/garadget.yaml>
+Garage reflection Automations - /config/automation/garadget.yaml</a><br>
+</details>
+<details>
+<summary>Tweet out chargin status of the car and how many KwH were charged in a session. #Stat</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/tweet.yaml>
+Tweet Automations - /config/script/tweet.yaml</a><br>
+</details>
+<details>
+<summary>Monitor AMPs and Voltage and alert if charge ever goes over 24A to prevent breaker tripping. (Juicebox is software derated to 24A on a 30A circuit.)</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/juicenet.yaml>
+Juicebox package - /config/packages/juicenet.yaml</a><br>
+</details>
 </td></tr>
 
 <tr><td colspan="4">
@@ -617,10 +633,22 @@ Garage doors, Cars, charging stations.  Going green.  All part of a complete hom
 <tr><td colspan="4">
 
 TV Automations are super cool.  Turn on a movie and the lights begin to dim automatically.  It's super cool.  Out TVs are back lit with [Hue Lightstrips](http://amzn.to/2FGbPpL) so we can do some pretty neat effects with automations.  We are #CordCutters as well so all out TV is streamed to the Rokus.  FireTV for party games and the Snyology, I'll talk about later in the Survellance section.
-* If any Doors or Windows are open, the TV backlights turn Red.
-* When the Roku reports we are watching Plex or [TabloTV](http://amzn.to/2HQaf59), TV Time scene is triggered dimming 2 of 4 living room lights.
-* Rainy days trigger extra subtle light (TV back lights and other accent lighting) inside the house.
 
+<details>
+<summary>If any Doors or Windows are open, the TV backlights turn Red.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml>
+Alarm package - /config/packages/alarm.yaml</a><br>
+</details>
+<details>
+<summary>When the Roku reports we are watching Plex or [TabloTV](http://amzn.to/2HQaf59), TV Time scene is triggered dimming 2 of 4 living room lights.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/tv_time_on_and_off.yaml>
+TV Time Automations - /config/automation/tv_time_on_and_off.yaml</a><br>
+</details>
+<details>
+<summary>Rainy days trigger extra subtle light (TV back lights and other accent lighting) inside the house.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/dark_rainy_day.yaml>
+Rainy Day Automations - /config/automation/dark_rainy_day.yaml</a><br>
+</details>
 </td></tr>
 
 <tr><td colspan="4">
