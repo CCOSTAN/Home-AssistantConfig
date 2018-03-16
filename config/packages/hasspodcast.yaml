@@ -43,7 +43,8 @@ automation:
           tweet: '{{trigger.event.data.title}} - {{trigger.event.data.link}}'
           image: >-
             {% set pictures = [
-              "/config/www/custom_ui/floorplan/images/branding/BearStoneParty.png"
+              "/config/www/custom_ui/floorplan/images/branding/BearStoneParty.png",
+              "/config/www/custom_ui/floorplan/images/branding/Chalk-Podcast.png"
             ] %}
             {{ pictures|random }}
 
