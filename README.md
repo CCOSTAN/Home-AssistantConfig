@@ -640,7 +640,7 @@ TV Automations are super cool.  Turn on a movie and the lights begin to dim auto
 Alarm package - /config/packages/alarm.yaml</a><br>
 </details>
 <details>
-<summary>When the Roku reports we are watching Plex or [TabloTV](http://amzn.to/2HQaf59), TV Time scene is triggered dimming 2 of 4 living room lights.</summary><p align="center">
+<summary>When the Roku reports we are watching Plex or TabloTV, TV Time scene is triggered dimming 2 of 4 living room lights.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/tv_time_on_and_off.yaml>
 TV Time Automations - /config/automation/tv_time_on_and_off.yaml</a><br>
 </details>
@@ -677,8 +677,21 @@ Rainy Day Automations - /config/automation/dark_rainy_day.yaml</a><br>
 <tr><td colspan="4">
 
 Cameras are both for security and data sensors.  They can trigger motion events, lighting conditions or for doorbells, when someone presses it. When all else fails though, a good recording of a Bull Mastiff is sure to do the trick!
-* On motion from Doorbell turns front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.
-* When someone rings the Doorbell, the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).
+
+<details>
+<summary>On motion from Doorbell turns front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/skybell_pressed.yaml>
+Skybell HD script - /config/script/skybell_pressed.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/guard_dog.yaml>
+Dog Bark script - /config/automation/guard_dog.yaml</a><br>
+</details>
+<details>
+<summary>When someone rings the Doorbell, the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/skybell_pressed.yaml>
+Skybell HD script - /config/script/skybell_pressed.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/guard_dog.yaml>
+Dog Bark script - /config/automation/guard_dog.yaml</a><br>
+</details>
 </td></tr>
 
 <tr><td colspan="4">
@@ -707,10 +720,29 @@ Cameras are both for security and data sensors.  They can trigger motion events,
 <tr><td colspan="4">
 
 Sensors add data to Home Assistant.  Most of my Doors and windows are hardwired but for some interior doors, I also have the wireless sensors.  They connect to my Wink Hub.  [PiHole](https://pi-hole.net/) is running on my PiZero.  It's super easy to install and runs DNS, DHCP and ad blocking for the whole house on a great little 5v form factor.
-* Tweet out daily Pi Hole stats. (Ads Blocked and % of bandwidth saved.)
-* Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.
-* Sound door chimes whenever doors open or close.
-* Watch and alert on Home Assistant's Disk usage and Pi Zero. Get alerts before Pi Zero runs out of space on the [SD Card](http://amzn.to/2kNttio).
+
+<details>
+<summary>Tweet out daily Pi Hole stats. (Ads Blocked and % of bandwidth saved.)</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/pihole.yaml>
+Pi-Hole Package - /config/packages/pihole.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/tweet.yaml>
+Tweet script - /config/script/tweet.yaml</a><br>
+</details>
+<details>
+<summary>Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/watchdog_light.yaml>
+Light watchdog Automations - /config/automation/System/watchdog_light.yaml</a><br>
+</details>
+<details>
+<summary>Sound door chimes whenever doors open or close.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/door_chime.yaml>
+Door Chimes Automations - /config/automation/System/door_chime.yaml</a><br>
+</details>
+<details>
+<summary>Watch and alert on Home Assistant's Disk usage and Pi Zero.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/processmonitor.yaml>
+Process Monitor Package - /config/packages/processmonitor.yaml</a><br>
+</details>
 </td></tr>
 
 </table>
