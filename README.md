@@ -540,9 +540,22 @@ Good Night automation - /config/automation/good_night.yaml</a><br>
 <tr><td colspan="4">
 
 Mentioned above, this is one of my favorite projects for the house.  The ability to completely change the look of the house on the drop of a dime and on a dime budget is awesome.  Read the blog post linked above for all the parts details but here are some automations I love.
-* Change the front colors of the LED lights based on holidays.  The best part is the LED controller works with HA right out of the box.  No fiddling around with it at all.  HUGE Plus in my book.
-* When the garage doors open, change all lights in the front of the house to bright white.
-* On motion, turn all the lights to a bright white outside for a random amount of time before resuming the daily color choice.
+
+<details>
+<summary>Change the front colors of the LED lights based on holidays.  The best part is the LED controller works with HA right out of the box.  No fiddling around with it at all.  HUGE Plus in my book.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/holiday.yaml>
+Holiday Package - /config/packages/holiday.yaml</a><br>
+</details>
+<details>
+<summary>When the garage doors open, change all lights in the front of the house to bright white.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/garadget.yaml>
+Garadget automations - /master/config/automation/garadget.yaml</a><br>
+</details>
+<details>
+<summary>On motion, turn all the lights to a bright white outside for a random amount of time before resuming the daily color choice.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/front_house_motion.yaml>
+Motion automations - /config/script/front_house_motion.yaml</a><br>
+</details>
 </td></tr>
 
 <tr><td colspan="4">
