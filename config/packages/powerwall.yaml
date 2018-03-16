@@ -1,0 +1,93 @@
+#-------------------------------------------
+#  PiHole ad Blocking Related Packages
+#-------------------------------------------
+# homeassistant:
+#   customize:
+#
+#     sensor.pihole_ads_percentage_today:
+#       friendly_name: Percentage of Ad Traffic Blocked
+#       unit_of_measurement: '%'
+#       icon: mdi:ticket-percent
+#
+#     group.pihole:
+#       homebridge_hidden: true
+#-------------------------------------------
+sensor:
+  - platform: rest
+    name: PowerWall House now
+    resource: http://http://192.168.10.238/api/meters/aggregates
+    method: GET
+    value_template: '{{ value_json.load.instant_power / 1000 }}'
+    unit_of_measurement: kWh
+
+  - platform: rest
+    name: PowerWall Grid now
+    resource: http://http://192.168.10.238/api/meters/aggregates
+    method: GET
+    value_template: '{{ value_json.site.instant_power / 1000 }}'
+    unit_of_measurement: kWh
+
+  - platform: rest
+    name: PowerWall Solar now
+    resource: http://http://192.168.10.238/api/meters/aggregates
+    method: GET
+    value_template: '{{ value_json.solar.instant_power / 1000 }}'
+    unit_of_measurement: kWh
+
+  - platform: rest
+    name: PowerWall Battery now
+    resource: http://http://192.168.10.238/api/meters/aggregates
+    method: GET
+    value_template: '{{ value_json.battery.instant_power / 1000 }}'
+    unit_of_measurement: kWh
+
+  - platform: rest
+    name: PowerWall Battery Capacity
+    resource: http://http://192.168.10.238/api/system_status/soe
+    method: GET
+    value_template: '{{ 13500 // (100 / value_json.percentage) }}'
+    unit_of_measurement: W
+
+#-------------------------------------------
+# group:
+#   pihole:
+#     entities:
+#       - sensor.carlopihole
+#       - sensor.pi_hole_version
+#       - sensor.pihole_dns_unique_clients
+#       - sensor.pihole_dns_queries_today
+#       - sensor.pihole_ads_blocked_today
+#       - sensor.pihole_ads_percentage_today
+#       - sensor.pihole_ads_percentage_blocked_today
+#       - switch.pihole_temp_disable
+#-------------------------------------------
+
+#
+# automation:
+#   - alias: PiHole Daily stats Tweet!
+#     trigger:
+#       platform: time
+#       at: '23:50:00'
+#     action:
+#       - delay: '00:{{ (range(1, 9)|random|int) }}:00'
+#       - service: script.tweet_engine
+#         data_template:
+#           tweet: >
+#             {{ [
+#             "I blocked {{states.sensor.pihole_ads_blocked_today.state}} ads. That is {{states.sensor.pihole_ads_percentage_blocked_today.state}}% of my internet traffic.",
+#             "Today was a good day! Why, you ask? Because I blocked {{states.sensor.pihole_ads_blocked_today.state}} ads via Pi-Hole!",
+#             ] | random + " #PiHole #Security Status:({{states.sensor.carlopihole.state}})"}}
+#
+#   - alias: PiHole Daily Client Tweet!
+#     trigger:
+#       platform: time
+#       at: '04:30:00'
+#     action:
+#       - delay: '{{ (range(1, 6)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
+#       - service: script.tweet_engine
+#         data_template:
+#           tweet: >
+#             {{ [
+#             "There are currently {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
+#             "As reported by #Ubiquity Routers, There are {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
+#             ] | random + "#Security http://amzn.to/2D2AfXS"}}
