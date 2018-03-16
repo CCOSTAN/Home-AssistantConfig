@@ -14,52 +14,49 @@
 #-------------------------------------------
 sensor:
   - platform: rest
-    name: PowerWall House now
-    resource: http://http://192.168.10.238/api/meters/aggregates
+    name: House now
+    resource: http://192.168.10.90/api/meters/aggregates
     method: GET
     value_template: '{{ value_json.load.instant_power / 1000 }}'
     unit_of_measurement: kWh
 
   - platform: rest
-    name: PowerWall Grid now
-    resource: http://http://192.168.10.238/api/meters/aggregates
+    name: Grid now
+    resource: http://192.168.10.90/api/meters/aggregates
     method: GET
     value_template: '{{ value_json.site.instant_power / 1000 }}'
     unit_of_measurement: kWh
 
   - platform: rest
-    name: PowerWall Solar now
-    resource: http://http://192.168.10.238/api/meters/aggregates
+    name: Solar now
+    resource: http://192.168.10.90/api/meters/aggregates
     method: GET
     value_template: '{{ value_json.solar.instant_power / 1000 }}'
     unit_of_measurement: kWh
 
   - platform: rest
     name: PowerWall Battery now
-    resource: http://http://192.168.10.238/api/meters/aggregates
+    resource: http://192.168.10.90/api/meters/aggregates
     method: GET
     value_template: '{{ value_json.battery.instant_power / 1000 }}'
     unit_of_measurement: kWh
 
   - platform: rest
     name: PowerWall Battery Capacity
-    resource: http://http://192.168.10.238/api/system_status/soe
+    resource: http://192.168.10.90/api/system_status/soe
     method: GET
     value_template: '{{ 13500 // (100 / value_json.percentage) }}'
     unit_of_measurement: W
 
 #-------------------------------------------
-# group:
-#   pihole:
-#     entities:
-#       - sensor.carlopihole
-#       - sensor.pi_hole_version
-#       - sensor.pihole_dns_unique_clients
-#       - sensor.pihole_dns_queries_today
-#       - sensor.pihole_ads_blocked_today
-#       - sensor.pihole_ads_percentage_today
-#       - sensor.pihole_ads_percentage_blocked_today
-#       - switch.pihole_temp_disable
+group:
+  Power:
+    entities:
+      - sensor.powerwall_battery_capacity
+      - sensor.powerwall_battery_now
+      - sensor.grid_now
+      - sensor.house_now
+      - sensor.solar_now
 #-------------------------------------------
 
 #

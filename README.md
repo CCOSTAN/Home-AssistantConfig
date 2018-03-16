@@ -1,3 +1,4 @@
+<link href='https://use.fontawesome.com/releases/v5.0.8/css/all.css' rel='stylesheet'/>
 <h1 align="center">
   <a name="logo" href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -144,7 +145,7 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 
 <tr><td colspan="4">
 
-#### Networking <a name="networking" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://scontent-mxp1-1.xx.fbcdn.net/v/t34.0-12/28511153_10155579658673155_2146314492_n.png?_nc_ad=z-m&_nc_cid=0&oh=0d6dd551695860471c45d5b7b17c3cd8&oe=5A99DB47" width="22" ></a>
+#### Networking <a name="networking" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><i class='icon-arrow-up'/></a>
 </td></tr>
 <tr><td align="center">
 
