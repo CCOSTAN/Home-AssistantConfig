@@ -178,38 +178,18 @@ automation:
           {%- endif -%}
     action:
       - delay: '0{{ range(0,2) | random | int }}:{{ range(10,59) | random | int }}:00'
-      - service: script.tweet_engine
+      - service: script.tweet_engine_setup
         data_template:
-          tweet: >-
-            {{ [
-            "Beep. Bop. Beep. Boop.  I am a #roBOT run by @CCostan",
-            "The number of Doorbell presses yesterday was {{states.sensor.doorbell_presses.state}}",
-            "The #Landscaping lights where on for about {{states.sensor.landscaping_light_time.attributes.value}} yesterday.",
-            "The #ChevyBolt has been charging for about {{states.sensor.bolt_charging_time.attributes.value}}inutes in the last 7 days.",
-            "I have spoken for about {{states.sensor.speech_time.attributes.value}}inutes in the last 24 hours.",
-            "When you add it all up, I have spoken for about {{states.sensor.speech_time.attributes.value}}inutes in the last 24 hours!",
-            "So far, I have prevented {{states.sensor.pihole_ads_blocked_today.state}} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
-            "Pi-hole (http://www.pi-hole.net) has serviced {{states.sensor.pihole_dns_queries_today.state}} DNS requests today! #PiZero",
-            "{{states.sensor.doorbell_presses.state}} people came to the door today and pressed the bell.",
-            "The #Docker Host has been running for {{states.sensor.since_last_boot_templated.state}} (http://www.vmwareinfo.com/2018/02/journey-to-docker.html)",
-            "The #Docker Host for Home Assistant is using {{states.sensor.disk_use_percent_.state}}% of the hard drive currently. (http://www.vmwareinfo.com/2018/02/journey-to-docker.html)",
-            "My Home Assistant Database is currently using {{states.sensor.database_sensor.state}} MBs. To get this #Stat for your HA, visit (https://github.com/robmarkcole/HASS-filesize-sensor)",
-            "The {{states.media_player.living_room_ultra.attributes.friendly_name}} #Roku is playing #{{states.media_player.living_room_ultra.attributes.app_name}}.",
-            "The {{states.media_player.upstairs_living_room.attributes.friendly_name}} #Roku is playing #{{states.media_player.upstairs_living_room.attributes.app_name}}. (http://amzn.to/2lYZEup)",
-            "I am running Home Assistant version {{states.sensor.ha_installed_version.state}} (https://github.com/CCOSTAN/Home-AssistantConfig)",
-            "{{states.sensor.doorbell_presses.state}} doorbell presses occurred in the last 24 hours.",
-            "I keep the average humidity of the house at {{states.sensor.downstairs_thermostat_humidity.state}} percent. Outside is {{states.sensor.dark_sky_humidity.state}} #Nest (http://amzn.to/2BWNk5N)",
-            "Outside is {{states.sensor.dark_sky_temperature.state}}. I keep the average temperature at {{states.sensor.downstairs_thermostat_temperature.state}}. #Weather (http://amzn.to/2BWNk5N)",
-            "I know that it will be {{states.sensor.dark_sky_minutely_summary.state}} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",
-            "Average internet stats are Download: {{states.sensor.speedtest_download.state}} Mbit/s & Upload {{states.sensor.speedtest_upload.state}} Mbit/s.",
-            "Todays Sleep Number is {{states.sensor.sleepnumber_carlo_stacey_sleepnumber.state}}. Wifi connected Bed FTW! #SleepStat (http://amzn.to/2D10BcQ)",
-            "Our Sleep Number is {{states.sensor.sleepnumber_carlo_carlo_sleepnumber.state}}. Wifi connected Bed! #SleepStat (http://amzn.to/2D10BcQ)",
-            "The current UV index is {{states.sensor.dark_sky_uv_index.state}} and the Moon is {{states.sensor.moon.state}}.  #Space",
-            "Home Assistant has been running for {{states.sensor.ha_uptime.state}}. (https://github.com/CCOSTAN/Home-AssistantConfig)",
-            "My @getspectrum internet download speed is about {{states.sensor.speedtest_download.state}} Mbit/s and I am a #cordcutter. @TabloTV",
-            "Yesterday we watched about {{states.sensor.tv_time.attributes.value}}inutes of television. @YouTube & @TabloTV on the @Roku",
-            "I am keeping track of the current #Tesla stock price. It is {{ states.sensor.tesla.state  | round }} dollars. #Solar",
-            "I am keeping track of the current #Bitcoin prices. It is {{ states.sensor.bitcoin.state  | round }} dollars. #BTC",
-            "There are {{states.sensor.bear_stone.state}} #Minecraft users online at the momemt. #KidStat",
-            "Average Cloud Coverage: {{states.sensor.dark_sky_cloud_coverage.state}}%, Average Temp: {{states.sensor.dark_sky_temperature.state}}°F #Solar (http://www.vmwareinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)"
-            ] | random + " #RandomStat"}}
+          pick: >-
+            {% set pick = [
+              "minecraft",
+              "solar", "solar",
+              "robot", "robot","robot","robot","robot","robot","robot","robot",
+              "door", "door", "door",
+              "weather", "weather", "weather", "weather", "weather", "weather",
+              "internet", "internet", "internet", "internet", "internet",
+              "stocks", "stocks",
+              "night", "night",
+              "TV", "TV"
+            ] %}
+            {{ pick|random }}
