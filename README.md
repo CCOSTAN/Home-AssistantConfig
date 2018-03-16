@@ -123,7 +123,7 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
 <table align="center" border="0">
 <tr><td colspan="4">
 
-#### <a name="battery"></a>Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)<a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### <a name="battery"></a>Battery Backups - [UPS Blog write-up](http://www.vmwareinfo.com/2017/06/home-protection-from-power-outages-sort.html)<a href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -493,12 +493,27 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 <tr><td colspan="4">
 
 The great outdoors can be automated too!  Mainly lights but also the sprinkler system and water supply.  The Phyn leak detector was announced in CES.  It looks for abnormal flows and if senses them, alerts me and shuts water main.  The GE Outlets are hooked up to my 12v transformers allowing me to turn the landscaping lights on and off.  The LED strips are DIY and the recipe is in the next section.
-* (IFTTT) Stop watering grass via Rachio Sprinkler system if winds are greater than 20 MPH.
-* (IFTTT) Add a 1 day rain delay to Rachio Sprinkler system if it is going to rain tomorrow also logged to MQTT.
-* (IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.
-* Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.  Turn off interior and backyardlights when we go to sleep.
+<details>
+<summary>(IFTTT) Add a 1 day rain delay to Rachio Sprinkler system if it is going to rain tomorrow also logged to MQTT.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/rachio_rain_delay.yaml>
+Rain Delay Package - /config/automation/System/rachio_rain_delay.yaml</a><br>
+</details>
+<details>
+<summary>(IFTTT) Blink ALL lights if Winds get to 70MPH - Hurricane warning.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/flash_all.yaml>
+Flash Light automation - /config/automation/flash_all.yaml</a><br>
+</details>
+<details>
+<summary>Turn on some outdoor Lights at Sunset, Turn off 4 hours before sunrise.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/Timed_Triggers/sunset_turn_on.yaml>
+Sunset automation - /config/automation/Timed_Triggers/sunset_turn_on.yaml</a><br>
+</details>
+<details>
+<summary>Turn off interior and backyardlights when we go to sleep.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/good_night.yaml>
+Good Night automation - /config/automation/good_night.yaml</a><br>
+</details>
 </td></tr>
-
 <tr><td colspan="4">
 
 #### Outdoor LED Accents - [DIY Blog Post](http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
