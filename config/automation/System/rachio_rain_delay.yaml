@@ -18,12 +18,19 @@
     - service: ifttt.trigger
       data_template: {"event":"Rachio_Rain_Delay"}
 
-    - service: script.tweet_engine
+    - service: script.tweet_engine_image
       data_template:
         tweet: >
           {{ [
-          "Looks like Rain, Pausing the @_Rachio for 24 hours. (http://amzn.to/2eoPKBW)",
+          "Looks like Rain, Pausing the @_Rachio for 24 hours. (https://github.com/CCOSTAN/Home-AssistantConfig#landscaping)",
           "Since it is going to rain tomorrow, I'll pause @_Rachio for 24 hours.",
           "No reason to water the grass if it's going to rain tomorrow. pausing @_Rachio for 24 hours.",
           "Mother Nature is watering the grass today so I can pause @_Rachio for 24 hours."
           ] | random + " #SavingWater"}}
+        image: >-
+          {{ [
+          "/config/www/custom_ui/floorplan/images/branding/hat.png",
+          "/config/www/custom_ui/floorplan/images/branding/rain.png",
+          "/config/www/custom_ui/floorplan/images/branding/rain2.png",
+          "/config/www/custom_ui/floorplan/images/branding/rain3.png",
+          ] | random }}

@@ -19,7 +19,7 @@
         topic: 'ifttt/rachio/watering_time'
         retain: true
 
-    - service: script.tweet_engine
+    - service: script.tweet_engine_image
       data_template:
         tweet: >
           {{ [
@@ -29,3 +29,10 @@
           "No rain in the forecast? @_Rachio knows & chose to water the lawn.",
           ".@CCostan does not even think about watering the lawn. Me and @_Rachio take care of that."
           ] | random + " #SavingWater"}}
+        image: >-
+          {{ [
+          "/config/www/custom_ui/floorplan/images/branding/sleeping.png",
+          "/config/www/custom_ui/floorplan/images/branding/sprinkler.png"
+          "/config/www/custom_ui/floorplan/images/branding/sprinkler2.png"
+
+          ] | random }}

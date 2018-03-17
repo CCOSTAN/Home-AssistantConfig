@@ -40,8 +40,8 @@ tweet_engine_setup:
 
               "weather": [
                 "The #Landscaping lights where on for about {{ states.sensor.landscaping_light_time.attributes.value }} yesterday.",
-                "I keep the average humidity of the house at {{ states('sensor.downstairs_thermostat_humidity') }} percent. Outside is {{ states('sensor.dark_sky_humidity') }} #Nest (http://amzn.to/2BWNk5N)",
-                "Outside is {{ states('sensor.dark_sky_temperature') }}. I keep the average temperature at {{ states('sensor.downstairs_thermostat_temperature') }}. #Weather (http://amzn.to/2BWNk5N)",
+                "I keep the average humidity of the house at {{ states('sensor.downstairs_thermostat_humidity') }} percent. Outside is {{ states('sensor.dark_sky_humidity') }} #Nest (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
+                "Outside is {{ states('sensor.dark_sky_temperature') }}. I keep the average temperature at {{ states('sensor.downstairs_thermostat_temperature') }}. #Weather (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
                 "I know that it will be {{ states('sensor.dark_sky_minutely_summary') }} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",
                 "The current UV index is {{ states('sensor.dark_sky_uv_index') }} and the Moon is {{ states('sensor.moon') }}.  #Space",
                 "Average Cloud Coverage: {{ states('sensor.dark_sky_cloud_coverage') }}%, Average Temp: {{ states('sensor.dark_sky_temperature') }}Â°F #Solar (http://www.vmwareinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)"
@@ -61,8 +61,8 @@ tweet_engine_setup:
               ],
 
               "night": [
-                "Todays Sleep Number is {{ states('sensor.sleepnumber_carlo_stacey_sleepnumber') }}. Wifi connected Bed FTW! #SleepStat (http://amzn.to/2D10BcQ)",
-                "Our Sleep Number is {{ states('sensor.sleepnumber_carlo_carlo_sleepnumber') }}. Wifi connected Bed! #SleepStat (http://amzn.to/2D10BcQ)"
+                "Todays Sleep Number is {{ states('sensor.sleepnumber_carlo_stacey_sleepnumber') }}. Wifi connected Bed FTW! #SleepStat (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
+                "Our Sleep Number is {{ states('sensor.sleepnumber_carlo_carlo_sleepnumber') }}. Wifi connected Bed! #SleepStat (https://github.com/CCOSTAN/Home-AssistantConfig#nest)"
               ],
 
               "tv": [
@@ -80,57 +80,59 @@ tweet_engine_setup:
           {%- macro image(topic) -%}
             {% set images = {
               "minecraft": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/minecraft-icon.png"
               ],
 
               "solar": [
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/bear_stone_car.png"
               ],
 
               "robot": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/servers5.png",
+                "/config/www/custom_ui/floorplan/images/branding/servers4.png",
+                "/config/www/custom_ui/floorplan/images/branding/robot.png"
               ],
 
               "door": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
+                "/config/www/custom_ui/floorplan/images/branding/sleeping.png",
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
               ],
 
               "weather": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
+                "/config/www/custom_ui/floorplan/images/branding/windy.png",
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
               ],
 
               "internet": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/servers.png",
+                "/config/www/custom_ui/floorplan/images/branding/servers2.png",
+                "/config/www/custom_ui/floorplan/images/branding/servers3.png",
+                "/config/www/custom_ui/floorplan/images/branding/servers4.png",
+                "/config/www/custom_ui/floorplan/images/branding/servers5.png"
+
+
               ],
 
               "stocks": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/stock.png"
               ],
 
               "night": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/sleeping.png",
+                "/config/www/custom_ui/floorplan/images/branding/indoor_light.png",
+                "/config/www/custom_ui/floorplan/images/branding/bed.png"
               ],
 
               "tv": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/tv.png",
+                "/config/www/custom_ui/floorplan/images/branding/tv2.png",
+                "/config/www/custom_ui/floorplan/images/branding/tv3.png",
+                "/config/www/custom_ui/floorplan/images/branding/tv4.png"
+
               ]
             } %}
 

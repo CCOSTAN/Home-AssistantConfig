@@ -12,9 +12,9 @@
       from: 'above_horizon'
 
   action:
-    - service: script.tweet_engine
+    - service: script.tweet_engine_image
       data_template:
-        tweet: >
+        tweet: >-
           {{ [
           "Right before sunset, I turn on the outdoor lights.",
           "Since it gets dark around sunset, I will turn on the landscaping lights.",
@@ -27,6 +27,13 @@
           " #HomeAutomation",
           " #AccentLighting",
           " (http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)"
+          ] | random }}
+        image: >-
+          {{ [
+          "/config/www/custom_ui/floorplan/images/branding/light.png",
+          "/config/www/custom_ui/floorplan/images/branding/light2.png",
+          "/config/www/custom_ui/floorplan/images/branding/light3.png",
+          "/config/www/custom_ui/floorplan/images/branding/light4.png"
           ] | random }}
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.speech_engine

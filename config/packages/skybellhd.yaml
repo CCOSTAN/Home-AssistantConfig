@@ -79,7 +79,7 @@ automation:
 
     action:
       - service: script.skybell_pressed
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [
@@ -90,9 +90,13 @@ automation:
             "Someone answer my door.  Someone just pressed the doorbell."
             ] | random + [
             " #Security",
-            " (http://amzn.to/2dcexIB)",
+            " (https://github.com/CCOSTAN/Home-AssistantConfig#cameras)",
             " (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
             " #HomeAutomation"
+            ] | random }}
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/sleeping.png"
             ] | random }}
 
 # Motion Sensing

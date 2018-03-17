@@ -13,15 +13,19 @@
     - service: homeassistant.turn_off
       entity_id:
         - group.landscaping
-    - service: script.tweet_engine
+    - service: script.tweet_engine_image
       data_template:
         tweet: >
           {{ [
           "Even though they are sleeping, I still turn off the outdoor lights before sunrise.",
           "It was a beautiful sunrise.  Time to turn off the exterior lights. (http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
-          "If the sun is out, we do not need the exterior lights on. (http://amzn.to/2q17R4S)",
-          "The sun is up so it's time to turn the outside lights off.  Lucky for my family, I have them covered!"
+          "If the sun is out, we do not need the exterior lights on. (https://github.com/CCOSTAN/Home-AssistantConfig#landscaping)",
+          "The sun is up so it's time to turn the outside lights off."
           ] | random + "#HomeAutomation"}}
+        image: >-
+          {{ [
+          "/config/www/custom_ui/floorplan/images/branding/sunrise.png"
+          ] | random }}
 
     - delay: '00:{{ (range(1, 55)|random|int) }}:00'
     - service: homeassistant.turn_off
@@ -39,7 +43,7 @@
         - group.exterior_lights
         - group.outdoor_front_lights
     - service: script.interior_off
-    
+
     - service: input_boolean.turn_off
       entity_id:
         - input_boolean.medicine

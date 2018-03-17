@@ -39,10 +39,14 @@
             {%- endif %} The small Garage Door is open.
           {% endif %}"
 
-    - service: script.tweet_engine
+    - service: script.tweet_engine_image
       data_template:
         tweet: >
           {{ [
           "Wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, I'm going to close the @garadget doors.",
           "Getting pretty windy! {{ states('sensor.dark_sky_wind_speed')|round}}MPH. Time to ask @Garadget to close the garage doors."
           ] | random + "(http://amzn.to/2jQLpVQ)"}}
+        image: >-
+          {{ [
+          "/config/www/custom_ui/floorplan/images/branding/windy.png"
+          ] | random }}
