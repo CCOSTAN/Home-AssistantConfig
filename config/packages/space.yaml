@@ -90,9 +90,9 @@ automation:
         from: 'off'
 
     action:
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
-          tweet: >
+          tweet: >-
             {{ [
             "The ISS is above me right now!",
             "The International Space Station flys by once a day & that time is NOW! (For me)",
@@ -101,7 +101,12 @@ automation:
             "The #ISS just flew by and there are {{states.binary_sensor.iss.attributes.number_of_people_in_space}} people in",
             "The International Space Station Rocks! And it's above me RIGHT NOW!"
             ] | random + " #Space"}}
-
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/space.png",
+            "/config/www/custom_ui/floorplan/images/branding/space2.png",
+            "/config/www/custom_ui/floorplan/images/branding/starman.png"
+            ] | random }}
   - alias: 'Full Moon -Tweet'
     trigger:
       - platform: state
@@ -109,12 +114,19 @@ automation:
         to: 'Full Moon'
     action:
       - delay: '{{ (range(1, 6)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
-          tweet: >
+          tweet: >-
             {{ [
             "There is a Full Moon out tonight!",
             "Wish my solar panels picked up Moon rays.  Full Moon out tonight.",
             "Turn down the lights, there is a Full Moon out tonight.",
             "Get out your telescopes, it'll be a Full Moon out tonight!"
             ] | random + "#Space"}}
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/moon.png",
+            "/config/www/custom_ui/floorplan/images/branding/moon2.png",
+            "/config/www/custom_ui/floorplan/images/branding/moon3.png",
+            "/config/www/custom_ui/floorplan/images/branding/starman.png"
+            ] | random }}
