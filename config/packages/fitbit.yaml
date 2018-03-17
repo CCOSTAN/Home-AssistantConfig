@@ -77,3 +77,8 @@ automation:
             "Keep on moving.  Somebody just hit {{ states('sensor.steps') }} #Fitbit steps.",
             "#Fitness Tracking at home BY the home. Somebody just hit {{ states('sensor.steps') }} #Fitbit steps"
             ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Self #Data"}}
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/fitness.png",
+            "/config/www/custom_ui/floorplan/images/branding/fitness2.png"
+            ] | random }}
