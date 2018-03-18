@@ -69,7 +69,7 @@ automation:
             true
           {%- endif -%}
     action:
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [

@@ -71,7 +71,7 @@ automation:
         from: 'charging'
     action:
       - delay: '0{{ range(0,4) | random | int }}:00:00'
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [
@@ -84,6 +84,5 @@ automation:
             "/config/www/custom_ui/floorplan/images/branding/car.png",
             "/config/www/custom_ui/floorplan/images/branding/bear_stone_car.png",
             "/config/www/custom_ui/floorplan/images/branding/batteries.png",
-            "/config/www/custom_ui/floorplan/images/branding/charge.png",
-
+            "/config/www/custom_ui/floorplan/images/branding/charge.png"
             ] | random }}

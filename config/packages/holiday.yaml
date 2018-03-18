@@ -75,7 +75,7 @@ automation:
           title: '{{ states.sensor.holiday.state }}'
 
       - delay: '{{ (range(4, 8)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [
@@ -88,4 +88,8 @@ automation:
             "(http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
             "(http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
             "#{{ states.sensor.holiday.state }}"
+            ] | random }}
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/light4.png"
             ] | random }}

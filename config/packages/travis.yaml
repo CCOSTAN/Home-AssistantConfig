@@ -14,13 +14,10 @@ sensor:
   - platform: travisci
     api_key: !secret travis_api
     scan_interval: 2400
+    monitored_conditions:
+      - state
 #-------------------------------------------
-# group:
-#   finance:
-#     entities:
-#       - sensor.tesla
-#       - sensor.bitcoin
-
+# Group added to network package. 
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
 ##############################################################################
