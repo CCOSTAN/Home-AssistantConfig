@@ -41,6 +41,10 @@ automation:
         data_template:
           homeassistant.components: "{{ states.input_select.log_level.state }}"
 
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
           tweet: "My logging level has just been set to {{ states.input_select.log_level.state }}"
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/keyboard.png"
+            ] | random }}
