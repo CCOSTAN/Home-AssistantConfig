@@ -1,0 +1,28 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "*.*_sleep_hours":
+#       unit_of_measurement: hours
+#       icon: mdi:sleep
+#
+#       hidden: False
+#-------------------------------------------
+sensor:
+  - platform: travisci
+    api_key: !secret travis_api
+    scan_interval: 2400
+#-------------------------------------------
+# group:
+#   finance:
+#     entities:
+#       - sensor.tesla
+#       - sensor.bitcoin
+
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+#automation:
+#Tweets pushed out to twitter.
