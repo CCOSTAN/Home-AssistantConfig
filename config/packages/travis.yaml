@@ -17,9 +17,34 @@ sensor:
     monitored_conditions:
       - state
 #-------------------------------------------
-# Group added to network package. 
+# Group added to network package.
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
 ##############################################################################
 #automation:
 #Tweets pushed out to twitter.
+
+automation:
+  - alias: "Travis FAILURE Notification"
+    hide_entity: True
+    trigger:
+      - platform: state
+        entity_id:
+         - sensor.ccostanhomeassistantconfig_state
+        to: 'failed'
+    action:
+      - service: script.notify_engine
+        data_template:
+          value1: 'Travis validation testing failed.'
+          who: 'carlo'
+
+      - service: notify.html5
+        data_template:
+          title: "Travis-CI FAILURE"
+          message: "Travis validation testing failed."
+
+      - service: persistent_notification.create
+        data:
+          title: "Travis-CI FAILURE"
+          message: "Travis validation testing failed."
+          notification_id: "travis_failed"
