@@ -32,7 +32,7 @@ automation:
           message: "New RSS item available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
           notification_id: "update_available"
 
-# everything below this line should be deleted if using as a drop in package. 
+############ everything below this line should be deleted if using as a drop in package. ####################
 
       - service: script.notify_engine
         data_template:
