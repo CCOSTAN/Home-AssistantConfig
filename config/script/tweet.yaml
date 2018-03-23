@@ -52,8 +52,7 @@ tweet_engine_setup:
                 "So far, I have prevented {{ states('sensor.pihole_ads_blocked_today') }} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
                 "Pi-hole (http://www.pi-hole.net) has serviced {{ states('sensor.pihole_dns_queries_today') }} DNS requests today! #PiZero",
                 "Average internet stats are Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
-                "My @getspectrum internet download speed is about {{ states('sensor.speedtest_download') }} Mbit/s and I am a #cordcutter. @TabloTV",
-                "Yesterday we watched about {{ states.sensor.tv_time.attributes.value|replace('m', '') }} minutes of television. @YouTube & @TabloTV on the @Roku"
+                "My @getspectrum internet download speed is about {{ states('sensor.speedtest_download') }} Mbit/s and I am a #cordcutter. @TabloTV"
               ],
 
               "stocks": [
@@ -68,7 +67,8 @@ tweet_engine_setup:
 
               "tv": [
                 "The {{ states.media_player.living_room_ultra.attributes.friendly_name }} #Roku is playing #{{ states.media_player.living_room_ultra.attributes.app_name }}.",
-                "The {{ states.media_player.upstairs_living_room.attributes.friendly_name }} #Roku is playing #{{ states.media_player.upstairs_living_room.attributes.app_name }}. (http://amzn.to/2lYZEup)"
+                "The {{ states.media_player.upstairs_living_room.attributes.friendly_name }} #Roku is playing #{{ states.media_player.upstairs_living_room.attributes.app_name }}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
+                "Yesterday we watched about {{ states.sensor.tv_time.attributes.value|replace('m', '') }} minutes of television. @YouTube & @TabloTV on the @Roku"
               ]
             } %}
 
@@ -95,19 +95,22 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/servers5.png",
                 "/config/www/custom_ui/floorplan/images/branding/servers4.png",
                 "/config/www/custom_ui/floorplan/images/branding/robot.png",
-                "/config/www/custom_ui/floorplan/images/branding/keyboard.png"
+                "/config/www/custom_ui/floorplan/images/branding/keyboard.png",
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
               ],
 
               "door": [
                 "/config/www/custom_ui/floorplan/images/branding/sleeping.png",
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
               ],
 
               "weather": [
                 "/config/www/custom_ui/floorplan/images/branding/windy.png",
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png"
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
               ],
 
               "internet": [
