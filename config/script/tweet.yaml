@@ -30,7 +30,9 @@ tweet_engine_setup:
                 "My Home Assistant Database is currently using {{ states('sensor.database_sensor') }} MBs. To get this #Stat for your HA, visit (https://github.com/robmarkcole/HASS-filesize-sensor)",
                 "I am running Home Assistant version {{ states('sensor.ha_installed_version') }} (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "Home Assistant has been running for {{ states('sensor.ha_uptime') }}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
-                "My Home Assistant has been tested by Travis-CI and {{states('sensor.ccostanhomeassistantconfig_state')}}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)"
+                "My Home Assistant has been tested by Travis-CI and {{states('sensor.ccostanhomeassistantconfig_state')}}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
+                "{{((states.sensor.sensor_count.state | int) + (states.sensor.binary_sensor_count.state | int))}} sensors feed my Smart Home #data. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
+                "{{states.sensor.automation_count.state}} automations and {{states.sensor.script_count.state}} scripts make my home smart (https://github.com/CCOSTAN/Home-AssistantConfig#logo)"
               ],
 
               "door": [
@@ -96,7 +98,11 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/servers4.png",
                 "/config/www/custom_ui/floorplan/images/branding/robot.png",
                 "/config/www/custom_ui/floorplan/images/branding/keyboard.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png",
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
+                "/config/www/custom_ui/floorplan/images/branding/repo_ad.png"
+
               ],
 
               "door": [

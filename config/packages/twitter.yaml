@@ -68,12 +68,54 @@ sensor:
     duration:
       days: 7
 
-  # - platform: rest
-  #   name: July 4th Countdown
-  #   resource: http://api.wolframalpha.com/v1/result?appid=JIUY8U-4V8KY45VT1&i=How%20many%20days%20until%204th%20July%202018
-  #   value_template: "{{ (value|replace(' days', '')) | int }}"
-  #   unit_of_measurement: Days
-  #   scan_interval: 43200```
+### Building some interesting stats for tweeting. ###
+  - platform: template
+    sensors:
+      sensor_count:
+        friendly_name: 'Number of Sensors'
+        value_template: >
+          {%- set domains = ['sensor'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] -%}
+              {% if loop.first %}
+                {{loop.length}}
+              {% endif %}
+            {%- endfor -%}
+          {%- endfor -%}
+      automation_count:
+        friendly_name: 'Number of Automations'
+        value_template: >
+          {%- set domains = ['automation'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] -%}
+              {% if loop.first %}
+                {{loop.length}}
+              {% endif %}
+            {%- endfor -%}
+          {%- endfor -%}
+      script_count:
+        friendly_name: 'Number of Scripts'
+        value_template: >
+          {%- set domains = ['script'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] -%}
+              {% if loop.first %}
+                {{loop.length}}
+              {% endif %}
+            {%- endfor -%}
+          {%- endfor -%}
+      binary_sensor_count:
+        friendly_name: 'Number of Binary Sensors'
+        value_template: >
+          {%- set domains = ['binary_sensor'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] -%}
+              {% if loop.first %}
+                {{loop.length}}
+              {% endif %}
+            {%- endfor -%}
+          {%- endfor -%}
+
 
 group:
   tweet_stats:
@@ -140,8 +182,8 @@ automation:
     hide_entity: True
     trigger:
       - platform: time
-        hours: '/3'
-        minutes: 01
+        hours: '/2'
+        minutes: 45
         seconds: 00
     condition:
       - condition: template
@@ -159,7 +201,7 @@ automation:
             {% set pick = [
               "minecraft",
               "solar", "solar",
-              "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot",
+              "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot","robot","robot",
               "door", "door", "door",
               "weather", "weather", "weather", "weather", "weather", "weather",
               "internet", "internet", "internet", "internet",
