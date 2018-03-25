@@ -23,6 +23,23 @@ notify:
 ### Building out some Historical stats for tweeting. #####################
 sensor:
 
+  - platform: sql
+    db_url: sqlite:///config/home-assistant_v2.db
+    queries:
+      - name: "Solar 24h"
+        column: 'solar_kwh'
+        unit_of_measurement: 'kWh'
+        query: >-
+          SELECT ROUND(SUM(solar_kwh), 2) AS solar_kwh
+          FROM (
+            SELECT AVG(state) AS solar_kwh
+            FROM states
+            WHERE entity_id = 'sensor.solar_now'
+            AND state != 'unknown'
+            AND last_updated >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)
+            GROUP BY HOUR(last_updated)
+          ) AS total_kwh;
+
   - platform: history_stats
     name: Doorbell Presses
     entity_id: binary_sensor.skybell_stone_door_button
@@ -129,7 +146,7 @@ group:
       - sensor.sensor_count
       - sensor.script_count
       - sensor.binary_sensor_count
-      - sensor.automation_count      
+      - sensor.automation_count
 
 #############################################################
 
