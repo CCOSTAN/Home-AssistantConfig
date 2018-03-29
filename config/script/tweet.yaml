@@ -46,7 +46,10 @@ tweet_engine_setup:
                 "I keep the average humidity of the house at {{ states('sensor.downstairs_thermostat_humidity') }} percent. Outside is {{ states('sensor.dark_sky_humidity') }} #Nest (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
                 "Outside is {{ states('sensor.dark_sky_temperature') }}. I keep the average temperature at {{ states('sensor.downstairs_thermostat_temperature') }}. #Weather (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
                 "I know that it will be {{ states('sensor.dark_sky_minutely_summary') }} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",
-                "The current UV index is {{ states('sensor.dark_sky_uv_index') }} and the Moon is {{ states('sensor.moon') }}.  #Space",
+                "The current UV index is {{ states('sensor.dark_sky_uv_index') }} and the Moon is {{ states('sensor.moon') }}.  #Space"
+              ],
+
+              "cloud": [
                 "Average Cloud Coverage: {{ states('sensor.dark_sky_cloud_coverage') }}%, Average Temp: {{ states('sensor.dark_sky_temperature') }}Â°F #Solar (http://www.vmwareinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)"
               ],
 
@@ -90,7 +93,8 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/batteries.png",
                 "/config/www/custom_ui/floorplan/images/branding/car.png",
                 "/config/www/custom_ui/floorplan/images/branding/bear_stone_car.png",
-                "/config/www/custom_ui/floorplan/images/branding/charge.png"
+                "/config/www/custom_ui/floorplan/images/branding/charge.png",
+                "/config/www/custom_ui/floorplan/images/branding/solar.png"
               ],
 
               "robot": [
@@ -120,6 +124,12 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
               ],
 
+              "cloud": [
+                "/config/www/custom_ui/floorplan/images/branding/clouds.png",
+                "/config/www/custom_ui/floorplan/images/branding/clouds2.png",
+                "/config/www/custom_ui/floorplan/images/branding/solar.png"
+              ],
+
               "internet": [
                 "/config/www/custom_ui/floorplan/images/branding/servers.png",
                 "/config/www/custom_ui/floorplan/images/branding/servers2.png",
@@ -143,7 +153,6 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/tv2.png",
                 "/config/www/custom_ui/floorplan/images/branding/tv3.png",
                 "/config/www/custom_ui/floorplan/images/branding/tv4.png"
-
               ]
             } %}
 
