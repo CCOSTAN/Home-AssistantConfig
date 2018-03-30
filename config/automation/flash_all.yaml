@@ -7,6 +7,8 @@
       entity_id: input_boolean.flash
       to: 'on'
       from: 'off'
+    - platform: event
+      event_type: flash_all
 
   action:
     - service: light.turn_on
