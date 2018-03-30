@@ -132,7 +132,28 @@ sensor:
               {% endif %}
             {%- endfor -%}
           {%- endfor -%}
-
+      tracker_count:
+        friendly_name: 'Number of Devices'
+        value_template: >
+          {%- set domains = ['device_tracker'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] -%}
+              {% if loop.first %}
+                {{loop.length}}
+              {% endif %}
+            {%- endfor -%}
+          {%- endfor -%}
+      lights_count:
+        friendly_name: 'Number of Lights'
+        value_template: >
+          {%- set domains = ['light'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] -%}
+              {% if loop.first %}
+                {{loop.length}}
+              {% endif %}
+            {%- endfor -%}
+          {%- endfor -%}
 
 group:
   tweet_stats:
@@ -147,6 +168,8 @@ group:
       - sensor.script_count
       - sensor.binary_sensor_count
       - sensor.automation_count
+      - sensor.lights_count
+      - sensor.device_tracker
 
 #############################################################
 
@@ -224,7 +247,7 @@ automation:
               "solar", "solar",
               "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot","robot","robot",
               "door", "door", "door",
-              "weather", "weather", "weather", "weather", "weather", 
+              "weather", "weather", "weather", "weather", "weather",
               "cloud",
               "internet", "internet", "internet", "internet",
               "stocks", "stocks",

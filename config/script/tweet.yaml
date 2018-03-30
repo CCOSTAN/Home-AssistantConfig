@@ -32,7 +32,8 @@ tweet_engine_setup:
                 "Home Assistant has been running for {{ states('sensor.ha_uptime') }}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "My Home Assistant has been tested by Travis-CI and {{states('sensor.ccostanhomeassistantconfig_state')}}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "{{((states.sensor.sensor_count.state | int) + (states.sensor.binary_sensor_count.state | int))}} sensors feed my Smart Home #data. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
-                "{{states.sensor.automation_count.state}} automations and {{states.sensor.script_count.state}} scripts make my home smart (https://github.com/CCOSTAN/Home-AssistantConfig#logo)"
+                "{{states.sensor.automation_count.state}} automations and {{states.sensor.script_count.state}} scripts make my home smart (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
+                "Nevermind me.  I am just keeping track of {{states.sensor.lights_count.state}} lights and {{states.sensor.devices_count.state}} devices in the house. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)"
               ],
 
               "door": [
