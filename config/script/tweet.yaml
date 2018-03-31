@@ -1,6 +1,8 @@
 ######################################################################################################
 ## Script to send notifications to Twitter as @BearStoneHA.
 ## Publish on Facebook as well - https://www.facebook.com/BearStoneHA/
+## If you do end up using this package, please consider using one or two of the canned tweets that calls back to my main repo
+## so others can bring thier homes online as well.  I have an active search for #RandomFacts that helps me find new HA homes using my package online.
 ## Enhancements by @dale3h
 ######################################################################################################
 
@@ -45,7 +47,7 @@ tweet_engine_setup:
               "weather": [
                 "The #Landscaping lights where on for about {{ states.sensor.landscaping_light_time.attributes.value }} yesterday.",
                 "I keep the average humidity of the house at {{ states('sensor.downstairs_thermostat_humidity') }} percent. Outside is {{ states('sensor.dark_sky_humidity') }} #Nest (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
-                "Outside is {{ states('sensor.dark_sky_temperature') }}. I keep the average temperature at {{ states('sensor.downstairs_thermostat_temperature') }}. #Weather (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
+                "Outside is {{ states('sensor.dark_sky_temperature') }}. I keep the average inside temperature at {{ states('sensor.downstairs_thermostat_temperature') }}. #Weather (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
                 "I know that it will be {{ states('sensor.dark_sky_minutely_summary') }} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",
                 "The current UV index is {{ states('sensor.dark_sky_uv_index') }} and the Moon is {{ states('sensor.moon') }}.  #Space"
               ],
@@ -58,6 +60,7 @@ tweet_engine_setup:
                 "So far, I have prevented {{ states('sensor.pihole_ads_blocked_today') }} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
                 "Pi-hole (http://www.pi-hole.net) has serviced {{ states('sensor.pihole_dns_queries_today') }} DNS requests today! #PiZero",
                 "Average internet stats are Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
+                "So if you get @getspectrum, you can expect these types of results - Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
                 "My @getspectrum internet download speed is about {{ states('sensor.speedtest_download') }} Mbit/s and I am a #cordcutter. @TabloTV"
               ],
 
