@@ -11,8 +11,8 @@
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/commits/master"><img src="https://img.shields.io/github/last-commit/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/></a>
   </h4>
 </div>
-<p><font size="3">
-This is the main Floorplan directory.  My install has 2 floorplan installs.  One is the Alarm (which is standard house floorplan) and the other is Clock which is an alarm clock with a much different SVG file.  I have the most up to date configuration for floorplan so you can use my files as documentation for much of the newer features of Floorplan Kiosk.</p>
+<p align="center"><a align="center" target="_blank" href="http://feeds.feedburner.com/~r/RecentCommitsToBearStoneHA/~6/1"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>
+
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">

@@ -11,8 +11,7 @@
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/commits/master"><img src="https://img.shields.io/github/last-commit/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/></a>
   </h4>
 </div>
-<p><font size="3">
-This is the basic sub-directory in my home assistant repo.  Slowly everything is mainly moving to packages.  Be sure to check them out.</p>
+<p align="center"><a align="center" target="_blank" href="http://feeds.feedburner.com/~r/RecentCommitsToBearStoneHA/~6/1"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">

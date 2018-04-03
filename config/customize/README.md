@@ -11,8 +11,7 @@
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/commits/master"><img src="https://img.shields.io/github/last-commit/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/></a>
   </h4>
 </div>
-<p><font size="3">
-I love packages.  This will probably become the most used directory in my repo.  I love the ability to just drop in a package or disable it just as easily.  In fact, there are a few disabled ones right now ready to go when issues are straightened out.  All in one place, packages make defining devices, booleans, automations and customizations a snap.</p>
+<p align="center"><a align="center" target="_blank" href="http://feeds.feedburner.com/~r/RecentCommitsToBearStoneHA/~6/1"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vmwareinfo.com/search/label/iot">
