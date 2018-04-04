@@ -259,7 +259,7 @@ Late night Helper Automation -/config/automation/late_night_helper.yaml</a><br>
 <details>
 <summary>Reminders to take my medicine sent as IOS notifications ONLY when I arrive back home for the night.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/ios.yaml>
-IOS Package - /config/automation/System/ip_change.yaml</a><br>
+IOS Package - /config/packages/ios.yaml</a><br>
 </details>
 <p><br>
 The Tablets are for the awesome FloorPlan that you see in the images.  We have 2 in the house mounted for quick consumption of all the HA data in a glance.  We also leverage them as TTS endpoints.  During certain times of the day, TTS is only played on the tablets rather than over the whole house.  Other times, Notifications are sent only to the Mobile Devices rather than using speech.</p>
