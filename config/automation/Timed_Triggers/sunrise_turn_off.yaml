@@ -20,13 +20,14 @@
           "Even though they are sleeping, I still turn off the outdoor lights before sunrise.",
           "It was a beautiful sunrise.  Time to turn off the exterior lights. (http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
           "If the sun is out, we do not need the exterior lights on. (https://github.com/CCOSTAN/Home-AssistantConfig#landscaping)",
-          "The sun is up so it's time to turn the outside lights off."
+          "The sun is up so it is time to turn the outside lights off.",
+          "Everyone will be up soon so time to turn off the outdoor landscaping lights."
           ] | random + "#HomeAutomation"}}
         image: >-
           {{ [
           "/config/www/custom_ui/floorplan/images/branding/sunrise.png",
           "/config/www/custom_ui/floorplan/images/branding/sunrise2.png",
-          "/config/www/custom_ui/floorplan/images/branding/Bear_Stone_Coffee.png"          
+          "/config/www/custom_ui/floorplan/images/branding/Bear_Stone_Coffee.png"
           ] | random }}
 
     - delay: '00:{{ (range(1, 55)|random|int) }}:00'
