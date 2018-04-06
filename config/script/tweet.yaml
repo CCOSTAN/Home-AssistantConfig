@@ -24,7 +24,6 @@ tweet_engine_setup:
 
               "robot": [
                 "Beep. Bop. Beep. Boop.  I am a #roBOT run by @CCostan",
-                "The #ChevyBolt has been charging for about {{ states.sensor.bolt_charging_time.attributes.value|replace('m', '') }} minutes in the last 7 days.",
                 "I have spoken for about {{ states.sensor.speech_time.attributes.value|replace('m', '') }} minutes in the last 24 hours.",
                 "When you add it all up, I have spoken for about {{ states.sensor.speech_time.attributes.value|replace('m', '') }} minutes in the last 24 hours!",
                 "The #Docker Host has been running for {{ states('sensor.since_last_boot_templated') }} (http://www.vmwareinfo.com/2018/02/journey-to-docker.html)",
@@ -156,7 +155,8 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/tv.png",
                 "/config/www/custom_ui/floorplan/images/branding/tv2.png",
                 "/config/www/custom_ui/floorplan/images/branding/tv3.png",
-                "/config/www/custom_ui/floorplan/images/branding/tv4.png"
+                "/config/www/custom_ui/floorplan/images/branding/tv4.png",
+                "/config/www/custom_ui/floorplan/images/branding/tv5.png"
               ]
             } %}
 
