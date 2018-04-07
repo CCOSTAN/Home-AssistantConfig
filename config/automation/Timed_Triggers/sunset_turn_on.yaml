@@ -34,7 +34,8 @@
           "/config/www/custom_ui/floorplan/images/branding/light2.png",
           "/config/www/custom_ui/floorplan/images/branding/light3.png",
           "/config/www/custom_ui/floorplan/images/branding/light4.png",
-          "/config/www/custom_ui/floorplan/images/branding/landscape_light.png"
+          "/config/www/custom_ui/floorplan/images/branding/landscape_light.png",
+          "/config/www/custom_ui/floorplan/images/branding/sunset.png"
           ] | random }}
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.speech_engine
