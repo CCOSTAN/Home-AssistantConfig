@@ -18,6 +18,9 @@ sensor:
       - name: Tesla
         currency: USD
         symbol: TSLA
+      - name: VMware
+        currency: USD
+        symbol: VMW
     foreign_exchange:
       - from: BTC
         to: USD
@@ -28,6 +31,7 @@ group:
     entities:
       - sensor.tesla
       - sensor.bitcoin
+      - sensor.vmware
 
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
