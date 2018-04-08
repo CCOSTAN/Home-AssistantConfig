@@ -154,6 +154,18 @@ sensor:
               {% endif %}
             {%- endfor -%}
           {%- endfor -%}
+      protect_count:
+        friendly_name: 'Number of Smoke Detectors'
+        value_template: >
+          {% if states('group.protects') == 'on' %}
+          {% for e in states.group.protects.attributes.entity_id if states(e) == 'on'  %}
+          {% if loop.last %}
+          {{ loop.index }}
+          {% endif %}
+          {%- endfor -%}
+          {% else %}
+          0
+          {% endif %}
 
 group:
   tweet_stats:
@@ -170,6 +182,7 @@ group:
       - sensor.automation_count
       - sensor.lights_count
       - sensor.tracker_count
+      - sensor.protect_count
 
 #############################################################
 
@@ -246,7 +259,7 @@ automation:
             {% set pick = [
               "minecraft",
               "solar", "solar",
-              "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot","robot","robot",
+              "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot","robot","robot","robot",
               "door", "door", "door",
               "weather", "weather", "weather", "weather", "weather",
               "cloud",
