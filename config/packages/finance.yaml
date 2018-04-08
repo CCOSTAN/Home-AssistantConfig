@@ -13,6 +13,7 @@
 #-------------------------------------------
 sensor:
   - platform: alpha_vantage
+    scan_interval: 300
     api_key: !secret vantage_api
     symbols:
       - name: Tesla
