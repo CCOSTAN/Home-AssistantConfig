@@ -1,0 +1,88 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "*.*_sleep_hours":
+#       unit_of_measurement: hours
+#       icon: mdi:sleep
+#
+#       hidden: False
+#-------------------------------------------
+binary_sensor:
+  - platform: rest
+    name: "CAMERA1 Motion Sensor"
+    resource: !secret camera1_url
+    device_class: motion
+    scan_interval: 5
+    value_template: >-
+      {%- if "<motionDetectAlarm>2</motionDetectAlarm>" in value -%}
+        {{ true }}
+      {%- else -%}
+        {{ false }}
+      {%- endif -%}
+  - platform: rest
+    name: "CAMERA2 Motion Sensor"
+    resource: !secret camera2_url
+    device_class: motion
+    scan_interval: 5
+    value_template: >-
+      {%- if "<motionDetectAlarm>2</motionDetectAlarm>" in value -%}
+        {{ true }}
+      {%- else -%}
+        {{ false }}
+      {%- endif -%}
+  - platform: rest
+    name: "CAMERA3 Motion Sensor"
+    resource: !secret camera3_url
+    device_class: motion
+    scan_interval: 5
+    value_template: >-
+      {%- if "<motionDetectAlarm>2</motionDetectAlarm>" in value -%}
+        {{ true }}
+      {%- else -%}
+        {{ false }}
+      {%- endif -%}
+#-------------------------------------------
+# Motion Sensors added to other motion sensors in group yaml
+
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+#automation:
+#Tweets pushed out to twitter.
+# automation:
+#   - alias: Someone on the MC server!
+#     trigger:
+#       - platform: state
+#         entity_id: sensor.bear_stone
+#
+#     action:
+#       - service: light.turn_on
+#         entity_id: light.justin_go
+#         data_template:
+#           color_name: >
+#             {% if states.sensor.bear_stone.state|int == 1 %}
+#               gold
+#             {% elif states.sensor.bear_stone.state|int == 2 %}
+#               green
+#             {% elif states.sensor.bear_stone.state|int == 3 %}
+#               blue
+#             {% else %}
+#               red
+#             {% endif %}
+#
+#       - service_template: >
+#             {% if states.sensor.bear_stone.state|int > 0 %}
+#               light.turn_on
+#             {% else %}
+#               light.turn_off
+#             {% endif %}
+#         entity_id: light.justin_go
+#
+#       - service: light.turn_on
+#         entity_id:
+#           - light.justin_go
+#         data:
+#           flash: short
