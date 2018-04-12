@@ -15,5 +15,5 @@
   action:
     - service: script.speech_engine
       data_template:
-        DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
+        DoorClosed: "The {{ trigger.to_state.name }} is now {{ trigger.to_state.state }}."
         call_garage_check: 1
