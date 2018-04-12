@@ -754,7 +754,7 @@ Process Monitor Package - /config/packages/processmonitor.yaml</a><br>
 The [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github is where I store all my wishful ideas and future enhancements.
 Feel free to join the conversations there.
 ![Screenshot of Alarm Clock View](https://i.imgur.com/mLMrky1.jpg)
-![Screenshot of Alarm View](https://i.imgur.com/nad2gq0.png)
+![Screenshot of Alarm View](https://i.imgur.com/zmb3Rtn.png)
 
 **All files are now being edited with [Atom](https://atom.io/).**
 
