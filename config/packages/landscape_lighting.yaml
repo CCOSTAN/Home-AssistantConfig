@@ -8,16 +8,16 @@ homeassistant:
     switch.back_landscaping:
       friendly_name: 'Back Landscaping'
       icon: mdi:flower
-      
+
       hidden: False
     switch.front_landscaping:
       friendly_name: 'Front Landscaping'
       icon: mdi:flower
-      
+
       hidden: False
     group.landscaping:
       friendly_name: 'Landscaping Lights'
-      
+
       hidden: False
 #-------------------------------------------
 group:
@@ -43,12 +43,22 @@ automation:
         - condition: state
           entity_id: sun.sun
           state: 'below_horizon'
-        - condition: state
-          entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-          state: 'on'
-        - condition: state
-          entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-          state: 'on'
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+              state: 'on'
+            - condition: state
+              entity_id: device_tracker.carlo
+              state: 'not_home'
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+              state: 'on'
+            - condition: state
+              entity_id: device_tracker.stacey
+              state: 'not_home'
 
       action:
         - service: switch.turn_off

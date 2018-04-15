@@ -19,7 +19,8 @@ tweet_engine_setup:
 
               "solar": [
                 "I am keeping track of the current #Tesla stock price. It is ${{ states('sensor.tesla')|round }}. #Solar",
-                "The #ChevyBolt was charged for about {{ states.sensor.bolt_charging_time.attributes.value|replace('m', '') }} minutes in the last 7 days."
+                "The #ChevyBolt was charged for about {{ states.sensor.bolt_charging_time.attributes.value|replace('m', '') }} minutes in the last 7 days.",
+                "The Official Diecast P85 Model S Red (https://amzn.to/2Hkkl0S) link - Out of stock like the originals. :)"
               ],
 
               "robot": [

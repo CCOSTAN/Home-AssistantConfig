@@ -34,8 +34,8 @@
     - service: switch.turn_on
       entity_id: switch.master_bathroom_accents
     - wait_template: >-
-       {{ not is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off') }}
+       {{ not is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off') or is_state('device_tracker.stacey', 'not_home')}}
     - wait_template: >-
-       {{ not is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off') }}
+       {{ not is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off') or is_state('device_tracker.carlo', 'not_home') }}
     - service: switch.turn_off
       entity_id: switch.master_bathroom_accents

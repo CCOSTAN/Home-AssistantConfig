@@ -21,12 +21,22 @@
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
-    - condition: state
-      entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-      state: 'on'
-    - condition: state
-      entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-      state: 'on'
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          state: 'on'
+        - condition: state
+          entity_id: device_tracker.carlo
+          state: 'not_home'
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+          state: 'on'
+        - condition: state
+          entity_id: device_tracker.stacey
+          state: 'not_home'
 
   action:
     - service: input_boolean.turn_off
