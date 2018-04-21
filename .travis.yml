@@ -6,4 +6,4 @@ install:
 script:
   - hass -c config/ --script check_config
 before_install:
-  - mv travis_secrets.yaml secrets.yaml
+  - mv config/travis_secrets.yaml config/secrets.yaml
