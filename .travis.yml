@@ -4,6 +4,7 @@ python: "3.6.4"
 
 before_install:
   - touch fake_key.pem
+  - touch /config/www/custom_ui/floorplan/images/fake_file
   - mv config/travis_secrets.yaml config/secrets.yaml
 
 install: pip3 install homeassistant
