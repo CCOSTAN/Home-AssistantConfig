@@ -8,18 +8,18 @@ homeassistant:
   whitelist_external_dirs:
     - /config/www/custom_ui/floorplan/images
 
-  customize: !include_dir_merge_named customize
-  customize_domain:
-    automation:
-      initial_state: 'on'
-  customize_glob:
-    "automation.*watchdog*":
-      icon: mdi:timer
-    "sensor.dark_sky_*":
-      homebridge_hidden: true
-    "scene.month_*_colors":
-      hidden: true
-      homebridge_hidden: true
+  #customize: !include_dir_merge_named customize
+  #customize_domain:
+  #  automation:
+  #    initial_state: 'on'
+  #customize_glob:
+  #  "automation.*watchdog*":
+  #    icon: mdi:timer
+  #  "sensor.dark_sky_*":
+  #    homebridge_hidden: true
+  #  "scene.month_*_colors":
+  #    hidden: true
+  #    homebridge_hidden: true
 
   #packages: !include_dir_named packages
 
