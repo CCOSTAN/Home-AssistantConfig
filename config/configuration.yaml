@@ -5,8 +5,8 @@ homeassistant:
   elevation: !secret homeassistant_elevation
   unit_system: imperial
   time_zone: America/New_York
-  whitelist_external_dirs:
-    - /config/www/custom_ui/floorplan/images
+  #whitelist_external_dirs:
+   # - /config/www/custom_ui/floorplan/images
 
   # customize: !include_dir_merge_named customize
   # customize_domain:
@@ -99,7 +99,7 @@ panel_custom:
 
 discovery:
   ignore:
-   - samsung_tv
+    - samsung_tv
 #   - roku
 #   - google_cast
 
