@@ -7,4 +7,5 @@ install: pip3 install homeassistant
 script: hass -c config/ --script check_config
 
 before_install:
+  - touch fake_key.pem
   - mv config/travis_secrets.yaml config/secrets.yaml
