@@ -1,11 +1,11 @@
 language: python
 
-python: "3.6"
-
-install: pip3 install homeassistant
-
-script: hass -c config/ --script check_config
+python: "3.6.4"
 
 before_install:
   - touch fake_key.pem
   - mv config/travis_secrets.yaml config/secrets.yaml
+
+install: pip3 install homeassistant
+
+script: hass -c config/ --script check_config --info_all
