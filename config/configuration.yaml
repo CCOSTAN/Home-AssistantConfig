@@ -6,18 +6,18 @@ homeassistant:
   unit_system: imperial
   time_zone: America/New_York
   whitelist_external_dirs:
-    - /config/www/custom_ui/floorplan/images
+    - config/www/custom_ui/floorplan/images
 
   customize: !include_dir_merge_named customize
   customize_domain:
     automation:
       initial_state: 'on'
   customize_glob:
-    "automation.*watchdog*":
+    automation.*watchdog*:
       icon: mdi:timer
-    "sensor.dark_sky_*":
+    sensor.dark_sky_*:
       homebridge_hidden: true
-    "scene.month_*_colors":
+    scene.month_*_colors:
       hidden: true
       homebridge_hidden: true
 
@@ -99,7 +99,7 @@ panel_custom:
 
 discovery:
   ignore:
-   - samsung_tv
+    - samsung_tv
 #   - roku
 #   - google_cast
 
