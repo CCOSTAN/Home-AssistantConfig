@@ -22,6 +22,9 @@ sensor:
       - name: VMware
         currency: USD
         symbol: VMW
+      - name: Amazon
+        currency: USD
+        symbol: AMZN
     foreign_exchange:
       - from: BTC
         to: USD
@@ -33,6 +36,7 @@ group:
       - sensor.tesla
       - sensor.bitcoin
       - sensor.vmware
+      - sensor.amazon
 
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
