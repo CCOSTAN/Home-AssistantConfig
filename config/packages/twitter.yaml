@@ -245,14 +245,14 @@ automation:
   - alias: 'ThrowBack message'
     trigger:
       - platform: time
-        hours: '/4'
+        hours: '/8'
         minutes: 15
         seconds: 00
     condition:
       - condition: template
         value_template: >
           {%- if states.automation.random_house_stats.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 1000 }}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 2000 }}
           {%- else -%}
             true
           {%- endif -%}
@@ -261,11 +261,18 @@ automation:
         data_template:
           message: >-
             {% set phrases = [
-              "New Code: "
+              "One of the most popular #SmartHome Projects I have done: (https://www.vcloudinfo.com/2017/07/visualizing-smart-home-using-home.html)",
+              "This project was one of the most popular: (https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)",
+              "Some of the Best Home Assistant resources around! (https://www.vcloudinfo.com/2018/04/some-of-my-favorite-home-assistant.html)",
+              "My Journey to Docker #ThrowBack - (https://www.vcloudinfo.com/2018/02/journey-to-docker.html)",
+              "My Popular DIY Motion Sensor #ThrowBack - (https://www.vcloudinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)",
+              "Build your own DIY Outdoor Smart Home LED strips - (https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
+              "Breakdown of the entire smart home - (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
+              "Build your own Home Alarm System - (https://www.vcloudinfo.com/2017/06/building-my-home-alarm-system-hardware.html)"
             ] %}
             {% set hashtags = [
-              "#IOT",
-              "#SmartHome"
+              "#IOT #SmartHome",
+              "#Throwback"
             ] %}
             {{ phrases|random ~ " " ~ hashtags|random }}
           data_template:
