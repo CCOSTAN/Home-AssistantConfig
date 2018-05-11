@@ -19,7 +19,12 @@ notify:
     consumer_secret: !secret twitter_consumer_secret
     access_token: !secret twitter_access_token
     access_token_secret: !secret twitter_access_token_secret
-
+  - name: CCOSTAN
+    platform: twitter
+    consumer_key: !secret twitter_consumer_key2
+    consumer_secret: !secret twitter_consumer_secret2
+    access_token: !secret twitter_access_token2
+    access_token_secret: !secret twitter_access_token_secret2
 ### Building out some Historical stats for tweeting. #####################
 sensor:
 
