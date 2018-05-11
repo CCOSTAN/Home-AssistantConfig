@@ -19,12 +19,13 @@ notify:
     consumer_secret: !secret twitter_consumer_secret
     access_token: !secret twitter_access_token
     access_token_secret: !secret twitter_access_token_secret
-  - name: CCOSTAN
+  - name: ccostan
     platform: twitter
     consumer_key: !secret twitter_consumer_key2
     consumer_secret: !secret twitter_consumer_secret2
     access_token: !secret twitter_access_token2
     access_token_secret: !secret twitter_access_token_secret2
+
 ### Building out some Historical stats for tweeting. #####################
 sensor:
 
@@ -240,6 +241,39 @@ automation:
               "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
             ] %}
             {{ pictures|random }}
+
+  - alias: 'ThrowBack message'
+    trigger:
+      - platform: time
+        hours: '/4'
+        minutes: 15
+        seconds: 00
+    condition:
+      - condition: template
+        value_template: >
+          {%- if states.automation.random_house_stats.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 1000 }}
+          {%- else -%}
+            true
+          {%- endif -%}
+    action:
+      - service: notify.ccostan
+        data_template:
+          message: >-
+            {% set phrases = [
+              "New Code: "
+            ] %}
+            {% set hashtags = [
+              "#IOT",
+              "#SmartHome"
+            ] %}
+            {{ phrases|random ~ " " ~ hashtags|random }}
+          data_template:
+            media: >-
+              {% set pictures = [
+                "/config/www/custom_ui/floorplan/images/branding/throwback.png"
+              ] %}
+              {{ pictures|random }}
 
   - alias: 'Random House stats'
     hide_entity: True
