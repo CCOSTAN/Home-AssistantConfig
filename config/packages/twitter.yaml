@@ -276,7 +276,7 @@ automation:
               "#Throwback"
             ] %}
             {{ phrases|random ~ " " ~ hashtags|random }}
-          data_template:
+          data:
             media: >-
               {% set pictures = [
                 "/config/www/custom_ui/floorplan/images/branding/throwback.png"
@@ -313,6 +313,7 @@ automation:
               "internet", "internet", "internet", "internet", "internet", "internet", "internet",
               "stocks", "stocks", "stocks", "stocks",
               "night", "night",
-              "tv", "tv", "tv"
+              "tv", "tv", "tv",
+              "throwback"
             ] %}
             {{ pick|random }}
