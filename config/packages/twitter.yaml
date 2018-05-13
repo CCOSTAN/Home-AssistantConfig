@@ -272,10 +272,9 @@ automation:
               "Build your own Home Alarm System - (https://www.vcloudinfo.com/2017/06/building-my-home-alarm-system-hardware.html)"
             ] %}
             {% set hashtags = [
-              "#IOT #SmartHome",
               "#Throwback"
             ] %}
-            {{ phrases|random ~ " " ~ hashtags|random }}
+            {{ phrases|random ~ " " ~ hashtags|random ~ " #IOT #SmartHome" }}
           data:
             media: >-
               {% set pictures = [

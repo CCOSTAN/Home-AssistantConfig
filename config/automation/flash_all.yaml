@@ -19,3 +19,32 @@
 
     - service: input_boolean.turn_off
       entity_id: input_boolean.flash
+
+- alias: 'Flash Timer Lights'
+  trigger:
+    - platform: state
+      entity_id: input_boolean.flash
+      to: 'on'
+      from: 'off'
+    - platform: event
+      event_type: flash_timer
+
+  action:
+    - service: light.turn_on
+      entity_id:
+        - light.bedroom
+        - light.justin_go
+        - light.paige_go
+        - light.sink
+        - light.tv_light
+        - light.couch_1
+        - light.upstairs_lamp
+        - light.office_lamp
+        - light.m1_slider
+        - light.garage_attic
+        - light.den_lamp
+      data:
+        flash: long
+
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.flash
