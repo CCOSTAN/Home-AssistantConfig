@@ -248,14 +248,15 @@ automation:
         hours: '/8'
         minutes: 15
         seconds: 00
-    condition:
-      - condition: template
-        value_template: >
-          {%- if states.automation.random_house_stats.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 2000 }}
-          {%- else -%}
-            true
-          {%- endif -%}
+    # condition:
+    #   - condition: template
+    #     value_template: >
+    #       {%- if states.automation.random_house_stats.attributes.last_triggered -%}
+    #         {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 2000 }}
+    #       {
+    #       %- else -%}
+    #         true
+    #       {%- endif -%}
     action:
       - service: notify.ccostan
         data_template:
