@@ -74,26 +74,17 @@ speech_engine:
           {%- macro outside_weather() -%}
             Outside, it is going to be {{ states('sensor.dark_sky_minutely_summary') }}
           {%- endmacro -%}
-
+          
           {%- macro light_check() -%}
             {% if states.group.all_lights.state != 'off' -%}
               There are
-            {% for state in states.light if state.state == 'on' -%}
-              {%- if loop.last -%}
-                {{ loop.index }}
+              {%- set lights_on_count = sensor.lights_on_friendly|length + 1 -%}
+              {%- if lights_on_count == 1 -%}
+                The {{ sensor.lights_on_friendly }} is the only light on right now.
+              {%- else -%}
+                There are {{ lights_on_count }} lights on right now.
+                The {{ sensor.lights_on_friendly }} are on.
               {%- endif -%}
-            {%- endfor %}
-            lights on right now.
-
-            {% set comma = joiner(', ') %}
-            The
-            {% for group in states.group|groupby('state') -%}
-              {%- for entity in group.list if entity.state == 'on' and entity.name.split(' ')[1]|lower == 'lights' and entity.name.split(' ')[0]|lower != 'all' and entity.name.split(' ')[0]|lower != 'interior' -%}
-                {{ ' and' if loop.last and not loop.first else comma() }}
-                {{ entity.name }}
-              {%- endfor -%}
-            {%- endfor -%}
-            .
             {%- endif -%}
           {%- endmacro -%}
 
