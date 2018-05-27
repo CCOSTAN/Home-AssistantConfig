@@ -475,7 +475,7 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 
 <tr><td colspan="4">
 
-#### Switches [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="switches" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Switches <a name="switches" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -500,7 +500,7 @@ In the Master Bedroom and Bathroom, I have deployed a starter set of 5 Noon Swit
 <details>
 <summary>When interior light script is triggered, IFTTT is notified to turn off the Bathroom Noon switches.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/interior_off.yaml#L17-L18>
-TV Time Automations - /config/script/interior_off.yaml</a><br>
+Interior Turn off Script - /config/script/interior_off.yaml</a><br>
 </details>
 </td></tr>
 
