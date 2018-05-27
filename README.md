@@ -432,7 +432,7 @@ Think of the Hubs each as bridges for HA to talk to various hardware around the 
 
 <tr><td colspan="4">
 
-#### Lights and Switches - [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="lights" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Lights [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="lights" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -468,6 +468,45 @@ Holiday Lights package - /config/packages/holiday.yaml</a><br>
 DIY Alarm package - /config/packages/alarm.yaml</a><br>
 </details>
 </td></tr>
+
+#### Switches [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="Switches" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+</td></tr>
+<tr><td align="center">
+
+[Noon Switches](https://amzn.to/2J9aGeu)
+</td><td align="center">
+
+[GE Link Lightbulbs](http://amzn.to/2GJ66i5)
+</td><td align="center">
+
+[Hue Go](http://amzn.to/2iB36Ii)
+</td><td align="center">
+
+[Etekcity Outlets](http://amzn.to/2efNoBP)</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/Noon-N160US-Smart-Lighting-Starter/dp/B076FJLRNL/ref=as_li_ss_il?ie=UTF8&qid=1527451258&sr=8-1&keywords=noon&linkCode=li2&tag=vmw0a-20&linkId=07f55d3dde28ba1db77510257e4d13e8" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B076FJLRNL&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B076FJLRNL" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/GE-Starter-PLINK-SKIT-Wireless-Lighting/dp/B01GWF4RE6/ref=as_li_ss_il?ie=UTF8&qid=1519537605&sr=8-2-fkmr1&keywords=ge+link+bulb+br30&linkCode=li1&tag=vmw0a-20&linkId=b4e6f6acdca3db68322d0679fcc388b7" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01GWF4RE6&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GWF4RE6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Philips-Lighting-Works-Amazon-Alexa/dp/B014H2P53I/ref=as_li_ss_il?ie=UTF8&qid=1482862179&sr=8-1-spons&keywords=hue+go&psc=1&linkCode=li1&tag=vmw0a-20&linkId=4f9fd0d242273d079f661fa389b2eec1" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B014H2P53I&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B014H2P53I" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/gp/product/B00DQELHBS/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=2d11a4b4ee3994189b3136c3b5726e37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00DQELHBS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00DQELHBS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+<tr><td colspan="4">
+
+Almost all my lights (40+) are white GE Link lights.  I bought them early on before Hue came out with inexpensive white A19s.  Even Ikea has great lights now.  Colored lights are in the front sconces and also used in the living room.  The Go lights are specifically for the kids since they are both wireless and also have a button on them making them very tactile for kids.  The EtekCity outlets are the most inexpensive ($6) yet reliable outlets out there.  I have them deployed all over the house as accent lighting with some rope lights in most of the home's cut outs.
+<details>
+<summary>Turn on TV Time Lights (dim and color) at Sunset (if home and TV is on)</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/tv_time_on_and_off.yaml>
+TV Time Automations - /config/automation/tv_time_on_and_off.yaml</a><br>
+</details><details>
+<summary>Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/holiday.yaml>
+Holiday Lights package - /config/packages/holiday.yaml</a><br>
+</details><details>
+<summary>Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all doors/windows are closed.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L289-L299>
+DIY Alarm package - /config/packages/alarm.yaml</a><br>
+</details>
+</td></tr>
+
+
 
 <tr><td colspan="4">
 
