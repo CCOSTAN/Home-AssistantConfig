@@ -95,6 +95,10 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
       Lights
     </a>
     <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#switches">
+      Switches
+    </a>
+    <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#landscaping">
       Landscaping
     </a>
@@ -469,6 +473,7 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 </details>
 </td></tr>
 
+<tr><td colspan="4">
 #### Switches [Smart Home Parts/Sum Blog Post](http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="Switches" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
