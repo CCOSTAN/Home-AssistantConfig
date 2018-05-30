@@ -25,6 +25,9 @@
         message: "Wink Update is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
         notification_id: "update_available"
 
+    - service: ifttt.trigger
+      data_template: {"event":"GitPost", "value1":"Wink Update is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}", "value2":"{{ states.binary_sensor.carlowink.attributes }}"}
+
     - service: script.tweet_engine
       data_template:
         tweet: >
