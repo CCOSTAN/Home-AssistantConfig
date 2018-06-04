@@ -6,7 +6,6 @@
 homeassistant:
   customize_glob:
     "*.carlojuice*":
-
       homebridge_hidden: True
       hidden: False
 #-------------------------------------------
@@ -55,6 +54,17 @@ automation:
       - platform: state
         entity_id: sensor.carlojuice_charging_status
         to: 'disconnect'
+        for:
+          minutes: 5
+
+    condition:
+      - condition: template
+        value_template: >
+          {%- if states.automation.juicebox_selfheal.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.juicebox_selfheal.attributes.last_triggered)) > 40000 }}
+          {%- else -%}
+            true
+          {%- endif -%}
 
     action:
       - service: homeassistant.turn_on
