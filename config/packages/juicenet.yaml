@@ -13,6 +13,13 @@ homeassistant:
 juicenet:
     access_token: !secret juicenet_access_token
 
+switch:
+  - platform: command_line
+    switches:
+      juicebox_restart:
+        command_on: "/usr/bin/curl -k 'http://192.168.10.175/command/reboot'"
+        friendly_name: Restart Juicebox
+
 group:
   juicenet:
     name: JuiceBox Charger
@@ -41,6 +48,32 @@ automation:
         data_template:
           value1: "The Garage charger is now in {{ states('sensor.carlojuice_charging_status') }} mode."
           who: 'parents'
+
+  - alias: 'Juicebox Self-Heal'
+    initial_state: 'on'
+    trigger:
+      - platform: state
+        entity_id: sensor.carlojuice_charging_status
+        to: 'disconnect'
+
+    action:
+      - service: homeassistant.turn_on
+        entity_id: switch.juicebox_restart
+
+      - service: script.tweet_engine_image
+        data_template:
+          tweet: >
+            {{ [
+            "The #JuiceBox Pro had to be restarted. It was unable to connect back to @emotorwerks servers.",
+            "Unfortunately, the Juicebox Pro sometimes can no longer connect to @emotorwerks servers.  Fortunately, #HomeAssistant can fix that with a restart!"
+            ] | random + " (https://github.com/CCOSTAN/Home-AssistantConfig#garage) #SelfHeal #EV #BoltEV s"}}
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/car.png",
+            "/config/www/custom_ui/floorplan/images/branding/bear_stone_car.png",
+            "/config/www/custom_ui/floorplan/images/branding/batteries.png",
+            "/config/www/custom_ui/floorplan/images/branding/charge.png"
+            ] | random }}
 
   - alias: 'JuiceBox AMP Alert!'
     initial_state: 'on'
