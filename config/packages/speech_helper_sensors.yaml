@@ -1,0 +1,31 @@
+#-------------------------------------------
+#  @BrianHanifin's Light sensor speech helper.  - https://gist.github.com/brianhanifin/1f9436c7b6c28917c9be02605b6cff74
+#-------------------------------------------
+#------LightSensor Node---http://amzn.to/2oUgj5i
+homeassistant:
+  customize:
+    sensor.lights_on:
+      icon: mdi:sensor
+      friendly_name: Lights on
+      #emulated_hue_hidden: False
+      hidden: true
+#---Sensor for Light-----------------------------
+sensor:
+  - platform: template
+    sensors:
+      lights_on:
+        value_template: >
+          {% macro get_lights_on() -%}
+            {%- for group in states.group|groupby('state') -%}
+              {%- for entity in group.list -%}
+                {%- if  entity.state == 'on'
+                    and entity.name.split(' ')[1]|lower == 'lights'
+                    and entity.name.split(' ')[0]|lower != 'interior'
+                    and entity.name.split(' ')[0]|lower != 'all'
+                     -%}
+                  {{ entity.entity_id }}{{ ' ' }}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endmacro %}
+          {{ get_lights_on()|trim|replace(' ', ',') }}
