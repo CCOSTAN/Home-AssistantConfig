@@ -75,27 +75,28 @@ speech_engine:
             Outside, it is going to be {{ states('sensor.dark_sky_minutely_summary') }}
           {%- endmacro -%}
 
-          {%- macro friendly_list(list) -%}
-            {%- set temp = list|replace('_',' ')|replace(' ,',',')|replace(',',', ')|trim|title -%}
-            {%- if list.split(',')|length > 1 -%}
-              {%- set temp = temp+'^' -%}
-              {%- set lastitem = temp.split(',')|last -%}
-              {{ temp|replace(lastitem, ' and' + lastitem)|replace('^','') }}
-            {%- else -%}
-              {{ temp }}
-            {%- endif -%}
-          {%- endmacro -%}
-
           {%- macro light_check() -%}
-            {%- if states.sensor.lights_on.state|length != 0 -%}
-              {%- set lights_on_count = states.sensor.lights_on.state.split(',')|length -%}
-              {%- set lights_on_friendly = friendly_list(states.sensor.lights_on.state|replace('light.','')|replace('switch.','')|replace('light','')|replace('lamp','')) -%}
-              {%- if lights_on_count == 1 -%}
-                The {{ lights_on_friendly }} light is on.
-              {%- else -%}
-                There are {{ lights_on_count }} lights on right now.
-                The {{ lights_on_friendly }} lights are on.
+            {% if states.group.all_lights.state != 'off' -%}
+              There are
+            {% for state in states.light if state.state == 'on' -%}
+              {%- if loop.last -%}
+                {{ loop.index }}
               {%- endif -%}
+            {%- endfor %}
+            lights on right now.
+            {% set comma = joiner(', ') %}
+            The
+            {% for group in states.group|groupby('state') -%}
+              {%- for entity in group.list if entity.state == 'on'
+              and entity.name.split(' ')[1]|lower == 'lights'
+              and entity.name.split(' ')[0]|lower != 'all'
+              and entity.name.split(' ')[0]|lower != 'interior'
+              -%}
+                {{ 'and' if loop.last and not loop.first else comma() }}
+                {{ entity.name|replace('Lights','')}}
+              {%- endfor -%}
+            {%- endfor -%}
+            lights are on.
             {%- endif -%}
           {%- endmacro -%}
 
