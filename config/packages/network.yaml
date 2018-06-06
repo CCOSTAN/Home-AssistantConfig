@@ -21,7 +21,6 @@ sensor:
                   'Entry Alarm Panel',
                   'Dash Button',
                   'Master Bedroom Roku',
-                  'Juicebox',
                   'Brother Printer',
                   'Stacey',
                   'Wii',
@@ -48,7 +47,6 @@ sensor:
                 [
                   'Carlo_Bolt_EV',
                   'Chromecast Audio 2',
-                  'JuiceBox',
                   'Carlo',
                   'Entry Alarm Panel',
                   'Dash Button',
@@ -84,7 +82,7 @@ group:
       - sensor.network
       - sensor.network_detail
 
-# # Create full group with Loop!:
+# Create full group with Loop!:
 # {% for state in states.device_tracker-%}
 # - {{ state.entity_id | lower }}
 # {{ ' '}}
@@ -101,7 +99,6 @@ group:
       - device_tracker.camera1
       - device_tracker.camera2
       - device_tracker.camera3
-      - device_tracker.camera4
       - device_tracker.carlo
       - device_tracker.carlo_bolt
       - device_tracker.carlo_laptop

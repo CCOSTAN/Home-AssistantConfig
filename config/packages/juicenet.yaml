@@ -31,6 +31,7 @@ group:
       - sensor.carlojuice_temperature
       - sensor.carlojuice_voltage
       - sensor.carlojuice_watts
+      - switch.juicebox_restart
 
 #############################################################################
 ###  Automations - Alerts related to the JuiceBox (http://amzn.to/2AZVQ37)
@@ -76,7 +77,7 @@ automation:
             {{ [
             "The #JuiceBox Pro had to be restarted. It was unable to connect back to @emotorwerks servers.",
             "Unfortunately, the Juicebox Pro sometimes can no longer connect to @emotorwerks servers.  Fortunately, #HomeAssistant can fix that with a restart!"
-            ] | random + " (https://github.com/CCOSTAN/Home-AssistantConfig#garage) #SelfHeal #EV #BoltEV s"}}
+            ] | random + " (https://www.vcloudinfo.com/2018/06/using-home-assistant-to-fix-my-juicebox.html) #SelfHeal #EV #BoltEV "}}
           image: >-
             {{ [
             "/config/www/custom_ui/floorplan/images/branding/car.png",

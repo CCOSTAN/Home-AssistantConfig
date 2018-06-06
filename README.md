@@ -632,12 +632,12 @@ Garage Speech Automations - /config/automation/Speech/garage_closed.yaml</a><br>
 Garage reflection Automations - /config/automation/garadget.yaml</a><br>
 </details>
 <details>
-<summary>Tweet out chargin status of the car and how many KwH were charged in a session. #Stat</summary><p align="center">
+<summary>Tweet out charging status of the car and how many KwH were charged in a session. #Stat</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/tweet.yaml>
 Tweet Automations - /config/script/tweet.yaml</a><br>
 </details>
 <details>
-<summary>Monitor AMPs and Voltage and alert if charge ever goes over 24A to prevent breaker tripping. (Juicebox is software derated to 24A on a 30A circuit.)</summary><p align="center">
+<summary>Monitor AMPs and Voltage and alert if charge ever goes over 24A to prevent breaker tripping. (Juicebox is software derated to 24A on a 30A circuit.) Also restart Unit if unable to connect to eMotorWerks servers.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/juicenet.yaml>
 Juicebox package - /config/packages/juicenet.yaml</a><br>
 </details>
