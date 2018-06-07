@@ -1,0 +1,89 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "sensor.carlo_6*":
+#
+#     "sensor.staceys_iphone_*":
+
+###################################
+##  Uses IFTTT to trigger scenes for Aura
+###################################
+automation:
+  - alias: Aura Scene Nighttime
+    hide_entity: True
+    trigger:
+      - platform: state
+        entity_id: input_boolean.good_night
+        to: 'on'
+        from: 'off'
+      - platform: state
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        to: 'on'
+      - platform: state
+        entity_id:
+          - group.family
+        from: 'home'
+        to: 'not_home'
+        for: '00:03:00'
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+            state: 'on'
+          - condition: state
+            entity_id: device_tracker.carlo
+            state: 'not_home'
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+            state: 'on'
+          - condition: state
+            entity_id: device_tracker.stacey
+            state: 'not_home'
+    action:
+      - service: ifttt.trigger
+        data_template: {"event":"aura_pet_mode"}
+
+  - alias: Aura Scene Home
+    hide_entity: True
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        to: 'off'
+      - platform: state
+        entity_id:
+          - group.family
+        from: 'not_home'
+        to: 'home'
+
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+            state: 'off'
+          - condition: state
+            entity_id: device_tracker.carlo
+            state: 'home'
+          - condition: state
+            entity_id: device_tracker.stacey
+            state: 'home'
+    action:
+      - service: ifttt.trigger
+        data_template: {"event":"aura_home_mode"}
