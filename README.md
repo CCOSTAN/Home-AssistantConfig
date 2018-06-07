@@ -523,7 +523,7 @@ Interior Turn off Script - /config/script/interior_off.yaml</a><br>
 </td><td align="center"><a href="https://www.amazon.com/Magnet-America-Bull-Mastiff/dp/B005MZVBYW/ref=as_li_ss_il?s=amazon-devices&ie=UTF8&qid=1519875291&sr=8-11&keywords=bull+mastiff&linkCode=li1&tag=vmw0a-20&linkId=ee6fdeb91ac2a4aa0e77ba673c1def4b" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B005MZVBYW&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B005MZVBYW" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).
+The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).  The Aura system uses Wifi waves to detect motion through walls.  It covers the entire house.  Scenes are activated via IFTTT/HA integration.
 <details>
 <summary>Shut down HVAC system if a Window or Door is left open for more than 5 minutes.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L209>
@@ -532,6 +532,11 @@ HVAC Watchdog Automation - /config/packages/alarm.yaml#L209</a><br>
 <summary>Play chime on all window and door open/closes.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/door_chime.yaml>
 Door Chime Automation - /config/automation/System/door_chime.yaml</a><br>
+</details>
+<details>
+<summary>Change Aura scenes based on presence and sleep.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/aurahome.yaml>
+Aura Package - /config/packages/aurahome.yaml</a><br>
 </details>
 </td></tr>
 
