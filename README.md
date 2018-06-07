@@ -116,7 +116,10 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
     </a>
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#cameras">
-      Cameras and Security
+      Cameras
+    </a>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#security">
+      Security
     </a>
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#sensors">
@@ -533,6 +536,49 @@ Door Chime Automation - /config/automation/System/door_chime.yaml</a><br>
 
 <tr><td colspan="4">
 
+#### Cameras <a name="cameras" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+</td></tr>
+<tr><td align="center">
+
+[SkyBell HD](http://amzn.to/2dcexIB)
+</td><td align="center">
+
+[Foscam 1080p Outdoor Camera](http://amzn.to/2ExKrMe)
+</td><td align="center">
+
+[Surveillance Drives](http://amzn.to/2G3iBEF)
+</td><td align="center">
+
+[Meraki MS220 8 port PoE switch](https://amzn.to/2LsdyAv)
+</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/gp/product/B01IAB9ZME/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=15e34e628e5538b1ebc1babd1273e055" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01IAB9ZME&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01IAB9ZME" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Foscam-Security-Real-time-Optional-Available/dp/B074JKSWRG/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B074JKSWRG&pd_rd_r=GRPPAA4VDE1Y7WX33ZZY&pd_rd_w=q3jUI&pd_rd_wg=yLL8z&psc=1&refRID=GRPPAA4VDE1Y7WX33ZZY&dpID=41fpF9wDdUL&preST=_SY300_QL70_&dpSrc=detail&linkCode=li1&tag=vmw0a-20&linkId=ab255f7f9dd51e7cebf9a35fb17aff37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B074JKSWRG&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B074JKSWRG" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Purple-Surveillance-Hard-Disk-Drive/dp/B071KVB4F8/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B071KVB4F8&pd_rd_r=DWVV1KCN076E00JJ0PAF&pd_rd_w=lJDs2&pd_rd_wg=kPV6t&refRID=DWVV1KCN076E00JJ0PAF&dpID=41Sx3aSPsFL&preST=_SY300_QL70_&dpSrc=detail&th=1&linkCode=li1&tag=vmw0a-20&linkId=604b42004480db7749802c9ed69f7564" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B071KVB4F8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B071KVB4F8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Meraki-Cloud-Managed-Gigabit-Switch/dp/B00FKV86U0/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1528398267&sr=1-3&keywords=meraki+poe+8+port&linkCode=li2&tag=vmw0a-20&linkId=2c2185cee1ba2dedd6a5f0c775374a26" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00FKV86U0&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00FKV86U0" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td></tr>
+<tr><td colspan="4">
+
+Cameras are both for security and data sensors.  They can trigger motion events, lighting conditions or for doorbells, when someone presses it. Cameras and Access points are feed power via the Meraki PoE switch.
+
+<details>
+<summary>On motion from Doorbell turns front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/skybell_pressed.yaml>
+Skybell HD script - /config/script/skybell_pressed.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/guard_dog.yaml>
+Dog Bark script - /config/automation/guard_dog.yaml</a><br>
+</details>
+<details>
+<summary>When someone rings the Doorbell, the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/skybell_pressed.yaml>
+Skybell HD script - /config/script/skybell_pressed.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/guard_dog.yaml>
+Dog Bark script - /config/automation/guard_dog.yaml</a><br>
+</details>
+</td></tr>
+
+<tr><td colspan="4">
+
 #### Outdoor Landscaping <a name="landscaping" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
@@ -711,49 +757,6 @@ TV Time Automations - /config/automation/tv_time_on_and_off.yaml</a><br>
 <summary>Rainy days trigger extra subtle light (TV back lights and other accent lighting) inside the house.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/dark_rainy_day.yaml>
 Rainy Day Automations - /config/automation/dark_rainy_day.yaml</a><br>
-</details>
-</td></tr>
-
-<tr><td colspan="4">
-
-#### Cameras <a name="cameras" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
-</td></tr>
-<tr><td align="center">
-
-[SkyBell HD](http://amzn.to/2dcexIB)
-</td><td align="center">
-
-[Foscam 1080p Outdoor Camera](http://amzn.to/2ExKrMe)
-</td><td align="center">
-
-[Surveillance Drives](http://amzn.to/2G3iBEF)
-</td><td align="center">
-
-[Meraki MS220 8 port PoE switch](https://amzn.to/2LsdyAv)
-</td></tr>
-
-<tr><td align="center"><a href="https://www.amazon.com/gp/product/B01IAB9ZME/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=15e34e628e5538b1ebc1babd1273e055" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01IAB9ZME&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01IAB9ZME" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://www.amazon.com/Foscam-Security-Real-time-Optional-Available/dp/B074JKSWRG/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B074JKSWRG&pd_rd_r=GRPPAA4VDE1Y7WX33ZZY&pd_rd_w=q3jUI&pd_rd_wg=yLL8z&psc=1&refRID=GRPPAA4VDE1Y7WX33ZZY&dpID=41fpF9wDdUL&preST=_SY300_QL70_&dpSrc=detail&linkCode=li1&tag=vmw0a-20&linkId=ab255f7f9dd51e7cebf9a35fb17aff37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B074JKSWRG&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B074JKSWRG" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://www.amazon.com/Purple-Surveillance-Hard-Disk-Drive/dp/B071KVB4F8/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B071KVB4F8&pd_rd_r=DWVV1KCN076E00JJ0PAF&pd_rd_w=lJDs2&pd_rd_wg=kPV6t&refRID=DWVV1KCN076E00JJ0PAF&dpID=41Sx3aSPsFL&preST=_SY300_QL70_&dpSrc=detail&th=1&linkCode=li1&tag=vmw0a-20&linkId=604b42004480db7749802c9ed69f7564" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B071KVB4F8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B071KVB4F8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://www.amazon.com/Meraki-Cloud-Managed-Gigabit-Switch/dp/B00FKV86U0/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1528398267&sr=1-3&keywords=meraki+poe+8+port&linkCode=li2&tag=vmw0a-20&linkId=2c2185cee1ba2dedd6a5f0c775374a26" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00FKV86U0&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00FKV86U0" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td></tr>
-<tr><td colspan="4">
-
-Cameras are both for security and data sensors.  They can trigger motion events, lighting conditions or for doorbells, when someone presses it. Cameras and Access points are feed power via the Meraki PoE switch.
-
-<details>
-<summary>On motion from Doorbell turns front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.</summary><p align="center">
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/skybell_pressed.yaml>
-Skybell HD script - /config/script/skybell_pressed.yaml</a><br>
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/guard_dog.yaml>
-Dog Bark script - /config/automation/guard_dog.yaml</a><br>
-</details>
-<details>
-<summary>When someone rings the Doorbell, the backyard and Bathroom lights Flash - Since we might not hear the doorbell. Fake Dog barks as well (which can be snoozed for 30 minutes via Alexa).</summary><p align="center">
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/skybell_pressed.yaml>
-Skybell HD script - /config/script/skybell_pressed.yaml</a><br>
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/guard_dog.yaml>
-Dog Bark script - /config/automation/guard_dog.yaml</a><br>
 </details>
 </td></tr>
 
