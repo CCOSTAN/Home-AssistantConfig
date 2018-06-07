@@ -388,7 +388,7 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 </td></tr>
 <tr><td align="center">
 
-[Phillips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
+[Philips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
 </td><td align="center">
 
 [Wink Hub](http://amzn.to/2orGEWo)
@@ -397,15 +397,15 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 [RM Pro by Broadlink](http://amzn.to/2z6IZtH)
 </td><td align="center">
 
-[NodeMCU Development Boards](http://amzn.to/2ou0NON)</td></tr>
+[Philips Hue Hub Gen 1](https://amzn.to/2kTmUdd)</td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B016H0QZ7I/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=234a9104238b7189c169a7623239653c" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B016H0QZ7I&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B016H0QZ7I" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Wink-PWHUB-WH18-Connected-Home-Hub/dp/B00PV6GAI4/ref=as_li_ss_il?s=hi&ie=UTF8&qid=1492110362&sr=1-2&keywords=wink+hub&linkCode=li1&tag=vmw0a-20&linkId=96b7546e6151c2005994454bd51d8c47" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00PV6GAI4&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00PV6GAI4" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/BroadLink-Automation-Universal-Compatible-Smartphones/dp/B0742CXGHY/ref=as_li_ss_il?ie=UTF8&qid=1513802853&sr=8-1-spons&keywords=rm+pro&psc=1&linkCode=li1&tag=vmw0a-20&linkId=ffaddc7ae224eefefc32e0c8f27dce72" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0742CXGHY&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0742CXGHY" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://www.amazon.com/gp/product/B010O1G1ES/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=8f30ebb6868e9060be331dd297b75119" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B010O1G1ES&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B010O1G1ES" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+</td><td align="center"><a href="https://www.amazon.com/Philips-Ambiance-Generation-Starter-Assistant/dp/B00HJY2RGU/ref=as_li_ss_il?ie=UTF8&qid=1528397528&sr=8-4-fkmr1&keywords=hue+hub+gen+1&linkCode=li2&tag=vmw0a-20&linkId=1b2a76c5666773f0eedd61c730ef727f" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00HJY2RGU&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00HJY2RGU" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights.  Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.  The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).
+The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights. The Gen 1 handles upstairs and outside and the gen 2 handles everything else. Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.  
 
 <details>
 <summary>Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
@@ -421,16 +421,8 @@ Hallway Automation - /config/automation/zwave_hallway_door_sensor.yaml</a><br>
 <summary>Detects when lights are turned on and adjusts them to correct brightness based on time of day.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/detect_and_adjust_lights.yaml>
 Auto Light adjustment Automation - /config/automation/System/detect_and_adjust_lights.yaml</a><br>
-</details><details>
-<summary>Shut down HVAC system if a Window or Door is left open for more than 5 minutes.</summary><p align="center">
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L209>
-HVAC Watchdog Automation - /config/packages/alarm.yaml#L209</a><br>
-</details><details>
-<summary>Play chime on all window and door open/closes.</summary><p align="center">
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/door_chime.yaml>
-Door Chime Automation - /config/automation/System/door_chime.yaml</a><br>
 </details>
-
+<br>
 Think of the Hubs each as bridges for HA to talk to various hardware around the house.
 </td></tr>
 
@@ -501,6 +493,41 @@ In the Master Bedroom and Bathroom, I have deployed a starter set of 5 Noon Swit
 <summary>When interior light script is triggered, IFTTT is notified to turn off the Bathroom Noon switches.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/interior_off.yaml#L17-L18>
 Interior Turn off Script - /config/script/interior_off.yaml</a><br>
+</details>
+</td></tr>
+
+<tr><td colspan="4">
+
+#### Security <a name="security" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+</td></tr>
+<tr><td align="center">
+
+[NodeMCU Development Boards](http://amzn.to/2ou0NON)
+</td><td align="center">
+
+[Aura Home Monitoring Motion Alarm](https://amzn.to/2sLX8v6)
+</td><td align="center">
+
+[Hue Go](http://amzn.to/2iB36Ii)
+</td><td align="center">
+
+[Fake Dog](http://amzn.to/2CMo1lr)</td></tr>
+
+<tr><td align="center"><a href="https://www.amazon.com/gp/product/B010O1G1ES/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=8f30ebb6868e9060be331dd297b75119" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B010O1G1ES&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B010O1G1ES" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/dp/B0765HSPB6/ref=as_li_ss_il?_encoding=UTF8&th=1&linkCode=li2&tag=vmw0a-20&linkId=f12d53d66cfe46b18710d985a9f4d883" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0765HSPB6&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B0765HSPB6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Philips-Lighting-Works-Amazon-Alexa/dp/B014H2P53I/ref=as_li_ss_il?ie=UTF8&qid=1482862179&sr=8-1-spons&keywords=hue+go&psc=1&linkCode=li1&tag=vmw0a-20&linkId=4f9fd0d242273d079f661fa389b2eec1" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B014H2P53I&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B014H2P53I" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"></td><td align="center"><a href="https://www.amazon.com/Magnet-America-Bull-Mastiff/dp/B005MZVBYW/ref=as_li_ss_il?s=amazon-devices&ie=UTF8&qid=1519875291&sr=8-11&keywords=bull+mastiff&linkCode=li1&tag=vmw0a-20&linkId=ee6fdeb91ac2a4aa0e77ba673c1def4b" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B005MZVBYW&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B005MZVBYW" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+<tr><td colspan="4">
+
+The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](http://www.vmwareinfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](http://www.vmwareinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).
+<details>
+<summary>Shut down HVAC system if a Window or Door is left open for more than 5 minutes.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L209>
+HVAC Watchdog Automation - /config/packages/alarm.yaml#L209</a><br>
+</details><details>
+<summary>Play chime on all window and door open/closes.</summary><p align="center">
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/door_chime.yaml>
+Door Chime Automation - /config/automation/System/door_chime.yaml</a><br>
 </details>
 </td></tr>
 
@@ -702,17 +729,17 @@ Rainy Day Automations - /config/automation/dark_rainy_day.yaml</a><br>
 [Surveillance Drives](http://amzn.to/2G3iBEF)
 </td><td align="center">
 
-[Fake Dog](http://amzn.to/2CMo1lr)
+[Meraki MS220 8 port PoE switch](https://amzn.to/2LsdyAv)
 </td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B01IAB9ZME/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=15e34e628e5538b1ebc1babd1273e055" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01IAB9ZME&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01IAB9ZME" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Foscam-Security-Real-time-Optional-Available/dp/B074JKSWRG/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B074JKSWRG&pd_rd_r=GRPPAA4VDE1Y7WX33ZZY&pd_rd_w=q3jUI&pd_rd_wg=yLL8z&psc=1&refRID=GRPPAA4VDE1Y7WX33ZZY&dpID=41fpF9wDdUL&preST=_SY300_QL70_&dpSrc=detail&linkCode=li1&tag=vmw0a-20&linkId=ab255f7f9dd51e7cebf9a35fb17aff37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B074JKSWRG&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B074JKSWRG" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Purple-Surveillance-Hard-Disk-Drive/dp/B071KVB4F8/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B071KVB4F8&pd_rd_r=DWVV1KCN076E00JJ0PAF&pd_rd_w=lJDs2&pd_rd_wg=kPV6t&refRID=DWVV1KCN076E00JJ0PAF&dpID=41Sx3aSPsFL&preST=_SY300_QL70_&dpSrc=detail&th=1&linkCode=li1&tag=vmw0a-20&linkId=604b42004480db7749802c9ed69f7564" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B071KVB4F8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B071KVB4F8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://www.amazon.com/Magnet-America-Bull-Mastiff/dp/B005MZVBYW/ref=as_li_ss_il?s=amazon-devices&ie=UTF8&qid=1519875291&sr=8-11&keywords=bull+mastiff&linkCode=li1&tag=vmw0a-20&linkId=ee6fdeb91ac2a4aa0e77ba673c1def4b" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B005MZVBYW&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B005MZVBYW" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/Meraki-Cloud-Managed-Gigabit-Switch/dp/B00FKV86U0/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1528398267&sr=1-3&keywords=meraki+poe+8+port&linkCode=li2&tag=vmw0a-20&linkId=2c2185cee1ba2dedd6a5f0c775374a26" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00FKV86U0&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00FKV86U0" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td></tr>
 <tr><td colspan="4">
 
-Cameras are both for security and data sensors.  They can trigger motion events, lighting conditions or for doorbells, when someone presses it. When all else fails though, a good recording of a Bull Mastiff is sure to do the trick!
+Cameras are both for security and data sensors.  They can trigger motion events, lighting conditions or for doorbells, when someone presses it. Cameras and Access points are feed power via the Meraki PoE switch.
 
 <details>
 <summary>On motion from Doorbell turns front lights to Bright White lights for 10 minutes and then back to original colors.  Fake Dog barking when there is motion by the house.</summary><p align="center">
