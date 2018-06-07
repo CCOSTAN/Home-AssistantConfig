@@ -115,11 +115,12 @@ Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing a
       TV Streaming
     </a>
     <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#cameras">
-      Cameras
-    </a>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#security">
       Security
+    </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#cameras">
+      Cameras
     </a>
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#sensors">
