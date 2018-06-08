@@ -24,13 +24,6 @@ automation:
           - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
           - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
         to: 'on'
-      - platform: state
-        entity_id:
-          - group.family
-        from: 'home'
-        to: 'not_home'
-        for: '00:03:00'
-
     condition:
       - condition: state
         entity_id: input_boolean.guest_mode
@@ -53,7 +46,25 @@ automation:
             state: 'not_home'
     action:
       - service: ifttt.trigger
+        data_template: {"event":"aura_night_mode"}
+
+  - alias: Aura Scene away
+    hide_entity: True
+    trigger:
+      - platform: state
+        entity_id:
+          - group.family
+        from: 'home'
+        to: 'not_home'
+        for: '00:03:00'
+    condition:
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+    action:
+      - service: ifttt.trigger
         data_template: {"event":"aura_pet_mode"}
+
 
   - alias: Aura Scene Home
     hide_entity: True
