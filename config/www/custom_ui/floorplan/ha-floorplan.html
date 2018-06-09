@@ -1,11 +1,11 @@
 <!--
     Floorplan for Home Assistant
-    Version: 1.0.7.51
+    Version: 1.0.8.3
     By Petar Kozul
     https://github.com/pkozul/ha-floorplan
   -->
 
-<script src="lib/jquery-3.2.1.min.js"></script>
+<script src="lib/jquery-3.3.1.min.js"></script>
 <script src="lib/moment.min.js"></script>
 <script src="lib/yaml.min.js"></script>
 
@@ -79,7 +79,7 @@
 </dom-module>
 
 <script>
-  class HaFloorplan extends window.hassMixins.EventsMixin(Polymer.Element)  {
+  class HaFloorplan extends Polymer.Element {
     static get is() { return 'ha-floorplan'; }
 
     static get properties() {
@@ -113,7 +113,9 @@
     connectedCallback() {
       super.connectedCallback();
 
-      this.initFloorplan();
+      if (!this.floorplan) {
+        this.initFloorplan();
+      }
     }
 
     stopPropagation(e) {
@@ -126,7 +128,7 @@
           this.floorplan = new Floorplan();
 
           let options = {
-            doc: Polymer.dom(this.root).node,
+            doc: this.root,
             hass: this.hass,
             openMoreInfo: this.openMoreInfo.bind(this),
             setIsLoading: this.setIsLoading.bind(this),
@@ -161,7 +163,7 @@
           reject(new URIError(`${err.target.src}`));
         };
 
-        Polymer.dom(this.root).node.appendChild(script);
+        this.root.appendChild(script);
       });
     }
 
@@ -180,9 +182,23 @@
     logError(message) {
       console.error(message);
 
-      let log = Polymer.dom(this.$.log).node;
+      let log = this.root.log;
       $(log).find('ul').prepend(`<li class="error">${message}</li>`)
       $(log).css('display', 'block');
+    }
+
+    fire(type, detail, options) {
+      options = options || {};
+      detail = (detail === null || detail === undefined) ? {} : detail;
+      const event = new Event(type, {
+        bubbles: options.bubbles === undefined ? true : options.bubbles,
+        cancelable: Boolean(options.cancelable),
+        composed: options.composed === undefined ? true : options.composed
+      });
+      event.detail = detail;
+      const node = options.node || this;
+      node.dispatchEvent(event);
+      return event;
     }
   }
 
