@@ -1,0 +1,55 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+# homeassistant:
+#   customize_glob:
+#     "*.*_sleep_hours":
+#       unit_of_measurement: hours
+#       icon: mdi:sleep
+#
+#       hidden: False
+#-------------------------------------------
+
+sensor:
+    - platform: command_line
+      name: "Download Grafana Solar"
+      command: 'curl -s -H "Authorization: Bearer eyJrIjoiZ0UwS1hpRVdCbFVVSTNSdER0Z29maHc4QmVuSXhxalYiLCJuIjoiSEFDYW1lcmEiLCJpZCI6MX0=" "http://192.168.10.10:3000/render/d/h_wosLIik/solar?orgId=1&panelId=1&width=1000&height=700&from=now-12h&to=now" > /config/www/custom_ui/floorplan/images/branding/solar_readings.png'
+      scan_interval: 600
+
+camera:
+  # - platform: generic
+  #   name: Grafana_2
+  #   still_image_url: 'http://192.168.10.10:3000/render/d/h_wosLIik/solar?orgId=1&panelId=1&width=1000&height=700&from=now-11h&to=now'
+  #   username: HA
+  #   password: HA
+
+  - platform: local_file
+    name: "Grafana Solar Graph"
+    file_path: /config/www/custom_ui/floorplan/images/branding/solar_readings.png
+
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+automation:
+  - alias: 'Tweet Solar Production'
+    hide_entity: false
+    trigger:
+      - platform: state
+        entity_id: sun.sun
+        to: 'below_horizon'
+        from: 'above_horizon'
+
+    action:
+      - delay: '0{{ range(1,3) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
+      - service: script.tweet_engine_image
+        data_template:
+          tweet: >-
+            {{ [
+            "Here is todays #Solar Production. "
+            ] | random + " #Tesla (https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)" }}
+          image: >-
+            {% set pictures = [
+              "/config/www/custom_ui/floorplan/images/branding/solar_readings.png"
+            ] %}
+            {{ pictures|random }}
