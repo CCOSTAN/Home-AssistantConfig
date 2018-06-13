@@ -172,6 +172,18 @@ sensor:
           {% else %}
           0
           {% endif %}
+      camera_count:
+        friendly_name: 'Number of online Cameras'
+        value_template: >
+          {%- set domains = ['camera'] -%}
+          {%- for domain in domains -%}
+            {%- for item in states[domain] -%}
+              {% if loop.first %}
+                {{loop.length}}
+              {% endif %}
+            {%- endfor -%}
+          {%- endfor -%}
+
 
 group:
   tweet_stats:
@@ -189,6 +201,7 @@ group:
       - sensor.lights_count
       - sensor.tracker_count
       - sensor.protect_count
+      - sensor.camera_count
 
 #############################################################
 
