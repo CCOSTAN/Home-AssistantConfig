@@ -14,19 +14,20 @@
 sensor:
     - platform: command_line
       name: "Download Grafana Solar"
-      command: 'curl -s -H "Authorization: Bearer eyJrIjoiZ0UwS1hpRVdCbFVVSTNSdER0Z29maHc4QmVuSXhxalYiLCJuIjoiSEFDYW1lcmEiLCJpZCI6MX0=" "http://192.168.10.10:3000/render/d/h_wosLIik/solar?orgId=1&panelId=1&width=1000&height=700&from=now-12h&to=now" > /config/www/custom_ui/floorplan/images/branding/solar_readings.png'
-      scan_interval: 600
+      command: 'curl -s -H "Authorization: Bearer eyJrIjoiZ0UwS1hpRVdCbFVVSTNSdER0Z29maHc4QmVuSXhxalYiLCJuIjoiSEFDYW1lcmEiLCJpZCI6MX0=" "http://192.168.10.10:3000/render/d/h_wosLIik/solar?orgId=1&panelId=1&width=1000&height=700&from=now-42h&to=now-25h" > /config/www/custom_ui/floorplan/images/branding/solar_readings.png'
+      scan_interval: 3000
+      hidden: True
 
 camera:
-  # - platform: generic
-  #   name: Grafana_2
-  #   still_image_url: 'http://192.168.10.10:3000/render/d/h_wosLIik/solar?orgId=1&panelId=1&width=1000&height=700&from=now-11h&to=now'
-  #   username: HA
-  #   password: HA
+  - platform: generic
+    name: Grafana_2
+    still_image_url: 'http://192.168.10.10:3000/render/d/h_wosLIik/solar?orgId=1&panelId=1&width=1000&height=700&from=now-24h&to=now'
+    username: HA
+    password: HA
 
-  - platform: local_file
-    name: "Grafana Solar Graph"
-    file_path: /config/www/custom_ui/floorplan/images/branding/solar_readings.png
+  # - platform: local_file
+  #   name: "Grafana Solar Graph"
+  #   file_path: /config/www/custom_ui/floorplan/images/branding/solar_readings.png
 
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
@@ -46,8 +47,8 @@ automation:
         data_template:
           tweet: >-
             {{ [
-            "Here is todays #Solar Production. "
-            ] | random + " #Tesla (https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)" }}
+            "I have just finished crunching the numbers and here is the latest #Solar Production report. "
+            ] | random + " #Charts #Tesla (https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)" }}
           image: >-
             {% set pictures = [
               "/config/www/custom_ui/floorplan/images/branding/solar_readings.png"

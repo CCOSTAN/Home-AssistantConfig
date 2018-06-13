@@ -3,7 +3,7 @@
 ############################################################
 #db_url: sqlite:///data/home-assistant_v2.db
 purge_interval: 1
-purge_keep_days: 7
+purge_keep_days: 30
 include:
   entities:
     - group.landscaping
@@ -16,39 +16,20 @@ exclude:
     - scene
     - script
   entities:
-    - binary_sensor.bedroom_motion
-    - binary_sensor.clock_motion
-    - binary_sensor.office_motion
-    - sensor.bitcoin
-    - sensor.carlo_6s_battery_state
-    - sensor.carlo_6s_battery_level
     - sensor.clock_am_pm
     - sensor.clock_date
     - sensor.clock_day
     - sensor.clock_stacey_alarm_time
     - sensor.clock_time
-    - sensor.dark_sky_cloud_coverage
-    - sensor.dark_sky_daily_max_precip_intensity
-    - sensor.dark_sky_humidity
     - sensor.dark_sky_minutely_summary
-    - sensor.dark_sky_precip_intensity
-    - sensor.dark_sky_temperature
-    - sensor.dark_sky_uv_index
-    - sensor.dark_sky_wind_speed
 #    - sensor.database_sensor
     - sensor.date
-    - sensor.epson_ink_level_black
-    - sensor.epson_ink_level_cyan
-    - sensor.epson_ink_level_magenta
-    - sensor.epson_ink_level_photo_black
-    - sensor.epson_ink_level_yellow
     - sensor.external_ip
     - sensor.floorplan_date
     - sensor.floorplan_time
     - sensor.ha_uptime
     - sensor.large_garage_reflection_rate
     - sensor.large_garage_time_in_state
-    - sensor.large_garage_wifi_signal_strength
     - sensor.last_message
     - sensor.low_battery
     - sensor.medicine_time
@@ -57,17 +38,11 @@ exclude:
     - sensor.pihole_ads_blocked_today
     - sensor.pihole_ads_percentage_blocked_today
     - sensor.pihole_dns_queries_today
-    - sensor.pihole_dns_unique_clients
     - sensor.since_last_boot
     - sensor.since_last_boot_templated
     - sensor.skybell_stone_door_chime_level
     - sensor.small_garage_reflection_rate
     - sensor.small_garage_time_in_state
-    - sensor.small_garage_wifi_signal_strength
-    - sensor.speech_time
-    - sensor.staceys_iphone_battery_level
-    - sensor.staceys_iphone_battery_state
-    - sensor.tesla
     - sensor.time
     - sensor.rachio_watering_time
     - sun.sun
