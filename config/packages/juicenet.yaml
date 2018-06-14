@@ -114,7 +114,7 @@ automation:
         entity_id: sensor.carlojuice_charging_status
         from: 'charging'
     action:
-      - delay: '0{{ range(0,4) | random | int }}:00:00'
+      - delay: '0{{ range(0,3) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
         data_template:
           tweet: >

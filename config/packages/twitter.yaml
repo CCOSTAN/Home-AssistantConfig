@@ -258,18 +258,10 @@ automation:
   - alias: 'ThrowBack message'
     trigger:
       - platform: time
-        hours: '/11'
+        hours: '/14'
         minutes: 13
         seconds: 00
-    # condition:
-    #   - condition: template
-    #     value_template: >
-    #       {%- if states.automation.random_house_stats.attributes.last_triggered -%}
-    #         {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 2000 }}
-    #       {
-    #       %- else -%}
-    #         true
-    #       {%- endif -%}
+
     action:
       - service: notify.ccostan
         data_template:
@@ -283,6 +275,7 @@ automation:
               "Build your own DIY Outdoor Smart Home LED strips - (https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
               "Breakdown of the entire smart home - (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
               "Build your own Home Alarm System - (https://www.vcloudinfo.com/2017/06/building-my-home-alarm-system-hardware.html)",
+              "Some of my favorite #Docker Containers that I am using - (https://www.vcloudinfo.com/2018/06/rolling-out-some-new-docker-containers.html)",
               "Be Sure to follow all of my Twitter Accounts! @CCostan and my HOUSE bot @BearStoneHA!",
               "Be sure to like me on Facebook and join our HA group! (https://www.facebook.com/groups/HomeAssistant/) (https://www.facebook.com/VMwareInfo/) (https://www.facebook.com/BearStoneHA/)",
               "You can see how ALL of this is done by browsing my GitHub Repository (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
@@ -315,14 +308,14 @@ automation:
             true
           {%- endif -%}
     action:
-      - delay: '0{{ range(0,2) | random | int }}:{{ range(10,59) | random | int }}:00'
+      - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
       - service: script.tweet_engine_setup
         data_template:
           pick: >-
             {% set pick = [
               "minecraft",
               "solar", "solar", "solar",
-              "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot","robot","robot","robot",
+              "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot","robot","robot","robot","robot",
               "door", "door", "door",
               "weather", "weather", "weather", "weather", "weather",
               "cloud",

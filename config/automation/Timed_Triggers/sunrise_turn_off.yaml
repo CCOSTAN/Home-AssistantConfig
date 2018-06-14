@@ -31,7 +31,7 @@
           "/config/www/custom_ui/floorplan/images/branding/Bear_Stone_Coffee.png"
           ] | random }}
 
-    - delay: '00:{{ (range(1, 55)|random|int) }}:00'
+    - delay: '00:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
     - service: homeassistant.turn_off
       entity_id:
         - group.exterior_lights

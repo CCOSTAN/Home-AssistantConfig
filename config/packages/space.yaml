@@ -107,13 +107,14 @@ automation:
             "/config/www/custom_ui/floorplan/images/branding/space2.png",
             "/config/www/custom_ui/floorplan/images/branding/starman.png"
             ] | random }}
+            
   - alias: 'Full Moon -Tweet'
     trigger:
       - platform: state
         entity_id: sensor.moon
         to: 'Full Moon'
     action:
-      - delay: '{{ (range(1, 6)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
+      - delay: '0{{ (range(1, 5)|random|int) }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
         data_template:
           tweet: >-

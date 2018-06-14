@@ -100,7 +100,7 @@ automation:
       platform: time
       at: '23:50:00'
     action:
-      - delay: '00:{{ (range(1, 9)|random|int) }}:00'
+      - delay: '00:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
         data_template:
           tweet: >
@@ -121,7 +121,7 @@ automation:
       platform: time
       at: '04:30:00'
     action:
-      - delay: '{{ (range(1, 6)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
+      - delay: '0{{ (range(1, 5)|random|int) }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
         data_template:
           tweet: >

@@ -74,7 +74,7 @@ automation:
           message: 'Today is {{ states.sensor.holiday.state }}.'
           title: '{{ states.sensor.holiday.state }}'
 
-      - delay: '{{ (range(4, 8)|random|int) }}:{{ (range(1, 50)|random|int) }}:00'
+      - delay: '0{{ (range(4, 8)|random|int) }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
       - service: script.tweet_engine_image
         data_template:
           tweet: >

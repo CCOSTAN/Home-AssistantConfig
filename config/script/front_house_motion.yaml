@@ -35,7 +35,7 @@ front_house_motion:
           - group.outdoor_pool_lights
         brightness: 255
     - service: script.dog_bark
-    - delay: '00:{{ (range(5, 20)|random|int) }}:00'
+    - delay: '00:{{ range(0,1) | random | int }}{{ range(0,9) | random | int }}:00'
     - service: light.turn_off
       entity_id:
         - group.outdoor_front_lights
