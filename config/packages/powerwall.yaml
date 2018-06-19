@@ -1,18 +1,15 @@
-#-------------------------------------------
-#  PiHole ad Blocking Related Packages
-#-------------------------------------------
-# homeassistant:
-#   customize:
-#
-#     sensor.pihole_ads_percentage_today:
-#       friendly_name: Percentage of Ad Traffic Blocked
-#       unit_of_measurement: '%'
-#       icon: mdi:ticket-percent
-#
-#     group.pihole:
-#       homebridge_hidden: true
-#-------------------------------------------
+######################################################################################################
+### @Tesla Powerwall - https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html
+# # @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+######################################################################################################
+
 sensor:
+
+  - platform: duke_energy
+    username: !secret duke_energy_username
+    password: !secret duke_energy_password
+
   - platform: rest
     name: House now
     resource: http://192.168.10.90/api/meters/aggregates
@@ -62,4 +59,4 @@ group:
 
 #
 # automation:
-# Located in the Grafana package.  Tweets out Solar Production Daily!   
+# Located in the Grafana package.  Tweets out Solar Production Daily!
