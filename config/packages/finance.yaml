@@ -25,13 +25,11 @@ sensor:
       - name: Amazon
         currency: USD
         symbol: AMZN
-    foreign_exchange:
-      - from: BTC
-        to: USD
-        name: Bitcoin
-      - from: ETH
-        to: USD
-        name: Ethereum
+
+  - platform: coinmarketcap
+    currency_id: 1027
+  - platform: coinmarketcap
+    currency_id: 1
 #-------------------------------------------
 group:
   finance:
