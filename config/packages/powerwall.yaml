@@ -6,10 +6,6 @@
 
 sensor:
 
-  - platform: duke_energy
-    username: !secret duke_energy_username
-    password: !secret duke_energy_password
-
   - platform: rest
     name: House now
     resource: http://192.168.10.90/api/meters/aggregates
