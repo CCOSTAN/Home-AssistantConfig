@@ -8,36 +8,41 @@ sensor:
 
   - platform: rest
     name: House now
-    resource: http://192.168.10.90/api/meters/aggregates
+    resource: https://192.168.10.90/api/meters/aggregates
     method: GET
+    verify_ssl: false
     value_template: '{{ value_json.load.instant_power / 1000 }}'
     unit_of_measurement: kWh
 
   - platform: rest
     name: Grid now
-    resource: http://192.168.10.90/api/meters/aggregates
+    resource: https://192.168.10.90/api/meters/aggregates
     method: GET
+    verify_ssl: false
     value_template: '{{ value_json.site.instant_power / 1000 }}'
     unit_of_measurement: kWh
 
   - platform: rest
     name: Solar now
-    resource: http://192.168.10.90/api/meters/aggregates
+    resource: https://192.168.10.90/api/meters/aggregates
     method: GET
+    verify_ssl: false
     value_template: '{{ value_json.solar.instant_power / 1000 }}'
     unit_of_measurement: kWh
 
   - platform: rest
     name: PowerWall Battery now
-    resource: http://192.168.10.90/api/meters/aggregates
+    resource: https://192.168.10.90/api/meters/aggregates
     method: GET
+    verify_ssl: false
     value_template: '{{ value_json.battery.instant_power / 1000 }}'
     unit_of_measurement: kWh
 
   - platform: rest
     name: PowerWall Battery Capacity
-    resource: http://192.168.10.90/api/system_status/soe
+    resource: https://192.168.10.90/api/system_status/soe
     method: GET
+    verify_ssl: false
     value_template: '{{ 13500 // (100 / value_json.percentage) }}'
     unit_of_measurement: W
 
