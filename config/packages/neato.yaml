@@ -8,7 +8,7 @@
 #     "*.*_sleep_hours":
 #       unit_of_measurement: hours
 #       icon: mdi:sleep
-#       
+#
 #       hidden: False
 #-------------------------------------------
 neato:
@@ -37,12 +37,16 @@ automation:
         value_template: "{{ states.vacuum.carloneato.attributes.battery_level |int < 20 }}"
 
     action:
-      - service: script.tweet_engine
+      - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [
             "#Neato returning to base. Vacuumed up a TON. (http://amzn.to/2CKHZya)",
             "Everyday I have the Neato Botvac go out and clean the house on its own.",
-            "Since we have a cat that sheds all day, we have @Neato go out daily to clean.",
-            "Time to recharge the @Neato Vacuum."
+            "Since we have a cat that sheds all day, we have Neato Vacuum go out daily to clean.",
+            "Time to recharge the Neato Vacuum."
             ] | random + " Battery Level:{{states.vacuum.carloneato.attributes.battery_level }} #Robots"}}
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/neato.png"
+            ] | random }}
