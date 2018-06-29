@@ -58,7 +58,7 @@ automation:
         for:
           minutes: 6
       - platform: time
-        hours: '/3'
+        hours: '/4'
         minutes: 30
         seconds: 30
 
@@ -71,7 +71,7 @@ automation:
       - condition: template
         value_template: >
           {%- if states.automation.juicebox_selfheal.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.juicebox_selfheal.attributes.last_triggered)) > 25000 }}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.juicebox_selfheal.attributes.last_triggered)) > 10000 }}
           {%- else -%}
             true
           {%- endif -%}
