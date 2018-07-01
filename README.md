@@ -39,6 +39,10 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
       Code
     </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
+      Diagram
+    </a>
   </h4>
 </div>
 
@@ -60,6 +64,11 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)<a name="devices"></a>
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
+
+#### <a name="diagram"></a>Here is how all the parts talk to each other.  Keep reading to see code examples and explanations.  
+![Smart Home Diagram](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png)
+
+<p><strong>Technology diagram (<a href="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png"><code>PNG</code></a>. Made with <a href="https://www.draw.io">Draw.io</a> (<a href="https://raw.githubusercontent.com/CCOSTAN/Docker_Support/master/BearStoneFlow.xml"><code>XML</code></a> source file).</strong></p>
 
 <div align="center">
   <h4>
