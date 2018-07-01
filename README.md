@@ -61,8 +61,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 * [HomeBridge Container](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
 * Unifi controller Container to manage [APs](http://amzn.to/2mBSfE9)
 
-![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)<a name="devices"></a>
-
+![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
 #### <a name="diagram"></a>Smart Home Diagram
@@ -71,6 +70,7 @@ Here is how all the parts talk to each other.  Keep reading to see code examples
 
 <p align="center"><strong>Technology diagram (<a href="https://pbs.twimg.com/media/Dg_CPwVU8AEyC2B.jpg:large"><code>PNG</code></a>). Made with <a href="https://www.draw.io">Draw.io</a> (<a href="https://raw.githubusercontent.com/CCOSTAN/Docker_Support/master/BearStoneFlow.xml"><code>XML</code></a> source file).</strong></p>
 
+<a name="devices"></a>
 <div align="center">
   <h4>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#battery">
