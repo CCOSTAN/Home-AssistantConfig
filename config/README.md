@@ -14,27 +14,36 @@
 <p><font size="3">
 This is the main directory of the Repo.  You will find more helpful ReadMe files in the directoies as you browse them.  Not all but each day I add more.  I use a configuration type called split configuration.  So my main configuration.yaml file is broken out into many different files located in the directories.  Be sure to visit the package directory where practically self contained YAML files exist that you can easily drop into your configurations to be up and running fast with various automations and components.  You can also subscribe via RSS to every commit I make in this repo by clicking the Feed icon on the bottom of this page. </p>
 <div align="center"><a name="menu"></a>
-  <h4>
-    <a href="http://www.vmwareinfo.com/search/label/iot">
-      Blog
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices">
-      Devices
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
-      Todo List
-    </a>
-    <span> | </span>
-    <a href="https://twitter.com/BearStoneHA">
-      Smart Home Stats
-    </a>
-    <span> | </span>
-    <a href="https://www.facebook.com/BearStoneHA">
-      Facebook
-    </a>
-  </h4>
+<h4>
+  <a href="http://www.vmwareinfo.com/search/label/iot">
+    Blog
+  </a>
+  <span> | </span>
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices">
+    Devices
+  </a>
+  <span> | </span>
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
+    Todo List
+  </a>
+  <span> | </span>
+  <a href="https://twitter.com/BearStoneHA">
+    Smart Home Stats
+  </a>
+  <span> | </span>
+  <a href="https://www.facebook.com/BearStoneHA">
+    Facebook
+  </a>
+  <span> | </span>
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
+    Code
+  </a>
+  <span> | </span>
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
+    Diagram
+  </a>
+</h4>
+</div>
 
 <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>
 

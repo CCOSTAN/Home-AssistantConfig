@@ -38,6 +38,10 @@ This is the basic sub-directory in my home assistant repo.  Slowly everything is
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
       Code
     </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
+      Diagram
+    </a>
   </h4>
 
 <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>

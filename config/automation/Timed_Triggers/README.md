@@ -36,6 +36,10 @@
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
       Code
     </a>
+    <span> | </span>
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
+      Diagram
+    </a>
   </h4>
 
 This directory is primarily used for automations that are triggered via time.  Daily, monthly, seasonally or on the hour.
