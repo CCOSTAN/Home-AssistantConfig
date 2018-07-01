@@ -65,10 +65,11 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
-#### <a name="diagram"></a>Here is how all the parts talk to each other.  Keep reading to see code examples and explanations.  
+#### <a name="diagram"></a>Smart Home Diagram
+Here is how all the parts talk to each other.  Keep reading to see code examples and explanations.  
 ![Smart Home Diagram](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png)
 
-<p><strong>Technology diagram (<a href="https://pbs.twimg.com/media/Dg_CPwVU8AEyC2B.jpg:large"><code>PNG</code></a>). Made with <a href="https://www.draw.io">Draw.io</a> (<a href="https://raw.githubusercontent.com/CCOSTAN/Docker_Support/master/BearStoneFlow.xml"><code>XML</code></a> source file).</strong></p>
+<p align="center"><strong>Technology diagram (<a href="https://pbs.twimg.com/media/Dg_CPwVU8AEyC2B.jpg:large"><code>PNG</code></a>). Made with <a href="https://www.draw.io">Draw.io</a> (<a href="https://raw.githubusercontent.com/CCOSTAN/Docker_Support/master/BearStoneFlow.xml"><code>XML</code></a> source file).</strong></p>
 
 <div align="center">
   <h4>
