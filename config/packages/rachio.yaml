@@ -14,3 +14,9 @@ homeassistant:
 #-------------------------------------------
 rachio:
   api_key: !secret rachio_api
+
+binary_sensor:
+  - platform: rachio
+
+switch:
+  - platform: rachio
