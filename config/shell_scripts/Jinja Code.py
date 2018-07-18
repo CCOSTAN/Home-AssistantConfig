@@ -13,7 +13,6 @@ Create fast Customize for groups, sensors, covers etc...  Just change that first
 {% endif %}
 {{- state.entity_id }}:
   friendly_name: '{{ state.attributes.friendly_name|replace("_"," ",)|title() if state.attributes.friendly_name is defined else state.name|replace("_"," ",)|title() }}'
-  emulated_hue_hidden: {{state.attributes.emulated_hue_hidden if state.attributes.emulated_hue_hidden is defined else 'False' }}
   hidden: {{state.attributes.hidden if state.attributes.hidden is defined else "False"}}
   homebridge_hidden: {{state.attributes.homebridge_hidden if state.attributes.homebridge_hidden is defined else "true"}}
   {{'icon: '+ state.attributes.icon if state.attributes.icon is defined}}
