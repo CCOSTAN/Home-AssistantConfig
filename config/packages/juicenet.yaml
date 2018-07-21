@@ -47,7 +47,7 @@ automation:
       - service: script.notify_engine
         data_template:
           value1: "The Garage charger is now in {{ states('sensor.carlojuice_charging_status') }} mode."
-          who: 'parents'
+          who: 'carlo'
 
   - alias: 'Juicebox Self-Heal'
     initial_state: 'on'
