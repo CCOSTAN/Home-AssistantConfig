@@ -15,6 +15,13 @@ neato:
   username: !secret neato_username
   password: !secret neato_password
 #-------------------------------------------
+sensor:
+  - platform: template
+    sensors:
+      neato_status:
+        friendly_name: 'Neato Status'
+        value_template: '{{states.vacuum.carloneato.attributes["status"]}}'
+
 group:
   Neato:
     entities:
