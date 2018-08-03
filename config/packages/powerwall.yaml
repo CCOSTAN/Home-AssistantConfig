@@ -4,6 +4,18 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ######################################################################################################
 
+#-------------------------------------------
+group:
+  Power:
+    entities:
+      - sensor.powerwall_battery_capacity
+      - sensor.powerwall_battery_now
+      - sensor.grid_now
+      - sensor.house_now
+      - sensor.solar_now
+      - camera.grafana_solar_graph
+#-------------------------------------------
+
 sensor:
 
   - platform: rest
@@ -46,16 +58,6 @@ sensor:
     value_template: '{{ 13500 // (100 / value_json.percentage) }}'
     unit_of_measurement: W
 
-#-------------------------------------------
-group:
-  Power:
-    entities:
-      - sensor.powerwall_battery_capacity
-      - sensor.powerwall_battery_now
-      - sensor.grid_now
-      - sensor.house_now
-      - sensor.solar_now
-      - camera.grafana_solar_graph
 #-------------------------------------------
 
 #
