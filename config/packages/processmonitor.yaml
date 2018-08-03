@@ -17,7 +17,9 @@ sensor:
       - type: since_last_boot
       - type: disk_use_percent
         arg: /
-  - platform: database
+  - platform: filesize
+    file_paths:
+      - /config/home-assistant_v2.db
 #-------------------------------------------
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
