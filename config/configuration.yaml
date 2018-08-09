@@ -5,9 +5,6 @@ homeassistant:
   elevation: !secret homeassistant_elevation
   unit_system: imperial
   time_zone: America/New_York
-  whitelist_external_dirs:
-    - /config/
-
   customize: !include_dir_merge_named customize
   customize_domain:
     automation:
@@ -20,8 +17,9 @@ homeassistant:
     scene.month_*_colors:
       hidden: true
       homebridge_hidden: true
-
   packages: !include_dir_named packages
+  whitelist_external_dirs:
+    - /config
 
 influxdb:
   host: 192.168.10.10
