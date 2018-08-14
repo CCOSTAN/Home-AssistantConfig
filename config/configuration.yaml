@@ -18,8 +18,8 @@ homeassistant:
       hidden: true
       homebridge_hidden: true
   packages: !include_dir_named packages
-  # whitelist_external_dirs:
-  #   - /config
+  whitelist_external_dirs:
+    - /config/
 
 influxdb:
   host: 192.168.10.10
