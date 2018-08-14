@@ -47,7 +47,6 @@ tweet_engine_setup:
                 "When you add it all up, I have spoken for about {{ states.sensor.speech_time.attributes.value|replace('m', '') }} minutes in the last 24 hours!",
                 "The #Docker Host has been running for {{ states('sensor.since_last_boot_templated') }} (http://www.vmwareinfo.com/2018/02/journey-to-docker.html)",
                 "The #Docker Host for Home Assistant is using {{ states('sensor.disk_use_percent_') }}% of the hard drive currently. (http://www.vmwareinfo.com/2018/02/journey-to-docker.html)",
-                "My Home Assistant Database is currently using {{ states('sensor.database_sensor') }} MBs. To get this #Stat for your HA, visit (https://github.com/robmarkcole/HASS-filesize-sensor)",
                 "I am running Home Assistant version {{ states('sensor.ha_installed_version') }} (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "Home Assistant has been running for {{ states('sensor.ha_uptime') }}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "My Home Assistant has been tested by Travis-CI and {{states('sensor.ccostanhomeassistantconfig_state')}}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
