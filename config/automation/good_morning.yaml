@@ -12,6 +12,7 @@
       entity_id:
         - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
       to: 'off'
+      for: '00:05:00'
 
   condition:
     - condition: state
@@ -21,8 +22,8 @@
       entity_id: input_boolean.school_mode
       state: 'on'
     - condition: time
-      after: '06:00:00'
-      before: '10:00:00'
+      after: '05:30:00'
+      before: '08:00:00'
     - condition: time
       weekday:
         - mon
@@ -32,7 +33,6 @@
         - fri
 
   action:
-    - delay: 00:20:00
     - service: light.turn_on
       entity_id:
         - light.s1
