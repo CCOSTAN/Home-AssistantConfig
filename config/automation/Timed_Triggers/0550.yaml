@@ -1,11 +1,11 @@
 ######################################################################
-##  Stuff that needs to happen at 06:30am.
+##  Stuff that needs to happen at 05:50am.
 ######################################################################
 
-- alias: 'Timed 640.'
+- alias: 'Timed 550.'
   trigger:
     - platform: time
-      at: '06:40:00'
+      at: '05:50:00'
 
   condition:
     - condition: state
@@ -23,9 +23,8 @@
         - fri
 
   action:
-    - service: light.turn_on
+    - service: homeassistant.turn_on
       entity_id:
-        - light.d1
-        - light.d2
-    - service: switch.turn_on
-      entity_id: switch.kitchen_accents
+        - group.dining_room_lights
+        - switch.kitchen_accents
+        - light.fridge
