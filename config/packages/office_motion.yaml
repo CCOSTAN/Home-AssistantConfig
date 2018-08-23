@@ -36,14 +36,19 @@ automation:
 
     condition:
       - condition: state
-        entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-        state: 'off'
-      - condition: state
         entity_id: group.family
         state: 'home'
       - condition: state
         entity_id: light.office_lamp
         state: 'off'
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+            state: 'off'
+          - condition: state
+            entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+            state: 'off'
       - condition: or
         conditions:
           - condition: time
