@@ -41,6 +41,9 @@ This is the basic sub-directory in my home assistant repo.  Slowly everything is
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
+    </a>    <span> | </span>
+    <a href="https://youtube.com/CCOSTAN">
+      Youtube
     </a>
   </h4>
 

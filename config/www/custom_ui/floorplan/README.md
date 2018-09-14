@@ -41,6 +41,9 @@
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
+    </a>    <span> | </span>
+    <a href="https://youtube.com/CCOSTAN">
+      Youtube
     </a>
   </h4>
 

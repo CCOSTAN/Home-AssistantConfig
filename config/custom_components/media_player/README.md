@@ -41,6 +41,9 @@ This is a Custom Component by pkozul to allow me to use my Floorplan installatio
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
+    </a>    <span> | </span>
+    <a href="https://youtube.com/CCOSTAN">
+      Youtube
     </a>
   </h4>
 

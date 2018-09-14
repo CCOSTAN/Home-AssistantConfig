@@ -41,6 +41,9 @@ Custom Components.  Comstimes I use them for temporary fixes to existing compone
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
+    </a>    <span> | </span>
+    <a href="https://youtube.com/CCOSTAN">
+      Youtube
     </a>
   </h4>
 

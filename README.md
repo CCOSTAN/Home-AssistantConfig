@@ -42,6 +42,9 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
+    </a>    <span> | </span>
+    <a href="https://youtube.com/CCOSTAN">
+      Youtube
     </a>
   </h4>
 </div>
