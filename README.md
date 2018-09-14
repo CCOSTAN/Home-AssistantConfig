@@ -173,7 +173,7 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 [Ubiquiti Networks Unifi 802.11ac Pro](http://amzn.to/2mBSfE9)
 </td><td align="center">
 
-[Ubiquiti Networks Unifi 802.11ac Lite](http://amzn.to/2mBSfE9)
+[Ubiquiti Networks Unifi 802.11ac Lite](https://amzn.to/2xgxhO4)
 </td><td align="center">
 
 [NetGear 16 Port unmanaged Switch](http://amzn.to/2GJwyIb)
