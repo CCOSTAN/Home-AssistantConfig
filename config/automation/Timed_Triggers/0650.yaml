@@ -35,5 +35,4 @@
        {{ states.sun.sun.state == 'above_horizon' }}
     - service: homeassistant.turn_off
       entity_id:
-        - switch.kitchen_accents
         - light.fridge
