@@ -166,7 +166,7 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 
 <tr><td colspan="4">
 
-#### Networking <a name="networking" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/Up_Arrow_BearStone.png" width="22"> </a>
+#### Networking <a name="networking" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22"> </a>
 </td></tr>
 <tr><td align="center">
 
