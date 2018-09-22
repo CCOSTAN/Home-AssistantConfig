@@ -162,7 +162,7 @@ Here is how all the parts talk to each other.  Keep reading to see code examples
 </td><td align="center"><a href="https://www.youtube.com/watch?v=RAwQEHonA6M&t=6s" target="_blank"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/youtube/S01E01_PlayButton.png"  height="150" border="0" alt="" style="border:none !important; margin:0px !important;"></a></td></tr>
 
 <tr><td colspan="4">
-There aren't really automations for the Batteries yet.  Electricity is the life blood for the house and only really the Tesla Battery has smarts so maybe in the future, you'll see a Powerwall automation in this space.</td></tr>
+There aren't really automations for the Batteries yet.  Electricity is the life blood for the house and only really the Tesla Battery has smarts so maybe in the future, you'll see a Powerwall automation in this space. You can click the Images with play buttons to watch the related Youtube Videos.</td></tr>
 
 <tr><td colspan="4">
 
@@ -239,6 +239,12 @@ Responsibility Speech Code - /config/script/speech_engine.yaml#L56-L68</a><br>
 <a href=http://www.vmwareinfo.com/2017/10/speak-naturally-to-your-alexa-context.html>
 Read about it here on vCloudInfo.com</a><br>
 <p></details>
+<details>
+<summary>View the Alexa related videos on the vCloudInfo Youtube Channel.</summary><p align="center">
+<a href=https://www.youtube.com/playlist?list=PLlOJRJVOmoe7HhertwlAb-kTIvHtRaB-h>
+Be sure to Like and Subscribe if you enjoy this type of content.</a><br>
+<p></details>
+
 </td></tr>
 
 <tr><td colspan="4">
