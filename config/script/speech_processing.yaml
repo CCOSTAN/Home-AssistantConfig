@@ -12,7 +12,7 @@ speech_processing:
     - service: mqtt.publish
       data_template:
         topic: 'polly/lastmsg'
-        payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | truncate(254)}}"
+        payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | truncate(220)}}"
         retain: true
 
     - condition: and
@@ -57,6 +57,17 @@ speech_processing:
           {% else %}
             0.3
           {% endif %}
+
+    - service: media_player.alexa_tts
+      data_template:
+        entity_id: >
+          {% if states.group.bed.state == 'off' %}
+          media_player.office
+          {% else %}
+          media_player.office
+          {% endif %}
+        message: >-
+            {{ speech_message }}
 
     - service: tts.amazon_polly_say
       data_template:

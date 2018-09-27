@@ -71,7 +71,7 @@ cloud:
         display_categories: LIGHT
 http:
   base_url: !secret http_base_url
-  server_port: !secret server_port
+  # server_port: !secret http_port
   api_password: !secret http_api_password
   ssl_certificate: !secret ssl_certificate
   ssl_key: !secret ssl_key
@@ -223,9 +223,9 @@ climate:
   platform: nest
 
 # media_player:
-  # - platform: cast
-    # host: 192.168.10.209 #CCA1
-  # - platform: roku
+#   - platform: cast
+#     host: 192.168.10.209 #CCA1
+#   - platform: roku
 
   # - platform: samsungtv
   #   host: 192.168.10.207
