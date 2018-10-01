@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a name="logo" href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="logo" href="http://www.vCloudInfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Configuration
 </h1>
@@ -15,7 +15,7 @@
 The Scripts in this folder are basically reusable.  That's my philosophy on scripts.  Pass them variables and then have them run different things based on those variables.  But when you need to make a global change, you can just visit the single script. </p>
 <div align="center"><a name="menu"></a>
   <h4>
-    <a href="http://www.vmwareinfo.com/search/label/iot">
+    <a href="http://www.vCloudInfo.com/search/label/iot">
       Blog
     </a>
     <span> | </span>

@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a name="logo" href="http://www.vmwareinfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="logo" href="http://www.vCloudInfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Configuration
 </h1>
@@ -15,7 +15,7 @@
 I love packages.  This will probably become the most used directory in my repo.  I love the ability to just drop in a package or disable it just as easily.  In fact, there are a few disabled ones right now ready to go when issues are straightened out.  All in one place, packages make defining devices, booleans, automations and customizations a snap.</p>
 <div align="center"><a name="menu"></a>
   <h4>
-    <a href="http://www.vmwareinfo.com/search/label/iot">
+    <a href="http://www.vCloudInfo.com/search/label/iot">
       Blog
     </a>
     <span> | </span>
