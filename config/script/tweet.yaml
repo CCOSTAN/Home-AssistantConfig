@@ -16,7 +16,8 @@ tweet_engine_setup:
               "promo": [
                 "Be Sure to follow all of my Twitter Accounts! @CCostan @BearStoneHA",
                 "Be sure to like me on Facebook and join our HA group! (https://www.facebook.com/groups/HomeAssistant/) (https://www.facebook.com/VMwareInfo/) (https://www.facebook.com/BearStoneHA/)",
-                "You can see how ALL of this is done by browsing my GitHub Repository (https://github.com/CCOSTAN/Home-AssistantConfig#logo)"
+                "You can see how ALL of this is done by browsing my GitHub Repository (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
+                "If you aren't subscribed to our YouTube channel, you are missing out on the goodies! (https://youtube.com/vCloudInfo)"
               ],
               "solar": [
                 "I am keeping track of the current #Tesla stock price. It is ${{ states('sensor.tesla')|round }}. #Solar",
@@ -62,7 +63,7 @@ tweet_engine_setup:
               ],
 
               "weather": [
-                "The #Landscaping lights where on for about {{ states.sensor.landscaping_light_time.attributes.value }} yesterday.",
+                "The #Landscaping lights where on for about {{ states.sensor.landscaping_light_time.attributes.value }} yesterday. (https://youtu.be/FcBVu_yk2iY)",
                 "I keep the average humidity of the house at {{ states('sensor.downstairs_thermostat_humidity') }} percent. Outside is {{ states('sensor.dark_sky_humidity') }} #Nest (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
                 "Outside is {{ states('sensor.dark_sky_temperature') }}. I keep the average inside temperature at {{ states('sensor.downstairs_thermostat_temperature') }}. #Weather (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
                 "I know that it will be {{ states('sensor.dark_sky_minutely_summary') }} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",

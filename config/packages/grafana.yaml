@@ -42,7 +42,12 @@ automation:
           tweet: >-
             {{ [
             "I have just finished crunching the numbers and here is the latest #Solar Production report. "
-            ] | random + " #Charts #Tesla (https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)" }}
+            ] | random + " #Charts #Tesla "
+            + [
+             "(https://youtu.be/BartadUzGOA)",
+             "(https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)"
+             ]| random
+             }}
           image: >-
             {% set pictures = [
               "/config/www/custom_ui/floorplan/images/branding/solar_readings.png"
