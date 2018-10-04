@@ -57,6 +57,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 #### <a name="software"></a>Notable Software on my Laptop Host:
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support)
+* [Youtube Video on Upgrading Home Assistant in Docker](https://youtu.be/ipatCbsY-54) - Be sure to Subscribe to get all Home Assistant videos.
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
 * SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe!
