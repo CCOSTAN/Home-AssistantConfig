@@ -33,10 +33,10 @@
   condition:
     - condition: state
       entity_id: binary_sensor.mcu1_gpio12
-      to: 'off'
-    - conditon: state
+      state: 'off'
+    - condition: state
       entity_id: binary_sensor.kitchen_door_opened
-      to: 'off'
+      state: 'off'
 
   action:
     service: light.turn_off
