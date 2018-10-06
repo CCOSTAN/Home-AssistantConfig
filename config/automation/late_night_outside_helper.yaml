@@ -36,7 +36,14 @@
           {% else %}
           gold
           {% endif %}
-    - service: switch.turn_on
+
+    - service_template: >
+       {% set hour=states("sensor.time").split(':')[0] | int %}
+       {% if hour >= 5 and hour <= 9 and states.group.bed.state == 'on'%}
+         switch.turn_off
+       {% else %}
+          switch.turn_on
+       {% endif %}
       entity_id:
         - switch.master_bathroom_accents
         - switch.back_landscaping
