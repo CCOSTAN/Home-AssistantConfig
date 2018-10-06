@@ -1,0 +1,67 @@
+###################################
+##  ZWave Section -
+##  Home Assistant runs on my [Raspberry Pi 3](http://amzn.to/2e3DOBY) with [Aeon Labs Z Wave Stick (GEN 5)](http://amzn.to/2eAiAP0).
+###################################
+
+##############################################################
+- alias: Garage Light Hallway Helper OPEN
+  hide_entity: True
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.kitchen_door_opened
+      to: 'on'
+    - platform: state
+      entity_id: binary_sensor.mcu1_gpio12
+      to: 'on'
+
+  action:
+    - service: light.turn_on
+      entity_id:
+        -  light.garage_hallway
+
+##############################################################
+- alias: Garage Light Hallway Helper Closed
+  hide_entity: True
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.mcu1_gpio12
+      to: 'off'
+    - platform: state
+      entity_id: binary_sensor.kitchen_door_opened
+      to: 'off'
+
+  condition:
+    - condition: state
+      entity_id: binary_sensor.mcu1_gpio12
+      to: 'off'
+    - conditon: state
+      entity_id: binary_sensor.kitchen_door_opened
+      to: 'off'
+
+  action:
+    service: light.turn_off
+    entity_id: light.garage_hallway
+
+##############################################################
+- alias: Shutdown Helper light
+  hide_entity: True
+  trigger:
+    - platform: state
+      entity_id: light.k4
+      to: 'on'
+      for: '00:20:00'
+    - platform: state
+      entity_id: binary_sensor.hallway_pantry_opened
+      to: 'off'
+    - platform: state
+      entity_id: binary_sensor.hallway_linen_opened
+      to: 'off'
+
+  condition:
+    condition: state
+    entity_id: light.k1
+    state: 'off'
+
+  action:
+    - service: light.turn_off
+      entity_id: light.k4
