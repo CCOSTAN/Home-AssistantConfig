@@ -14,6 +14,11 @@
       entity_id: binary_sensor.mcu1_gpio12
       to: 'on'
 
+  condition:
+    - condition: state
+      entity_id: light.garage_hallway
+      state: 'off'
+
   action:
     - service: light.turn_on
       entity_id:
@@ -26,9 +31,13 @@
     - platform: state
       entity_id: binary_sensor.mcu1_gpio12
       to: 'off'
+      for:
+        seconds: 15
     - platform: state
       entity_id: binary_sensor.kitchen_door_opened
       to: 'off'
+      for:
+        seconds: 15
 
   condition:
     - condition: state
@@ -37,6 +46,9 @@
     - condition: state
       entity_id: binary_sensor.kitchen_door_opened
       state: 'off'
+    - condition: state
+      entity_id: light.garage_hallway
+      state: 'on'
 
   action:
     service: light.turn_off
