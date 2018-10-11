@@ -488,10 +488,11 @@ Holiday Lights package - /config/packages/holiday.yaml</a><br>
 DIY Alarm package - /config/packages/alarm.yaml</a><br>
 </details>
 <details>
-<summary>Two part series on replacing a fluorescent light with a Hue Smart Light - Step by Step</summary><p align="center">
+<summary>Two part series on replacing a fluorescent light with a Hue Smart Light - Step by Step</summary>
+<p align="center">
 <a href=https://www.youtube.com/watch?v=Q0KUu20w71s>
- </a><br>
-</details> Part 1 - Adding to the Hue Bridges
+ Part 1 - Adding to the Hue Bridges</a><br>
+</details>
 </td></tr>
 
 <tr><td colspan="4">
