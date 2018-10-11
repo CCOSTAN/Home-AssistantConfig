@@ -487,6 +487,11 @@ Holiday Lights package - /config/packages/holiday.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L289-L299>
 DIY Alarm package - /config/packages/alarm.yaml</a><br>
 </details>
+<details>
+<summary>(YouTube) Write up and Video to the Philips Hue Calla Outdoor Landscaping Lights.</summary><p align="center">
+<a href=https://www.vcloudinfo.com/2018/09/unboxing-philips-hue-calla-landscape.html>
+Link to Hue Calla lights unboxing and Setup video</a><br>
+</details>
 </td></tr>
 
 <tr><td colspan="4">
