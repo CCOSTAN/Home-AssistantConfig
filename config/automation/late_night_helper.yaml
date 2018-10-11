@@ -32,6 +32,11 @@
         - light.M1_front_right
         - light.S1
         - light.S4
+    - service: light.turn_on
+      entity_id:
+        - light.outdoor_bathroom
+      data:
+        brightness: 10
     - service: switch.turn_on
       entity_id:
         - switch.kitchen_accents

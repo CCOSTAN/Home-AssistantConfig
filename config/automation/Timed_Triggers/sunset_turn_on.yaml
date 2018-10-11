@@ -47,13 +47,18 @@
     - service: homeassistant.turn_on
       entity_id:
         - switch.front_landscaping
+        - light.bedroom
     - service: script.monthly_color_scene
     - service: light.turn_on
       entity_id:
         - light.outdoor_bathroom
-        - light.bedroom
-      data:
-        brightness: 10
+      data_template:
+        brightness: >
+          {% if states.group.family.state == 'home' -%}
+          10
+          {% else %}
+          200
+          {% endif %}
     - wait_template: >-
        {{ states.group.family.state == 'home' }}
     - service: switch.turn_on
