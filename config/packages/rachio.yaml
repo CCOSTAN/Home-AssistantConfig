@@ -21,12 +21,6 @@ sensor:
     state_topic: "ifttt/rachio/watering_time"
     name: "Rachio_watering_time"
 
-binary_sensor:
-  - platform: rachio
-
-switch:
-  - platform: rachio
-
 group:
   rachio:
     entities:
@@ -37,7 +31,7 @@ group:
       - switch.front_lawn
       - switch.left_side_house
       - switch.front_hedges__right_side_house
-    
+
 automation:
   ###################################
   ##  LOG IFTTT Stuff - Rachio
