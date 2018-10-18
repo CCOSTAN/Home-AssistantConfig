@@ -492,6 +492,8 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 <p align="center">
 <a href=https://www.youtube.com/watch?v=Q0KUu20w71s>
  Part 1 - Adding to the Hue Bridges</a><br>
+ <a href=https://youtu.be/lyjRHYKkG98>
+  Part 2 - Adding to Automations</a><br>
 </details>
 </td></tr>
 
