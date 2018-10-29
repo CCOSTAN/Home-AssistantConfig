@@ -694,8 +694,10 @@ Mentioned above, this is one of my favorite projects for the house.  The ability
 
 <details>
 <summary>Change the front colors of the LED lights based on holidays.  The best part is the LED controller works with HA right out of the box.  No fiddling around with it at all.  HUGE Plus in my book.</summary><p align="center">
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/holiday.yaml>
-Holiday Package - /config/packages/holiday.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/monthly_color_scene.yaml>
+Holiday Lights Script - /config/script/monthly_color_scene.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/scene/monthly_colors.yaml>
+Holiday Lights Scenes - /config/scene/monthly_colors.yam</a><br>
 </details>
 <details>
 <summary>When the garage doors open, change all lights in the front of the house to bright white.</summary><p align="center">
