@@ -480,8 +480,10 @@ Almost all my lights (40+) are white GE Link lights.  I bought them early on bef
 TV Time Automations - /config/automation/tv_time_on_and_off.yaml</a><br>
 </details><details>
 <summary>Sets up the front lights in the house with preset colors depending on the ~~month~~ day!.</summary><p align="center">
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/holiday.yaml>
-Holiday Lights package - /config/packages/holiday.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/monthly_color_scene.yaml>
+Holiday Lights Script - /config/script/monthly_color_scene.yaml</a><br>
+<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/scene/monthly_colors.yaml>
+Holiday Lights Scenes - /config/scene/monthly_colors.yam</a><br>
 </details><details>
 <summary>Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all doors/windows are closed.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L289-L299>
