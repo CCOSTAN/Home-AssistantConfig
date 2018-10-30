@@ -667,7 +667,7 @@ Good Night automation - /config/automation/good_night.yaml</a><br>
 </td></tr>
 <tr><td colspan="4">
 
-#### Outdoor LED Accents - [DIY Blog Post](http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Outdoor LED Accents <a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#LED"> - [DIY Blog Post](http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -690,7 +690,7 @@ Good Night automation - /config/automation/good_night.yaml</a><br>
 </td></tr>
 <tr><td colspan="4">
 
-Mentioned above, this is one of my favorite projects for the house.  The ability to completely change the look of the house on the drop of a dime and on a dime budget is awesome.  Read the blog post linked above for all the parts details but here are some automations I love.
+Mentioned above, this is one of my favorite projects for the house.  The ability to completely change the look of the house on the drop of a dime and on a dime budget is awesome.  Read the blog post linked above for all the parts details but here are some automations I love.  You can also watch the following Video (https://www.vcloudinfo.com/2018/10/easy-smart-home-gadgets-i-use-for-my.html)
 
 <details>
 <summary>Change the front colors of the LED lights based on holidays.  The best part is the LED controller works with HA right out of the box.  No fiddling around with it at all.  HUGE Plus in my book.</summary><p align="center">
