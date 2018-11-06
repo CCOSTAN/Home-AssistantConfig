@@ -39,10 +39,15 @@
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
-    </a>    <span> | </span>
+    </a>    
+    <span> | </span>
     <a href="https://youtube.com/CCOSTAN">
       Youtube
     </a>
+    <span> | </span>
+    <a href="https://www.vcloudinfo.com/p/shop-our-merch.html">
+      Tee Shop
+    </a>>
   </h4>
 
 This directory is primarily used for automations that are triggered via time.  Daily, monthly, seasonally or on the hour.

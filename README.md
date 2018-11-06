@@ -42,9 +42,14 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
-    </a>    <span> | </span>
+    </a>    
+    <span> | </span>
     <a href="https://youtube.com/CCOSTAN">
       Youtube
+    </a>
+    <span> | </span>
+    <a href="https://www.vcloudinfo.com/p/shop-our-merch.html">
+      Tee Shop
     </a>
   </h4>
 </div>
@@ -163,9 +168,9 @@ Here is how all the parts talk to each other.  Keep reading to see code examples
 </td><td align="center"><a href="https://www.youtube.com/watch?v=BartadUzGOA" target="_blank"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/youtube/S01E01_PlayButton.png"  height="150" border="0" alt="" style="border:none !important; margin:0px !important;"></a></td></tr>
 
 <tr><td colspan="4">
-There aren't really automations for the Batteries yet.  Electricity is the life blood for the house and only really the Tesla Battery has smarts so maybe in the future, you'll see a Powerwall automation in this space. <br>
+There aren't really automations for the Batteries yet.  Electricity is the life blood for the house and only really the Tesla Battery has smarts so maybe in the future, you'll see a Powerwall automation in this space.  But be sure to check out the YouTube Videos below:
 <details>
-  <summary>How To port Forward Home Assistant on Arris TG1682</summary><p align="center">
+  <summary>How To Port Forward Home Assistant on Arris TG1682</summary><p align="center">
   <a href=https://www.vcloudinfo.com/2018/11/port-forwarding-on-arris-tg1682-modem.html>
   Write Up and YouTube Video</a><br>
 <p></details>

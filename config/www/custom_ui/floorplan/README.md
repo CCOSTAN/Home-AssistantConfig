@@ -41,10 +41,15 @@
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
-    </a>    <span> | </span>
+    </a>    
+    <span> | </span>
     <a href="https://youtube.com/CCOSTAN">
       Youtube
     </a>
+    <span> | </span>
+    <a href="https://www.vcloudinfo.com/p/shop-our-merch.html">
+      Tee Shop
+    </a>>
   </h4>
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)

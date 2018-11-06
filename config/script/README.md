@@ -14,31 +14,38 @@
 <p><font size="3">
 The Scripts in this folder are basically reusable.  That's my philosophy on scripts.  Pass them variables and then have them run different things based on those variables.  But when you need to make a global change, you can just visit the single script. </p>
 <div align="center"><a name="menu"></a>
-  <h4>
-    <a href="http://www.vCloudInfo.com/search/label/iot">
-      Blog
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices">
-      Devices
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
-      Todo List
-    </a>
-    <span> | </span>
-    <a href="https://twitter.com/BearStoneHA">
-      Smart Home Stats
-    </a>
-    <span> | </span>
-    <a href="https://www.facebook.com/BearStoneHA">
-      Facebook
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
-      Code
-    </a>
-  </h4>
+<h4>
+  <a href="http://www.vCloudInfo.com/search/label/iot">
+    Blog
+  </a>
+  <span> | </span>
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices">
+    Devices
+  </a>
+  <span> | </span>
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
+    Todo List
+  </a>
+  <span> | </span>
+  <a href="https://twitter.com/BearStoneHA">
+    Smart Home Stats
+  </a>
+  <span> | </span>
+  <a href="https://www.facebook.com/BearStoneHA">
+    Facebook
+  </a>
+  <span> | </span>
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
+    Code
+  </a>
+  <span> | </span>
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
+    Diagram
+  </a>    <span> | </span>
+  <a href="https://youtube.com/CCOSTAN">
+    Youtube
+  </a>
+</h4>
 
 <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>
 
