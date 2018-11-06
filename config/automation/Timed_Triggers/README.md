@@ -47,7 +47,7 @@
     <span> | </span>
     <a href="https://www.vcloudinfo.com/p/shop-our-merch.html">
       Tee Shop
-    </a>>
+    </a>
   </h4>
 
 This directory is primarily used for automations that are triggered via time.  Daily, monthly, seasonally or on the hour.
