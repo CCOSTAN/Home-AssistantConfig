@@ -58,16 +58,16 @@ speech_processing:
             0.3
           {% endif %}
 
-    - service: media_player.alexa_tts
-      data_template:
-        entity_id: >
-          {% if states.group.bed.state == 'off' %}
-          media_player.office
-          {% else %}
-          media_player.office
-          {% endif %}
-        message: >-
-            {{ speech_message }}
+    # - service: media_player.alexa_tts
+    #   data_template:
+    #     entity_id: >
+    #       {% if states.group.bed.state == 'off' %}
+    #       media_player.office
+    #       {% else %}
+    #       media_player.office
+    #       {% endif %}
+    #     message: >-
+    #         {{ speech_message }}
 
     - service: tts.amazon_polly_say
       data_template:
