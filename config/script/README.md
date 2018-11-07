@@ -41,12 +41,16 @@ The Scripts in this folder are basically reusable.  That's my philosophy on scri
   <span> | </span>
   <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
     Diagram
-  </a>    <span> | </span>
+  </a>    
+  <span> | </span>
   <a href="https://youtube.com/CCOSTAN">
     Youtube
   </a>
+  <span> | </span>
+  <a href="https://www.vcloudinfo.com/p/shop-our-merch.html">
+    Tee Shop
+  </a>
 </h4>
-
 <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>
 
 **Still have questions on my Config?**
