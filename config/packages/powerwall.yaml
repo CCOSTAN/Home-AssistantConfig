@@ -19,6 +19,14 @@ group:
 sensor:
 
   - platform: rest
+    resource: https://192.168.10.90/api/system_status/grid_status
+    verify_ssl: false
+    method: GET
+    name: Grid Status
+    scan_interval: 60
+    value_template: "{{ value_json.grid_status == 'SystemGridConnected' }}"
+
+  - platform: rest
     name: House now
     resource: https://192.168.10.90/api/meters/aggregates
     method: GET
