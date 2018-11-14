@@ -8,6 +8,7 @@
 group:
   Power:
     entities:
+      - sensor.grid_status
       - sensor.powerwall_battery_capacity
       - sensor.powerwall_battery_now
       - sensor.grid_now
@@ -17,7 +18,6 @@ group:
 #-------------------------------------------
 
 sensor:
-
   - platform: rest
     resource: https://192.168.10.90/api/system_status/grid_status
     verify_ssl: false
@@ -67,7 +67,17 @@ sensor:
     unit_of_measurement: W
 
 #-------------------------------------------
-
-#
-# automation:
 # Located in the Grafana package.  Tweets out Solar Production Daily!
+#
+automation:
+  - alias: Notify if Grid is down
+    hide_entity: True
+    trigger:
+      - platform: state
+        entity_id: sensor.grid_status
+
+    action:
+      - service: script.notify_engine
+        data_template:
+          value1: "The electrical grid is reporting to be {{ (trigger.to_state.state)|replace('true', 'up')|replace('false', 'down') }}.  Please verify with Tesla App."
+          who: 'parents'
