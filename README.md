@@ -522,14 +522,14 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 [GE Link Lightbulbs](http://amzn.to/2GJ66i5)
 </td><td align="center">
 
-[Hue Go](http://amzn.to/2iB36Ii)
+[Switches Get Stitches](https://www.vcloudinfo.com/p/shop-our-merch.html)
 </td><td align="center">
 
 [Etekcity Outlets](http://amzn.to/2efNoBP)</td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/Noon-N160US-Smart-Lighting-Starter/dp/B076FJLRNL/ref=as_li_ss_il?ie=UTF8&qid=1527451258&sr=8-1&keywords=noon&linkCode=li2&tag=vmw0a-20&linkId=07f55d3dde28ba1db77510257e4d13e8" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B076FJLRNL&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B076FJLRNL" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/GE-Starter-PLINK-SKIT-Wireless-Lighting/dp/B01GWF4RE6/ref=as_li_ss_il?ie=UTF8&qid=1519537605&sr=8-2-fkmr1&keywords=ge+link+bulb+br30&linkCode=li1&tag=vmw0a-20&linkId=b4e6f6acdca3db68322d0679fcc388b7" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01GWF4RE6&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GWF4RE6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://www.amazon.com/Philips-Lighting-Works-Amazon-Alexa/dp/B014H2P53I/ref=as_li_ss_il?ie=UTF8&qid=1482862179&sr=8-1-spons&keywords=hue+go&psc=1&linkCode=li1&tag=vmw0a-20&linkId=4f9fd0d242273d079f661fa389b2eec1" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B014H2P53I&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B014H2P53I" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.vcloudinfo.com/p/shop-our-merch.html" target="_blank"></a><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/youtube/switchesTee_gray.png" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/gp/product/B00DQELHBS/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=2d11a4b4ee3994189b3136c3b5726e37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00DQELHBS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00DQELHBS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
