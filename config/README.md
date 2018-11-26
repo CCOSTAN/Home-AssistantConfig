@@ -42,6 +42,14 @@ This is the main directory of the Repo.  You will find more helpful ReadMe files
   <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
     Diagram
   </a>
+  <span> | </span>
+  <a href="https://youtube.com/CCOSTAN">
+    Youtube
+  </a>
+  <span> | </span>
+  <a href="https://www.vcloudinfo.com/p/shop-our-merch.html">
+    Tee Shop
+  </a>
 </h4>
 </div>
 
