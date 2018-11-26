@@ -25,13 +25,19 @@ sensor:
     name: Grid Status
     scan_interval: 60
     value_template: "{{ value_json.grid_status == 'SystemGridConnected' }}"
+    icon_template: >-
+      {%- if is_state('sensor.grid_status', 'True') %}
+        mdi:flash
+      {%- else %}
+        mdi:flash-off
+      {%- endif %}
 
   - platform: rest
     name: House now
     resource: https://192.168.10.90/api/meters/aggregates
     method: GET
     verify_ssl: false
-    value_template: '{{ value_json.load.instant_power / 1000 }}'
+    value_template: '{{ value_json.load.instant_power / 1000 | round(2) }}'
     unit_of_measurement: kWh
 
   - platform: rest
@@ -57,14 +63,44 @@ sensor:
     verify_ssl: false
     value_template: '{{ value_json.battery.instant_power / 1000 }}'
     unit_of_measurement: kWh
+    icon_template: >-
+      {%- if states('sensor.powerwall_battery_now') | float > 0 %}
+      mdi:battery
+      {%- else %}
+      mdi:battery-charging
+      {%- endif %}
 
   - platform: rest
     name: PowerWall Battery Capacity
     resource: https://192.168.10.90/api/system_status/soe
     method: GET
     verify_ssl: false
-    value_template: '{{ 13500 // (100 / value_json.percentage) }}'
-    unit_of_measurement: W
+    value_template: '{{ (value_json.percentage | float | round(0)) }}'
+    unit_of_measurement: '%'
+    scan_interval: 300
+    icon_template: >-
+      {%- set battery = states('sensor.powerwall_battery_capacity') | float %}
+      {%- if battery > 90 %}
+      mdi:battery
+      {%- elif battery > 80 %}
+      mdi:battery-90
+      {%- elif battery > 70 %}
+      mdi:battery-80
+      {%- elif battery > 60 %}
+      mdi:battery-70
+      {%- elif battery > 50 %}
+      mdi:battery-60
+      {%- elif battery > 40 %}
+      mdi:battery-50
+      {%- elif battery > 30 %}
+      mdi:battery-40
+      {%- elif battery > 20 %}
+      mdi:battery-30
+      {%- elif battery > 10 %}
+      mdi:battery-20
+      {%- else %}
+      mdi:battery-outline
+      {%- endif %}
 
 #-------------------------------------------
 # Located in the Grafana package.  Tweets out Solar Production Daily!
@@ -79,5 +115,5 @@ automation:
     action:
       - service: script.notify_engine
         data_template:
-          value1: "The electrical grid is reporting to be {{ (trigger.to_state.state)|replace('true', 'up')|replace('false', 'down') }}.  Please verify with Tesla App."
+          value1: "The electrical grid is reporting to be {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}.  Please verify with Tesla App."
           who: 'parents'
