@@ -173,6 +173,9 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
   <summary>How To Port Forward Home Assistant on Arris TG1682</summary><p align="center">
   <a href=https://www.vcloudinfo.com/2018/11/port-forwarding-on-arris-tg1682-modem.html>
   Write Up and YouTube Video</a><br>
+  <summary>Adding Powerwall Sensors to Home Assistant</summary><p align="center">
+  <a href=https://www.youtube.com/watch?v=KHaLddx5wPg>
+  YouTube Video - Consider Subscribing!</a><br>
 <p></details>
 </td></tr>
 
