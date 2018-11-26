@@ -17,7 +17,8 @@ tweet_engine_setup:
                 "Be Sure to follow all of my Twitter Accounts! @CCostan @BearStoneHA",
                 "Be sure to like me on Facebook and join our HA group! (https://www.facebook.com/groups/HomeAssistant/) (https://www.facebook.com/VMwareInfo/) (https://www.facebook.com/BearStoneHA/)",
                 "You can see how ALL of this is done by browsing my GitHub Repository (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
-                "If you aren't subscribed to our YouTube channel, you are missing out on the goodies! (https://youtube.com/vCloudInfo)"
+                "If you aren't subscribed to our YouTube channel, you are missing out on the goodies! (https://youtube.com/vCloudInfo)",
+                "Join our GitHub repo (https://github.com/CCOSTAN/Home-AssistantConfig#logo) with {{ states.sensor.github_stats.attributes.stargazers_count}} other users.  Browse the {{ states.sensor.github_stats.attributes.open_issues }} #Todo items."
               ],
               "solar": [
                 "I am keeping track of the current #Tesla stock price. It is ${{ states('sensor.tesla')|round }}. #Solar",
@@ -48,6 +49,7 @@ tweet_engine_setup:
                 "The #Docker Host for Home Assistant is using {{ states('sensor.disk_use_percent_') }}% of the hard drive currently. (http://www.vmwareinfo.com/2018/02/journey-to-docker.html)",
                 "I am running Home Assistant version {{ states('sensor.ha_installed_version') }} (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "Home Assistant has been running for {{ states('sensor.ha_uptime') }}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
+                "The Github code (https://github.com/CCOSTAN/Home-AssistantConfig#logo) has {{ states.sensor.github_stats.attributes.stargazers_count}} stars and counting.  Currently with {{ states.sensor.github_stats.attributes.open_issues }} open #Todo items."
                 "My Home Assistant has been tested by Travis-CI and {{states('sensor.ccostanhomeassistantconfig_state')}}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "{{((states.sensor.sensor_count.state | int) + (states.sensor.binary_sensor_count.state | int))}} sensors feed my Smart Home #data. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "{{states.sensor.automation_count.state}} automations and {{states.sensor.script_count.state}} scripts make my home smart (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",

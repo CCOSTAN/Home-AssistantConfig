@@ -28,23 +28,17 @@ notify:
 
 ### Building out some Historical stats for tweeting. #####################
 sensor:
+  - platform: command_line
+    command: 'curl https://api.github.com/repos/ccostan/home-assistantconfig'
+    name: GitHub Stats
+    scan_interval: 20000
+    value_template: '{{ value_json.name }}'
+    json_attributes:
+      - open_issues
+#      - subscribers_count
+#      - forks
+      - stargazers_count
 
-  # - platform: sql
-  #   db_url: sqlite:///home-assistant_v2.db
-  #   queries:
-  #     - name: "Solar 24h"
-  #       column: 'solar_kwh'
-  #       unit_of_measurement: 'kWh'
-  #       query: >-
-  #         SELECT ROUND(SUM(solar_kwh), 2) AS solar_kwh
-  #         FROM (
-  #           SELECT AVG(state) AS solar_kwh
-  #           FROM states
-  #           WHERE entity_id = 'sensor.solar_now'
-  #           AND state != 'unknown'
-  #           AND last_updated >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)
-  #           GROUP BY HOUR(last_updated)
-  #         ) AS total_kwh;
 
   - platform: history_stats
     name: Doorbell Presses
@@ -318,7 +312,7 @@ automation:
           pick: >-
             {% set pick = [
               "solar", "solar", "solar",
-              "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot","robot","robot","robot","robot",
+              "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot", "robot","robot","robot","robot","robot","robot",
               "door", "door", "door",
               "weather", "weather", "weather", "weather", "weather",
               "cloud",
@@ -327,6 +321,6 @@ automation:
               "night", "night",
               "tv", "tv", "tv",
               "throwback",
-              "promo"
+              "promo", "promo"
             ] %}
             {{ pick|random }}

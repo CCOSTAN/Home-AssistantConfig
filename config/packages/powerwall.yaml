@@ -45,7 +45,7 @@ sensor:
     resource: https://192.168.10.90/api/meters/aggregates
     method: GET
     verify_ssl: false
-    value_template: '{{ value_json.site.instant_power / 1000 }}'
+    value_template: '{{ value_json.site.instant_power / 1000 | round(2) }}'
     unit_of_measurement: kWh
 
   - platform: rest
@@ -53,7 +53,7 @@ sensor:
     resource: https://192.168.10.90/api/meters/aggregates
     method: GET
     verify_ssl: false
-    value_template: '{{ value_json.solar.instant_power / 1000 }}'
+    value_template: '{{ value_json.solar.instant_power / 1000 | round(2) }}'
     unit_of_measurement: kWh
 
   - platform: rest
@@ -61,7 +61,7 @@ sensor:
     resource: https://192.168.10.90/api/meters/aggregates
     method: GET
     verify_ssl: false
-    value_template: '{{ value_json.battery.instant_power / 1000 }}'
+    value_template: '{{ value_json.battery.instant_power / 1000 | round(2) }}'
     unit_of_measurement: kWh
     icon_template: >-
       {%- if states('sensor.powerwall_battery_now') | float > 0 %}
