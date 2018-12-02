@@ -418,7 +418,13 @@ Speech Macros are called by automation scripts - /script/speech_engine.yaml</a><
 <summary>Digital Cuckoo Clock that goes off each hour and on the half just like a real Cuckoo Clock.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/CucKoo_Clock.yaml>
 Cuckoo Clock - /config/automation/System/CucKoo_Clock.yaml</a><br>
+</details>
+<details>
+<summary>YouTube Videos related to Voice.</summary><p align="center">
+<a href=https://www.vcloudinfo.com/2018/12/breaking-down-my-home-assistant-volume.html>
+UnPacking how I use yaml scripting for Volume Control</a><br>
 </details><br>
+
 Once you can teach your house to talk, you just keep expanding on it's vocabulary. It's addicting. :)
 </td></tr>
 

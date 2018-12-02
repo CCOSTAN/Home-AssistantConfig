@@ -13,6 +13,9 @@
 </div>
 <p><font size="3">
 The Scripts in this folder are basically reusable.  That's my philosophy on scripts.  Pass them variables and then have them run different things based on those variables.  But when you need to make a global change, you can just visit the single script. </p>
+
+You can check out my Video unpacking some of my Speech engine <a href="https://www.vcloudinfo.com/2018/12/breaking-down-my-home-assistant-volume.html"> here </a>:
+
 <div align="center"><a name="menu"></a>
 <h4>
   <a href="http://www.vCloudInfo.com/search/label/iot">
