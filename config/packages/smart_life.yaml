@@ -1,0 +1,34 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+###################################
+## [Chevy Bolt](http://amzn.to/2DRP83a)
+###################################
+
+# homeassistant:
+#   customize_glob:
+#     "sensor.skybell_*":
+#       icon: mdi:camera-front
+#
+#       hidden: False
+#       homebridge_hidden: True
+
+# group:
+#   bolt:
+#     name: Chevy Bolt EV
+#     control: hidden
+#     entities:
+#       - device_tracker.Carlo_Bolt
+#       - binary_sensor.mychevy_plugged_in
+#       - sensor.mychevy_charge_mode
+#       - sensor.mychevy_charging
+#       - sensor.mychevy_evcharge
+#       - sensor.mychevy_mileage
+#       - sensor.mychevy_range
+#       - sensor.mychevy_status
+
+tuya:
+  username: !secret tuya_username
+  password: !secret tuya_password
+  country_code: 1
+  platform: smart_life
