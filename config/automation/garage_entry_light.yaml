@@ -8,7 +8,7 @@
   hide_entity: True
   trigger:
     - platform: state
-      entity_id: binary_sensor.kitchen_door_opened
+      entity_id: binary_sensor.kitchen_door
       to: 'on'
     - platform: state
       entity_id: binary_sensor.mcu1_gpio12
@@ -34,7 +34,7 @@
       for:
         seconds: 15
     - platform: state
-      entity_id: binary_sensor.kitchen_door_opened
+      entity_id: binary_sensor.kitchen_door
       to: 'off'
       for:
         seconds: 15
@@ -44,7 +44,7 @@
       entity_id: binary_sensor.mcu1_gpio12
       state: 'off'
     - condition: state
-      entity_id: binary_sensor.kitchen_door_opened
+      entity_id: binary_sensor.kitchen_door
       state: 'off'
     - condition: state
       entity_id: light.garage_hallway
@@ -63,10 +63,10 @@
       to: 'on'
       for: '00:20:00'
     - platform: state
-      entity_id: binary_sensor.hallway_pantry_opened
+      entity_id: binary_sensor.hallway_pantry
       to: 'off'
     - platform: state
-      entity_id: binary_sensor.hallway_linen_opened
+      entity_id: binary_sensor.hallway_linen
       to: 'off'
 
   condition:

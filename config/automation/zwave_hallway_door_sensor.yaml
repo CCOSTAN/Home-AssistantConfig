@@ -8,10 +8,10 @@
   hide_entity: True
   trigger:
     - platform: state
-      entity_id: binary_sensor.hallway_pantry_opened
+      entity_id: binary_sensor.hallway_pantry
       to: 'on'
     - platform: state
-      entity_id: binary_sensor.hallway_linen_opened
+      entity_id: binary_sensor.hallway_linen
       to: 'on'
 
   condition:
@@ -38,10 +38,10 @@
   hide_entity: True
   trigger:
     - platform: state
-      entity_id: binary_sensor.hallway_pantry_opened
+      entity_id: binary_sensor.hallway_pantry
       to: 'off'
     - platform: state
-      entity_id: binary_sensor.hallway_linen_opened
+      entity_id: binary_sensor.hallway_linen
       to: 'off'
 
   action:
@@ -57,10 +57,10 @@
       to: 'on'
       for: '00:20:00'
     - platform: state
-      entity_id: binary_sensor.hallway_pantry_opened
+      entity_id: binary_sensor.hallway_pantry
       to: 'off'
     - platform: state
-      entity_id: binary_sensor.hallway_linen_opened
+      entity_id: binary_sensor.hallway_linen
       to: 'off'
 
   condition:
