@@ -19,10 +19,12 @@ homeassistant:
 #-------------------------------------------
 binary_sensor:
   - platform: iss
-    show_on_map: False
+    show_on_map: true
 #-------------------------------------------
 
 sensor:
+
+  - platform: launch_library
 
   - platform: moon
 
