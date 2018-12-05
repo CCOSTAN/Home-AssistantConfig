@@ -27,7 +27,7 @@ sensor:
   - platform: moon
 
   - platform: rest
-    scan_interval: 3600
+    scan_interval: 1800
     resource: https://launchlibrary.net/1.2.2/launch/next/10
     # resource: https://raw.githubusercontent.com/cribbstechnologies/ha_config/master/www/test_launch.json
     name: launch window
@@ -64,14 +64,16 @@ automation:
             value_template: "{{as_timestamp(now()) < (states('sensor.launch_window') | float)}}"
 
     action:
+      - wait_template: >-
+          {{as_timestamp(now()) >= ((states('sensor.launch_window') | float) - 1800)}}
       - service: script.notify_engine
         data_template:
           value1: 'There will be a rocket Launch today - I will notify you later when the launch window starts'
       - wait_template: >-
-          {{as_timestamp(now()) >= (states('sensor.launch_window') | float)}}
+          {{as_timestamp(now()) >= ((states('sensor.launch_window') | float) - 300)}}
       - service: script.notify_engine
         data_template:
-          value1: 'Go Outside!  There is a Rocket Launch!'
+          value1: 'Go Outside!  There is a Rocket Launch very soon!'
 
       - service: script.tweet_engine
         data_template:
@@ -107,7 +109,7 @@ automation:
             "/config/www/custom_ui/floorplan/images/branding/space2.png",
             "/config/www/custom_ui/floorplan/images/branding/starman.png"
             ] | random }}
-            
+
   - alias: 'Full Moon -Tweet'
     trigger:
       - platform: state
