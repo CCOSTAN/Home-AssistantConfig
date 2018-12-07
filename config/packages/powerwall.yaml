@@ -112,6 +112,14 @@ automation:
       - platform: state
         entity_id: sensor.grid_status
 
+    condition:
+      condition: or
+      conditions:
+        - condition: template
+          value_template: "{{ states('sensor.grid_statuse') == 'True' }}"
+        - condition: template
+          value_template: "{{ states('sensor.grid_statuse') == 'False' }}"
+
     action:
       - service: script.notify_engine
         data_template:
