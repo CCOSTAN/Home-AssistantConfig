@@ -42,7 +42,7 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
-    </a>    
+    </a>
     <span> | </span>
     <a href="https://youtube.com/CCOSTAN">
       Youtube
@@ -74,7 +74,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
 
 #### <a name="diagram"></a>Smart Home Diagram - Get your icons (<a href="https://www.vcloudinfo.com/2018/07/the-bear-stone-home-assistant-icon.html">here</a>).
-Here is how all the parts talk to each other.  Keep reading to see code examples and explanations.  
+Here is how all the parts talk to each other.  Keep reading to see code examples and explanations.
 ![Smart Home Diagram](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png)
 
 <p align="center"><strong>Smart Home diagram (<a href="https://pbs.twimg.com/media/Dg_CPwVU8AEyC2B.jpg:large"><code>PNG</code></a>). Made with <a href="https://www.draw.io/?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=BearStoneFlow.xml#Uhttps%3A%2F%2Fraw.githubusercontent.com%2FCCOSTAN%2FDocker_Support%2Fmaster%2FBearStoneFlow.xml">Draw.io</a> (<a href="https://raw.githubusercontent.com/CCOSTAN/Docker_Support/master/BearStoneFlow.xml"><code>XML</code></a> source file).</strong></p>
@@ -451,7 +451,7 @@ Once you can teach your house to talk, you just keep expanding on it's vocabular
 </td><td align="center"><a href="https://www.amazon.com/Philips-Ambiance-Generation-Starter-Assistant/dp/B00HJY2RGU/ref=as_li_ss_il?ie=UTF8&qid=1528397528&sr=8-4-fkmr1&keywords=hue+hub+gen+1&linkCode=li2&tag=vmw0a-20&linkId=1b2a76c5666773f0eedd61c730ef727f" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00HJY2RGU&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00HJY2RGU" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights. The Gen 1 handles upstairs and outside and the gen 2 handles everything else. Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.  
+The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights. The Gen 1 handles upstairs and outside and the gen 2 handles everything else. Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.
 
 <details>
 <summary>Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
@@ -530,7 +530,7 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 [Noon Switches](https://amzn.to/2J9aGeu)
 </td><td align="center">
 
-[GE Link Lightbulbs](http://amzn.to/2GJ66i5)
+[Nunet Smart Plug](https://amzn.to/2PDBNNK)
 </td><td align="center">
 
 [Switches Get Stitches](https://www.vcloudinfo.com/p/shop-our-merch.html)
@@ -539,7 +539,7 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 [Etekcity Outlets](http://amzn.to/2efNoBP)</td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/Noon-N160US-Smart-Lighting-Starter/dp/B076FJLRNL/ref=as_li_ss_il?ie=UTF8&qid=1527451258&sr=8-1&keywords=noon&linkCode=li2&tag=vmw0a-20&linkId=07f55d3dde28ba1db77510257e4d13e8" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B076FJLRNL&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B076FJLRNL" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://www.amazon.com/GE-Starter-PLINK-SKIT-Wireless-Lighting/dp/B01GWF4RE6/ref=as_li_ss_il?ie=UTF8&qid=1519537605&sr=8-2-fkmr1&keywords=ge+link+bulb+br30&linkCode=li1&tag=vmw0a-20&linkId=b4e6f6acdca3db68322d0679fcc388b7" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01GWF4RE6&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GWF4RE6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.amazon.com/NUNET-Monitor-Required-Appliances-Functiant/dp/B079H66QW6/ref=as_li_ss_il?ie=UTF8&qid=1544832863&sr=8-3&keywords=nunet+smart+wifi+plug&linkCode=li2&tag=vmw0a-20&linkId=64ae44a0cfc451fb7b64428935c3cbee&language=en_US" target="_blank"><img border="0" src="//ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B079H66QW6&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&language=en_US&l=li2&o=1&a=B079H66QW6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.vcloudinfo.com/p/shop-our-merch.html" target="_blank"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/youtube/switchesTee_gray.png" height="150" border="0" alt="" style="border:none !important; margin:0px !important;"></a>
 </td><td align="center"><a href="https://www.amazon.com/gp/product/B00DQELHBS/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=2d11a4b4ee3994189b3136c3b5726e37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00DQELHBS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00DQELHBS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
@@ -549,6 +549,11 @@ In the Master Bedroom and Bathroom, I have deployed a starter set of 5 Noon Swit
 <summary>When interior light script is triggered, IFTTT is notified to turn off the Bathroom Noon switches.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/interior_off.yaml#L17-L18>
 Interior Turn off Script - /config/script/interior_off.yaml</a><br>
+</details>
+<details>
+<summary>I've taken the Smart plugs and put them in a weatherproof case for holiday lights</summary><p align="center">
+<a href=https://www.vcloudinfo.com/2018/12/how-to-waterproof-your-outdoor-smart.html>
+Full write up and blog post</a><br>
 </details>
 </td></tr>
 
