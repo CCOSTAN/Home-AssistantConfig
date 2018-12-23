@@ -1,8 +1,8 @@
 - platform: template
   sensors:
-    since_last_boot_templated:
+    last_boot_templated:
       value_template: >-
-        {%- set slb = states.sensor.since_last_boot.state.split(' ') -%}
+        {%- set slb = states.sensor.last_boot.state.split(' ') -%}
         {%- set count = slb | length -%}
         {%- set hms = slb[count - 1] -%}
         {%- set hms_trimmed = hms.split('.')[0] -%}

@@ -652,7 +652,7 @@ Dog Bark script - /config/automation/guard_dog.yaml</a><br>
 [GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S)
 </td><td align="center">
 
-[Phyn Smart Water Main ShutOff/Leak Detector](http://www.phyn.com/)
+[Phyn Smart Water Main ShutOff/Leak Detector](http://phyn.refr.cc/carlocostanzo)
 </td><td align="center">
 
 [Outdoor LED Lighting](http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)
@@ -660,7 +660,7 @@ Dog Bark script - /config/automation/guard_dog.yaml</a><br>
 
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B01D1NMLJU/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=32eaaee1a47e3f0841694b2f65b33f20" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01D1NMLJU&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01D1NMLJU" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/GE-Wireless-Lighting-Control-12720/dp/B0013V8K3O/ref=as_li_ss_il?ie=UTF8&qid=1494360163&sr=8-1&keywords=ge+zwave+outdoor&linkCode=li1&tag=vmw0a-20&linkId=14fea62a5ea952ae7e575d3ec9f83d8f" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0013V8K3O&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0013V8K3O" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="http://www.phyn.com/" target="_blank"><img border="0" src="http://www.phyn.com/wp-content/uploads/2017/12/1920_01_product_intro-1.png" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="http://phyn.refr.cc/carlocostanzo" target="_blank"><img border="0" src="http://www.phyn.com/wp-content/uploads/2017/12/1920_01_product_intro-1.png" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-RfNOR7YThbY/WZnY6Gjw4zI/AAAAAAADYrw/IxBE2KmxW9YuLMtj9qgxAWyb5vHdgSrBACHMYCw/IMG_2660_thumb%255B9%255D" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
