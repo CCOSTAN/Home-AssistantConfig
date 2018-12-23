@@ -127,7 +127,7 @@ automation:
           tweet: >
             {{ [
             "There are currently {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
-            "As reported by #Ubiquity Routers, There are {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
+            "As reported by #Ubiquiti Routers, There are {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
             ] | random + "#Security https://github.com/CCOSTAN/Home-AssistantConfig#networking"}}
           image: >-
             {{ [
