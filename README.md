@@ -871,6 +871,11 @@ Tweet script - /config/script/tweet.yaml</a><br>
 Light watchdog Automations - /config/automation/System/watchdog_light.yaml</a><br>
 </details>
 <details>
+<summary>YouTube Videos!</summary><p align="center">
+<a href=https://www.youtube.com/watch?v=O72BKIGLpnQ>
+Watch the unboxing and set up of the Epson XP-7100 Printer</a><br>
+</details>
+<details>
 <summary>Sound door chimes whenever doors open or close.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/System/door_chime.yaml>
 Door Chimes Automations - /config/automation/System/door_chime.yaml</a><br>
