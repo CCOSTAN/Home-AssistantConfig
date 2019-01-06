@@ -23,3 +23,29 @@
         call_no_announcement: 1
         call_garage_check: 1
         call_window_check: 1
+
+- alias: 'Guest Mode Reset'
+
+  trigger:
+    - platform: state
+      entity_id:
+        - group.family
+      from: 'not_home'
+      to: 'home'
+
+  condition:
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'on'
+
+  action:
+    - service: input_boolean.turn_off
+      entity_id:
+        - input_boolean.guest_mode
+    - service: script.speech_engine
+      data_template:
+        value1: >
+          {{ [
+          "Guest Mode has been disabled and normal automations will continue."
+          ] | random }}
+        call_no_announcement: 1
