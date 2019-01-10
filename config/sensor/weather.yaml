@@ -1,8 +1,8 @@
 - platform: darksky
   api_key: !secret forecast_key
   monitored_conditions:
-#    - summary
-#    - precip_type
+    - summary
+    - precip_type
     - precip_intensity
     - precip_intensity_max
     - temperature
@@ -17,3 +17,5 @@
 #    - visibility
 #    - ozone
     - uv_index
+    - sunrise_time
+    - sunset_time
