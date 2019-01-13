@@ -116,9 +116,9 @@ automation:
       condition: or
       conditions:
         - condition: template
-          value_template: "{{ states('sensor.grid_statuse') == 'True' }}"
+          value_template: "{{ states('sensor.grid_status') == 'True' }}"
         - condition: template
-          value_template: "{{ states('sensor.grid_statuse') == 'False' }}"
+          value_template: "{{ states('sensor.grid_status') == 'False' }}"
 
     action:
       - service: script.notify_engine
