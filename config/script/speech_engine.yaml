@@ -139,7 +139,6 @@ speech_engine:
           {%- macro iss() -%}
             {% if is_state('binary_sensor.iss', 'on') -%}
               Here is something interesting. The international space station is above us now. There are {{ states.binary_sensor.iss.attributes['number_of_people_in_space'] }} people in space right now.
-              {{ outside_weather() }}
             {% endif -%}
           {%- endmacro -%}
 
@@ -228,7 +227,7 @@ speech_engine:
           {% endif %}
 
           {# call a Random fact about the house #}
-          {{ ([iss, moon, uv, holiday]|random)() }}
+          {{ ([iss, moon, uv, holiday, outside_weather]|random)() }}
 
     - service: input_boolean.turn_off
       data:
