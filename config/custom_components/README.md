@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a name="logo" href="http://www.vCloudInfo.com/search/label/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="logo" href="http://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Configuration
 </h1>
@@ -15,7 +15,7 @@
 Custom Components.  Comstimes I use them for temporary fixes to existing components.  Sometimes I use them to extend functionality with niche components other people have written but haven't merged into the main HASS branch.  Either way, a great way to extend the power of Home Assistant</p>
 <div align="center"><a name="menu"></a>
   <h4>
-    <a href="http://www.vCloudInfo.com/search/label/iot">
+    <a href="http://www.vCloudInfo.com/tag/iot">
       Blog
     </a>
     <span> | </span>
