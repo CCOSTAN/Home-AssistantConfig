@@ -16,11 +16,19 @@
         value3: 'Go Check the GUI for details.'
         who: 'carlo'
 
-    - service: script.tweet_engine
+    - service: script.tweet_engine_image
       data_template:
         tweet: >
           {{ [
           "Seriously, I am a Smart Home. I am logging your hack attempt.",
           "If you do not know the password, you get locked out and IP banned.",
-          "Three Strikes and you are OUT! IP Banned."
-          ] | random + "#Security"}}
+          "Three Strikes and you are OUT! IP Banned.",
+          "Live tweeting a bad login, right before I ban that IP address FOREVER."
+
+          ] |  random + "#Security"}}
+        image: >-
+          {{ [
+          "/config/www/custom_ui/floorplan/images/branding/security_lock.png",
+          "/config/www/custom_ui/floorplan/images/branding/locked_out.png",
+          "/config/www/custom_ui/floorplan/images/branding/A_GRADE.png"
+          ] | random }}
