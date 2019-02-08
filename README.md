@@ -903,6 +903,7 @@ Feel free to join the conversations there.
 
 #**Still have questions on my Config?**
 **Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
+<br>
 **If you would like to show some love:**
 
 <p align="center">
