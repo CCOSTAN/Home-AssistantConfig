@@ -63,7 +63,7 @@ automation:
       event_data:
         actionName: TABLET_TAKEN
     action:
-      - service: notify.ios_carlo_6s
+      - service: notify.ios_carloxsmax
         data:
           message: "Great job!"
       - service: input_boolean.turn_on
@@ -76,12 +76,12 @@ automation:
       event_data:
         actionName: NOT_HOME
     action:
-      - service: notify.ios_carlo_6s
+      - service: notify.ios_carloxsmax
         data:
           message: "Ok. I will remind you when you get home."
       - wait_template: >-
           {{ states.device_tracker.carlo.state == 'home' }}
-      - service: notify.ios_carlo_6s
+      - service: notify.ios_carloxsmax
         data:
           message: "Now that your home, please take your medicine!"
 
@@ -108,7 +108,7 @@ automation:
         state: 'off'
 
     action:
-      - service: notify.ios_carlo_6s
+      - service: notify.ios_carloxsmax
         data:
           title: "Medicine Alert!"
           message: "Please take your Medicine!"
