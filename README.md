@@ -61,7 +61,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 <hr>
 
 #### <a name="software"></a>Notable Software on my Laptop Host:
-* [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Video on Ubuntu Upgrades](https://youtu.be/w-YNtU1qtlk) 
+* [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Video on Ubuntu Upgrades](https://youtu.be/w-YNtU1qtlk)
 * [Youtube Video on Upgrading Home Assistant in Docker](https://youtu.be/ipatCbsY-54) - Be sure to Subscribe to get all Home Assistant videos.
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
@@ -508,6 +508,7 @@ Holiday Lights Script - /config/script/monthly_color_scene.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/scene/monthly_colors.yaml>
 Holiday Lights Scenes - /config/scene/monthly_colors.yam</a><br>
 </details><details>
+http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html
 <summary>Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all doors/windows are closed.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L289-L299>
 DIY Alarm package - /config/packages/alarm.yaml</a><br>
@@ -519,6 +520,14 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
  Part 1 - Adding to the Hue Bridges</a><br>
  <a href=https://youtu.be/lyjRHYKkG98>
   Part 2 - Adding to Automations</a><br>
+</details>
+<details>
+<summary>YouTube Demos of the Holiday lights</summary>
+<p align="center">
+<a href=https://youtu.be/nsWq4uVrQ0g>
+ Valentine's Day Video</a><br>
+ <a href=https://youtu.be/ylPzQ0s7zxc>
+  Halloween Light Video</a><br>
 </details>
 </td></tr>
 
@@ -736,6 +745,14 @@ Garadget automations - /master/config/automation/garadget.yaml</a><br>
 <summary>On motion, turn all the lights to a bright white outside for a random amount of time before resuming the daily color choice.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/front_house_motion.yaml>
 Motion automations - /config/script/front_house_motion.yaml</a><br>
+</details>
+<details>
+<summary>YouTube Demos of the Holiday lights</summary>
+<p align="center">
+<a href=https://youtu.be/nsWq4uVrQ0g>
+ Valentine's Day Video</a><br>
+ <a href=https://youtu.be/ylPzQ0s7zxc>
+  Halloween Light Video</a><br>
 </details>
 </td></tr>
 
