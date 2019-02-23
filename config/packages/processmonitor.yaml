@@ -28,13 +28,13 @@ automation:
   - alias: "Self Heal Disk Use Alarm"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.disk_use_percent_
+        entity_id: sensor.disk_use_percent
         above: 80
     action:
       - service: script.notify_engine
         data_template:
           value1: 'Hard Drive Monitor:'
-          value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent_.state }}%!"
+          value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
           value3: 'Attempting to clean'
           who: 'carlo'
       - service: tts.clear_cache
@@ -42,17 +42,17 @@ automation:
   - alias: "Disk Use Alarm"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.disk_use_percent_
+        entity_id: sensor.disk_use_percent
         above: 90
     action:
       - service: script.notify_engine
         data_template:
           value1: 'Hard Drive Monitor:'
-          value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent_.state }}%!"
+          value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
           who: 'carlo'
 
       - service: persistent_notification.create
         data:
           title: "Hard Drive Monitor:"
-          message: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent_.state }}%!"
+          message: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
           notification_id: "Critical Alert"
