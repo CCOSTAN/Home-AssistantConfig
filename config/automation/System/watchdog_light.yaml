@@ -28,9 +28,8 @@
 
 - alias: Make it Right WatchDog!
   trigger:
-    - platform: time
-      minutes: /18
-      seconds: 20
+    - platform: time_pattern
+      minutes: '/15'
 
   condition:
     - condition: state

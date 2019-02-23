@@ -34,9 +34,8 @@
 - alias: Is the Garage door Open at night - Checks every 30 minutes or 5 minutes after we drive away.
   hide_entity: True
   trigger:
-    - platform: time
+    - platform: time_pattern
       minutes: '/45'
-      seconds: 00
     - platform: state
       entity_id: group.family
       to: not_home

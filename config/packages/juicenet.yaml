@@ -57,10 +57,8 @@ automation:
         to: 'disconnect'
         for:
           minutes: 6
-      - platform: time
+      - platform: time_pattern
         hours: '/4'
-        minutes: 30
-        seconds: 30
 
     condition:
       - condition: state

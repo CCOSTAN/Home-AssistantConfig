@@ -252,10 +252,9 @@ automation:
 
   - alias: 'ThrowBack message'
     trigger:
-      - platform: time
-        hours: '/28'
-        minutes: 13
-        seconds: 00
+      - platform: time_pattern
+        hours: '/23'
+        minutes: '13'
 
     action:
       - service: notify.ccostan
@@ -294,10 +293,9 @@ automation:
   - alias: 'Random House stats'
     hide_entity: True
     trigger:
-      - platform: time
+      - platform: time_pattern
         hours: '/2'
         minutes: 45
-        seconds: 00
     condition:
       - condition: template
         value_template: >

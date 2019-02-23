@@ -88,9 +88,8 @@ automation:
   - alias: Medicine Reminder
     initial_state: true
     trigger:
-      - platform: time
-        minutes: '45'
-        seconds: '00'
+      - platform: time_pattern
+        minutes: '/45'
       - platform: time
         at: '21:30:00'
       - platform: state
