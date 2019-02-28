@@ -4,17 +4,19 @@
 ## Garadget_Stuff -  [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor
 #-------------------------------------------
 
+
 cover:
-  platform: garadget
-  covers:
-    !secret large_garage_id:
-      username: !secret garadget_username
-      password: !secret garadget_password
-      name: Large Garage
-    !secret small_garage_id:
-      username: !secret garadget_username
-      password: !secret garadget_password
-      name: Small Garage
+  - platform: garadget
+    covers:
+        large_garage:
+          device: !secret large_garage_id
+          username: !secret garadget_username
+          password: !secret garadget_password
+        small_garage:
+          device: !secret small_garage_id
+          username: !secret garadget_username
+          password: !secret garadget_password
+
 
 sensor:
   - platform: template
