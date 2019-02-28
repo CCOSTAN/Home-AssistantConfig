@@ -13,7 +13,7 @@
   </h4>
 </div>
 <p><font size="3">
-This Repo is designed for Smart Home inspiration.  The configuration, devices, layout, linked Blog posts and YouTube videos should help inspire you to jump head first into the IOT world.  This is the live working configuration of <strong>my Smart Home</strong>. Use the menu links to jump between sections.  All of the code is under the <em>config</em> directory and free to use and contribute to.  Be sure to subscribe to the Blog Mailing list and YouTube Channel. (https://YouTube.com/vCloudInfo)</p>
+This Repo is designed for Smart Home inspiration.  The configuration, devices, layout, linked Blog posts and YouTube videos should help inspire you to jump head first into the IOT world.  This is the live working configuration of <strong>my Smart Home</strong>. Use the menu links to jump between sections.  All of the code is under the <em>config</em> directory and free to use and contribute to.  Be sure to subscribe to the <a href="http://eepurl.com/dmXFYz">Blog Mailing list</a> and YouTube Channel. (https://YouTube.com/vCloudInfo)</p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vCloudInfo.com/tag/iot">
