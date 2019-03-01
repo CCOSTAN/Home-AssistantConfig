@@ -16,13 +16,21 @@ sensor:
       lights_on:
         value_template: >
           {% macro get_lights_on() -%}
-            {%- for group in states.group|groupby('state') -%}
+            {%- for group in states.light|groupby('state') -%}
               {%- for entity in group.list -%}
-                {%- if  entity.state == 'on'
-                    and entity.name.split(' ')[1]|lower == 'lights'
-                    and entity.name.split(' ')[0]|lower != 'interior'
-                    and entity.name.split(' ')[0]|lower != 'all'
-                     -%}
+                {%- if entity.state == 'on'
+                    and entity.entity_id != 'light.dummy'
+                    and entity.entity_id != 'light.garage_entry_light'
+                    and entity.entity_id != 'light.hue'
+                    and entity.entity_id != 'light.living_room'
+                    and entity.entity_id != 'light.kitchen_undercabinet'
+                    and entity.entity_id != 'light.porch_light'
+                    and entity.entity_id != 'light.shoe_closet_light'
+                    and not ('gateway_light' in entity.entity_id)
+                    and not ('hub'           in entity.entity_id)
+                    and not (entity.entity_id).endswith('_led')
+                    and not (entity.entity_id).endswith('nightlight')
+                    and not (entity.entity_id).startswith('light.lamplinc') -%}
                   {{ entity.entity_id }}{{ ' ' }}
                 {%- endif -%}
               {%- endfor -%}
