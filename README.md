@@ -789,6 +789,11 @@ Garage doors, Cars, charging stations.  Going green.  All part of a complete hom
 Garage Speech Automations - /config/automation/Speech/garage_closed.yaml</a><br>
 </details>
 <details>
+<summary>Videos and Write up on Garadget Garage Door Opener</summary><p align="center">
+<a href=https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html>
+Garadget Garage Door Opener video and Write up</a><br>
+</details>
+<details>
 <summary>Monitor the reflection rates of Garadget and notify when they being to drop too low when closed (indicating a shift in the controller)</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/garadget.yaml>
 Garage reflection Automations - /config/automation/garadget.yaml</a><br>
