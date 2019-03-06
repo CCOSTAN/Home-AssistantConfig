@@ -6,6 +6,9 @@ before_install:
   - touch fake_key.pem
   - mv config/travis_secrets.yaml config/secrets.yaml
 
-install: pip3 install homeassistant
+install:
+  - pip3 install homeassistant
+  - pip3 install colorlog
 
-script: hass -c config/ --script check_config --info all
+script:
+  - hass -c config/ --script check_config --info all
