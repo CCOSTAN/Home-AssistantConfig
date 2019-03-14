@@ -1,41 +1,15 @@
 #-------------------------------------------
+#  @CCOSTAN
+#  Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 #  PiHole ad Blocking Related Packages
-#-------------------------------------------
-homeassistant:
-  customize:
-
-    sensor.pi_hole_ads_percentage_today:
-      friendly_name: Percentage of Ad Traffic Blocked
-      unit_of_measurement: '%'
-      icon: mdi:ticket-percent
-
-    sensor.pi_hole_domains_being_blocked:
-      friendly_name: Total Domains Blocking
-      icon: mdi:do-not-disturb
-
-    sensor.pi_hole_dns_unique_clients:
-      friendly_name: Unique Clients
-      icon: mdi:desktop-classic
-
-    sensor.pi_hole_ads_blocked_today:
-      friendly_name: Ads Blocked Today
-      icon: mdi:do-not-disturb
-
-    sensor.pi_hole_dns_queries_today:
-      friendly_name: DNS Queries Today
-      icon: mdi:note-text
-
-    sensor.carlopihole:
-      friendly_name: Pi Hole Server
-      icon: mdi:filter-variant
-
-    group.pihole:
-      homebridge_hidden: true
+#  https://www.vcloudinfo.com/2019/03/revisiting-the-pi-on-pi-day-with-home-assistant.html
+#  YouTube Video - https://youtu.be/woA88DFlH5c
 #-------------------------------------------
 sensor:
   - platform: pi_hole
-    host: 192.168.10.11
+    host: 192.168.10.11:80
     location: admin
+    ssl: false
     verify_ssl: false
     monitored_conditions:
       - ads_blocked_today

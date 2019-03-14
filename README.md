@@ -887,6 +887,8 @@ Sensors add data to Home Assistant.  Most of my Doors and windows are hardwired 
 Pi-Hole Package - /config/packages/pihole.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/tweet.yaml>
 Tweet script - /config/script/tweet.yaml</a><br>
+<a href=https://www.vcloudinfo.com/2019/03/revisiting-the-pi-on-pi-day-with-home-assistant.html>
+Blog Write Up - Pi Devices and Pi Hole</a><br>
 </details>
 <details>
 <summary>Leverage Alexa and Elekcity outlet to control Printer On/Off via Voice. Turns off automatically after 20 minutes.</summary><p align="center">
@@ -897,6 +899,8 @@ Light watchdog Automations - /config/automation/System/watchdog_light.yaml</a><b
 <summary>YouTube Videos!</summary><p align="center">
 <a href=https://www.youtube.com/watch?v=O72BKIGLpnQ>
 Watch the unboxing and set up of the Epson XP-7100 Printer</a><br>
+<a href=https://www.youtube.com/watch?v=woA88DFlH5c>
+Checking out Pi and Pi Hole</a><br>
 </details>
 <details>
 <summary>Sound door chimes whenever doors open or close.</summary><p align="center">
