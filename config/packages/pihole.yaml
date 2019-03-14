@@ -4,24 +4,24 @@
 homeassistant:
   customize:
 
-    sensor.pihole_ads_percentage_today:
+    sensor.pi_hole_ads_percentage_today:
       friendly_name: Percentage of Ad Traffic Blocked
       unit_of_measurement: '%'
       icon: mdi:ticket-percent
 
-    sensor.pihole_domains_being_blocked:
+    sensor.pi_hole_domains_being_blocked:
       friendly_name: Total Domains Blocking
       icon: mdi:do-not-disturb
 
-    sensor.pihole_dns_unique_clients:
+    sensor.pi_hole_dns_unique_clients:
       friendly_name: Unique Clients
       icon: mdi:desktop-classic
 
-    sensor.pihole_ads_blocked_today:
+    sensor.pi_hole_ads_blocked_today:
       friendly_name: Ads Blocked Today
       icon: mdi:do-not-disturb
 
-    sensor.pihole_dns_queries_today:
+    sensor.pi_hole_dns_queries_today:
       friendly_name: DNS Queries Today
       icon: mdi:note-text
 
@@ -61,9 +61,9 @@ sensor:
         value_template: "{{ 'Online' if is_state('device_tracker.carlopihole', 'home') else 'Offline' }}"
 
       # pi_hole_version:
-      #   value_template: "{%- if states.sensor.pihole_version_current.state == states.sensor.pihole_version_latest.state -%}{{states.sensor.pihole_version_current.state}} {% else %}{{states.sensor.pihole_version_latest.state}} Available{% endif%}"
+      #   value_template: "{%- if states.sensor.pi_hole_version_current.state == states.sensor.pi_hole_version_latest.state -%}{{states.sensor.pi_hole_version_current.state}} {% else %}{{states.sensor.pi_hole_version_latest.state}} Available{% endif%}"
       #   icon_template: >-
-      #     {% if states.sensor.pihole_version_current.state == states.sensor.pihole_version_latest.state %}
+      #     {% if states.sensor.pi_hole_version_current.state == states.sensor.pi_hole_version_latest.state %}
       #       mdi:checkbox-marked
       #     {% else %}
       #       mdi:checkbox-blank-outline
@@ -85,11 +85,11 @@ group:
     entities:
       - sensor.carlopihole
       - sensor.pi_hole_version
-      - sensor.pihole_dns_unique_clients
-      - sensor.pihole_dns_queries_today
-      - sensor.pihole_ads_blocked_today
-      - sensor.pihole_ads_percentage_today
-      - sensor.pihole_ads_percentage_blocked_today
+      - sensor.pi_hole_dns_unique_clients
+      - sensor.pi_hole_dns_queries_today
+      - sensor.pi_hole_ads_blocked_today
+      - sensor.pi_hole_ads_percentage_today
+      - sensor.pi_hole_ads_percentage_blocked_today
       - switch.pihole_temp_disable
 #-------------------------------------------
 
@@ -105,8 +105,8 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "I blocked {{states.sensor.pihole_ads_blocked_today.state}} ads. That is {{states.sensor.pihole_ads_percentage_blocked_today.state}}% of my internet traffic.",
-            "Today was a good day! Why, you ask? Because I blocked {{states.sensor.pihole_ads_blocked_today.state}} ads via Pi-Hole!",
+            "I blocked {{states.sensor.pi_hole_ads_blocked_today.state}} ads. That is {{states.sensor.pi_hole_ads_percentage_blocked_today.state}}% of my internet traffic.",
+            "Today was a good day! Why, you ask? Because I blocked {{states.sensor.pi_hole_ads_blocked_today.state}} ads via Pi-Hole!",
             ] | random + " #PiHole #Security Status:({{states.sensor.carlopihole.state}})"}}
           image: >-
             {{ [
@@ -126,8 +126,8 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "There are currently {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
-            "As reported by #Ubiquiti Routers, There are {{states.sensor.pihole_dns_unique_clients.state}} clients on my network.",
+            "There are currently {{states.sensor.pi_hole_dns_unique_clients.state}} clients on my network.",
+            "As reported by #Ubiquiti Routers, There are {{states.sensor.pi_hole_dns_unique_clients.state}} clients on my network.",
             ] | random + "#Security https://github.com/CCOSTAN/Home-AssistantConfig#networking"}}
           image: >-
             {{ [
