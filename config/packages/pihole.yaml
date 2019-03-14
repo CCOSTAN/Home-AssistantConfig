@@ -35,39 +35,23 @@ homeassistant:
 sensor:
   - platform: pi_hole
     host: 192.168.10.11
+    location: admin
+    verify_ssl: false
     monitored_conditions:
-      - dns_queries_today
       - ads_blocked_today
       - ads_percentage_today
+      - dns_queries_today
+      - domains_being_blocked
+      - queries_cached
+      - queries_forwarded
       - unique_clients
-
-######Custom Version sensor
-  # - platform: command_line
-  #   command: "pihole -v -p -c"
-  #   name: 'pihole_version_current'
-  #   value_template: '{{ value[28:] }}'
-  #   scan_interval: 86400
-  #
-  # - platform: command_line
-  #   command: "pihole -v -p -l"
-  #   name: 'pihole_version_latest'
-  #   value_template: '{{ value[27:] }}'
-  #   scan_interval: 86400
+      - unique_domains
 
   - platform: template
     sensors:
       carlopihole:
         friendly_name: 'Carlo-PiHole'
         value_template: "{{ 'Online' if is_state('device_tracker.carlopihole', 'home') else 'Offline' }}"
-
-      # pi_hole_version:
-      #   value_template: "{%- if states.sensor.pi_hole_version_current.state == states.sensor.pi_hole_version_latest.state -%}{{states.sensor.pi_hole_version_current.state}} {% else %}{{states.sensor.pi_hole_version_latest.state}} Available{% endif%}"
-      #   icon_template: >-
-      #     {% if states.sensor.pi_hole_version_current.state == states.sensor.pi_hole_version_latest.state %}
-      #       mdi:checkbox-marked
-      #     {% else %}
-      #       mdi:checkbox-blank-outline
-      #     {% endif %}
 
 # Pi-Hole switch
 switch:
@@ -92,7 +76,6 @@ group:
       - sensor.pi_hole_ads_percentage_blocked_today
       - switch.pihole_temp_disable
 #-------------------------------------------
-
 
 automation:
   - alias: PiHole Daily stats Tweet!
