@@ -43,8 +43,8 @@ notify_engine:
           attachment:
             content-type: "{{ content_type }}"
             hide-thumbnail: false
-            push:
-              sound: "{{ ios_sound }}"
-              badge: "{{ ios_badge }}"
-              category: "{{ ios_category }}"
+          push:
+            sound: "{{ ios_sound }}"
+            badge: "{{ ios_badge }}"
+            category: "{{ ios_category }}"
           entity_id: "{{ camera_entity }}"

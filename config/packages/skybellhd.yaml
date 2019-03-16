@@ -69,8 +69,8 @@ automation:
          entity_id:
            - binary_sensor.skybell_stone_door_button
          to: 'on'
-       # - platform: event
-       #   event_type: skybell_pressed
+       - platform: event
+         event_type: skybell_pressed
 
     condition:
       - condition: template
