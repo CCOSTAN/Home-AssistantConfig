@@ -43,7 +43,9 @@
           person + " is now here.  Hash tag Smart Home.",
           "Just a quick announcement. " ~ person +" has arrived!",
           "Pardon the interruption but " ~ person +" is home!",
-          "My systems are picking up the presence of additional humans. " ~ person +" has been identified as home."
+          "My systems are picking up the presence of additional humans. " ~ person +" has been identified as home.",
+          "Welcome home "~person~"! It is nice to see you again! Let me turn on the lights. ",
+          "It looks like "~person~" is finally home! I will get the house ready for you. "
           ] | random }}
           {%- endmacro -%}
           {{greeting_sentence(person)}}

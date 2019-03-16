@@ -17,6 +17,8 @@
         value1: >
           {{ [
           "Guest Mode has been enabled for the rest of the day.",
+          "Switching to guest mode! ",
+          "I have enabled guest mode for the rest of the day. ",
           "System Guest Mode has been enabled. I will minimize the amount of automation for today."
           ] | random }}
         call_responsibilities: 1
@@ -46,6 +48,9 @@
       data_template:
         value1: >
           {{ [
-          "Guest Mode has been disabled and normal automations will continue."
+          "Guest Mode has been disabled and normal automations will continue.",
+          "Let me disable guest mode since there are no longer any guests in the house. ",
+          "I have disabled guest mode and have resumed normal operations! ",
+          "Disabling guest mode! "
           ] | random }}
         call_no_announcement: 1
