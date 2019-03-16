@@ -3,10 +3,13 @@
   # action:
     # service: script.notify_engine
     # data_template:
+      # title: 'Ios Title'
       # value1: 'Startup: Home Assistant is Up and Running!'
-      # value2: ''
-      # value3: "{{ trigger.to_state.state }}"
+      # value2: "{{ trigger.to_state.state }}"
+      # value3:
       # who: "stacey | carlo | paige | family | parents"
+      # camera_entity: 'Camera.Camera'
+      # content-type: "jpeg"
 
     # IFTTT Maker channel should look like this: https://files.gitter.im/home-assistant/home-assistant/phkx/blob
 ######################################################################################################
@@ -39,6 +42,7 @@ notify_engine:
         data:
           attachment:
             content-type: "{{ content_type }}"
+            hide-thumbnail: false
             push:
               sound: "{{ ios_sound }}"
               badge: "{{ ios_badge }}"

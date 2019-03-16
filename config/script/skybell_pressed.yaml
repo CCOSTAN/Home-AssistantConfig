@@ -19,13 +19,15 @@ skybell_pressed:
 
     - service: script.notify_engine
       data_template:
-        ios_title: 'DoorBell'
+        title: 'Front DoorBell'
         value1: 'Someone pressed the doorbell'
         who: 'family'
-        camera_entity: camera.stone_door
+        category: 'camera'
+        camera_entity: 'camera.stone_door'
+        content-type: 'jpeg'
 
     - service: script.flash_notify
-    
+
     - service: script.tweet_engine_image
       data_template:
         tweet: >
