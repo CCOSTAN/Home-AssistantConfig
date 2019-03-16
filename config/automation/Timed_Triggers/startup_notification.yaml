@@ -10,7 +10,8 @@
   action:
     - service: script.notify_engine
       data_template:
-        value1: 'Startup: Home Assistant is Up and Running!'
+        title: 'Home Assistant StartUp'
+        value1: 'Home Assistant is Up and Running!'
         who: 'carlo'
 
     - service: light.turn_off

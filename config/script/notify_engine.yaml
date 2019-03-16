@@ -28,10 +28,19 @@ notify_engine:
             notify.ios_carloxsmax
           {% elif who == 'parents' %}
             notify.ios_parents
+          {% elif who == 'family' %}
+            notify.ios_family
           {% else %}
             notify.ios_family
           {% endif %}
       data_template:
+        title: "{{ title }}"
         message: "{{ value1 }} {{ value2 }} {{ value3 }}"
         data:
-          subtitle: "Home Assistant Notify"
+          attachment:
+            content-type: "{{ content_type }}"
+            push:
+              sound: "{{ ios_sound }}"
+              badge: "{{ ios_badge }}"
+              category: "{{ ios_category }}"
+          entity_id: "{{ camera_entity }}"

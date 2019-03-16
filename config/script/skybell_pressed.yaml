@@ -13,15 +13,41 @@ skybell_pressed:
         name: "SkyBell HD Doorbell:"
         message: "Someone Pressed the Doorbell."
 
-    - service: script.flash_notify
     - service: script.speech_engine
       data:
         value1: 'Please check the Front Door.  Someone Pressed the Doorbell.'
 
-    - service: notify.ios_family
-      data:
-        message: Someone Pressed the Doorbell!
-        data:
-          push:
-            category: camera
-          entity_id: camera.stone_door
+    - service: script.notify_engine
+      data_template:
+        ios_title: 'DoorBell'
+        value1: 'Someone pressed the doorbell'
+        who: 'family'
+        camera_entity: camera.stone_door
+
+    - service: script.flash_notify
+    
+    - service: script.tweet_engine_image
+      data_template:
+        tweet: >
+          {{ [
+          "Oh, that tickled. Someone just pressed the @MySkyBell.",
+          "Ouch! That hurt. Who touched the SkyBell Doorbell?",
+          "Someone just poked me in the @MySkybell!",
+          "I see you! You are at the @MySkyBell and you just pressed it.",
+          "Someone answer my door.  Someone just pressed the doorbell.",
+          "Knock, Knock.  Housekeeping? Just kidding. Someone just rang the doorbell."
+          ] | random + [
+          " #Security",
+          " (https://github.com/CCOSTAN/Home-AssistantConfig#cameras)",
+          " (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
+          " #HomeAutomation"
+          ] | random }}
+        image: >-
+          {{ [
+          "/config/www/custom_ui/floorplan/images/branding/sleeping.png",
+          "/config/www/custom_ui/floorplan/images/branding/door.png",
+          "/config/www/custom_ui/floorplan/images/branding/door2.png",
+          "/config/www/custom_ui/floorplan/images/branding/light4.png",
+          "/config/www/custom_ui/floorplan/images/branding/landscape_light.png",
+          "/config/www/custom_ui/floorplan/images/branding/camera.png",
+          ] | random }}

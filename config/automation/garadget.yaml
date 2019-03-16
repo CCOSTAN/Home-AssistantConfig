@@ -24,10 +24,11 @@
   action:
     - service: script.notify_engine
       data_template:
-        value1: 'Check Garage Doors Reflection:'
-        value2: "Small: {{ states('sensor.small_garage_reflection_rate')}}"
-        value3: "Large: {{ states('sensor.large_garage_reflection_rate')}}"
+        title: 'Check Garage Doors Reflection:'
+        value1: "Small: {{ states('sensor.small_garage_reflection_rate')}}"
+        value2: "Large: {{ states('sensor.large_garage_reflection_rate')}}"
         who: "carlo"
+        camera_entity: "camera.camera2"
 
 ##############################################################################
 
@@ -75,10 +76,11 @@
   action:
     - service: script.notify_engine
       data_template:
-        value1: 'Check Garage Doors:'
-        value2: "Small: {{ states('cover.small_garage')}}"
-        value3: "Large: {{ states('cover.large_garage')}}"
+        title: 'Check Garage Doors:'
+        value1: "Small: {{ states('cover.small_garage')}}"
+        value2: "Large: {{ states('cover.large_garage')}}"
         who: "family"
+        camera_entity: "camera.camera2"
 
     - service: script.speech_engine
       data_template:
