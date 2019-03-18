@@ -63,9 +63,6 @@ automation:
       event_data:
         actionName: TABLET_TAKEN
     action:
-      - service: notify.ios_carloxsmax
-        data:
-          message: "Great job!"
       - service: input_boolean.turn_on
         entity_id: input_boolean.medicine
 
@@ -76,11 +73,18 @@ automation:
       event_data:
         actionName: NOT_HOME
     action:
-      - service: notify.ios_carloxsmax
-        data:
-          message: "Ok. I will remind you when you get home."
+      - service: script.notify_engine
+        data_template:
+          title: 'Medicine Reminder'
+          value1: 'Ok. I will remind you when you get home.'
+          who: 'carlo'
       - wait_template: >-
           {{ states.device_tracker.carlo.state == 'home' }}
+      - service: script.notify_engine
+        data_template:
+          title: 'Medicine Reminder'
+          value1: 'Ok. I will remind you when you get home.'
+          who: 'carlo'
       - service: notify.ios_carloxsmax
         data:
           message: "Now that your home, please take your medicine!"
@@ -107,15 +111,11 @@ automation:
         state: 'off'
 
     action:
-      - service: notify.ios_carloxsmax
-        data:
-          title: "Medicine Alert!"
-          message: "Please take your Medicine!"
-          data:
-            push:
-              category: "tablet"
-            action_data:
-              entity_id: light.test
-              my_custom_data: foo_bar
+      - service: script.notify_engine
+        data_template:
+          title: 'Medicine Alert!'
+          value1: 'Please take your Medicine!'
+          ios_category: "tablet"
+          who: "carlo"
 
 ## Reminders to take my Medicine! - End.

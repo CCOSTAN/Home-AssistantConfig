@@ -29,8 +29,9 @@
 
     - service: script.notify_engine
       data_template:
-        value1: 'Took Medicine today.'
-        who: "parents"
+        title: 'Medicine Reminder Completed'
+        value1: 'Carlo Took Medicine today.'
+        who: 'parents'
     - delay:
         minutes: 1
     - service: automation.turn_on
