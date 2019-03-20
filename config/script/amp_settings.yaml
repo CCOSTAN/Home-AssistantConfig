@@ -35,7 +35,7 @@ amp_settings:
           {{volume_level}}
 
     - condition: state
-      entity_id: switch.living_room_amp
+      entity_id: switch.lr_amp
       state: 'off'
     - condition: state
       entity_id: group.bed
@@ -43,4 +43,4 @@ amp_settings:
 
     - service: switch.turn_on
       data:
-        entity_id: switch.living_room_amp
+        entity_id: switch.lr_amp
