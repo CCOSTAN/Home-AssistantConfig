@@ -41,6 +41,7 @@ notify_engine:
         message: "{{ value1 }} {{ value2 }} {{ value3 }}"
         data:
           attachment:
+            url: "{{ url }}"
             content-type: "{{ content_type }}"
             hide-thumbnail: false
           push:
