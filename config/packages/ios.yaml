@@ -15,12 +15,12 @@ notify:
     platform: group
     services:
       - service: ios_staceys_iphone
-      - service: ios_carloxsmax_beta
+      - service: ios_carloxsmax
   - name: ios_parents
     platform: group
     services:
       - service: ios_staceys_iphone
-      - service: ios_carloxsmax_beta
+      - service: ios_carloxsmax
 
 group:
   Phones:
@@ -85,7 +85,7 @@ automation:
           title: 'Medicine Reminder'
           value1: 'Ok. I will remind you when you get home.'
           who: 'carlo'
-      - service: notify.ios_carloxsmax_beta
+      - service: notify.ios_carloxsmax
         data:
           message: "Now that your home, please take your medicine!"
 
