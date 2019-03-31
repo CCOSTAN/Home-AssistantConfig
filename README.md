@@ -838,6 +838,11 @@ Juicebox package - /config/packages/juicenet.yaml</a><br>
 TV Automations are super cool.  Turn on a movie and the lights begin to dim automatically.  It's super cool.  Out TVs are back lit with [Hue Lightstrips](http://amzn.to/2FGbPpL) so we can do some pretty neat effects with automations.  We are #CordCutters as well so all out TV is streamed to the Rokus.  FireTV for party games and the Snyology, I'll talk about later in the Survellance section.
 
 <details>
+<summary>YouTube Video</summary><p align="center">
+<a href=https://www.vcloudinfo.com/2019/03/using-foscam-cameras-with-home-assistant-and-synology.html>
+Cameras, Synology and Home Assistant</a><br>
+</details>
+<details>
 <summary>If any Doors or Windows are open, the TV backlights turn Red.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml>
 Alarm package - /config/packages/alarm.yaml</a><br>
