@@ -20,6 +20,7 @@ sensor:
     sensors:
       neato_status:
         friendly_name: 'Neato Status'
+        entity_id: []
         value_template: '{{states.vacuum.carloneato.attributes["status"]}}'
 
 group:

@@ -1,6 +1,7 @@
 - platform: template
   sensors:
     last_boot_templated:
+      entity_id: []
       value_template: >-
         {%- set slb = states.sensor.last_boot.state.split(' ') -%}
         {%- set count = slb | length -%}
@@ -49,7 +50,7 @@
   value_template: '{{ value }}'
 
 #############################################################################################################
-###  This part of the automation is hidden due to the IP address exposed  ##
+###  This part of the automation is hidden due to the External IP address being exposed  ##
 # - platform: template
   # sensors:
     # ipchange:

@@ -90,6 +90,7 @@ sensor:
     sensors:
       sensor_count:
         friendly_name: 'Number of Sensors'
+        entity_id: []
         value_template: >
           {%- set domains = ['sensor'] -%}
           {%- for domain in domains -%}
@@ -101,6 +102,7 @@ sensor:
           {%- endfor -%}
       automation_count:
         friendly_name: 'Number of Automations'
+        entity_id: []
         value_template: >
           {%- set domains = ['automation'] -%}
           {%- for domain in domains -%}
@@ -112,6 +114,7 @@ sensor:
           {%- endfor -%}
       script_count:
         friendly_name: 'Number of Scripts'
+        entity_id: []
         value_template: >
           {%- set domains = ['script'] -%}
           {%- for domain in domains -%}
@@ -123,6 +126,7 @@ sensor:
           {%- endfor -%}
       binary_sensor_count:
         friendly_name: 'Number of Binary Sensors'
+        entity_id: []
         value_template: >
           {%- set domains = ['binary_sensor'] -%}
           {%- for domain in domains -%}
@@ -134,6 +138,7 @@ sensor:
           {%- endfor -%}
       tracker_count:
         friendly_name: 'Number of Devices'
+        entity_id: []
         value_template: >
           {%- set domains = ['device_tracker'] -%}
           {%- for domain in domains -%}
@@ -145,6 +150,7 @@ sensor:
           {%- endfor -%}
       lights_count:
         friendly_name: 'Number of Lights'
+        entity_id: []
         value_template: >
           {%- set domains = ['light'] -%}
           {%- for domain in domains -%}
@@ -156,6 +162,7 @@ sensor:
           {%- endfor -%}
       protect_count:
         friendly_name: 'Number of Smoke Detectors'
+        entity_id: []
         value_template: >
           {% if states('group.protects') == 'on' %}
           {% for e in states.group.protects.attributes.entity_id if states(e) == 'on'  %}
@@ -168,6 +175,7 @@ sensor:
           {% endif %}
       camera_count:
         friendly_name: 'Number of online Cameras'
+        entity_id: []
         value_template: >
           {%- set domains = ['camera'] -%}
           {%- for domain in domains -%}

@@ -4,11 +4,11 @@
 homeassistant:
   customize_glob:
     "sensor.floorplan_*":
-      
+
       hidden: True
       homebridge_hidden: True
     "sensor.clock_*":
-      
+
       hidden: True
       homebridge_hidden: True
 #---Sensor for Time and Date.-----------------------------
@@ -18,20 +18,21 @@ sensor:
     sensors:
       floorplan_date:
         friendly_name: 'Date'
+        entity_id: []
         value_template: >-
           {{now().strftime("%A")}}, {{now().strftime("%B")}} {{now().strftime("%d")}}
 
   - platform: template
+    scan_interval: 60
     sensors:
       floorplan_time:
         friendly_name: 'Time'
+        entity_id: []
         value_template: >-
           {{now().strftime("%-I")}}:{{now().strftime("%M")}} {{now().strftime("%p")}}
-
-  - platform: template
-    sensors:
       clock_time:
         friendly_name: 'Clock Time'
+        entity_id: []
         value_template: >-
           {{now().strftime("%-I")}}:{{now().strftime("%M")}}
 
@@ -40,21 +41,16 @@ sensor:
     sensors:
       clock_am_pm:
         friendly_name: 'AM/PM'
+        entity_id: []
         value_template: >-
           {{now().strftime("%p")}}
-
-  - platform: template
-    scan_interval: 30000
-    sensors:
       clock_day:
         friendly_name: 'Day'
+        entity_id: []
         value_template: >-
           {{now().strftime("%A")}}
-
-  - platform: template
-    scan_interval: 30000
-    sensors:
       clock_date:
         friendly_name: 'Clock Date'
+        entity_id: []
         value_template: >-
           {{now().strftime("%B")}} {{now().strftime("%d")}} {{now().year}}

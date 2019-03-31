@@ -25,6 +25,7 @@ sensor:
     sensors:
       carlopihole:
         friendly_name: 'Carlo-PiHole'
+        entity_id: []
         value_template: "{{ 'Online' if is_state('device_tracker.carlopihole', 'home') else 'Offline' }}"
 
 # Pi-Hole switch

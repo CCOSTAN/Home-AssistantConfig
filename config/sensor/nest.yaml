@@ -17,9 +17,11 @@
 - platform: template
   sensors:
      upstairs_away_mode:
+       entity_id: []
        value_template: "{{ is_state_attr('climate.upstairs', 'away_mode', 'on') }}"
 
 - platform: template
   sensors:
      downstairs_away_mode:
+       entity_id: []
        value_template: "{{ is_state_attr('climate.downstairs', 'away_mode', 'on') }}"

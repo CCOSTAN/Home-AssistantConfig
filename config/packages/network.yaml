@@ -10,6 +10,7 @@ sensor:
     sensors:
       network:
         friendly_name: 'Network Monitor'
+        entity_id: []
         value_template: >
           {%- set domains = ['device_tracker'] -%}
           {%- for domain in domains -%}
@@ -39,6 +40,7 @@ sensor:
     sensors:
       network_detail:
         friendly_name: 'Network Monitor Detail'
+        entity_id: []
         value_template: >
           {%- set domains = ['device_tracker'] -%}
           {%- for domain in domains -%}
