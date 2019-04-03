@@ -48,7 +48,7 @@ This directory is primarily used for automations that are just running in the ba
     </a>
     <span> | </span>
     <a href="https://amzn.to/2HXSx2M">
-      Tee Shop
+      Merch
     </a>
   </h4>
 

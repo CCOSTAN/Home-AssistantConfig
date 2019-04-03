@@ -48,7 +48,7 @@ This is the main directory of the Repo.  You will find more helpful ReadMe files
   </a>
   <span> | </span>
   <a href="https://amzn.to/2HXSx2M">
-    Tee Shop
+    Merch
   </a>
 </h4>
 </div>

@@ -48,7 +48,7 @@ You can definately read more about my voice implimentations in my blog posts (li
     </a>
     <span> | </span>
     <a href="https://amzn.to/2HXSx2M">
-      Tee Shop
+      Merch
     </a>
   </h4>
 

@@ -49,7 +49,7 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
     </a>
     <span> | </span>
     <a href="https://amzn.to/2HXSx2M">
-      Tee Shop
+      Merch
     </a>
   </h4>
 </div>

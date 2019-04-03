@@ -47,7 +47,7 @@
     </a>
     <span> | </span>
     <a href="https://amzn.to/2HXSx2M">
-      Tee Shop
+      Merch
     </a>
   </h4>
 

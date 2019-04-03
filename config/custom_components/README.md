@@ -48,7 +48,7 @@ Custom Components.  Comstimes I use them for temporary fixes to existing compone
     </a>
     <span> | </span>
     <a href="https://amzn.to/2HXSx2M">
-      Tee Shop
+      Merch
     </a>
   </h4>
 
