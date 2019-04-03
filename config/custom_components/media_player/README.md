@@ -1,9 +1,9 @@
 <h1 align="center">
   <a name="logo" href="http://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
-  Bear Stone Smart Home Configuration
+  Bear Stone Smart Home Documentation
 </h1>
-<h4 align="center">Be sure to :star: my repo so you can keep up to date on the daily progress!.</h4>
+<h4 align="center">Be sure to :star: my configuration repo so you can keep up to date on any daily progress!</h4>
 <div align="center">
   <h4>
     <a href="https://travis-ci.org/CCOSTAN/Home-AssistantConfig"><img src="https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master"/></a>
@@ -47,7 +47,7 @@ This is a Custom Component by pkozul to allow me to use my Floorplan installatio
       Youtube
     </a>
     <span> | </span>
-    <a href="https://www.vcloudinfo.com/p/shop-our-merch.html">
+    <a href="https://amzn.to/2HXSx2M">
       Tee Shop
     </a>
   </h4>

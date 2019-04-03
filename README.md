@@ -1,9 +1,9 @@
 <h1 align="center">
   <a name="logo" href="http://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
-  Bear Stone Smart Home Configuration
+  Bear Stone Smart Home Documentation
 </h1>
-<h4 align="center">Be sure to :star: my repo so you can keep up to date on the daily progress!.</h4>
+<h4 align="center">Be sure to :star: my configuration repo so you can keep up to date on any daily progress!</h4>
 <p align="center"><a align="center" target="_blank" href="https://vcloudinfo.us12.list-manage.com/subscribe?u=45cab4343ffdbeb9667c28a26&id=e01847e94f"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>
 <div align="center">
   <h4>
@@ -48,7 +48,7 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
       Youtube
     </a>
     <span> | </span>
-    <a href="https://www.vcloudinfo.com/p/shop-our-merch.html">
+    <a href="https://amzn.to/2HXSx2M">
       Tee Shop
     </a>
   </h4>
@@ -543,14 +543,14 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 [Nunet Smart Plug](https://amzn.to/2PDBNNK)
 </td><td align="center">
 
-[Switches Get Stitches](https://www.vcloudinfo.com/p/shop-our-merch.html)
+[Switches Get Stitches](https://amzn.to/2HXSx2M)
 </td><td align="center">
 
 [Etekcity Outlets](http://amzn.to/2efNoBP)</td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/Noon-N160US-Smart-Lighting-Starter/dp/B076FJLRNL/ref=as_li_ss_il?ie=UTF8&qid=1527451258&sr=8-1&keywords=noon&linkCode=li2&tag=vmw0a-20&linkId=07f55d3dde28ba1db77510257e4d13e8" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B076FJLRNL&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B076FJLRNL" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/NUNET-Monitor-Required-Appliances-Functiant/dp/B079H66QW6/ref=as_li_ss_il?ie=UTF8&qid=1544832863&sr=8-3&keywords=nunet+smart+wifi+plug&linkCode=li2&tag=vmw0a-20&linkId=64ae44a0cfc451fb7b64428935c3cbee&language=en_US" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B079H66QW6&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&language=en_US&l=li2&o=1&a=B079H66QW6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://www.vcloudinfo.com/p/shop-our-merch.html" target="_blank"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/youtube/switchesTee_gray.png" height="150" border="0" alt="" style="border:none !important; margin:0px !important;"></a>
+</td><td align="center"><a href="https://amzn.to/2HXSx2M" target="_blank"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/youtube/switchesTee_gray.png" height="150" border="0" alt="" style="border:none !important; margin:0px !important;"></a>
 </td><td align="center"><a href="https://www.amazon.com/gp/product/B00DQELHBS/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=2d11a4b4ee3994189b3136c3b5726e37" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00DQELHBS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00DQELHBS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
