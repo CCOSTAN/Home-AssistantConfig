@@ -73,6 +73,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
+Be sure to use the referral code 'Reliable jaguar' so we both get priority for Beta Tests!
 
 #### <a name="diagram"></a>Smart Home Diagram - Get your icons (<a href="https://www.vcloudinfo.com/2018/07/the-bear-stone-home-assistant-icon.html">here</a>).
 Here is how all the parts talk to each other.  Keep reading to see code examples and explanations.
