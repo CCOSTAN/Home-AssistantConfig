@@ -43,7 +43,7 @@ You can definately read more about my voice implimentations in my blog posts (li
       Diagram
     </a>    
     <span> | </span>
-    <a href="https://youtube.com/CCOSTAN">
+    <a href="https://youtube.com/vCloudInfo">
       Youtube
     </a>
     <span> | </span>

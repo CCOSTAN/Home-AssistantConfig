@@ -44,7 +44,7 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
       Diagram
     </a>
     <span> | </span>
-    <a href="https://youtube.com/CCOSTAN">
+    <a href="https://youtube.com/vCloudInfo">
       Youtube
     </a>
     <span> | </span>

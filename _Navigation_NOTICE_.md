@@ -35,7 +35,7 @@ You can definately read more about my voice implimentations in my blog posts (li
       Facebook
     </a>
     <span> | </span>
-    <a href="https://youtube.com/ccostan">
+    <a href="https://youtube.com/vCloudInfo">
       Videos
     </a>
   </h4>

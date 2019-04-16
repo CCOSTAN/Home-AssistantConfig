@@ -43,7 +43,7 @@ This is a Custom Component by pkozul to allow me to use my Floorplan installatio
       Diagram
     </a>    
     <span> | </span>
-    <a href="https://youtube.com/CCOSTAN">
+    <a href="https://youtube.com/vCloudInfo">
       Youtube
     </a>
     <span> | </span>
