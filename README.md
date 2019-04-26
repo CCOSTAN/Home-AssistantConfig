@@ -405,7 +405,7 @@ Away Automation - /config/automation/away.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/good_night.yaml>
 Good Night Automation - /config/automation/good_night.yaml</a><br>
 </details><details>
-<summary>All voice notifications are pushed though a speech engine.  Random words and sentances are used to give the house some personality..</summary><p align="center">
+<summary>All voice notifications are pushed though a speech engine.  Random words and sentences are used to give the house some personality.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml>
 Speech Engine - /config/script/speech_engine.yaml</a><br>
 </details><details>
