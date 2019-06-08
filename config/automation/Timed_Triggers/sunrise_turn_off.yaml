@@ -40,7 +40,9 @@
         - group.exterior_lights
         - group.outdoor_front_lights
         - group.outdoor_pool_lights
-        - group.all_lights
+
+    - service: light.turn_off
+      entity_id: all
 
     - wait_template: >-
        {{ states.sun.sun.state == 'above_horizon' }}

@@ -16,8 +16,7 @@ emergency:
         color_name: 'red'
       # Flash All LIGHTS
     - service: light.turn_on
-      entity_id:
-        - group.all_lights
+      entity_id: all
       data:
         flash: long
       # Rachio is already inergrated Natively with Protects to run SPRINKLERS with smoke conditions..
@@ -26,8 +25,7 @@ emergency:
 
       # Turn on All LIGHTS 100% Brightness
     - service: light.turn_on
-      entity_id:
-        - group.all_lights
+      entity_id: all
       data:
         brightness: 255
 

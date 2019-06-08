@@ -7,7 +7,7 @@ homeassistant:
     input_boolean.self_destruct:
       friendly_name: 'Self Destruct'
       icon: mdi:skull
-      
+
       hidden: False
 #-------------------------------------------
 input_boolean:
@@ -51,16 +51,15 @@ automation:
           "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/speechcons/self_destruct.mp3"
         media_content_type: audio/mp4
     - service: light.turn_on
-      entity_id:
-        - group.all_lights
+      entity_id: all
       data:
         flash: long
     - service: switch.turn_off
-      entity_id:
-        - group.all_switches
+      entity_id: all
+
     - service: light.turn_off
-      entity_id:
-        - group.all_lights
+      entity_id: all
+      
     - service: input_boolean.turn_off
       entity_id:
         - input_boolean.self_destruct
