@@ -49,6 +49,9 @@ monthly_color_scene:
           mothers_day
           {%- elif now().strftime("%m%d")|int == 616 -%}
           fathers_day
+          {%- elif now().strftime("%m%d")|int >= 619
+          and now().strftime("%m%d")|int <= 619-%}
+          RWB
           {%- elif now().strftime("%m%d")|int >= 1001
           and now().strftime("%m%d")|int <= 1031-%}
           halloween
