@@ -1,5 +1,9 @@
 ###################################
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ##  Start Up Section
+##  Video Explanation can be found here :
+##  https://www.vcloudinfo.com/2019/06/how-to-use-template-conditions-in-home-assistant.html
 ###################################
 
 - alias: Check if it's summer vacation on startup.
@@ -7,6 +11,8 @@
   trigger:
     - platform: homeassistant
       event: start
+    - platform: time_pattern
+      hours: '/12'
 
   condition:
     - condition: template
