@@ -24,7 +24,7 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
       Devices
     </a>
     <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc">
       Todo List
     </a>
     <span> | </span>
@@ -705,7 +705,7 @@ Good Night automation - /config/automation/good_night.yaml</a><br>
 </td></tr>
 <tr><td colspan="4">
 
-#### Outdoor LED Accents <a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#LED"> - [DIY Blog Post](http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Outdoor LED Accents <a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#LED"> - [DIY Blog Post](http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
@@ -925,7 +925,7 @@ Process Monitor Package - /config/packages/processmonitor.yaml</a><br>
 
 ### Todo List <a name="TODO" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 
-The [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues) on github is where I store all my wishful ideas and future enhancements.
+The [issues section](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) on github is where I store all my wishful ideas and future enhancements.
 Feel free to join the conversations there.
 [![Screenshot of Alarm Clock View](https://i.imgur.com/mLMrky1.jpg)](https://www.vcloudinfo.com/2017/11/building-worlds-greatest-smart-alarm.html)
 [![Screenshot of Alarm View](https://i.imgur.com/zmb3Rtn.png)](https://www.vcloudinfo.com/2017/07/visualizing-smart-home-using-home.html)

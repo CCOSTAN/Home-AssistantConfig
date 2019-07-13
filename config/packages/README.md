@@ -23,7 +23,7 @@ I love packages.  This will probably become the most used directory in my repo. 
       Devices
     </a>
     <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc">
       Todo List
     </a>
     <span> | </span>

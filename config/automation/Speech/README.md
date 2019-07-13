@@ -23,7 +23,7 @@ You can definately read more about my voice implimentations in my blog posts (li
       Devices
     </a>
     <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
+    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc">
       Todo List
     </a>
     <span> | </span>

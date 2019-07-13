@@ -1,0 +1,25 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+#-------------------------------------------
+homeassistant:
+  customize_glob:
+    "*.arris_tg1682g_router*":
+      homebridge_hidden: True
+      hidden: False
+#-------------------------------------------
+
+group:
+  router:
+    name: Router Stats
+    control: hidden
+    entities:
+      - sensor.arris_tg1682g_router_bytes_received
+      - sensor.arris_tg1682g_router_bytes_sent
+      - sensor.arris_tg1682g_router_kbytesec_received
+      - sensor.arris_tg1682g_router_kbytesec_sent
+      - sensor.arris_tg1682g_router_packets_received
+      - sensor.arris_tg1682g_router_packets_sent
+      - sensor.arris_tg1682g_router_packetssec_received
+      - sensor.arris_tg1682g_router_packetssec_sent

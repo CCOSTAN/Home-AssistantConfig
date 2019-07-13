@@ -23,7 +23,7 @@ This is the main directory of the Repo.  You will find more helpful ReadMe files
     Devices
   </a>
   <span> | </span>
-  <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues">
+  <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc">
     Todo List
   </a>
   <span> | </span>
