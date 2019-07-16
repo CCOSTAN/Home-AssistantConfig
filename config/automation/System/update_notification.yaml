@@ -19,7 +19,45 @@
 
     - service: script.tweet_engine_image
       data_template:
-        tweet: "New version of @Home_Assistant! Cannot wait for @CCostan to install it! - {{ states('updater.updater') }} (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)"
+        tweet: >-
+          {% macro getIntro() %}
+           {{- [
+              "Woohoo! ",
+              "BAM! ",
+              "Look at that! "
+              ] | random -}}
+            {% endmacro %}
+            {% macro getVersion() %}
+          "New version of @Home_Assistant! Cannot wait for @CCostan to install it! - {{ states('updater.updater') }} (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)"
+            {% endmacro %}
+            {%- macro getRandomSnark() -%}
+           {{- [
+             " It’s like Patch Tuesday, but without the fail. #homeassistant",
+             " Get in my SD Card! #homeassistant",
+             " Shut up and take my ones and zeros! #homeassistant",
+             " Seriously, you want some of this! #homeassistant",
+             " Be sure to read the breaking changes! ",
+             ""
+             ] | random -}}
+            {%- endmacro -%}
+
+            {# a macro that removes all newline characters, empty spaces, and returns formatted text  #}
+            {%- macro cleanup(data) -%}
+             {%- for item in data.split("\n")  if item | trim != "" -%}
+               {{ item | trim }} {% endfor -%}
+            {%- endmacro -%}
+
+            {# a macro to call all macros :)  #}
+            {%- macro mother_of_all_macros() -%}
+             {{ getIntro() }}
+             {{ getVersion() }}
+             {{ getRandomSnark() }}
+
+            {%- endmacro -%}
+
+           {# Call the macro  #}
+           {{- cleanup(mother_of_all_macros()) -}}
+
         image: >-
           {{ [
           "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
