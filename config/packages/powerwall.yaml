@@ -25,7 +25,6 @@ sensor:
     name: Grid Status
     scan_interval: 60
     value_template: "{{ value_json.grid_status == 'SystemGridConnected' }}"
-    device_class: power
 
   - platform: rest
     name: House now
@@ -34,6 +33,7 @@ sensor:
     verify_ssl: false
     value_template: '{{ value_json.load.instant_power / 1000 | round(2) }}'
     unit_of_measurement: kWh
+    device_class: power
 
   - platform: rest
     name: Grid now
@@ -42,6 +42,7 @@ sensor:
     verify_ssl: false
     value_template: '{{ value_json.site.instant_power / 1000 | round(2) }}'
     unit_of_measurement: kWh
+    device_class: power
 
   - platform: rest
     name: Solar now
@@ -50,6 +51,7 @@ sensor:
     verify_ssl: false
     value_template: '{{ value_json.solar.instant_power / 1000 | round(2) }}'
     unit_of_measurement: kWh
+    device_class: power
 
   - platform: rest
     name: PowerWall Battery now
@@ -58,7 +60,7 @@ sensor:
     verify_ssl: false
     value_template: '{{ value_json.battery.instant_power / 1000 | round(2) }}'
     unit_of_measurement: kWh
-    device_class: battery
+    device_class: power
 
   - platform: rest
     name: PowerWall Battery Capacity
