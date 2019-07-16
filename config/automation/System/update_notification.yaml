@@ -28,7 +28,7 @@
               ] | random -}}
             {% endmacro %}
             {% macro getVersion() %}
-          "New version of @Home_Assistant! Cannot wait for @CCostan to install it! - {{ states('updater.updater') }} (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)"
+             "New version of @Home_Assistant! Cannot wait for @CCostan to install {{ states('updater.updater') }}! (http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)"
             {% endmacro %}
             {%- macro getRandomSnark() -%}
            {{- [
@@ -63,7 +63,6 @@
           "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
           "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
           "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
-          "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
           ] | random }}
 
     - service: notify.html5
