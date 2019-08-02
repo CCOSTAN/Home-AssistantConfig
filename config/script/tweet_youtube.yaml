@@ -1,0 +1,83 @@
+tweet_youtube_engine_setup:
+   sequence:
+    - service: script.tweet_engine_image
+      data_template:
+        tweet: >-
+          {%- macro tweet(topic) -%}
+            {% set tweets = {
+              "S01E01": [
+                "Tesla Solar Panels vs Hurricane IRMA! (https://www.vcloudinfo.com/2018/09/re-installing-tesla-solar-panels-again.html)"
+              ],
+              "S01E02": [
+                "How to Port Forward SageCom 5260 Fast Routers (https://www.vcloudinfo.com/2018/09/setting-up-port-forwarding-on-sagemcom.html)"
+              ],
+              "S01E03": [
+                "Please stop saying Alexa in your Videos! (https://www.vcloudinfo.com/2018/09/please-stop-saying-alexa-in-your.html)"
+              ],
+              "S01E04": [
+                "Unboxing and setup of the Philips Hue Calla Landscape Lights (https://www.vcloudinfo.com/2018/09/unboxing-philips-hue-calla-landscape.html)"
+              ],
+              "S01E05": [
+                "Upgrading Home Assistant in Docker (https://www.vcloudinfo.com/2018/10/upgrading-home-assistant-in-docker.html)"
+              ],
+              "S01E06": [
+                "Adding Hue Lights to my Smart Home (https://www.vcloudinfo.com/2018/10/adding-smart-light-to-my-smart-house.html)"
+              ],
+              "S01E07": [
+                "Lights, Camera, Automation! Hue light setup Part 2. (https://www.vcloudinfo.com/2018/10/lights-camera-automation-hue-light.html)"
+              ],
+              "S01E08": [
+                "How to enable Alexa Whisper Mode and Hunches! (https://www.vcloudinfo.com/2018/10/how-to-enable-alexa-whisper-mode-and.html)"
+              ],
+              "S01E09": [
+                "Siri Store and Retrieve shortcuts for ANY information! (https://www.vcloudinfo.com/2018/10/siri-store-and-retrieve-shortcuts-for.html)"
+              ],
+              "S01E10": [
+                "Easy Smart Home Gadgets I use for my Holiday Lighting setup! (https://www.vcloudinfo.com/2018/10/easy-smart-home-gadgets-i-use-for-my.html)"
+              ]              
+            } %}
+
+            {{ tweets[topic]|random }}
+          {%- endmacro -%}
+
+          {{ tweet(pick) }}
+
+        image: >-
+          {%- macro image(topic) -%}
+            {% set images = {
+              "S01E10": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E10.png"
+              ],
+              "S01E09": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E09.png"
+              ],
+              "S01E08": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E08.png"
+              ],
+              "S01E07": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E07.png"
+              ],
+              "S01E06": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E06.png"
+              ],
+              "S01E01": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E01.png"
+              ],
+              "S01E02": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E02.png"
+              ],
+              "S01E03": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E03.png"
+              ],
+              "S01E04": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E04.png"
+              ],
+              "S01E05": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E05.png"
+              ]
+            } %}
+
+            {{ images[topic]|random }}
+          {%- endmacro -%}
+
+          {{ image(pick) }}

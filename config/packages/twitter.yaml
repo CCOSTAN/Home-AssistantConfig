@@ -328,9 +328,33 @@ automation:
               "internet", "internet",
               "stocks", "stocks",
               "night",
-              "tv", "tv", 
+              "tv", "tv",
               "throwback",
               "promo", "promo",
               "joke"
+            ] %}
+            {{ pick|random }}
+
+  - alias: 'Random YouTube Videos'
+    hide_entity: True
+    trigger:
+      - platform: time_pattern
+        hours: '/2'
+        minutes: 45
+    condition:
+      - condition: template
+        value_template: >
+          {%- if states.automation.random_youtube_videos.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 10000 }}
+          {%- else -%}
+            true
+          {%- endif -%}
+    action:
+      - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
+      - service: script.tweet_youtube_engine_setup
+        data_template:
+          pick: >-
+            {% set pick = [
+              "S01E01", "S01E02","S01E03", "S01E04","S01E05", "S01E06","S01E07", "S01E08","S01E09", "S01E10",
             ] %}
             {{ pick|random }}
