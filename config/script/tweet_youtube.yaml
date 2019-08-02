@@ -1,3 +1,10 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+######################################################################################################
+###Script to send out image appropriate links to YouTube based articles and videos.
+######################################################################################################
+
 tweet_youtube_engine_setup:
    sequence:
     - service: script.tweet_engine_image
@@ -6,35 +13,98 @@ tweet_youtube_engine_setup:
           {%- macro tweet(topic) -%}
             {% set tweets = {
               "S01E01": [
-                "Tesla Solar Panels vs Hurricane IRMA! (https://www.vcloudinfo.com/2018/09/re-installing-tesla-solar-panels-again.html)"
+                "Tesla Solar Panels vs #Hurricane IRMA! (https://www.vcloudinfo.com/2018/09/re-installing-tesla-solar-panels-again.html)"
               ],
               "S01E02": [
                 "How to Port Forward SageCom 5260 Fast Routers (https://www.vcloudinfo.com/2018/09/setting-up-port-forwarding-on-sagemcom.html)"
               ],
               "S01E03": [
-                "Please stop saying Alexa in your Videos! (https://www.vcloudinfo.com/2018/09/please-stop-saying-alexa-in-your.html)"
+                "Please stop saying #Alexa in your Videos! (https://www.vcloudinfo.com/2018/09/please-stop-saying-alexa-in-your.html)"
               ],
               "S01E04": [
-                "Unboxing and setup of the Philips Hue Calla Landscape Lights (https://www.vcloudinfo.com/2018/09/unboxing-philips-hue-calla-landscape.html)"
+                "Unboxing and setup of the Philips #Hue Calla Landscape Lights (https://www.vcloudinfo.com/2018/09/unboxing-philips-hue-calla-landscape.html)"
               ],
               "S01E05": [
-                "Upgrading Home Assistant in Docker (https://www.vcloudinfo.com/2018/10/upgrading-home-assistant-in-docker.html)"
+                "Upgrading Home Assistant in #Docker (https://www.vcloudinfo.com/2018/10/upgrading-home-assistant-in-docker.html)"
               ],
               "S01E06": [
-                "Adding Hue Lights to my Smart Home (https://www.vcloudinfo.com/2018/10/adding-smart-light-to-my-smart-house.html)"
+                "Adding #Hue Lights to my Smart Home (https://www.vcloudinfo.com/2018/10/adding-smart-light-to-my-smart-house.html)"
               ],
               "S01E07": [
-                "Lights, Camera, Automation! Hue light setup Part 2. (https://www.vcloudinfo.com/2018/10/lights-camera-automation-hue-light.html)"
+                "Lights, Camera, Automation! #Hue light setup Part 2. (https://www.vcloudinfo.com/2018/10/lights-camera-automation-hue-light.html)"
               ],
               "S01E08": [
-                "How to enable Alexa Whisper Mode and Hunches! (https://www.vcloudinfo.com/2018/10/how-to-enable-alexa-whisper-mode-and.html)"
+                "How to enable #Alexa Whisper Mode and Hunches! (https://www.vcloudinfo.com/2018/10/how-to-enable-alexa-whisper-mode-and.html)"
               ],
               "S01E09": [
-                "Siri Store and Retrieve shortcuts for ANY information! (https://www.vcloudinfo.com/2018/10/siri-store-and-retrieve-shortcuts-for.html)"
+                "Siri Store and Retrieve #shortcuts for ANY information! (https://www.vcloudinfo.com/2018/10/siri-store-and-retrieve-shortcuts-for.html)"
               ],
               "S01E10": [
-                "Easy Smart Home Gadgets I use for my Holiday Lighting setup! (https://www.vcloudinfo.com/2018/10/easy-smart-home-gadgets-i-use-for-my.html)"
-              ]              
+                "Easy Smart Home #Gadgets I use for my Holiday Lighting setup! (https://www.vcloudinfo.com/2018/10/easy-smart-home-gadgets-i-use-for-my.html)"
+              ],
+              "S01E11": [
+                "Port Forwarding on the ARRIS TG1682 Modem Router (https://www.vcloudinfo.com/2018/11/port-forwarding-on-arris-tg1682-modem.html)"
+              ],
+              "S01E12": [
+                "Alexa Parental Controls: Enabling #Explicit Filter mode (https://www.vcloudinfo.com/2018/11/cortana-meet-alexa.html)"
+              ],
+              "S01E13": [
+                "Cortana, Meet #Alexa! (https://www.vcloudinfo.com/2018/11/alexa-parental-controls-enabling.html)"
+              ],
+              "S01E14": [
+                "Routine Tasks; Upgrading Home Assistant to Latest #Beta! (https://www.vcloudinfo.com/2018/11/routine-tasks-upgrading-home-assistant.html)"
+              ],
+              "S01E15": [
+                "Routine Tasks; Adding #Tesla PowerWall sensors to my Home Assistant! (https://www.vcloudinfo.com/2018/11/routine-tasks-adding-tesla-powerwall.html)"
+              ],
+              "S01E16": [
+                "Breaking down my Home Assistant Volume Control (https://www.vcloudinfo.com/2018/12/breaking-down-my-home-assistant-volume.html)"
+              ],
+              "S01E17": [
+                "Volume Control using #Alexa Routines (https://www.vcloudinfo.com/2018/12/volume-control-using-alexa-routines.html)"
+              ],
+              "S01E18": [
+                "How to Weatherproof your Outdoor Smart Plugs on the Cheap! (https://www.vcloudinfo.com/2018/12/how-to-waterproof-your-outdoor-smart.html)"
+              ],
+              "S01E19": [
+                "Automate your home using Amazon Routines! No Software Needed!(https://www.vcloudinfo.com/2018/12/automate-your-home-using-amazon.html)"
+              ],
+              "S01E20": [
+                "Fixing my Home Assistant Breaking Changes with #Atom! (https://www.vcloudinfo.com/2018/12/fixing-my-home-assistant-breaking.html)"
+              ],
+              "S01E21": [
+                "The Epson XP-7100 Small-in-One Printer review and Unboxing (https://www.vcloudinfo.com/2018/12/the-epson-xp-7100-small-in-one-printer.html)"
+              ],
+              "S02E01": [
+                "Enabling Guest Mode TTS feedback for Home Assistant (https://www.vcloudinfo.com/2019/01/enabling-guest-mode-tts-feedback-for.html)"
+              ],
+              "S02E02": [
+                "My DIY weather resistant Wi-Fi switch – 1 Month Later! (https://www.vcloudinfo.com/2019/01/my-diy-weather-resistant-wi-fi-switch-1.html)"
+              ],
+              "S02E03": [
+                "My UI is terrible.  Here is why I do not care. (https://www.vcloudinfo.com/2019/01/lovelace-is-now-standard-i-dont-care.html)"
+              ],
+              "S02E04": [
+                "How to Upgrade Home Assistant Ubuntu to 18.04.1 LTS (https://www.vcloudinfo.com/2019/02/how-to-upgrade-home-assistant-ubuntu-to-18-04-1-lts.html)"
+              ],
+              "S02E05": [
+                "Everyday Holiday Smart Lights – Valentines Day Edition (https://www.vcloudinfo.com/2019/02/everyday-holiday-smart-lights-valentines-day-edition.html)"
+              ],
+              "S02E06": [
+                "How to set up Home Assistant Presence Detection using NMAP (https://www.vcloudinfo.com/2019/02/how-to-set-up-home-assistant-presence-detection-using-nmap.html)"
+              ],
+              "S02E07": [
+                "Breaking down the Flag Sensor in Home Assistant (https://www.vcloudinfo.com/2019/02/breaking-down-the-flag-sensor-in-home-assistant.html)"
+              ],
+              "S02E08": [
+                "How I Upgraded Home Assistant – fixing all the breaking Changes! (https://www.vcloudinfo.com/2019/02/how-i-upgraded-home-assistant-to-0-88-1-fixing-all-the-breaking-changes.html)"
+              ],
+              "S02E09": [
+                "Amazon Discontinues the Dash Button (https://www.vcloudinfo.com/2019/02/amazon-discontinues-the-dash-button.html)"
+              ],
+              "S02E10": [
+                "How to add Garadget to Home Assistant (https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html)"
+              ]
             } %}
 
             {{ tweets[topic]|random }}
@@ -45,6 +115,69 @@ tweet_youtube_engine_setup:
         image: >-
           {%- macro image(topic) -%}
             {% set images = {
+              "S02E10": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E10.png"
+              ],
+              "S02E09": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E09.png"
+              ],
+              "S02E08": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E08.png"
+              ],
+              "S02E07": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E07.png"
+              ],
+              "S02E06": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E06.png"
+              ],
+              "S02E05": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E05.png"
+              ],
+              "S02E04": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E04.png"
+              ],
+              "S02E03": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E03.png"
+              ],
+              "S02E02": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E02.png"
+              ],
+              "S02E01": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E01.png"
+              ],
+              "S01E21": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E21.png"
+              ],
+              "S01E20": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E20.png"
+              ],
+              "S01E19": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E19.png"
+              ],
+              "S01E18": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E18.png"
+              ],
+              "S01E17": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E17.png"
+              ],
+              "S01E16": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E16.png"
+              ],
+              "S01E15": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E15.png"
+              ],
+              "S01E14": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E14.png"
+              ],
+              "S01E13": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E13.png"
+              ],
+              "S01E12": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E12.png"
+              ],
+              "S01E11": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S01E11.png"
+              ],
               "S01E10": [
                 "/config/www/custom_ui/floorplan/images/branding/episodes/S01E10.png"
               ],
