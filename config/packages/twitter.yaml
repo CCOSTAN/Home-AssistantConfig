@@ -258,48 +258,6 @@ automation:
             ] %}
             {{ pictures|random }}
 
-  - alias: 'ThrowBack message'
-    trigger:
-      - platform: time_pattern
-        hours: '/23'
-        minutes: '13'
-
-    action:
-      - service: notify.ccostan
-        data_template:
-          message: >-
-            {% set phrases = [
-              "One of the most popular #SmartHome Projects I have done: (https://www.vcloudinfo.com/2017/07/visualizing-smart-home-using-home.html)",
-              "This project was one of the most popular: (https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)",
-              "Some of the Best Home Assistant resources around! (https://www.vcloudinfo.com/2018/04/some-of-my-favorite-home-assistant.html)",
-              "My Journey to Docker #ThrowBack - (https://www.vcloudinfo.com/2018/02/journey-to-docker.html)",
-              "My Popular DIY Motion Sensor #ThrowBack - (https://www.vcloudinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)",
-              "Build your own DIY Outdoor Smart Home LED strips - (https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
-              "Breakdown of the entire smart home - (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
-              "Build your own Home Alarm System - (https://www.vcloudinfo.com/2017/06/building-my-home-alarm-system-hardware.html)",
-              "Adding a Mixer and AMP to this Text to Speech solution changed the Smart Home COMPLETELY! (https://www.vcloudinfo.com/2017/07/giving-voice-to-smart-home.html)",
-              "Some of my favorite #Docker Containers that I am using - (https://www.vcloudinfo.com/2018/06/rolling-out-some-new-docker-containers.html)",
-              "Be Sure to follow all of my Twitter Accounts! @CCostan and my HOUSE bot @BearStoneHA!",
-              "If you are not subscribed to my Smart Home YouTube channel, come join us now! (https://youtube.com/vCloudInfo)",
-              "My Full Smart Home diagram and #IOT icon set that you can download to build your own! - (https://www.vcloudinfo.com/2018/07/the-bear-stone-home-assistant-icon.html),"
-              "Be sure to like me on Facebook and join our HA group! (https://www.facebook.com/groups/HomeAssistant/) (https://www.facebook.com/VMwareInfo/) (https://www.facebook.com/BearStoneHA/)",
-              "You can see how ALL of this is done by browsing my GitHub Repository (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
-              "10 year safety check.  If you have not done it yet, you need to! (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)",
-              "Breaking down the Home Assistant Flag Sensor (https://www.vcloudinfo.com/2019/02/breaking-down-the-flag-sensor-in-home-assistant.html)",
-              "How to use template conditions in Home Assistant. (https://www.vcloudinfo.com/2019/06/how-to-use-template-conditions-in-home-assistant.html)"
-
-            ] %}
-            {% set hashtags = [
-              "#Throwback"
-            ] %}
-            {{ phrases|random ~ " " ~ hashtags|random ~ " #IOT #SmartHome" }}
-          data:
-            media: >-
-              {% set pictures = [
-                "/config/www/custom_ui/floorplan/images/branding/throwback.png"
-              ] %}
-              {{ pictures|random }}
-
   - alias: 'Random House stats'
     hide_entity: True
     trigger:
@@ -329,23 +287,22 @@ automation:
               "stocks", "stocks",
               "night",
               "tv", "tv",
-              "throwback",
               "promo", "promo",
               "joke"
             ] %}
             {{ pick|random }}
 
-  - alias: 'Random YouTube Videos'
+  - alias: 'Random YouTube Videos BearStone'
     hide_entity: True
     trigger:
       - platform: time_pattern
-        hours: '/2'
-        minutes: 45
+        hours: '/6'
+        minutes: 18
     condition:
       - condition: template
         value_template: >
-          {%- if states.automation.random_youtube_videos.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 10000 }}
+          {%- if states.automation.random_youtube_videos_bearstone.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_youtube_videos_bearstone.attributes.last_triggered)) > 10000 }}
           {%- else -%}
             true
           {%- endif -%}
@@ -355,7 +312,35 @@ automation:
         data_template:
           pick: >-
             {% set pick = [
-              "S01E01", "S01E02","S01E03", "S01E04","S01E05", "S01E06","S01E07", "S01E08","S01E09", "S01E10",
+              "ThrowBack", "S01E01", "S01E02","S01E03", "S01E04","S01E05", "S01E06","S01E07", "S01E08","S01E09", "S01E10",
+              "S01E11", "S01E12","S01E13", "S01E14","S01E15", "S01E16","S01E17", "S01E18","S01E19", "S01E20", "S01E21",
+              "S02E01", "S02E02","S02E03", "S02E04","S02E05", "S02E06","S02E07", "S02E08","S02E09", "S02E10",
+              "S02E11", "S02E12","S02E13", "S02E14","S02E15", "S02E16","S02E17", "S02E18","S02E19", "S02E20",
+              "S02E22", "S02E25", "S02E26", "S02E27"
+            ] %}
+            {{ pick|random }}
+
+  - alias: 'Random YouTube Videos CCostan'
+    hide_entity: True
+    trigger:
+      - platform: time_pattern
+        hours: '/22'
+        minutes: 45
+    condition:
+      - condition: template
+        value_template: >
+          {%- if states.automation.random_youtube_videos_ccostan.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_youtube_videos_ccostan.attributes.last_triggered)) > 10000 }}
+          {%- else -%}
+            true
+          {%- endif -%}
+    action:
+      - service: script.tweet_youtube_engine_setup
+        data_template:
+          who: 'ccostan'
+          pick: >-
+            {% set pick = [
+              "ThrowBack", "S01E01", "S01E02","S01E03", "S01E04","S01E05", "S01E06","S01E07", "S01E08","S01E09", "S01E10",
               "S01E11", "S01E12","S01E13", "S01E14","S01E15", "S01E16","S01E17", "S01E18","S01E19", "S01E20", "S01E21",
               "S02E01", "S02E02","S02E03", "S02E04","S02E05", "S02E06","S02E07", "S02E08","S02E09", "S02E10",
               "S02E11", "S02E12","S02E13", "S02E14","S02E15", "S02E16","S02E17", "S02E18","S02E19", "S02E20",

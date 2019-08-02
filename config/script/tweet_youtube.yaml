@@ -9,9 +9,28 @@ tweet_youtube_engine_setup:
    sequence:
     - service: script.tweet_engine_image
       data_template:
+        who: '{{ who }}'
         tweet: >-
           {%- macro tweet(topic) -%}
             {% set tweets = {
+              "ThrowBack": [
+                "One of the most popular #SmartHome Projects I have done: (https://www.vcloudinfo.com/2017/07/visualizing-smart-home-using-home.html)",
+                "This project was one of the most popular: (https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)",
+                "Some of the Best Home Assistant resources around! (https://www.vcloudinfo.com/2018/04/some-of-my-favorite-home-assistant.html)",
+                "My Journey to Docker #ThrowBack - (https://www.vcloudinfo.com/2018/02/journey-to-docker.html)",
+                "My Popular DIY Motion Sensor #ThrowBack - (https://www.vcloudinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)",
+                "Build your own DIY Outdoor Smart Home LED strips - (https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
+                "Breakdown of the entire smart home - (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
+                "Build your own Home Alarm System - (https://www.vcloudinfo.com/2017/06/building-my-home-alarm-system-hardware.html)",
+                "Adding a Mixer and AMP to this Text to Speech solution changed the Smart Home COMPLETELY! (https://www.vcloudinfo.com/2017/07/giving-voice-to-smart-home.html)",
+                "Some of my favorite #Docker Containers that I am using - (https://www.vcloudinfo.com/2018/06/rolling-out-some-new-docker-containers.html)",
+                "Be Sure to follow all of my Twitter Accounts! @CCostan and my HOUSE bot @BearStoneHA!",
+                "If you are not subscribed to my Smart Home YouTube channel, come join us now! (https://youtube.com/vCloudInfo)",
+                "My Full Smart Home diagram and #IOT icon set that you can download to build your own! - (https://www.vcloudinfo.com/2018/07/the-bear-stone-home-assistant-icon.html),"
+                "Be sure to like me on Facebook and join our HA group! (https://www.facebook.com/groups/HomeAssistant/) (https://www.facebook.com/VMwareInfo/) (https://www.facebook.com/BearStoneHA/)",
+                "You can see how ALL of this is done by browsing my GitHub Repository (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
+                "10 year safety check.  If you have not done it yet, you need to! (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)"
+              ],
               "S01E01": [
                 "Tesla Solar Panels vs #Hurricane IRMA! (https://www.vcloudinfo.com/2018/09/re-installing-tesla-solar-panels-again.html)"
               ],
@@ -139,7 +158,7 @@ tweet_youtube_engine_setup:
                 "How to use Template conditions in Home Assistant (https://www.vcloudinfo.com/2019/06/how-to-use-template-conditions-in-home-assistant.html)"
               ],
               "S02E25": [
-                "How to upgrade Docker Cockpit on Ubuntu 18.04 (https://www.vcloudinfo.com/2019/07/how-to-upgrade-docker-cockpit-on-ubuntu-18-04.html)"
+                "How to upgrade #Docker #Cockpit on #Ubuntu 18.04 (https://www.vcloudinfo.com/2019/07/how-to-upgrade-docker-cockpit-on-ubuntu-18-04.html)"
               ],
               "S02E26": [
                 "Upgrading Home Assistant and Fixing icon_template warning errors (https://www.vcloudinfo.com/2019/07/upgrading-home-assistant-and-fixing-icon_template-warning-errors.html)"
@@ -149,7 +168,7 @@ tweet_youtube_engine_setup:
               ]
             } %}
 
-            {{ tweets[topic]|random }}
+            {{ tweets[topic]|random ~ "#throwback" }}
           {%- endmacro -%}
 
           {{ tweet(pick) }}
@@ -184,9 +203,9 @@ tweet_youtube_engine_setup:
               "S02E16": [
                 "/config/www/custom_ui/floorplan/images/branding/episodes/S02E16.png"
               ],
-                "S02E15": [
-                  "/config/www/custom_ui/floorplan/images/branding/episodes/S02E15.png"
-                ],
+              "S02E15": [
+                "/config/www/custom_ui/floorplan/images/branding/episodes/S02E15.png"
+              ],
               "S02E14": [
                 "/config/www/custom_ui/floorplan/images/branding/episodes/S02E14.png"
               ],
@@ -291,6 +310,9 @@ tweet_youtube_engine_setup:
               ],
               "S01E05": [
                 "/config/www/custom_ui/floorplan/images/branding/episodes/S01E05.png"
+              ],
+              "ThrowBack": [
+                "/config/www/custom_ui/floorplan/images/branding/throwback.png"
               ]
             } %}
 

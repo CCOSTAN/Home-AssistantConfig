@@ -314,7 +314,12 @@ tweet_engine_image:
           {{ tweet }}
         retain: true
 
-    - service: notify.bearstoneha
+    - service_template: >
+          {% if who == 'ccostan' %}
+            notify.ccostan
+          {% else %}
+            notify.bearstoneha
+          {% endif %}
       data_template:
         message: >-
           {{ tweet }} #IOT #SmartHome
