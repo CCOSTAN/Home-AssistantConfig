@@ -17,8 +17,8 @@ tweet_youtube_engine_setup:
                 "One of the most popular #SmartHome Projects I have done: (https://www.vcloudinfo.com/2017/07/visualizing-smart-home-using-home.html)",
                 "This project was one of the most popular: (https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html)",
                 "Some of the Best Home Assistant resources around! (https://www.vcloudinfo.com/2018/04/some-of-my-favorite-home-assistant.html)",
-                "My Journey to Docker #ThrowBack - (https://www.vcloudinfo.com/2018/02/journey-to-docker.html)",
-                "My Popular DIY Motion Sensor #ThrowBack - (https://www.vcloudinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)",
+                "My Journey to Docker (https://www.vcloudinfo.com/2018/02/journey-to-docker.html)",
+                "My Popular DIY Motion Sensor  - (https://www.vcloudinfo.com/2017/11/yet-another-inexpensive-motion-sensor.html)",
                 "Build your own DIY Outdoor Smart Home LED strips - (https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
                 "Breakdown of the entire smart home - (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
                 "Build your own Home Alarm System - (https://www.vcloudinfo.com/2017/06/building-my-home-alarm-system-hardware.html)",
@@ -168,7 +168,7 @@ tweet_youtube_engine_setup:
               ]
             } %}
 
-            {{ tweets[topic]|random ~ "#throwback" }}
+            {{ tweets[topic]|random ~ "#youtube #throwback" }}
           {%- endmacro -%}
 
           {{ tweet(pick) }}
