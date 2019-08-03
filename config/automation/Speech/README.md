@@ -31,8 +31,8 @@ You can definately read more about my voice implimentations in my blog posts (li
       Smart Home Stats
     </a>
     <span> | </span>
-    <a href="https://www.facebook.com/BearStoneHA">
-      Facebook
+    <a href="https://www.vcloudinfo.com/click-here">
+      Follow Me
     </a>
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">

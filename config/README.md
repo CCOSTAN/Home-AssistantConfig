@@ -31,8 +31,8 @@ This is the main directory of the Repo.  You will find more helpful ReadMe files
     Smart Home Stats
   </a>
   <span> | </span>
-  <a href="https://www.facebook.com/BearStoneHA">
-    Facebook
+  <a href="https://www.vcloudinfo.com/click-here">
+    Follow Me
   </a>
   <span> | </span>
   <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
