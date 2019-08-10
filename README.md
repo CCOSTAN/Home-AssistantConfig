@@ -175,12 +175,13 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
   <summary>How To Port Forward Home Assistant on Arris TG1682</summary><p align="center">
   <a href=https://www.vcloudinfo.com/2018/11/port-forwarding-on-arris-tg1682-modem.html>
   Write Up and YouTube Video</a><br>
-<p></details>
+</details>
 <details>
   <summary>Adding Powerwall Sensors to Home Assistant</summary><p align="center">
-  <a href=https://www.youtube.com/watch?v=KHaLddx5wPg>
-  YouTube Video - Consider Subscribing!</a><br>
-<p></details>
+
+[![Adding Powerwall Sensors to Home Assistant](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FKHaLddx5wPg)](https://youtu.be/KHaLddx5wPg "Adding Powerwall Sensors to Home Assistant")
+
+</details>
 </td></tr>
 
 <tr><td colspan="4">
@@ -422,9 +423,10 @@ Speech Macros are called by automation scripts - /script/speech_engine.yaml</a><
 Cuckoo Clock - /config/automation/System/CucKoo_Clock.yaml</a><br>
 </details>
 <details>
-<summary>YouTube Videos related to Voice.</summary><p align="center">
-<a href=https://www.vcloudinfo.com/2018/12/breaking-down-my-home-assistant-volume.html>
-UnPacking how I use yaml scripting for Volume Control</a><br>
+<summary>Click here for YouTube Videos related to Voice.</summary><p align="center">
+
+[![Breaking down my Home Assistant Volume Control](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2Ff65fanwU3Ig)](https://youtu.be/f65fanwU3Ig "Breaking down my Home Assistant Volume Control")
+
 </details><br>
 
 Once you can teach your house to talk, you just keep expanding on it's vocabulary. It's addicting. :)
@@ -516,19 +518,19 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 </details>
 <details>
 <summary>Two part series on replacing a fluorescent light with a Hue Smart Light - Step by Step</summary>
-<p align="center">
-<a href=https://www.youtube.com/watch?v=Q0KUu20w71s>
- Part 1 - Adding to the Hue Bridges</a><br>
- <a href=https://youtu.be/lyjRHYKkG98>
-  Part 2 - Adding to Automations</a><br>
+
+[![Part 1 - Adding to the Hue Bridges](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FQ0KUu20w71s)](https://youtu.be/Q0KUu20w71s "Part 1 - Adding to the Hue Bridges")
+
+[![Part 2 - Adding to Automations](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FlyjRHYKkG98)](https://youtu.be/lyjRHYKkG98 "Part 2 - Adding to Automations")
+
 </details>
 <details>
-<summary>YouTube Demos of the Holiday lights</summary>
-<p align="center">
-<a href=https://youtu.be/nsWq4uVrQ0g>
- Valentine's Day Video</a><br>
- <a href=https://youtu.be/ylPzQ0s7zxc>
-  Halloween Light Video</a><br>
+<summary>Click here for YouTube Demos of the Holiday lights</summary>
+
+[![Valentine's Day Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FnsWq4uVrQ0g)](https://youtu.be/nsWq4uVrQ0g "Valentine's Day Video")
+
+[![Halloween Light Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FylPzQ0s7zxc)](https://youtu.be/ylPzQ0s7zxc "Halloween Light Video")
+
 </details>
 </td></tr>
 
@@ -761,10 +763,12 @@ Garadget automations - /master/config/automation/garadget.yaml</a><br>
 Motion automations - /config/script/front_house_motion.yaml</a><br>
 </details>
 <details>
-<summary>YouTube Demos of the Holiday lights</summary>
+<summary>Click Here for YouTube Demos of the Holiday lights</summary>
+
 [![Valentine's Day Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FnsWq4uVrQ0g)](https://youtu.be/nsWq4uVrQ0g "Valentine's Day Video")
-<br>
+
 [![Halloween Light Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FylPzQ0s7zxc)](https://youtu.be/ylPzQ0s7zxc "Halloween Light Video")
+
 </details>
 </td></tr>
 
@@ -850,9 +854,10 @@ Juicebox package - /config/packages/juicenet.yaml</a><br>
 TV Automations are super cool.  Turn on a movie and the lights begin to dim automatically.  It's super cool.  Out TVs are back lit with [Hue Lightstrips](http://amzn.to/2FGbPpL) so we can do some pretty neat effects with automations.  We are #CordCutters as well so all out TV is streamed to the Rokus.  FireTV for party games and the Snyology, I'll talk about later in the Survellance section.
 
 <details>
-<summary>YouTube Video</summary><p align="center">
-<a href=https://www.vcloudinfo.com/2019/03/using-foscam-cameras-with-home-assistant-and-synology.html>
-Cameras, Synology and Home Assistant</a><br>
+<summary>Click here for YouTube Video</summary><p align="center">
+
+[![Cameras, Synology and Home Assistant](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FGmpP52yG0S8)](https://youtu.be/GmpP52yG0S8 "Cameras, Synology and Home Assistant")
+
 </details>
 <details>
 <summary>If any Doors or Windows are open, the TV backlights turn Red.</summary><p align="center">
@@ -913,11 +918,12 @@ Blog Write Up - Pi Devices and Pi Hole</a><br>
 Light watchdog Automations - /config/automation/System/watchdog_light.yaml</a><br>
 </details>
 <details>
-<summary>YouTube Videos!</summary><p align="center">
-<a href=https://www.youtube.com/watch?v=O72BKIGLpnQ>
-Watch the unboxing and set up of the Epson XP-7100 Printer</a><br>
-<a href=https://www.youtube.com/watch?v=woA88DFlH5c>
-Checking out Pi and Pi Hole</a><br>
+<summary>Click here for YouTube Videos!</summary><p align="center">
+
+[![Epson XP-7100 Small-in-One wireless Printer review and Unboxing](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2Fy2xgCQRwTJg)](https://youtu.be/y2xgCQRwTJg "Epson XP-7100 Small-in-One wireless Printer review and Unboxing")
+
+[![Home Assistant Raspberry Pi Day!](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FwoA88DFlH5c)](https://youtu.be/woA88DFlH5c "Home Assistant Raspberry Pi Day!")
+
 </details>
 <details>
 <summary>Sound door chimes whenever doors open or close.</summary><p align="center">
