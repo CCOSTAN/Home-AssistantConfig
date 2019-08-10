@@ -691,6 +691,9 @@ The great outdoors can be automated too!  Mainly lights but also the sprinkler s
 <summary>Expand for YouTube Videos!</summary><p align="center">
 <a href=https://www.vcloudinfo.com/2018/09/unboxing-philips-hue-calla-landscape.html>
 Link to Hue Calla lights unboxing and Setup video</a><br>
+
+[![Adding Smart Landscaping lights to the Yard with Home Assistant](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FZ673mYcKt70)](https://youtu.be/Z673mYcKt70 "Adding Smart Landscaping lights to the Yard with Home Assistant")
+
 <a href=https://www.vcloudinfo.com/2019/08/how-to-add-smart-landscaping-lights-to-your-yard-with-home-assistant.html>
 Link to Teckin SS31 Outdoor Outlet unboxing and Setup video</a><br>
 
