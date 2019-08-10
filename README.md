@@ -685,17 +685,14 @@ Dog Bark script - /config/automation/guard_dog.yaml</a><br>
 <td align="center"><a href="http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-RfNOR7YThbY/WZnY6Gjw4zI/AAAAAAADYrw/IxBE2KmxW9YuLMtj9qgxAWyb5vHdgSrBACHMYCw/IMG_2660_thumb%255B9%255D" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-The great outdoors can be automated too!  Mainly lights but also the sprinkler system and water supply.  The Phyn leak detector was announced in CES.  It looks for abnormal flows and if senses them, alerts me and shuts water main.  The GE Outlets are hooked up to my 12v transformers allowing me to turn the landscaping lights on and off.  The LED strips are DIY and the recipe is in the next section.
+The great outdoors can be automated too!  Mainly lights but also the sprinkler system and water supply.  The Phyn leak detector was announced in CES.  It looks for abnormal flows and if senses them, alerts me and shuts water main.  The Teckin SS31 outlets are hooked up to my 12v transformers allowing me to turn the landscaping lights on and off.  The LED strips are DIY and the recipe is in the next section.
 
 <details>
-<summary>Expand for YouTube Videos!</summary><p align="center">
-<a href=https://www.vcloudinfo.com/2018/09/unboxing-philips-hue-calla-landscape.html>
-Link to Hue Calla lights unboxing and Setup video</a><br>
+<summary>Click Here for YouTube Videos!</summary><p align="center">
+
+[![Unboxing and setup of the Philips Hue Calla Landscape Lights](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FFcBVu_yk2iY)](https://youtu.be/FcBVu_yk2iY "Unboxing and setup of the Philips Hue Calla Landscape Lights")
 
 [![Adding Smart Landscaping lights to the Yard with Home Assistant](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FZ673mYcKt70)](https://youtu.be/Z673mYcKt70 "Adding Smart Landscaping lights to the Yard with Home Assistant")
-
-<a href=https://www.vcloudinfo.com/2019/08/how-to-add-smart-landscaping-lights-to-your-yard-with-home-assistant.html>
-Link to Teckin SS31 Outdoor Outlet unboxing and Setup video</a><br>
 
 </details>
 <details>
@@ -765,11 +762,9 @@ Motion automations - /config/script/front_house_motion.yaml</a><br>
 </details>
 <details>
 <summary>YouTube Demos of the Holiday lights</summary>
-<p align="center">
-<a href=https://youtu.be/nsWq4uVrQ0g>
- Valentine's Day Video</a><br>
- <a href=https://youtu.be/ylPzQ0s7zxc>
-  Halloween Light Video</a><br>
+[![Valentine's Day Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FnsWq4uVrQ0g)](https://youtu.be/nsWq4uVrQ0g "Valentine's Day Video")
+<br>
+[![Halloween Light Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FylPzQ0s7zxc)](https://youtu.be/ylPzQ0s7zxc "Halloween Light Video")
 </details>
 </td></tr>
 
