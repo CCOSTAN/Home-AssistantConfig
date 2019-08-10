@@ -688,9 +688,12 @@ Dog Bark script - /config/automation/guard_dog.yaml</a><br>
 The great outdoors can be automated too!  Mainly lights but also the sprinkler system and water supply.  The Phyn leak detector was announced in CES.  It looks for abnormal flows and if senses them, alerts me and shuts water main.  The GE Outlets are hooked up to my 12v transformers allowing me to turn the landscaping lights on and off.  The LED strips are DIY and the recipe is in the next section.
 
 <details>
-<summary>(YouTube) Write up and Video to the Philips Hue Calla Outdoor Landscaping Lights.</summary><p align="center">
+<summary>Expand for YouTube Videos!</summary><p align="center">
 <a href=https://www.vcloudinfo.com/2018/09/unboxing-philips-hue-calla-landscape.html>
 Link to Hue Calla lights unboxing and Setup video</a><br>
+<a href=https://www.vcloudinfo.com/2019/08/how-to-add-smart-landscaping-lights-to-your-yard-with-home-assistant.html>
+Link to Teckin SS31 Outdoor Outlet unboxing and Setup video</a><br>
+
 </details>
 <details>
 <summary>(IFTTT) Add a 1 day rain delay to Rachio Sprinkler system if it is going to rain tomorrow also logged to MQTT.</summary><p align="center">
