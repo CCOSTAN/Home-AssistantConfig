@@ -18,13 +18,13 @@ group:
     name: Skybell HD Front Door
     control: hidden
     entities:
-      - binary_sensor.skybell_stone_door_button
-      - binary_sensor.skybell_stone_door_motion
-      - camera.stone_door
-      - sensor.skybell_stone_door_chime_level
-      - sensor.skybell_stone_door_motion_sensor
-      - switch.skybell_stone_door_do_not_disturb
-      - switch.skybell_stone_door_motion_sensor
+      - binary_sensor.skybell_front_door_button
+      - binary_sensor.skybell_front_door_motion
+      - camera.front_door
+      - sensor.skybell_front_door_chime_level
+      - sensor.skybell_front_door_motion_sensor
+      - switch.skybell_front_door_do_not_disturb
+      - switch.skybell_front_door_motion_sensor
 
 skybell:
   username: !secret skybell_username
@@ -67,7 +67,7 @@ automation:
     trigger:
        - platform: state
          entity_id:
-           - binary_sensor.skybell_stone_door_button
+           - binary_sensor.skybell_front_door_button
          to: 'on'
        - platform: event
          event_type: skybell_pressed
@@ -75,8 +75,8 @@ automation:
     condition:
       - condition: template
         value_template: >
-          {%- if states.binary_sensor.skybell_stone_door_button.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.skybell_stone_door_button.attributes.last_triggered)) > 200 }}
+          {%- if states.binary_sensor.skybell_front_door_button.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.skybell_front_door_button.attributes.last_triggered)) > 200 }}
           {%- else -%}
             true
           {%- endif -%}
@@ -102,7 +102,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - light.stone_door
+          - light.front_door
           - switch.carloneato_schedule
         to: 'off'
 

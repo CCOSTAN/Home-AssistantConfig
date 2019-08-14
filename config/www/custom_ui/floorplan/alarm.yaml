@@ -160,7 +160,7 @@ rules:
       - light.led_garage_large
       - light.led_garage_small
       - light.led_outdoor_den
-      - light.stone_door
+      - light.front_door
     states:
       - state: 'on'
         class: 'light-on'
@@ -283,7 +283,7 @@ rules:
 
   - name: Camera Images
     entities:
-      - camera.stone_door
+      - camera.front_door
       - camera.camera1
       - camera.camera2
       - camera.camera3
