@@ -50,8 +50,10 @@ cloud:
         - group.office_lights
         - group.hallway_lights
         - group.kitchen_lights
+        - group.kitchen_accents
         - group.upstairs_lights
         - group.outdoor_pool_lights
+        - group.master_bathroom_accents
         - group.garage_lights
         - group.paiges_room
         - group.justins_room
@@ -63,6 +65,7 @@ cloud:
         - switch
         - cover
         - input_boolean
+        - group
       # exclude_entities:
       # exclude_domains:
       #   - light
@@ -74,6 +77,11 @@ cloud:
         display_categories: LIGHT
       group.upstairs_lights:
         display_categories: LIGHT
+      group.kitchen_accents:
+        display_categories: LIGHT
+      group.master_bathroom_accents:
+        display_categories: LIGHT
+
 http:
   base_url: !secret http_base_url
   server_port: !secret http_port

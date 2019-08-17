@@ -49,7 +49,7 @@
        {{ states.sun.sun.state == 'above_horizon' }}
     - service: homeassistant.turn_off
       entity_id:
-        - switch.master_bathroom_accents
+        - group.master_bathroom_accents
         - group.exterior_lights
         - group.outdoor_front_lights
 

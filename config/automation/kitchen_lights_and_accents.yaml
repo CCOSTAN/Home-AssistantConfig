@@ -13,12 +13,12 @@
 
   condition:
     - condition: state
-      entity_id: switch.kitchen_accents
+      entity_id: group.kitchen_Accents
       state: 'on'
 
   action:
     - service: switch.turn_off
-      entity_id: switch.kitchen_accents
+      entity_id: group.kitchen_Accents
 
 ##############################################################################
 
@@ -66,4 +66,4 @@
 
   action:
     - service: switch.turn_on
-      entity_id: switch.kitchen_accents
+      entity_id: group.kitchen_Accents
