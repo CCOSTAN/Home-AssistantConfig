@@ -37,8 +37,6 @@ cloud:
   alexa:
     filter:
       include_entities:
-        - group.all_lights
-        - group.all_switches
         - group.interior_lights
         - group.bedroom_lights
         - group.living_room_lights
@@ -65,7 +63,7 @@ cloud:
         - switch
         - cover
         - input_boolean
-        - group
+#        - group
       # exclude_entities:
       # exclude_domains:
       #   - light
@@ -77,10 +75,10 @@ cloud:
         display_categories: LIGHT
       group.upstairs_lights:
         display_categories: LIGHT
-      group.kitchen_accents:
-        display_categories: LIGHT
-      group.master_bathroom_accents:
-        display_categories: LIGHT
+      # group.kitchen_accents:
+      #   display_categories: SWITCH
+      # group.master_bathroom_accents:
+      #   display_categories: SWITCH
 
 http:
   base_url: !secret http_base_url
