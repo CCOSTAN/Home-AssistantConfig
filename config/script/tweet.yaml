@@ -85,7 +85,7 @@ tweet_engine_setup:
               "speedtest": [
                 "Average internet stats are Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
                 "So if you get @att Fiber 1000, you can expect these types of results - Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
-                "My @att Fiber 1000 internet download speed is about {{ states('sensor.speedtest_download') }} Mbit/s and I am a #cordcutter. @TabloTV"
+                "My @att Fiber 1000 internet download speed is about {{ states('sensor.speedtest_download') }} Mbit/s and I am a #cordcutter. @TabloTV",
                 "This beautiful chart was produced with Grafana. | (https://www.vcloudinfo.com/Click-Here)"
               ],
 
@@ -113,7 +113,7 @@ tweet_engine_setup:
               "tv": [
                 "The {{ states.media_player.living_room_ultra.attributes.friendly_name }} #Roku is playing #{{ states.media_player.living_room_ultra.attributes.app_name }}.",
                 "The {{ states.media_player.upstairs_living_room.attributes.friendly_name }} #Roku is playing #{{ states.media_player.upstairs_living_room.attributes.app_name }}. (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
-                "Yesterday we watched about {{ states.sensor.tv_time.attributes.value|replace('m', '') }} minutes of television. @YouTube & @TabloTV on the @Roku"
+                "Yesterday we watched about {{ states.sensor.tv_time.attributes.value|replace('m', '') }} minutes of television. @YouTube & @TabloTV on the @Roku",
                 "Follow these steps to watch your cameras on your Rokus! (https://www.vcloudinfo.com/2019/03/how-to-setup-ip-cameras-on-your-roku-tv.html)"
               ],
 
