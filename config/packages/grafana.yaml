@@ -12,7 +12,12 @@ homeassistant:
 sensor:
     - platform: command_line
       name: "Download Grafana Solar"
-      command: 'curl -s -H "Authorization: Bearer eyJrIjoiZ0UwS1hpRVdCbFVVSTNSdER0Z29maHc4QmVuSXhxalYiLCJuIjoiSEFDYW1lcmEiLCJpZCI6MX0=" "http://192.168.10.10:3000/render/d/h_wosLIik/solar?orgId=1&panelId=1&width=1200&height=700&from=now-1d/d&to=now-1d/d" > /config/www/custom_ui/floorplan/images/branding/solar_readings.png'
+      command: 'curl -s -H "Authorization: Bearer eyJrIjoiZ0UwS1hpRVdCbFVVSTNSdER0Z29maHc4QmVuSXhxalYiLCJuIjoiSEFDYW1lcmEiLCJpZCI6MX0=" "http://192.168.10.10:3000/render/d-solo/h_wosLIik/solar?orgId=1&panelId=2&width=1000&height=500&from=yesterday" > /config/www/custom_ui/floorplan/images/branding/solar_readings.png'
+      scan_interval: 3000
+
+    - platform: command_line
+      name: "Download Grafana ATT SpeedTest"
+      command: 'curl -s -H "Authorization: Bearer eyJrIjoiZ0UwS1hpRVdCbFVVSTNSdER0Z29maHc4QmVuSXhxalYiLCJuIjoiSEFDYW1lcmEiLCJpZCI6MX0=" "http://192.168.10.10:3000/render/d-solo/bdR1ZnFZk/att-speedtest?orgId=1&panelId=2&width=1000&height=500&from=now-14d&to=now" > /config/www/custom_ui/floorplan/images/branding/att_speedtest.png'
       scan_interval: 3000
 
 camera:

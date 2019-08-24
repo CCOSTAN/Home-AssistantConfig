@@ -278,16 +278,17 @@ automation:
         data_template:
           pick: >-
             {% set pick = [
-              "solar", "solar",
-              "robot", "robot",
-              "door", "door",
-              "weather", "weather",
+              "solar",
+              "robot",
+              "door",
+              "weather",
               "cloud",
-              "internet", "internet",
-              "stocks", "stocks",
+              "speedtest",
+              "internet",
+              "stocks",
               "night",
-              "tv", "tv",
-              "promo", "promo",
+              "tv",
+              "promo",
               "joke"
             ] %}
             {{ pick|random }}

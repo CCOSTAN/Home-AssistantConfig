@@ -82,12 +82,16 @@ tweet_engine_setup:
                 "Average Cloud Coverage: {{ states('sensor.dark_sky_cloud_coverage') }}%, Average Temp: {{ states('sensor.dark_sky_temperature') }}Â°F #Solar (http://www.vmwareinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)"
               ],
 
+              "speedtest": [
+                "Average internet stats are Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
+                "So if you get @att Fiber 1000, you can expect these types of results - Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
+                "My @att Fiber 1000 internet download speed is about {{ states('sensor.speedtest_download') }} Mbit/s and I am a #cordcutter. @TabloTV"
+                "This beautiful chart was produced with Grafana. | (https://www.vcloudinfo.com/Click-Here)"
+              ],
+
               "internet": [
                 "So far, I have prevented {{ states('sensor.pi_hole_ads_blocked_today') }} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
                 "Pi-hole (http://www.pi-hole.net) has serviced {{ states('sensor.pi_hole_dns_queries_today') }} DNS requests today! #PiZero",
-                "Average internet stats are Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
-                "So if you get @att Fiber 1000, you can expect these types of results - Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
-                "My @att Fiber 1000 internet download speed is about {{ states('sensor.speedtest_download') }} Mbit/s and I am a #cordcutter. @TabloTV",
                 "If you are not subscribed to my Smart Home YouTube channel, come join us now! (https://youtube.com/vCloudInfo)",
                 "If you love #homeassistant and are on @FaceBook, be sure to Join our Fan Group Page (https://www.facebook.com/groups/HomeAssistant/)",
                 "Be sure to follow all of our various social media accounts so you do not miss a thing! @ccostan | (https://www.vcloudinfo.com/Click-Here)"
@@ -205,11 +209,8 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/car.png",
                 "/config/www/custom_ui/floorplan/images/branding/bearstone_car.png",
                 "/config/www/custom_ui/floorplan/images/branding/charge.png",
-                "/config/www/custom_ui/floorplan/images/branding/solar.png",
-                "/config/www/custom_ui/floorplan/images/branding/solar2.png",
-                "/config/www/custom_ui/floorplan/images/branding/Bolt_Solar2.png",
-                "/config/www/custom_ui/floorplan/images/branding/Bolt_Solar.png",
-                "/config/www/custom_ui/floorplan/images/branding/solar_top.png"
+                "/config/www/custom_ui/floorplan/images/branding/solar_top.png",
+                "/config/www/custom_ui/floorplan/images/branding/solar_readings.png"
               ],
               "promo": [
                 "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png",
@@ -252,6 +253,10 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/solar2.png",
                 "/config/www/custom_ui/floorplan/images/branding/Bolt_Solar2.png",
                 "/config/www/custom_ui/floorplan/images/branding/Bolt_Solar.png"
+              ],
+
+              "speedtest": [
+                "/config/www/custom_ui/floorplan/images/branding/att_speedtest.png"
               ],
 
               "internet": [
