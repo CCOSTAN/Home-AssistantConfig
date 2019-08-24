@@ -18,7 +18,7 @@ sensor:
 camera:
   - platform: generic
     name: "Grafana Solar Graph"
-    still_image_url: 'http://192.168.10.10:3000/render/d/h_wosLIik/solar?orgId=1&panelId=1&width=1000&height=700&from=now-24h&to=now'
+    still_image_url: 'http://192.168.10.10:3000/render/d-solo/h_wosLIik/solar?orgId=1&panelId=2&width=1000&height=500&from=yesterday'
     username: HA
     password: HA
 
@@ -41,7 +41,7 @@ automation:
         data_template:
           tweet: >-
             {{ [
-            "I have just finished crunching the numbers and here is the latest #Solar Production report. "
+            "I have just finished crunching the numbers and here is the latest #Solar Production graph. "
             ] | random + " #Charts #Tesla "
             + [
              "(https://youtu.be/BartadUzGOA)",
