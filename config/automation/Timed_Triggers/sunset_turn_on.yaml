@@ -6,12 +6,11 @@
 
 - alias: 'Sunset Stuff on'
   trigger:
-    - platform: state
-      entity_id: sun.sun
-      to: 'below_horizon'
-      from: 'above_horizon'
-
+    - platform: sun
+      event: sunset
+      offset: "-00:20:00"
   action:
+    - delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.tweet_engine_image
       data_template:
         tweet: >-
@@ -40,7 +39,6 @@
           "/config/www/custom_ui/floorplan/images/branding/landscape_light.png",
           "/config/www/custom_ui/floorplan/images/branding/sunset.png"
           ] | random }}
-    - delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.speech_engine
       data:
         call_dark_outside: 1
