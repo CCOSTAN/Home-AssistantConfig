@@ -951,7 +951,7 @@ Feel free to join the conversations there.
 
 **All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
 
-**Still have questions on my Config?**
+**Still have questions on my Config?** <br>
 **Message me on twitter :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.twitter.com/ccostan) or [![Follow Bear Stone Home](https://img.shields.io/twitter/follow/BearStoneHA)](https://www.twitter.com/BearStoneHA)
 
 <p align="center">
