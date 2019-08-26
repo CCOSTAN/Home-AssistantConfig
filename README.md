@@ -952,7 +952,7 @@ Feel free to join the conversations there.
 **All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
 
 **Still have questions on my Config?**
-**Message me on twitter :** [@CCostan](https://twitter.com/ccostan) or [@BearStoneHA](https://twitter.com/BearStoneHA)
+**Message me on twitter :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.twitter.com/ccostan) or [![Follow Bear Stone Home](https://img.shields.io/twitter/follow/BearStoneHA)](https://www.twitter.com/BearStoneHA)
 
 <p align="center">
 <a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:5px">You can buy me a coffee</span></a><a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"></a>
