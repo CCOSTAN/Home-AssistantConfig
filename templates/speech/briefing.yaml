@@ -1,0 +1,240 @@
+  >-
+  {%- macro dark_outside() -%}
+  {{ [
+      'It is pretty dark outside. I will turn on the outside lights now.',
+      'It is a little past Sunset. Time to turn on the outside lights. I am on it.',
+      'I will switch on the outside lights. It is getting dark outside.',
+      'Time to turn on the front lights. I will take care of it.',
+      'Switching to night mode! '
+  ]|random }}
+  {%- endmacro -%}
+
+  {%- macro responsibilities() -%}
+  {% if now().strftime('%a') == 'Wed' or now().strftime('%a') == 'Sun' %}
+      Today is {{ now().strftime('%A') }} and {{ now().strftime('%A') }} is garbage day.
+  {% endif %}
+  {% if now().strftime('%a') == 'Wed' %}
+      Both Recycling and regular Garbage goes out. Please take out all of the garbage cans tonight.
+  {% endif %}
+  {% if now().strftime('%j')|int % 2 != 0 %}
+      Today is Justin's day to do the chores.
+  {% else %}
+      Today is Paige's day to do the chores.
+  {% endif %}
+  {%- endmacro -%}
+
+  {%- macro inside_weather() -%}
+  Inside the house, it is {{ states.climate.downstairs.attributes['current_temperature'] }} degrees with around {{ states('sensor.downstairs_thermostat_humidity') }} percent humidity.
+  {%- endmacro -%}
+
+  {%- macro outside_weather() -%}
+  Outside, it is going to be {{ states('sensor.dark_sky_minutely_summary') }}
+  {%- endmacro -%}
+
+  {%- macro light_check() -%}
+  {% if states.group.all_lights.state != 'off' -%}
+      There are
+  {% for state in states.light if state.state == 'on' -%}
+      {%- if loop.last -%}
+      {{ loop.index }}
+      {%- endif -%}
+  {%- endfor %}
+  lights on right now.
+  {% set comma = joiner(', ') %}
+  The
+  {% for group in states.group|groupby('state') -%}
+      {%- for entity in group.list if entity.state == 'on'
+      and entity.name.split(' ')[1]|lower == 'lights'
+      and entity.name.split(' ')[0]|lower != 'all'
+      and entity.name.split(' ')[0]|lower != 'interior'
+      -%}
+      {{ 'and' if loop.last and not loop.first else comma() }}
+      {{ entity.name|replace('Lights','')}}
+      {%- endfor -%}
+  {%- endfor -%}
+  lights are on.
+  {%- endif -%}
+  {%- endmacro -%}
+
+  {%- macro window_check() -%}
+  {% if states.group.entry_points.state != 'off' -%}
+      {% set comma = joiner(', ') %}
+      The
+      {% for state in states.binary_sensor if state.state == 'on' and state.attributes.device_class == 'opening' -%}
+      {%- endfor %}
+      {% for group in states.binary_sensor|groupby('state') -%}
+      {%- for entity in group.list  if entity.state == 'on' and entity.attributes.device_class == 'opening'  -%}
+          {{ ' and' if loop.last and not loop.first else comma() }}
+          {{ entity.attributes.friendly_name }}
+      {%- endfor -%}
+      {% endfor %}
+      need to be closed.
+  {%- endif -%}
+  {%- endmacro -%}
+
+  {%- macro garage_check() -%}
+  {% if states.group.garage_doors.state !='closed' -%}
+      The
+      {%- for state in states.cover -%}
+      {%- endfor %}
+      {% for group in states.cover|groupby('state') -%}
+      {%- for entity in group.list  if entity.state == 'open' and entity.attributes.device_class == 'garage'  -%}
+          {{ ' and' if loop.last and not loop.first }}
+          {{ entity.attributes.friendly_name }}
+      {%- endfor -%}
+      {%- endfor %}
+      need to be closed.
+  {%- endif -%}
+  {%- endmacro -%}
+
+  {%- macro medicine() -%}
+  {% if is_state('input_boolean.medicine', 'off') -%}
+      It looks like Carlo has not taken his medicine yet. Please make sure Carlo takes his medicine now.
+  {% endif -%}
+  {%- endmacro -%}
+
+  {%- macro iss() -%}
+  {% if is_state('binary_sensor.iss', 'on') -%}
+      Here is something interesting. The international space station is above us now. There are {{ states.binary_sensor.iss.attributes['number_of_people_in_space'] }} people in space right now.
+  {% endif -%}
+  {%- endmacro -%}
+
+  {%- macro moon() -%}
+  {%- if states.sensor.moon.state == 'Full moon' -%}
+      Check out the full moon tonight!
+  {%- endif -%}
+  {%- endmacro -%}
+
+  {%- macro uv() -%}
+  {% if states.sensor.dark_sky_uv_index.state|int >= 6 and states.sensor.dark_sky_uv_index.state|int <= 7.9 %}
+      Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  You should wear sunscreen if going outside.
+  {% elif states.sensor.dark_sky_uv_index.state|int >= 8 and states.sensor.dark_sky_uv_index.state|int <=10.9 %}
+      Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  This is VERY HIGH. Be sure wear sunscreen and re-apply.
+  {% elif states.sensor.dark_sky_uv_index.state|int >= 11 %}
+      Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  This is EXTREME. You should be very cautious going outside.
+  {% endif %}
+  {%- endmacro -%}
+
+  {%- macro holiday() -%}
+  {% if states.sensor.holiday.state != '' %}
+      Today is {{ states.sensor.holiday.state }}.
+  {% endif %}
+  {%- endmacro -%}
+
+  {% macro inspirational_quote() %}
+      {% set inspirational_quote = [
+      "and one more thing, Life is about making an impact, make it a positive one. ",
+      "and one more thing, Whatever the mind of man can conceive and believe, it can achieve. ",
+      "and one more thing, Strive not to be a success, but rather to be of value. ",
+      "and one more thing, I attribute my overall success to never giving or taking an excuse. ",
+      "and one more thing, You miss one hundred percent of the shots you don’t take. ",
+      "and one more thing, The most difficult thing is the decision to act, the rest is merely tenacity. ",
+      "and one more thing, Every strike brings me closer to the next home run. ",
+      "and one more thing, Defining thepurpose is the starting point of all achievement. ",
+      "and one more thing, Life is not about getting and having, it's about giving and being. ",
+      "and one more thing, We become what we think about. ",
+      "and one more thing, Life is ten percent what happens to you and ninety percent of how you react to it. ",
+      "and one more thing, The most common way people give up their power is by thinking they do not have any. ",
+      "and one more thing, The mind is everything. What you think, you will become.  ",
+      "and one more thing, The best time to plant a tree was twenty years ago. The second best time is now. ",
+      "and one more thing, An unexamined life is not worth living. ",
+      "and one more thing, Eighty percent of success is showing up. ",
+      "and one more thing, Your time is limited, so do not waste it living someone elses life. ",
+      "and one more thing, Winning is not everything, but wanting to win is. ",
+      "and one more thing, I am not a product of my circumstances. I am a product of my decisions. ",
+      "and one more thing, You can never cross the ocean until you have the courage to lose sight of the shore. ",
+      "and one more thing, Either you run the day, or the day runs you. ",
+      "and one more thing, Whether you think you can or you think you cannot, you will be right. ",
+      "and one more thing, The two most important days in your life are the day you are born and the day you find out why. ",
+      "and one more thing, Whatever you can do, or dream you can, begin it. Boldness has genius, power and magic in it. ",
+      "and one more thing, The best revenge is massive success. ",
+      "and one more thing, The universe can’t put good into your hands unless you let go of the bad.",
+      "and one more thing, People often say that motivation does not last. Well, neither does bathing. That is why we recommend it daily. ",
+      "and one more thing, Life shrinks or expands in proportion to ones courage. ",
+      "and one more thing, If you hear a voice within you say you cannot paint, then by all means paint and that voice will be silenced. ",
+      "and one more thing, There is only one way to avoid criticism: do nothing, say nothing, and be nothing. ",
+      "and one more thing, Ask and it will be given to you; search, and you will find; knock and the door will be opened for you. ",
+      "and one more thing, The only person you are destined to become is the person you decide to be. ",
+      "and one more thing, Go confidently in the direction of your dreams. Live the life you have imagined. ",
+      "and one more thing, Certain things catch your eye, but pursue only those that capture the heart. ",
+      "and one more thing, Believe you can and you are halfway there. ",
+      "and one more thing, Everything you have ever wanted is on the other side of fear. ",
+      "and one more thing, Start where you are. Use what you have. Do what you can. ",
+      "and one more thing, Fall seven times and stand up eight. ",
+      "and one more thing, Everything has beauty, but not everyone can see. ",
+      "and one more thing, Life is not measured by the number of breaths we take, but by the moments that take our breath away. ",
+      "and one more thing, Happiness is not something readymade. It comes from your own actions. ",
+      "and one more thing, If you are offered a seat on a rocket ship, do not ask what seat! Just get on. ",
+      "and one more thing, If the wind will not serve, take to the oars. ",
+      "and one more thing, You can not fall if you do not climb. But there’s no joy in living your whole life on the ground. ",
+      "and one more thing, Too many of us are not living our dreams because we are living our fears. ",
+      "and one more thing, Challenges are what make life interesting and overcoming them is what makes life meaningful. ",
+      "and one more thing, If you want to lift yourself up, lift up someone else. "
+      "and one more thing, Be nice to others and nice things will happen to you."
+      ] %}
+      {{inspirational_quote|random}}
+  {% endmacro %}
+
+  {# ********************************************* #}
+  {#  ******** Start the Speech routines ********  #}
+  {# ********************************************* #}
+
+  {% if call_no_announcement != 1 %}
+  {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
+      Good morning.
+  {% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int < 17 %}
+      Good afternoon.
+  {% else %}
+      Good evening.
+  {% endif %}
+  {% endif %}
+
+  {# Called from Annoucenments #}
+  {{ personarriving }}
+
+  {# Called from Nest when thermostats turn on #}
+  {{ NestStatus }}
+
+  {% if call_inside_weather == 1 %}
+  {{ inside_weather() }}
+  {% endif %}
+
+  {% if call_outside_weather == 1 and is_state('sun.sun', 'above_horizon') %}
+  {{ outside_weather() }}
+  {% endif %}
+
+  {{ DoorOpened }}
+  {{ DoorClosed }}
+
+  {% if call_dark_outside == 1 %}
+  {{ dark_outside() }}
+  {% endif %}
+
+  {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
+  {{ garage_check() }}
+  {% endif %}
+
+  {% if (call_window_check == 1 or is_state('sun.sun', 'below_horizon')) or is_state('group.entry_points', 'on') %}
+  {{ window_check() }}
+  {% endif %}
+
+  {{ NewDevice }}
+
+  {% if call_light_check == 1 %}
+  {{ light_check() }}
+  {% endif %}
+
+  {% if call_responsibilities == 1 %}
+  {{ responsibilities() }}
+  {% endif %}
+
+  {% if now().strftime('%H')|int > 21 %}
+  {{ medicine() }}
+  {% endif %}
+
+  {% if value1 is not none %}
+  {{ value1 }}
+  {% endif %}
+
+  {# call a Random fact about the house or inspiration quote #}
+  {{ ([iss, iss, moon, uv, moon, uv, moon, uv, holiday, holiday, outside_weather, outside_weather, inspirational_quote]|random)() }}
