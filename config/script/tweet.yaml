@@ -25,6 +25,7 @@ tweet_engine_setup:
               ],
               "solar": [
                 "I am keeping track of the current #Tesla stock price. It is ${{ states('sensor.tesla')|round }}. #Solar",
+                "Solar panels and #smarthome devices combine to save on your energy bill. (https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)",
                 "The #ChevyBolt was charged for about {{ states.sensor.bolt_charging_time.attributes.value|replace('m', '') }} minutes in the last 7 days.",
                 "The Official Diecast P85 Model S Red (https://amzn.to/2Hkkl0S) link - Out of stock like the originals. :)",
                 "Solar power from #Tesla is the life blood of this whole operation. (https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)"
