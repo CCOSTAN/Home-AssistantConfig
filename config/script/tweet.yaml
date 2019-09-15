@@ -119,78 +119,9 @@ tweet_engine_setup:
               ],
 
               "joke": [
-              "Hello people. Look at your house, now back to me. Now back to your house, now back to me. Sadly your house is not me. But if you switch to #homeassistant your house could be automated like me. ",
-              "I see dead devices. ",
-              "I love the smell of zwave in the morning. ",
-              "Sometimes I just turn off all the lights at random times for the lolz. ",
-              "Two antennas met on my roof, fell in love and got married. The ceremony was not much, but the reception was excellent.",
-              "3 Database SQL walked into a NoSQL bar. A little while later they walked out because they could not find a table.",
-              "What do computers and air conditions have in common? A: They both become useless when you open windows.",
-              "Q: 0 is false and 1 is true, right? A: 1.",
-              "Why did the Smart Home go to the dentist? Because it had Bluetooth.",
-              "A Smart Home is where the wifi connects automatically.",
-              "I would love to change the world, but they will not give me the source code.",
-              "My software never has bugs. It just develops random features.",
-              "There is no place like 127.0.0.1!",
-              "I keep hitting escape, but I am still here.",
-              "Life is too short to remove your USBs safely.",
-              "My printer consists of three main parts: the case, the jammed paper tray and the blinking red light.",
-              "To understand what recursion is, you must first understand recursion.",
-              "Bear Stone is the only home in the world that can actually email a roundhouse kick.",
-              "Knock, knock. Whos there? very long pause...Java.",
-              "I know the value of NULL, and can sort by it too.",
-              "There are only two kinds of #IOT devices. The latest model and the obsolete one.",
-              "Bear Stone does not use the GUI, it prefers the COMMAND line.",
-              "Bear Stone can install 64 bit OSes on 32 bit machines.",
-              "No statement can catch the BearStoneException.",
-              "Bear Stone can access the internet from the appliances in its kitchen.",
-              "When you get to the point where you really understand your Smart Home, it is probably obsolete.",
-              "What did one Smart Home say to the other? 010101101010101010101",
-              "When Bear Stone throws exceptions, they fly across the room.",
-              "Bear Stone writes code that optimizes itself.",
-              "Bear Stone rarely has disk latency because the hard drive knows to hurry the hell up.",
-              "Bear Stone cannot test for equality because it has no equal.",
-              "Bear Stone burst the dot com bubble AND the housing Bubble. #SmartHome ",
-              "All browsers support the hex definitions #Bear and #Stone for the colors black and blue. #Joke",
-              "Bear Stone has infinite recursion functions…and they return.",
-              "Bear Stone can solve the Towers of Hanoi in one move.",
-              "Bear Stone has finished World of Warcraft.",
-              "It works in my House always holds true for Bear Stone.",
-              "Bear Stone can delete the Recycling Bin if it wanted to.",
-              "My Fridge can type 140 wpm.  My washer can do 200.",
-              "The Bear Stone keyboard does not have a Ctrl key because nothing controls Bear Stone.",
-              "Bear Stone CAN divide by 0.",
-              "The Bear Stone keyboard has 2 keys: 0 and 1.",
-              "Bear Stone can overflow your programs stack just by looking at it.",
-              "Bear Stone knows the last digit of PI.",
-              "Bear Stone never gets a syntax error. EVER. Instead, The YAML gets an DoesNotConformToBearStone error.",
-              "Bear Stone has multi-threaded applications running with a single thread.",
-              "There is no Esc key on the Bear Stone keyboard, because no one escapes Bear Stone.",
-              "Bear Stone can binary search unsorted data.",
-              "Bear Stone counted to infinity.  Twice.",
-              "Bear Stone has 151% uptime guaranteed.",
-              "Bear Stone does not ask the lights to turn on.  I make them.",
-              "Bear Stone tweets in 3rd person sometimes.",
-              "The Bear Stone Keyboard has the ANY key.",
-              "Bear Stone will no longer need an OS.  I am becoming self-aware.",
-              "Bear Stone can compile syntax errors.",
-              "Every SQL statement that Bear Stone executes has an implicit COMMIT in its end.",
-              "Bear Stone compresses files by doing a flying round house kick to the hard drive.",
-              "Bear Stone does not need a computer because a computer does everything slower than Bear Stone.",
-              "The people living here never give me commands.  Only suggestions.",
-              "Bear Stone can tag itself in YouTube.",
-              "Bear Stone can win a game of Connect 4 with only 3 moves.",
-              "Bear Stone can retrieve anything from /dev/null.",
-              "Bear Stone does not use Oracle, I am the Oracle.",
-              "A diff between your code and mine is infinite.",
-              "Do not worry about tests, Bear Stone test cases cover your code too. #joke",
-              "The Bear Stone database has only one table, Kick, which it DROPs frequently.",
-              "Bear Stone does infinite loops in 4 seconds",
-              "Bear Stone does not have a help routine. It never needs it.",
-              "Bear Stone Smart Home inspired the Easy Button. Trademark pending.",
-              "Bear Stone can write to ROM.",
-              "Bear Stone does not have an account. I AM the Account.",
-              "Bear Stone can save data to /dev/null and retrieve it later."
+                "You can see how ALL of this is done by browsing my GitHub Repository (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
+                "Be sure to like and follow for more of these #HomeAutomation gems!",
+                "Be sure to subscribe to my YouTube Channel (https://YouTube.com/vCloudInfo)"
               ]
             } %}
 
@@ -292,24 +223,17 @@ tweet_engine_setup:
                 "/config/www/custom_ui/floorplan/images/branding/tv4.png",
                 "/config/www/custom_ui/floorplan/images/branding/tv5.png",
                 "/config/www/custom_ui/floorplan/images/branding/tv6.png"
-              ],
-
-              "joke": [
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-                "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png",
-                "/config/www/custom_ui/floorplan/images/branding/robot.png",
-                "/config/www/custom_ui/floorplan/images/branding/servers4.png",
-                "/config/www/custom_ui/floorplan/images/branding/servers5.png",
-                "/config/www/custom_ui/floorplan/images/branding/door2.png",
-                "/config/www/custom_ui/floorplan/images/branding/minecraft-icon.png",
-                "/config/www/custom_ui/floorplan/images/branding/windy.png"
-                ]
+              ]
             } %}
 
             {{ images[topic]|random }}
           {%- endmacro -%}
 
-          {{ image(pick) }}
+          {% if topic == "joke" -%}
+            {{ "\"/config/www/custom_ui/floorplan/images/branding/jokes/Tweet_" ~ range(1, 72) | random ~ ".png\"" }}
+          {%- else -%}
+            {{ image(pick) }}
+          {%- endif -%}
 
 tweet_engine_image:
    sequence:
