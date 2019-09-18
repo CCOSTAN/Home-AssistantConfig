@@ -229,11 +229,11 @@ tweet_engine_setup:
             {{ images[topic]|random }}
           {%- endmacro -%}
 
-          {% if topic == "joke" -%}
+           {% if pick == "joke" -%}
             {{ "\"/config/www/custom_ui/floorplan/images/branding/jokes/Tweet_" ~ range(1, 72) | random ~ ".png\"" }}
-          {%- else -%}
-            {{ image(pick) }}
-          {%- endif -%}
+           {%- else -%}
+             {{ image(pick) }}
+           {%- endif -%}
 
 tweet_engine_image:
    sequence:
