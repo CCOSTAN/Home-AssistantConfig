@@ -9,14 +9,12 @@
         - light.hallway
         - group.hallway_lights
         - group.foyer_lights
-        - switch.printer_outlet
       to: 'on'
       for: '00:20:00'
 
     - platform: state
       entity_id:
         - group.upstairs
-        - switch.garage_outlet
       to: 'on'
       for: '02:00:00'
 
