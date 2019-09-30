@@ -91,75 +91,38 @@ sensor:
       sensor_count:
         friendly_name: 'Number of Sensors'
         entity_id: []
-        value_template: >
-          {%- set domains = ['sensor'] -%}
-          {%- for domain in domains -%}
-            {%- for item in states[domain] -%}
-              {% if loop.first %}
-                {{loop.length}}
-              {% endif %}
-            {%- endfor -%}
-          {%- endfor -%}
+        value_template: >-
+          {{ states.sensor | list | count }}
+
       automation_count:
         friendly_name: 'Number of Automations'
         entity_id: []
-        value_template: >
-          {%- set domains = ['automation'] -%}
-          {%- for domain in domains -%}
-            {%- for item in states[domain] -%}
-              {% if loop.first %}
-                {{loop.length}}
-              {% endif %}
-            {%- endfor -%}
-          {%- endfor -%}
+        value_template: >-
+          {{ states.automation| list | count }}
+
       script_count:
         friendly_name: 'Number of Scripts'
         entity_id: []
         value_template: >
-          {%- set domains = ['script'] -%}
-          {%- for domain in domains -%}
-            {%- for item in states[domain] -%}
-              {% if loop.first %}
-                {{loop.length}}
-              {% endif %}
-            {%- endfor -%}
-          {%- endfor -%}
+          {{ states.script | list | count }}
+
       binary_sensor_count:
         friendly_name: 'Number of Binary Sensors'
         entity_id: []
-        value_template: >
-          {%- set domains = ['binary_sensor'] -%}
-          {%- for domain in domains -%}
-            {%- for item in states[domain] -%}
-              {% if loop.first %}
-                {{loop.length}}
-              {% endif %}
-            {%- endfor -%}
-          {%- endfor -%}
+        value_template: >-
+          {{ states.binary_sensor | list | count }}
+
       tracker_count:
         friendly_name: 'Number of Devices'
         entity_id: []
-        value_template: >
-          {%- set domains = ['device_tracker'] -%}
-          {%- for domain in domains -%}
-            {%- for item in states[domain] -%}
-              {% if loop.first %}
-                {{loop.length}}
-              {% endif %}
-            {%- endfor -%}
-          {%- endfor -%}
+        value_template: >-
+          {{ states.device_tracker| list | count }}
       lights_count:
         friendly_name: 'Number of Lights'
         entity_id: []
         value_template: >
-          {%- set domains = ['light'] -%}
-          {%- for domain in domains -%}
-            {%- for item in states[domain] -%}
-              {% if loop.first %}
-                {{loop.length}}
-              {% endif %}
-            {%- endfor -%}
-          {%- endfor -%}
+          {{ states.light | list | count }}
+
       protect_count:
         friendly_name: 'Number of Smoke Detectors'
         entity_id: []
@@ -177,14 +140,7 @@ sensor:
         friendly_name: 'Number of online Cameras'
         entity_id: []
         value_template: >
-          {%- set domains = ['camera'] -%}
-          {%- for domain in domains -%}
-            {%- for item in states[domain] -%}
-              {% if loop.first %}
-                {{loop.length}}
-              {% endif %}
-            {%- endfor -%}
-          {%- endfor -%}
+          {{ states.camera | list | count }}
 
 
 group:
