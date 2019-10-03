@@ -429,7 +429,7 @@ Cuckoo Clock - /config/automation/System/CucKoo_Clock.yaml</a><br>
 
 </details><br>
 
-Once you can teach your house to talk, you just keep expanding on it's vocabulary. It's addicting. :)
+Once you can teach your house to talk, you just keep expanding on its vocabulary. It's addicting. :)
 </td></tr>
 
 <tr><td colspan="4">
