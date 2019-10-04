@@ -211,7 +211,7 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 <details>
   <summary>Tips to avoid WiFi Interference with your APs</summary><p align="center">
 
-[![Using WiFi Analyzer to Pick Channels](i.ibb.co/x50HdK5/https-i-ytimg-com-vi-v-Ij77giv-Kr-U-maxresdefault.jpg)](https://youtu.be/vIj77givKrU "How to Fix WiFi interference with WiFi Analyzer")
+[![Using WiFi Analyzer to Pick Channels](https://i.ibb.co/x50HdK5/https-i-ytimg-com-vi-v-Ij77giv-Kr-U-maxresdefault.jpg)](https://youtu.be/vIj77givKrU "How to Fix WiFi interference with WiFi Analyzer")
 
 </details>
 </td></tr>
