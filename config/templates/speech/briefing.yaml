@@ -121,6 +121,19 @@
   {% endif %}
   {%- endmacro -%}
 
+  {%- macro days_until() -%}
+  {% set month=states("sensor.date").split('-')[1] | int %}
+  {%- if month == 5 -%}
+      There are {{ states.sensor.mothersday_countdown.state }} days until Mothers day!
+  {%- elif month == 6 -%}
+      There are {{ states.sensor.fathersday_countdown.state }} days until Fathers day!
+  {%- elif month == 10 -%}
+      There are {{ states.sensor.halloween_countdown.state }} days until Halloween!
+  {%- elif month == 12 -%}
+      There are {{ states.sensor.xmas_countdown.state }} days until Christmas!
+  {% endif %}
+  {%- endmacro -%}
+
   {% macro inspirational_quote() %}
       {% set inspirational_quote = [
       "and one more thing, Life is about making an impact, make it a positive one. ",
