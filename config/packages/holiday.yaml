@@ -59,6 +59,37 @@ sensor:
         False
       {% endfor -%}
 
+################################################################################
+# Countdown Sesor using WolfRam Alpha Natural language queries
+################################################################################
+
+  - platform: rest
+    name: Halloween Countdown
+    resource: !secret wolframalpha_halloween_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200
+
+  - platform: rest
+    name: Christams Countdown
+    resource: !secret wolframalpha_xmas_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200
+
+  - platform: rest
+    name: Easter Countdown
+    resource: !secret wolframalpha_easter_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200
+
+  - platform: rest
+    name: Mother's Day Countdown
+    resource: !secret wolframalpha_mothersday_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200
 ###############################################################################
 # Automation that notifies of a Holiday "state" change
 ###############################################################################
