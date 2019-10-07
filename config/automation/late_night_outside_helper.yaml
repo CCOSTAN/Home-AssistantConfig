@@ -7,21 +7,15 @@
   trigger:
     - platform: state
       entity_id: group.all_covers
-      to: 'open'
     - platform: state
       entity_id: sun.sun
       to: 'below_horizon'
       from: 'above_horizon'
 
   condition:
-    condition: and
-    conditions:
-      - condition: state
-        entity_id: sun.sun
-        state: 'below_horizon'
-      - condition: state
-        entity_id: group.all_covers
-        state: 'open'
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
 
   action:
     - service: scene.turn_on
@@ -48,6 +42,7 @@
         - group.master_bathroom_accents
         - switch.back_landscaping
         - switch.front_door_outlet
+        - switch.foyer_outlet
     - wait_template: >-
         {{ states.group.garage_doors.state == 'closed' }}
     - service: script.monthly_color_scene
