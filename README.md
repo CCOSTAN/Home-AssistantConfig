@@ -69,7 +69,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 * [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support) - Realtime list of all the Containers.
 * [Dasher Container](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
 * [HomeBridge Container](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
-* Unifi controller Container to manage [APs](http://amzn.to/2mBSfE9)
+* [Unifi controller Container to manage](https://github.com/jacobalberty/unifi-docker) [APs](http://amzn.to/2mBSfE9)
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
