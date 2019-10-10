@@ -67,7 +67,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 * The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
 * SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe! - [Youtube Video on Port Forwarding](https://youtu.be/y5NOP1F-xGU) - On my Arris TG1682 Modem
 * [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support) - Realtime list of all the Containers.
-* [Dasher Container](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](http://amzn.to/2dPKZhM)
+* [Dasher Container](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](https://youtu.be/rwQVe6sIi9w)
 * [HomeBridge Container](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
 * [Unifi controller Container to manage](https://github.com/jacobalberty/unifi-docker) [APs](http://amzn.to/2mBSfE9)
 
@@ -286,7 +286,7 @@ Be sure to Like and Subscribe if you enjoy this type of content.</a><br>
 [iPhones](http://amzn.to/2l9Yoq9)
 </td><td align="center">
 
-[Dash Buttons](http://amzn.to/2GT8Olb)
+[Dash Buttons](https://youtu.be/rwQVe6sIi9w)
 </td><td align="center">
 
 [Amazon Fire Tablets Gen 7](http://amzn.to/2tqlMCW)</td></tr>

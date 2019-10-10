@@ -48,7 +48,7 @@ sensor:
 # Sensor Uses Flag data from this calendar - http://www.webcal.fi/en-US/flag_days.php
 ################################################################################
   - platform: rest
-    resource: http://www.webcal.fi/cal.php?id=335&format=json&start_year=current_year&end_year=current_year&tz=America%2FNew_York
+    resource: https://www.webcal.fi/cal.php?id=335&format=json&start_year=current_year&end_year=current_year&tz=America%2FNew_York
     name: Flag
     scan_interval: 14400
     value_template: >-
@@ -130,8 +130,8 @@ automation:
             "Just checked with Alexa & today is {{ states.sensor.holiday.state }}."
             ] | random + [
             " #DayOff",
-            "(http://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
-            "(http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
+            "(https://www.vmwareinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)",
+            "(https://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
             "https://www.vcloudinfo.com/2019/02/everyday-holiday-smart-lights-valentines-day-edition.html)",
             "#{{ states.sensor.holiday.state }}"
             ] | random }}

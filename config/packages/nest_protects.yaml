@@ -2,7 +2,7 @@
 # Nest Protect Package
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# - Write up- http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html
+# - Write up- https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html
 ######################################################################################################
 #-----------------------------------
 homeassistant:
@@ -122,7 +122,7 @@ automation:
 
       - service: script.tweet_engine
         data_template:
-          tweet: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} @CCostan (http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)"
+          tweet: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} @CCostan (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)"
 
   - alias: Nest Protect Offline Notify
     hide_entity: true
@@ -155,4 +155,4 @@ automation:
 
       - service: script.tweet_engine
         data:
-          tweet: "Oh NO! {{ trigger.to_state.attributes.friendly_name }} is now in {{ (trigger.to_state.state)|replace('_', ' ') }} mode. @Nest. (http://www.vmwareinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html) #Safety"
+          tweet: "Oh NO! {{ trigger.to_state.attributes.friendly_name }} is now in {{ (trigger.to_state.state)|replace('_', ' ') }} mode. @Nest. (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html) #Safety"
