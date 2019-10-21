@@ -62,17 +62,29 @@ sensor:
 ################################################################################
 # Countdown Sesor using WolfRam Alpha Natural language queries
 ################################################################################
+#
+# - platform: command_line
+#   name: Halloween Countdown
+#   command: "HALLOWEEN=`date -d 'Oct 31' +%j | awk '{print $1 + 0}'`; TODAY=`date +%j | awk '{print $1 + 0}'`; DAYS=$(($HALLOWEEN - $TODAY)); echo $DAYS"
+#   scan_interval: 43200
+#
+# - platform: command_line
+#   command: "XMAS=`date -d 'Dec 25' +%j | awk '{print $1 + 0}'`; TODAY=`date +%j | awk '{print $1 + 0}'`; DAYS=$(($XMAS - $TODAY)); echo $DAYS"
+#   name: Christmas Countdown
+#   scan_interval: 43200
 
-  - platform: command_line
+  - platform: rest
     name: Halloween Countdown
-    command: "HALLOWEEN=`date -d 'Oct 31' +%j | awk '{print $1 + 0}'`; TODAY=`date +%j | awk '{print $1 + 0}'`; DAYS=$(($HALLOWEEN - $TODAY)); echo $DAYS"
+    resource: !secret wolframalpha_halloween_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
     unit_of_measurement: Days
     scan_interval: 43200
 
-  - platform: command_line
-    command: "XMAS=`date -d 'Dec 25' +%j | awk '{print $1 + 0}'`; TODAY=`date +%j | awk '{print $1 + 0}'`; DAYS=$(($XMAS - $TODAY)); echo $DAYS"
-    name: Christmas Countdown
-    unit_of_measurement: days
+  - platform: rest
+    name: Christams Countdown
+    resource: !secret wolframalpha_xmas_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
     scan_interval: 43200
 
   - platform: rest
