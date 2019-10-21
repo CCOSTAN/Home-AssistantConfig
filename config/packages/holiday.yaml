@@ -97,6 +97,13 @@ sensor:
     value_template: "{{ (value|replace(' days', '')) | int }}"
     unit_of_measurement: Days
     scan_interval: 43200
+
+  - platform: rest
+    name: Chanukkah Countdown
+    resource: !secret wolframalpha_chanukkah_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200
 ###############################################################################
 # Automation that notifies of a Holiday "state" change
 ###############################################################################
