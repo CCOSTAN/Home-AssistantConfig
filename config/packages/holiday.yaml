@@ -63,18 +63,16 @@ sensor:
 # Countdown Sesor using WolfRam Alpha Natural language queries
 ################################################################################
 
-  - platform: rest
+  - platform: command_line
     name: Halloween Countdown
-    resource: !secret wolframalpha_halloween_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
+    command: "HALLOWEEN=`date -d 'Oct 31' +%j | awk '{print $1 + 0}'`; TODAY=`date +%j | awk '{print $1 + 0}'`; DAYS=$(($HALLOWEEN - $TODAY)); echo $DAYS"
     unit_of_measurement: Days
     scan_interval: 43200
 
-  - platform: rest
-    name: Christams Countdown
-    resource: !secret wolframalpha_xmas_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
+  - platform: command_line
+    command: "XMAS=`date -d 'Dec 25' +%j | awk '{print $1 + 0}'`; TODAY=`date +%j | awk '{print $1 + 0}'`; DAYS=$(($XMAS - $TODAY)); echo $DAYS"
+    name: Christmas Countdown
+    unit_of_measurement: days
     scan_interval: 43200
 
   - platform: rest
