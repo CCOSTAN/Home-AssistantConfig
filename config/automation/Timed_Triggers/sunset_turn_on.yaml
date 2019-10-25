@@ -59,7 +59,7 @@
           {% if states.group.family.state == 'home' -%}
           10
           {% else %}
-          200
+          150
           {% endif %}
     - wait_template: >-
        {{ states.group.family.state == 'home' }}
