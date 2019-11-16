@@ -81,7 +81,7 @@ sensor:
     scan_interval: 43200
 
   - platform: rest
-    name: Christams Countdown
+    name: Christmas Countdown
     resource: !secret wolframalpha_xmas_api
     value_template: "{{ (value|replace(' days', '')) | int }}"
     unit_of_measurement: Days

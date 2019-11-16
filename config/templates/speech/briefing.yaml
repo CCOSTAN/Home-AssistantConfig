@@ -123,6 +123,7 @@
   {% endif %}
   {%- endmacro -%}
 
+  {# YOUTUBE VIDEO ********* https://www.vcloudinfo.com/2019/11/adding-days-until-sensor-to-my-home-assistant-speech-routines.html #}
   {%- macro days_until() -%}
   {% set month=states("sensor.date").split('-')[1] | int %}
   {%- if month == 4 or month == 5 -%}
@@ -132,7 +133,7 @@
   {%- elif month == 9 or month == 10 -%}
       and don't forget, there are {{ states.sensor.halloween_countdown.state }} days until Halloween!
   {%- elif month == 11 or month == 12 -%}
-      and don't forget, there are {{ states.sensor.xmas_countdown.state }} days until Christmas!
+      and don't forget, there are {{ states.sensor.christmas_countdown.state }} days until Christmas!
   {% endif %}
   {%- endmacro -%}
 
