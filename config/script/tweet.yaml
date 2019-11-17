@@ -231,7 +231,7 @@ tweet_engine_setup:
           {%- endmacro -%}
 
            {% if pick == "joke" -%}
-            {{ "\"/config/www/custom_ui/floorplan/images/branding/jokes/Tweet_" ~ range(1, 72) | random ~ ".png\"" }}
+            {{ "/config/www/custom_ui/floorplan/images/branding/jokes/Tweet_" ~ range(1, 72) | random ~ ".png" }}
            {%- else -%}
              {{ image(pick) }}
            {%- endif -%}
