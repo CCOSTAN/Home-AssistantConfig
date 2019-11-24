@@ -5,21 +5,27 @@
 #  https://www.vcloudinfo.com/2019/03/revisiting-the-pi-on-pi-day-with-home-assistant.html
 #  YouTube Video - https://youtu.be/woA88DFlH5c
 #-------------------------------------------
+pi_hole:
+  host: 192.168.10.11:80
+  location: admin
+  ssl: false
+  verify_ssl: false
+
 sensor:
-  - platform: pi_hole
-    host: 192.168.10.11:80
-    location: admin
-    ssl: false
-    verify_ssl: false
-    monitored_conditions:
-      - ads_blocked_today
-      - ads_percentage_today
-      - dns_queries_today
-      - domains_being_blocked
-      - queries_cached
-      - queries_forwarded
-      - unique_clients
-      - unique_domains
+  # - platform: pi_hole
+  #   host: 192.168.10.11:80
+  #   location: admin
+  #   ssl: false
+  #   verify_ssl: false
+  #   monitored_conditions:
+  #     - ads_blocked_today
+  #     - ads_percentage_today
+  #     - dns_queries_today
+  #     - domains_being_blocked
+  #     - queries_cached
+  #     - queries_forwarded
+  #     - unique_clients
+  #     - unique_domains
 
   - platform: template
     sensors:
