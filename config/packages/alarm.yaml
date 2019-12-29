@@ -237,10 +237,9 @@ automation:
         value_template: "{{ states('climate.downstairs') != 'off' }}"
 
     action:
-      - service: climate.set_operation_mode
+      - service: climate.turn_off
         data:
           entity_id: climate.downstairs
-          operation_mode: 'off'
       - service: script.speech_engine
         data_template:
           value1: "The {{ trigger.to_state.attributes.friendly_name }} has been opened for about 5 minutes.  I will shut down the Air Conditioner so you can enjoy the fresh air."
@@ -262,10 +261,10 @@ automation:
         value_template: "{{ states('climate.downstairs') == 'off' }}"
 
     action:
-      - service: climate.set_operation_mode
+      - service: climate.set_hvac_mode
         data:
           entity_id: climate.downstairs
-          operation_mode: 'auto'
+          hvac_mode: 'auto'
 
 #-------------------------------------------#-------------------------------------------
   - alias: 'Alarm lights in Living room'
