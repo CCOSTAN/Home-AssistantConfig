@@ -1,6 +1,6 @@
 ######################################################################################################
 ## Script to send notifications to Twitter as @BearStoneHA.
-## Publish on Facebook as well - https://www.facebook.com/BearStoneHA/
+## Publish on Facebook as well - https://www.facebook.com/vcloudinfo/
 ## If you do end up using this package, please consider using one or two of the canned tweets that calls back to my main repo
 ## so others can bring thier homes online as well.  I have an active search for #Randomstats that helps me find new HA homes using my package online.
 ## Enhancements by @dale3h
@@ -16,7 +16,7 @@ tweet_engine_setup:
               "promo": [
                 "Be Sure to follow all of my Twitter Accounts! @CCostan @BearStoneHA",
                 "Your house can be a #smarthome too. All you need is #home_assistant, some time and some config files. I suggest starting with our GitHub repo (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
-                "Be sure to like me on Facebook and join our HA group! (https://www.facebook.com/groups/HomeAssistant/) (https://www.facebook.com/VMwareInfo/) (https://www.facebook.com/BearStoneHA/)",
+                "Be sure to like us on Facebook to get all post notifications (https://www.facebook.com/vcloudinfo/)",
                 "You can see how ALL of this is done by browsing my GitHub Repository (https://github.com/CCOSTAN/Home-AssistantConfig#logo)",
                 "If you are not subscribed to our YouTube channel, you are missing out on the goodies! (https://youtube.com/vCloudInfo)",
                 "Join our GitHub repo (https://github.com/CCOSTAN/Home-AssistantConfig#logo) with {{ states.sensor.github_stats.attributes.stargazers_count}} other users.  Browse the {{ states.sensor.github_stats.attributes.open_issues }} #Todo items.",
@@ -95,7 +95,6 @@ tweet_engine_setup:
                 "So far, I have prevented {{ states('sensor.pi_hole_ads_blocked_today') }} ads from hitting the network via Pi-hole! http://www.pi-hole.net",
                 "Pi-hole (http://www.pi-hole.net) has serviced {{ states('sensor.pi_hole_dns_queries_today') }} DNS requests today! #PiZero",
                 "If you are not subscribed to my Smart Home YouTube channel, come join us now! (https://youtube.com/vCloudInfo)",
-                "If you love #homeassistant and are on @FaceBook, be sure to Join our Fan Group Page (https://www.facebook.com/groups/HomeAssistant/)",
                 "Be sure to follow all of our various social media accounts so you do not miss a thing! @ccostan | (https://www.vcloudinfo.com/Click-Here)"
               ],
 
