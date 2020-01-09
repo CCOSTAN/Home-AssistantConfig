@@ -179,7 +179,7 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 <details>
   <summary>Adding Powerwall Sensors to Home Assistant</summary><p align="center">
 
-[![Adding Powerwall Sensors to Home Assistant](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FKHaLddx5wPg)](https://youtu.be/KHaLddx5wPg "Adding Powerwall Sensors to Home Assistant")
+[![Adding Powerwall Sensors to Home Assistant](images/Adding%20Powerwall%20Sensors%20to%20Home%20Assistant.jpeg)](https://youtu.be/KHaLddx5wPg "Adding Powerwall Sensors to Home Assistant")
 
 </details>
 </td></tr>
@@ -211,7 +211,7 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 <details>
   <summary>Tips to avoid WiFi Interference with your APs</summary><p align="center">
 
-[![Using WiFi Analyzer to Pick Channels](https://i.ibb.co/x50HdK5/https-i-ytimg-com-vi-v-Ij77giv-Kr-U-maxresdefault.jpg)](https://youtu.be/vIj77givKrU "How to Fix WiFi interference with WiFi Analyzer")
+[![Using WiFi Analyzer to Pick Channels](images/Using%20WiFi%20Analyzer%20to%20Pick%20Channels.jpeg)](https://youtu.be/vIj77givKrU "How to Fix WiFi interference with WiFi Analyzer")
 
 </details>
 </td></tr>
@@ -432,7 +432,7 @@ Cuckoo Clock - /config/automation/System/CucKoo_Clock.yaml</a><br>
 <details>
 <summary>Click here for YouTube Videos related to Voice.</summary><p align="center">
 
-[![Breaking down my Home Assistant Volume Control](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2Ff65fanwU3Ig)](https://youtu.be/f65fanwU3Ig "Breaking down my Home Assistant Volume Control")
+[![Breaking down my Home Assistant Volume Control](images/Breaking%20down%20my%20Home%20Assistant%20Volume%20Control.jpeg)](https://youtu.be/f65fanwU3Ig "Breaking down my Home Assistant Volume Control")
 
 </details><br>
 
@@ -526,17 +526,17 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 <details>
 <summary>Two part series on replacing a fluorescent light with a Hue Smart Light - Step by Step</summary>
 
-[![Part 1 - Adding to the Hue Bridges](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FQ0KUu20w71s)](https://youtu.be/Q0KUu20w71s "Part 1 - Adding to the Hue Bridges")
+[![Part 1 - Adding to the Hue Bridges](images/Part%201%20-%20Adding%20to%20the%20Hue%20Bridges.jpeg)](https://youtu.be/Q0KUu20w71s "Part 1 - Adding to the Hue Bridges")
 
-[![Part 2 - Adding to Automations](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FlyjRHYKkG98)](https://youtu.be/lyjRHYKkG98 "Part 2 - Adding to Automations")
+[![Part 2 - Adding to Automations](images/Part%202%20-%20Adding%20to%20Automations.jpeg)](https://youtu.be/lyjRHYKkG98 "Part 2 - Adding to Automations")
 
 </details>
 <details>
 <summary>Click here for YouTube Demos of the Holiday lights</summary>
 
-[![Valentine's Day Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FnsWq4uVrQ0g)](https://youtu.be/nsWq4uVrQ0g "Valentine's Day Video")
+[![Valentine's Day Video](images/Valentine's%20Day%20Video.jpeg)](https://youtu.be/nsWq4uVrQ0g "Valentine's Day Video")
 
-[![Halloween Light Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FylPzQ0s7zxc)](https://youtu.be/ylPzQ0s7zxc "Halloween Light Video")
+[![Halloween Light Video](images/Halloween%20Light%20Video.jpeg)](https://youtu.be/ylPzQ0s7zxc "Halloween Light Video")
 
 </details>
 </td></tr>
@@ -699,9 +699,9 @@ The great outdoors can be automated too!  Mainly lights but also the sprinkler s
 <details>
 <summary>Click Here for YouTube Videos!</summary><p align="center">
 
-[![Unboxing and setup of the Philips Hue Calla Landscape Lights](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FFcBVu_yk2iY)](https://youtu.be/FcBVu_yk2iY "Unboxing and setup of the Philips Hue Calla Landscape Lights")
+[![Unboxing and setup of the Philips Hue Calla Landscape Lights](images/Unboxing%20and%20setup%20of%20the%20Philips%20Hue%20Calla%20Landscape%20Lights.jpeg)](https://youtu.be/FcBVu_yk2iY "Unboxing and setup of the Philips Hue Calla Landscape Lights")
 
-[![Adding Smart Landscaping lights to the Yard with Home Assistant](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FZ673mYcKt70)](https://youtu.be/Z673mYcKt70 "Adding Smart Landscaping lights to the Yard with Home Assistant")
+[![Adding Smart Landscaping lights to the Yard with Home Assistant](images/Adding%20Smart%20Landscaping%20lights%20to%20the%20Yard%20with%20Home%20Assistant.jpeg)](https://youtu.be/Z673mYcKt70 "Adding Smart Landscaping lights to the Yard with Home Assistant")
 
 </details>
 <details>
@@ -772,9 +772,9 @@ Motion automations - /config/script/front_house_motion.yaml</a><br>
 <details>
 <summary>Click Here for YouTube Demos of the Holiday lights</summary>
 
-[![Valentine's Day Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FnsWq4uVrQ0g)](https://youtu.be/nsWq4uVrQ0g "Valentine's Day Video")
+[![Valentine's Day Video](images/Valentine's%20Day%20Video.jpeg)](https://youtu.be/nsWq4uVrQ0g "Valentine's Day Video")
 
-[![Halloween Light Video](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FylPzQ0s7zxc)](https://youtu.be/ylPzQ0s7zxc "Halloween Light Video")
+[![Halloween Light Video](images/Halloween%20Light%20Video.jpeg)](https://youtu.be/ylPzQ0s7zxc "Halloween Light Video")
 
 </details>
 </td></tr>
@@ -863,7 +863,7 @@ TV Automations are super cool.  Turn on a movie and the lights begin to dim auto
 <details>
 <summary>Click here for YouTube Video</summary><p align="center">
 
-[![Cameras, Synology and Home Assistant](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FGmpP52yG0S8)](https://youtu.be/GmpP52yG0S8 "Cameras, Synology and Home Assistant")
+[![Cameras, Synology and Home Assistant](images/Cameras,%20Synology%20and%20Home%20Assistant.jpeg)](https://youtu.be/GmpP52yG0S8 "Cameras, Synology and Home Assistant")
 
 </details>
 <details>
@@ -927,9 +927,9 @@ Light watchdog Automations - /config/automation/System/watchdog_light.yaml</a><b
 <details>
 <summary>Click here for YouTube Videos!</summary><p align="center">
 
-[![Epson XP-7100 Small-in-One wireless Printer review and Unboxing](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2Fy2xgCQRwTJg)](https://youtu.be/y2xgCQRwTJg "Epson XP-7100 Small-in-One wireless Printer review and Unboxing")
+[![Epson XP-7100 Small-in-One wireless Printer review and Unboxing](images/Epson%20XP-7100%20Small-in-One%20wireless%20Printer%20review%20and%20Unboxing.jpeg)](https://youtu.be/y2xgCQRwTJg "Epson XP-7100 Small-in-One wireless Printer review and Unboxing")
 
-[![Home Assistant Raspberry Pi Day!](https://video-to-markdown.netlify.com/.netlify/functions/image?url=https%3A%2F%2Fyoutu.be%2FwoA88DFlH5c)](https://youtu.be/woA88DFlH5c "Home Assistant Raspberry Pi Day!")
+[![Home Assistant Raspberry Pi Day!](images/Home%20Assistant%20Raspberry%20Pi%20Day.jpeg)](https://youtu.be/woA88DFlH5c "Home Assistant Raspberry Pi Day!")
 
 </details>
 <details>
