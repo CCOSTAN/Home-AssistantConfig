@@ -1,5 +1,5 @@
 - alias: "Wink Update Available Notification"
-  hide_entity: True
+  
   trigger:
     platform: template
     value_template: "{{ is_state_attr('binary_sensor.carlowink', 'update needed', True) }} != False }}"

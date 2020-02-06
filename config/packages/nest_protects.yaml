@@ -83,7 +83,7 @@ group:
 #-------------------------------------------
 automation:
   - alias: Nest protect emergency
-    hide_entity: true
+    
     trigger:
       platform: state
       entity_id:
@@ -125,7 +125,7 @@ automation:
           tweet: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} @CCostan (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)"
 
   - alias: Nest Protect Offline Notify
-    hide_entity: true
+    
     trigger:
       platform: state
       entity_id:

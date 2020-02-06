@@ -13,7 +13,7 @@
 ###################################
 automation:
   - alias: Aura Scene Nighttime
-    hide_entity: True
+    
     trigger:
       - platform: state
         entity_id: input_boolean.good_night
@@ -49,7 +49,7 @@ automation:
         data_template: {"event":"aura_night_mode"}
 
   - alias: Aura Scene away
-    hide_entity: True
+    
     trigger:
       - platform: state
         entity_id:
@@ -67,7 +67,7 @@ automation:
 
 
   - alias: Aura Scene Home
-    hide_entity: True
+    
     trigger:
       - platform: state
         entity_id:

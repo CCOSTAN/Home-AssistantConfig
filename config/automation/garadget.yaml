@@ -4,7 +4,7 @@
 ###################################
 
 - alias: Garadget Reflection Rates
-  hide_entity: True
+  
   trigger:
     - platform: numeric_state
       entity_id: sensor.large_garage_reflection_rate
@@ -34,7 +34,7 @@
 ##############################################################################
 
 - alias: Is the Garage door Open at night - Checks every 30 minutes or 5 minutes after we drive away.
-  hide_entity: True
+  
   trigger:
     - platform: time_pattern
       minutes: '/45'

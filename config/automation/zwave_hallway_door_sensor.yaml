@@ -5,7 +5,7 @@
 
 ##############################################################
 - alias: Hallway ZWave Enerwave Door Sensors Open
-  hide_entity: True
+  
   trigger:
     - platform: state
       entity_id: binary_sensor.hallway_pantry
@@ -35,7 +35,7 @@
 
 ##############################################################
 - alias: ZWave Enerwave Door Sensors Closed
-  hide_entity: True
+  
   trigger:
     - platform: state
       entity_id: binary_sensor.hallway_pantry
@@ -50,7 +50,7 @@
 
 ##############################################################
 - alias: Shutdown Helper light
-  hide_entity: True
+  
   trigger:
     - platform: state
       entity_id: light.k4

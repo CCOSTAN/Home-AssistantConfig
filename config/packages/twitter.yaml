@@ -165,7 +165,7 @@ group:
 
 automation:
   - alias: 'New Twitter follower!'
-    hide_entity: True
+
     trigger:
       - platform: event
         event_type: new_follower
@@ -184,7 +184,7 @@ automation:
           media_content_type: audio/mp4
 
   - alias: 'Closed Github Issue'
-    hide_entity: True
+
     trigger:
       - platform: event
         event_type: closed_github
@@ -215,7 +215,7 @@ automation:
             {{ pictures|random }}
 
   - alias: 'Random House stats'
-    hide_entity: True
+
     trigger:
       - platform: time_pattern
         hours: '/2'
@@ -250,7 +250,7 @@ automation:
             {{ pick|random }}
 
   - alias: 'Random YouTube Videos BearStone'
-    hide_entity: True
+
     trigger:
       - platform: time_pattern
         hours: '/7'
@@ -279,7 +279,7 @@ automation:
             {{ pick|random }}
 
   - alias: 'Random YouTube Videos CCostan'
-    hide_entity: True
+
     trigger:
       - platform: time_pattern
         hours: '/22'

@@ -5,7 +5,7 @@
 
 ##############################################################
 - alias: Garage Light Hallway Helper OPEN
-  hide_entity: True
+  
   trigger:
     - platform: state
       entity_id: binary_sensor.kitchen_door
@@ -26,7 +26,7 @@
 
 ##############################################################
 - alias: Garage Light Hallway Helper Closed
-  hide_entity: True
+  
   trigger:
     - platform: state
       entity_id: binary_sensor.mcu1_gpio12
@@ -56,7 +56,7 @@
 
 ##############################################################
 - alias: Shutdown Helper light
-  hide_entity: True
+  
   trigger:
     - platform: state
       entity_id: light.k4
