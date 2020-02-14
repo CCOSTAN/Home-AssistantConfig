@@ -12,7 +12,7 @@
   </h4>
 </div>
 <p><font size="3">
-Custom Components.  Comstimes I use them for temporary fixes to existing components.  Sometimes I use them to extend functionality with niche components other people have written but haven't merged into the main HASS branch.  Either way, a great way to extend the power of Home Assistant</p>
+Custom Components.  Sometimes I use them for temporary fixes to existing components.  Sometimes I use them to extend functionality with niche components other people have written but haven't merged into the main HASS branch.  Either way, a great way to extend the power of Home Assistant.  The main management component now for custom components is HACS.  This is the Home Assistant community store.  It allows for point and click installations of Custom Components.</p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vCloudInfo.com/tag/iot">
@@ -41,7 +41,7 @@ Custom Components.  Comstimes I use them for temporary fixes to existing compone
     <span> | </span>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
       Diagram
-    </a>    
+    </a>
     <span> | </span>
     <a href="https://youtube.com/vCloudInfo">
       Youtube
