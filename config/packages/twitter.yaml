@@ -165,11 +165,12 @@ group:
 
 automation:
   - alias: 'New Twitter follower!'
-
     trigger:
-      - platform: event
-        event_type: new_follower
-
+      platform: event
+      event_type: ifttt_webhook_received
+      event_data:
+        action: new_follower
+        
     condition:
       - condition: state
         entity_id: group.bed
@@ -184,10 +185,12 @@ automation:
           media_content_type: audio/mp4
 
   - alias: 'Closed Github Issue'
-
     trigger:
-      - platform: event
-        event_type: closed_github
+        platform: event
+        event_type: ifttt_webhook_received
+        event_data:
+          action: closed_github
+
 
     action:
       - service: script.tweet_engine_image
