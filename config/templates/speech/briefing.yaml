@@ -76,6 +76,21 @@
   {%- endif -%}
   {%- endmacro -%}
 
+  {%- macro lock_check() -%}
+  {% if states.group.locks.state !='locked' -%}
+      The
+      {%- for state in states.lock -%}
+      {%- endfor %}
+      {% for group in states.lock|groupby('state') -%}
+      {%- for entity in group.list  if entity.state == 'unlocked' -%}
+          {{ ' and' if loop.last and not loop.first }}
+          {{ entity.attributes.friendly_name }}
+      {%- endfor -%}
+      {%- endfor %}
+      needs to be locked.
+  {%- endif -%}
+  {%- endmacro -%}
+
   {%- macro garage_check() -%}
   {% if states.group.garage_doors.state !='closed' -%}
       The
@@ -229,6 +244,11 @@
 
   {{ DoorOpened }}
   {{ DoorClosed }}
+
+  {{ lock_check() }}
+    {# These two lock statements are sent directly from automations. #}
+  {{ DoorLocked }}
+  {{ DoorUnLocked }}
 
   {% if call_dark_outside == 1 %}
   {{ dark_outside() }}

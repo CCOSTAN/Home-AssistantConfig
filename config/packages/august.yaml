@@ -1,0 +1,48 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# August Smart Lock support for my Front Door - [August Smart Lock](https://amzn.to/2SKGVDk) with Home Assistant.
+#-------------------------------------------
+######################################################################
+##  August Smart Lock - https://amzn.to/2SKGVDk
+######################################################################
+
+#-------------------------------------------
+august:
+  login_method: email
+  username: !secret august_username
+  password: !secret august_password
+
+# Added to the LOCK group
+# Added a check lock routine to the Briefing.yaml - Will check locks whenever there is a speech event.
+
+automation:
+  ######################################################################
+  ##  Door Lock Status Announcements - Only during normal hours.
+  ######################################################################
+  - alias: 'Door Locked Announcement'
+    trigger:
+      - platform: state
+        entity_id:
+          - lock.front_door
+        from: 'unlocked'
+        to: 'locked'
+        for: '00:00:30'
+
+    action:
+      - service: script.speech_engine
+        data_template:
+          DoorLocked: "The {{ trigger.to_state.name }} is now {{ trigger.to_state.state }}."
+
+  - alias: 'Door UnLocked Announcement'
+    trigger:
+      - platform: state
+        entity_id:
+          - lock.front_door
+        to: 'unlocked'
+        for: '00:10:00'
+
+    action:
+      - service: script.speech_engine
+        data_template:
+          DoorUnLocked: "The {{ trigger.to_state.name }} has been {{ trigger.to_state.state }} for 10 minutes. I will lock it in 10 minutes if it is still unlocked."

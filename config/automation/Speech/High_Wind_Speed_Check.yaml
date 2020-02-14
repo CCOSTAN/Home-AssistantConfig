@@ -3,7 +3,7 @@
 ###################################
 
 - alias: 'High Wind Speed Notification'
-  
+
   trigger:
     - platform: numeric_state
       entity_id: sensor.dark_sky_wind_speed
@@ -23,7 +23,7 @@
         {%- else -%}
           true
         {%- endif -%}
-        
+
   action:
     - service: script.notify_engine
       data_template:
