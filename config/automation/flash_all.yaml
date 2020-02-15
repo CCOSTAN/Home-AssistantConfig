@@ -7,8 +7,6 @@
       entity_id: input_boolean.flash
       to: 'on'
       from: 'off'
-    - platform: event
-      event_type: flash_all
 
   action:
     - service: light.turn_on
@@ -26,7 +24,10 @@
       to: 'on'
       from: 'off'
     - platform: event
-      event_type: flash_timer
+      #Sent from IFTTT Webhooks : {"action":"Flash_Timer:}
+      event_type: ifttt_webhook_received
+      event_data:
+        action: Flash_Timer
 
   action:
     - service: light.turn_on

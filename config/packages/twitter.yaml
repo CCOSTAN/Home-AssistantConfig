@@ -170,7 +170,7 @@ automation:
       event_type: ifttt_webhook_received
       event_data:
         action: new_follower
-        
+
     condition:
       - condition: state
         entity_id: group.bed
@@ -187,10 +187,10 @@ automation:
   - alias: 'Closed Github Issue'
     trigger:
         platform: event
+        #Sent from IFTTT Webhooks : {"action":"closed_github", "repo":" {{RepositoryName}}", "issue":" {{IssueTitle}}","issueurl":" {{IssueURL}}"}
         event_type: ifttt_webhook_received
         event_data:
           action: closed_github
-
 
     action:
       - service: script.tweet_engine_image
@@ -218,7 +218,6 @@ automation:
             {{ pictures|random }}
 
   - alias: 'Random House stats'
-
     trigger:
       - platform: time_pattern
         hours: '/2'
@@ -253,7 +252,6 @@ automation:
             {{ pick|random }}
 
   - alias: 'Random YouTube Videos BearStone'
-
     trigger:
       - platform: time_pattern
         hours: '/7'

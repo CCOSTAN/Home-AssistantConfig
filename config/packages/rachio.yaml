@@ -37,10 +37,13 @@ automation:
   ##  LOG IFTTT Stuff - Rachio
   ###################################
   - alias: 'Log Sprinkler Activity'
-    
+
     trigger:
       - platform: event
-        event_type: rachio_water_stops
+        #Sent from IFTTT Webhooks : {"action":"IFTTT_Rachio", "water_time":" {{DurationInMinutes}}"}
+        event_type: ifttt_webhook_received
+        event_data:
+          action: IFTTT_Rachio
 
     action:
       - service: logbook.log

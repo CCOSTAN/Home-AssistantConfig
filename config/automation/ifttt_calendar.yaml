@@ -2,17 +2,19 @@
 ##  IFTTT checks Office 365 Calendar and Notifies me of appointments. Flash lights but only at reasonable hours.
 ###################################
 - alias: 'IFTTT Appointment reminder'
-  
+
   trigger:
     - platform: event
-      event_type: IFTTT_Appointment
-  
+      #Sent from IFTTT Webhooks : {"action":"IFTTT_Appointment:}
+      event_type: ifttt_webhook_received
+      event_data:
+        action: IFTTT_Appointment
+
+
   condition:
     - condition: time
-      after: '06:00:00'
+      after: '08:00:00'
       before: '20:00:00'
-  
+
   action:
     - service: script.flash_notify
-  
-

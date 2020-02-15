@@ -13,6 +13,12 @@
     - platform: state
       entity_id: input_boolean.good_night
       to: 'on'
+    - platform: event
+      #Sent from IFTTT Webhooks : {"action":"IFTTT_Away:}
+      event_type: ifttt_webhook_received
+      event_data:
+        action: IFTTT_Away
+
 
   condition:
     - condition: state
