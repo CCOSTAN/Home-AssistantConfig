@@ -114,12 +114,33 @@ sensor:
     value_template: "{{ (value|replace(' days', '')) | int }}"
     unit_of_measurement: Days
     scan_interval: 43200
+
+  - platform: rest
+    name: Labor Day Countdown
+    resource: !secret wolframalpha_labor_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200
+
+  - platform: rest
+    name: Memorial Day Countdown
+    resource: !secret wolframalpha_memorial_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200
+
+  - platform: rest
+    name: Thanksgiving Day Countdown
+    resource: !secret wolframalpha_thanksgiving_api
+    value_template: "{{ (value|replace(' days', '')) | int }}"
+    unit_of_measurement: Days
+    scan_interval: 43200
 ###############################################################################
 # Automation that notifies of a Holiday "state" change
 ###############################################################################
 automation:
   - alias: Notify Holiday State Change
-    
+
     initial_state: true
     trigger:
       - platform: state
