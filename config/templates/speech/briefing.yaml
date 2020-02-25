@@ -92,7 +92,7 @@
   {%- endmacro -%}
 
   {%- macro garage_check() -%}
-  {% if states.group.garage_doors.state !='closed' -%}
+  {% if states.group.garadget.state !='closed' -%}
       The
       {%- for state in states.cover -%}
       {%- endfor %}

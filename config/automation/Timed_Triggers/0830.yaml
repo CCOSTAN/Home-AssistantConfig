@@ -26,7 +26,7 @@
         - fri
   action:
     - wait_template: >-
-       {{ is_state('group.garage_doors', 'open') }}
+       {{ is_state('group.garadget', 'open') }}
     - delay: 00:03:00
     - service: light.turn_off
       entity_id: all

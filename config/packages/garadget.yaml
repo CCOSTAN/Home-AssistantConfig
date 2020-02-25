@@ -74,8 +74,8 @@ sensor:
     value_template: '{{ value_json.bright }}'
 
 group:
-  garage_doors:
-    name: Garage doors
+  garadget:
+    name: Garadget Sensors
     entities:
       - cover.large_garage
       - sensor.large_garage_status
@@ -89,6 +89,11 @@ group:
       - sensor.small_garage_wifi_signal_strength
       - sensor.small_garage_reflection_rate
       - sensor.small_garage_brightness
+  garage_doors:
+    name: Garage Doors
+    entities:
+      - cover.large_garage
+      - cover.small_garage
 
 automation:
   - alias: 'Update Garage Brightness'

@@ -6,7 +6,7 @@
 - alias: 'Late Night Helper outside'
   trigger:
     - platform: state
-      entity_id: group.all_covers
+      entity_id: group.garage_doors
     - platform: state
       entity_id: sun.sun
       to: 'below_horizon'
@@ -25,7 +25,7 @@
         - group.living_room_accents
       data_template:
         color_name: >
-          {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
+          {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
           red
           {% else %}
           gold
@@ -44,14 +44,14 @@
         - switch.front_door_outlet
         - switch.foyer_outlet
     - wait_template: >-
-        {{ states.group.garage_doors.state == 'closed' }}
+        {{ states.group.garadget.state == 'closed' }}
     - service: script.monthly_color_scene
     - service: light.turn_on
       entity_id:
         - group.living_room_accents
       data_template:
         color_name: >
-          {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
+          {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
           red
           {% else %}
           gold

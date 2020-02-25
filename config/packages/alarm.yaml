@@ -273,7 +273,7 @@ automation:
         entity_id:
           - group.entry_points
       - platform: state
-        entity_id: group.all_covers
+        entity_id: group.garage_doors
 
     condition:
       condition: and
@@ -291,7 +291,7 @@ automation:
           - group.living_room_accents
         data_template:
           color_name: >
-            {% if states.group.entry_points.state == 'on' or states.group.all_covers.state != 'closed' -%}
+            {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
             red
             {% else %}
             gold

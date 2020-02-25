@@ -19,7 +19,7 @@
   action:
 
     - wait_template: >-
-       {{ is_state('group.garage_doors', 'closed') }}
+       {{ is_state('group.garadget', 'closed') }}
       timeout: 00:05:30
 
     - service: script.speech_engine
