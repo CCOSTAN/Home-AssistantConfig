@@ -9,6 +9,7 @@ before_install:
 install:
   - pip3 install homeassistant
   - pip3 install colorlog
+  - pip3 install python-dateutil
 
 script:
   - hass -c config/ --script check_config --info all
