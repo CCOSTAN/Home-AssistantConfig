@@ -16,6 +16,8 @@
       for: '00:02:00'
 
   action:
+    - wait_template: >-
+        {{ states.binary_sensor.kitchen_door.state == 'on' }}
     - service: script.speech_engine
       data_template:
         personarriving: >
