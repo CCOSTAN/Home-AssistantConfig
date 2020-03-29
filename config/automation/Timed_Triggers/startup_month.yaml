@@ -7,7 +7,7 @@
 ###################################
 
 - alias: Check if it's summer vacation on startup.
-  
+
   trigger:
     - platform: homeassistant
       event: start
@@ -18,7 +18,7 @@
     - condition: template
       value_template: >
         {% set month=states("sensor.date").split('-')[1] | int %}
-        {%- if month == 6 or month == 7 -%}
+        {%- if month == 4 or month == 5 or month == 6 or month == 7 -%}
           true
         {%- endif -%}
 
