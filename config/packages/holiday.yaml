@@ -95,14 +95,14 @@ sensor:
     scan_interval: 43200
 
   - platform: rest
-    name: Mother's Day Countdown
+    name: Mothers Countdown
     resource: !secret wolframalpha_mothersday_api
     value_template: "{{ (value|replace(' days', '')) | int }}"
     unit_of_measurement: Days
     scan_interval: 43200
 
   - platform: rest
-    name: Father's Day Countdown
+    name: Fathers Countdown
     resource: !secret wolframalpha_fathersday_api
     value_template: "{{ (value|replace(' days', '')) | int }}"
     unit_of_measurement: Days
