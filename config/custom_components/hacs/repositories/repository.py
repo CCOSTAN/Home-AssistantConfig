@@ -1,29 +1,27 @@
 """Repository."""
 # pylint: disable=broad-except, bad-continuation, no-member
-import pathlib
 import json
 import os
 import tempfile
 import zipfile
-from integrationhelper import Validate, Logger
+from integrationhelper import Validate
 from aiogithubapi import AIOGitHubException
 from .manifest import HacsManifest
 from ..helpers.misc import get_repository_name
-from ..hacsbase import Hacs
-from ..hacsbase.exceptions import HacsException
-from ..hacsbase.backup import Backup
 from ..handler.download import async_download_file, async_save_file
 from ..helpers.misc import version_left_higher_then_right
 from ..helpers.install import install_repository, version_to_install
 
-
-RERPOSITORY_CLASSES = {}
-
-
-def register_repository_class(cls):
-    """Register class."""
-    RERPOSITORY_CLASSES[cls.category] = cls
-    return cls
+from custom_components.hacs.globals import get_hacs
+from custom_components.hacs.helpers.information import (
+    get_info_md_content,
+    get_repository,
+)
+from custom_components.hacs.helpers.validate_repository import (
+    common_validate,
+    common_update_data,
+)
+from custom_components.hacs.repositories.repositorydata import RepositoryData
 
 
 class RepositoryVersions:
@@ -79,6 +77,7 @@ class RepositoryReleases:
     published_tags = []
     objects = []
     releases = False
+    downloads = None
 
 
 class RepositoryPath:
@@ -97,26 +96,25 @@ class RepositoryContent:
     single = False
 
 
-class HacsRepository(Hacs):
+class HacsRepository:
     """HacsRepository."""
 
     def __init__(self):
         """Set up HacsRepository."""
-
-        self.data = {}
+        self.hacs = get_hacs()
+        self.data = RepositoryData()
         self.content = RepositoryContent()
         self.content.path = RepositoryPath()
         self.information = RepositoryInformation()
         self.repository_object = None
         self.status = RepositoryStatus()
         self.state = None
-        self.manifest = {}
+        self.integration_manifest = {}
         self.repository_manifest = HacsManifest.from_dict({})
         self.validate = Validate()
         self.releases = RepositoryReleases()
         self.versions = RepositoryVersions()
         self.pending_restart = False
-        self.logger = None
         self.tree = []
         self.treefiles = []
         self.ref = None
@@ -126,7 +124,7 @@ class HacsRepository(Hacs):
         """Return pending upgrade."""
         if self.status.installed:
             if self.status.selected_tag is not None:
-                if self.status.selected_tag == self.information.default_branch:
+                if self.status.selected_tag == self.data.default_branch:
                     if self.versions.installed_commit != self.versions.available_commit:
                         return True
                     return False
@@ -137,23 +135,20 @@ class HacsRepository(Hacs):
     @property
     def config_flow(self):
         """Return bool if integration has config_flow."""
-        if self.manifest:
-            if self.information.full_name == "hacs/integration":
+        if self.integration_manifest:
+            if self.data.full_name == "hacs/integration":
                 return False
-            return self.manifest.get("config_flow", False)
+            return self.integration_manifest.get("config_flow", False)
         return False
 
     @property
     def custom(self):
         """Return flag if the repository is custom."""
-        if self.information.full_name.split("/")[0] in [
-            "custom-components",
-            "custom-cards",
-        ]:
+        if self.data.full_name.split("/")[0] in ["custom-components", "custom-cards"]:
             return False
-        if self.information.full_name in self.common.default:
+        if self.data.full_name.lower() in [x.lower() for x in self.hacs.common.default]:
             return False
-        if self.information.full_name == "hacs/integration":
+        if self.data.full_name == "hacs/integration":
             return False
         return True
 
@@ -164,24 +159,21 @@ class HacsRepository(Hacs):
         if self.information.homeassistant_version is not None:
             target = self.information.homeassistant_version
         if self.repository_manifest is not None:
-            if self.repository_manifest.homeassistant is not None:
-                target = self.repository_manifest.homeassistant
+            if self.data.homeassistant is not None:
+                target = self.data.homeassistant
 
         if target is not None:
             if self.releases.releases:
-                if not version_left_higher_then_right(self.system.ha_version, target):
+                if not version_left_higher_then_right(
+                    self.hacs.system.ha_version, target
+                ):
                     return False
         return True
 
     @property
     def display_name(self):
         """Return display name."""
-        return get_repository_name(
-            self.repository_manifest,
-            self.information.name,
-            self.information.category,
-            self.manifest,
-        )
+        return get_repository_name(self)
 
     @property
     def display_status(self):
@@ -257,126 +249,40 @@ class HacsRepository(Hacs):
 
     async def common_validate(self):
         """Common validation steps of the repository."""
-        # Attach helpers
-        self.validate.errors = []
-        self.logger = Logger(
-            f"hacs.repository.{self.information.category}.{self.information.full_name}"
-        )
-        if self.ref is None:
-            self.ref = version_to_install(self)
-
-        # Step 1: Make sure the repository exist.
-        self.logger.debug("Checking repository.")
-        try:
-            self.repository_object = await self.github.get_repo(
-                self.information.full_name
-            )
-            self.data = self.repository_object.attributes
-        except Exception as exception:  # Gotta Catch 'Em All
-            if not self.system.status.startup:
-                self.logger.error(exception)
-            self.validate.errors.append("Repository does not exist.")
-            return
-
-        if not self.tree:
-            self.tree = await self.repository_object.get_tree(self.ref)
-            self.treefiles = []
-            for treefile in self.tree:
-                self.treefiles.append(treefile.full_path)
-
-        # Step 2: Make sure the repository is not archived.
-        if self.repository_object.archived:
-            self.validate.errors.append("Repository is archived.")
-            return
-
-        # Step 3: Make sure the repository is not in the blacklist.
-        if self.information.full_name in self.common.blacklist:
-            self.validate.errors.append("Repository is in the blacklist.")
-            return
-
-        # Step 4: default branch
-        self.information.default_branch = self.repository_object.default_branch
-
-        # Step 5: Get releases.
-        await self.get_releases()
-
-        # Step 6: Get the content of hacs.json
-        await self.get_repository_manifest_content()
-
-        # Set repository name
-        self.information.name = self.information.full_name.split("/")[1]
+        await common_validate(self)
 
     async def common_registration(self):
         """Common registration steps of the repository."""
-        # Attach logger
-        if self.logger is None:
-            self.logger = Logger(
-                f"hacs.repository.{self.information.category}.{self.information.full_name}"
-            )
-
         # Attach repository
         if self.repository_object is None:
-            self.repository_object = await self.github.get_repo(
-                self.information.full_name
+            self.repository_object = await get_repository(
+                self.hacs.session, self.hacs.configuration.token, self.data.full_name
             )
+            self.data.update_data(self.repository_object.attributes)
 
         # Set id
-        self.information.uid = str(self.repository_object.id)
+        self.information.uid = str(self.data.id)
 
         # Set topics
-        self.information.topics = self.repository_object.topics
+        self.data.topics = self.data.topics
 
         # Set stargazers_count
-        self.information.stars = self.repository_object.attributes.get(
-            "stargazers_count", 0
-        )
+        self.data.stargazers_count = self.data.stargazers_count
 
         # Set description
-        if self.repository_object.description:
-            self.information.description = self.repository_object.description
+        self.data.description = self.data.description
 
     async def common_update(self):
         """Common information update steps of the repository."""
-        # Attach logger
-        if self.logger is None:
-            self.logger = Logger(
-                f"hacs.repository.{self.information.category}.{self.information.full_name}"
-            )
-
         self.logger.debug("Getting repository information")
 
-        # Set ref
-        if self.ref is None:
-            self.ref = version_to_install(self)
-
         # Attach repository
-        self.repository_object = await self.github.get_repo(self.information.full_name)
-
-        # Update tree
-        self.tree = await self.repository_object.get_tree(self.ref)
-        self.treefiles = []
-        for treefile in self.tree:
-            self.treefiles.append(treefile.full_path)
-
-        # Update description
-        if self.repository_object.description:
-            self.information.description = self.repository_object.description
-
-        # Set stargazers_count
-        self.information.stars = self.repository_object.attributes.get(
-            "stargazers_count", 0
-        )
-
-        # Update default branch
-        self.information.default_branch = self.repository_object.default_branch
+        await common_update_data(self)
 
         # Update last updaeted
         self.information.last_updated = self.repository_object.attributes.get(
             "pushed_at", 0
         )
-
-        # Update topics
-        self.information.topics = self.repository_object.topics
 
         # Update last available commit
         await self.repository_object.set_last_commit()
@@ -386,10 +292,7 @@ class HacsRepository(Hacs):
         await self.get_repository_manifest_content()
 
         # Update "info.md"
-        await self.get_info_md_content()
-
-        # Update releases
-        await self.get_releases()
+        self.information.additional_info = await get_info_md_content(self)
 
     async def install(self):
         """Common installation steps of the repository."""
@@ -409,18 +312,17 @@ class HacsRepository(Hacs):
                 return validate
 
             for content in contents or []:
-                filecontent = await async_download_file(self.hass, content.download_url)
+                filecontent = await async_download_file(content.download_url)
 
                 if filecontent is None:
                     validate.errors.append(f"[{content.name}] was not downloaded.")
                     continue
 
                 result = await async_save_file(
-                    f"{tempfile.gettempdir()}/{self.repository_manifest.filename}",
-                    filecontent,
+                    f"{tempfile.gettempdir()}/{self.data.filename}", filecontent
                 )
                 with zipfile.ZipFile(
-                    f"{tempfile.gettempdir()}/{self.repository_manifest.filename}", "r"
+                    f"{tempfile.gettempdir()}/{self.data.filename}", "r"
                 ) as zip_file:
                     zip_file.extractall(self.content.path.local)
 
@@ -437,11 +339,13 @@ class HacsRepository(Hacs):
         """Download the content of a directory."""
         from custom_components.hacs.helpers.download import download_content
 
-        validate = await download_content(self, validate, local_directory)
+        validate = await download_content(self)
         return validate
 
     async def get_repository_manifest_content(self):
         """Get the content of the hacs.json file."""
+        if not "hacs.json" in [x.filename for x in self.tree]:
+            return
         if self.ref is None:
             self.ref = version_to_install(self)
         try:
@@ -449,125 +353,44 @@ class HacsRepository(Hacs):
             self.repository_manifest = HacsManifest.from_dict(
                 json.loads(manifest.content)
             )
+            self.data.update_data(json.loads(manifest.content))
         except (AIOGitHubException, Exception):  # Gotta Catch 'Em All
             pass
 
-    async def get_info_md_content(self):
-        """Get the content of info.md"""
-        from ..handler.template import render_template
-
-        if self.ref is None:
-            self.ref = version_to_install(self)
-
-        info = None
-        info_files = ["info", "info.md"]
-
-        if self.repository_manifest is not None:
-            if self.repository_manifest.render_readme:
-                info_files = ["readme", "readme.md"]
-        try:
-            root = await self.repository_object.get_contents("", self.ref)
-            for file in root:
-                if file.name.lower() in info_files:
-
-                    info = await self.repository_object.get_contents(
-                        file.name, self.ref
-                    )
-                    break
-            if info is None:
-                self.information.additional_info = ""
-            else:
-                info = info.content.replace("<svg", "<disabled").replace(
-                    "</svg", "</disabled"
-                )
-
-                self.information.additional_info = render_template(info, self)
-
-        except (AIOGitHubException, Exception):
-            self.information.additional_info = ""
-
-    async def get_releases(self):
-        """Get repository releases."""
-        if self.status.show_beta:
-            self.releases.objects = await self.repository_object.get_releases(
-                prerelease=True, returnlimit=self.configuration.release_limit
-            )
-        else:
-            self.releases.objects = await self.repository_object.get_releases(
-                prerelease=False, returnlimit=self.configuration.release_limit
-            )
-
-        if not self.releases.objects:
-            return
-
-        self.releases.releases = True
-
-        self.releases.published_tags = []
-
-        for release in self.releases.objects:
-            self.releases.published_tags.append(release.tag_name)
-
-        self.releases.last_release_object = self.releases.objects[0]
-        if self.status.selected_tag is not None:
-            if self.status.selected_tag != self.information.default_branch:
-                for release in self.releases.objects:
-                    if release.tag_name == self.status.selected_tag:
-                        self.releases.last_release_object = release
-                        break
-        if self.releases.last_release_object.assets:
-            self.releases.last_release_object_downloads = self.releases.last_release_object.assets[
-                0
-            ].attributes.get(
-                "download_count"
-            )
-        self.versions.available = self.releases.objects[0].tag_name
-
     def remove(self):
         """Run remove tasks."""
-        # Attach logger
-        if self.logger is None:
-            self.logger = Logger(
-                f"hacs.repository.{self.information.category}.{self.information.full_name}"
-            )
         self.logger.info("Starting removal")
 
-        if self.information.uid in self.common.installed:
-            self.common.installed.remove(self.information.uid)
-        for repository in self.repositories:
+        if self.information.uid in self.hacs.common.installed:
+            self.hacs.common.installed.remove(self.information.uid)
+        for repository in self.hacs.repositories:
             if repository.information.uid == self.information.uid:
-                self.repositories.remove(repository)
+                self.hacs.repositories.remove(repository)
 
     async def uninstall(self):
         """Run uninstall tasks."""
-        # Attach logger
-        if self.logger is None:
-            self.logger = Logger(
-                f"hacs.repository.{self.information.category}.{self.information.full_name}"
-            )
         self.logger.info("Uninstalling")
         await self.remove_local_directory()
         self.status.installed = False
-        if self.information.category == "integration":
+        if self.data.category == "integration":
             if self.config_flow:
                 await self.reload_custom_components()
             else:
                 self.pending_restart = True
-        elif self.information.category == "theme":
+        elif self.data.category == "theme":
             try:
-                await self.hass.services.async_call("frontend", "reload_themes", {})
+                await self.hacs.hass.services.async_call(
+                    "frontend", "reload_themes", {}
+                )
             except Exception:  # pylint: disable=broad-except
                 pass
-        if self.information.full_name in self.common.installed:
-            self.common.installed.remove(self.information.full_name)
+        if self.data.full_name in self.hacs.common.installed:
+            self.hacs.common.installed.remove(self.data.full_name)
         self.versions.installed = None
         self.versions.installed_commit = None
-        self.hass.bus.async_fire(
+        self.hacs.hass.bus.async_fire(
             "hacs/repository",
-            {
-                "id": 1337,
-                "action": "uninstall",
-                "repository": self.information.full_name,
-            },
+            {"id": 1337, "action": "uninstall", "repository": self.data.full_name},
         )
 
     async def remove_local_directory(self):
@@ -576,13 +399,11 @@ class HacsRepository(Hacs):
         from asyncio import sleep
 
         try:
-            if self.information.category == "python_script":
-                local_path = "{}/{}.py".format(
-                    self.content.path.local, self.information.name
-                )
-            elif self.information.category == "theme":
+            if self.data.category == "python_script":
+                local_path = "{}/{}.py".format(self.content.path.local, self.data.name)
+            elif self.data.category == "theme":
                 local_path = "{}/{}.yaml".format(
-                    self.content.path.local, self.information.name
+                    self.content.path.local, self.data.name
                 )
             else:
                 local_path = self.content.path.local
@@ -590,7 +411,7 @@ class HacsRepository(Hacs):
             if os.path.exists(local_path):
                 self.logger.debug(f"Removing {local_path}")
 
-                if self.information.category in ["python_script", "theme"]:
+                if self.data.category in ["python_script", "theme"]:
                     os.remove(local_path)
                 else:
                     shutil.rmtree(local_path)

@@ -6,17 +6,11 @@
 ###################################
 
 homeassistant:
-  customize_glob:
-    "sensor.skybell_*":
-      icon: mdi:camera-front
-
-      hidden: False
-      homebridge_hidden: True
 
 group:
   skybell:
     name: Skybell HD Front Door
-    
+
     entities:
       - binary_sensor.skybell_front_door_button
       - binary_sensor.skybell_front_door_motion
@@ -63,7 +57,7 @@ switch:
 ## Doorbell Press
 automation:
   - alias: 'Log SkyBell Pressed Activity'
-    
+
     trigger:
        - platform: state
          entity_id:
@@ -87,7 +81,7 @@ automation:
 
 # Motion Sensing
   - alias: 'Log SkyBell Motion detection'
-    
+
     trigger:
       - platform: event
         event_type: skybell_motion
@@ -98,7 +92,7 @@ automation:
 # Turn SkyBell Light and Neato Schedule back on if it's turned off. Like any Good Watchdog.
 
   - alias: Automated Mismatch WatchDog!
-    
+
     trigger:
       - platform: state
         entity_id:

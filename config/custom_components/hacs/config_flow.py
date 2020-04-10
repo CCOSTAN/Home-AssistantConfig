@@ -2,15 +2,16 @@
 # pylint: disable=dangerous-default-value
 import logging
 import voluptuous as vol
-from aiogithubapi import AIOGitHub, AIOGitHubException, AIOGitHubAuthentication
+from aiogithubapi import AIOGitHubException, AIOGitHubAuthentication
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
 
 from .const import DOMAIN
-from . import Hacs
 from .configuration_schema import hacs_base_config_schema, hacs_config_option_schema
 
+from custom_components.hacs.globals import get_hacs
+from custom_components.hacs.helpers.information import get_repository
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Show the configuration form to edit location data."""
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(hacs_base_config_schema(user_input)),
+            data_schema=vol.Schema(hacs_base_config_schema(user_input, True)),
             errors=self._errors,
         )
 
@@ -69,8 +70,7 @@ class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Return true if token is valid."""
         try:
             session = aiohttp_client.async_get_clientsession(self.hass)
-            client = AIOGitHub(token, session)
-            await client.get_repo("hacs/org")
+            await get_repository(session, token, "hacs/org")
             return True
         except (AIOGitHubException, AIOGitHubAuthentication) as exception:
             _LOGGER.error(exception)
@@ -90,10 +90,11 @@ class HacsOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
+        hacs = get_hacs()
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        if Hacs.configuration.config_type == "yaml":
+        if hacs.configuration.config_type == "yaml":
             schema = {vol.Optional("not_in_use", default=""): str}
         else:
             schema = hacs_config_option_schema(self.config_entry.options)

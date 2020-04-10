@@ -1,51 +1,57 @@
 """Setup functions for HACS."""
 # pylint: disable=bad-continuation
+from hacs_frontend.version import VERSION as FE_VERSION
+from homeassistant.helpers import discovery
+
+from custom_components.hacs.hacsbase.exceptions import HacsException
+from custom_components.hacs.const import VERSION, DOMAIN
+from custom_components.hacs.globals import get_hacs
+from custom_components.hacs.helpers.information import get_repository
+from custom_components.hacs.helpers.register_repository import register_repository
 
 
-async def load_hacs_repository(hacs):
+async def load_hacs_repository():
     """Load HACS repositroy."""
-    from .const import VERSION
-    from aiogithubapi import (
-        AIOGitHubAuthentication,
-        AIOGitHubException,
-        AIOGitHubRatelimit,
-    )
+    hacs = get_hacs()
 
     try:
-        repository = hacs().get_by_name("hacs/integration")
+        repository = hacs.get_by_name("hacs/integration")
         if repository is None:
-            await hacs().register_repository("hacs/integration", "integration")
-            repository = hacs().get_by_name("hacs/integration")
+            await register_repository("hacs/integration", "integration")
+            repository = hacs.get_by_name("hacs/integration")
         if repository is None:
-            raise AIOGitHubException("Unknown error")
+            raise HacsException("Unknown error")
         repository.status.installed = True
         repository.versions.installed = VERSION
         repository.status.new = False
         hacs.repo = repository.repository_object
-        hacs.data_repo = await hacs().github.get_repo("hacs/default")
-    except (
-        AIOGitHubException,
-        AIOGitHubRatelimit,
-        AIOGitHubAuthentication,
-    ) as exception:
-        hacs.logger.critical(f"[{exception}] - Could not load HACS!")
+        hacs.data_repo = await get_repository(
+            hacs.session, hacs.configuration.token, "hacs/default"
+        )
+    except HacsException as exception:
+        if "403" in f"{exception}":
+            hacs.logger.critical("GitHub API is ratelimited, or the token is wrong.")
+        else:
+            hacs.logger.critical(f"[{exception}] - Could not load HACS!")
         return False
     return True
 
 
-def setup_extra_stores(hacs):
+def setup_extra_stores():
     """Set up extra stores in HACS if enabled in Home Assistant."""
+    hacs = get_hacs()
     if "python_script" in hacs.hass.config.components:
-        hacs.common.categories.append("python_script")
+        if "python_script" not in hacs.common.categories:
+            hacs.common.categories.append("python_script")
 
     if hacs.hass.services.services.get("frontend", {}).get("reload_themes") is not None:
-        hacs.common.categories.append("theme")
+        if "theme" not in hacs.common.categories:
+            hacs.common.categories.append("theme")
 
 
-def add_sensor(hacs):
+def add_sensor():
     """Add sensor."""
-    from .const import DOMAIN
-    from homeassistant.helpers import discovery
+    hacs = get_hacs()
 
     try:
         if hacs.configuration.config_type == "yaml":
@@ -64,11 +70,12 @@ def add_sensor(hacs):
         pass
 
 
-async def setup_frontend(hacs):
+async def setup_frontend():
     """Configure the HACS frontend elements."""
     from .http import HacsFrontend, HacsPluginViewLegacy
     from .ws_api_handlers import setup_ws_api
-    from hacs_frontend.version import VERSION as FE_VERSION
+
+    hacs = get_hacs()
 
     hacs.hass.http.register_view(HacsFrontend())
     hacs.frontend.version_running = FE_VERSION

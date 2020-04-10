@@ -13,6 +13,8 @@
         "integration": "自定义组件",
         "integrations": "自定义组件",
         "manage": "管理",
+        "netdaemon": "NetDaemon应用",
+        "netdaemon_apps": "NetDaemon应用",
         "plugin": "Lovelace插件",
         "plugins": "Lovelace插件",
         "python_script": "Python脚本",
@@ -34,6 +36,7 @@
             "user": {
                 "data": {
                     "appdaemon": "启用AppDaemon应用发现和跟踪",
+                    "netdaemon": "启用NetDaemon应用发现和跟踪",
                     "python_script": "启用python_scripts发现和跟踪",
                     "sidepanel_icon": "侧面板图标",
                     "sidepanel_title": "侧面板标题",
@@ -52,12 +55,12 @@
         "cancel": "取消",
         "continue": "你确定你要继续吗？",
         "delete": "是否确实要删除\"{item}\"？",
-        "delete_installed": "已安装“ {item}”，需要先将其卸载，然后才能将其删除。",
+        "delete_installed": "已安装 '{item}'，需要先将其卸载，然后才能将其删除。",
         "exist": "{item}已经存在",
         "generic": "你确定吗？",
         "home_assistant_is_restarting": "请等待，Home Assistant现在正在重新启动。",
         "home_assistant_version_not_correct": "您正在运行Home Assistant的版本为'{haversion}'，但是这个需要安装最低版本是'{minversion}'。",
-        "no": "不",
+        "no": "取消",
         "no_upgrades": "暂无升级",
         "ok": "确定",
         "overwrite": "这样做会覆盖它。",
@@ -65,7 +68,7 @@
         "restart_home_assistant": "您确定要重新启动Home Assistant吗？",
         "uninstall": "您确定要卸载“ {item} ”吗？",
         "upgrade_all": "这将升级所有这些仓库，请确保在继续之前已阅读所有仓库的发行说明。",
-        "yes": "是"
+        "yes": "确定"
     },
     "options": {
         "step": {
@@ -75,6 +78,7 @@
                     "country": "用国家代码过滤。",
                     "debug": "启用调试。",
                     "experimental": "启用实验功能",
+                    "netdaemon": "启用NetDaemon应用发现和跟踪",
                     "not_in_use": "不适用于 YAML",
                     "release_limit": "要显示的发行数量。",
                     "sidepanel_icon": "侧面板图标",
@@ -128,8 +132,8 @@
     },
     "settings": {
         "add_custom_repository": "添加自定义仓库",
-        "adding_new_repo": "添加新的仓库“ {repo}”",
-        "adding_new_repo_category": "类别为“ {category}”。",
+        "adding_new_repo": "添加新的仓库 '{repo}'",
+        "adding_new_repo_category": "类别为 '{category}'。",
         "bg_task_custom": "自定义仓库在后台任务运行时被隐藏。",
         "category": "类别",
         "compact_mode": "紧凑模式",

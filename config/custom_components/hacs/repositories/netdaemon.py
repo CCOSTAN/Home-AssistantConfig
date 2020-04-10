@@ -1,39 +1,48 @@
-"""Class for python_scripts in HACS."""
+"""Class for netdaemon apps in HACS."""
 from integrationhelper import Logger
 
 from .repository import HacsRepository
 from ..hacsbase.exceptions import HacsException
-from ..helpers.information import find_file_name
+
+from custom_components.hacs.helpers.filters import get_first_directory_in_directory
 
 
-class HacsPythonScript(HacsRepository):
-    """python_scripts in HACS."""
-
-    category = "python_script"
+class HacsNetdaemon(HacsRepository):
+    """Netdaemon apps in HACS."""
 
     def __init__(self, full_name):
         """Initialize."""
         super().__init__()
         self.data.full_name = full_name
-        self.data.category = "python_script"
-        self.content.path.remote = "python_scripts"
-        self.content.path.local = f"{self.hacs.system.config_path}/python_scripts"
-        self.content.single = True
+        self.data.category = "netdaemon"
+        self.content.path.local = self.localpath
+        self.content.path.remote = "apps"
         self.logger = Logger(f"hacs.repository.{self.data.category}.{full_name}")
+
+    @property
+    def localpath(self):
+        """Return localpath."""
+        return f"{self.hacs.system.config_path}/netdaemon/apps/{self.data.name}"
 
     async def validate_repository(self):
         """Validate."""
-        # Run common validation steps.
         await self.common_validate()
 
         # Custom step 1: Validate content.
-        if self.data.content_in_root:
-            self.content.path.remote = ""
+        if self.repository_manifest:
+            if self.data.content_in_root:
+                self.content.path.remote = ""
+
+        if self.content.path.remote == "apps":
+            self.data.domain = get_first_directory_in_directory(
+                self.tree, self.content.path.remote
+            )
+            self.content.path.remote = f"apps/{self.data.name}"
 
         compliant = False
         for treefile in self.treefiles:
             if treefile.startswith(f"{self.content.path.remote}") and treefile.endswith(
-                ".py"
+                ".cs"
             ):
                 compliant = True
                 break
@@ -57,31 +66,25 @@ class HacsPythonScript(HacsRepository):
         # Run common registration steps.
         await self.common_registration()
 
-        # Set name
-        find_file_name(self)
+        # Set local path
+        self.content.path.local = self.localpath
 
-    async def update_repository(self):  # lgtm[py/similar-function]
+    async def update_repository(self):
         """Update."""
         if self.hacs.github.ratelimits.remaining == 0:
             return
-        # Run common update steps.
         await self.common_update()
 
-        # Get python_script objects.
-        if self.data.content_in_root:
-            self.content.path.remote = ""
+        # Get appdaemon objects.
+        if self.repository_manifest:
+            if self.data.content_in_root:
+                self.content.path.remote = ""
 
-        compliant = False
-        for treefile in self.treefiles:
-            if treefile.startswith(f"{self.content.path.remote}") and treefile.endswith(
-                ".py"
-            ):
-                compliant = True
-                break
-        if not compliant:
-            raise HacsException(
-                f"Repostitory structure for {self.ref.replace('tags/','')} is not compliant"
+        if self.content.path.remote == "apps":
+            self.data.domain = get_first_directory_in_directory(
+                self.tree, self.content.path.remote
             )
+            self.content.path.remote = f"apps/{self.data.name}"
 
-        # Update name
-        find_file_name(self)
+        # Set local path
+        self.content.path.local = self.localpath
