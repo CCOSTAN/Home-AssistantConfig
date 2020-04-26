@@ -21,7 +21,7 @@
     - service: script.speech_engine
       data_template:
         personarriving: >
-          {% set person = trigger.entity_id.split('.')[1]|replace('_', ' ')%}
+          {% set person = state_attr(trigger.entity_id, "friendly_name")%}
           {%- macro greeting_sentence(person) -%}
           {{ [
           "Welcome back home " ~ person,
