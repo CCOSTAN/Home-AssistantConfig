@@ -20,8 +20,9 @@
         {{ states.binary_sensor.kitchen_door.state == 'on' }}
     - service: script.speech_engine
       data_template:
+#         {% set person = state_attr(trigger.entity_id, "friendly_name")%}      This is another way to do it.
         personarriving: >
-          {% set person = state_attr(trigger.entity_id, "friendly_name")%}
+          {% set person = trigger.entity_id.split('.')[1]|replace('_', ' ')%}
           {%- macro greeting_sentence(person) -%}
           {{ [
           "Welcome back home " ~ person,
