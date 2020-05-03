@@ -5,53 +5,49 @@
 #-------------------------------------------
 homeassistant:
   customize_glob:
-    "sensor.epson_ink_level_*":
-      icon: mdi:cup-water
-      
-      hidden: False
       homebridge_hidden: True
 #-------------------------------------------
-sensor:
-  - platform: command_line
-    name: Epson Ink Level Black
-    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_K.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100; exit }'
-    unit_of_measurement: '%'
-    scan_interval: 14400
-
-  - platform: command_line
-    name: Epson Ink Level Magenta
-    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_M.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
-    unit_of_measurement: '%'
-    scan_interval: 14400
-
-  - platform: command_line
-    name: Epson Ink Level Yellow
-    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_Y.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
-    unit_of_measurement: '%'
-    scan_interval: 14400
-
-  - platform: command_line
-    name: Epson Ink Level Cyan
-    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_C.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
-    unit_of_measurement: '%'
-    scan_interval: 14400
-
-  - platform: command_line
-    name: Epson Ink Level Photo Black
-    command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_K.PNG/ {i++}i==2 && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100; exit }'
-    unit_of_measurement: '%'
-    scan_interval: 14400
+# sensor:
+#   - platform: command_line
+#     name: Epson Ink Level Black
+#     command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_K.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100; exit }'
+#     unit_of_measurement: '%'
+#     scan_interval: 14400
+#
+#   - platform: command_line
+#     name: Epson Ink Level Magenta
+#     command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_M.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
+#     unit_of_measurement: '%'
+#     scan_interval: 14400
+#
+#   - platform: command_line
+#     name: Epson Ink Level Yellow
+#     command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_Y.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
+#     unit_of_measurement: '%'
+#     scan_interval: 14400
+#
+#   - platform: command_line
+#     name: Epson Ink Level Cyan
+#     command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_C.PNG/ && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100 }'
+#     unit_of_measurement: '%'
+#     scan_interval: 14400
+#
+#   - platform: command_line
+#     name: Epson Ink Level Photo Black
+#     command: /usr/bin/curl -X GET http://192.168.10.105/PRESENTATION/HTML/TOP/PRTINFO.HTML  | awk -F"'" '/Ink_K.PNG/ {i++}i==2 && $6+0 == $6 { printf "%.0f\n", $6 / 50 * 100; exit }'
+#     unit_of_measurement: '%'
+#     scan_interval: 14400
 #-------------------------------------------
 group:
   epson_printer:
     name: Epson Printer Info
-    
+
     entities:
-      - sensor.epson_ink_level_black
-      - sensor.epson_ink_level_cyan
-      - sensor.epson_ink_level_magenta
-      - sensor.epson_ink_level_yellow
-      - sensor.epson_ink_level_photo_black
+      - sensor.epson_xp_7100_series_black_ink
+      - sensor.epson_xp_7100_series_cyan_ink
+      - sensor.epson_xp_7100_series_magenta_ink
+      - sensor.epson_xp_7100_series_yellow_ink
+      - sensor.epson_xp_7100_series_photo_black_ink
 #-------------------------------------------
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
@@ -63,12 +59,12 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id:
-          - sensor.epson_ink_level_black
-          - sensor.epson_ink_level_magenta
-          - sensor.epson_ink_level_photo_black
-          - sensor.epson_ink_level_yellow
-          - sensor.epson_ink_level_cyan
-        below: 25
+          - sensor.epson_xp_7100_series_black_ink
+          - sensor.epson_xp_7100_series_cyan_ink
+          - sensor.epson_xp_7100_series_magenta_ink
+          - sensor.epson_xp_7100_series_yellow_ink
+          - sensor.epson_xp_7100_series_photo_black_ink
+        below: 15
     condition:
       condition: time
       weekday:
@@ -85,6 +81,6 @@ automation:
           who: 'carlo'
       - service: script.tweet_engine
         data:
-          tweet: 'Looks like my {{ trigger.to_state.attributes.friendly_name }} is LOW. @CCostan - Get me some more (http://amzn.to/2AnpFwD)'
+          tweet: 'Looks like my {{ trigger.to_state.attributes.friendly_name }} is LOW. @CCostan - Get me some more (https://amzn.to/2AnpFwD)'
 
 #-------------------------------------------
