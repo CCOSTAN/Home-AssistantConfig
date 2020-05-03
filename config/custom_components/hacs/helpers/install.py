@@ -11,6 +11,8 @@ async def install_repository(repository):
     """Common installation steps of the repository."""
     persistent_directory = None
     await repository.update_repository()
+    if repository.content.path.local is None:
+        raise HacsException("repository.content.path.local is None")
     repository.validate.errors = []
 
     if not repository.can_install:
@@ -94,7 +96,7 @@ async def reload_after_install(repository):
     elif repository.data.category == "netdaemon":
         try:
             await repository.hacs.hass.services.async_call(
-                "hassio", "addon_restart", {"addon": "e466aeb3_netdaemon"}
+                "hassio", "addon_restart", {"addon": "c6a2317c_netdaemon"}
             )
         except Exception:  # pylint: disable=broad-except
             pass

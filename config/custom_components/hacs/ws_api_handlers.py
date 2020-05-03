@@ -55,13 +55,6 @@ async def hacs_settings(hass, connection, msg):
     elif action == "set_fe_compact_false":
         hacs.configuration.frontend_compact = True
 
-    elif action == "reload_data":
-        hacs.system.status.reloading_data = True
-        hass.bus.async_fire("hacs/status", {})
-        await hacs.recuring_tasks_all()
-        hacs.system.status.reloading_data = False
-        hass.bus.async_fire("hacs/status", {})
-
     elif action == "upgrade_all":
         hacs.system.status.upgrading_all = True
         hacs.system.status.background_task = True
@@ -79,9 +72,7 @@ async def hacs_settings(hass, connection, msg):
         for repo in hacs.repositories:
             if msg.get("category") == repo.data.category:
                 if repo.status.new:
-                    hacs.logger.debug(
-                        f"Clearing new flag from '{repo.data.full_name}'"
-                    )
+                    hacs.logger.debug(f"Clearing new flag from '{repo.data.full_name}'")
                     repo.status.new = False
     else:
         hacs.logger.error(f"WS action '{action}' is not valid")
@@ -212,11 +203,10 @@ async def hacs_repository(hass, connection, msg):
             was_installed = repository.status.installed
             await repository.install()
             if not was_installed:
-                hass.bus.async_fire("hacs/reload", {"force": False})
+                hass.bus.async_fire("hacs/reload", {"force": True})
 
         elif action == "uninstall":
             await repository.uninstall()
-            hass.bus.async_fire("hacs/reload", {"force": False})
 
         elif action == "hide":
             repository.status.hide = True
@@ -243,19 +233,26 @@ async def hacs_repository(hass, connection, msg):
                 repository.status.selected_tag = msg["version"]
             await repository.update_repository()
 
+            hass.bus.async_fire("hacs/reload", {"force": True})
+
         else:
             hacs.logger.error(f"WS action '{action}' is not valid")
 
-        repository.state = None
         await hacs.data.async_write()
+        message = None
     except AIOGitHubException as exception:
+        message = str(exception)
         hass.bus.async_fire("hacs/error", {"message": str(exception)})
     except AttributeError as exception:
-        hass.bus.async_fire(
-            "hacs/error", {"message": f"Could not use repository with ID {repo_id}"}
-        )
+        message = f"Could not use repository with ID {repo_id}"
     except Exception as exception:  # pylint: disable=broad-except
-        hass.bus.async_fire("hacs/error", {"message": str(exception)})
+        message = str(exception)
+
+    if message is not None:
+        hacs.logger.error(message)
+        hass.bus.async_fire("hacs/error", {"message": message})
+
+    repository.state = None
 
 
 @websocket_api.async_response

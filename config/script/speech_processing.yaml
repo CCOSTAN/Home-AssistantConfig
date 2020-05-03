@@ -75,7 +75,7 @@ speech_processing:
           {% if states.group.bed.state == 'off' %}
           media_player.livingroomCC
           {% else %}
-          media_player.alarm_clock, media_player.bedroom_alarm_panel
+          media_player.tap
           {% endif %}
         message: >-
           <speak>

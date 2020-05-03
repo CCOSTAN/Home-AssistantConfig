@@ -3,7 +3,7 @@
 ###################################
 
 - alias: Startup Notification and Shut startup lights
-  
+
   trigger:
     - platform: homeassistant
       event: start
@@ -26,3 +26,14 @@
       data:
         topic: "garadget/Garadget Large/command"
         payload: "get-status"
+
+    - service: notify.alexa_media
+      data:
+        target:
+          - media_player.office
+          - media_player.kitchen
+        title: "Home Assistant Restarted"
+        data:
+          type: announce
+          #method: all
+        message: "Home Assistant has been restarted."

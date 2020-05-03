@@ -12,6 +12,7 @@ from ..handler.download import async_download_file, async_save_file
 from ..helpers.misc import version_left_higher_then_right
 from ..helpers.install import install_repository, version_to_install
 
+from custom_components.hacs.hacsbase.exceptions import HacsException
 from custom_components.hacs.globals import get_hacs
 from custom_components.hacs.helpers.information import (
     get_info_md_content,
@@ -109,6 +110,7 @@ class HacsRepository:
         self.repository_object = None
         self.status = RepositoryStatus()
         self.state = None
+        self.force_branch = False
         self.integration_manifest = {}
         self.repository_manifest = HacsManifest.from_dict({})
         self.validate = Validate()
@@ -122,6 +124,8 @@ class HacsRepository:
     @property
     def pending_upgrade(self):
         """Return pending upgrade."""
+        if not self.can_install:
+            return False
         if self.status.installed:
             if self.status.selected_tag is not None:
                 if self.status.selected_tag == self.data.default_branch:
@@ -272,6 +276,10 @@ class HacsRepository:
         # Set description
         self.data.description = self.data.description
 
+        if self.hacs.action:
+            if self.data.description is None or len(self.data.description) == 0:
+                raise HacsException("Missing repository description")
+
     async def common_update(self):
         """Common information update steps of the repository."""
         self.logger.debug("Getting repository information")
@@ -345,7 +353,12 @@ class HacsRepository:
     async def get_repository_manifest_content(self):
         """Get the content of the hacs.json file."""
         if not "hacs.json" in [x.filename for x in self.tree]:
+            if self.hacs.action:
+                raise HacsException("No hacs.json file in the root of the repository.")
             return
+        if self.hacs.action:
+            self.logger.debug("Found hacs.json")
+
         if self.ref is None:
             self.ref = version_to_install(self)
         try:
@@ -354,8 +367,11 @@ class HacsRepository:
                 json.loads(manifest.content)
             )
             self.data.update_data(json.loads(manifest.content))
-        except (AIOGitHubException, Exception):  # Gotta Catch 'Em All
-            pass
+        except (AIOGitHubException, Exception) as exception:  # Gotta Catch 'Em All
+            if self.hacs.action:
+                raise HacsException(f"hacs.json file is not valid ({exception}).")
+        if self.hacs.action:
+            self.logger.debug("hacs.json is valid")
 
     def remove(self):
         """Run remove tasks."""
@@ -370,7 +386,8 @@ class HacsRepository:
     async def uninstall(self):
         """Run uninstall tasks."""
         self.logger.info("Uninstalling")
-        await self.remove_local_directory()
+        if not await self.remove_local_directory():
+            raise HacsException("Could not uninstall")
         self.status.installed = False
         if self.data.category == "integration":
             if self.config_flow:
@@ -402,16 +419,25 @@ class HacsRepository:
             if self.data.category == "python_script":
                 local_path = "{}/{}.py".format(self.content.path.local, self.data.name)
             elif self.data.category == "theme":
-                local_path = "{}/{}.yaml".format(
-                    self.content.path.local, self.data.name
-                )
+                if os.path.exists(
+                    f"{self.hacs.system.config_path}/{self.hacs.configuration.theme_path}/{self.data.name}.yaml"
+                ):
+                    os.remove(
+                        f"{self.hacs.system.config_path}/{self.hacs.configuration.theme_path}/{self.data.name}.yaml"
+                    )
+                local_path = self.content.path.local
+            elif self.data.category == "integration":
+                if not self.data.domain:
+                    self.logger.error("Missing domain")
+                    return False
+                local_path = self.content.path.local
             else:
                 local_path = self.content.path.local
 
             if os.path.exists(local_path):
                 self.logger.debug(f"Removing {local_path}")
 
-                if self.data.category in ["python_script", "theme"]:
+                if self.data.category in ["python_script"]:
                     os.remove(local_path)
                 else:
                     shutil.rmtree(local_path)
@@ -421,4 +447,5 @@ class HacsRepository:
 
         except Exception as exception:
             self.logger.debug(f"Removing {local_path} failed with {exception}")
-            return
+            return False
+        return True
