@@ -9,7 +9,7 @@ feedreader:
     urls:
       - https://hasspodcast.io/feed/podcast #HA Podcast Feed
       - https://us12.campaign-archive.com/feed?u=45cab4343ffdbeb9667c28a26&id=e01847e94f #This is CCOSTAN's Smart Home Blog feed
-# - http://feeds.feedburner.com/RecentCommitsToBearStoneHA - This is the Repo Commit feed.
+      # - https://feeds.feedburner.com/RecentCommitsToBearStoneHA # - This is the Repo Commit feed.
 #-------------------------------------------
 
 automation:
@@ -19,18 +19,21 @@ automation:
       event_type: feedreader
 
     action:
-      - service: notify.html5
-        data_template:
-          title: "New RSS Item available"
-          message: "New RSS Item - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }} {{trigger.event.data.title}}"
-          data:
-            url: "{{trigger.event.data.link}}"
-
       - service: persistent_notification.create
         data_template:
-          title: "{{trigger.event.data.title}}"
-          message: "New RSS item available - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
-          notification_id: "update_available"
+          title: >
+            {{ trigger.event.data.title }}
+          message: >
+            {% set url = trigger.event.data.feed_url.split('https://')[1] %}
+            {% set source = {'https://us12.campaign-archive.com/feed?u=45cab4343ffdbeb9667c28a26&id=e01847e94f':'vCloudInfo.com',
+                             'hasspodcast.io/feed/podcast':'Hass podcast'} %}
+            New Rss feed for {{source[url] if url in source else 'Unknown'}}, see
+            {{trigger.event.data.link}},{{trigger.event.data.author}}
+          notification_id: >
+            {% set url = trigger.event.data.feed_url.split('https://')[1] %}
+            {% set source = {'https://us12.campaign-archive.com/feed?u=45cab4343ffdbeb9667c28a26&id=e01847e94f':'vCloudInfo.com',
+                             'hasspodcast.io/feed/podcast':'Hass podcast'} %}
+            rss-feed-{{source[url] if url in source else 'Unknown'}}
 
 ############ everything below this line should be deleted if using as a drop in package. ####################
 
