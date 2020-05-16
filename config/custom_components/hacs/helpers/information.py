@@ -84,7 +84,6 @@ async def get_integration_manifest(repository):
         repository.data.authors = manifest["codeowners"]
         repository.data.domain = manifest["domain"]
         repository.data.manifest_name = manifest["name"]
-        repository.data.homeassistant = manifest.get("homeassistant")
 
         if repository.hacs.action:
             if manifest.get("documentation") is None:
@@ -93,6 +92,8 @@ async def get_integration_manifest(repository):
                 raise HacsException(
                     "The homeassistant key in manifest.json is no longer valid"
                 )
+            # if manifest.get("issue_tracker") is None:
+            #    raise HacsException("The 'issue_tracker' is missing in manifest.json")
 
         # Set local path
         repository.content.path.local = repository.localpath
