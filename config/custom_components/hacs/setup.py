@@ -21,9 +21,9 @@ async def load_hacs_repository():
             repository = hacs.get_by_name("hacs/integration")
         if repository is None:
             raise HacsException("Unknown error")
-        repository.status.installed = True
-        repository.versions.installed = VERSION
-        repository.status.new = False
+        repository.data.installed = True
+        repository.data.installed_version = VERSION
+        repository.data.new = False
         hacs.repo = repository.repository_object
         hacs.data_repo = await get_repository(
             hacs.session, hacs.configuration.token, "hacs/default"
@@ -72,16 +72,13 @@ def add_sensor():
 
 async def setup_frontend():
     """Configure the HACS frontend elements."""
-    from .http import HacsFrontend, HacsPluginViewLegacy
+    from .http import HacsFrontend
     from .ws_api_handlers import setup_ws_api
 
     hacs = get_hacs()
 
     hacs.hass.http.register_view(HacsFrontend())
     hacs.frontend.version_running = FE_VERSION
-
-    # Legacy views, remove with 2.0
-    hacs.hass.http.register_view(HacsPluginViewLegacy())
 
     # Add to sidepanel
     custom_panel_config = {

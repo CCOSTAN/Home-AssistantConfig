@@ -2,25 +2,35 @@
     "common": {
         "about": "Om",
         "appdaemon_apps": "AppDaemon-apps",
+        "appdaemon_plural": "AppDaemon-apps",
         "background_task": "Baggrundsopgave kører. Denne side vil genindlæses automatisk.",
         "check_log_file": "Tjek din logfil for flere detaljer.",
         "continue": "Fortsæt",
         "disabled": "Deaktiveret",
         "documentation": "Dokumentation",
+        "element": "element",
         "hacs_is_disabled": "HACS er deaktiveret",
         "installed": "installeret",
         "integration": "Integration",
+        "integration_plural": "Integrationer",
         "integrations": "Integrationer",
+        "lovelace": "Lovelace",
+        "lovelace_element": "Lovelace-element",
+        "lovelace_elements": "Lovelace-elementer",
         "manage": "administrer",
         "netdaemon": "NetDaemon",
         "netdaemon_apps": "NetDaemon-apps",
-        "plugin": "Plugin",
-        "plugins": "Plugins",
+        "netdaemon_plural": "NetDaemon-apps",
+        "plugin": "Lovelace",
+        "plugin_plural": "Lovelace-elementer",
+        "plugins": "Lovelace-elementer",
         "python_script": "Python-script",
+        "python_script_plural": "Python-scripts",
         "python_scripts": "Python-scripts",
         "repositories": "Repositories",
         "settings": "indstillinger",
         "theme": "Tema",
+        "theme_plural": "Temaer",
         "themes": "Temaer",
         "version": "Version"
     },
@@ -90,7 +100,7 @@
         "integration_not_loaded": "Denne integration er ikke indlæst i Home Assistant.",
         "no_restart_required": "Ingen genstart påkrævet",
         "not_loaded": "Ikke indlæst",
-        "plugin_not_loaded": "Dette plugin er ikke føjet til dine Lovelace-ressourcer.",
+        "plugin_not_loaded": "Dette element er ikke føjet til dine Lovelace-ressourcer.",
         "restart": "Du skal genstarte Home Assistant.",
         "restart_pending": "Afventer genstart"
     },
@@ -111,7 +121,7 @@
         "installed": "Installeret",
         "lovelace_copy_example": "Kopiér eksemplet til din Udklipsholder",
         "lovelace_instruction": "Tilføj dette til din lovelace-konfiguration",
-        "lovelace_no_js_type": "Kunne ikke afgøre typen af dette plugin, tjek venligst repository.",
+        "lovelace_no_js_type": "Kunne ikke afgøre typen af dette element, tjek venligst repository'et.",
         "newest": "nyeste",
         "note_appdaemon": "Du skal stadig føje den til filen 'apps.yaml'",
         "note_installed": "Når det er installeret, vil dette være placeret i",
@@ -119,7 +129,7 @@
         "note_plugin": "du skal stadig tilføje det til din lovelace-konfiguration ('ui-lovelace.yaml' eller Tekstbaseret redigering)",
         "note_plugin_post_107": "du skal stadig tilføje det til din lovelace-konfiguration ('configuration.yaml' eller ressourceeditoren '\/config\/lovelace\/resources')",
         "open_issue": "Opret issue",
-        "open_plugin": "Åbn plugin",
+        "open_plugin": "Åbn element",
         "reinstall": "Geninstaller",
         "repository": "Repository",
         "restart_home_assistant": "Genstart Home Assistant",
@@ -127,6 +137,25 @@
         "uninstall": "Afinstaller",
         "update_information": "Opdater oplysninger",
         "upgrade": "Opdater"
+    },
+    "sections": {
+        "about": {
+            "description": "Vis information om HACS",
+            "title": "Om"
+        },
+        "automation": {
+            "description": "Det er her, du finder python_scripts, AppDaemon-apps og NetDaemon-apps",
+            "title": "Automatisering"
+        },
+        "frontend": {
+            "description": "Det er her, du finder temaer, brugerdefinerede kort og andre elementer til lovelace",
+            "title": "Frontend"
+        },
+        "integrations": {
+            "description": "Det er her, du finder brugerdefinerede integrationer (custom_components)",
+            "title": "Integrationer"
+        },
+        "pending_repository_upgrade": "Du kører version {installed}, version {available} er tilgængelig"
     },
     "settings": {
         "add_custom_repository": "TILFØJ ET BRUGERDEFINERET REPOSITORY",

@@ -1,28 +1,43 @@
 {
     "common": {
         "about": "Om",
+        "add": "legg til",
         "appdaemon": "AppDaemon",
         "appdaemon_apps": "AppDaemon Apper",
+        "appdaemon_plural": "AppDaemon-apper",
         "background_task": "Bakgrunnsoppgaven kjører. Denne siden lastes inn på nytt når den er ferdig.",
         "check_log_file": "Sjekk loggfilen din for mer informasjon.",
         "continue": "Fortsett",
         "disabled": "Deaktivert",
         "documentation": "dokumentasjon",
+        "element": "element",
         "hacs_is_disabled": "HACS er deaktivert",
+        "install": "Installer",
         "installed": "Installert",
         "integration": "Integrasjon",
+        "integration_plural": "Integrasjoner",
         "integrations": "Integrasjoner",
+        "lovelace": "Lovelace",
+        "lovelace_element": "Lovelace-element",
+        "lovelace_elements": "Lovelace-elementer",
         "manage": "manage",
         "netdaemon": "NetDaemon",
         "netdaemon_apps": "NetDaemon Apper",
-        "plugin": "Plugin",
-        "plugins": "Plugins",
+        "netdaemon_plural": "NetDaemon-apper",
+        "plugin": "Lovelace",
+        "plugin_plural": "Lovelace-elementer",
+        "plugins": "Lovelace-elementer",
         "python_script": "Python-skript",
+        "python_script_plural": "Python-skript",
         "python_scripts": "Python-skript",
         "repositories": "Repositories",
+        "repository": "Repository",
         "settings": "Innstillinger",
         "theme": "Tema",
+        "theme_plural": "Temaer",
         "themes": "Temaer",
+        "uninstall": "Avinstaller",
+        "update": "Oppdater",
         "version": "Versjon"
     },
     "config": {
@@ -70,6 +85,74 @@
         "upgrade_all": "Dette vil oppgradere alle disse repositorene, sørg for at du har lest utgivelses notatene for dem alle før du fortsetter.",
         "yes": "Ja"
     },
+    "dialog_about": {
+        "frontend_version": "Frontend versjon",
+        "installed_repositories": "Installerte repositories",
+        "integration_version": "Integrasjonsversjon",
+        "useful_links": "Nyttige lenker"
+    },
+    "dialog_add_repo": {
+        "limit": "Bare de første 100 elementene vises, bruk søket til å filtrere det du trenger",
+        "no_match": "Ingen elementer funnet som samsvarer med filteret ditt",
+        "title": "Legg til repository"
+    },
+    "dialog_custom_repositories": {
+        "category": "Kategori",
+        "no_category": "Mangler kategori",
+        "no_repository": "Mangler repository",
+        "title": "Custom repositories",
+        "url_placeholder": "Legg til custom repository"
+    },
+    "dialog_info": {
+        "author": "Utgiver",
+        "downloads": "Nedlastinger",
+        "install": "Installer dette elementet i HACS",
+        "loading": "Laster inn informasjon ...",
+        "no_info": "Utvikleren har ikke gitt mer informasjon for dette elementet",
+        "open_issues": "Åpne problemer",
+        "open_repo": "Åpne repository",
+        "stars": "Stjerner",
+        "version_installed": "Versjon installert"
+    },
+    "dialog_install": {
+        "select_version": "Velg versjon",
+        "show_beta": "Vis betaversjoner",
+        "type": "Type",
+        "url": "URL"
+    },
+    "dialog_update": {
+        "available_version": "Tilgjengelig versjon",
+        "changelog": "Endringslogg",
+        "installed_version": "Installert versjon",
+        "title": "Oppdatering venter"
+    },
+    "entry": {
+        "information": "Informasjon",
+        "intro": "Oppdateringer og viktige meldinger vises her hvis det er noen",
+        "messages": {
+            "disabled": {
+                "content": "Sjekk loggfilen din for mer informasjon",
+                "title": "HACS er deaktivert"
+            },
+            "has_pending_tasks": {
+                "content": "Noen elementer vises kanskje ikke før dette er fullført",
+                "title": "Venter på bakgrunnsoppgaver"
+            },
+            "startup": {
+                "content": "HACS starter opp, i løpet av denne tiden kan det hende at noe informasjon mangler eller er feil",
+                "title": "HACS starter opp"
+            }
+        },
+        "pending_updates": "Oppdateringer er klare"
+    },
+    "menu": {
+        "about": "Om HACS",
+        "clear": "Fjern alt nytt",
+        "custom_repositories": "Custom repositories",
+        "documentation": "Dokumentasjon",
+        "open_issue": "Meld et problem",
+        "reload": "Last inn vinduet på nytt"
+    },
     "options": {
         "step": {
             "user": {
@@ -93,9 +176,20 @@
         "integration_not_loaded": "Integrasjonen er ikke lastet inn i Home Assistant.",
         "no_restart_required": "Ingen omstart kreves",
         "not_loaded": "Ikke lastet inn",
-        "plugin_not_loaded": "Denne pluginen er ikke lagt til i lovelace under \"resource\" delen av konfigurasjonen.",
+        "plugin_not_loaded": "Dette elementet er ikke lagt til i lovelace under \"resource\" delen av konfigurasjonen.",
         "restart": "Du må restart Home Assistant",
         "restart_pending": "Restart er nødvendig"
+    },
+    "repository_card": {
+        "hide": "Skjul",
+        "information": "Informasjon",
+        "new_repository": "Ny",
+        "open_issue": "Meld et problem",
+        "open_source": "Åpne kilde",
+        "pending_update": "Oppdatering venter",
+        "reinstall": "Installer på nytt",
+        "report": "Rapporter for fjerning",
+        "update_information": "Oppdater informasjon"
     },
     "repository": {
         "add_to_lovelace": "Legg til i Lovelace",
@@ -113,7 +207,7 @@
         "installed": "Installert",
         "lovelace_copy_example": "Kopier eksemplet til utklippstavlen",
         "lovelace_instruction": "Når du legger til dette i lovelace-konfigurasjonen din, bruk dette",
-        "lovelace_no_js_type": "Kunne ikke bestemme typen for denne plugin, sjekk repository.",
+        "lovelace_no_js_type": "Kunne ikke bestemme typen for dettte elementet, sjekk repository.",
         "newest": "Nyeste",
         "note_appdaemon": "du må fortsatt legge den til i 'apps.yaml' filen",
         "note_installed": "Når det er installert, vil dette ligge i",
@@ -121,7 +215,7 @@
         "note_plugin": "du må fortsatt legge den til i lovelace-konfigurasjonen ('ui-lovelace.yaml' eller den rå UI-konfigurasjonsredigereren)",
         "note_plugin_post_107": "du må fortsatt legge den til i lovelace konfigurasjonen ('configuration.yaml' eller via resource behanleren i grensesnittet '\/config\/lovelace\/resources')",
         "open_issue": "Meld et problem",
-        "open_plugin": "Åpne plugin",
+        "open_plugin": "Åpne kilde",
         "reinstall": "Installer på nytt",
         "repository": "Repository",
         "restart_home_assistant": "Start Home Assistant på nytt",
@@ -129,6 +223,28 @@
         "uninstall": "Avinstaller",
         "update_information": "Oppdater informasjon",
         "upgrade": "Oppdater"
+    },
+    "search": {
+        "placeholder": "Søk etter repository"
+    },
+    "sections": {
+        "about": {
+            "description": "Vis informasjon om HACS",
+            "title": "Om"
+        },
+        "automation": {
+            "description": "Det er her du finner python_scripts, AppDaemon-apper og NetDaemon-apper",
+            "title": "Automasjon"
+        },
+        "frontend": {
+            "description": "Det er her du finner temaer, tilpassede kort og andre elementer for lovelace",
+            "title": "Frontend"
+        },
+        "integrations": {
+            "description": "Det er her du finner tilpassede integrasjoner (custom_components)",
+            "title": "Integrasjoner"
+        },
+        "pending_repository_upgrade": "Du kjører versjon {installed} , versjon {available} er tilgjengelig"
     },
     "settings": {
         "add_custom_repository": "LEGG TIL REPOSITORY",
@@ -161,6 +277,9 @@
         "last_updated": "Sist oppdatert",
         "name": "Navn",
         "new_repositories": "Nye repositories",
+        "no_repositories": "Ingen repositories",
+        "no_repositories_desc1": "Det virker som om du ikke har noen elementer installert i denne delen ennå.",
+        "no_repositories_desc2": "Klikk på + i nederste hjørne for å legge til din første!",
         "pending_upgrades": "Venter på oppgradering",
         "placeholder_search": "Skriv inn et søkeord ...",
         "sort": "sorter",

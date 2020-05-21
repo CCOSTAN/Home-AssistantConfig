@@ -1,28 +1,43 @@
 {
     "common": {
         "about": "About",
+        "add": "add",
         "appdaemon": "AppDaemon",
         "appdaemon_apps": "AppDaemon Apps",
+        "appdaemon_plural": "AppDaemon Apps",
         "background_task": "Background task running, this page will reload when it's done.",
         "check_log_file": "Check your log file for more details.",
         "continue": "Continue",
         "disabled": "Disabled",
         "documentation": "Documentation",
+        "element": "element",
         "hacs_is_disabled": "HACS is disabled",
+        "install": "Install",
         "installed": "installed",
         "integration": "Integration",
+        "integration_plural": "Integrations",
         "integrations": "Integrations",
+        "lovelace": "Lovelace",
+        "lovelace_element": "Lovelace element",
+        "lovelace_elements": "Lovelace elements",
         "manage": "manage",
         "netdaemon": "NetDaemon",
         "netdaemon_apps": "NetDaemon Apps",
+        "netdaemon_plural": "NetDaemon Apps",
         "plugin": "Plugin",
+        "plugin_plural": "Lovelace elements",
         "plugins": "Plugins",
         "python_script": "Python Script",
+        "python_script_plural": "Python Scripts",
         "python_scripts": "Python Scripts",
         "repositories": "Repositories",
+        "repository": "Repository",
         "settings": "settings",
         "theme": "Theme",
+        "theme_plural": "Themes",
         "themes": "Themes",
+        "uninstall": "Uninstall",
+        "update": "Update",
         "version": "Version"
     },
     "config": {
@@ -70,6 +85,74 @@
         "upgrade_all": "This will upgrade all of these repositories, make sure that you have read the release notes for all of them before proceeding.",
         "yes": "Yes"
     },
+    "dialog_about": {
+        "frontend_version": "Frontend version",
+        "installed_repositories": "Installed repositories",
+        "integration_version": "Integration version",
+        "useful_links": "Useful links"
+    },
+    "dialog_add_repo": {
+        "limit": "Only the first 100 repositories are shown, use the search to filter what you need",
+        "no_match": "No repositories found matching your filter",
+        "title": "Add repository"
+    },
+    "dialog_custom_repositories": {
+        "category": "Category",
+        "no_category": "Missing category",
+        "no_repository": "Missing repository",
+        "title": "Custom repositories",
+        "url_placeholder": "Add custom repository URL"
+    },
+    "dialog_info": {
+        "author": "Author",
+        "downloads": "Downloads",
+        "install": "Install this repository in HACS",
+        "loading": "Loading information...",
+        "no_info": "The developer has not provided any more information for this repository",
+        "open_issues": "Open issues",
+        "open_repo": "Open repository",
+        "stars": "Stars",
+        "version_installed": "Version installed"
+    },
+    "dialog_install": {
+        "select_version": "Select version",
+        "show_beta": "Show beta versions",
+        "type": "Type",
+        "url": "URL"
+    },
+    "dialog_update": {
+        "available_version": "Available version",
+        "changelog": "Changelog",
+        "installed_version": "Installed version",
+        "title": "Update pending"
+    },
+    "entry": {
+        "information": "Information",
+        "intro": "Updates and important messages will show here if there are any",
+        "messages": {
+            "disabled": {
+                "content": "Check your log file for more details",
+                "title": "HACS is disabled"
+            },
+            "has_pending_tasks": {
+                "content": "Some repositories might not show untill this is completed",
+                "title": "Background tasks pending"
+            },
+            "startup": {
+                "content": "HACS is starting up, during this time some information might be missing or incorrect",
+                "title": "HACS is starting up"
+            }
+        },
+        "pending_updates": "Pending updates"
+    },
+    "menu": {
+        "about": "About HACS",
+        "clear": "Clear all new",
+        "custom_repositories": "Custom repositories",
+        "documentation": "Documentation",
+        "open_issue": "Open issue",
+        "reload": "Reload window"
+    },
     "options": {
         "step": {
             "user": {
@@ -96,6 +179,17 @@
         "plugin_not_loaded": "This plugin is not added to your Lovelace resources.",
         "restart": "You need to restart Home Assistant.",
         "restart_pending": "Restart pending"
+    },
+    "repository_card": {
+        "hide": "Hide",
+        "information": "Information",
+        "new_repository": "New repository",
+        "open_issue": "Open issue",
+        "open_source": "Open source",
+        "pending_update": "Pending update",
+        "reinstall": "Reinstall",
+        "report": "Report for removal",
+        "update_information": "Update information"
     },
     "repository": {
         "add_to_lovelace": "Add to Lovelace",
@@ -131,6 +225,28 @@
         "update_information": "Update information",
         "upgrade": "Update"
     },
+    "search": {
+        "placeholder": "Search for repository"
+    },
+    "sections": {
+        "about": {
+            "description": "Show information about HACS",
+            "title": "About"
+        },
+        "automation": {
+            "description": "This is where you find python_scripts, AppDaemon apps and NetDaemon apps",
+            "title": "Automation"
+        },
+        "frontend": {
+            "description": "This is where you find themes, custom cards and other elements for lovelace",
+            "title": "Frontend"
+        },
+        "integrations": {
+            "description": "This is where you find custom integrations (custom_components)",
+            "title": "Integrations"
+        },
+        "pending_repository_upgrade": "You are running version {installed}, version {available} is available"
+    },
     "settings": {
         "add_custom_repository": "ADD CUSTOM REPOSITORY",
         "adding_new_repo": "Adding new repository '{repo}'",
@@ -162,6 +278,9 @@
         "last_updated": "Last updated",
         "name": "Name",
         "new_repositories": "New Repositories",
+        "no_repositories": "No repositories",
+        "no_repositories_desc1": "It seems like you don't have any repositories installed in this section yet.",
+        "no_repositories_desc2": "Click on the + in the bottom corner to add your first!",
         "pending_upgrades": "Pending upgrades",
         "placeholder_search": "Please enter a search term...",
         "sort": "sort",

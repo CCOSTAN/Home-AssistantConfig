@@ -3,7 +3,7 @@
 import sys
 import os
 import voluptuous as vol
-from aiogithubapi import AIOGitHubException
+from aiogithubapi import AIOGitHubAPIException
 from homeassistant.components import websocket_api
 import homeassistant.helpers.config_validation as cv
 from .hacsbase.exceptions import HacsException
@@ -61,7 +61,7 @@ async def hacs_settings(hass, connection, msg):
         hass.bus.async_fire("hacs/status", {})
         for repository in hacs.repositories:
             if repository.pending_upgrade:
-                repository.status.selected_tag = None
+                repository.data.selected_tag = None
                 await repository.install()
         hacs.system.status.upgrading_all = False
         hacs.system.status.background_task = False
@@ -70,14 +70,14 @@ async def hacs_settings(hass, connection, msg):
 
     elif action == "clear_new":
         for repo in hacs.repositories:
-            if msg.get("category") == repo.data.category:
-                if repo.status.new:
-                    hacs.logger.debug(f"Clearing new flag from '{repo.data.full_name}'")
-                    repo.status.new = False
+            if repo.data.new:
+                hacs.logger.debug(f"Clearing new flag from '{repo.data.full_name}'")
+                repo.data.new = False
     else:
         hacs.logger.error(f"WS action '{action}' is not valid")
     hass.bus.async_fire("hacs/config", {})
     await hacs.data.async_write()
+    connection.send_message(websocket_api.result_message(msg["id"], {}))
 
 
 @websocket_api.async_response
@@ -113,6 +113,7 @@ async def hacs_status(hass, connection, msg):
         "reloading_data": hacs.system.status.reloading_data,
         "upgrading_all": hacs.system.status.upgrading_all,
         "disabled": hacs.system.disabled,
+        "has_pending_tasks": hacs.queue.has_pending_tasks,
     }
     connection.send_message(websocket_api.result_message(msg["id"], content))
 
@@ -130,35 +131,36 @@ async def hacs_repositories(hass, connection, msg):
                 "additional_info": repo.information.additional_info,
                 "authors": repo.data.authors,
                 "available_version": repo.display_available_version,
-                "beta": repo.status.show_beta,
+                "beta": repo.data.show_beta,
                 "can_install": repo.can_install,
                 "category": repo.data.category,
                 "country": repo.data.country,
-                "config_flow": repo.config_flow,
+                "config_flow": repo.data.config_flow,
                 "custom": repo.custom,
                 "default_branch": repo.data.default_branch,
                 "description": repo.data.description,
-                "domain": repo.integration_manifest.get("domain"),
-                "downloads": repo.releases.downloads,
+                "domain": repo.data.domain,
+                "downloads": repo.data.downloads,
                 "file_name": repo.data.file_name,
                 "first_install": repo.status.first_install,
                 "full_name": repo.data.full_name,
-                "hide": repo.status.hide,
+                "hide": repo.data.hide,
                 "hide_default_branch": repo.data.hide_default_branch,
                 "homeassistant": repo.data.homeassistant,
-                "id": repo.information.uid,
+                "id": repo.data.id,
                 "info": repo.information.info,
                 "installed_version": repo.display_installed_version,
-                "installed": repo.status.installed,
+                "installed": repo.data.installed,
+                "issues": repo.data.open_issues,
                 "javascript_type": repo.information.javascript_type,
-                "last_updated": repo.information.last_updated,
+                "last_updated": repo.data.last_updated,
                 "local_path": repo.content.path.local,
                 "main_action": repo.main_action,
                 "name": repo.display_name,
-                "new": repo.status.new,
+                "new": repo.data.new,
                 "pending_upgrade": repo.pending_upgrade,
-                "releases": repo.releases.published_tags,
-                "selected_tag": repo.status.selected_tag,
+                "releases": repo.data.published_tags,
+                "selected_tag": repo.data.selected_tag,
                 "stars": repo.data.stargazers_count,
                 "state": repo.state,
                 "status_description": repo.display_status_description,
@@ -195,42 +197,48 @@ async def hacs_repository(hass, connection, msg):
         hacs.logger.debug(f"Running {action} for {repository.data.full_name}")
 
         if action == "update":
-            await repository.update_repository()
+            await repository.update_repository(True)
             repository.status.updated_info = True
-            repository.status.new = False
 
         elif action == "install":
-            was_installed = repository.status.installed
+            was_installed = repository.data.installed
             await repository.install()
             if not was_installed:
                 hass.bus.async_fire("hacs/reload", {"force": True})
+
+        elif action == "not_new":
+            repository.data.new = False
 
         elif action == "uninstall":
             await repository.uninstall()
 
         elif action == "hide":
-            repository.status.hide = True
+            repository.data.hide = True
 
         elif action == "unhide":
-            repository.status.hide = False
+            repository.data.hide = False
 
         elif action == "show_beta":
-            repository.status.show_beta = True
+            repository.data.show_beta = True
             await repository.update_repository()
 
         elif action == "hide_beta":
-            repository.status.show_beta = False
+            repository.data.show_beta = False
+            await repository.update_repository()
+
+        elif action == "toggle_beta":
+            repository.data.show_beta = not repository.data.show_beta
             await repository.update_repository()
 
         elif action == "delete":
-            repository.status.show_beta = False
+            repository.data.show_beta = False
             repository.remove()
 
         elif action == "set_version":
             if msg["version"] == repository.data.default_branch:
-                repository.status.selected_tag = None
+                repository.data.selected_tag = None
             else:
-                repository.status.selected_tag = msg["version"]
+                repository.data.selected_tag = msg["version"]
             await repository.update_repository()
 
             hass.bus.async_fire("hacs/reload", {"force": True})
@@ -240,11 +248,11 @@ async def hacs_repository(hass, connection, msg):
 
         await hacs.data.async_write()
         message = None
-    except AIOGitHubException as exception:
+    except AIOGitHubAPIException as exception:
         message = str(exception)
         hass.bus.async_fire("hacs/error", {"message": str(exception)})
     except AttributeError as exception:
-        message = f"Could not use repository with ID {repo_id}"
+        message = f"Could not use repository with ID {repo_id} ({exception})"
     except Exception as exception:  # pylint: disable=broad-except
         message = str(exception)
 
@@ -253,6 +261,7 @@ async def hacs_repository(hass, connection, msg):
         hass.bus.async_fire("hacs/error", {"message": message})
 
     repository.state = None
+    connection.send_message(websocket_api.result_message(msg["id"], {}))
 
 
 @websocket_api.async_response
@@ -318,9 +327,18 @@ async def hacs_repository_data(hass, connection, msg):
         repository.state = data
 
     elif action == "set_version":
-        repository.status.selected_tag = data
+        repository.data.selected_tag = data
         await repository.update_repository()
         repository.state = None
+
+    elif action == "install":
+        was_installed = repository.data.installed
+        repository.data.selected_tag = data
+        await repository.update_repository()
+        await repository.install()
+        repository.state = None
+        if not was_installed:
+            hass.bus.async_fire("hacs/reload", {"force": True})
 
     elif action == "add":
         repository.state = None
@@ -330,6 +348,7 @@ async def hacs_repository_data(hass, connection, msg):
         hacs.logger.error(f"WS action '{action}' is not valid")
 
     await hacs.data.async_write()
+    connection.send_message(websocket_api.result_message(msg["id"], {}))
 
 
 @websocket_api.async_response

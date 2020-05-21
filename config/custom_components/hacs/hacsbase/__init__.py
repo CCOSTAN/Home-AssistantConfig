@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from homeassistant.helpers.event import async_call_later, async_track_time_interval
 
-from aiogithubapi import AIOGitHubException, AIOGitHubRatelimit
+from aiogithubapi import AIOGitHubAPIException, AIOGitHubAPIRatelimitException
 from integrationhelper import Logger
 from queueman import QueueManager
 
@@ -115,7 +115,7 @@ class Hacs:
         """Get repository by ID."""
         try:
             for repository in self.repositories:
-                if repository.information.uid == repository_id:
+                if str(repository.data.id) == str(repository_id):
                     return repository
         except Exception:  # pylint: disable=broad-except
             pass
@@ -131,11 +131,9 @@ class Hacs:
             pass
         return None
 
-    def is_known(self, repository_full_name):
+    def is_known(self, repository_id):
         """Return a bool if the repository is known."""
-        return repository_full_name.lower() in [
-            x.data.full_name.lower() for x in self.repositories
-        ]
+        return str(repository_id) in [str(x.data.id) for x in self.repositories]
 
     @property
     def sorted_by_name(self):
@@ -156,8 +154,6 @@ class Hacs:
         self.system.status.background_task = True
         await self.hass.async_add_executor_job(setup_extra_stores)
         self.hass.bus.async_fire("hacs/status", {})
-        self.logger.debug(self.github.ratelimits.remaining)
-        self.logger.debug(self.github.ratelimits.reset_utc)
 
         await self.handle_critical_repositories_startup()
         await self.handle_critical_repositories()
@@ -186,7 +182,6 @@ class Hacs:
         await self.prosess_queue()
 
         self.system.status.startup = False
-        self.system.status.new = False
         self.system.status.background_task = False
         self.hass.bus.async_fire("hacs/status", {})
         await self.data.async_write()
@@ -216,7 +211,7 @@ class Hacs:
         try:
             critical = await self.data_repo.get_contents("critical")
             critical = json.loads(critical.content)
-        except AIOGitHubException:
+        except AIOGitHubAPIException:
             pass
 
         if not critical:
@@ -290,11 +285,10 @@ class Hacs:
         )
         self.system.status.background_task = True
         self.hass.bus.async_fire("hacs/status", {})
-        self.logger.debug(self.github.ratelimits.remaining)
-        self.logger.debug(self.github.ratelimits.reset_utc)
+
         for repository in self.repositories:
             if (
-                repository.status.installed
+                repository.data.installed
                 and repository.data.category in self.common.categories
             ):
                 self.queue.add(self.factory.safe_update(repository))
@@ -311,8 +305,7 @@ class Hacs:
         await self.hass.async_add_executor_job(setup_extra_stores)
         self.system.status.background_task = True
         self.hass.bus.async_fire("hacs/status", {})
-        self.logger.debug(self.github.ratelimits.remaining)
-        self.logger.debug(self.github.ratelimits.reset_utc)
+
         for repository in self.repositories:
             if repository.data.category in self.common.categories:
                 self.queue.add(self.factory.safe_common_update(repository))
@@ -329,9 +322,9 @@ class Hacs:
         """Clear out blaclisted repositories."""
         need_to_save = False
         for removed in removed_repositories:
-            if self.is_known(removed.repository):
-                repository = self.get_by_name(removed.repository)
-                if repository.status.installed and removed.removal_type != "critical":
+            repository = self.get_by_name(removed.repository)
+            if repository is not None:
+                if repository.data.installed and removed.removal_type != "critical":
                     self.logger.warning(
                         f"You have {repository.data.full_name} installed with HACS "
                         + f"this repository has been removed, please consider removing it. "
@@ -354,11 +347,6 @@ class Hacs:
             org = await get_default_repos_orgs(self.github, category)
             for repo in org:
                 repositories[category].append(repo)
-
-        for category in repositories:
-            for repo in repositories[category]:
-                if repo not in self.common.default:
-                    self.common.default.append(repo)
         return repositories
 
     async def load_known_repositories(self):
@@ -378,6 +366,11 @@ class Hacs:
             for repo in repositories[category]:
                 if is_removed(repo):
                     continue
-                if self.is_known(repo):
+                repository = self.get_by_name(repo)
+                if repository is not None:
+                    if str(repository.data.id) not in self.common.default:
+                        self.common.default.append(str(repository.data.id))
+                    else:
+                        continue
                     continue
                 self.queue.add(self.factory.safe_register(repo, category))

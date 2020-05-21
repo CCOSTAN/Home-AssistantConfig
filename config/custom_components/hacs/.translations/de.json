@@ -3,25 +3,35 @@
         "about": "Über",
         "appdaemon": "AppDaemon",
         "appdaemon_apps": "AppDaemon Apps",
+        "appdaemon_plural": "AppDaemon Apps",
         "background_task": "Hintergrundprozess läuft. Diese Seite lädt neu, sobald dieser fertig ist.",
         "check_log_file": "Überprüfe die Logdatei für weitere Informationen.",
         "continue": "Fortfahren",
         "disabled": "Deaktiviert",
         "documentation": "Dokumentation",
+        "element": "Element",
         "hacs_is_disabled": "HACS ist deaktiviert",
         "installed": "Installiert",
         "integration": "Integration",
+        "integration_plural": "Integrationen",
         "integrations": "Integrationen",
+        "lovelace": "Lovelace",
+        "lovelace_element": "Lovelace-Element",
+        "lovelace_elements": "Lovelace-Elemente",
         "manage": "verwalten",
         "netdaemon": "NetDaemon",
         "netdaemon_apps": "NetDaemon Apps",
-        "plugin": "Plugin",
-        "plugins": "Plugins",
+        "netdaemon_plural": "NetDaemon Apps",
+        "plugin": "Lovelace",
+        "plugin_plural": "Lovelace-Elemente",
+        "plugins": "Lovelace-Elemente",
         "python_script": "Python Skript",
+        "python_script_plural": "Python Skripte",
         "python_scripts": "Python Skripte",
         "repositories": "Repositories",
         "settings": "Einstellungen",
         "theme": "Theme",
+        "theme_plural": "Themes",
         "themes": "Themes",
         "version": "Version"
     },
@@ -93,7 +103,7 @@
         "integration_not_loaded": "Diese Integration ist in Home Assistant nicht geladen.",
         "no_restart_required": "Kein Neustart erforderlich",
         "not_loaded": "Nicht geladen",
-        "plugin_not_loaded": "Dieses Plugin wurde deinen Lovelace-Ressourcen nicht hinzugefügt.",
+        "plugin_not_loaded": "Dieses Element wird nicht zu Ihren Lovelace-Ressourcen hinzugefügt.",
         "restart": "Du musst Home Assistant neu starten.",
         "restart_pending": "Neustart ausstehend"
     },
@@ -114,7 +124,7 @@
         "installed": "Installiert",
         "lovelace_copy_example": "Beispiel in die Zwischenablage kopieren",
         "lovelace_instruction": "Zum Hinzufügen zu deinen Lovelace-Einstellungen, benutze Folgendes",
-        "lovelace_no_js_type": "Konnte die Art dieses Plugins nicht erkennen. Prüfe das Repository.",
+        "lovelace_no_js_type": "Der Typ dieses Elements konnte nicht ermittelt werden. Überprüfen Sie das Repository.",
         "newest": "neueste",
         "note_appdaemon": "du musst es dann noch in die Datei 'apps.yaml' hinzufügen",
         "note_installed": "Wird installiert nach",
@@ -122,7 +132,7 @@
         "note_plugin": "du musst es dann noch in deine Lovelace-Einstellungen ('ui-lovelace.yaml' oder im Raw-Konfigurationseditor) hinzufügen",
         "note_plugin_post_107": "Du musst es noch zu deiner Lovelace-Konfiguration hinzufügen ('configuration.yaml' oder der Ressourceneditor '\/config\/lovelace\/resources')",
         "open_issue": "Problem melden",
-        "open_plugin": "Plugin öffnen",
+        "open_plugin": "Element öffnen",
         "reinstall": "Neu installieren",
         "repository": "Repository",
         "restart_home_assistant": "Home Assistant neu starten",
@@ -130,6 +140,25 @@
         "uninstall": "Deinstallieren",
         "update_information": "Aktualisierungsinformationen",
         "upgrade": "Aktualisieren"
+    },
+    "sections": {
+        "about": {
+            "description": "Informationen zu HACS anzeigen",
+            "title": "Über"
+        },
+        "automation": {
+            "description": "Hier finden Sie python_scripts, AppDaemon-Apps und NetDaemon-Apps",
+            "title": "Automatisierung"
+        },
+        "frontend": {
+            "description": "Hier finden Sie Themen, individuelle Karten und andere Elemente für Lovelace",
+            "title": "Frontend"
+        },
+        "integrations": {
+            "description": "Hier finden Sie benutzerdefinierte Integrationen (custom_components)",
+            "title": "Integrationen"
+        },
+        "pending_repository_upgrade": "Sie verwenden Version {installed}, Version {available} ist verfügbar"
     },
     "settings": {
         "add_custom_repository": "BENUTZERDEFINIERTES REPOSITORY HINZUFÜGEN",

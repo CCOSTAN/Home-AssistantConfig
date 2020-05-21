@@ -2,7 +2,7 @@
 # pylint: disable=dangerous-default-value
 import logging
 import voluptuous as vol
-from aiogithubapi import AIOGitHubException, AIOGitHubAuthentication
+from aiogithubapi import AIOGitHubAPIException, AIOGitHubAPIAuthenticationException
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
@@ -47,7 +47,7 @@ class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Show the configuration form to edit location data."""
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(hacs_base_config_schema(user_input, True)),
+            data_schema=vol.Schema(hacs_base_config_schema(user_input)),
             errors=self._errors,
         )
 
@@ -56,23 +56,16 @@ class HacsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry):
         return HacsOptionsFlowHandler(config_entry)
 
-    async def async_step_import(self, user_input):
-        """Import a config entry.
-        Special type of import, we're not actually going to store any data.
-        Instead, we're going to rely on the values that are in config file.
-        """
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
-
-        return self.async_create_entry(title="configuration.yaml", data={})
-
     async def _test_token(self, token):
         """Return true if token is valid."""
         try:
             session = aiohttp_client.async_get_clientsession(self.hass)
             await get_repository(session, token, "hacs/org")
             return True
-        except (AIOGitHubException, AIOGitHubAuthentication) as exception:
+        except (
+            AIOGitHubAPIException,
+            AIOGitHubAPIAuthenticationException,
+        ) as exception:
             _LOGGER.error(exception)
         return False
 

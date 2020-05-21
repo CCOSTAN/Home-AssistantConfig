@@ -1,6 +1,6 @@
 """Return repository information if any."""
 import json
-from aiogithubapi import AIOGitHubException, AIOGitHub
+from aiogithubapi import AIOGitHubAPIException, GitHub
 from custom_components.hacs.handler.template import render_template
 from custom_components.hacs.hacsbase.exceptions import HacsException
 
@@ -29,7 +29,7 @@ async def get_info_md_content(repository):
             return ""
         info = info.content.replace("<svg", "<disabled").replace("</svg", "</disabled")
         return render_template(info, repository)
-    except (AIOGitHubException, Exception):  # pylint: disable=broad-except
+    except (AIOGitHubAPIException, Exception):  # pylint: disable=broad-except
         if repository.hacs.action:
             raise HacsException("No info file found")
     return ""
@@ -38,10 +38,10 @@ async def get_info_md_content(repository):
 async def get_repository(session, token, repository_full_name):
     """Return a repository object or None."""
     try:
-        github = AIOGitHub(token, session)
+        github = GitHub(token, session)
         repository = await github.get_repo(repository_full_name)
         return repository
-    except AIOGitHubException as exception:
+    except (AIOGitHubAPIException, Exception) as exception:
         raise HacsException(exception)
 
 
@@ -50,7 +50,7 @@ async def get_tree(repository, ref):
     try:
         tree = await repository.get_tree(ref)
         return tree
-    except AIOGitHubException as exception:
+    except AIOGitHubAPIException as exception:
         raise HacsException(exception)
 
 
@@ -59,7 +59,7 @@ async def get_releases(repository, prerelease=False, returnlimit=5):
     try:
         releases = await repository.get_releases(prerelease, returnlimit)
         return releases
-    except AIOGitHubException as exception:
+    except AIOGitHubAPIException as exception:
         raise HacsException(exception)
 
 
@@ -84,6 +84,7 @@ async def get_integration_manifest(repository):
         repository.data.authors = manifest["codeowners"]
         repository.data.domain = manifest["domain"]
         repository.data.manifest_name = manifest["name"]
+        repository.data.config_flow = manifest.get("config_flow", False)
 
         if repository.hacs.action:
             if manifest.get("documentation") is None:
@@ -114,6 +115,10 @@ def find_file_name(repository):
         get_file_name_appdaemon(repository)
     elif repository.data.category == "python_script":
         get_file_name_python_script(repository)
+
+    if repository.hacs.action:
+        repository.logger.info(f"filename {repository.data.file_name}")
+        repository.logger.info(f"location {repository.content.path.remote}")
 
 
 def get_file_name_plugin(repository):

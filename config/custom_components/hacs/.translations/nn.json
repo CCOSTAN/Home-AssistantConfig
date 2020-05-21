@@ -3,25 +3,35 @@
         "about": "Om",
         "appdaemon": "AppDaemon",
         "appdaemon_apps": "AppDeamon-appar",
+        "appdaemon_plural": "AppDaemon-appar",
         "background_task": "Bakgrunnsoppgåve køyrer. Denne sida kjem til å laste seg omatt når ho er ferdig.",
         "check_log_file": "Sjå i loggfila di for meir detaljar.",
         "continue": "Hald fram",
         "disabled": "Deaktivert",
         "documentation": "Dokumentasjon",
+        "element": "element",
         "hacs_is_disabled": "HACS er deaktivert",
         "installed": "Installert",
         "integration": "Integrasjon",
+        "integration_plural": "Integrasjonar",
         "integrations": "Integrasjonar",
+        "lovelace": "Lovelace",
+        "lovelace_element": "Lovelace-element",
+        "lovelace_elements": "Lovelace-element",
         "manage": "Handtere",
         "netdaemon": "NetDaemon",
         "netdaemon_apps": "NetDeamon-appar",
+        "netdaemon_plural": "NetDaemon-appar",
         "plugin": "Tillegg",
+        "plugin_plural": "Lovelace-element",
         "plugins": "Tillegg",
         "python_script": "Pythonskript",
+        "python_script_plural": "Pythonskript",
         "python_scripts": "Pythonskript",
         "repositories": "Repositories",
         "settings": "innstillingar",
         "theme": "Tema",
+        "theme_plural": "Tema",
         "themes": "Tema",
         "version": "Versjon"
     },
@@ -59,7 +69,7 @@
         "exist": "{item} eksisterer allereie",
         "generic": "Er du sikker?",
         "home_assistant_is_restarting": "Vent... Home Assistant starter på nytt no.",
-        "home_assistant_version_not_correct": "Du køyrer Home Assistant-versjonen '{haversion}', men dette kodedepoet krev minimum versjon '{minversion}' for å bli installert.",
+        "home_assistant_version_not_correct": "Du køyrer Home Assistant-versjonen '{haversion}', men dette kodedepoet krev minst versjon '{minversion}' for å bli installert.",
         "no": "Nei",
         "no_upgrades": "Ingen ventande oppgradringer",
         "ok": "OK",
@@ -120,6 +130,7 @@
         "note_installed": "Når dette er installert, kjem den til å vere plassert i",
         "note_integration": "du må framleis legge dette til i \"configuration.yaml\"-fila di",
         "note_plugin": "du må framleis dette til i Lovelace-konfigurasjonen (\"ui-lovelace.yaml\" eller i rå-brukargrensesnittredigeraren",
+        "note_plugin_post_107": "du må framleis legge dette til i lovelace-konfigurasjonen ('configuration.yaml' eller i kjelderedigeraren ''\/config\/lovelace\/resources')",
         "open_issue": "Opne problem",
         "open_plugin": "Opne tillegg",
         "reinstall": "Installer på nytt",
@@ -129,6 +140,25 @@
         "uninstall": "Avinstaller",
         "update_information": "Oppdater informasjonen",
         "upgrade": "Oppdater"
+    },
+    "sections": {
+        "about": {
+            "description": "Vis informasjon om HACS",
+            "title": "Om"
+        },
+        "automation": {
+            "description": "Her finn du python_scripts, AppDaemon-appar og NetDaemon-appar",
+            "title": "Automasjon"
+        },
+        "frontend": {
+            "description": "Her finn du tema, eigendefinerte kort og andre element for lovelace",
+            "title": "Frontend"
+        },
+        "integrations": {
+            "description": "Her finn du eigendefinerte ingtegrasjonar (custom_components)",
+            "title": "Integrasjonar"
+        },
+        "pending_repository_upgrade": "Du køyrer versjon {installed}, og versjon {available} er tilgjengeleg"
     },
     "settings": {
         "add_custom_repository": "LEGG TIL EIN ANNAN REPOSITORY",
