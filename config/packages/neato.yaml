@@ -1,35 +1,9 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](https://amzn.to/2kqnnqu) with Home Assistant.
 #-------------------------------------------
-# homeassistant:
-#   customize_glob:
-#     "*.*_sleep_hours":
-#       unit_of_measurement: hours
-#       icon: mdi:sleep
-#
-#       hidden: False
-#-------------------------------------------
-neato:
-  username: !secret neato_username
-  password: !secret neato_password
-#-------------------------------------------
-sensor:
-  - platform: template
-    sensors:
-      neato_status:
-        friendly_name: 'Neato Status'
-        entity_id: []
-        value_template: '{{states.vacuum.carloneato.attributes["status"]}}'
 
-group:
-  Neato:
-    entities:
-      - camera.carloneato_cleaning_map
-      - switch.carloneato_schedule
-      - vacuum.carloneato
-      - sensor.neato_status
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
 ##############################################################################
@@ -37,24 +11,23 @@ automation:
   - alias: 'Vacuum -Tweet'
     trigger:
       - platform: state
-        entity_id: vacuum.carloneato
-        to: 'off'
-        from: 'on'
+        entity_id: vacuum.carlo_neato
+        to: 'cleaning'
 
     condition:
       - condition: template
-        value_template: "{{ states.vacuum.carloneato.attributes.battery_level |int < 20 }}"
+        value_template: "{{ states.vacuum.carlo_neato.attributes.battery_level |int < 20 }}"
 
     action:
       - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [
-            "#Neato returning to base. Vacuumed up a TON. (http://amzn.to/2CKHZya)",
+            "#Neato returning to base. Vacuumed up a TON. (https://amzn.to/2CKHZya)",
             "Everyday I have the Neato Botvac go out and clean the house on its own.",
             "Since we have a cat that sheds all day, we have Neato Vacuum go out daily to clean.",
             "Time to recharge the Neato Vacuum."
-            ] | random + " Battery Level:{{states.vacuum.carloneato.attributes.battery_level }} #Robots"}}
+            ] | random + " Battery Level:{{states.vacuum.carlo_neato.attributes.battery_level }} #Robots"}}
           image: >-
             {{ [
             "/config/www/custom_ui/floorplan/images/branding/neato.png"
