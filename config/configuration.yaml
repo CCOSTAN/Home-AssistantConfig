@@ -253,12 +253,11 @@ tts:
     region_name: 'us-east-1'
     text_type: ssml
     cache: True
+    base_url: !secret http_base_url
    # cache_dir: /data/tts
 
 wink:
-  # email: !secret wink_username
-  # password: !secret wink_password
-  # local_control: True
+
 
 group: !include_dir_merge_named group
 device_tracker: !include_dir_merge_list device_tracker
