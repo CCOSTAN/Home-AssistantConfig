@@ -39,6 +39,10 @@ sensor:
 #      - forks
       - stargazers_count
 
+  - platform: command_line
+    name: Lines of Code
+    command: "find /config -name '*.yaml' | xargs cat | wc -l"
+    scan_interval: 20000
 
   - platform: history_stats
     name: Doorbell Presses
@@ -142,7 +146,6 @@ sensor:
         value_template: >
           {{ states.camera | list | count }}
 
-
 group:
   tweet_stats:
     entities:
@@ -152,6 +155,7 @@ group:
       - sensor.speech_time
       - sensor.tv_time
       - sensor.bolt_charging_time
+      - sensor.lines_of_code
       - sensor.sensor_count
       - sensor.script_count
       - sensor.binary_sensor_count
