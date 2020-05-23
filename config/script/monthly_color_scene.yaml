@@ -38,38 +38,32 @@ monthly_color_scene:
           {%- elif now().strftime("%m%d")|int >= 315
           and now().strftime("%m%d")|int <= 317-%}
           st_patty
-          {%- elif now().strftime("%m%d")|int >= 418
-          and now().strftime("%m%d")|int <= 421-%}
+          {%- elif states('sensor.easter_countdown') | int < 4  -%}
           easter
           {%- elif now().strftime("%m%d")|int == 504 -%}
           starwars
           {%- elif now().strftime("%m%d")|int == 505 -%}
           cinco_de_mayo
-          {%- elif now().strftime("%m%d")|int == 512 -%}
+          {%- elif states('sensor.mothers_countdown') | int < 4  -%}
           mothers_day
-          {%- elif now().strftime("%m%d")|int == 616 -%}
+          {%- elif states('sensor.fathers_countdown') | int < 4  -%}
           fathers_day
+          {%- elif states('sensor.memorial_day_countdown') | int < 3  -%}
+          RWB
           {%- elif now().strftime("%m%d")|int >= 704
           and now().strftime("%m%d")|int <= 704-%}
+          RWB
+          {%- elif states('sensor.labor_day_countdown') | int < 3  -%}
           RWB
           {%- elif now().strftime("%m%d")|int >= 1001
           and now().strftime("%m%d")|int <= 1031-%}
           halloween
-          {%- elif now().strftime("%m%d")|int >= 1128
-          and now().strftime("%m%d")|int <= 1130-%}
+          {%- elif states('sensor.thanksgiving_day_countdown') | int < 4  -%}
           thanksgiving
-          {%- elif now().strftime("%m%d")|int >= 1125
-          and now().strftime("%m%d")|int <= 1221-%}
-          christmas
-          {%- elif now().strftime("%m%d")|int >= 1222
-          and now().strftime("%m%d")|int <= 1223-%}
+          {%- elif states('sensor.chanukkah_countdown') | int < 10  -%}
           hanukkah
-          {%- elif now().strftime("%m%d")|int >= 1224
-          and now().strftime("%m%d")|int <= 1225-%}
+          {%- elif states('sensor.christmas_countdown') | int < 30  -%}
           christmas
-          {%- elif now().strftime("%m%d")|int >= 1226
-          and now().strftime("%m%d")|int <= 1230-%}
-          hanukkah
           {%- elif now().strftime("%m%d")|int == 1231 -%}
           new_years_day
           {%- else -%}
