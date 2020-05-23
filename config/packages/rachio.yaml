@@ -1,36 +1,16 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+# Rachio Sprinkler system Support
 #-------------------------------------------
 ######################################################################
-##  [Rachio Sprinkler system](http://amzn.to/2eoPKBW) - Smart Sprinkler controller
+##  [Rachio Sprinkler system](https://amzn.to/2eoPKBW) - Smart Sprinkler controller
 ######################################################################
-homeassistant:
-  customize_glob:
-    "*.rachio*":
-      homebridge_hidden: True
-      hidden: False
-
-#-------------------------------------------
-rachio:
-  api_key: !secret rachio_api
 
 sensor:
   - platform: mqtt
     state_topic: "ifttt/rachio/watering_time"
     name: "Rachio_watering_time"
-
-group:
-  rachio:
-    entities:
-      - sensor.rachio_watering_time
-      - binary_sensor.carlorachio_online
-      - switch.carlorachio_in_standby_mode
-      - switch.backyard_shrubs
-      - switch.front_lawn
-      - switch.left_side_house
-      - switch.front_hedges_right_side_house
 
 automation:
   ###################################
@@ -46,11 +26,6 @@ automation:
           action: IFTTT_Rachio
 
     action:
-      - service: logbook.log
-        data:
-          name: "Rachio Sprinkler:"
-          message: "The Lawn was watered just now."
-
       - service: mqtt.publish
         data_template:
           payload: '{{ states("sensor.date") }}'
