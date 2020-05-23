@@ -18,6 +18,14 @@ automation:
       - condition: template
         value_template: "{{ states.vacuum.carlo_neato.attributes.battery_level |int < 20 }}"
 
+      - condition: template
+        value_template: >
+          {%- if states.automation.vacuum_tweet.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.vacuum_tweet.attributes.last_triggered)) > 15000 }}
+          {%- else -%}
+            true
+          {%- endif -%}
+
     action:
       - service: script.tweet_engine_image
         data_template:
