@@ -152,7 +152,7 @@
   {%- elif states('sensor.fathers_countdown') | int < 30  -%}
       and don't forget, there are {{ states.sensor.fathers_countdown.state }} days until Fathers day!
   {%- elif states('sensor.easter_countdown') | int < 15  -%}
-      and don't forget, there are {{ states.sensor.easter_countdown.state }} days until Easter Sunday!  
+      and don't forget, there are {{ states.sensor.easter_countdown.state }} days until Easter Sunday!
   {%- elif states('sensor.thanksgiving_day_countdown') | int < 30  -%}
       and don't forget, there are {{ states.sensor.thanksgiving_day_countdown.state }} days until Thanksgiving!
   {%- elif states('sensor.halloween_countdown') | int < 30  -%}
@@ -225,13 +225,13 @@
   {# ********************************************* #}
 
   {% if call_no_announcement != 1 %}
-  {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
-      Good morning.
-  {% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int < 17 %}
-      Good afternoon.
-  {% else %}
-      Good evening.
-  {% endif %}
+    {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
+        Good morning.
+    {% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int < 17 %}
+        Good afternoon.
+    {% else %}
+        Good evening.
+    {% endif %}
   {% endif %}
 
   {# Called from Annoucenments #}

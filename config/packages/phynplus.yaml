@@ -31,6 +31,14 @@ automation:
           who: 'family'
           url: 'https://github.com/CCOSTAN/Home-AssistantConfig/raw/master/config/www/custom_ui/floorplan/images/branding/pipeleak.png'
 
+      - service: script.speech_engine
+        data_template:
+          value1: >
+            {{ [
+            "Phyn has detected a possible leak.  Please verify there are no leaks in the house. "
+            ] | random }}
+          call_no_announcement: 1
+
       - service: script.tweet_engine_image
         data_template:
           tweet: >
