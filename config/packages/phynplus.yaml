@@ -1,0 +1,46 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Phyn Smart Water ShutOff Support
+# https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html
+#-------------------------------------------
+######################################################################
+##  Phyn Plus Water ShutOff - https://amzn.to/2Zy3sbJ
+######################################################################
+
+
+automation:
+  ###################################
+  ##  From IFTTT - Notifications
+  ###################################
+  - alias: 'Phyn ShutOff Notification'
+
+    trigger:
+      - platform: event
+        #Sent from IFTTT Webhooks : {"action":"IFTTT_Phyn", "alert_type":" {{AlertType}}", "where":"{{SuggestedFixtures}}"}
+        event_type: ifttt_webhook_received
+        event_data:
+          action: IFTTT_Phyn
+
+    action:
+
+      - service: script.notify_engine
+        data_template:
+          title: 'Phyn Leak Detection'
+          value1: 'Phyn is sensing {{ trigger.event.data.alert_type }}.  Please verify {{ trigger.event.data.where }}.'
+          who: 'family'
+
+      - service: script.tweet_engine_image
+        data_template:
+          tweet: >
+            {{ [
+            ".@Phyn has detected {{ trigger.event.data.alert_type }} and notified us using Home Assistant. ",
+            "I am shutting down the water since @Phyn detected a leak by {{ trigger.event.data.where }}.",
+            "Time to let @ccostan know that @Phyn has detected a leak."
+            ] | random + " #SavingWater (https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html)" }}
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/sprinkler.png",
+            "/config/www/custom_ui/floorplan/images/branding/sprinkler2.png",
+            "/config/www/custom_ui/floorplan/images/branding/sprinkler3.png"
+            ] | random }}
