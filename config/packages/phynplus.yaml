@@ -29,13 +29,14 @@ automation:
           title: 'Phyn Leak Detection'
           value1: 'Phyn is sensing {{ trigger.event.data.alert_type }}.  Please verify {{ trigger.event.data.where }}.'
           who: 'family'
+          url: 'https://github.com/CCOSTAN/Home-AssistantConfig/raw/master/config/www/custom_ui/floorplan/images/branding/pipeleak.png'
 
       - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [
-            ".@Phyn has detected {{ trigger.event.data.alert_type }} and notified us using Home Assistant. ",
-            "I am shutting down the water since @Phyn detected a leak by {{ trigger.event.data.where }}.",
+            ".@Phyn has detected a leak  and notified us using Home Assistant. ",
+            "I am shutting down the water since @Phyn detected a leak.",
             "Time to let @ccostan know that @Phyn has detected a leak."
             ] | random + " #SavingWater (https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html)" }}
           image: >-
