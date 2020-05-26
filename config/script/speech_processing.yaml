@@ -59,18 +59,18 @@ speech_processing:
             0.3
           {% endif %}
 
-    - service: notify.alexa_media
-      data_template:
-        data:
-          type: tts
-        target: >
-          {% if states.group.bed.state == 'off' %}
-          media_player.office
-          {% else %}
-          media_player.master_bathroom
-          {% endif %}
-        message: >-
-            {{ speech_message }}
+    # - service: notify.alexa_media
+    #   data_template:
+    #     data:
+    #       type: tts
+    #     target: >
+    #       {% if states.group.bed.state == 'off' %}
+    #       media_player.office
+    #       {% else %}
+    #       media_player.master_bathroom
+    #       {% endif %}
+    #     message: >-
+    #         {{ speech_message }}
 
     - service: tts.amazon_polly_say
       data_template:
