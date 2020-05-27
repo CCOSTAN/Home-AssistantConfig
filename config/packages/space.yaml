@@ -4,18 +4,6 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 #-------------------------------------------
 #------ISS----------------------------------
-homeassistant:
-  customize:
-    binary_sensor.iss:
-      icon: mdi:satellite-variant
-      friendly_name: ISS Visibility
-
-      hidden: False
-      homebridge_hidden: true
-    sensor.launch_window:
-      hidden: False
-      icon: mdi:rocket
-      friendly_name: Rocket Launch Window
 #-------------------------------------------
 binary_sensor:
   - platform: iss
@@ -23,7 +11,6 @@ binary_sensor:
 #-------------------------------------------
 
 sensor:
-
   - platform: launch_library
 
   - platform: moon
@@ -58,21 +45,12 @@ automation:
       - platform: state
         entity_id: sensor.launch_window
     condition:
-        condition: and
-        conditions:
-          - condition: template
-            value_template: "{{states('sensor.launch_window') != 'unknown'}}"
-          - condition: template
-            value_template: "{{as_timestamp(now()) < (states('sensor.launch_window') | float)}}"
+      - condition: template
+        value_template: "{{states('sensor.launch_window') != 'unknown'}}"
 
     action:
       - wait_template: >-
-          {{as_timestamp(now()) >= ((states('sensor.launch_window') | float) - 1800)}}
-      - service: script.notify_engine
-        data_template:
-          value1: 'There will be a rocket Launch today - I will notify you later when the launch window starts'
-      - wait_template: >-
-          {{as_timestamp(now()) >= ((states('sensor.launch_window') | float) - 300)}}
+          {{((as_timestamp(now()) - states('sensor.launch_window') | float) | abs < 601)}}
       - service: script.notify_engine
         data_template:
           value1: 'Go Outside!  There is a Rocket Launch very soon!'
