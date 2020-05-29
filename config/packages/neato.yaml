@@ -5,7 +5,7 @@
 #-------------------------------------------
 
 ##############################################################################
-###  Automations - Detect when things are not right. Like any Good Watchdog.
+###  Automations - Tweet out When neato is heading back to his Dock for recharging.
 ##############################################################################
 automation:
   - alias: 'Vacuum -Tweet'
@@ -40,3 +40,49 @@ automation:
             {{ [
             "/config/www/custom_ui/floorplan/images/branding/neato.png"
             ] | random }}
+
+##############################################################################
+###  Automations - Help Neato!
+##############################################################################
+
+  - alias: 'Help Neato'
+    trigger:
+      - platform: state
+        entity_id: vacuum.carlo_neato
+        to: 'error'
+      - platform: event
+        event_type: event_did_someone_help
+
+    condition:
+        - condition: state
+          entity_id: vacuum.carlo_neato
+          state: 'error'
+
+    action:
+      - wait_template: >-
+          {{ states.group.family.state == 'home' }}
+
+      - service: script.speech_engine
+        data_template:
+          value1: >
+            {{ [
+            "Neato is asking for help.  The error reported is {{ trigger.to_state.attributes.status }}.  Please find him and help him.",
+            "Please be nice and help Neato.  He is complaining about {{ trigger.to_state.attributes.status }}",
+            "If you don't want to vacuum, you need to help Neato.  He is complaining about {{ trigger.to_state.attributes.status }} and needs help.",
+            "Something is wrong with Neato.  Please find him and help him.  I have detected a {{ trigger.to_state.attributes.status }} error."
+            ] | random }}
+
+      - service: vacuum.locate
+        entity_id: vacuum.carlo_neato
+
+      - service: script.notify_engine
+        data_template:
+          title: 'Help Neato'
+          value1: '{{ trigger.to_state.attributes.status }}'
+          who: 'family'
+          ios_category: 'camera'
+          camera_entity: 'camera.carlo_neato_cleaning_map'
+          content_type: 'jpeg'
+
+      - delay: 00:20:00
+      - event: event_did_someone_help

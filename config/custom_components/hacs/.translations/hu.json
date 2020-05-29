@@ -1,6 +1,7 @@
 {
     "common": {
         "about": "Névjegy",
+        "add": "hozzáadás",
         "appdaemon": "AppDaemon",
         "appdaemon_apps": "AppDaemon Appok",
         "appdaemon_plural": "AppDaemon appok",
@@ -11,6 +12,7 @@
         "documentation": "Dokumentáció",
         "element": "bővítmény",
         "hacs_is_disabled": "A HACS le van tiltva",
+        "install": "Telepítés",
         "installed": "Telepített",
         "integration": "Integráció",
         "integration_plural": "Integrációk",
@@ -29,10 +31,13 @@
         "python_script_plural": "Python szkriptek",
         "python_scripts": "Python Szkriptek",
         "repositories": "Tárolók",
+        "repository": "Tároló",
         "settings": "beállítások",
         "theme": "Téma",
         "theme_plural": "Témák",
         "themes": "Témák",
+        "uninstall": "Eltávolítás",
+        "update": "Frissítés",
         "version": "Verzió"
     },
     "config": {
@@ -80,6 +85,71 @@
         "upgrade_all": "Ez frissíteni fogja az összes tárolót. Győzödj meg róla, hogy elolvastad az összes kiadási megjegyzést, mielőtt továbblépnél.",
         "yes": "Igen"
     },
+    "dialog_about": {
+        "frontend_version": "Frontend verzió",
+        "installed_repositories": "Telepített tárolók",
+        "integration_version": "Integráció verzió",
+        "useful_links": "Hasznos linkek"
+    },
+    "dialog_add_repo": {
+        "limit": "Csak az első 100 tároló jelenik meg, használd a keresőt a találatok szűkítéséhez",
+        "no_match": "Nincs a szűrőnek megfelelő tároló",
+        "title": "Tároló hozzáadása"
+    },
+    "dialog_custom_repositories": {
+        "category": "Kategória",
+        "no_category": "Hiányzó kategória",
+        "no_repository": "Hiányzó tároló",
+        "title": "Egyéni tárolók",
+        "url_placeholder": "Egyéni tároló URL címének hozzáadása"
+    },
+    "dialog_info": {
+        "author": "Szerző",
+        "downloads": "Letöltések",
+        "install": "Tároló telepítése HACS-ben",
+        "loading": "Információ betöltése...",
+        "no_info": "A fejlesztő nem adott meg több információt ehhez a tárolóhoz",
+        "open_repo": "Tároló megnyitása",
+        "stars": "Csillagok",
+        "version_installed": "Telepített verzió"
+    },
+    "dialog_install": {
+        "select_version": "Verzió kiválasztása",
+        "show_beta": "Béta verziók megjelenítése",
+        "type": "Típus",
+        "url": "URL"
+    },
+    "dialog_update": {
+        "available_version": "Elérhető verzió",
+        "changelog": "Változási napló",
+        "installed_version": "Telepített verzió",
+        "title": "Frissítés függőben"
+    },
+    "entry": {
+        "information": "Információ",
+        "messages": {
+            "disabled": {
+                "content": "További részletek a naplófájlban",
+                "title": "A HACS le van tiltva"
+            },
+            "has_pending_tasks": {
+                "title": "Függőben lévő háttérfeladatok"
+            },
+            "startup": {
+                "content": "A HACS éppen indul, ezidő alatt egyes információk hiányozhatnak vagy helytelenek lehetnek",
+                "title": "A HACS indul"
+            }
+        },
+        "pending_updates": "Függő frissítések"
+    },
+    "menu": {
+        "about": "HACS névjegye",
+        "clear": "Új jelölések törlése",
+        "custom_repositories": "Egyéni tárolók",
+        "documentation": "Dokumentáció",
+        "open_issue": "Probléma jelentése",
+        "reload": "Ablak újratöltése"
+    },
     "options": {
         "step": {
             "user": {
@@ -106,6 +176,17 @@
         "plugin_not_loaded": "Ez a bővítmény nincs hozzáadva a Lovelace erőforrásaidhoz.",
         "restart": "Indítsd újra a Home Assistant programot.",
         "restart_pending": "Újraindítás függőben"
+    },
+    "repository_card": {
+        "hide": "Elrejtés",
+        "information": "Információ",
+        "new_repository": "Új tároló",
+        "open_issue": "Probléma jelentése",
+        "open_source": "Forrás megnyitása",
+        "pending_update": "Függő frissítés",
+        "reinstall": "Újratelepítés",
+        "report": "Jelentés eltávolításra",
+        "update_information": "Frissítési információk"
     },
     "repository": {
         "add_to_lovelace": "Hozzáadás a Lovelace-hez",
@@ -140,6 +221,9 @@
         "uninstall": "Eltávolítás",
         "update_information": "Frissítési információk",
         "upgrade": "Frissítés"
+    },
+    "search": {
+        "placeholder": "Tároló keresése"
     },
     "sections": {
         "about": {
@@ -191,6 +275,8 @@
         "last_updated": "Utolsó frissítés",
         "name": "Név",
         "new_repositories": "Új tárolók",
+        "no_repositories": "Nincs tároló",
+        "no_repositories_desc1": "Úgy tűnik, még nincsenek telepítve tárolók ebben a részben.",
         "pending_upgrades": "Függőben lévő frissítések",
         "placeholder_search": "Kérlek adj meg egy keresési kifejezést...",
         "sort": "rendezés",
