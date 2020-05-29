@@ -65,11 +65,12 @@ automation:
       - service: script.speech_engine
         data_template:
           value1: >
+            {% set error =  states.vacuum.carlo_neato.attributes['status'] %}
             {{ [
-            "Neato is asking for help.  The error reported is {{ trigger.to_state.attributes.status }}.  Please find him and help him.",
-            "Please be nice and help Neato.  He is complaining about {{ trigger.to_state.attributes.status }}",
-            "If you don't want to vacuum, you need to help Neato.  He is complaining about {{ trigger.to_state.attributes.status }} and needs help.",
-            "Something is wrong with Neato.  Please find him and help him.  I have detected a {{ trigger.to_state.attributes.status }} error."
+            "Neato is asking for help.  The error reported is " ~ error + " .  Please find him and help him.",
+            "Please be nice and help Neato.  He is complaining about " ~ error + ".",
+            "If you don't want to vacuum, you need to help Neato.  He is complaining about " ~ error +" and needs help.",
+            "Something is wrong with Neato.  Please find him and help him.  I have detected a " ~ error + " error."
             ] | random }}
 
       - service: vacuum.locate
@@ -78,11 +79,13 @@ automation:
       - service: script.notify_engine
         data_template:
           title: 'Help Neato'
-          value1: '{{ trigger.to_state.attributes.status }}'
+          value1: "{{ states.vacuum.carlo_neato.attributes['status'] }}"
           who: 'family'
           ios_category: 'camera'
           camera_entity: 'camera.carlo_neato_cleaning_map'
           content_type: 'jpeg'
+          apns_headers:
+            'apns-collapse-id': 'neato-carlo_neato_cleaning_map'
 
       - delay: 00:20:00
       - event: event_did_someone_help
