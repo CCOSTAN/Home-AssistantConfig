@@ -48,8 +48,8 @@ notify_engine:
             url: "{{ url }}"
             content-type: "{{ content_type }}"
             hide-thumbnail: false
-            apns_headers:
-              'apns-collapse-id': "{{ apns_id }}"
+          apns_headers:
+            'apns-collapse-id': "{{ apns_id }}"
           push:
             sound: "{{ ios_sound }}"
             badge: "{{ ios_badge }}"
