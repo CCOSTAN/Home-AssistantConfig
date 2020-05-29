@@ -2,7 +2,7 @@
 ##  LOG Medicine
 ###################################
 - alias: 'Log Medicine Activity'
-  
+
   trigger:
     - platform: event
       event_type: medicine_dash
@@ -32,6 +32,7 @@
         title: 'Medicine Reminder Completed'
         value1: 'Carlo Took Medicine today.'
         who: 'parents'
+        apns_id: 'Medicine'
     - delay:
         minutes: 1
     - service: automation.turn_on

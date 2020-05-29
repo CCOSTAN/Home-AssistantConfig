@@ -5,7 +5,7 @@
 ##############################################################################
 
 - alias: "NOTIFY IF IP CHANGES"
-  
+
   trigger:
     - platform: state
       entity_id: sensor.ipchange
@@ -18,6 +18,7 @@
         value2: "New IP: {{ states('sensor.exteral_ip') }}"
         value3: ' - Be sure to Change DNS!'
         who: 'carlo'
+        apns_id: 'ip-change'
 
     - service: script.tweet_engine
       data_template:

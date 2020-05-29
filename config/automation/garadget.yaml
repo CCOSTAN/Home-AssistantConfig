@@ -4,7 +4,7 @@
 ###################################
 
 - alias: Garadget Reflection Rates
-  
+
   trigger:
     - platform: numeric_state
       entity_id: sensor.large_garage_reflection_rate
@@ -30,11 +30,12 @@
         who: "parents"
         content_type: 'jpeg'
         url: !secret camera2_snapshot
+        apns_id: 'Garadget'
 
 ##############################################################################
 
 - alias: Is the Garage door Open at night - Checks every 30 minutes or 5 minutes after we drive away.
-  
+
   trigger:
     - platform: time_pattern
       minutes: '/45'
@@ -82,6 +83,7 @@
         value2: "Large: {{ states('cover.large_garage')}}"
         who: "family"
         camera_entity: "camera.camera2"
+        apns_id: 'Garadget'
 
     - service: script.speech_engine
       data_template:

@@ -22,7 +22,7 @@ switch:
 group:
   juicenet:
     name: JuiceBox Charger
-    
+
     entities:
       - sensor.carlojuice_amps
       - sensor.carlojuice_charge_time
@@ -48,6 +48,7 @@ automation:
         data_template:
           value1: "The Garage charger is now in {{ states('sensor.carlojuice_charging_status') }} mode."
           who: 'carlo'
+          apns_id: 'JuiceBox'
 
   - alias: 'Juicebox Self-Heal'
     initial_state: 'on'
@@ -101,6 +102,8 @@ automation:
         above: 24
         for:
           minutes: 2
+      - platform: event
+        event_type: event_did_someone_help_juicebox
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.alert_mode
@@ -109,10 +112,14 @@ automation:
         data_template:
           value1: "The Juice Box Charger is pulling {{ states('sensor.carlojuice_amps') }} AMPs.  This is above the safety mark of 30.  Please unplug charger immediately."
           who: 'parents'
+          apns_id: 'JuiceBox'
 
       - service: script.speech_engine
         data_template:
           value1: "The Juice Box Charger is pulling {{ states('sensor.carlojuice_amps') }} AMPs.  This is above the safety mark of 30.  Please unplug charger immediately."
+
+      - delay: 00:02:00
+      - event: event_did_someone_help_juicebox
 
   - alias: 'JuiceBox Tweet Stat!'
     initial_state: 'on'

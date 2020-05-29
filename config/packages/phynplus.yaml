@@ -30,6 +30,7 @@ automation:
           value1: 'Phyn is sensing {{ trigger.event.data.alert_type }}.  Please verify {{ trigger.event.data.where }}.'
           who: 'family'
           url: 'https://github.com/CCOSTAN/Home-AssistantConfig/raw/master/config/www/custom_ui/floorplan/images/branding/pipeleak.png'
+          apns_id: 'IFTTT_Phyn'
 
       - service: script.speech_engine
         data_template:
