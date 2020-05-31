@@ -1,21 +1,27 @@
-- alias: "Update Available Notification"
-  
-  trigger:
-    platform: state
-    entity_id: updater.updater
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Notifications for new updates from Home Assistant
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/606
+#-------------------------------------------
 
-  condition:
-    - condition: template
-      value_template: "{{ states('updater.updater') != 'unknown' }}"
+- alias: "Update Available Notification"
+
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.updater
+      to: 'on'
 
   action:
     - service: script.notify_engine
       data_template:
-        value1: "Home Assistant {{ states.updater.updater.state }} is now available. {{now().strftime('%Y-%m-%d %I:%M %p')}}"
+        title: 'Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} '
+        value1: "Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} is now available."
         who: 'carlo'
+        apns_id: HAUpdate
 
     - service: ifttt.trigger
-      data_template: {"event":"GitPost", "value1":"Home Assistant {{ states.updater.updater.state }} is now available.", "value2":"{{ states.updater.updater.state }}"}
+      data_template: {"event":"GitPost", "value1":"Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }}  is now available.", "value2":"{{ states.binary_sensor.updater.attributes.newest_version }} "}
 
     - service: script.tweet_engine_image
       data_template:
@@ -28,7 +34,7 @@
               ] | random -}}
             {% endmacro %}
             {% macro getVersion() %}
-             "New version of @Home_Assistant! Cannot wait for @CCostan to install {{ states('updater.updater') }}! (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)"
+             "New @Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }}! Cannot wait for @CCostan to install! (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)"
             {% endmacro %}
             {%- macro getRandomSnark() -%}
            {{- [
@@ -81,10 +87,10 @@
     - service: notify.html5
       data_template:
         title: "Update Available"
-        message: "Home Assistant {{ states('updater.updater') }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+        message: "Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
 
     - service: persistent_notification.create
       data:
         title: "Update Available"
-        message: "Home Assistant {{ states('updater.updater') }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
+        message: "Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
         notification_id: "update_available"
