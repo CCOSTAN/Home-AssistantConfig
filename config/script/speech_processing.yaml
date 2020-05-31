@@ -78,11 +78,11 @@ speech_processing:
           {% if states.group.bed.state == 'off' %}
           media_player.livingroomCC
           {% else %}
-          media_player.bedroom
+          media_player.livingroomCC
           {% endif %}
         message: >-
           <speak>
-            {{ speech_message }}
+            {{ value1 }}
           </speak>
         cache: true
 
