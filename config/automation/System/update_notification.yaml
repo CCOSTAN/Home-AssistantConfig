@@ -84,11 +84,6 @@
           "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
           ] | random }}
 
-    - service: notify.html5
-      data_template:
-        title: "Update Available"
-        message: "Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} is available. - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}"
-
     - service: persistent_notification.create
       data:
         title: "Update Available"
