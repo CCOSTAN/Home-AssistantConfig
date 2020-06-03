@@ -74,15 +74,12 @@ speech_processing:
 
     - service: tts.amazon_polly_say
       data_template:
-        entity_id: >
-          {% if states.group.bed.state == 'off' %}
-          media_player.livingroomCC
-          {% else %}
-          media_player.livingroomCC
-          {% endif %}
+        entity_id: media_player.livingroomCC
         message: >-
           <speak>
+          <amazon:auto-breaths>
             {{ value1 }}
+          </amazon:auto-breaths>
           </speak>
         cache: true
 

@@ -60,8 +60,7 @@ automation:
           state: 'error'
 
     action:
-      - wait_template: >-
-          {{ states.group.family.state == 'home' }}
+      - wait_template: "{{ states.group.family.state == 'home' }}"
 
       - service: script.speech_engine
         data_template:

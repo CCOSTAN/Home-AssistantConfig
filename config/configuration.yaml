@@ -27,6 +27,7 @@ homeassistant:
    - type: trusted_networks
      trusted_networks:
        - 192.168.10.0/24
+       - !secret external_ip
      allow_bypass_login: true
 
 system_health:
@@ -90,8 +91,8 @@ http:
   server_port: !secret http_port
   ssl_certificate: !secret ssl_certificate
   ssl_key: !secret ssl_key
-#  ip_ban_enabled: True
-#  login_attempts_threshold: 2
+  ip_ban_enabled: True
+  login_attempts_threshold: 2
 
 frontend:
   javascript_version: latest
@@ -255,7 +256,7 @@ tts:
     region_name: 'us-east-1'
     text_type: ssml
     cache: True
-    base_url: !secret internal_url
+   # base_url: !secret external_url
    # cache_dir: /data/tts
 
 wink:
