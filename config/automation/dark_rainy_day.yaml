@@ -4,10 +4,9 @@
 
 - alias: 'Dark House Little extra light'
   trigger:
-    - platform: numeric_state
+    - platform: state
       entity_id: sun.sun
-      value_template: '{{ state.attributes.elevation }}'
-      below: 20.0
+      to: below_horizon
     - platform: numeric_state
       entity_id: sensor.dark_sky_cloud_coverage
       above: 90
@@ -24,15 +23,9 @@
     conditions:
       - condition: or
         conditions:
-          - condition: and
-            conditions:
-              - condition: numeric_state
-                entity_id: sun.sun
-                value_template: '{{ state.attributes.elevation }}'
-                below: 20.0
-              - condition: numeric_state
-                entity_id: sensor.dark_sky_cloud_coverage
-                above: 90
+          - condition: numeric_state
+            entity_id: sensor.dark_sky_cloud_coverage
+            above: 90
           - condition: numeric_state
             entity_id: sensor.dark_sky_precip_intensity
             above: 1

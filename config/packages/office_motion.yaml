@@ -59,6 +59,12 @@ automation:
           - condition: state
             entity_id: input_boolean.daylight_override
             state: 'on'
+          - condition: numeric_state
+            entity_id: sensor.dark_sky_cloud_coverage
+            above: 90
+          - condition: numeric_state
+            entity_id: sensor.dark_sky_precip_intensity
+            above: 1
 
     action:
       - service: light.turn_on
