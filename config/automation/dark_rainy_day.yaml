@@ -10,9 +10,9 @@
     - platform: numeric_state
       entity_id: sensor.dark_sky_cloud_coverage
       above: 90
-    - platform: numeric_state
-      entity_id: sensor.dark_sky_precip_intensity
-      above: 1
+    - platform: state
+      entity_id: sensor.dark_sky_precip
+      to: 'rain'
     - platform: state
       entity_id: group.family
       to: 'home'
@@ -30,9 +30,9 @@
           - condition: numeric_state
             entity_id: sensor.dark_sky_cloud_coverage
             above: 90
-          - condition: numeric_state
-            entity_id: sensor.dark_sky_precip_intensity
-            above: 1
+          - condition: state
+            entity_id: sensor.dark_sky_precip
+            state: 'rain'
       - condition: state
         entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
         state: 'off'
