@@ -17,6 +17,10 @@
       entity_id: group.family
       to: 'home'
       from: 'not_home'
+    - platform: state
+      entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      state: 'off'
+      for: "00:10:10"
 
   condition:
     condition: and
