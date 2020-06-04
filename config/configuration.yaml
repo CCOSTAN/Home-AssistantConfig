@@ -11,24 +11,16 @@ homeassistant:
   customize_domain:
     automation:
       initial_state: 'on'
-  customize_glob:
-    automation.*watchdog*:
-      icon: mdi:timer
-    sensor.dark_sky_*:
-      homebridge_hidden: true
-    scene.month_*_colors:
-      hidden: true
-      homebridge_hidden: true
   packages: !include_dir_named packages
   auth_providers:
    - type: homeassistant
-   - type: legacy_api_password
-     api_password: !secret http_password
    - type: trusted_networks
      trusted_networks:
        - 192.168.10.0/24
-       - !secret external_ip
+#      - !secret external_ip
      allow_bypass_login: true
+ # - type: legacy_api_password
+ #   api_password: !secret http_password
 
 system_health:
 
