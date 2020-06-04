@@ -1,3 +1,9 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Read all about this and more at https://vCloudInfo.com
+######################################################################################################
+
 homeassistant:
   name: Bear Stone
   latitude: !secret homeassistant_latitude
@@ -61,11 +67,6 @@ cloud:
         - cover
         - input_boolean
         - camera
-#        - group
-      # exclude_entities:
-      # exclude_domains:
-      #   - light
-      #   - media_player
     entity_config:
       group.kitchen_lights:
         display_categories: LIGHT
@@ -73,18 +74,13 @@ cloud:
         display_categories: LIGHT
       group.upstairs_lights:
         display_categories: LIGHT
-      # group.kitchen_accents:
-      #   display_categories: SWITCH
-      # group.master_bathroom_accents:
-      #   display_categories: SWITCH
 
 http:
-#  base_url: !secret http_base_url
   server_port: !secret http_port
   ssl_certificate: !secret ssl_certificate
   ssl_key: !secret ssl_key
-  ip_ban_enabled: True
-  login_attempts_threshold: 5
+  # ip_ban_enabled: True
+  # login_attempts_threshold: 5
 
 frontend:
   javascript_version: latest
@@ -107,10 +103,6 @@ panel_custom:
       config: /local/custom_ui/floorplan/floorclock.yaml
 
 discovery:
-#  ignore:
-#   - samsung_tv
-#   - roku
-#   - google_cast
 
 updater:
   include_used_components: true
@@ -146,11 +138,6 @@ light:
       192.168.10.33:
         name: led_garage_small
         mode: "rgb"
-
-# emulated_hue:
-#   host_ip: 192.168.10.10
-#   listen_port: 8300
-#   expose_by_default: false
 
 ifttt:
   key: !secret ifttt_key
@@ -230,17 +217,6 @@ nest:
 climate:
   platform: nest
 
-# media_player:
-#   - platform: cast
-#     host: 192.168.10.209 #CCA1
-#   - platform: roku
-
-  # - platform: samsungtv
-  #   host: 192.168.10.207
-  #   port: 8001
-  #   name: Living Room TV
-  #   scan_interval: 180
-
 tts:
   - platform: amazon_polly
     aws_access_key_id: !secret aws_access_key_ID
@@ -249,11 +225,8 @@ tts:
     text_type: ssml
     voice: Joanna
     cache: True
-   # base_url: !secret external_url
-   # cache_dir: /data/tts
 
 wink:
-
 
 group: !include_dir_merge_named group
 device_tracker: !include_dir_merge_list device_tracker
