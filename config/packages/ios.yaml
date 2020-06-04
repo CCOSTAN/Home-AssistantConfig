@@ -14,21 +14,16 @@ notify:
   - name: ios_family
     platform: group
     services:
-      - service: ios_staceys_iphone
-      - service: ios_carloxsmax
+      - service: mobile_app_stacey_6s
+      - service: mobile_app_carlo_xsmax
+      - service: mobile_app_paige_6s
   - name: ios_parents
     platform: group
     services:
-      - service: ios_staceys_iphone
-      - service: ios_carloxsmax
+      - service: mobile_app_stacey_6s
+      - service: mobile_app_carlo_xsmax
 
-group:
-  Phones:
-    entities:
-      - sensor.carloxsmax_battery_level
-      - sensor.carloxsmax_battery_state
-      - sensor.staceys_iphone_battery_level
-      - sensor.staceys_iphone_battery_state
+mobile_app:
 
 ios:
   push:

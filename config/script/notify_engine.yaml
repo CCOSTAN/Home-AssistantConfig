@@ -30,9 +30,9 @@ notify_engine:
 
     - service_template: >
           {% if who == 'stacey' %}
-            notify.ios_staceys_iphone
+            notify.mobile_app_stacey_6s
           {% elif who == 'carlo' %}
-            notify.ios_carloxsmax
+            notify.mobile_app_carlo_xsmax
           {% elif who == 'parents' %}
             notify.ios_parents
           {% elif who == 'family' %}
@@ -51,7 +51,7 @@ notify_engine:
           apns_headers:
             'apns-collapse-id': "{{ apns_id }}"
           push:
-            sound: "{{ ios_sound }}"
-            badge: "{{ ios_badge }}"
+#           sound: "{{ ios_sound }}"
+#           badge: "{{ ios_badge }}"
             category: "{{ ios_category }}"
           entity_id: "{{ camera_entity }}"
