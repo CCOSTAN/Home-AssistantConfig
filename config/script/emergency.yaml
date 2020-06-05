@@ -13,7 +13,8 @@ emergency:
       entity_id:
         - group.outdoor_front_lights
       data:
-        color_name: 'red'
+        #color_name: 'red'
+        rgb_color: [255,0,0]
       # Flash All LIGHTS
     - service: light.turn_on
       entity_id: all
