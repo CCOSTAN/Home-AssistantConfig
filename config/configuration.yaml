@@ -40,40 +40,37 @@ cloud:
   alexa:
     filter:
       include_entities:
-        - group.interior_lights
-        - group.bedroom_lights
-        - group.living_room_lights
-        - group.living_room_accents
-        - group.dinette_lights
-        - group.dining_room_lights
-        - group.den_lights
-        - group.foyer_lights
-        - group.office_lights
-        - group.hallway_lights
-        - group.kitchen_lights
-        - group.kitchen_accents
-        - group.upstairs_lights
         - group.outdoor_pool_lights
-        - group.master_bathroom_accents
-        - group.garage_lights
-        - group.paiges_room
-        - group.justins_room
         - group.Exterior_Lights
         - group.outdoor_pool_lights
         - group.outdoor_front_lights
         - group.landscaping
+        - group.master_bathroom_accents
+        - group.kitchen_accents
+        - light.bedroom
+        - light.bedroom_lights
+        - light.den_lights
+        - light.dinette_lights
+        - light.dining_room_lights
+        - light.foyer_lights
+        - light.garage_lights
+        - light.hallway_lights
+        - light.kitchen_lights
+        - light.living_room_accents
+        - light.living_room_lights
+        - light.office_lights
+        - light.outdoor_front_lights
+        - light.outdoor_pool_lights
+        - light.outside_pool_lights
+        - light.upstairs_lights
       include_domains:
         - switch
         - cover
         - input_boolean
         - camera
-    entity_config:
-      group.kitchen_lights:
-        display_categories: LIGHT
-      group.bedroom_lights:
-        display_categories: LIGHT
-      group.upstairs_lights:
-        display_categories: LIGHT
+    # entity_config:
+    #   group.kitchen_lights:
+    #     display_categories: LIGHT
 
 http:
   server_port: !secret http_port
@@ -121,23 +118,7 @@ hue:
       allow_unreachable: true
       allow_hue_groups: false
 
-light:
-  # Reference : https://www.flexfireleds.com/pages/Comparison-between-3528-LEDs-and-5050-LEDs.html
-  - platform: flux_led
-    automatic_add: True
-    devices:
-      192.168.10.30:
-        name: led_garage_snip
-        mode: "rgb"
-      192.168.10.31:
-        name: led_outdoor_den
-        mode: "rgb"
-      192.168.10.32:
-        name: led_garage_large
-        mode: "rgb"
-      192.168.10.33:
-        name: led_garage_small
-        mode: "rgb"
+light: !include light_groups.yaml
 
 ifttt:
   key: !secret ifttt_key

@@ -10,6 +10,7 @@ filter:
     - climate
     - cover
     - lock
+    - camera
   exclude_domains:
     - media_player
     - sensor
@@ -18,6 +19,23 @@ filter:
     - switch
     - scene
     - light
-  # include_entities:
+  include_entities:
+    - light.bedroom
+    - light.bedroom_lights
+    - light.den_lights
+    - light.dinette_lights
+    - light.dining_room_lights
+    - light.foyer_lights
+    - light.garage_lights
+    - light.hallway_lights
+    - light.kitchen_lights
+    - light.living_room_accents
+    - light.living_room_lights
+    - light.office_lights
+    - light.outdoor_front_lights
+    - light.outdoor_pool_lights
+    - light.outside_pool_lights
+    - light.upstairs_lights
 
+    - switch.lr_amp
   # exclude_entities:
