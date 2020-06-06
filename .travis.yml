@@ -5,7 +5,7 @@ python: "3.6.4"
 before_install:
   - touch fake_key.pem
   - mv config/travis_secrets.yaml config/secrets.yaml
-  - HA_VERSION=$(<.HA_VERSION)
+  - HA_VERSION=$(<config/.HA_VERSION)
 
 install:
   - pip3 install homeassistant==${HA_VERSION}
