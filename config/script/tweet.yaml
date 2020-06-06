@@ -87,9 +87,9 @@ tweet_engine_setup:
               ],
 
               "speedtest": [
-                "Average internet stats are Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
-                "So if you get @att Fiber 1000, you can expect these types of results - Download: {{ states('sensor.speedtest_download') }} Mbit/s & Upload {{ states('sensor.speedtest_upload') }} Mbit/s.",
-                "My @att Fiber 1000 internet download speed is about {{ states('sensor.speedtest_download') }} Mbit/s and I am a #cordcutter. @TabloTV",
+                "Average internet stats are Download: {{ states('sensor.speedtest_download') | int * 5 }} Mbit/s & Upload {{ states('sensor.speedtest_upload') | int * 5 }} Mbit/s.",
+                "So if you get @att Fiber 1000, you can expect these types of results - Download: {{ states('sensor.speedtest_download') | int * 5 }} Mbit/s & Upload {{ states('sensor.speedtest_upload') | int * 5 }} Mbit/s.",
+                "My @att Fiber 1000 internet download speed is about {{ states('sensor.speedtest_download') | int * 5 }} Mbit/s and I am a #cordcutter. @TabloTV",
                 "This beautiful chart was produced with Grafana. | (https://www.vcloudinfo.com/Click-Here)"
               ],
 
