@@ -69,28 +69,6 @@ sensor:
             {%- endfor -%}
           {%- endfor -%}
 
-group:
-  network:
-    entities:
-      - sensor.ha_installed_version
-      - sensor.github_stats
-      - sensor.ccostanhomeassistantconfig_state
-      - sensor.ha_uptime
-      - sensor.last_boot_templated
-      - sensor.disk_use_percent
-      - sensor.homeassistant_v2db
-      - sensor.speedtest_download
-      - sensor.speedtest_upload
-      - binary_sensor.carlowink
-      - sensor.network
-      - sensor.network_detail
-
-# Create full group with Loop!:
-# {% for state in states.device_tracker-%}
-# - {{ state.entity_id | lower }}
-# {{ ' '}}
-# {%- endfor -%}.
-
   network_detail:
     entities:
       - device_tracker.alexa_echo
@@ -151,7 +129,7 @@ group:
 #-------------------------------------------------------------------------------------
 automation:
   - alias: 'Device Status'
-    
+
     trigger:
       - platform: state
         entity_id:

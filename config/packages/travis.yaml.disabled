@@ -1,14 +1,9 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Read more about the house at https://vCloudInfo.com
 #-------------------------------------------
-# homeassistant:
-#   customize_glob:
-#     "*.*_sleep_hours":
-#       unit_of_measurement: hours
-#       icon: mdi:sleep
-#
-#       
+
 #-------------------------------------------
 sensor:
   - platform: travisci
@@ -17,16 +12,13 @@ sensor:
     monitored_conditions:
       - state
 #-------------------------------------------
-# Group added to network package.
-##############################################################################
-###  Automations - Detect when things are not right. Like any Good Watchdog.
-##############################################################################
+
 #automation:
 #Tweets pushed out to twitter.
 
 automation:
   - alias: "Travis FAILURE Notification"
-    
+
     trigger:
       - platform: state
         entity_id:
@@ -37,11 +29,7 @@ automation:
         data_template:
           value1: 'Travis validation testing failed.'
           who: 'carlo'
-
-      - service: notify.html5
-        data_template:
-          title: "Travis-CI FAILURE"
-          message: "Travis validation testing failed."
+          apns: 'travisci'
 
       - service: persistent_notification.create
         data:
