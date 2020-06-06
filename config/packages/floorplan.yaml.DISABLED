@@ -6,9 +6,9 @@
 homeassistant:
   customize_glob:
     "sensor.*_alarm_panel*":
-      hidden: False
+      
     "binary_sensor.*_alarm_panel*":
-      hidden: False
+      
 
 media_player:
   - platform: floorplan_speaker
@@ -39,10 +39,10 @@ binary_sensor:
     name: Bedroom Motion
     device_class: motion
     retain: true
-    hidden: False
+    
 
   - platform: mqtt
     state_topic: floorplan/bedroom_plugged
     name: Bedroom Plugged
     retain: true
-    hidden: False
+    
