@@ -5,10 +5,9 @@ python: "3.7"
 before_install:
   - touch fake_key.pem
   - mv config/travis_secrets.yaml config/secrets.yaml
-  - HA_VERSION=$(<config/.HA_VERSION)
 
 install:
-  - pip3 install homeassistant==${HA_VERSION}
+  - pip3 install homeassistant
   - pip3 install colorlog
   - pip3 install python-dateutil
 
