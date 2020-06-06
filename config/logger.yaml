@@ -10,10 +10,8 @@ default: info
 logs:
   aiohttp.access: critical
   aiohttp.server: critical
-  custom_components.media_player.floorplan_speaker: error
-  custom_components.media_player.living_room: info
   homeassistant.core: error
-  homeassistant.components.automation: warn
+  homeassistant.components.automation: info
   homeassistant.components.binary_sensor: error
   homeassistant.components.climate.nest: warn
   homeassistant.components.device_tracker: error
@@ -30,9 +28,11 @@ logs:
   homeassistant.components.zwave: warn
   homeassistant.helpers.script: info
   homeassistant.helpers.entity: critical
+  homeassistant.loader: warn
   homeassistant.exceptions: info
   pubnub: critical
   py.warnings: error
+  pyhap.hap_server: warn
   requests.packages.urllib3.connectionpool: critical
   urllib3.connectionpool: error
   root: warn
