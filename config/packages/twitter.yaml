@@ -8,7 +8,7 @@
 #     "input_select.log_*":
 #       icon: mdi:bug
 #
-#       
+#
 
 #Random number - https://www.random.org/integers/?num=1&min=1&max=10&col=1&base=10&format=plain&rnd=new
 
@@ -145,25 +145,6 @@ sensor:
         entity_id: []
         value_template: >
           {{ states.camera | list | count }}
-
-group:
-  tweet_stats:
-    entities:
-      - sensor.doorbell_presses
-      - sensor.landscaping_light_time
-      - sensor.hvac_time
-      - sensor.speech_time
-      - sensor.tv_time
-      - sensor.bolt_charging_time
-      - sensor.lines_of_code
-      - sensor.sensor_count
-      - sensor.script_count
-      - sensor.binary_sensor_count
-      - sensor.automation_count
-      - sensor.lights_count
-      - sensor.tracker_count
-      - sensor.protect_count
-      - sensor.camera_count
 
 #############################################################
 
