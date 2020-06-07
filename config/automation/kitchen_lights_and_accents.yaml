@@ -7,7 +7,7 @@
 - alias: Kitchen lights on - Accent lights off
   trigger:
     - platform: state
-      entity_id: group.kitchen_lights
+      entity_id: light.kitchen_lights
       to: 'on'
       for: '00:05:00'
 
@@ -25,7 +25,7 @@
 - alias: Kitchen lights off - turn on Accent lights
   trigger:
     - platform: state
-      entity_id: group.kitchen_lights
+      entity_id: light.kitchen_lights
       to: 'off'
       for: '00:05:00'
     - platform: state
@@ -37,7 +37,7 @@
     - condition: sun
       after: 'sunset'
     - condition: state
-      entity_id: group.kitchen_lights
+      entity_id: light.kitchen_lights
       state: 'off'
     - condition: or
       conditions:

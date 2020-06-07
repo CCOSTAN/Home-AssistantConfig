@@ -32,14 +32,14 @@ front_house_motion:
       data:
         entity_id:
           - light.outdoor_bathroom
-          - group.outdoor_pool_lights
+          - light.outdoor_pool_lights
         brightness: 255
     - service: script.dog_bark
     - delay: '00:{{ range(0,1) | random | int }}{{ range(0,9) | random | int }}:00'
     - service: light.turn_off
       entity_id:
-        - group.outdoor_front_lights
-        - group.outdoor_pool_lights
+        - light.outdoor_front_lights
+        - light.outdoor_pool_lights
     - service: light.turn_on
       entity_id: light.outdoor_bathroom
       data:

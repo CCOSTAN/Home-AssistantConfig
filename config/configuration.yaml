@@ -40,10 +40,9 @@ cloud:
   alexa:
     filter:
       include_entities:
-        - group.outdoor_pool_lights
-        - group.Exterior_Lights
-        - group.outdoor_pool_lights
-        - group.outdoor_front_lights
+        - group.exterior_lights
+        - light.outdoor_pool_lights
+        - light.outdoor_front_lights
         - group.landscaping
         - group.master_bathroom_accents
         - group.kitchen_accents
@@ -69,7 +68,7 @@ cloud:
         - input_boolean
         - camera
     # entity_config:
-    #   group.kitchen_lights:
+    #   light.kitchen_lights:
     #     display_categories: LIGHT
 
 http:

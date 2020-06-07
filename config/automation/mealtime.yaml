@@ -12,10 +12,10 @@
   action:
     - service: light.turn_on
       entity_id:
-        - group.dinette_lights
-        - group.kitchen_lights
+        - light.dinette_lights
+        - light.kitchen_lights
     - service: light.turn_off
       entity_id:
-        - group.living_room_lights
+        - light.living_room_lights
     - service: input_boolean.turn_off
       entity_id: input_boolean.meal_time

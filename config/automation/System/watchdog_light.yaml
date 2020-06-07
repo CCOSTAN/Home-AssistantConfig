@@ -7,14 +7,14 @@
     - platform: state
       entity_id:
         - light.hallway
-        - group.hallway_lights
-        - group.foyer_lights
+        - light.hallway_lights
+        - light.foyer_lights
       to: 'on'
       for: '00:20:00'
 
     - platform: state
       entity_id:
-        - group.upstairs
+        - light.upstairs_lights
       to: 'on'
       for: '02:00:00'
 

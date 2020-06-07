@@ -17,7 +17,7 @@
 
   action:
     - service: light.turn_on
-      entity_id: group.upstairs
+      entity_id: light.upstairs_lights
 
 - alias: 'Upstairs Light Turn off'
   trigger:
@@ -29,4 +29,4 @@
 
   action:
     service: light.turn_off
-    entity_id: group.upstairs
+    entity_id: light.upstairs_lights

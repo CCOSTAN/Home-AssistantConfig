@@ -288,7 +288,7 @@ automation:
     action:
       - service: light.turn_on
         entity_id:
-          - group.living_room_accents
+          - light.living_room_accents
         data_template:
           rgb_color: >
             {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}

@@ -30,10 +30,10 @@
     - service: switch.turn_on
       entity_id: switch.back_landscaping
     - service: light.turn_on
-      entity_id: group.outdoor_pool_lights
+      entity_id: light.outdoor_pool_lights
       data:
         color_temp: 369
     - wait_template: >-
         {{ states.binary_sensor.MCU2_GPIO12.state == 'off' }}
     - service: light.turn_off
-      entity_id: group.outdoor_pool_lights
+      entity_id: light.outdoor_pool_lights

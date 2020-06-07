@@ -22,7 +22,7 @@
       entity_id: scene.front_full_brightness
     - service: light.turn_on
       entity_id:
-        - group.living_room_accents
+        - light.living_room_accents
       data_template:
         # Red if Open, Gold if Closed
         rgb_color: >
@@ -49,7 +49,7 @@
     - service: script.monthly_color_scene
     - service: light.turn_on
       entity_id:
-        - group.living_room_accents
+        - light.living_room_accents
       data_template:
         # Red if Open, Gold if Closed
         rgb_color: >

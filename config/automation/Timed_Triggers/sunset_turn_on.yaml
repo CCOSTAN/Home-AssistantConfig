@@ -77,7 +77,7 @@
        - switch.living_room_outlet
     - service: light.turn_on
       entity_id:
-       - group.living_room_accents
+       - light.living_room_accents
     - wait_template: >-
        {{ is_state('group.garadget', 'closed') }}
     - wait_template: >-
