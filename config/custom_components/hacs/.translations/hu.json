@@ -76,7 +76,7 @@
         "home_assistant_is_restarting": "Várj, a Home Assistant éppen újraindul.",
         "home_assistant_version_not_correct": "A Home Assistant '{haversion}' verzióját használod, de ehhez a tárolóhoz legalább a(z) '{minversion}' verzióra van szükség.",
         "no": "Nem",
-        "no_upgrades": "Nincs függőben lévő frissítés",
+        "no_upgrades": "Nincsenek elérhető frissítések",
         "ok": "OK",
         "overwrite": "Ezzel felül fogod írni.",
         "reload_data": "Ez újratölti a HACS által ismert összes tároló adatát, ami némi időbe telhet.",
@@ -93,7 +93,8 @@
     },
     "dialog_add_repo": {
         "limit": "Csak az első 100 tároló jelenik meg, használd a keresőt a találatok szűkítéséhez",
-        "no_match": "Nincs a szűrőnek megfelelő tároló",
+        "no_match": "Nincs a szűrésnek megfelelő tároló",
+        "sort_by": "Rendezés",
         "title": "Tároló hozzáadása"
     },
     "dialog_custom_repositories": {
@@ -109,11 +110,13 @@
         "install": "Tároló telepítése HACS-ben",
         "loading": "Információ betöltése...",
         "no_info": "A fejlesztő nem adott meg több információt ehhez a tárolóhoz",
+        "open_issues": "Jelentett problémák",
         "open_repo": "Tároló megnyitása",
         "stars": "Csillagok",
         "version_installed": "Telepített verzió"
     },
     "dialog_install": {
+        "restart": "Ne feledd, hogy az egyéni integrációk (custom_components) módosításainak alkalmazásához újra kell indítanod a Home Assistant alkalmazást.",
         "select_version": "Verzió kiválasztása",
         "show_beta": "Béta verziók megjelenítése",
         "type": "Típus",
@@ -123,29 +126,32 @@
         "available_version": "Elérhető verzió",
         "changelog": "Változási napló",
         "installed_version": "Telepített verzió",
-        "title": "Frissítés függőben"
+        "title": "Frissítés érhető el"
     },
     "entry": {
         "information": "Információ",
+        "intro": "A frissítések és a fontos üzenetek itt jelennek meg, ha vannak",
         "messages": {
             "disabled": {
                 "content": "További részletek a naplófájlban",
                 "title": "A HACS le van tiltva"
             },
             "has_pending_tasks": {
+                "content": "Előfordulhat, hogy egyes tárolók nem jelennek meg, amíg ez be nem fejeződik",
                 "title": "Függőben lévő háttérfeladatok"
             },
             "startup": {
                 "content": "A HACS éppen indul, ezidő alatt egyes információk hiányozhatnak vagy helytelenek lehetnek",
-                "title": "A HACS indul"
+                "title": "A HACS éppen indul"
             }
         },
-        "pending_updates": "Függő frissítések"
+        "pending_updates": "Frissítések érhetők el"
     },
     "menu": {
         "about": "HACS névjegye",
         "clear": "Új jelölések törlése",
         "custom_repositories": "Egyéni tárolók",
+        "dismiss": "Minden új tároló elvetése",
         "documentation": "Dokumentáció",
         "open_issue": "Probléma jelentése",
         "reload": "Ablak újratöltése"
@@ -178,15 +184,16 @@
         "restart_pending": "Újraindítás függőben"
     },
     "repository_card": {
+        "dismiss": "elvetés",
         "hide": "Elrejtés",
         "information": "Információ",
         "new_repository": "Új tároló",
         "open_issue": "Probléma jelentése",
         "open_source": "Forrás megnyitása",
-        "pending_update": "Függő frissítés",
+        "pending_update": "Frissítés érhető el",
         "reinstall": "Újratelepítés",
         "report": "Jelentés eltávolításra",
-        "update_information": "Frissítési információk"
+        "update_information": "Frissítési információ"
     },
     "repository": {
         "add_to_lovelace": "Hozzáadás a Lovelace-hez",
@@ -275,9 +282,11 @@
         "last_updated": "Utolsó frissítés",
         "name": "Név",
         "new_repositories": "Új tárolók",
-        "no_repositories": "Nincs tároló",
-        "no_repositories_desc1": "Úgy tűnik, még nincsenek telepítve tárolók ebben a részben.",
-        "pending_upgrades": "Függőben lévő frissítések",
+        "new_repositories_note": "Több mint 10 új tároló látható. Ha törölni szeretnéd őket, akkor kattints a jobb felső sarokban lévő 3 pontra, és válaszd ki a 'Minden új tároló elvetése' menüpontot.",
+        "no_repositories": "Nincsenek tárolók",
+        "no_repositories_desc1": "Úgy tűnik, még nincsenek telepítve tárolók ebben a szekcióban.",
+        "no_repositories_desc2": "Kattints az alsó sarokban található + jelre az első hozzáadásához!",
+        "pending_upgrades": "Frissítések érhetők el",
         "placeholder_search": "Kérlek adj meg egy keresési kifejezést...",
         "sort": "rendezés",
         "stars": "Csillag",

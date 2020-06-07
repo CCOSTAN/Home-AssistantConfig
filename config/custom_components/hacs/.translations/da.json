@@ -1,6 +1,7 @@
 {
     "common": {
         "about": "Om",
+        "add": "tilføj",
         "appdaemon_apps": "AppDaemon-apps",
         "appdaemon_plural": "AppDaemon-apps",
         "background_task": "Baggrundsopgave kører. Denne side vil genindlæses automatisk.",
@@ -10,6 +11,7 @@
         "documentation": "Dokumentation",
         "element": "element",
         "hacs_is_disabled": "HACS er deaktiveret",
+        "install": "Installer",
         "installed": "installeret",
         "integration": "Integration",
         "integration_plural": "Integrationer",
@@ -28,10 +30,12 @@
         "python_script_plural": "Python-scripts",
         "python_scripts": "Python-scripts",
         "repositories": "Repositories",
+        "repository": "Repository",
         "settings": "indstillinger",
         "theme": "Tema",
         "theme_plural": "Temaer",
         "themes": "Temaer",
+        "uninstall": "Afinstaller",
         "version": "Version"
     },
     "config": {
@@ -77,6 +81,92 @@
         "upgrade_all": "Dette vil opdatere alle repositories. Sørg for at du har læst udgivelsesnoterne for dem alle, inden du fortsætter.",
         "yes": "Ja"
     },
+    "dialog_about": {
+        "frontend_version": "Frontend-version",
+        "installed_repositories": "Installerede repositories",
+        "integration_version": "Integrationsversion",
+        "useful_links": "Nyttige links"
+    },
+    "dialog_add_repo": {
+        "limit": "Kun de første 100 repositories vises. Brug søgningen til at filtrere, hvad du har brug for",
+        "no_match": "Der blev ikke fundet nogen repositories, der matcher dit filter",
+        "sort_by": "Sorter efter",
+        "title": "Tilføj repository"
+    },
+    "dialog_custom_repositories": {
+        "category": "Kategori",
+        "no_category": "Manglende kategori",
+        "no_repository": "Manglende repository",
+        "title": "Brugerdefinerede repositories",
+        "url_placeholder": "Tilføj brugerdefineret repository-webadresse"
+    },
+    "dialog_info": {
+        "author": "Udvikler",
+        "downloads": "Downloads",
+        "install": "Installer dette repository i HACS",
+        "loading": "Indlæser oplysninger...",
+        "no_info": "Udvikleren har ikke givet flere oplysninger om dette repository",
+        "open_repo": "Åbn repository",
+        "stars": "Stjerner",
+        "version_installed": "Installeret version"
+    },
+    "dialog_install": {
+        "restart": "Husk, at du skal genstarte Home Assistant, før ændringer af integrationer (custom_components) træder i kræft.",
+        "select_version": "Vælg version",
+        "show_beta": "Vis betaversioner",
+        "type": "Type",
+        "url": "Webadresse"
+    },
+    "dialog_update": {
+        "available_version": "Tilgængelig version",
+        "changelog": "Udgivelsesnoter",
+        "installed_version": "Installeret version",
+        "title": "Ventende opdatering"
+    },
+    "entry": {
+        "information": "Oplysninger",
+        "intro": "Opdateringer og vigtige meddelelser vises her, hvis der er nogen",
+        "messages": {
+            "disabled": {
+                "content": "Tjek din logfil for flere detaljer",
+                "title": "HACS er deaktiveret"
+            },
+            "has_pending_tasks": {
+                "content": "Nogle repositories vises muligvis ikke, før dette er fuldført",
+                "title": "Baggrundsopgaver venter"
+            },
+            "resources": {
+                "content": "Du har {number} Lovelace-elementer, der ikke er indlæst korrekt i Lovelace.",
+                "title": "Ikke indlæst i Lovelace"
+            },
+            "restart": {
+                "content": "Du har {number} integrationer, der kræver en genstart af Home Assistant. Du kan genstarte fra 'Serveradministration'-sektionen under Indstillinger i Home Assistant-brugerfladen.",
+                "title": "Afventer genstart"
+            },
+            "startup": {
+                "content": "HACS starter op. Der kan i dette tidsrum mangle nogle oplysninger, eller de kan være ukorekte.",
+                "title": "HACS starter op"
+            },
+            "wrong_frontend_installed": {
+                "content": "Du har version {running} af HACS-frontend installeret, men version {expected} var forventet, hvis dette ser du denne besked. Home Assistant kunne ikke installere den nye version. Prøv at genstarte Home Assistant.",
+                "title": "Uventet frontend-version"
+            },
+            "wrong_frontend_loaded": {
+                "content": "Du kører version {running} af HACS-frontend, men version {expected} var forventet. Du bør rydde din browser-cache.",
+                "title": "Uventet frontend-version"
+            }
+        },
+        "pending_updates": "Ventende opdateringer"
+    },
+    "menu": {
+        "about": "Om HACS",
+        "clear": "Ryd alle nye",
+        "custom_repositories": "Brugerdefinerede repositories",
+        "dismiss": "Afvis alle nye repositories",
+        "documentation": "Dokumentation",
+        "open_issue": "Opret issue",
+        "reload": "Genindlæs vindue"
+    },
     "options": {
         "step": {
             "user": {
@@ -103,6 +193,18 @@
         "plugin_not_loaded": "Dette element er ikke føjet til dine Lovelace-ressourcer.",
         "restart": "Du skal genstarte Home Assistant.",
         "restart_pending": "Afventer genstart"
+    },
+    "repository_card": {
+        "dismiss": "Afvis",
+        "hide": "Skjul",
+        "information": "Oplysninger",
+        "new_repository": "Nyt repository",
+        "not_loaded": "Ikke indlæst",
+        "open_issue": "Opret issue",
+        "pending_restart": "Afventer genstart",
+        "pending_update": "Ventende opdatering",
+        "reinstall": "Geninstaller",
+        "report": "Rapporter til fjernelse"
     },
     "repository": {
         "add_to_lovelace": "Tilføj til Lovelace",
@@ -137,6 +239,9 @@
         "uninstall": "Afinstaller",
         "update_information": "Opdater oplysninger",
         "upgrade": "Opdater"
+    },
+    "search": {
+        "placeholder": "Søg efter repository"
     },
     "sections": {
         "about": {
@@ -188,7 +293,13 @@
         "last_updated": "Sidst opdateret",
         "name": "Navn",
         "new_repositories": "Nye repositories",
-        "pending_upgrades": "Afventende opdateringer",
+        "new_repositories_note": "Du har over 10 nye repositories, der vises her, hvis du vil rydde dem alle, skal du klikke på de 3 prikker i øverste højre hjørne og afvise dem alle.",
+        "no_repositories": "Ingen repositories",
+        "no_repositories_desc1": "Det ser ud til, at du ikke har nogen repositories installeret i denne sektion endnu.",
+        "no_repositories_desc2": "Klik på + i nederste hjørne for at tilføje dit første!",
+        "no_repositories_found_desc1": "Der blev ikke fundet installerede repositories, der matcher \"{searchInput}\" i denne sektion.",
+        "no_repositories_found_desc2": "Prøv at søge efter noget andet!",
+        "pending_upgrades": "Ventende opdateringer",
         "placeholder_search": "Indtast en søgeterm...",
         "sort": "sorter",
         "stars": "Stjerner",

@@ -1,0 +1,33 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Alexa Media Sensor Support - Relies on Custom Component
+#-------------------------------------------
+
+sensor:
+  - platform: template
+    sensors:
+        last_alexa:
+          entity_id:
+            - media_player.bedroom
+            - media_player.carlos_2nd_echo
+            - media_player.front_room_flex
+            - media_player.justin_room
+            - media_player.kitchen
+            - media_player.living_room
+            - media_player.master_bathroom
+            - media_player.master_bedroom
+            - media_player.office
+            - media_player.paige_room
+            - media_player.tap
+            - media_player.upstairs
+          value_template: >
+            {{ states.media_player | selectattr('attributes.last_called','eq',True) | map(attribute='entity_id') | first }}
+
+#-------------------------------------------
+
+##############################################################################
+###  Automations - Detect when things are not right. Like any Good Watchdog.
+##############################################################################
+#automation:
+#Tweets pushed out to twitter.

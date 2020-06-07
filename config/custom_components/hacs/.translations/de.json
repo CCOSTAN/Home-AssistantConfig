@@ -80,6 +80,32 @@
         "upgrade_all": "Hierdurch werden all diese Repositories aktualisiert. Stelle sicher, dass du die Versionshinweise vorher gelesen hast.",
         "yes": "Ja"
     },
+    "dialog_add_repo": {
+        "sort_by": "Sortiere nach"
+    },
+    "dialog_install": {
+        "restart": "Denken Sie daran, dass Sie Home Assistant neu starten müssen, bevor Änderungen an Integrationen (custom_components) angewendet werden."
+    },
+    "entry": {
+        "messages": {
+            "resources": {
+                "content": "Sie haben {number} Lovelace-Elemente, die in Lovelace nicht richtig geladen sind.",
+                "title": "Nicht in Lovelace geladen"
+            },
+            "restart": {
+                "content": "Sie haben {number} -Integrationen, die einen Neustart von Home Assistant erfordern. Dies können Sie im Abschnitt 'Server Controls' im Konfigurationsteil der Home Assistant-Benutzeroberfläche tun.",
+                "title": "Ausstehender Neustart"
+            },
+            "wrong_frontend_installed": {
+                "content": "Sie haben {running} des HACS-Frontends installiert, aber Version {expected} wurde erwartet. Wenn diese Meldung angezeigt wird, dass Home Assistant die neue Version nicht installieren konnte, starten Sie Home Assistant neu.",
+                "title": "Unerwartete Frontend-Version"
+            },
+            "wrong_frontend_loaded": {
+                "content": "Sie führen die Version {running} des HACS-Frontends aus, aber es wurde die Version {expected} erwartet. Sie sollten Ihren Browser-Cache leeren.",
+                "title": "Unerwartete Frontend-Version"
+            }
+        }
+    },
     "menu": {
         "dismiss": "Alle neuen Repositories ausblenden"
     },
@@ -111,7 +137,11 @@
         "restart_pending": "Neustart ausstehend"
     },
     "repository_card": {
-        "dismiss": "Ausblenden"
+        "dismiss": "Ausblenden",
+        "not_loaded": "Nicht geladen",
+        "open_source": "Quelldateien öffnen",
+        "pending_restart": "Ausstehender Neustart",
+        "report": "Melden zur Entfernung des Repositorys"
     },
     "repository": {
         "add_to_lovelace": "Zu Lovelace hinzufügen",

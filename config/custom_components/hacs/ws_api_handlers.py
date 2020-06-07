@@ -9,7 +9,7 @@ import homeassistant.helpers.config_validation as cv
 from .hacsbase.exceptions import HacsException
 from .store import async_load_from_store, async_save_to_store
 
-from custom_components.hacs.globals import get_hacs
+from custom_components.hacs.globals import get_hacs, removed_repositories
 from custom_components.hacs.helpers.register_repository import register_repository
 
 
@@ -22,6 +22,7 @@ async def setup_ws_api(hass):
     websocket_api.async_register_command(hass, hacs_repository_data)
     websocket_api.async_register_command(hass, check_local_path)
     websocket_api.async_register_command(hass, hacs_status)
+    websocket_api.async_register_command(hass, hacs_removed)
     websocket_api.async_register_command(hass, acknowledge_critical_repository)
     websocket_api.async_register_command(hass, get_critical_repositories)
 
@@ -31,7 +32,7 @@ async def setup_ws_api(hass):
     {
         vol.Required("type"): "hacs/settings",
         vol.Optional("action"): cv.string,
-        vol.Optional("category"): cv.string,
+        vol.Optional("categories"): cv.ensure_list,
     }
 )
 async def hacs_settings(hass, connection, msg):
@@ -70,7 +71,7 @@ async def hacs_settings(hass, connection, msg):
 
     elif action == "clear_new":
         for repo in hacs.repositories:
-            if repo.data.new:
+            if repo.data.new and repo.data.category in msg.get("categories", []):
                 hacs.logger.debug(f"Clearing new flag from '{repo.data.full_name}'")
                 repo.data.new = False
     else:
@@ -92,6 +93,8 @@ async def hacs_config(hass, connection, msg):
     content["frontend_compact"] = config.frontend_compact
     content["onboarding_done"] = config.onboarding_done
     content["version"] = hacs.version
+    content["frontend_expected"] = hacs.frontend.version_expected
+    content["frontend_running"] = hacs.frontend.version_running
     content["dev"] = config.dev
     content["debug"] = config.debug
     content["country"] = config.country
@@ -115,6 +118,16 @@ async def hacs_status(hass, connection, msg):
         "disabled": hacs.system.disabled,
         "has_pending_tasks": hacs.queue.has_pending_tasks,
     }
+    connection.send_message(websocket_api.result_message(msg["id"], content))
+
+
+@websocket_api.async_response
+@websocket_api.websocket_command({vol.Required("type"): "hacs/removed"})
+async def hacs_removed(hass, connection, msg):
+    """Get information about removed repositories."""
+    content = []
+    for repo in removed_repositories:
+        content.append(repo.to_json())
     connection.send_message(websocket_api.result_message(msg["id"], content))
 
 
@@ -201,6 +214,7 @@ async def hacs_repository(hass, connection, msg):
             repository.status.updated_info = True
 
         elif action == "install":
+            repository.data.new = False
             was_installed = repository.data.installed
             await repository.install()
             if not was_installed:
@@ -210,6 +224,7 @@ async def hacs_repository(hass, connection, msg):
             repository.data.new = False
 
         elif action == "uninstall":
+            repository.data.new = False
             await repository.uninstall()
 
         elif action == "hide":
@@ -249,16 +264,15 @@ async def hacs_repository(hass, connection, msg):
         await hacs.data.async_write()
         message = None
     except AIOGitHubAPIException as exception:
-        message = str(exception)
-        hass.bus.async_fire("hacs/error", {"message": str(exception)})
+        message = exception
     except AttributeError as exception:
         message = f"Could not use repository with ID {repo_id} ({exception})"
     except Exception as exception:  # pylint: disable=broad-except
-        message = str(exception)
+        message = exception
 
     if message is not None:
         hacs.logger.error(message)
-        hass.bus.async_fire("hacs/error", {"message": message})
+        hass.bus.async_fire("hacs/error", {"message": str(exception)})
 
     repository.state = None
     connection.send_message(websocket_api.result_message(msg["id"], {}))
@@ -322,30 +336,43 @@ async def hacs_repository_data(hass, connection, msg):
         return
 
     hacs.logger.debug(f"Running {action} for {repository.data.full_name}")
+    try:
+        if action == "set_state":
+            repository.state = data
 
-    if action == "set_state":
-        repository.state = data
+        elif action == "set_version":
+            repository.data.selected_tag = data
+            await repository.update_repository()
 
-    elif action == "set_version":
-        repository.data.selected_tag = data
-        await repository.update_repository()
-        repository.state = None
+            repository.state = None
 
-    elif action == "install":
-        was_installed = repository.data.installed
-        repository.data.selected_tag = data
-        await repository.update_repository()
-        await repository.install()
-        repository.state = None
-        if not was_installed:
-            hass.bus.async_fire("hacs/reload", {"force": True})
+        elif action == "install":
+            was_installed = repository.data.installed
+            repository.data.selected_tag = data
+            await repository.update_repository()
+            await repository.install()
+            repository.state = None
+            if not was_installed:
+                hass.bus.async_fire("hacs/reload", {"force": True})
 
-    elif action == "add":
-        repository.state = None
+        elif action == "add":
+            repository.state = None
 
-    else:
-        repository.state = None
-        hacs.logger.error(f"WS action '{action}' is not valid")
+        else:
+            repository.state = None
+            hacs.logger.error(f"WS action '{action}' is not valid")
+
+        message = None
+    except AIOGitHubAPIException as exception:
+        message = exception
+    except AttributeError as exception:
+        message = f"Could not use repository with ID {repo_id} ({exception})"
+    except Exception as exception:  # pylint: disable=broad-except
+        message = exception
+
+    if message is not None:
+        hacs.logger.error(message)
+        hass.bus.async_fire("hacs/error", {"message": str(exception)})
 
     await hacs.data.async_write()
     connection.send_message(websocket_api.result_message(msg["id"], {}))

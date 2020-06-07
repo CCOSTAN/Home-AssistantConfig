@@ -1,13 +1,28 @@
 """Setup functions for HACS."""
 # pylint: disable=bad-continuation
+import os
 from hacs_frontend.version import VERSION as FE_VERSION
 from homeassistant.helpers import discovery
 
 from custom_components.hacs.hacsbase.exceptions import HacsException
 from custom_components.hacs.const import VERSION, DOMAIN
 from custom_components.hacs.globals import get_hacs
-from custom_components.hacs.helpers.information import get_repository
+from custom_components.hacs.helpers.information import (
+    get_repository,
+    get_frontend_version,
+)
 from custom_components.hacs.helpers.register_repository import register_repository
+
+
+def clear_storage():
+    """Clear old files from storage."""
+    hacs = get_hacs()
+    storagefiles = ["hacs"]
+    for s_f in storagefiles:
+        path = f"{hacs.system.config_path}/.storage/{s_f}"
+        if os.path.isfile(path):
+            hacs.logger.info(f"Cleaning up old storage file {path}")
+            os.remove(path)
 
 
 async def load_hacs_repository():
@@ -79,6 +94,9 @@ async def setup_frontend():
 
     hacs.hass.http.register_view(HacsFrontend())
     hacs.frontend.version_running = FE_VERSION
+    hacs.frontend.version_expected = await hacs.hass.async_add_executor_job(
+        get_frontend_version
+    )
 
     # Add to sidepanel
     custom_panel_config = {

@@ -140,9 +140,25 @@
                 "content": "Some repositories might not show untill this is completed",
                 "title": "Background tasks pending"
             },
+            "resources": {
+                "content": "You have {number} Lovelace elements that are not loaded properly in Lovelace.",
+                "title": "Not loaded in Lovelace"
+            },
+            "restart": {
+                "content": "You have {number} integrations that requires a restart of Home Assistant, you can do that from the 'Server Controls' section under the configuration part of Home Assistant UI.",
+                "title": "Pending restart"
+            },
             "startup": {
                 "content": "HACS is starting up, during this time some information might be missing or incorrect",
                 "title": "HACS is starting up"
+            },
+            "wrong_frontend_installed": {
+                "content": "You have {running} of the HACS frontend installed, but version {expected} was expected, if this you see this message Home Assistant was not able to install the new version, try restarting Home Assistant.",
+                "title": "Unexpected frontend version"
+            },
+            "wrong_frontend_loaded": {
+                "content": "You are running version {running} of the HACS frontend, but version {expected} was expected, you should clear your browser cache.",
+                "title": "Unexpected frontend version"
             }
         },
         "pending_updates": "Pending updates"
@@ -188,8 +204,10 @@
         "hide": "Hide",
         "information": "Information",
         "new_repository": "New repository",
+        "not_loaded": "Not loaded",
         "open_issue": "Open issue",
         "open_source": "Open source",
+        "pending_restart": "Pending restart",
         "pending_update": "Pending update",
         "reinstall": "Reinstall",
         "report": "Report for removal",
@@ -286,6 +304,8 @@
         "no_repositories": "No repositories",
         "no_repositories_desc1": "It seems like you don't have any repositories installed in this section yet.",
         "no_repositories_desc2": "Click on the + in the bottom corner to add your first!",
+        "no_repositories_found_desc1": "No installed repositories matching \"{searchInput}\" found in this section.",
+        "no_repositories_found_desc2": "Try searching for something else!",
         "pending_upgrades": "Pending upgrades",
         "placeholder_search": "Please enter a search term...",
         "sort": "sort",
