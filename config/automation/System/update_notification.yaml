@@ -18,7 +18,7 @@
         title: 'Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} '
         value1: "Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} is now available."
         who: 'carlo'
-        apns_id: HAUpdate
+        apns_id: 'information'
 
     - service: ifttt.trigger
       data_template: {"event":"GitPost", "value1":"Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }}  is now available.", "value2":"{{ states.binary_sensor.updater.attributes.newest_version }} "}

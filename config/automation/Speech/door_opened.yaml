@@ -25,7 +25,7 @@
       data_template:
         who: 'parents'
         value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
-        apns_id: 'Doors'
+        apns_id: 'information'
 
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode

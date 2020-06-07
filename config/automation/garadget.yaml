@@ -30,7 +30,7 @@
         who: "parents"
         content_type: 'jpeg'
         url: !secret camera2_snapshot
-        apns_id: 'Garadget'
+        apns_id: 'information'
 
 ##############################################################################
 
@@ -83,7 +83,7 @@
         value2: "Large: {{ states('cover.large_garage')}}"
         who: "family"
         camera_entity: "camera.camera2"
-        apns_id: 'Garadget'
+        apns_id: 'information'
 
     - service: script.speech_engine
       data_template:

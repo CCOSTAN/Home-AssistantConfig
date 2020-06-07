@@ -6,8 +6,8 @@
 homeassistant:
   customize_glob:
     "*.carlojuice*":
-    
-      
+
+
 #-------------------------------------------
 juicenet:
     access_token: !secret juicenet_access_token
@@ -48,7 +48,7 @@ automation:
         data_template:
           value1: "The Garage charger is now in {{ states('sensor.carlojuice_charging_status') }} mode."
           who: 'carlo'
-          apns_id: 'JuiceBox'
+          apns_id: 'information'
 
   - alias: 'Juicebox Self-Heal'
     initial_state: 'on'
