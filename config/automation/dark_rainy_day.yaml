@@ -45,6 +45,13 @@
       - condition: state
         entity_id: group.family
         state: 'home'
+      - condition: template  # Only run once every ~3 hours tops. 
+        value_template: >
+          {%- if states.automation.dark_house_little_extra_light.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.dark_house_little_extra_light.attributes.last_triggered)) > 10000 }}
+          {%- else -%}
+            true
+          {%- endif -%}
 
   action:
     - service: light.turn_on
