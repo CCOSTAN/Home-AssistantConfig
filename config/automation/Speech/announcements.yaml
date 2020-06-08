@@ -19,7 +19,7 @@
     # This Group is defined in the groups directory.
     - service: group.set
       data_template:
-        object_id: "Arriving"
+        object_id: "arriving"
         add_entities: >-
           {{ trigger.to_state.entity_id }}
 
@@ -75,5 +75,5 @@
 
     - service: group.set
       data_template:
-        object_id: "Arriving"
+        object_id: "arriving"
         entities: []
