@@ -49,6 +49,12 @@ sensor:
     unit_of_measurement: '%'
     value_template: '{{ value_json.bright }}'
 
+  - platform: mqtt
+    name: 'Large Garage Brightness'
+    state_topic: 'garadget/Garadget Large/status'
+    unit_of_measurement: '%'
+    value_template: '{{ value_json.bright }}'
+
   - platform: template
     sensors:
       large_garage_status:
@@ -68,12 +74,6 @@ sensor:
         entity_id: []
         friendly_name: 'Reflection Rate'
         value_template: '{{ states.cover.large_garage.attributes["sensor_reflection_rate"] }}'
-
-  - platform: mqtt
-    name: 'Large Garage Brightness'
-    state_topic: 'garadget/Garadget Large/status'
-    unit_of_measurement: '%'
-    value_template: '{{ value_json.bright }}'
 
 group:
   garage_doors:

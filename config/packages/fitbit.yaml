@@ -9,7 +9,7 @@
 #       unit_of_measurement: hours
 #       icon: mdi:sleep
 #
-#       
+#
 #-------------------------------------------
 sensor:
   - platform: fitbit
@@ -54,6 +54,7 @@ automation:
         data_template:
           value1: "Your current fitbit steps are {{ states('sensor.steps') }} - You probably do not have it."
           who: 'carlo'
+          apns_id: 'information'
 
   - alias: 'Fitbit 10k'
     initial_state: 'on'
