@@ -92,7 +92,7 @@
   {%- endmacro -%}
 
   {%- macro garage_check() -%}
-  {% if states.group.garadget.state !='closed' -%}
+  {% if states.group.garage_doors.state !='closed' -%}
       The
       {%- for state in states.cover -%}
       {%- endfor %}
@@ -220,71 +220,83 @@
       {{inspirational_quote|random}}
   {% endmacro %}
 
+  {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}
+  {%- macro cleanup(data) -%}
+    {%- for item in data.split("\n")  if item | trim != "" -%}
+    {{ item | trim | replace("_", " ") }} {% endfor -%}
+  {%- endmacro -%}
+
   {# ********************************************* #}
   {#  ******** Start the Speech routines ********  #}
   {# ********************************************* #}
 
-  {% if call_no_announcement != 1 %}
-    {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
-        Good morning.
-    {% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int < 17 %}
-        Good afternoon.
-    {% else %}
-        Good evening.
+  {# a macro to call all macros :)  #}
+  {%- macro mother_of_all_macros() -%}
+
+    {% if call_no_announcement != 1 %}
+      {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
+          Good morning.
+      {% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int < 17 %}
+          Good afternoon.
+      {% else %}
+          Good evening.
+      {% endif %}
     {% endif %}
-  {% endif %}
 
-  {# Called from Annoucenments #}
-  {{ personarriving }}
+    {# Called from Annoucenments #}
+    {{ personarriving }}
 
-  {# Called from Nest when thermostats turn on #}
-  {{ NestStatus }}
+    {# Called from Nest when thermostats turn on #}
+    {{ NestStatus }}
 
-  {% if call_inside_weather == 1 %}
-  {{ inside_weather() }}
-  {% endif %}
+    {% if call_inside_weather == 1 %}
+    {{ inside_weather() }}
+    {% endif %}
 
-  {% if call_outside_weather == 1 and is_state('sun.sun', 'above_horizon') %}
-  {{ outside_weather() }}
-  {% endif %}
+    {% if call_outside_weather == 1 and is_state('sun.sun', 'above_horizon') %}
+    {{ outside_weather() }}
+    {% endif %}
 
-  {{ DoorOpened }}
-  {{ DoorClosed }}
+    {{ DoorOpened }}
+    {{ DoorClosed }}
 
-  {{ lock_check() }}
-    {# These two lock statements are sent directly from automations. #}
-  {{ DoorLocked }}
-  {{ DoorUnLocked }}
+    {{ lock_check() }}
+      {# These two lock statements are sent directly from automations. #}
+    {{ DoorLocked }}
+    {{ DoorUnLocked }}
 
-  {% if call_dark_outside == 1 %}
-  {{ dark_outside() }}
-  {% endif %}
+    {% if call_dark_outside == 1 %}
+    {{ dark_outside() }}
+    {% endif %}
 
-  {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
-  {{ garage_check() }}
-  {% endif %}
+    {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
+    {{ garage_check() }}
+    {% endif %}
 
-  {% if (call_window_check == 1 or is_state('sun.sun', 'below_horizon')) or is_state('group.entry_points', 'on') %}
-  {{ window_check() }}
-  {% endif %}
+    {% if (call_window_check == 1 or is_state('sun.sun', 'below_horizon')) or is_state('group.entry_points', 'on') %}
+    {{ window_check() }}
+    {% endif %}
 
-  {{ NewDevice }}
+    {{ NewDevice }}
 
-  {% if call_light_check == 1 %}
-  {{ light_check() }}
-  {% endif %}
+    {% if call_light_check == 1 %}
+    {{ light_check() }}
+    {% endif %}
 
-  {% if call_responsibilities == 1 %}
-  {{ responsibilities() }}
-  {% endif %}
+    {% if call_responsibilities == 1 %}
+    {{ responsibilities() }}
+    {% endif %}
 
-  {% if now().strftime('%H')|int > 21 %}
-  {{ medicine() }}
-  {% endif %}
+    {% if now().strftime('%H')|int > 21 %}
+    {{ medicine() }}
+    {% endif %}
 
-  {% if value1 is not none %}
-  {{ value1 }}
-  {% endif %}
+    {% if value1 is not none %}
+    {{ value1 }}
+    {% endif %}
 
-  {# call a Random fact about the house or inspiration quote #}
-  {{ ([iss, moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote]|random)() }}
+    {# call a Random fact about the house or inspiration quote #}
+    {{ ([iss, moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote]|random)() }}
+
+  {%- endmacro -%}
+  {{- cleanup(mother_of_all_macros()) -}}
