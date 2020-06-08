@@ -25,7 +25,7 @@
 
     - wait_template: >-
         {{ states.binary_sensor.kitchen_door.state == 'on' }}
-
+    - delay: '00:01:00'
     - service: script.speech_engine
       data_template:
 #         {% set person = state_attr(trigger.entity_id, "friendly_name")%}      This is another way to do it.
