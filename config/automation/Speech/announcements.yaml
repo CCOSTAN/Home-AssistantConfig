@@ -3,7 +3,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ##  Announce when people come or go.
 ## Announce over all Chromecast Audios
-#  Read more at https://vCloudInfo.com 
+#  Read more at https://vCloudInfo.com
 ######################################################################
 - alias: 'People Greeting'
 
@@ -25,6 +25,7 @@
 
     - wait_template: >-
         {{ states.binary_sensor.kitchen_door.state == 'on' }}
+
     - service: script.speech_engine
       data_template:
 #         {% set person = state_attr(trigger.entity_id, "friendly_name")%}      This is another way to do it.
