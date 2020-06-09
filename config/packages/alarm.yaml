@@ -286,20 +286,18 @@ automation:
           state: 'off'
 
     action:
-      - service: light.turn_on
-        entity_id:
-          - light.living_room_accents
-        data_template:
-          rgb_color: >
-            {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-            - '255'
-            - '0'
-            - '0'
-            {% else %}
-            - '255'
-            - '215'
-            - '0'
-            {% endif %}
+      - service_template: >-
+          {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
+            light.turn_on
+            entity_id:
+              - light.living_room_accents
+            rgb_color: [255,0,0]
+          {% else %}
+            light.turn_on
+            entity_id:
+              - light.living_room_accents
+            rgb_color: [255,215,0]
+          {% endif %}
 
 #-------------------------------------------#---
   - alias: "Panel Door opened"
