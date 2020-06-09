@@ -28,6 +28,10 @@
         topic: "garadget/Garadget Large/command"
         payload: "get-status"
 
+    - condition: state
+      entity_id: sun.sun
+      state: 'above_horizon'
+
     - service: notify.alexa_media
       data:
         target:
