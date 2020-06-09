@@ -8,11 +8,11 @@ homeassistant:
     "device_tracker.nodemcu*":
       icon: mdi:chip
 
-      
+
     "binary_sensor.mcu?_gpio*":
       icon: mdi:security-home
 
-      
+
 
   customize:
     binary_sensor.MCU1_GPIO4:
@@ -57,10 +57,10 @@ homeassistant:
 
     group.entry_points:
       friendly_name: Alarm Entry Points
-    
+
     group.interior_door:
       friendly_name: Interior doors
-    
+
 #-------------------------------------------
 binary_sensor:
   - platform: mqtt
@@ -292,9 +292,13 @@ automation:
         data_template:
           rgb_color: >
             {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-            [255,0,0]
+            - '255'
+            - '0'
+            - '0'
             {% else %}
-            [255,215,0]
+            - '255'
+            - '215'
+            - '0'
             {% endif %}
 
 #-------------------------------------------#---

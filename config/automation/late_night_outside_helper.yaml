@@ -27,13 +27,13 @@
         # Red if Open, Gold if Closed
         rgb_color: >
           {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          - 255
-          - 0
-          - 0
+          - '255'
+          - '0'
+          - '0'
           {% else %}
-          - 255
-          - 215
-          - 0
+          - '255'
+          - '215'
+          - '0'
           {% endif %}
 
     - service_template: >
@@ -58,11 +58,11 @@
         # Red if Open, Gold if Closed
         rgb_color: >
           {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          - 255
-          - 0
-          - 0
+          - '255'
+          - '0'
+          - '0'
           {% else %}
-          - 255
-          - 215
-          - 0
+          - '255'
+          - '215'
+          - '0'
           {% endif %}
