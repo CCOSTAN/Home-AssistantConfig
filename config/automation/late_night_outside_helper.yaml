@@ -27,9 +27,13 @@
         # Red if Open, Gold if Closed
         rgb_color: >
           {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          [255,0,0]
+          - 255
+          - 0
+          - 0
           {% else %}
-          [255,215,0]
+          - 255
+          - 215
+          - 0
           {% endif %}
 
     - service_template: >
@@ -45,7 +49,7 @@
         - switch.front_door_outlet
         - switch.foyer_outlet
     - wait_template: >-
-        {{ states.group.garadget.state == 'closed' }}
+        {{ states.group.garage_doors.state == 'closed' }}
     - service: script.monthly_color_scene
     - service: light.turn_on
       entity_id:
@@ -54,7 +58,11 @@
         # Red if Open, Gold if Closed
         rgb_color: >
           {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          [255,0,0]
+          - 255
+          - 0
+          - 0
           {% else %}
-          [255,215,0]
+          - 255
+          - 215
+          - 0
           {% endif %}
