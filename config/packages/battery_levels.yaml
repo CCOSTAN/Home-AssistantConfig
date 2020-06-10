@@ -7,10 +7,10 @@
 #   customize_glob:
 #     "sensor.*_alarm_panel*":
 #
-#       
+#
 #     "binary_sensor.*_alarm_panel*":
 #
-#       
+#
 
 sensor:
   - platform: template
@@ -56,3 +56,4 @@ automation:
         data_template:
           value1: "Low battery levels: {{ states('sensor.low_battery') }}"
           who: 'carlo'
+          apns_id: 'information'

@@ -34,6 +34,7 @@ automation:
         data_template:
           value1: "{{ trigger.to_state.attributes.friendly_name }} is at {{ trigger.to_state.state }} "
           who: 'carlo'
+          apns_id: 'information'
       - service: script.tweet_engine
         data:
           tweet: 'Looks like my {{ trigger.to_state.attributes.friendly_name }} is LOW. @CCostan - Get me some more (https://amzn.to/2AnpFwD)'
