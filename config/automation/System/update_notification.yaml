@@ -30,15 +30,20 @@
            {{- [
               "Woohoo! ",
               "BAM! ",
-              "Look at that! "
+              "Look at that! ",
+              " "
               ] | random -}}
             {% endmacro %}
             {% macro getVersion() %}
-             "New @Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }}! Cannot wait for @CCostan to install! (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)"
+            {{- [
+             " New @Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }}! Cannot wait for @CCostan to install! (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html) ",
+             " New @Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }} @CCostan! "
+             ] | random -}}
             {% endmacro %}
             {%- macro getRandomSnark() -%}
            {{- [
             " It is like Patch Tuesday, but without the fail. #homeassistant",
+            " Chop Chop! Get to the upgrading!",
             " Get in my SSD! #homeassistant",
             " Shut up and take my ones and zeros! #homeassistant",
             " Seriously, you want some of this! #homeassistant",
@@ -56,7 +61,7 @@
             " I feel like I have tweeted this a couple times before.  WHAT ARE YOU WAITING FOR?!?",
             " I will be turning off the AC until I get my upgrade! #Florida",
             " I promise this is the last one!",
-            ""
+            " "
              ] | random -}}
             {%- endmacro -%}
 
