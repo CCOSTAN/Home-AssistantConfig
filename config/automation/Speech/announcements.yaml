@@ -41,7 +41,9 @@
           {%- macro greeting_sentence(person, is_are) -%}
           {{ [
           "Welcome back home " ~ person,
+          "You had me at hello" ~ person,
           "Guess who is home?" ~ person ~ is_are ,
+          "The wifi just got a little more crowded.  Welcome Home" ~ person,
           person  ~ is_are + " now in the house.",
           "Welcome Home " ~ person + ".  We have missed you. Or at least Molly did.",
           "Our home is now complete, Rest your head and relax your feet! Welcome Back " ~ person,
