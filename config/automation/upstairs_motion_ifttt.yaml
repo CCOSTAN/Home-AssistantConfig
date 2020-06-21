@@ -5,7 +5,7 @@
     - platform: event
       event_type: upstairs_light_on
     - platform: state
-      entity_id: binary_sensor.upstairs_away_mode
+      entity_id: sensor.upstairs_away_mode
       to: 'False'
 
   condition:
@@ -24,7 +24,7 @@
     - platform: event
       event_type: upstairs_light_off
     - platform: state
-      entity_id: binary_sensor.upstairs_away_mode
+      entity_id: sensor.upstairs_away_mode
       to: 'True'
 
   action:
