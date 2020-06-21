@@ -23,6 +23,7 @@ sensor:
   - platform: command_line
     command: 'curl https://api.github.com/repos/ccostan/home-assistantconfig'
     name: GitHub Stats
+    unit_of_measurement: 'Count'
     scan_interval: 20000
     value_template: '{{ value_json.name }}'
     json_attributes:
@@ -34,6 +35,7 @@ sensor:
   - platform: command_line
     name: Lines of Code
     command: "find /config -name '*.yaml' | xargs cat | wc -l"
+    unit_of_measurement: 'Lines'
     scan_interval: 20000
 
   - platform: history_stats
