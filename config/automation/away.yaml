@@ -5,8 +5,8 @@
 - alias: 'Away Mode'
   trigger:
     - platform: state
-      entity_id: binary_sensor.downstairs_away_mode
-      to: 'True'
+      entity_id: binary_sensor.downstairs_nest_away
+      to: 'off'
     - platform: state
       entity_id: group.family
       to: 'not_home'

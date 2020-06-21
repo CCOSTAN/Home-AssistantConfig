@@ -6,11 +6,11 @@
 - alias: 'Late Night Helper'
   trigger:
     - platform: state
-      entity_id: binary_sensor.downstairs_away_mode
-      to: 'False'
+      entity_id: binary_sensor.downstairs_nest_away
+      to: 'off'
     - platform: state
       entity_id: group.family
-      to: home
+      to: 'home'
 
   condition:
     condition: and
