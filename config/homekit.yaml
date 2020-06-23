@@ -41,3 +41,13 @@ filter:
     - light.upstairs_lights
     - switch.lr_amp
   # exclude_entities:
+entity_config:
+  camera.camera1:
+    linked_motion_sensor: binary_sensor.camera1_motion_sensor
+    video_codec: copy
+  camera.camera2:
+    linked_motion_sensor: binary_sensor.camera2_motion_sensor
+    video_codec: copy
+  camera.camera3:
+    linked_motion_sensor: binary_sensor.camera3_motion_sensor
+    video_codec: copy
