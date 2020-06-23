@@ -1,13 +1,11 @@
 #-------------------------------------------
-#  Realtime Debugging Related Packages
+# Realtime Debugging Related Packages
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# More information found here #780, #168
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/780
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/168
 #-------------------------------------------
-# homeassistant:
-#   customize_glob:
-#     "sensor.carlo_6*":
-#
-#     "sensor.staceys_iphone_*":
 
 notify:
   - platform: ios
@@ -73,16 +71,15 @@ automation:
           title: 'Medicine Reminder'
           value1: 'Ok. I will remind you when you get home.'
           who: 'carlo'
+          apns_id: 'Medicine'
       - wait_template: >-
           {{ states.device_tracker.carlo.state == 'home' }}
       - service: script.notify_engine
         data_template:
           title: 'Medicine Reminder'
-          value1: 'Ok. I will remind you when you get home.'
+          value1: 'Now that your home, please take your medicine!'
           who: 'carlo'
-      - service: notify.ios_carloxsmax
-        data:
-          message: "Now that your home, please take your medicine!"
+          apns_id: 'Medicine'
 
   - alias: Medicine Reminder
     initial_state: true
@@ -112,5 +109,6 @@ automation:
           value1: 'Please take your Medicine!'
           ios_category: "tablet"
           who: "carlo"
+          apns_id: 'Medicine'
 
 ## Reminders to take my Medicine! - End.
