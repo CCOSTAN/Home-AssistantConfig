@@ -45,9 +45,12 @@ entity_config:
   camera.camera1:
     linked_motion_sensor: binary_sensor.camera1_motion_sensor
     video_codec: copy
+    stream_source: !secret camera1_stream
   camera.camera2:
     linked_motion_sensor: binary_sensor.camera2_motion_sensor
     video_codec: copy
+    stream_source: !secret camera2_stream
   camera.camera3:
     linked_motion_sensor: binary_sensor.camera3_motion_sensor
     video_codec: copy
+    stream_source: !secret camera3_stream
