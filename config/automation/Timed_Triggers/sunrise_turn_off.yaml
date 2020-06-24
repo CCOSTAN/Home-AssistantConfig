@@ -60,3 +60,7 @@
         - input_boolean.medicine
         - input_boolean.daylight_override
         - input_boolean.guest_mode
+
+    - service: counter.reset
+      data:
+        entity_id: counter.automation_triggered
