@@ -82,7 +82,7 @@ sensor:
     end: '{{ now() }}'
     duration:
       days: 7
-      
+
   - platform: version
     name: HA Installed Version
     scan_interval: 86400
@@ -178,24 +178,9 @@ sensor:
         value_template: >
           {{ states.camera | list | count }}
 
-counter:
-  automation_triggered:
-    name: Automations Triggered daily
-    icon: mdi:counter
-    initial: 1 # Counter resets at Sunrise [sunrise_turn_off.yaml].
-    step: 1
 #############################################################
 
 automation:
-  - alias: 'Count triggered Automations'
-    trigger:
-      platform: event
-      event_type: automation_triggered
-
-    action:
-      - service: counter.increment
-        data:
-          entity_id: counter.automation_triggered
 
   - alias: 'New Twitter follower!'
     trigger:
@@ -208,6 +193,7 @@ automation:
       - condition: state
         entity_id: group.bed
         state: 'off'
+
     action:
       - service: media_player.play_media
         data_template:
