@@ -26,15 +26,11 @@
         - light.living_room_accents
       data_template:
         # Red if Open, Gold if Closed
-        rgb_color: >
+        color_name: >
           {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          - '255'
-          - '0'
-          - '0'
+          red
           {% else %}
-          - '255'
-          - '215'
-          - '0'
+          gold
           {% endif %}
 
     - service_template: >
@@ -57,13 +53,9 @@
         - light.living_room_accents
       data_template:
         # Red if Open, Gold if Closed
-        rgb_color: >
+        color_name: >
           {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          - '255'
-          - '0'
-          - '0'
+          red
           {% else %}
-          - '255'
-          - '215'
-          - '0'
+          gold
           {% endif %}
