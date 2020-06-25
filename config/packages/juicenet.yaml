@@ -1,14 +1,10 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](http://amzn.to/2kqnnqu) with Home Assistant.
+# JuiceBox 40 Support - https://amzn.to/3eA95dV
+# https://www.vcloudinfo.com/2018/06/using-home-assistant-to-fix-my-juicebox.html
 #-------------------------------------------
-homeassistant:
-  customize_glob:
-    "*.carlojuice*":
 
-
-#-------------------------------------------
 juicenet:
     access_token: !secret juicenet_access_token
 
@@ -18,20 +14,6 @@ switch:
       juicebox_restart:
         command_on: "/usr/bin/curl -k 'http://192.168.10.91/command/reboot'"
         friendly_name: Restart Juicebox
-
-group:
-  juicenet:
-    name: JuiceBox Charger
-
-    entities:
-      - sensor.carlojuice_amps
-      - sensor.carlojuice_charge_time
-      - sensor.carlojuice_charging_status
-      - sensor.carlojuice_energy_added
-      - sensor.carlojuice_temperature
-      - sensor.carlojuice_voltage
-      - sensor.carlojuice_watts
-      - switch.juicebox_restart
 
 #############################################################################
 ###  Automations - Alerts related to the JuiceBox (http://amzn.to/2AZVQ37)
@@ -47,7 +29,7 @@ automation:
       - service: script.notify_engine
         data_template:
           value1: "The Garage charger is now in {{ states('sensor.carlojuice_charging_status') }} mode."
-          who: 'carlo'
+          who: 'parents'
           apns_id: 'information'
 
   - alias: 'Juicebox Self-Heal'
@@ -103,7 +85,13 @@ automation:
         for:
           minutes: 2
       - platform: event
-        event_type: event_did_someone_help_juicebox
+        event_type: event_did_someone_help_juicebox_AMPS
+
+    condition:
+      - condition: state
+        entity_id: sensor.carlojuice_charging_status
+        state: 'charging'
+
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.alert_mode
@@ -119,7 +107,40 @@ automation:
           value1: "The Juice Box Charger is pulling {{ states('sensor.carlojuice_amps') }} AMPs.  This is above the safety mark of 30.  Please unplug charger immediately."
 
       - delay: 00:02:00
-      - event: event_did_someone_help_juicebox
+      - event: event_did_someone_help_juicebox_AMPS
+
+  - alias: 'JuiceBox Temp Alert!'
+    initial_state: 'on'
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.carlojuice_temperature
+        above: 139
+        for:
+          minutes: 2
+      - platform: event
+        event_type: event_did_someone_help_juicebox_TEMP
+
+    condition:
+      - condition: state
+        entity_id: sensor.carlojuice_charging_status
+        state: 'charging'
+
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.alert_mode
+
+      - service: script.notify_engine
+        data_template:
+          value1: "The Juice Box Charger is running very Hot.  Temperature is around {{ states('sensor.carlojuice_temperature') }} degrees.  This is above the safety mark of 140.  Please unplug the car immediately."
+          who: 'parents'
+          apns_id: 'JuiceBox'
+
+      - service: script.speech_engine
+        data_template:
+          value1: "The Juice Box Charger is running very Hot.  Temperature is around {{ states('sensor.carlojuice_temperature') }} degrees.  This is above the safety mark of 140.  Please unplug the car immediately."
+
+      - delay: 00:02:00
+      - event: event_did_someone_help_juicebox_TEMP
 
   - alias: 'JuiceBox Tweet Stat!'
     initial_state: 'on'
