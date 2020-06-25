@@ -21,18 +21,21 @@
     - service: scene.turn_on
       entity_id: scene.front_full_brightness
 
-    - service_template: >-
-        {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          light.turn_on
-          entity_id:
-            - light.living_room_accents
-          rgb_color: [255,0,0]
-        {% else %}
-          light.turn_on
-          entity_id:
-            - light.living_room_accents
-          rgb_color: [255,215,0]
-        {% endif %}
+    - service: light.turn_on
+      entity_id:
+        - light.living_room_accents
+      data_template:
+        # Red if Open, Gold if Closed
+        rgb_color: >
+          {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
+          - '255'
+          - '0'
+          - '0'
+          {% else %}
+          - '255'
+          - '215'
+          - '0'
+          {% endif %}
 
     - service_template: >
        {% set hour=states("sensor.time").split(':')[0] | int %}
