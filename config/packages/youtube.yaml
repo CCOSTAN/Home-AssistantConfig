@@ -1,0 +1,32 @@
+#-------------------------------------------
+# Visit The Main Blog for More Home Assistant Goodness - https://www.vCloudInfo.com
+# Follow me on the socials - @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# YouTube Related Packages from @Pinkywafer
+# https://github.com/pinkywafer/Home-Assistant_Config/blob/master/packages/youtube/vcloudinfo.yaml
+# More information found here in these issues
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/720
+#-------------------------------------------
+
+sensor:
+  - platform: youtube
+    channel_id: UC301G8JJFzY0BZ_0lshpKpQ
+
+  - platform: socialblade
+    name: vCloudinfo_info
+    channel_id: UC301G8JJFzY0BZ_0lshpKpQ
+
+automation:
+  - alias: YouTube Notification - vCloudInfo
+    trigger:
+      - platform: state
+        entity_id: sensor.vcloudinfo
+
+    action:
+      - service: script.tweet_engine_image
+        data_template:
+          tweet: >
+            {{ [
+            "New Video! {{ states('sensor.vcloudinfo_info') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
+            ] | random }}
+          image: "{{state_attr('sensor.vcloudinfo','entity_picture')}}"
