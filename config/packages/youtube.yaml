@@ -27,7 +27,7 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "New Video! {{ states('sensor.vcloudinfo_info') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
+            "New Video! {{ states('sensor.vcloudinfo') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
             ] | random }}
           who: 'ccostan'
 
@@ -37,6 +37,6 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "New Video! {{ states('sensor.vcloudinfo_info') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
+            "New Video! {{ states('sensor.vcloudinfo') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
             ] | random }}
           who: 'BearStoneHA'
