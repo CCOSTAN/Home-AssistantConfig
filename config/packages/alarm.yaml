@@ -291,12 +291,12 @@ automation:
             light.turn_on
             entity_id:
               - light.living_room_accents
-            rgb_color: [255,0,0]
+            color_name: 'red'
           {% else %}
             light.turn_on
             entity_id:
               - light.living_room_accents
-            rgb_color: [255,215,0]
+            color_name: 'gold'
           {% endif %}
 
 #-------------------------------------------#---
@@ -313,3 +313,5 @@ automation:
       - service: script.notify_engine
         data_template:
           value1: 'Someone has opened up the Alarm Panel Door!'
+          who: 'carlo'
+          apns_id: 'information'
