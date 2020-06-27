@@ -4,19 +4,6 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ######################################################################################################
 
-#-------------------------------------------
-group:
-  Power:
-    entities:
-      - sensor.grid_status
-      - sensor.powerwall_battery_capacity
-      - sensor.powerwall_battery_now
-      - sensor.grid_now
-      - sensor.house_now
-      - sensor.solar_now
-      - camera.grafana_solar_graph
-#-------------------------------------------
-
 sensor:
   - platform: rest
     resource: https://192.168.10.90/api/system_status/grid_status
@@ -93,6 +80,34 @@ automation:
     action:
       - service: script.notify_engine
         data_template:
-          value1: "The electrical grid is reporting to be {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}.  Please verify with Tesla App."
+          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+          value1: "Please verify with the Tesla App."
           who: 'parents'
           apns_id: 'information'
+
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/779
+  - alias: Shut Things down if running on PowerWall
+
+    trigger:
+      - platform: state
+        entity_id: sensor.grid_status
+        from: 'True'
+        to: 'False'
+        for: "00:01:00"
+
+    condition:
+      - condition: template
+        value_template: "{{ states('sensor.grid_status') == 'False' }}"
+
+    action:
+      - service: homeassistant.turn_off
+        entity_id:
+         - group.interior_lights
+         - group.exterior_lights
+
+      - service: script.notify_engine
+        data_template:
+         title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+         value1: "Taking actions to turning off the House Lights to preserve Battery Power."
+         who: 'family'
+         apns_id: 'information'
