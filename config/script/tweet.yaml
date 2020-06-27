@@ -1,12 +1,56 @@
-######################################################################################################
-## Script to send notifications to Twitter as @BearStoneHA.
-## Publish on Facebook as well - https://www.facebook.com/vcloudinfo/
-## If you do end up using this package, please consider using one or two of the canned tweets that calls back to my main repo
-## so others can bring thier homes online as well.  I have an active search for #Randomstats that helps me find new HA homes using my package online.
-## Enhancements by @dale3h
-######################################################################################################
+#-------------------------------------------
+# Visit The Main Blog for More Home Assistant Goodness - https://www.vCloudInfo.com
+# Follow me on the socials - @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Script to send notifications to Twitter as @BearStoneHA.
+# Publish on Facebook as well - https://www.facebook.com/vcloudinfo/
+# If you do end up using this package, please consider using one or two of the canned tweets that calls back to my main repo
+# so others can bring thier homes online as well.  I have an active search for #Randomstats that helps me find new HA homes using my package online.
+#-------------------------------------------
 
-tweet_engine_setup:
+tweet_engine_image:
+   sequence:
+    - service: mqtt.publish
+      data_template:
+        topic: 'ifttt/message'
+        payload: >-
+          {{ tweet }}
+        retain: true
+
+    - service_template: >
+          {% if who == 'ccostan' %}
+            notify.ccostan
+          {% else %}
+            notify.bearstoneha
+          {% endif %}
+      data_template:
+        message: >-
+          {{ tweet }} #IOT #SmartHome
+        data:
+          media: >-
+            {{ image }}
+
+tweet_engine_no_image:
+   sequence:
+    - service: mqtt.publish
+      data_template:
+        topic: 'ifttt/message'
+        payload: >-
+          {{ tweet }}
+        retain: true
+
+    - service_template: >
+          {% if who == 'ccostan' %}
+            notify.ccostan
+          {% else %}
+            notify.bearstoneha
+          {% endif %}
+      data_template:
+        message: >-
+          {{ tweet }} #IOT #SmartHome
+
+
+tweet_engine_random:
    sequence:
     - service: script.tweet_engine_image
       data_template:
@@ -238,44 +282,6 @@ tweet_engine_setup:
            {%- else -%}
              {{ image(pick) }}
            {%- endif -%}
-
-tweet_engine_image:
-   sequence:
-    - service: mqtt.publish
-      data_template:
-        topic: 'ifttt/message'
-        payload: >-
-          {{ tweet }}
-        retain: true
-
-    - service_template: >
-          {% if who == 'ccostan' %}
-            notify.ccostan
-          {% else %}
-            notify.bearstoneha
-          {% endif %}
-      data_template:
-        message: >-
-          {{ tweet }} #IOT #SmartHome
-        data:
-          media: >-
-            {{ image }}
-
-tweet_engine:
-   sequence:
-    - service: mqtt.publish
-      data_template:
-        topic: 'ifttt/message'
-        payload: >-
-          {{ tweet }}
-        retain: true
-
-    - service: notify.bearstoneha
-      data_template:
-        message: >-
-          {{ tweet }} #IOT #SmartHome
-
-
 
 
     # - service: ifttt.trigger

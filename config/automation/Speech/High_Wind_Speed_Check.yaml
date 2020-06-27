@@ -49,7 +49,7 @@
 
     - service: script.emergency
 
-    - service: script.tweet_engine
+    - service: script.tweet_engine_no_image
       data_template:
         tweet: >
           {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}

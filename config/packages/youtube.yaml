@@ -23,10 +23,20 @@ automation:
         entity_id: sensor.vcloudinfo
 
     action:
-      - service: script.tweet_engine_image
+      - service: script.tweet_engine_no_image
         data_template:
           tweet: >
             {{ [
             "New Video! {{ states('sensor.vcloudinfo_info') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
             ] | random }}
-          image: "{{state_attr('sensor.vcloudinfo','entity_picture')}}"
+          who: 'ccostan'
+
+      - delay: '00:10:00'
+
+      - service: script.tweet_engine_no_image
+        data_template:
+          tweet: >
+            {{ [
+            "New Video! {{ states('sensor.vcloudinfo_info') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
+            ] | random }}
+          who: 'BearStoneHA'

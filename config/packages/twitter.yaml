@@ -251,7 +251,7 @@ automation:
           {%- endif -%}
     action:
       - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
-      - service: script.tweet_engine_setup
+      - service: script.tweet_engine_random
         data_template:
           pick: >-
             {% set pick = [

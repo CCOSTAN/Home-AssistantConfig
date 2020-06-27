@@ -45,7 +45,7 @@ automation:
         data_template:
           value1: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} Please investigate IMMEDIATELY."
 
-      - service: script.tweet_engine
+      - service: script.tweet_engine_no_image
         data_template:
           tweet: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} @CCostan (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)"
 
@@ -79,6 +79,6 @@ automation:
           who: "parents"
           apns_id: 'Nest-Protect'
 
-      - service: script.tweet_engine
+      - service: script.tweet_engine_no_image
         data:
           tweet: "Oh NO! {{ trigger.to_state.attributes.friendly_name }} is now in {{ (trigger.to_state.state)|replace('_', ' ') }} mode. @Nest. (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html) #Safety"

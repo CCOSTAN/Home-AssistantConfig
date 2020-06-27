@@ -15,7 +15,7 @@
       data_template:
         NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize {{trigger.event.data.host_name}} within Circle."
 
-    - service: script.tweet_engine
+    - service: script.tweet_engine_no_image
       data_template:
         tweet: >
           {{ [
