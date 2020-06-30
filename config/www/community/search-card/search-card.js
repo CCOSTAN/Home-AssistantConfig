@@ -54,8 +54,8 @@ class SearchCard extends ct.LitElement {
                        @value-changed="${this._valueChanged}"
                        no-label-float
                        label="Type to search...">
-            <iron-icon icon="mdi:magnify"
-                       slot="prefix"></iron-icon>
+            <ha-icon icon="mdi:magnify" id="searchIcon"
+                       slot="prefix"></ha-icon>
             <paper-icon-button slot="suffix"
                                @click="${this._clearInput}"
                                icon="mdi:close"
@@ -176,6 +176,9 @@ class SearchCard extends ct.LitElement {
         margin-top: 15px;
         margin-left: auto;
         margin-right: auto;
+      }
+      #searchIcon {
+        padding: 10px;
       }
     `;
   }

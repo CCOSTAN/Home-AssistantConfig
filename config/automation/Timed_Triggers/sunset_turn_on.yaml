@@ -9,6 +9,11 @@
     - platform: sun
       event: sunset
       offset: "-00:20:00"
+
+  condition:
+    - condition: template
+      value_template: "{{ states('sensor.grid_status') == 'True' }}"
+
   action:
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.tweet_engine_image

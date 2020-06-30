@@ -2,6 +2,7 @@
 ### @Tesla Powerwall - https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html
 # # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Read more about this on https://www.vcloudinfo.com
 ######################################################################################################
 
 sensor:
@@ -64,11 +65,9 @@ sensor:
 #
 automation:
   - alias: Notify if Grid is down
-
     trigger:
       - platform: state
         entity_id: sensor.grid_status
-
     condition:
       condition: or
       conditions:
@@ -76,7 +75,6 @@ automation:
           value_template: "{{ states('sensor.grid_status') == 'True' }}"
         - condition: template
           value_template: "{{ states('sensor.grid_status') == 'False' }}"
-
     action:
       - service: script.notify_engine
         data_template:
@@ -87,27 +85,83 @@ automation:
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/779
   - alias: Shut Things down if running on PowerWall
-
     trigger:
       - platform: state
         entity_id: sensor.grid_status
         from: 'True'
         to: 'False'
-        for: "00:01:00"
-
+        for:
+          minutes: 1
     condition:
       - condition: template
         value_template: "{{ states('sensor.grid_status') == 'False' }}"
-
     action:
       - service: homeassistant.turn_off
         entity_id:
          - group.interior_lights
          - group.exterior_lights
-
       - service: script.notify_engine
         data_template:
          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
          value1: "Taking actions to turning off the House Lights to preserve Battery Power."
          who: 'family'
          apns_id: 'information'
+
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
+  - alias: Turn off the Nest Thermostats during a Power Outage
+
+    trigger:
+      - platform: state
+        entity_id: sensor.grid_status
+        from: 'True'
+        to: 'False'
+        for:
+          minutes: 5
+
+    condition:
+      - condition: template
+        value_template: "{{ states('sensor.grid_status') == 'False' }}"
+
+    action:
+      - service: climate.turn_off
+        data:
+         entity_id:
+           - climate.downstairs
+           - climate.upstairs
+
+      - service: script.notify_engine
+        data_template:
+          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+          value1: "Taking actions to turning off the AC units to preserve Battery Power."
+          who: 'family'
+          apns_id: 'information'
+
+  - alias: Turn back on the Nest Thermostats after a Power Outage
+
+    trigger:
+      - platform: state
+        entity_id: sensor.grid_status
+        from: 'False'
+        to: 'True'
+        for:
+          minutes: 5
+
+    condition:
+      - condition: template
+        value_template: "{{ states('sensor.grid_status') == 'True' }}"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: climate.downstairs
+            state: 'off'
+          - condition: state
+            entity_id: climate.upstairs
+            state: 'off'
+
+    action:
+      - service: climate.set_hvac_mode
+        data:
+         entity_id:
+           - climate.downstairs
+           - climate.upstairs
+         hvac_mode: 'auto'
