@@ -22,6 +22,10 @@ automation:
       - platform: state
         entity_id: sensor.vcloudinfo
 
+    condition:
+      - condition: template
+        value_template: "{{ trigger.from_state.state != trigger.to_state.state }}"
+
     action:
       - service: script.tweet_engine_no_image
         data_template:
