@@ -1,10 +1,10 @@
 <h1 align="center">
-  <a name="logo" href="http://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Documentation
 </h1>
 <h4 align="center">Be sure to :star: my configuration repo so you can keep up to date on any daily progress!</h4>
-<p align="center"><a align="center" target="_blank" href="https://vcloudinfo.us12.list-manage.com/subscribe?u=45cab4343ffdbeb9667c28a26&id=e01847e94f"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>
+<p align="center"><a align="center" target="_blank" href="https://vcloudinfo.us12.list-manage.com/subscribe?u=45cab4343ffdbeb9667c28a26&id=e01847e94f"><img src="https://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>
 <div align="center">
   <h4>
     <a href="https://travis-ci.org/CCOSTAN/Home-AssistantConfig"><img src="https://travis-ci.org/CCOSTAN/Home-AssistantConfig.svg?branch=master"/></a>
@@ -15,10 +15,10 @@
   </h4>
 </div>
 <p><font size="3">
-This Repo is designed for Smart Home inspiration.  The configuration, devices, layout, linked Blog posts and YouTube videos should help inspire you to jump head first into the IOT world.  This is the live working configuration of <strong>my Smart Home</strong>. Use the menu links to jump between sections.  All of the code is under the <em>config</em> directory and free to use and contribute to.  Be sure to subscribe to the <a href="http://eepurl.com/dmXFYz">Blog Mailing list</a> and YouTube Channel. (https://YouTube.com/vCloudInfo)</p>
+This Repo is designed for Smart Home inspiration.  The configuration, devices, layout, linked Blog posts and YouTube videos should help inspire you to jump head first into the IOT world.  This is the live working configuration of <strong>my Smart Home</strong>. Use the menu links to jump between sections.  All of the code is under the <em>config</em> directory and free to use and contribute to.  Be sure to subscribe to the <a href="https://eepurl.com/dmXFYz">Blog Mailing list</a> and YouTube Channel. (https://YouTube.com/vCloudInfo)</p>
 <div align="center"><a name="menu"></a>
   <h4>
-    <a href="http://www.vCloudInfo.com/tag/iot">
+    <a href="https://www.vCloudInfo.com/tag/iot">
       Blog
     </a>
     <span> | </span>
@@ -59,7 +59,7 @@ This Repo is designed for Smart Home inspiration.  The configuration, devices, l
 ![Screenshot of Home Assistant Header](https://i.imgur.com/vjDH1LJ.png)
 
 As of 2018, I have migrated everything to a Docker based platform.  You can read all about it here:
-[Migration Blog Post](http://www.vCloudInfo.com/2018/02/journey-to-docker.html)
+[Migration Blog Post](https://www.vCloudInfo.com/2018/02/journey-to-docker.html)
 <hr>
 
 #### <a name="software"></a>Notable Software on my Laptop Host:
@@ -71,7 +71,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 * [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support) - Realtime list of all the Containers.
 * [Dasher Container](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](https://youtu.be/rwQVe6sIi9w)
 * [HomeBridge Container](https://github.com/nfarina/homebridge) for full HA <-> Homekit compatibility.
-* [Unifi controller Container to manage](https://github.com/jacobalberty/unifi-docker) [APs](http://amzn.to/2mBSfE9)
+* [Unifi controller Container to manage](https://github.com/jacobalberty/unifi-docker) [APs](https://amzn.to/2mBSfE9)
 
 ![Screenshot of SmartHome](https://lh3.googleusercontent.com/-vKGF5gdz_VY/WVpP7qjsmjI/AAAAAAADVZ4/sGyiS1PjouUQxrEbWVfot6raxcElv4r-wCHMYCw/s1600/clip_image001%255B4%255D)
 Lots of my gear comes from [BetaBound](https://goo.gl/0vxT8A) for Beta Testing and reviews.
@@ -155,20 +155,20 @@ Here is how all the parts talk to each other.  Keep reading to see code examples
 <table align="center" border="0">
 <tr><td colspan="4">
 
-#### <a name="battery"></a>Battery Backups - [UPS Blog write-up](http://www.vCloudInfo.com/2017/06/home-protection-from-power-outages-sort.html)<a href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### <a name="battery"></a>Battery Backups - [UPS Blog write-up](https://www.vCloudInfo.com/2017/06/home-protection-from-power-outages-sort.html)<a href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
-[3 Prong UPS](http://amzn.to/2HJerU8)
+[3 Prong UPS](https://amzn.to/2HJerU8)
 </td><td align="center">
 
-[2 Prong UPS](http://amzn.to/2CijVG3)
+[2 Prong UPS](https://amzn.to/2CijVG3)
 </td><td align="center" colspan="2">
 
-[Tesla Powerwall 2](http://www.vCloudInfo.com/2018/01/going-green-to-save-some-green-in-2018.html)</td></tr>
+[Tesla Powerwall 2](https://www.vCloudInfo.com/2018/01/going-green-to-save-some-green-in-2018.html)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/APC-Back-UPS-Battery-Protector-BE425M/dp/B01HDC236Q/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519445552&sr=1-2&keywords=apc+450&linkCode=li2&tag=vmw0a-20&linkId=efbdf7bdfad7bd607e099d34bd1f2688" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01HDC236Q&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/gp/product/B00KH07WRC/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li2&tag=vmw0a-20&linkId=52a63711f582d1ff83f4687137a6154b" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00KH07WRC&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00KH07WRC" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="http://www.vCloudInfo.com/2018/01/going-green-to-save-some-green-in-2018.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-V8NMHkiKFIY/Wkgpf7T-WDI/AAAAAAADihs/fp5yNzjrQ5sKgFkafXhllLYsD7yM3tGBgCHMYCw/image_thumb5?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://www.vCloudInfo.com/2018/01/going-green-to-save-some-green-in-2018.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-V8NMHkiKFIY/Wkgpf7T-WDI/AAAAAAADihs/fp5yNzjrQ5sKgFkafXhllLYsD7yM3tGBgCHMYCw/image_thumb5?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.youtube.com/watch?v=BartadUzGOA" target="_blank"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/youtube/S01E01_PlayButton.png"  height="150" border="0" alt="" style="border:none !important; margin:0px !important;"></a></td></tr>
 
 <tr><td colspan="4">
@@ -192,13 +192,13 @@ There aren't really automations for the Batteries yet.  Electricity is the life 
 </td></tr>
 <tr><td align="center">
 
-[Ubiquiti Networks Unifi 802.11ac Pro](http://amzn.to/2mBSfE9)
+[Ubiquiti Networks Unifi 802.11ac Pro](https://amzn.to/2mBSfE9)
 </td><td align="center">
 
 [Unifi Controller in the Cloud](https://hostifi.net/?via=carlo)
 </td><td align="center">
 
-[NetGear 16 Port unmanaged Switch](http://amzn.to/2GJwyIb)
+[NetGear 16 Port unmanaged Switch](https://amzn.to/2GJwyIb)
 </td><td align="center">
 
 [Circle by Disney](https://mbsy.co/circlemedia/41927098)</td></tr>
@@ -220,17 +220,17 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 
 <tr><td colspan="4">
 
-#### Alexa Echo Devices - [Alexa Device Blog Post](http://www.vCloudInfo.com/2017/09/new-alexa-goodies-announced.html)<a name="alexa" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Alexa Echo Devices - [Alexa Device Blog Post](https://www.vCloudInfo.com/2017/09/new-alexa-goodies-announced.html)<a name="alexa" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
-[Amazon Echo](http://amzn.to/2dSVbK4)
+[Amazon Echo](https://amzn.to/2dSVbK4)
 </td><td align="center">
 
-[Amazon Echo DOT](http://amzn.to/2e3vHFQ)
+[Amazon Echo DOT](https://amzn.to/2e3vHFQ)
 </td><td align="center">
 
-[Amazon Echo Tap](http://amzn.to/2sz891k)
+[Amazon Echo Tap](https://amzn.to/2sz891k)
 </td><td align="center">
 
 [Amazon Dash Wand](https://www.amazon.com/Amazon-Dash-Wand-With-Alexa/dp/B01MQMJFDK/ref=sr_1_1_a_it?ie=UTF8&qid=1498928735&sr=8-1&keywords=dash+wand)
@@ -243,7 +243,7 @@ Using the APs (3 of them), The house monitors all Connected devices for Online/O
 
 <tr><td colspan="4">
 
-The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing [Whole House Music](http://www.vCloudInfo.com/2017/08/multi-room-audio-for-echo-its-finally.html) are where Echoes excel!  The Wand is pool side for quick commands and controlling the music if need be.
+The Alexa devices in my house are for automation overrides.  They are primarily an input device into Home Assistant.  Using HA `Cloud` component, I am able to turn on /off most HA devices even if they don't have native Alexa support.  The DOTs are littered around the house, the Tap is for Shower and Garage since it is super portable and the main echo fills the upstairs with Music.  Voice input and playing [Whole House Music](https://www.vCloudInfo.com/2017/08/multi-room-audio-for-echo-its-finally.html) are where Echoes excel!  The Wand is pool side for quick commands and controlling the music if need be.
 <details>
   <summary>Ability to ask Alexa to repeat the last Voice notification - 'Alexa, Turn on Last message'.</summary><p align="center">
   <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/triggers/last_message.yaml>
@@ -265,7 +265,7 @@ Responsibility Speech Code - /config/script/speech_engine.yaml#L56-L68</a><br>
 <p></details>
 <details>
 <summary>Context aware lighting control.</summary><p align="center">
-<a href=http://www.vCloudInfo.com/2017/10/speak-naturally-to-your-alexa-context.html>
+<a href=https://www.vCloudInfo.com/2017/10/speak-naturally-to-your-alexa-context.html>
 Read about it here on vCloudInfo.com</a><br>
 <p></details>
 <details>
@@ -278,24 +278,24 @@ Be sure to Like and Subscribe if you enjoy this type of content.</a><br>
 
 <tr><td colspan="4">
 
-#### Mobile Devices and Tablets - [FloorPlan Blog post](http://www.vCloudInfo.com/2017/07/visualizing-smart-home-using-home.html)<a name="mobiledevices" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Mobile Devices and Tablets - [FloorPlan Blog post](https://www.vCloudInfo.com/2017/07/visualizing-smart-home-using-home.html)<a name="mobiledevices" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
-[iPads](http://amzn.to/2l2qyRb)
+[iPads](https://amzn.to/2l2qyRb)
 </td><td align="center">
 
-[iPhones](http://amzn.to/2l9Yoq9)
+[iPhones](https://amzn.to/2l9Yoq9)
 </td><td align="center">
 
 [Dash Buttons](https://youtu.be/rwQVe6sIi9w)
 </td><td align="center">
 
-[Amazon Fire Tablets Gen 7](http://amzn.to/2tqlMCW)</td></tr>
+[Amazon Fire Tablets Gen 7](https://amzn.to/2tqlMCW)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/Apple-MH182LL-9-7-Inch-Retina-Display/dp/B00OTWPEBK/ref=as_li_ss_il?s=pc&rps=1&ie=UTF8&qid=1487044765&sr=1-3&keywords=ipad&refinements=p_89:Apple,p_85:2470955011,p_n_condition-type:2224371011&linkCode=li1&tag=vmw0a-20&linkId=d4e62510b64106355f3788ea04bff8a0" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00OTWPEBK&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00OTWPEBK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Apple-iPhone-Plus-Unlocked-16GB/dp/B00YD54J8W/ref=as_li_ss_il?s=electronics&ie=UTF8&qid=1519496432&sr=1-2&keywords=iphone+6s+plus&linkCode=li2&tag=vmw0a-20&linkId=c89e0dc72a999fba8d2b1d9b30a27bdb" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00YD54J8W&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00YD54J8W" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/dp/B01LBT5R4C/ref=as_li_ss_il?pf_rd_m=ATVPDKIKX0DER&pf_rd_p=3513574162&pd_rd_wg=4vNzA&pf_rd_r=BMHPKYH1TNHS6FMGPM1W&pf_rd_s=desktop-rhs-carousels&pf_rd_t=301&pd_rd_i=B01LBT5R4C&pd_rd_w=rAJHr&pf_rd_i=dash+buttons&pd_rd_r=8d7da293-87d3-4f01-abb8-63c056bf1287&ie=UTF8&qid=1519874820&sr=1&linkCode=li1&tag=vmw0a-20&linkId=b0c04cec66976418b6209c49e83e906b" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01LBT5R4C&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01LBT5R4C" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center" colspan="2"><a href="http://www.vCloudInfo.com/2017/08/project-update-visualization-of-home.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-UdtxP-RNPxM/WZNRjcEJ6hI/AAAAAAADYfY/Vum9wiL5qYAO3frTAi2MdqK1vH6qBTb9gCHMYCw/image3_thumb%255B2%255D?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GEW27DA" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+</td><td align="center" colspan="2"><a href="https://www.vCloudInfo.com/2017/08/project-update-visualization-of-home.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-UdtxP-RNPxM/WZNRjcEJ6hI/AAAAAAADYfY/Vum9wiL5qYAO3frTAi2MdqK1vH6qBTb9gCHMYCw/image3_thumb%255B2%255D?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GEW27DA" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
 Mobile devices are a critical part of my Home Automation.  They establish presence in the house and are the basis for many automations.  Home? Turn on the lights.  Leave? Turn them all off kind of thing. We use [NMAP](https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config/device_tracker) for presence detection.
@@ -328,27 +328,27 @@ Kiosk TTS Custom component - /config/custom_components/media_player</a><br>
 
 <tr><td colspan="4">
 
-#### Nest Products and SleepIQ - [Thermostat Basics Blog post](http://www.vCloudInfo.com/2018/02/smart-home-basics-thermostats.html)<a name="nest" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Nest Products and SleepIQ - [Thermostat Basics Blog post](https://www.vCloudInfo.com/2018/02/smart-home-basics-thermostats.html)<a name="nest" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
-[Nest Thermostats](http://amzn.to/2eAhB1k)
+[Nest Thermostats](https://amzn.to/2eAhB1k)
 </td><td align="center">
 
-[Nest Protects](http://amzn.to/2poqKhu)
+[Nest Protects](https://amzn.to/2poqKhu)
 </td><td align="center">
 
-[SleepNumber Bed i8](http://amzn.to/2kxdXXI)
+[SleepNumber Bed i8](https://amzn.to/2kxdXXI)
 </td><td align="center">
 
-[Withings](http://amzn.to/2kr78nW)</td></tr>
+[Withings](https://amzn.to/2kr78nW)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B0131RG6VK/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=cdcad716f0b691a5834b32f2a0cf6fa3" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0131RG6VK&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0131RG6VK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Nest-Protect-smoke-carbon-monoxide/dp/B00XV1RD0K/ref=as_li_ss_il?s=hi&ie=UTF8&qid=1493663203&sr=1-1&keywords=nest+protect&linkCode=li1&tag=vmw0a-20&linkId=f0092afb267bf40d55e38596ea352e09" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00XV1RD0K&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00XV1RD0K" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Personal-Comfort-A8-Bed-Number/dp/B00CHSOZZO/ref=as_li_ss_il?ie=UTF8&qid=1486673583&sr=8-3&keywords=sleep+number+bed+i8&linkCode=li1&tag=vmw0a-20&linkId=f1f1d759913d1767734a12c7cddeaa32" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00CHSOZZO&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00CHSOZZO" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Withings-Body-Composition-Wi-Fi-Scale/dp/B01F3LJ2RW/ref=as_li_ss_il?ie=UTF8&qid=1486665271&sr=8-2&keywords=withings+scale&th=1&linkCode=li1&tag=vmw0a-20&linkId=6e239a882226db5a94b4194249d13d2f" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01F3LJ2RW&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01F3LJ2RW" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-This group of devices is basically for additional presence control.  The Nest thermostats and Protects basically run themselves.  The thermostat 'away' mode triggers my away scripts which turn items off.  The Protects are SOLID [smoke detectors](http://www.vCloudInfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html).  They really came in handy during [Irma](http://www.vCloudInfo.com/2017/09/smart-home-lessons-from-hurricane-irma.html).  The SleepIQ bed adds to my presence detection.  It will notify HA if either side of the bed is occupied.  More controls are coming but I use this extensively. The WiThings scale also triggers morning and goodnight routines depending on when I step on it during the day.
+This group of devices is basically for additional presence control.  The Nest thermostats and Protects basically run themselves.  The thermostat 'away' mode triggers my away scripts which turn items off.  The Protects are SOLID [smoke detectors](https://www.vCloudInfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html).  They really came in handy during [Irma](https://www.vCloudInfo.com/2017/09/smart-home-lessons-from-hurricane-irma.html).  The SleepIQ bed adds to my presence detection.  It will notify HA if either side of the bed is occupied.  More controls are coming but I use this extensively. The WiThings scale also triggers morning and goodnight routines depending on when I step on it during the day.
 <details>
 <summary>Turn off lights when Nest Thermostats detects we are away. (Upstairs and Downstairs)</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/away.yaml#L7-L9>
@@ -361,7 +361,7 @@ Upstairs Automation - /config/automation/upstairs_motion_ifttt.yaml</a><br>
 </details>
 <details>
 <summary>(IFTTT) Trigger Good Night routine when I step on the Withings scale after 10pm.</summary><p align="center">
-<a href=http://amzn.to/2CZNMyK>
+<a href=https://amzn.to/2CZNMyK>
 WiThings Scale</a><br>
 </details>
 <details>
@@ -386,22 +386,22 @@ AMP redirect script - /config/script/amp_settings.yam</a><br>
 
 <tr><td colspan="4">
 
-#### Voice Notifications - [Giving Voice to the Smart Home Blog Post](http://www.vCloudInfo.com/2017/07/giving-voice-to-smart-home.html)<a name="voice" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Voice Notifications - [Giving Voice to the Smart Home Blog Post](https://www.vCloudInfo.com/2017/07/giving-voice-to-smart-home.html)<a name="voice" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
-[ChromeCast Audios](http://amzn.to/2EO8Gqt)
+[ChromeCast Audios](https://amzn.to/2EO8Gqt)
 </td><td align="center">
 
-[AMPs](http://amzn.to/2j18dlT)
+[AMPs](https://amzn.to/2j18dlT)
 </td><td align="center">
 
-[Mixer](http://amzn.to/2v9Zp3x)
+[Mixer](https://amzn.to/2v9Zp3x)
 </td><td align="center">
 
 [TP-Link Smart Plug](https://amzn.to/2zF5msP)</td></tr>
 
-<tr><td align="center"><a href="http://amzn.to/2EO8Gqt" target="_blank"><img border="0" src="https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4532/4532100_sd.jpg;maxHeight=110;maxWidth=110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0131RG6VK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+<tr><td align="center"><a href="https://amzn.to/2EO8Gqt" target="_blank"><img border="0" src="https://pisces.bbystatic.com/image2/BestBuy_US/images/products/4532/4532100_sd.jpg;maxHeight=110;maxWidth=110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0131RG6VK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/Kinter-MA-180-Computer-Amplifier-Charging/dp/B006AMF2R8/ref=as_li_ss_il?_encoding=UTF8&pd_rd_i=B006AMF2R8&pd_rd_r=7YM4TST4HMXQK46KH4F6&pd_rd_w=v8lnG&pd_rd_wg=QJNYk&psc=1&refRID=7YM4TST4HMXQK46KH4F6&linkCode=li1&tag=vmw0a-20&linkId=0620a70d225103fcbce65b56d3c60304" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B006AMF2R8&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B006AMF2R8" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/gp/product/B0002BG2S6/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=661b1661a02cc502753e56f7062754c4" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0002BG2S6&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0002BG2S6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/TP-Link-HS100-Required-Google-Assistant/dp/B0178IC734/ref=as_li_ss_il?ac_md=0-0-aHMxMDA=-ac_d_rm&keywords=HS100&pd_rd_i=B0178IC734&pd_rd_r=3e0cf386-7879-4383-bab1-a842746ee724&pd_rd_w=SR8qM&pd_rd_wg=2uLFe&pf_rd_p=404c4843-2c96-4d0d-a5fe-2b0598693e61&pf_rd_r=6WZ3KGN3EJ9B23GC84JS&qid=1567261967&s=gateway&linkCode=li2&tag=vmw0a-20&linkId=9a49bb07f7e1c0391b7a052fcdc52226&language=en_US" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0178IC734&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&language=en_US&l=li2&o=1&a=B0178IC734" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
@@ -443,17 +443,17 @@ Once you can teach your house to talk, you just keep expanding on its vocabulary
 
 <tr><td colspan="4">
 
-#### Various Hubs - [Smart Home Parts/Sum Blog Post](http://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="hubs" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Various Hubs - [Smart Home Parts/Sum Blog Post](https://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="hubs" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
-[Philips Hue Hub Gen 2](http://amzn.to/2eoQTJy)
+[Philips Hue Hub Gen 2](https://amzn.to/2eoQTJy)
 </td><td align="center">
 
-[Wink Hub](http://amzn.to/2orGEWo)
+[Wink Hub](https://amzn.to/2orGEWo)
 </td><td align="center">
 
-[RM Pro by Broadlink](http://amzn.to/2z6IZtH)
+[RM Pro by Broadlink](https://amzn.to/2z6IZtH)
 </td><td align="center">
 
 [Philips Hue Hub Gen 1](https://amzn.to/2kTmUdd)</td></tr>
@@ -467,7 +467,7 @@ Once you can teach your house to talk, you just keep expanding on its vocabulary
 The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights. The Gen 1 handles upstairs and outside and the gen 2 handles everything else. Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.
 
 <details>
-<summary>Using [Etekcity Outlets](http://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
+<summary>Using [Etekcity Outlets](https://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/kitchen_lights_and_accents.yaml>
 Kitchen Accents Automation - /config/automation/kitchen_lights_and_accents.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/master_bath_accents.yaml>
@@ -487,17 +487,17 @@ Think of the Hubs each as bridges for HA to talk to various hardware around the 
 
 <tr><td colspan="4">
 
-#### Lights [Smart Home Parts/Sum Blog Post](http://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="lights" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Lights [Smart Home Parts/Sum Blog Post](https://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)<a name="lights" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
-[Hue Colored lights](http://amzn.to/2l2viGK)
+[Hue Colored lights](https://amzn.to/2l2viGK)
 </td><td align="center">
 
-[GE Link Lightbulbs](http://amzn.to/2GJ66i5)
+[GE Link Lightbulbs](https://amzn.to/2GJ66i5)
 </td><td align="center">
 
-[Hue Go](http://amzn.to/2iB36Ii)
+[Hue Go](https://amzn.to/2iB36Ii)
 </td><td align="center">
 
 [Hue Lightstrip](https://amzn.to/2JlIIgg)</td></tr>
@@ -520,7 +520,7 @@ Holiday Lights Script - /config/script/monthly_color_scene.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/scene/monthly_colors.yaml>
 Holiday Lights Scenes - /config/scene/monthly_colors.yam</a><br>
 </details><details>
-http://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html
+https://www.vmwareinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html
 <summary>Turns living room lights `red` when a Window or Door is opened past sunset.  Resets to `yellow/gold` when all doors/windows are closed.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L289-L299>
 DIY Alarm package - /config/packages/alarm.yaml</a><br>
@@ -558,7 +558,7 @@ DIY Alarm package - /config/packages/alarm.yaml</a><br>
 [Switches Get Stitches](https://amzn.to/2HXSx2M)
 </td><td align="center">
 
-[Etekcity Outlets](http://amzn.to/2efNoBP)</td></tr>
+[Etekcity Outlets](https://amzn.to/2efNoBP)</td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/Noon-N160US-Smart-Lighting-Starter/dp/B076FJLRNL/ref=as_li_ss_il?ie=UTF8&qid=1527451258&sr=8-1&keywords=noon&linkCode=li2&tag=vmw0a-20&linkId=07f55d3dde28ba1db77510257e4d13e8" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B076FJLRNL&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B076FJLRNL" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/NUNET-Monitor-Required-Appliances-Functiant/dp/B079H66QW6/ref=as_li_ss_il?ie=UTF8&qid=1544832863&sr=8-3&keywords=nunet+smart+wifi+plug&linkCode=li2&tag=vmw0a-20&linkId=64ae44a0cfc451fb7b64428935c3cbee&language=en_US" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B079H66QW6&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&language=en_US&l=li2&o=1&a=B079H66QW6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -585,16 +585,16 @@ Full write up and blog post</a><br>
 </td></tr>
 <tr><td align="center">
 
-[NodeMCU Development Boards](http://amzn.to/2ou0NON)
+[NodeMCU Development Boards](https://amzn.to/2ou0NON)
 </td><td align="center">
 
 [Aura Home Monitoring Motion Alarm](https://amzn.to/2sLX8v6)
 </td><td align="center">
 
-[Hue Go](http://amzn.to/2iB36Ii)
+[Hue Go](https://amzn.to/2iB36Ii)
 </td><td align="center">
 
-[Fake Dog](http://amzn.to/2CMo1lr)</td></tr>
+[Fake Dog](https://amzn.to/2CMo1lr)</td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B010O1G1ES/ref=as_li_ss_il?ie=UTF8&psc=1&linkCode=li1&tag=vmw0a-20&linkId=8f30ebb6868e9060be331dd297b75119" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B010O1G1ES&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B010O1G1ES" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/dp/B0765HSPB6/ref=as_li_ss_il?_encoding=UTF8&th=1&linkCode=li2&tag=vmw0a-20&linkId=f12d53d66cfe46b18710d985a9f4d883" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0765HSPB6&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B0765HSPB6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -602,7 +602,7 @@ Full write up and blog post</a><br>
 </td><td align="center"><a href="https://www.amazon.com/Magnet-America-Bull-Mastiff/dp/B005MZVBYW/ref=as_li_ss_il?s=amazon-devices&ie=UTF8&qid=1519875291&sr=8-11&keywords=bull+mastiff&linkCode=li1&tag=vmw0a-20&linkId=ee6fdeb91ac2a4aa0e77ba673c1def4b" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B005MZVBYW&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B005MZVBYW" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](http://www.vCloudInfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](http://www.vCloudInfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).  The Aura system uses Wifi waves to detect motion through walls.  It covers the entire house.  Scenes are activated via IFTTT/HA integration. When all else fails though, a good recording of a Bull Mastiff is sure to do the trick!
+The ESPs while technically not a Hub do bridge the connection to all the windows and door sensors that are hardwired in my house.  One set acts as my [DIY alarm system](https://www.vCloudInfo.com/2017/06/building-my-home-alarm-system-hardware.html) while the other act as [DIY Motion Sensors](https://www.vCloudInfo.com/2017/11/yet-another-inexpensive-motion-sensor.html).  The Aura system uses Wifi waves to detect motion through walls.  It covers the entire house.  Scenes are activated via IFTTT/HA integration. When all else fails though, a good recording of a Bull Mastiff is sure to do the trick!
 <details>
 <summary>Shut down HVAC system if a Window or Door is left open for more than 5 minutes.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/packages/alarm.yaml#L209>
@@ -625,13 +625,13 @@ Aura Package - /config/packages/aurahome.yaml</a><br>
 </td></tr>
 <tr><td align="center">
 
-[SkyBell HD](http://amzn.to/2dcexIB)
+[SkyBell HD](https://amzn.to/2dcexIB)
 </td><td align="center">
 
-[Foscam 1080p Outdoor Camera](http://amzn.to/2ExKrMe)
+[Foscam 1080p Outdoor Camera](https://amzn.to/2ExKrMe)
 </td><td align="center">
 
-[Surveillance Drives](http://amzn.to/2G3iBEF)
+[Surveillance Drives](https://amzn.to/2G3iBEF)
 </td><td align="center">
 
 [Meraki MS220 8 port PoE switch](https://amzn.to/2LsdyAv)
@@ -668,19 +668,19 @@ Dog Bark script - /config/automation/guard_dog.yaml</a><br>
 </td></tr>
 <tr><td align="center">
 
-[Rachio Sprinkler system](http://amzn.to/2eoPKBW)
+[Rachio Sprinkler system](https://amzn.to/2eoPKBW)
 </td><td align="center">
 
-[GE ZWave Outdoor Power Module](http://amzn.to/2q17R4S)
+[GE ZWave Outdoor Power Module](https://amzn.to/2q17R4S)
 </td><td align="center">
 
 [Teckin SS31 Outdoor Outlets](https://amzn.to/31oNhuK)
 </td><td align="center">
 
-<!-- [Phyn Smart Water Main ShutOff/Leak Detector](http://phyn.refr.cc/carlocostanzo)
+<!-- [Phyn Smart Water Main ShutOff/Leak Detector](https://phyn.refr.cc/carlocostanzo)
 </td><td align="center"> -->
 
-[Outdoor LED Lighting](http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)
+[Outdoor LED Lighting](https://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)
 </td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B01D1NMLJU/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=32eaaee1a47e3f0841694b2f65b33f20" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01D1NMLJU&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01D1NMLJU" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -690,10 +690,10 @@ Dog Bark script - /config/automation/guard_dog.yaml</a><br>
 <td align="center"><a href="https://www.amazon.com/TECKIN-Compatible-Smartphone-Weatherproof-certified/dp/B07KB63CYN/ref=as_li_ss_il?keywords=ss31+teckin&qid=1565408841&s=gateway&sr=8-1&linkCode=li2&tag=vmw0a-20&linkId=ae630a57c97036a186e40660fb1022da&language=en_US" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B07KB63CYN&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&language=en_US&l=li2&o=1&a=B07KB63CYN" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td>
 
-<!-- <td align="center"><a href="http://phyn.refr.cc/carlocostanzo" target="_blank"><img border="0" src="http://www.phyn.com/wp-content/uploads/2017/12/1920_01_product_intro-1.png" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+<!-- <td align="center"><a href="https://phyn.refr.cc/carlocostanzo" target="_blank"><img border="0" src="https://www.phyn.com/wp-content/uploads/2017/12/1920_01_product_intro-1.png" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td> -->
 
-<td align="center"><a href="http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-RfNOR7YThbY/WZnY6Gjw4zI/AAAAAAADYrw/IxBE2KmxW9YuLMtj9qgxAWyb5vHdgSrBACHMYCw/IMG_2660_thumb%255B9%255D" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
+<td align="center"><a href="https://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-RfNOR7YThbY/WZnY6Gjw4zI/AAAAAAADYrw/IxBE2KmxW9YuLMtj9qgxAWyb5vHdgSrBACHMYCw/IMG_2660_thumb%255B9%255D" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B01HDC236Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
 The great outdoors can be automated too!  Mainly lights but also the sprinkler system and water supply.  The Phyn leak detector was announced in CES.  It looks for abnormal flows and if senses them, alerts me and shuts water main.  The Teckin SS31 outlets are hooked up to my 12v transformers allowing me to turn the landscaping lights on and off.  The LED strips are DIY and the recipe is in the next section.
@@ -729,20 +729,20 @@ Good Night automation - /config/automation/good_night.yaml</a><br>
 </td></tr>
 <tr><td colspan="4">
 
-#### Outdoor LED Accents <a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#LED"> - [DIY Blog Post](http://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
+#### Outdoor LED Accents <a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#LED"> - [DIY Blog Post](https://www.vCloudInfo.com/2017/08/diy-outdoor-smart-home-led-strips.html) - [#71](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc/71)<a name="LED" href="https://github.com/CCOSTAN/Home-AssistantConfig#devices"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a>
 </td></tr>
 <tr><td align="center">
 
-[LED RGB Wifi Controller - flux_led compatible](http://amzn.to/2jUBSBE)
+[LED RGB Wifi Controller - flux_led compatible](https://amzn.to/2jUBSBE)
 </td><td align="center">
 
-[LED Strip kits](http://amzn.to/2gJYfZ5)
+[LED Strip kits](https://amzn.to/2gJYfZ5)
 </td><td align="center">
 
-[Aluminum light Diffusers](http://amzn.to/2CIId82)
+[Aluminum light Diffusers](https://amzn.to/2CIId82)
 </td><td align="center">
 
-[Outdoor Housing](http://amzn.to/2m2dG0X)
+[Outdoor Housing](https://amzn.to/2m2dG0X)
 </td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/SUPERNIGHT-Wireless-Controller-Working-Android/dp/B01JZ2SI6Q/ref=as_li_ss_il?_encoding=UTF8&psc=1&refRID=FX6BGFGVPYK6254PKDX6&linkCode=li1&tag=vmw0a-20&linkId=ac3510bace93a5f1c88e3e8b3f1e2b70" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01JZ2SI6Q&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01JZ2SI6Q" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -787,22 +787,22 @@ Motion automations - /config/script/front_house_motion.yaml</a><br>
 </td></tr>
 <tr><td align="center">
 
-[Garadget](http://amzn.to/2jQLpVQ)
+[Garadget](https://amzn.to/2jQLpVQ)
 </td><td align="center">
 
-[JuiceBox Pro 40 EVSE](http://amzn.to/2AIdSdx)
+[JuiceBox Pro 40 EVSE](https://amzn.to/2AIdSdx)
 </td><td align="center">
 
-[Chevy Bolt Electric Car](http://amzn.to/2DRP83a)
+[Chevy Bolt Electric Car](https://amzn.to/2DRP83a)
 </td><td align="center">
 
-[Siri, are my garage doors closed?](http://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)
+[Siri, are my garage doors closed?](https://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)
 </td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/Garadget-Smart-Garage-Door-Controller/dp/B01KUZ2JPS/ref=as_li_ss_il?ie=UTF8&qid=1484586045&sr=8-1&keywords=garadget&linkCode=li1&tag=vmw0a-20&linkId=101764295722498f3480d5bde92dd462" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01KUZ2JPS&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01KUZ2JPS" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.amazon.com/JuiceBox-Pro-40-JuiceNet-WiFi-equipped/dp/B00UB9R4KO/ref=as_li_ss_il?ie=UTF8&qid=1513288386&sr=8-1&keywords=juicenet+pro&linkCode=li1&tag=vmw0a-20&linkId=ed6b7856822f7ab226362fb0ee6d6b98" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00UB9R4KO&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00UB9R4KO" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html" target="_blank"><img border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstone_car.png" height="110" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B0749M3H4T" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="http://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html" target="_blank"><img border="0" src="https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large" height="110" ></a>
+</td><td align="center"><a href="https://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html" target="_blank"><img border="0" src="https://pbs.twimg.com/media/C3cyJZSWAAAalPm.jpg:large" height="110" ></a>
 </td></tr>
 <tr><td colspan="4">
 
@@ -841,16 +841,16 @@ Juicebox package - /config/packages/juicenet.yaml</a><br>
 </td></tr>
 <tr><td align="center">
 
-[Samsung Smart TV](http://amzn.to/2efNNnq)
+[Samsung Smart TV](https://amzn.to/2efNNnq)
 </td><td align="center">
 
-[Rokus](http://amzn.to/2dpn89c)
+[Rokus](https://amzn.to/2dpn89c)
 </td><td align="center">
 
-[Amazon Fire TV](http://amzn.to/2iiuaNT)
+[Amazon Fire TV](https://amzn.to/2iiuaNT)
 </td><td align="center">
 
-[Synology NVR 1218](http://amzn.to/2COe9aU)
+[Synology NVR 1218](https://amzn.to/2COe9aU)
 </td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B01E69WHP6/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=79e660c2282e440c3c8b31d25b17a0e5" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01E69WHP6&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01E69WHP6" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -860,7 +860,7 @@ Juicebox package - /config/packages/juicenet.yaml</a><br>
 </td></tr>
 <tr><td colspan="4">
 
-TV Automations are super cool.  Turn on a movie and the lights begin to dim automatically.  It's super cool.  Out TVs are back lit with [Hue Lightstrips](http://amzn.to/2FGbPpL) so we can do some pretty neat effects with automations.  We are #CordCutters as well so all out TV is streamed to the Rokus.  FireTV for party games and the Snyology, I'll talk about later in the Survellance section.
+TV Automations are super cool.  Turn on a movie and the lights begin to dim automatically.  It's super cool.  Out TVs are back lit with [Hue Lightstrips](https://amzn.to/2FGbPpL) so we can do some pretty neat effects with automations.  We are #CordCutters as well so all out TV is streamed to the Rokus.  FireTV for party games and the Snyology, I'll talk about later in the Survellance section.
 
 <details>
 <summary>Click here for YouTube Video</summary><p align="center">
@@ -891,16 +891,16 @@ Rainy Day Automations - /config/automation/dark_rainy_day.yaml</a><br>
 </td></tr>
 <tr><td align="center">
 
-[Door Sensors (AEON Labs)](http://amzn.to/2e3xDxY)
+[Door Sensors (AEON Labs)](https://amzn.to/2e3xDxY)
 </td><td align="center">
 
-[Pi Zero](http://amzn.to/2ougZQ3)
+[Pi Zero](https://amzn.to/2ougZQ3)
 </td><td align="center">
 
-[Wireless Nub](http://amzn.to/2q38rg4)
+[Wireless Nub](https://amzn.to/2q38rg4)
 </td><td align="center">
 
-[Epson ET-7700 Printer](http://amzn.to/2HaiBUK)
+[Epson ET-7700 Printer](https://amzn.to/2HaiBUK)
 </td></tr>
 
 <tr><td align="center"><a href="https://www.amazon.com/gp/product/B01GK5D1PE/ref=as_li_ss_il?ie=UTF8&linkCode=li1&tag=vmw0a-20&linkId=0dd26a63d1c8b0c402febd3fb0e781b2" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B01GK5D1PE&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GK5D1PE" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
@@ -967,7 +967,7 @@ Feel free to join the conversations there.
 <a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:5px">You can buy me a coffee</span></a><a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"></a>
 <br>
 <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="22" ></a><br>
-<a href="http://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
-<a href="http://www.vCloudInfo.com/p/affiliate-disclosure.html">
+<a href="https://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
+<a href="https://www.vCloudInfo.com/p/affiliate-disclosure.html">
 Affiliate Disclosure
 </a></p>
