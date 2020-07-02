@@ -1,83 +1,32 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](https://amzn.to/2kqnnqu) with Home Assistant.
+# Try to leverage iPhone Mobile App Data for Activity Tweets!
+# You can read more about this on https://www.vCloudInfo.com
 #-------------------------------------------
-# homeassistant:
-#   customize_glob:
-#     "*.*_sleep_hours":
-#       unit_of_measurement: hours
-#       icon: mdi:sleep
-#
-#
-#-------------------------------------------
-sensor:
-  - platform: fitbit
-    # filename: fitbit-carlo.conf
-    clock_format: 12H
-    monitored_resources:
-      - "body/weight"
-      - "activities/steps"
-      - "devices/battery"
 
-  # - platform: fitbit
-  #   filename: fitbit-stacey.conf
-  #   clock_format: 12H
-  #   monitored_resources:
-  #     - "body/weight"
-  #     - "activities/steps"
-  #     - "devices/battery"
-#-------------------------------------------
-group:
-  fitbit:
-    entities:
-      - sensor.steps
-      - sensor.weight
-      - sensor.one_battery
 ##############################################################################
-###  Automations - Detect when things are not right. Like any Good Watchdog.
+###  Automations
 ##############################################################################
 automation:
-  - alias: 'Missing Fitbit Alert'
-    initial_state: 'on'
+  - alias: 'Step Tracker' # https://github.com/CCOSTAN/Home-AssistantConfig/issues/786
     trigger:
-      - platform: time
-        at: '11:00:00'
-    condition:
-      condition: template
-      value_template: >
-        {%- if states.sensor.steps.state.replace(",", "")|int < 1000 -%}
-          true
-        {%- endif -%}
-    action:
-      - service: script.notify_engine
-        data_template:
-          value1: "Your current fitbit steps are {{ states('sensor.steps') }} - You probably do not have it."
-          who: 'carlo'
-          apns_id: 'information'
-
-  - alias: 'Fitbit 10k'
-    initial_state: 'on'
-    trigger:
-      - platform: state
+      - platform: numeric_state
         entity_id:
-          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-        to: 'on'
-    condition:
-      - condition: template
-        value_template: >
-          {%- if states.sensor.steps.state.replace(",", "")|int > 10000 -%}
-            true
-          {%- endif -%}
+          - sensor.carlo_xsmax_steps
+          - sensor.paige_6s_steps
+          - sensor.steps_3
+        above: 5000
+
     action:
       - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [
-            "Somebody just hit {{ states('sensor.steps') }} steps on the #Fitbit!",
-            "Keep on moving.  Somebody just hit {{ states('sensor.steps') }} #Fitbit steps.",
-            "#Fitness Tracking at home BY the home. Somebody just hit {{ states('sensor.steps') }} #Fitbit steps"
-            ] | random + " Battery Level:{{ states('sensor.one_battery') }} #Self #Data"}}
+            "Somebody just hit {{ states('trigger.entity_id') }} steps on the #Fitbit!",
+            "Keep on moving.  Somebody just hit {{ states('strigger.entity_id') }} #Fitbit steps.",
+            "#Fitness Tracking at home BY the home. Somebody just hit {{ states('trigger.entity_id') }} #Fitbit steps"
+            ] | random + " #Self #Data"}}
           image: >-
             {{ [
             "/config/www/custom_ui/floorplan/images/branding/fitness.png",

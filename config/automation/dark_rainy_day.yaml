@@ -4,15 +4,15 @@
 
 - alias: 'Dark House Little extra light'
   trigger:
-    - platform: state
-      entity_id: sun.sun
-      to: below_horizon
     - platform: numeric_state
       entity_id: sensor.dark_sky_cloud_coverage
       above: 90
     - platform: state
       entity_id: sensor.dark_sky_precip
       to: 'rain'
+    - platform: numeric_state
+      entity_id: sensor.dark_sky_precip_intensity
+      above: 0.2
     - platform: state
       entity_id: group.family
       to: 'home'
@@ -30,9 +30,9 @@
           - condition: numeric_state
             entity_id: sensor.dark_sky_cloud_coverage
             above: 90
-          - condition: state
-            entity_id: sensor.dark_sky_precip
-            state: 'rain'
+          - condition: numeric_state
+            entity_id: sensor.dark_sky_precip_intensity
+            above: 0.2
       - condition: state
         entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
         state: 'off'
@@ -45,7 +45,7 @@
       - condition: state
         entity_id: group.family
         state: 'home'
-      - condition: template  # Only run once every ~3 hours tops. 
+      - condition: template  # Only run once every ~3 hours tops.
         value_template: >
           {%- if states.automation.dark_house_little_extra_light.attributes.last_triggered -%}
             {{ (as_timestamp(now()) - as_timestamp(states.automation.dark_house_little_extra_light.attributes.last_triggered)) > 10000 }}
