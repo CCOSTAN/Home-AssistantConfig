@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a name="logo" href="http://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Documentation
 </h1>
@@ -15,7 +15,7 @@
 This is the main directory of the Repo.  You will find more helpful ReadMe files in the directoies as you browse them.  Not all but each day I add more.  I use a configuration type called split configuration.  So my main configuration.yaml file is broken out into many different files located in the directories.  Be sure to visit the package directory where practically self contained YAML files exist that you can easily drop into your configurations to be up and running fast with various automations and components.  You can also subscribe via RSS to every commit I make in this repo by clicking the Feed icon on the bottom of this page. </p>
 <div align="center"><a name="menu"></a>
 <h4>
-  <a href="http://www.vCloudInfo.com/tag/iot">
+  <a href="https://www.vCloudInfo.com/tag/iot">
     Blog
   </a>
   <span> | </span>
@@ -63,10 +63,10 @@ This is the main directory of the Repo.  You will find more helpful ReadMe files
 <p align="center">
 <a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:5px">You can buy me a coffee</span></a><a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"></a>
 <br>
-<a align="center" target="_blank" href="https://vcloudinfo.us12.list-manage.com/subscribe?u=45cab4343ffdbeb9667c28a26&id=e01847e94f"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a>
+<a align="center" target="_blank" href="https://vcloudinfo.us12.list-manage.com/subscribe?u=45cab4343ffdbeb9667c28a26&id=e01847e94f"><img src="feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a>
 <br>
-<a href="http://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
-<a href="http://www.vCloudInfo.com/p/affiliate-disclosure.html">
+<a href="https://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
+<a href="https://www.vCloudInfo.com/p/affiliate-disclosure.html">
 Affiliate Disclosure
 </a></p>
 

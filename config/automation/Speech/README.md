@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a name="logo" href="http://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Documentation
 </h1>
@@ -15,7 +15,7 @@
 You can definately read more about my voice implimentations in my blog posts (linked below) or on the main repo page.  Voice separates the average home from the Smart Home.  Once you start teaching your home to talk, tweet or text, you'll be hard pressed to stop.</p>
 <div align="center"><a name="menu"></a>
   <h4>
-    <a href="http://www.vCloudInfo.com/tag/iot">
+    <a href="https://www.vCloudInfo.com/tag/iot">
       Blog
     </a>
     <span> | </span>
@@ -60,9 +60,9 @@ You can definately read more about my voice implimentations in my blog posts (li
   **Message me on twitter :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.twitter.com/ccostan) or [![Follow Bear Stone Home](https://img.shields.io/twitter/follow/BearStoneHA)](https://www.twitter.com/BearStoneHA)
 
   <p align="center">
-  <a align="center" target="_blank" href="https://vcloudinfo.us12.list-manage.com/subscribe?u=45cab4343ffdbeb9667c28a26&id=e01847e94f"><img src="http://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a>
+  <a align="center" target="_blank" href="https://vcloudinfo.us12.list-manage.com/subscribe?u=45cab4343ffdbeb9667c28a26&id=e01847e94f"><img src="feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a>
   <br>
-  <a href="http://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
-  <a href="http://www.vCloudInfo.com/p/affiliate-disclosure.html">
+  <a href="https://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
+  <a href="https://www.vCloudInfo.com/p/affiliate-disclosure.html">
   Affiliate Disclosure
   </a></p>

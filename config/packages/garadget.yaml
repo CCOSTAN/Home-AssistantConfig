@@ -1,7 +1,7 @@
 #-------------------------------------------
 # # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-## Garadget_Stuff -  [Garadget](http://amzn.to/2jQLpVQ) - Garage Door opener/sensor
+## Garadget_Stuff -  [Garadget](https://amzn.to/2jQLpVQ) - Garage Door opener/sensor
 # Video and Write Up - https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
 # Switch to Access_Tokens - https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 #-------------------------------------------
@@ -183,7 +183,7 @@ automation:
             {{ [
             "Wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, I'm going to close the @garadget doors.",
             "Getting pretty windy! {{ states('sensor.dark_sky_wind_speed')|round}}MPH. Time to ask @Garadget to close the garage doors."
-            ] | random + "(http://amzn.to/2jQLpVQ)"}}
+            ] | random + "(https://amzn.to/2jQLpVQ)"}}
           image: >-
             {{ [
             "/config/www/custom_ui/floorplan/images/branding/windy.png"

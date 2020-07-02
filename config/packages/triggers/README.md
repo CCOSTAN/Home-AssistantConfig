@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a name="logo" href="http://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
+  <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/twitter_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Documentation
 </h1>
@@ -15,7 +15,7 @@
 I love packages.  This will probably become the most used directory in my repo.  I love the ability to just drop in a package or disable it just as easily.  In fact, there are a few disabled ones right now ready to go when issues are straightened out.  All in one place, packages make defining devices, booleans, automations and customizations a snap.</p>
 <div align="center"><a name="menu"></a>
   <h4>
-    <a href="http://www.vCloudInfo.com/tag/iot">
+    <a href="https://www.vCloudInfo.com/tag/iot">
       Blog
     </a>
     <span> | </span>
@@ -57,5 +57,5 @@ I love packages.  This will probably become the most used directory in my repo. 
 **Still have questions on my Config?** <br>
 **Message me on twitter :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.twitter.com/ccostan) or [![Follow Bear Stone Home](https://img.shields.io/twitter/follow/BearStoneHA)](https://www.twitter.com/BearStoneHA)
 <!-- Subscribe Section -->
-<a href="http://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a>.
+<a href="https://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a>.
 <!-- Subscribe Section END-->
