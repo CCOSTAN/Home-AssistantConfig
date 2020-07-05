@@ -6,22 +6,6 @@
 # Switch to Access_Tokens - https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 #-------------------------------------------
 
-# cover:
-#   - platform: garadget
-#     covers:
-#         large_garage:
-#           device: !secret large_garage_id
-#           #username: !secret garadget_username
-#           #password: !secret garadget_password
-#           access_token: !secret garadget_access_token
-#           name: large_garage
-#         small_garage:
-#           device: !secret small_garage_id
-#           #username: !secret garadget_username
-#           #password: !secret garadget_password
-#           access_token: !secret garadget_access_token
-#           name: small_garage
-
 cover:
   - platform: mqtt
     name: "Small Garage Door"
@@ -65,7 +49,7 @@ group:
 ######################################################################
 
 automation:
-  - alias: 'Update Garage Brightness'
+  - alias: 'Update Garage Get-Status'
     trigger:
       - platform: time_pattern
         minutes: '/1'
@@ -83,16 +67,16 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - cover.large_garage
-          - cover.small_garage
+          - cover.large_garage_door
+          - cover.small_garage_door
         from: 'open'
         to: 'closed'
         for: '00:02:00'
 
       - platform: state
         entity_id:
-          - cover.large_garage
-          - cover.small_garage
+          - cover.large_garage_door
+          - cover.small_garage_door
         from: 'closed'
         to: 'open'
         for: '00:02:30'
@@ -125,10 +109,12 @@ automation:
     condition:
       - condition: or
         conditions:
-          - condition: template
-            value_template: "{{ states('cover.large_garage') == 'opened' }}"
-          - condition: template
-            value_template: "{{ states('cover.small_garage') == 'opened'}}"
+          - condition: state
+            entity_id: cover.large_garage_door
+            state: 'opened'
+          - condition: state
+            entity_id: cover.small_garage_door
+            state: 'opened'
 
     action:
       - service: input_boolean.turn_on
@@ -137,8 +123,8 @@ automation:
       - service: script.notify_engine
         data_template:
           title: 'Check/Close Garage Doors - High Speed Wind Alert:'
-          value1: "Small: {{ states('cover.small_garage')}}"
-          value2: "Large: {{ states('cover.large_garage')}}"
+          value1: "Small: {{ states('cover.small_garage_door')}}"
+          value2: "Large: {{ states('cover.large_garage_door')}}"
           apns_id: 'information'
           who: 'parents'
 
@@ -146,11 +132,11 @@ automation:
         data_template:
           value1: >
             "The winds are picking up outside.  The wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.
-            {% if is_state('cover.large_garage', 'open') -%}
+            {% if is_state('cover.large_garage_door', 'open') -%}
               The Large Garage Door is open
             {% endif -%}
-            {% if is_state('cover.small_garage', 'open') -%}
-              {% if is_state('cover.large_garage', 'open') -%}and
+            {% if is_state('cover.small_garage_door', 'open') -%}
+              {% if is_state('cover.large_garage_door', 'open') -%}and
               {%- endif %} The small Garage Door is open.
             {% endif %}"
 
@@ -166,33 +152,6 @@ automation:
             "/config/www/custom_ui/floorplan/images/branding/windy.png"
             ] | random }}
 
-  - alias: Garadget Reflection Rates
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.large_garage_reflection_rate
-        below: 85
-  #      for: '00:05:00'
-      - platform: numeric_state
-        entity_id: sensor.small_garage_reflection_rate
-        below: 85
-  #      for: '00:05:00'
-
-    condition:
-      - condition: template
-        value_template: "{{ states('cover.large_garage') == 'closed' }}"
-      - condition: template
-        value_template: "{{ states('cover.small_garage') == 'closed' }}"
-
-    action:
-      - service: script.notify_engine
-        data_template:
-          title: 'Garage door Status Change:'
-          value1: "Small: {{ states('sensor.small_garage_reflection_rate')}}"
-          value2: "Large: {{ states('sensor.large_garage_reflection_rate')}}"
-          who: "parents"
-          content_type: 'jpeg'
-          url: !secret camera2_snapshot
-          apns_id: 'information'
 
   ##############################################################################
 
@@ -222,9 +181,9 @@ automation:
             - condition: or
               conditions:
                 - condition: template
-                  value_template: "{{ states('cover.large_garage') == 'opened' }}"
+                  value_template: "{{ states('cover.large_garage_door') == 'opened' }}"
                 - condition: template
-                  value_template: "{{ states('cover.small_garage') == 'opened' }}"
+                  value_template: "{{ states('cover.small_garage_door') == 'opened' }}"
         - condition: and
           conditions:
             - condition: state
@@ -233,20 +192,20 @@ automation:
             - condition: or
               conditions:
                 - condition: template
-                  value_template: "{{ states('cover.large_garage') == 'opened' }}"
+                  value_template: "{{ states('cover.large_garage_door') == 'opened' }}"
                 - condition: template
-                  value_template: "{{ states('cover.small_garage') == 'opened'}}"
+                  value_template: "{{ states('cover.small_garage_door') == 'opened'}}"
 
     action:
       - service: script.notify_engine
         data_template:
           title: 'Check Garage Doors:'
-          value1: "Small: {{ states('cover.small_garage')}}"
-          value2: "Large: {{ states('cover.large_garage')}}"
+          value1: "Small: {{ states('cover.small_garage_door')}}"
+          value2: "Large: {{ states('cover.large_garage_door')}}"
           who: "family"
           camera_entity: "camera.camera2"
           apns_id: 'information'
 
       - service: script.speech_engine
         data_template:
-          value1: "Please check the garage doors. The Small garage is {{ states('cover.small_garage')}} and the large garage is {{ states('cover.large_garage')}}"
+          value1: "Please check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}}"
