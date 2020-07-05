@@ -26,8 +26,8 @@ cover:
   - platform: mqtt
     name: "Small Garage Door"
     device_class: 'garage'
-    command_topic: "garadget/Garadget Small/command"
-    state_topic: "garadget/Garadget Small/status"
+    command_topic: "garadget/GSmall/command"
+    state_topic: "garadget/GSmall/status"
     payload_open: "open"
     payload_close: "close"
     payload_stop: "stop"
@@ -35,8 +35,8 @@ cover:
   - platform: mqtt
     name: "Large Garage Door"
     device_class: 'garage'
-    command_topic: "garadget/Garadget Large/command"
-    state_topic: "garadget/Garadget Large/status"
+    command_topic: "garadget/GLarge/command"
+    state_topic: "garadget/GLarge/status"
     payload_open: "open"
     payload_close: "close"
     payload_stop: "stop"
@@ -60,15 +60,12 @@ automation:
     action:
       - service: mqtt.publish
         data:
-          topic: "garadget/Garadget Small/command"
+          topic: "garadget/GSmall/command"
           payload: "get-status"
       - service: mqtt.publish
         data:
-          topic: "garadget/Garadget Large/command"
+          topic: "garadget/GLarge/command"
           payload: "get-status"
-
-
-
 
   - alias: 'Garage Door State Change'
     trigger:
