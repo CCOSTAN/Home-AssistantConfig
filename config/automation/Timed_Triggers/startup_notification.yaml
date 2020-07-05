@@ -20,12 +20,12 @@
 
     - service: mqtt.publish
       data:
-        topic: "garadget/Garadget Small/command"
+        topic: "garadget/GSmall/command"
         payload: "get-status"
 
     - service: mqtt.publish
       data:
-        topic: "garadget/Garadget Large/command"
+        topic: "garadget/GLarge/command"
         payload: "get-status"
 
     - condition: state
