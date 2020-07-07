@@ -42,12 +42,12 @@ sensor:
     name: "Large Garage Door Since"
     state_topic: "garadget/GLarge/status"
     value_template: '{{ value_json.time }}'
-    unit_of_measurement: 'Minutes'
+    unit_of_measurement: 'minutes'
   - platform: mqtt
     name: "Small Garage Door Since"
     state_topic: "garadget/GSmall/status"
     value_template: '{{ value_json.time }}'
-    unit_of_measurement: 'Minutes'
+    unit_of_measurement: 'minutes'
 
 group:
   garage_doors:     # This group is used to check if doors are open or Closed.

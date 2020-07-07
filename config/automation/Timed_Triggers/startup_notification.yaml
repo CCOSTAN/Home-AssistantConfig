@@ -15,6 +15,9 @@
         who: 'carlo'
         apns_id: 'information'
 
+    - service: homeassistant.update_entity
+      entity_id: binary_sensor.updater
+
     - service: light.turn_off
       entity_id: light.hallway_lights
 

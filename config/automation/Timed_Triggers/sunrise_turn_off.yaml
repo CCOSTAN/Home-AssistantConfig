@@ -60,3 +60,6 @@
         - input_boolean.medicine
         - input_boolean.daylight_override
         - input_boolean.guest_mode
+
+    - service: homeassistant.update_entity  #Look for a new Home Assistant Version
+      entity_id: binary_sensor.updater
