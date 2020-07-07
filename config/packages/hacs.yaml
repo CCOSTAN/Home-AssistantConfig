@@ -1,0 +1,39 @@
+#-------------------------------------------
+# HACS Related Information
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/797
+#-------------------------------------------
+
+automation:
+  - alias: HACS Component Update Notification
+    trigger:
+      - platform: state
+        entity_id: sensor.hacs
+
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.hacs
+        above: 0
+
+    action:
+      - service: ifttt.trigger
+        data_template: {"event":"GitPost", "value1":"There are {{ states.sensor.hacs }} updates to HACS components: {{state.sensor.hacs.attributes.repositories}}"}
+
+      - service: script.tweet_engine_image
+        data_template:
+          tweet: >
+            Hey @CCostan - There are updates to {{ states("sensor.hacs") }} HACS components:
+            {% for repo in state_attr("sensor.hacs","repositories") %}
+              * {{repo['display_name'] }} {{ repo['installed_version'] }} -> {{ repo['available_version'] }}
+            {%- endfor %}
+          image: >-
+            {% set pictures = [
+              "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
+              "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
+              "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
+              "/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png",
+              "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
+            ] %}
+            {{ pictures|random }}
+          who: 'BearStoneHA'
