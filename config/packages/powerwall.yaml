@@ -116,7 +116,7 @@ automation:
         from: 'True'
         to: 'False'
         for:
-          minutes: 5
+          minutes: 6
 
     condition:
       - condition: template
@@ -161,7 +161,20 @@ automation:
     action:
       - service: climate.set_hvac_mode
         data:
-         entity_id:
-           - climate.downstairs
-           - climate.upstairs
-         hvac_mode: 'auto'
+          entity_id: climate.downstairs
+          hvac_mode: auto
+      - service: climate.set_hvac_mode
+        data:
+          entity_id: climate.upstairs
+          hvac_mode: cool
+      - service: climate.set_preset_mode
+        data:
+          entity_id: climate.upstairs
+          preset_mode: eco
+
+      - service: script.notify_engine
+        data_template:
+          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+          value1: "All AC systems are set back to normal operations."
+          who: 'family'
+          apns_id: 'information'
