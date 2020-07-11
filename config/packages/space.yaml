@@ -17,6 +17,25 @@ sensor:
 
   - platform: rest
     scan_interval: 1800
+    name: SpaceX Starman
+    json_attributes:
+      - earth_distance_mi
+    value_template: '{{ value_json["speed_mph"] }}'
+    unit_of_measurement: "mph"
+    resource: 'https://api.spacexdata.com/v2/info/roadster'
+
+  - platform: rest
+    scan_interval: 1800
+    name: SpaceX
+    json_attributes:
+      - mission_name
+      - launch_site
+      - rocket
+    value_template: '{{ value_json["launch_date_unix"] }}'
+    resource: 'https://api.spacexdata.com/v2/launches/next'
+
+  - platform: rest
+    scan_interval: 1800
     resource: https://launchlibrary.net/1.2.2/launch/next/10
     # resource: https://raw.githubusercontent.com/cribbstechnologies/ha_config/master/www/test_launch.json
     name: launch window
@@ -50,7 +69,7 @@ automation:
 
     action:
       - wait_template: >-
-          {{((as_timestamp(now()) - states('sensor.launch_window') | float) | abs < 601)}}
+          {{((as_timestamp(now()) - states('sensor.launch_window') | float) | abs < 301)}}
       - service: script.notify_engine
         data_template:
           value1: 'Go Outside!  There is a Rocket Launch very soon!'
@@ -58,7 +77,11 @@ automation:
 
       - service: script.tweet_engine_no_image
         data_template:
-          tweet: 'There is a Rocket launch happening right now!  I can see it if I look closely. @BrianCribbs #SpaceX #Space'
+          tweet: >-
+            {{ [
+            "There is a Rocket launch happening right now!  I can see it if I look closely. {{states.sensor.next_launch.attributes.stream }}",
+            "Check out {{ states('sensor.next_launch') }} on {{states.sensor.next_launch.attributes.stream }} right now.  Launch Window is opening."
+            ] | random + " #Space @BrianCribbs #SpaceX " }}
 
 # This automation was also moved to a macro in the speech_engine.
 # It's a random fact now.
