@@ -34,45 +34,16 @@ sensor:
     value_template: '{{ value_json["launch_date_unix"] }}'
     resource: 'https://api.spacexdata.com/v2/launches/next'
 
-  - platform: rest
-    scan_interval: 1800
-    resource: https://launchlibrary.net/1.2.2/launch/next/10
-    # resource: https://raw.githubusercontent.com/cribbstechnologies/ha_config/master/www/test_launch.json
-    name: launch window
-    # if the current timestamp is in the launch window
-    # this sensor will return the UTC timestamp of the launch
-    value_template: >-
-      {%- for launch in value_json.launches %}
-        {% if launch.location.id == 16 or launch.location.id == 17 %}
-          {% if strptime(launch.isostart, '%Y%m%dT%H%M%SZ').strftime('%Y-%m-%d') == now().strftime('%Y-%m-%d') %}
-            {% set utc_offset_string = now().strftime('%z') %}
-            {% set utc_offset_direction = utc_offset_string[:1] %}
-            {% set utc_offset_hours = now().strftime('%z')[-4:] %}
-            {% set utc_offset_seconds = (utc_offset_hours| int /100) * 60 * 60 %}
-            {% if utc_offset_direction == '-' %}
-             {{ launch.wsstamp - utc_offset_seconds}}
-            {% else %}
-              {{ launch.wsstamp + utc_offset_seconds}}
-            {% endif %}
-          {% endif %}
-        {% endif %}
-      {% endfor %}
-
 automation:
   - alias: Launch Window Approaching
     trigger:
-      - platform: state
-        entity_id: sensor.launch_window
-    condition:
-      - condition: template
-        value_template: "{{states('sensor.launch_window') != 'unknown'}}"
+      - platform: template
+        value_template: '{{ (now().strftime("%s") | int + 600) == (states.sensor.spacex.state | int) }}'
 
     action:
-      - wait_template: >-
-          {{((as_timestamp(now()) - states('sensor.launch_window') | float) | abs < 301)}}
       - service: script.notify_engine
         data_template:
-          value1: 'Go Outside!  There is a Rocket Launch very soon!'
+          value1: 'Go Outside!  There is a Rocket Launch very soon! {{states.sensor.next_launch.attributes.stream }}'
           apns_id: 'information'
 
       - service: script.tweet_engine_no_image
@@ -81,7 +52,7 @@ automation:
             {{ [
             "There is a Rocket launch happening right now!  I can see it if I look closely. {{states.sensor.next_launch.attributes.stream }}",
             "Check out {{ states('sensor.next_launch') }} on {{states.sensor.next_launch.attributes.stream }} right now.  Launch Window is opening."
-            ] | random + " #Space @BrianCribbs #SpaceX " }}
+            ] | random + " #Space #SpaceX #ManKind " }}
 
 # This automation was also moved to a macro in the speech_engine.
 # It's a random fact now.
