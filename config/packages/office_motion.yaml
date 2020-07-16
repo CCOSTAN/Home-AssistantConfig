@@ -8,7 +8,7 @@ homeassistant:
     binary_sensor.office_motion:
       friendly_name: Office Motion Sensor
 
-      
+
 #---Sensor for Light-----------------------------
 binary_sensor:
   - platform: mqtt
@@ -39,7 +39,7 @@ automation:
         entity_id: group.family
         state: 'home'
       - condition: state
-        entity_id: light.office_lamp
+        entity_id: light.office_lights
         state: 'off'
       - condition: or
         conditions:
@@ -68,7 +68,7 @@ automation:
 
     action:
       - service: light.turn_on
-        entity_id: light.office_lamp
+        entity_id: light.office_lights
 
   - alias: 'Motion in the Office - Turn off Light'
     trigger:
@@ -82,9 +82,9 @@ automation:
 
     condition:
       - condition: state
-        entity_id: light.office_lamp
+        entity_id: light.office_lights
         state: 'on'
 
     action:
       - service: light.turn_off
-        entity_id: light.office_lamp
+        entity_id: light.office_lights
