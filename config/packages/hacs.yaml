@@ -18,7 +18,8 @@ automation:
 
     action:
       - service: ifttt.trigger
-        data_template:  {"event":"GitPost", "value1":"Update to HACS: There are {{ states.sensor.hacs.state }} updates."}
+        data_template:  {"event":"GitPost", "value1":"HACS Update - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}", "value2":"Update to HACS: There are {{ states.sensor.hacs.state }} updates."}
+
 
       - service: script.tweet_engine_image
         data_template:
