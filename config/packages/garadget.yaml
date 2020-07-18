@@ -81,6 +81,7 @@ automation:
         data:
           topic: "garadget/GSmall/command"
           payload: "get-status"
+          
       - service: mqtt.publish
         data:
           topic: "garadget/GLarge/command"

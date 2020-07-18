@@ -18,14 +18,14 @@ automation:
 
     action:
       - service: ifttt.trigger
-        data_template: {"event":"GitPost", "value1":"There are {{ states.sensor.hacs }} updates to HACS components: {{state.sensor.hacs.attributes.repositories}}"}
+        data_template:  {"event":"GitPost", "value1":"Update to HACS: There are {{ states.sensor.hacs.state }} updates."}
 
       - service: script.tweet_engine_image
         data_template:
-          tweet: >
-            Hey @CCostan - There are updates to {{ states("sensor.hacs") }} HACS components:
-            {% for repo in state_attr("sensor.hacs","repositories") %}
-              * {{repo['display_name'] }} {{ repo['installed_version'] }} -> {{ repo['available_version'] }}
+          tweet: >-
+            Hey @CCostan - There are {{ states.sensor.hacs.state }} updates to HACS components:
+            {%- for repo in state_attr("sensor.hacs","repositories") -%}
+            {{repo['display_name'] }} {{ repo['installed_version'] }} to {{ repo['available_version'] }}
             {%- endfor %}
           image: >-
             {% set pictures = [
