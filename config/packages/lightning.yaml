@@ -1,0 +1,47 @@
+###################################
+## Lightning is no Joke around here.
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/392
+###################################
+automation:
+  - alias: 'Lightning Notification'
+    id: 6e054688-5e75-48bd-9411-52a3e26264d1
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.blitzortung_lightning_counter
+
+    condition:
+      - condition: state
+        entity_id: group.family
+        state: 'home'
+
+    action:
+      - service: script.notify_engine
+        data_template:
+          title: 'Lightning Warning!'
+          value1: 'Lightning has been detected within 2.5 Miles of our home.  Be careful if outdoors.'
+          who: 'family'
+          apns_id: 'Alert'
+
+      - service: script.speech_engine
+        data_template:
+          value1: 'Lightning has been detected within 2.5 Miles of our home.  Please make sure everyone is inside the house.'
+          call_window_check: 1
+          call_garage_check: 1
+
+      # - service: script.tweet_engine_no_image
+      #   data_template:
+      #     tweet: >
+      #       {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
+      #       {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
+      #          HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors! #Florida #Weather (https://amzn.to/2jQLpVQ)
+      #       {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
+      #          Current Wind Speed is : {{windspeed}} mph! Warning! #Florida #Weather (https://amzn.to/2jQLpVQ) FIND SHELTER IMMEDIATELY! #Florida #Weather (https://amzn.to/2jQLpVQ)
+      #       {% elif ( windspeed > 60 ) %}
+      #          Current Wind Speed is : {{windspeed}} mph! HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS! #Florida #Weather (https://amzn.to/2jQLpVQ)
+      #       {% endif %}
+
+      - delay:
+          minutes: 30

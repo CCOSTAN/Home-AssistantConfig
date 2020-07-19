@@ -3,7 +3,8 @@
 ###################################
 
 - alias: 'High Wind Speed Notification'
-
+  id: 5cc158a5-038a-4078-a9fb-c9f9cf9ecd49
+  mode: single
   trigger:
     - platform: numeric_state
       entity_id: sensor.dark_sky_wind_speed
@@ -15,20 +16,21 @@
       entity_id: sensor.dark_sky_wind_speed
       above: 60
 
-  condition:
-    - condition: template
-      value_template: >
-        {%- if states.automation.high_wind_speed_notification.attributes.last_triggered -%}
-          {{ (as_timestamp(now()) - as_timestamp(states.automation.high_wind_speed_notification.attributes.last_triggered)) > 3600 }}
-        {%- else -%}
-          true
-        {%- endif -%}
-
   action:
     - service: script.notify_engine
       data_template:
-        value1: 'VERY HIGH WINDS:'
-        value2: "{{ states('sensor.dark_sky_wind_speed')}}"
+        title: 'VERY HIGH WINDS:'
+        value1:  >-
+          {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
+          {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
+             HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors!
+          {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
+             Warning! Wind speed is {{windspeed}} MPH. FIND SHELTER IMMEDIATELY!
+          {% elif ( windspeed > 60 ) %}
+             HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS!
+          {% endif %}
+        who: 'family'
+        apns_id: 'Alert'
 
     - service: input_boolean.turn_on
       entity_id: input_boolean.alert_mode
@@ -60,3 +62,6 @@
           {% elif ( windspeed > 60 ) %}
              Current Wind Speed is : {{windspeed}} mph! HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS! #Florida #Weather (https://amzn.to/2jQLpVQ)
           {% endif %}
+
+    - delay:
+        hours: 2
