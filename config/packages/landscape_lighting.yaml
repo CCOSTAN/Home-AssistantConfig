@@ -4,22 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # Landscape Lights are Tuya Based Outlets in Smart_Life Package.
 #-------------------------------------------
-homeassistant:
-  customize:
-    switch.back_landscaping:
-      friendly_name: 'Back Landscaping'
-      icon: mdi:flower
 
-      
-    switch.front_landscaping:
-      friendly_name: 'Front Landscaping'
-      icon: mdi:flower
-
-      
-    group.landscaping:
-      friendly_name: 'Landscaping Lights'
-
-      
 #-------------------------------------------
 group:
   landscaping:
@@ -32,7 +17,9 @@ group:
 # Automation : Added to Away. (Switches off Back Landscaping)
 # Automation : Added to Late Night Helper Outside (Switches Back lights on)
 automation:
-    - alias: 'Back Landscape lights off'
+    - alias: 'Landscape lights off'
+      id: 05172967-9309-4624-8633-4f8bce4f3aa1
+      mode: single
       trigger:
         - platform: state
           entity_id:
@@ -41,9 +28,6 @@ automation:
           to: 'on'
 
       condition:
-        - condition: state
-          entity_id: sun.sun
-          state: 'below_horizon'
         - condition: or
           conditions:
             - condition: state
@@ -64,3 +48,11 @@ automation:
       action:
         - service: switch.turn_off
           entity_id: switch.back_landscaping
+
+        - wait_template: >-
+           {{ states.group.bed.state == 'on' }}
+
+        - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
+
+        - service: homeassistant.turn_off
+          entity_id: group.landscaping
