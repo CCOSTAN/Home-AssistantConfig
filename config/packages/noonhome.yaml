@@ -1,0 +1,26 @@
+#-------------------------------------------
+#  Noon Home Switches and Lights - https://amzn.to/30w3UWy - https://noonhome.com/products
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#  These lights are only accessable via Alexa so going to use special Routines to control them. (Loosely)
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/366
+#-------------------------------------------
+
+##################################################
+## Scripts
+## Called in the AWAY / interior_off script to shut all devices down.
+##################################################
+
+script:
+  noon_lights_off:
+    alias: 'Bathroom Noon Lights Off'
+    sequence:
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.master_bathroom
+          media_content_id: noonoff
+          media_content_type: routine
+
+# Previous Method
+# - service: ifttt.trigger
+#   data_template: {"event":"noon_off"}
