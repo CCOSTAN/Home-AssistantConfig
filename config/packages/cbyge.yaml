@@ -1,0 +1,21 @@
+#-------------------------------------------
+#  C by GE Lights - https://amzn.to/30w3UWy
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#  These lights are only accessable via Alexa so going to use special Routines to control them. (Loosely)
+#-------------------------------------------
+
+##################################################
+## Scripts
+##################################################
+
+script:
+  paige_lights_off:
+  alias: 'Paige Lights Off'
+  id: 02cd5dfb-ef38-4d00-9c62-0d0b16a62d31
+  sequence:
+    - service: media_player.play_media
+      data:
+        entity_id: media_player.upstairs
+        media_content_id: paigelightoff
+        media_content_type: routine

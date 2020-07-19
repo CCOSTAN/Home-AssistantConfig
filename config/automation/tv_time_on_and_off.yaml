@@ -1,8 +1,11 @@
 ######################################################################
-##  TV Time at sunset or 8pm.  Whichever is later.
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#  TV Time at sunset or 8pm.  Whichever is later.
 ######################################################################
 
 - alias: TV Time
+  id: 6e59d312-661f-40da-bb08-416f2e86b566
   trigger:
     - platform: state
       entity_id: input_boolean.TV_time
@@ -15,7 +18,6 @@
     - platform: state
       entity_id: media_player.living_room_ultra
       to: 'playing'
-      from: 'idle'
     - platform: time
       at: '20:00:00'
 
