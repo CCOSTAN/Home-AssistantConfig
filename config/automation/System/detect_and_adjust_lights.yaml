@@ -1,8 +1,12 @@
 ##############################################################################
 ###  Detect when lights are turned on and adjust them accordingly based on time.
 ###  Code by @JesseWebDotCom
+## @CCOSTAN
+## Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ##############################################################################
 - alias: detect lights and adjust the brightness when turned on based on time
+  id: 844b6be0-3ba3-4f8a-bbcd-a5ec5abdb88a
+  mode: parallel
   trigger:
     - platform: event
       event_type: state_changed

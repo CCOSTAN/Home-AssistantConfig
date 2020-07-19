@@ -16,6 +16,9 @@ automation:
       - condition: state
         entity_id: group.family
         state: 'home'
+      - condition: numeric_state
+        entity_id: sensor.blitzortung_lightning_counter
+        above: 0
 
     action:
       - service: script.notify_engine
