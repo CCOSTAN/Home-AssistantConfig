@@ -3,7 +3,7 @@
 ###################################
 
 - alias: Login Failure
-
+  id: 814c48ea-e2e1-4b75-92b0-581081af5ce5
   trigger:
     platform: template
     value_template: "{{ states('persistent_notification.httplogin') != 'unknown' }}"
