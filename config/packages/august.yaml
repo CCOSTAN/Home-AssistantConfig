@@ -21,6 +21,7 @@ automation:
   ##  Door Lock Status Announcements - Only during normal hours.
   ######################################################################
   - alias: 'Door Locked Announcement'
+    id: a4294b3b-51f3-4e32-8e71-b9ef865add3b
     trigger:
       - platform: state
         entity_id:
@@ -35,6 +36,7 @@ automation:
           DoorLocked: "The {{ trigger.to_state.name }} is now {{ trigger.to_state.state }}."
 
   - alias: 'Door UnLocked Announcement'
+    id: 5922becc-3249-40ea-bdb4-db97cc40c413
     trigger:
       - platform: state
         entity_id:

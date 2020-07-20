@@ -26,6 +26,7 @@ sensor:
 automation:
 
   - alias: "Self Heal Disk Use Alarm"
+    id: b16f2155-4688-4c0f-9cf8-b382e294a029
     trigger:
       - platform: numeric_state
         entity_id: sensor.disk_use_percent
@@ -40,6 +41,7 @@ automation:
       - service: tts.clear_cache
 
   - alias: "Disk Use Alarm"
+    id: 1ce3cb43-0e27-4c53-acdd-d672396f3559
     trigger:
       - platform: numeric_state
         entity_id: sensor.disk_use_percent

@@ -20,6 +20,7 @@ switch:
 ##############################################################################
 automation:
   - alias: 'Car Charging Alerts'
+    id: fa805e4a-08fa-4626-870f-e3df98ca3d84
     initial_state: 'on'
     trigger:
       - platform: state
@@ -33,6 +34,7 @@ automation:
           apns_id: 'information'
 
   - alias: 'Juicebox Self-Heal'
+    id: e693f117-c75d-4bb9-a8f3-c104b226d0c5
     initial_state: 'on'
     trigger:
       - platform: state
@@ -77,6 +79,7 @@ automation:
             ] | random }}
 
   - alias: 'JuiceBox AMP Alert!'
+    id: b805f213-a938-4d90-8d18-e88ff4d41776
     initial_state: 'on'
     trigger:
       - platform: numeric_state
@@ -110,6 +113,7 @@ automation:
       - event: event_did_someone_help_juicebox_AMPS
 
   - alias: 'JuiceBox Temp Alert!'
+    id: ddb36236-6ee1-4ba4-8839-661db3658401
     initial_state: 'on'
     trigger:
       - platform: numeric_state
@@ -143,6 +147,7 @@ automation:
       - event: event_did_someone_help_juicebox_TEMP
 
   - alias: 'JuiceBox Tweet Stat!'
+    id: ed7d21d5-0ff7-40e3-9492-213c23a8b964
     initial_state: 'on'
     trigger:
       - platform: state

@@ -36,6 +36,7 @@ sensor:
 
 automation:
   - alias: Launch Window Approaching
+    id: 1d42fc4f-a37d-4283-b64b-09242a145598
     trigger:
       - platform: template
         value_template: '{{ (now().strftime("%s") | int + 600) == (states.sensor.spacex.state | int) }}'
@@ -58,6 +59,7 @@ automation:
 # It's a random fact now.
 
   - alias: 'ISS is above Me -Tweet'
+    id: 7f0610b6-508e-4409-b39d-620045164715
 
     trigger:
       - platform: state
@@ -86,6 +88,7 @@ automation:
             ] | random }}
 
   - alias: 'Full Moon -Tweet'
+    id: 2382bec3-53c6-4dc9-9b0f-1cee0b8f9735
     trigger:
       - platform: state
         entity_id: sensor.moon
