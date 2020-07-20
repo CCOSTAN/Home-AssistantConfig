@@ -13,7 +13,7 @@ install:
   - git clone https://github.com/custom-components/youtube.git youtube_component/
   - mv youtube_component/custom_components config/custom_components
   - git clone https://github.com/mrk-its/homeassistant-blitzortung.git blitzortung_component/  
-  - mv blitzortung_componentt/custom_components config/custom_components
+  - mv blitzortung_component/custom_components config/custom_components
   
 script:
   - hass -c config/ --script check_config --info all
