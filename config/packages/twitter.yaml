@@ -183,6 +183,7 @@ sensor:
 automation:
 
   - alias: 'New Twitter follower!'
+    id: 61cd0bab-4743-4392-8e43-b204d7ebe817
     trigger:
       platform: event
       event_type: ifttt_webhook_received
@@ -204,6 +205,7 @@ automation:
           media_content_type: audio/mp4
 
   - alias: 'Closed Github Issue'
+    id: cccd9bef-17d9-48ae-87e3-6cf883712779
     trigger:
         platform: event
         #Sent from IFTTT Webhooks : {"action":"closed_github", "repo":" {{RepositoryName}}", "issue":" {{IssueTitle}}","issueurl":" {{IssueURL}}"}
@@ -237,6 +239,7 @@ automation:
             {{ pictures|random }}
 
   - alias: 'Random House stats'
+    id: b274a40d-cb67-4d6a-94d1-5fa685ae5ea4
     trigger:
       - platform: time_pattern
         hours: '/2'
@@ -271,6 +274,7 @@ automation:
             {{ pick|random }}
 
   - alias: 'Random YouTube Videos BearStone'
+    id: b6554d97-a3d1-48e4-9035-632ac622504b
     trigger:
       - platform: time_pattern
         hours: '/7'
@@ -290,6 +294,7 @@ automation:
           pick: !include ../templates/speech/youtube_picker.yaml
 
   - alias: 'Random YouTube Videos CCostan'
+    id: 3e8a4db0-165b-4e1b-acb0-ac4503525660
 
     trigger:
       - platform: time_pattern

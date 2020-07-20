@@ -65,6 +65,7 @@ sensor:
 #
 automation:
   - alias: Notify if Grid is down
+    id: 56a32121-5725-4510-a1fa-10f69a5c82ef
     trigger:
       - platform: state
         entity_id: sensor.grid_status
@@ -85,6 +86,7 @@ automation:
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/779
   - alias: Shut Things down if running on PowerWall
+    id: 37288a96-5f49-46c2-85c8-7e8794d23612
     trigger:
       - platform: state
         entity_id: sensor.grid_status
@@ -109,6 +111,7 @@ automation:
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
   - alias: Turn off the Nest Thermostats during a Power Outage
+    id: 022bd9da-ab7c-4c1b-9e95-2ff4ffe5f9cc
 
     trigger:
       - platform: state
@@ -137,6 +140,7 @@ automation:
           apns_id: 'information'
 
   - alias: Turn back on the Nest Thermostats after a Power Outage
+    id: 14faf84b-cb24-4391-a97f-b83479a67fc7
 
     trigger:
       - platform: state

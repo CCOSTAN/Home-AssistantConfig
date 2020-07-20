@@ -53,6 +53,7 @@ input_boolean:
 
 automation:
   - alias: 'Snooze Button off in 10 minutes'
+    id: 7cfd94e2-0b99-4de1-af98-2085d51ef88b
     trigger:
       - platform: state
         entity_id:
@@ -67,6 +68,7 @@ automation:
 
 #Turn on the clock - turn off the screensaver so we can see it.
   # - alias: Turn off Screensaver so we can see the time
+  #  id: 26016b2a-4760-4438-a665-95d5b18f0797
   #   trigger:
   #     - platform: state
   #       entity_id:
@@ -81,6 +83,7 @@ automation:
 
 #-----Turn on the Music--------------------------------------
   - alias: 'Play Radio when Snooze button is turned off.'
+    id: f0982a8b-6d30-4f2e-803f-0f341d188287
 
     trigger:
       - platform: state
@@ -122,6 +125,7 @@ automation:
 
 #-----Turn off the Music--------------------------------------
   - alias: 'Turn off the Radio when the snooze is turned on.'
+    id: c21173ef-0418-49da-a1b8-b961c79dc6d7
 
     trigger:
       - platform: state

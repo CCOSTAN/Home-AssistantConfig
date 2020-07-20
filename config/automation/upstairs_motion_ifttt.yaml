@@ -1,6 +1,7 @@
 # Uses the Nest thermostat to turn on lights and turn them off upstairs.
 
 - alias: 'Upstairs Light Turn on'
+  id: 439fc892-74ef-42b3-9d53-9474b9b9ae11
   trigger:
     - platform: event
       event_type: upstairs_light_on
@@ -20,6 +21,7 @@
       entity_id: light.upstairs_lights
 
 - alias: 'Upstairs Light Turn off'
+  id: ee50f882-94b7-4cfc-bc2e-4a3e07ae08a8
   trigger:
     - platform: event
       event_type: upstairs_light_off

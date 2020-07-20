@@ -73,6 +73,7 @@ group:
 
 automation:
   - alias: 'Update Garage Get-Status'
+    id: 2b9e8359-c189-4399-b415-50107513fe90
     trigger:
       - platform: time_pattern
         minutes: '/1'
@@ -88,6 +89,7 @@ automation:
           payload: "get-status"
 
   - alias: 'Garage Door State Change'
+    id: afec0987-edb1-4341-a524-a00ae4df9fb7
     trigger:
       - platform: state
         entity_id:
@@ -125,6 +127,7 @@ automation:
   ###################################
 
   - alias: 'Wind Speed Garage Door Check'
+    id: 2819207a-1716-4552-be34-a8e0f7af004e
     trigger:
       - platform: numeric_state
         entity_id: sensor.dark_sky_wind_speed
@@ -180,6 +183,7 @@ automation:
   ##############################################################################
 
   - alias: Is the Garage door Open at night - Checks every 30 minutes or 5 minutes after we drive away.
+    id: 4eb3e83e-4484-4102-a4ca-6bacd5b3cbdd
 
     trigger:
       - platform: time_pattern

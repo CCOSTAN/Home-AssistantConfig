@@ -57,6 +57,7 @@ switch:
 ## Doorbell Press
 automation:
   - alias: 'Log SkyBell Pressed Activity'
+    id: 64226512-f35d-4179-bfcb-9de158b8d3f4
 
     trigger:
        - platform: state
@@ -81,6 +82,7 @@ automation:
 
 # Motion Sensing
   - alias: 'Log SkyBell Motion detection'
+    id: a22c2cb7-08b2-4bd1-bc82-77201253a000
 
     trigger:
       - platform: event
@@ -92,6 +94,7 @@ automation:
 # Turn SkyBell Light and Neato Schedule back on if it's turned off. Like any Good Watchdog.
 
   - alias: Automated Mismatch WatchDog!
+    id: bff434b9-5916-42d1-8620-5723b4b1879d
 
     trigger:
       - platform: state
