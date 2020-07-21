@@ -8,6 +8,7 @@
 automation:
   - alias: HACS Component Update Notification
     id: e5266b0b-017f-4c69-83a3-357aaa03dbe2
+    mode: single
     trigger:
       - platform: state
         entity_id: sensor.hacs
@@ -19,8 +20,7 @@ automation:
 
     action:
       - service: ifttt.trigger
-        data_template:  {"event":"GitPost", "value1":"HACS Update - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}", "value2":"Update to HACS: There are {{ states.sensor.hacs.state }} updates."}
-
+        data_template:  {"event":"GitPost", "value2":"HACS - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}", "value1":"Update to HACS {{state_attr('sensor.hacs','repositories')}}: There is {{ states.sensor.hacs.state }} update."}
 
       - service: script.tweet_engine_image
         data_template:
@@ -39,3 +39,6 @@ automation:
             ] %}
             {{ pictures|random }}
           who: 'BearStoneHA'
+
+      - delay:
+          days: 1

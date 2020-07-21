@@ -32,6 +32,11 @@
         topic: "garadget/GLarge/command"
         payload: "get-status"
 
+    - service: group.set
+      data_template:
+        object_id: "arriving"
+        entities: []
+
     - condition: state
       entity_id: sun.sun
       state: 'above_horizon'

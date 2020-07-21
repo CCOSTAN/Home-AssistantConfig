@@ -86,17 +86,14 @@ automation:
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/779
   - alias: Shut Things down if running on PowerWall
+    mode: restart
     id: 37288a96-5f49-46c2-85c8-7e8794d23612
     trigger:
       - platform: state
         entity_id: sensor.grid_status
         from: 'True'
         to: 'False'
-        for:
-          minutes: 1
-    condition:
-      - condition: template
-        value_template: "{{ states('sensor.grid_status') == 'False' }}"
+
     action:
       - service: homeassistant.turn_off
         entity_id:
@@ -108,6 +105,28 @@ automation:
          value1: "Taking actions to turning off the House Lights to preserve Battery Power."
          who: 'family'
          apns_id: 'information'
+
+      - delay:
+         minutes: 1
+      - service: homeassistant.turn_off
+        entity_id:
+         - group.interior_lights
+         - group.exterior_lights
+
+      - service: script.speech_engine
+        data_template:
+          value1: "Because of the Power Outage, the Lights will be recycled for 3 minutes.  Lights may turn on and off during this time."
+
+      - delay:
+          minutes: 3
+      - service: homeassistant.turn_off
+        entity_id:
+          - group.interior_lights
+          - group.exterior_lights
+
+      - service: script.speech_engine
+        data_template:
+          value1: "Automatic light recycling has been completed.  Any abnormalities will have to be addressed in the Hue App most likely. "
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
   - alias: Turn off the Nest Thermostats during a Power Outage
