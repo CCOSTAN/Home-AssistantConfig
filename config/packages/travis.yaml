@@ -25,12 +25,15 @@ automation:
         entity_id:
          - sensor.ccostanhomeassistantconfig_state
         to: 'failed'
+        for:
+          hours: 2
+          
     action:
       - service: script.notify_engine
         data_template:
           value1: 'Travis validation testing failed.'
           who: 'carlo'
-          apns: 'travisci'
+          apns: 'information'
 
       - service: persistent_notification.create
         data:
