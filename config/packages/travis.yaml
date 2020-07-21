@@ -7,7 +7,7 @@
 #-------------------------------------------
 sensor:
   - platform: travisci
-    api_key: !secret travis_api
+    api_key: !secret travisci_api
     scan_interval: 2400
     monitored_conditions:
       - state
@@ -19,15 +19,16 @@ sensor:
 automation:
   - alias: "Travis FAILURE Notification"
     id: 326881a7-47ab-4897-a0c7-74ce290224de
+    mode: restart
 
     trigger:
       - platform: state
         entity_id:
-         - sensor.ccostanhomeassistantconfig_state
+         - sensor.ccostan_home_assistantconfig_state
         to: 'failed'
         for:
           hours: 2
-          
+
     action:
       - service: script.notify_engine
         data_template:
