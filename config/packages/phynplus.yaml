@@ -8,6 +8,17 @@
 ##  Phyn Plus Water ShutOff - https://amzn.to/2Zy3sbJ
 ######################################################################
 
+ios:
+  push:
+    categories:
+      - name: Phyn
+        identifier: 'phyn'
+        actions:
+          - identifier: 'PHYN_WATER_ON'
+            title: 'Turn Water Back On'
+            activationMode: 'background'
+            authenticationRequired: no
+            destructive: yes
 
 automation:
   ###################################
@@ -15,6 +26,7 @@ automation:
   ###################################
   - alias: 'Phyn ShutOff Notification'
     id: 78bbd270-ee1e-4b3d-80fd-44ce7c66dab5
+    mode: single
 
     trigger:
       - platform: event
@@ -24,15 +36,6 @@ automation:
           action: IFTTT_Phyn
 
     action:
-
-      - service: script.notify_engine
-        data_template:
-          title: 'Phyn Leak Detection'
-          value1: 'Phyn is sensing {{ trigger.event.data.alert_type }}.  Please verify {{ trigger.event.data.where }}.'
-          who: 'family'
-          url: 'https://github.com/CCOSTAN/Home-AssistantConfig/raw/master/config/www/custom_ui/floorplan/images/branding/pipeleak.png'
-          apns_id: 'IFTTT_Phyn'
-
       - service: script.speech_engine
         data_template:
           value1: >
@@ -45,11 +48,48 @@ automation:
         data_template:
           tweet: >
             {{ [
-            ".@Phyn has detected a leak  and notified us using Home Assistant. ",
-            "I am shutting down the water since @Phyn detected a leak.",
-            "Time to let @ccostan know that @Phyn has detected a leak."
+            "The @Phyn has detected a {{ trigger.event.data.alert_type }} and notified us using Home Assistant. ",
+            "I am shutting down the water since @Phyn detected {{ trigger.event.data.alert_type }} .",
+            "Time to let @ccostan know that @Phyn has detected {{ trigger.event.data.alert_type }} ."
             ] | random + " #SavingWater (https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html)" }}
           image: >-
             {{ [
             "/config/www/custom_ui/floorplan/images/branding/pipeleak.png"
             ] | random }}
+
+      - wait_template: >-
+         {{ states.sun.sun.state == 'above_horizon' }}
+
+      - service: script.notify_engine
+        data_template:
+          title: 'Phyn Leak Detection'
+          value1: 'Phyn is sensing {{ trigger.event.data.alert_type }} and turned off the water.  Please verify {{ trigger.event.data.where }}.'
+          who: 'parents'
+          ios_category: "phyn"
+          apns_id: 'IFTTT_Phyn'
+
+  - alias: Turn Phyn Water On
+    id: 1f295bb8-8925-4b22-PHYN-9fe079b295a8
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: PHYN_WATER_ON
+    action:
+      - service: ifttt.trigger
+        data_template: {"event":"phyn_water_on"}
+
+      - service: script.notify_engine
+        data_template:
+          title: 'Phyn Leak Detection'
+          value1: 'Request Recieved. Attempting to Turn the Water back on.'
+          who: 'parents'
+          apns_id: 'IFTTT_Phyn'
+
+      - service: script.speech_engine
+        data_template:
+          value1: >
+            {{ [
+            "I have been asked to Turn the House Water back on.  Please verify there are no leaks in the house. "
+            ] | random }}
+          call_no_announcement: 1
