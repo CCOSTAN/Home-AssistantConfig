@@ -34,17 +34,26 @@ automation:
           call_window_check: 1
           call_garage_check: 1
 
-      # - service: script.tweet_engine_no_image
-      #   data_template:
-      #     tweet: >
-      #       {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
-      #       {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
-      #          HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors! #Florida #Weather (https://amzn.to/2jQLpVQ)
-      #       {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
-      #          Current Wind Speed is : {{windspeed}} mph! Warning! #Florida #Weather (https://amzn.to/2jQLpVQ) FIND SHELTER IMMEDIATELY! #Florida #Weather (https://amzn.to/2jQLpVQ)
-      #       {% elif ( windspeed > 60 ) %}
-      #          Current Wind Speed is : {{windspeed}} mph! HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS! #Florida #Weather (https://amzn.to/2jQLpVQ)
-      #       {% endif %}
+      - service: script.tweet_engine_image
+        data_template:
+          tweet: >
+            {{ [
+            "Lightning has been detected within 2.5 Miles of our home.",
+            "{{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) have been recorded by the house.",
+            "Yikes! The lightning strike was way too close.  Time to get everyone inside."
+            ] | random +
+            [
+            " #LightningCapital",
+            " (https://github.com/CCOSTAN/Home-AssistantConfig/issues/392)",
+            " #Bot ",
+            " "
+            ] | random }}
+          image: >-
+            {{ [
+            "/config/www/custom_ui/floorplan/images/branding/lightning_1.png",
+            "/config/www/custom_ui/floorplan/images/branding/lightning_2.png",
+            "/config/www/custom_ui/floorplan/images/branding/lightning_3.png"
+            ] | random }}
 
       - delay:
           minutes: 30
