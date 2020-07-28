@@ -285,7 +285,7 @@ Be sure to Like and Subscribe if you enjoy this type of content.</a><br>
 [iPads](https://amzn.to/2l2qyRb)
 </td><td align="center">
 
-[iPhones](https://amzn.to/2l9Yoq9)
+[iPhones](https://amzn.to/2P5RCz8)
 </td><td align="center">
 
 [Dash Buttons](https://youtu.be/rwQVe6sIi9w)
@@ -293,7 +293,7 @@ Be sure to Like and Subscribe if you enjoy this type of content.</a><br>
 
 [Amazon Fire Tablets Gen 7](https://amzn.to/2tqlMCW)</td></tr>
 <tr><td align="center"><a href="https://www.amazon.com/Apple-MH182LL-9-7-Inch-Retina-Display/dp/B00OTWPEBK/ref=as_li_ss_il?s=pc&rps=1&ie=UTF8&qid=1487044765&sr=1-3&keywords=ipad&refinements=p_89:Apple,p_85:2470955011,p_n_condition-type:2224371011&linkCode=li1&tag=vmw0a-20&linkId=d4e62510b64106355f3788ea04bff8a0" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B00OTWPEBK&Format=_SL110_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B00OTWPEBK" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
-</td><td align="center"><a href="https://amzn.to/2l9Yoq9" target="_blank"><img border="0" src="https://www.amazon.com/images/I/81Maog-libL._AC_UY218_.jpg" height="150" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00YD54J8W" width="1" height="1" border="0" alt="Dash Button Video" style="border:none !important; margin:0px !important;" />
+</td><td align="center"><a href="https://amzn.to/2P5RCz8" target="_blank"><img border="0" src="https://www.amazon.com/images/I/81Maog-libL._AC_UY218_.jpg" height="150" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li2&o=1&a=B00YD54J8W" width="1" height="1" border="0" alt="Dash Button Video" style="border:none !important; margin:0px !important;" />
 </td><td align="center"><a href="https://youtu.be/rwQVe6sIi9w" target="_blank"><img border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/youtube/episodes/S02E09.png" width="200" height="150"></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01LBT5R4C" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </td><td align="center" colspan="2"><a href="https://www.vCloudInfo.com/2017/08/project-update-visualization-of-home.html" target="_blank"><img border="0" src="https://lh3.googleusercontent.com/-UdtxP-RNPxM/WZNRjcEJ6hI/AAAAAAADYfY/Vum9wiL5qYAO3frTAi2MdqK1vH6qBTb9gCHMYCw/image3_thumb%255B2%255D?imgmax=200" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&l=li1&o=1&a=B01GEW27DA" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
