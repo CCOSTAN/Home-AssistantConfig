@@ -9,6 +9,7 @@
 automation:
   - alias: Nest protect emergency
     id: 95856443-6da8-4bef-80b2-f11c725b4dad
+    mode: parallel
 
     trigger:
       platform: state
@@ -33,25 +34,26 @@ automation:
         - sensor.upstairs_living_room_nest_protect_co_status
       to: 'Emergency'
 
-    condition:
-      - condition: state
-        entity_id: group.family
-        state: 'home'
-
     action:
-      - service: script.emergency
-        data_template:
-          call_garage_open: 1
+
       - service: script.notify_engine
         data_template:
           value1: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} Please investigate IMMEDIATELY."
+          who: "family"
+          apns_id: '{{ trigger.to_state.attributes.friendly_name }}'
 
       - service: script.tweet_engine_no_image
         data_template:
           tweet: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} @CCostan (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)"
 
+      - service: script.emergency
+        data_template:
+          call_garage_open: 1
+
+
   - alias: Nest Protect Offline Notify
     id: 43983144-a54f-4966-ae03-755e62cd35ec
+    mode: parallel
 
     trigger:
       platform: state
@@ -68,19 +70,13 @@ automation:
       from: 'on'
 
     action:
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.alert_mode
-
-      - service: script.speech_engine
-        data_template:
-          value1: "The {{ trigger.to_state.attributes.friendly_name }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}.  Please check immediately."
 
       - service: script.notify_engine
         data_template:
           value1: "The {{ trigger.to_state.attributes.friendly_name }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}.  Please check immediately."
-          who: "parents"
-          apns_id: 'Nest-Protect'
+          who: "family"
+          apns_id: '{{ trigger.to_state.attributes.friendly_name }}'
 
       - service: script.tweet_engine_no_image
         data:
-          tweet: "Oh NO! {{ trigger.to_state.attributes.friendly_name }} is now in {{ (trigger.to_state.state)|replace('_', ' ') }} mode. @Nest. (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html) #Safety"
+          tweet: "Oh NO! {{ trigger.to_state.attributes.friendly_name }} is now in {{ (trigger.to_state.state)|replace('_', ' ') }} mode. @Nest. (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html) @ccostan #Safety"
