@@ -24,13 +24,13 @@ automation:
       - service: script.notify_engine
         data_template:
           title: 'Lightning Warning!'
-          value1: 'Lightning has been detected within 2.5 Miles of our home.  Be careful if outdoors.'
+          value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Be careful if outdoors."
           who: 'family'
           apns_id: 'Alert'
 
       - service: script.speech_engine
         data_template:
-          value1: 'Lightning has been detected within 2.5 Miles of our home.  Please make sure everyone is inside the house.'
+          value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Please make sure everyone is inside the house."
           call_window_check: 1
           call_garage_check: 1
 
@@ -38,7 +38,7 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "Lightning has been detected within 2.5 Miles of our home.",
+            "{{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) have been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.",
             "{{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) have been recorded by the house.",
             "Yikes! The lightning strike was way too close.  Time to get everyone inside."
             ] | random +
@@ -46,6 +46,7 @@ automation:
             " #LightningCapital",
             " (https://github.com/CCOSTAN/Home-AssistantConfig/issues/392)",
             " #Bot ",
+            " #Florida ",
             " "
             ] | random }}
           image: >-
