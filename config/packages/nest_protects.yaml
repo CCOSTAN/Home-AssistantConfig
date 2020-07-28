@@ -36,6 +36,13 @@ automation:
 
     action:
 
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.alert_mode
+
+      - service: script.speech_engine
+        data_template:
+          value1: "The {{ trigger.to_state.attributes.friendly_name }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}.  Please check immediately."
+
       - service: script.notify_engine
         data_template:
           value1: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} Please investigate IMMEDIATELY."
