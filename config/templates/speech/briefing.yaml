@@ -35,6 +35,10 @@
   Outside, it is going to be {{ states('sensor.dark_sky_minutely_summary') }}
   {%- endmacro -%}
 
+  {%- macro lightning() -%}
+  There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our House.  Please make sure everyone is inside the house.
+  {%- endmacro -%}
+
   {%- macro light_check() -%}
   {% if states.group.all_lights.state != 'off' -%}
       There are
@@ -283,6 +287,12 @@
     {% if call_outside_weather == 1 and is_state('sun.sun', 'above_horizon') %}
     {{ outside_weather() }}
     {% endif %}
+
+    {% if (states('sensor.blitzortung_lightning_counter')|int) > 0 %}
+    {{ lightning() }}
+    {% endif %}
+
+    {{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s)
 
     {{ DoorOpened }}
     {{ DoorClosed }}
