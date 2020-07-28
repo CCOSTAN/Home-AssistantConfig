@@ -34,13 +34,16 @@ automation:
           call_window_check: 1
           call_garage_check: 1
 
+      - delay:
+              minutes: 30
+
       - service: script.tweet_engine_image
         data_template:
           tweet: >
             {{ [
             "{{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) have been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.",
-            "{{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) have been recorded by the house.",
-            "Yikes! The lightning strike was way too close.  Time to get everyone inside."
+            "{{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) have been recorded {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} miles by the house.",
+            "Yikes! {{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) were way too close; ({{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} miles too close in fact).  Time to get everyone inside."
             ] | random +
             [
             " #LightningCapital",
@@ -55,6 +58,3 @@ automation:
             "/config/www/custom_ui/floorplan/images/branding/lightning_2.png",
             "/config/www/custom_ui/floorplan/images/branding/lightning_3.png"
             ] | random }}
-
-      - delay:
-          minutes: 30
