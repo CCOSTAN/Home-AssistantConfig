@@ -1,0 +1,81 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# NRoku Related Functions - https://amzn.to/2Ctp8cr
+#-------------------------------------------
+
+input_boolean:
+  living_room_remote_finder:
+    name: "Living Room Remote Finder"
+    initial: off
+    icon: mdi:remote
+
+ios:
+  push:
+    categories:
+      - name: RemoteLR
+        identifier: 'RemoteLR'
+        actions:
+          - identifier: 'LR_REMOTE_FOUND'
+            title: 'Remote Found'
+            activationMode: 'background'
+            authenticationRequired: no
+            destructive: yes
+
+          - identifier: 'LR_REMOTE_NOT_FOUND'
+            title: 'Not Yet'
+            activationMode: 'background'
+            authenticationRequired: no
+            destructive: yes
+
+##############################################################################
+###  Automations
+##############################################################################
+automation:
+  - alias: 'Find Roku Remote'
+    id: 2346efcd-e8a8-ROKU-b5b6-43e54a72a95f
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: input_boolean.living_room_remote_finder
+        to: 'on'
+
+      - platform: event
+        event_type: ios.notification_action_fired
+        event_data:
+          actionName: LR_REMOTE_NOT_FOUND
+
+    action:
+      - service: remote.send_command
+        entity_id: remote.living_room_ultra
+        data:
+          command: find_remote
+
+      - service: script.notify_engine
+        data_template:
+          title: 'Living Room Remote'
+          value1: 'Find Remote'
+          ios_category: "RemoteLR"
+          who: "family"
+          apns_id: 'RemoteLR'
+
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.living_room_remote_finder
+
+  - alias: "Living Room Remote Found"
+    id: 1f295bb8-ROKU-4b22-8f75-9fe079b295a8
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: LR_REMOTE_FOUND
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.living_room_remote_finder
+
+      - service: script.notify_engine
+        data_template:
+          title: 'Living Room Remote'
+          value1: 'Remote has been found.'
+          who: "family"
+          apns_id: 'RemoteLR'

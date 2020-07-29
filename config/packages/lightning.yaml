@@ -35,7 +35,7 @@ automation:
           call_garage_check: 1
 
       - delay:
-              minutes: 30
+              minutes: 20
 
       - service: script.tweet_engine_image
         data_template:
@@ -58,3 +58,6 @@ automation:
             "/config/www/custom_ui/floorplan/images/branding/lightning_2.png",
             "/config/www/custom_ui/floorplan/images/branding/lightning_3.png"
             ] | random }}
+
+      - delay:
+              minutes: 20
