@@ -4,6 +4,7 @@
 
 - alias: 'Away Mode'
   id: 712e845a-9d72-4993-b8af-890b167c807b
+  mode: single
   trigger:
     - platform: state
       entity_id: binary_sensor.downstairs_nest_away
@@ -11,15 +12,11 @@
     - platform: state
       entity_id: group.family
       to: 'not_home'
-    - platform: state
-      entity_id: input_boolean.good_night
-      to: 'on'
     - platform: event
       #Sent from IFTTT Webhooks : {"action":"IFTTT_Away:}
       event_type: ifttt_webhook_received
       event_data:
         action: IFTTT_Away
-
 
   condition:
     - condition: state
@@ -31,7 +28,10 @@
 
   action:
     - service: script.interior_off
+
     - service: switch.turn_off
       entity_id: switch.back_landscaping
-    - service: input_boolean.turn_off
-      entity_id: input_boolean.good_night
+
+      # Arms Alexa Guard.  Disarms in the Announcements.yaml
+    - service: alarm_control_panel.alarm_arm_away
+      entity_id: alarm_control_panel.alexa_guard

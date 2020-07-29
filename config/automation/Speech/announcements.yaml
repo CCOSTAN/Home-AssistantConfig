@@ -80,3 +80,11 @@
       data_template:
         object_id: "arriving"
         entities: []
+
+    # Only Disarm if armed.  Otherwise, Exit out. 
+    - condition: state
+      entity_id: alarm_control_panel.alexa_guard
+      state: armed
+
+    - service: alarm_control_panel.alarm_disarm
+      entity_id: alarm_control_panel.alexa_guard
