@@ -5,14 +5,12 @@
 
 - alias: Heal Components Nightly
   id: fb8154d4-52b9-4cf1-9cd3-c9c3cf059992
-  
+  mode: single
+
   trigger:
     platform: time
     at: '2:31:00'
   action:
-#    - service: zwave.heal_network - Not needed anymore since I've migrated to Wink.
-    - service: homeassistant.turn_on
-      entity_id: switch.bedroom_restart_on
 
     - service: script.tweet_engine_image
       data_template:

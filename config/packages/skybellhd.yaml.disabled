@@ -5,20 +5,6 @@
 ## [SkyBell HD](https://amzn.to/2dcexIB)
 ###################################
 
-homeassistant:
-
-group:
-  skybell:
-    name: Skybell HD Front Door
-
-    entities:
-      - binary_sensor.skybell_front_door_button
-      - binary_sensor.skybell_front_door_motion
-      - camera.front_door
-      - sensor.skybell_front_door_chime_level
-      - sensor.skybell_front_door_motion_sensor
-      - switch.skybell_front_door_do_not_disturb
-      - switch.skybell_front_door_motion_sensor
 
 skybell:
   username: !secret skybell_username
