@@ -1,12 +1,7 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-#-------------------------------------------
-homeassistant:
-  customize:
-    sensor.download_grafana_solar:
-
-
+# More Info : https://www.vcloudinfo.com/
 #-------------------------------------------
 
 sensor:
@@ -27,10 +22,6 @@ camera:
     username: HA
     password: HA
 
-  # - platform: local_file
-  #   name: "Grafana Solar Graph"
-  #   file_path: /config/www/custom_ui/floorplan/images/branding/solar_readings.png
-
 ##############################################################################
 ###  Automations - Detect when things are not right. Like any Good Watchdog.
 ##############################################################################
@@ -41,7 +32,7 @@ automation:
     trigger:
       - platform: sun
         event: sunset
-        offset: '+01:00:00'
+        offset: '+02:30:00'
     action:
       - service: script.tweet_engine_image
         data_template:
