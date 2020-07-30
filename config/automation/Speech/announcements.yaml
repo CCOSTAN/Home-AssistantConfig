@@ -24,8 +24,12 @@
         add_entities: >-
           {{ trigger.to_state.entity_id }}
 
-    - wait_template: >-
-        {{ states.binary_sensor.kitchen_door.state == 'on' }}
+    - wait_template: "{{ states.binary_sensor.mcu1_gpio12.state == 'on' }}"
+      timeout: '00:10:00'
+
+    - wait_template: "{{ states.binary_sensor.kitchen_door.state == 'on' }}"
+      timeout: '00:1:00'
+
     - delay: '00:01:00'
     - service: script.speech_engine
       data_template:
@@ -81,7 +85,7 @@
         object_id: "arriving"
         entities: []
 
-    # Only Disarm if armed.  Otherwise, Exit out. 
+    # Only Disarm if armed.  Otherwise, Exit out.
     - condition: state
       entity_id: alarm_control_panel.alexa_guard
       state: armed
