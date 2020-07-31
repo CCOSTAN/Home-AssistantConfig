@@ -14,8 +14,6 @@
       entity_id: automation.toggle_office_light_onoff
     - service: light.toggle
       entity_id: light.office_lamp
-    - service: input_boolean.turn_on
-      entity_id: input_boolean.daylight_override
     - delay:
         minutes: 1
     # enable this automation - This prevents duplicate pushes.

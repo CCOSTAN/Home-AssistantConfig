@@ -4,6 +4,7 @@
 
 - alias: 'Sunset Stuff off'
   id: 232b95e8-1354-4f63-8ae4-1063f300f2f0
+  mode: single
   trigger:
     - platform: sun
       event: sunrise
@@ -59,7 +60,6 @@
     - service: input_boolean.turn_off
       entity_id:
         - input_boolean.medicine
-        - input_boolean.daylight_override
         - input_boolean.guest_mode
 
     - service: homeassistant.update_entity  #Look for a new Home Assistant Version

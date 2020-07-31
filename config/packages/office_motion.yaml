@@ -18,16 +18,11 @@ binary_sensor:
     payload_off: 0
     device_class: motion
 
-# This boolean gets reset every night in the sunset automation.
-# Gets turned on by dash button automation primarily.
-input_boolean:
-  daylight_override:
-    name: Daylight Override
-    initial: off
 
 automation:
   - alias: 'Motion in the Office - Turn on Light'
     id: 5a8e9dc3-a851-4cce-a054-d96f599cb1f5
+    mode: restart
     trigger:
       - platform: state
         entity_id:
@@ -36,9 +31,6 @@ automation:
         from: 'off'
 
     condition:
-      - condition: state
-        entity_id: group.family
-        state: 'home'
       - condition: state
         entity_id: light.office_lights
         state: 'off'
@@ -50,22 +42,6 @@ automation:
           - condition: state
             entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
             state: 'off'
-      - condition: or
-        conditions:
-          - condition: time
-            after: '18:00:00'
-          - condition: state
-            entity_id: sun.sun
-            state: 'below_horizon'
-          - condition: state
-            entity_id: input_boolean.daylight_override
-            state: 'on'
-          - condition: numeric_state
-            entity_id: sensor.dark_sky_cloud_coverage
-            above: 90
-          - condition: numeric_state
-            entity_id: sensor.dark_sky_precip_intensity
-            above: 1
 
     action:
       - service: light.turn_on
@@ -73,6 +49,7 @@ automation:
 
   - alias: 'Motion in the Office - Turn off Light'
     id: 346d8210-2160-4911-8be0-1ad696cc69d1
+    mode: restart
     trigger:
       - platform: state
         entity_id:

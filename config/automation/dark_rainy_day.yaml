@@ -60,10 +60,7 @@
           - light.living_room_accents
         brightness: 255
         kelvin: 5500
-        
-    - service: input_boolean.turn_on
-      entity_id:
-        - input_boolean.daylight_override
+
     - service: script.speech_engine
       data_template:
         value1: "It is getting a little dark inside the house because of the {{trigger.entity_id.split('_')[2]|replace('precip','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}} outside.  I will turn on some extra lights in the living room."
