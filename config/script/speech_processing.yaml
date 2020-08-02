@@ -1,4 +1,4 @@
-######################################################################################################
+#####################################################################################################
 ###Script to actually send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
   # action:
     # service: script.speech_engine
@@ -9,6 +9,7 @@
 ######################################################################################################
 
 speech_processing:
+  mode: queued
   sequence:
     - service: mqtt.publish
       data_template:
