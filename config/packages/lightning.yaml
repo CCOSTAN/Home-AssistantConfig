@@ -4,6 +4,24 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/392
 ###################################
+input_boolean:
+  snooze_lightning:
+    name: Snooze Lightning
+    initial: off
+    icon: mdi:weather-lightning
+
+ios:
+  push:
+    categories:
+      - name: Lightning
+        identifier: 'LIGHTNING'
+        actions:
+          - identifier: 'SNOOZE_LIGHTNING'
+            title: 'Snooze Alerts until tomorrow'
+            activationMode: 'background'
+            authenticationRequired: no
+            destructive: yes
+
 automation:
   - alias: 'Lightning Notification'
     id: 6e054688-5e75-48bd-9411-52a3e26264d1

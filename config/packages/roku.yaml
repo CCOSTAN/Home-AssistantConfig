@@ -14,19 +14,19 @@ ios:
   push:
     categories:
       - name: RemoteLR
-        identifier: 'RemoteLR'
+        identifier: 'REMOTELR'
         actions:
           - identifier: 'LR_REMOTE_FOUND'
             title: 'Remote Found'
             activationMode: 'background'
             authenticationRequired: no
-            destructive: yes
+            destructive: no
 
           - identifier: 'LR_REMOTE_NOT_FOUND'
             title: 'Not Yet'
             activationMode: 'background'
             authenticationRequired: no
-            destructive: yes
+            destructive: no
 
 ##############################################################################
 ###  Automations
@@ -55,7 +55,7 @@ automation:
         data_template:
           title: 'Living Room Remote'
           value1: 'Find Remote'
-          ios_category: "RemoteLR"
+          ios_category: "REMOTELR"
           who: "family"
           apns_id: 'RemoteLR'
 
