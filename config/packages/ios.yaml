@@ -75,7 +75,7 @@ automation:
           who: 'carlo'
           apns_id: 'Medicine'
       - wait_template: >-
-          {{ states.device_tracker.carlo.state == 'home' }}
+          {{ states.person.carlo.state == 'home' }}
       - service: script.notify_engine
         data_template:
           title: 'Medicine Reminder'
@@ -92,14 +92,14 @@ automation:
       - platform: time
         at: '21:30:00'
       - platform: state
-        entity_id: device_tracker.carlo
+        entity_id: person.carlo
         to: 'home'
 
     condition:
       - condition: time
         after: '21:30:00'
       - condition: state
-        entity_id: device_tracker.carlo
+        entity_id: person.carlo
         state: 'home'
       - condition: state
         entity_id: input_boolean.medicine

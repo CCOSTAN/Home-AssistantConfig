@@ -68,8 +68,8 @@ rules:
 
   - name: Family
     entities:
-      - device_tracker.carlo
-      - device_tracker.stacey
+      - person.carlo
+      - person.stacey
       - device_tracker.juicebox
     text_template: '${entity.state ? entity.state.replace("not_home", "away") : "undefined"}'
 
