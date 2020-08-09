@@ -6,7 +6,7 @@
 ##############################################################
 - alias: Garage Light Hallway Helper OPEN
   id: 5ea2a2b5-e3de-4acd-823c-dac3eeaa6118
-  
+
   trigger:
     - platform: state
       entity_id: binary_sensor.kitchen_door
@@ -28,7 +28,8 @@
 ##############################################################
 - alias: Garage Light Hallway Helper Closed
   id: f6060cd7-add7-487f-9b2b-f7849db3b36d
-  
+  mode: restart
+
   trigger:
     - platform: state
       entity_id: binary_sensor.mcu1_gpio12
@@ -53,13 +54,18 @@
       state: 'on'
 
   action:
-    service: light.turn_off
-    entity_id: light.garage_hallway
+    - service: light.turn_off
+      entity_id: light.garage_hallway
+
+    - delay:
+        minutes: 30
+
+    - service: script.garage_lights_off  # C by GE Lights  (https://amzn.to/30w3UWy)
 
 ##############################################################
 - alias: Shutdown Helper light
   id: 124f95f6-78ca-4c22-9348-1f3a1da2d803
-  
+
   trigger:
     - platform: state
       entity_id: light.k4
