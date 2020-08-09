@@ -48,7 +48,7 @@ This is the basic sub-directory in my home assistant repo.  Slowly everything is
     </a>
     <span> | </span>
     <a href="https://amzn.to/2HXSx2M">
-      Merch
+      Support
     </a>
   </h4>
 

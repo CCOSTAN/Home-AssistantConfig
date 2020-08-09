@@ -48,7 +48,7 @@
     </a>
     <span> | </span>
     <a href="https://amzn.to/2HXSx2M">
-      Merch
+      Support
     </a>
   </h4>
 

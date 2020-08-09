@@ -48,7 +48,7 @@ I love packages.  This will probably become the most used directory in my repo. 
     </a>
     <span> | </span>
     <a href="https://amzn.to/2HXSx2M">
-      Merch
+      Support
     </a>
   </h4>
 
