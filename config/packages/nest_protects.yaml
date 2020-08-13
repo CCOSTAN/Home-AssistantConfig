@@ -5,6 +5,20 @@
 # - Write up- https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html
 ######################################################################################################
 #-----------------------------------
+# This group is used primarily for tweet stats
+group:
+  protects:
+    name: Nest Protects
+    entities:
+      - binary_sensor.upstairs_living_room_nest_protect_online
+      - binary_sensor.hallway_nest_protect_kids_hallway_online
+      - binary_sensor.justins_room_nest_protect_online
+      - binary_sensor.kitchen_nest_protect_online
+      - binary_sensor.master_bedroom_nest_protect_online
+      - binary_sensor.master_hallway_nest_protect_online
+      - binary_sensor.paiges_room_nest_protect_paiges_room_online
+      - binary_sensor.upstairs_bedroom_nest_protect_online
+      - binary_sensor.office_nest_protect_online
 
 automation:
   - alias: Nest protect emergency
