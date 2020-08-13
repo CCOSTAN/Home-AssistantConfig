@@ -118,8 +118,6 @@ logbook:
       - media_player.LivingRoomCC
       - py.warnings
       - sensor.epson_xp_7100_series_uptime
-      - sensor.last_boot
-      - sensor.last_boot_templated
       - sensor.small_garage_status
       - sensor.large_garage_status
       - sensor.small_garage_time_in_state
@@ -149,14 +147,11 @@ history:
 
   exclude:
     entities:
-     - sensor.last_boot
      - sensor.date
      - sensor.epson_xp_7100_series_uptime
      - sensor.pi_hole_ads_blocked_today
      - sensor.pi_hole_ads_percentage_blocked_today
      - sensor.pi_hole_dns_queries_today
-     - sensor.last_boot
-     - sensor.last_boot_templated
      - sensor.floorplan_date
      - sensor.floorplan_time
      - sensor.ha_uptime

@@ -7,14 +7,12 @@
 #     sensor.process_mosquitto:
 #       friendly_name: 'Mosquitto'
 #
-#       
+#
 
 #-------------------------------------------
 sensor:
   - platform: systemmonitor
     resources:
-      # - type: last_boot
-      - type: last_boot
       - type: disk_use_percent
         arg: /
 
