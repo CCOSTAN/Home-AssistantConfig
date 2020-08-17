@@ -25,7 +25,7 @@ automation:
           tweet: >
             {{ [
             "Somebody just hit {{ states('trigger.entity_id') }} steps on the #Fitbit!",
-            "Keep on moving.  Somebody just hit {{ states('strigger.entity_id') }} #Fitbit steps.",
+            "Keep on moving.  Somebody just hit {{ states('trigger.entity_id') }} #Fitbit steps.",
             "#Fitness Tracking at home BY the home. Somebody just hit {{ states('trigger.entity_id') }} #Fitbit steps"
             ] | random + " #Self #Data"}}
           image: >-
