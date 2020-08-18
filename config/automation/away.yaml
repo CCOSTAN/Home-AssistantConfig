@@ -32,6 +32,10 @@
     - service: switch.turn_off
       entity_id: switch.back_landscaping
 
-      # Arms Alexa Guard.  Disarms in the Announcements.yaml
+    # Arms Alexa Guard unless Guest Mode is on.  Disarms in the Announcements.yaml
+    - condition: template
+      value_template: >
+        {{ states.input_boolean.guest_mode.state != "on" }}
+
     - service: alarm_control_panel.alarm_arm_away
       entity_id: alarm_control_panel.alexa_guard
