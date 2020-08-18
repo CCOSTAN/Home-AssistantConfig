@@ -23,6 +23,20 @@ ios:
             destructive: no
 
 automation:
+
+  - alias: Snooze Lightning
+    id: 1f295bb8-8925-4b22-8f75-9l1ghtn1nga8
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: SNOOZE_LIGHTNING
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.snooze_lightning
+
+
+
   - alias: 'Lightning Notification'
     id: 6e054688-5e75-48bd-9411-52a3e26264d1
     mode: single
@@ -37,12 +51,16 @@ automation:
       - condition: numeric_state
         entity_id: sensor.blitzortung_lightning_counter
         above: 0
+      - condition: state
+        entity_id: input_boolean.snooze_lightning
+        state: 'off'
 
     action:
       - service: script.notify_engine
         data_template:
           title: 'Lightning Warning!'
           value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Be careful if outdoors."
+          ios_category: "LIGHTNING"
           who: 'family'
           apns_id: 'Alert'
 
