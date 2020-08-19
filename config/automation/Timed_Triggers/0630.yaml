@@ -1,12 +1,13 @@
 ######################################################################
-##  Stuff that needs to happen at 08:30am.
+##  Stuff that needs to happen at 05:50am.
 ######################################################################
 
-- alias: 'Kids 650'
-  id: 3e0c4f40-0d55-42a0-9af9-37124b1b9b8b
+- alias: 'Timed 0630'
+  id: 7bf33e23-021c-4e11-946b-b052b81fd2bc
+  mode: single
   trigger:
     - platform: time
-      at: '06:50:00'
+      at: '06:30:00'
 
   condition:
     - condition: state
@@ -24,16 +25,6 @@
         - fri
 
   action:
-    - service: light.turn_on
+    - service: homeassistant.turn_on
       entity_id:
-        - light.d1
-        - light.d2
-    - service: light.turn_off
-      entity_id:
-        - light.dining_room_lights
-
-    - wait_template: >-
-       {{ states.sun.sun.state == 'above_horizon' }}
-    - service: homeassistant.turn_off
-      entity_id:
-        - light.fridge
+        - group.kitchen_accents
