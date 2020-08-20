@@ -13,12 +13,6 @@
       to: 'on'
       for: '00:20:00'
 
-    - platform: state
-      entity_id:
-        - light.upstairs_lights
-      to: 'on'
-      for: '02:00:00'
-
 #Turn it off!
   action:
     - service: homeassistant.turn_off
@@ -53,3 +47,7 @@
           - light.led_outdoor_den
           - light.outdoor_bathroom
           - light.flood2
+          - light.hallway
+          - light.hallway_lights
+          - light.foyer_lights
+          

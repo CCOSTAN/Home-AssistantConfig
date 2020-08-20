@@ -1,3 +1,9 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Lighitng based on Nest Away status
+#-------------------------------------------
+# Nest ThermoStat https://amzn.to/2eAhB1k
 # Uses the Nest thermostat to turn on lights and turn them off upstairs.
 
 - alias: 'Upstairs Light Turn on'
@@ -28,6 +34,11 @@
     - platform: state
       entity_id: binary_sensor.upstairs_nest_away
       to: 'on'
+
+    - platform: state
+      entity_id: light.upstairs_lights
+      to: 'on'
+      for: '02:00:00'
 
   action:
     service: light.turn_off
