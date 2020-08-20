@@ -16,7 +16,7 @@ automation:
         entity_id:
           - sensor.carlo_xsmax_steps
           - sensor.paige_6s_steps
-          - sensor.steps_3
+          - sensor.stacey_6s_steps
         above: 5000
 
     action:
@@ -24,9 +24,9 @@ automation:
         data_template:
           tweet: >
             {{ [
-            "Somebody just hit {{ states('trigger.entity_id') }} steps on the #Fitbit!",
-            "Keep on moving.  Somebody just hit {{ states('trigger.entity_id') }} #Fitbit steps.",
-            "#Fitness Tracking at home BY the home. Somebody just hit {{ states('trigger.entity_id') }} #Fitbit steps"
+            "Somebody just hit {{ trigger.entity_id }} steps on the #Fitbit!",
+            "Keep on moving.  Somebody just hit {{ trigger.entity_id }} #Fitbit steps.",
+            "#Fitness Tracking at home BY the home. Somebody just hit {{ trigger.entity_id }}} #Fitbit steps"
             ] | random + " #Self #Data"}}
           image: >-
             {{ [
