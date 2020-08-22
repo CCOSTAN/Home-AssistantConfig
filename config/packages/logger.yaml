@@ -3,14 +3,7 @@
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 #-------------------------------------------
-homeassistant:
-  customize_glob:
-    "input_select.log_*":
-      icon: mdi:bug
 
-      
-
-#-------------------------------------------
 input_select:
   log_level:
     name: Log Level
@@ -24,7 +17,7 @@ input_select:
       - debug
       - notset
     initial: warn
-
+    icon: mdi:bug
 ###################################
 ##  Dynamically set the log levels without having to restart HASS or edit configuration.yaml
 #- Thanks @VDRainer
