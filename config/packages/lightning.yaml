@@ -3,6 +3,7 @@
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/392
+# https://www.vcloudinfo.com/2020/08/adding-a-lightning-sensor-to-home-assistant.html
 ###################################
 input_boolean:
   snooze_lightning:
@@ -82,14 +83,12 @@ automation:
             "Yikes! {{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) were way too close; ({{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} miles too close in fact).  Time to get everyone inside."
             ] | random +
             [
-            " #LightningCapital",
             " (https://github.com/CCOSTAN/Home-AssistantConfig/issues/392)",
-            " #Bot ",
-            " #Florida ",
-            " "
+            " Adding a Lightning Sensor to Home Assistant (https://www.vcloudinfo.com/2020/08/adding-a-lightning-sensor-to-home-assistant.html)",
             ] | random }}
           image: >-
             {{ [
+            "/config/www/custom_ui/floorplan/images/youtube/episodes/LightningSensor.png",
             "/config/www/custom_ui/floorplan/images/branding/lightning_1.png",
             "/config/www/custom_ui/floorplan/images/branding/lightning_2.png",
             "/config/www/custom_ui/floorplan/images/branding/lightning_3.png"
