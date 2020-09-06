@@ -1,0 +1,49 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Support for Blink Cameras (https://amzn.to/3lOYTCv)
+#-------------------------------------------
+
+##############################################################################
+###  Automations
+##############################################################################
+automation:
+  - alias: 'Fridge Temp Watch'
+    id: 2346efcd-e8a8-4e86-b5b6-43eBl1nkFr1dge95f
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.blink_blink1_temperature
+        above: 50
+        for:
+          minutes: 20
+      - platform: event
+        event_type: event_fridge_still_hot_loop
+
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.blink_blink1_temperature
+        above: 50
+
+    action:
+
+      - service: blink.blink_update
+
+      - service: script.notify_engine
+        data_template:
+          title: 'Check Fridge'
+          value1: "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} for about 20 minutes."
+          who: 'family'
+          apns_id: 'information'
+
+      - wait_template: "{{ states.group.family.state == 'home' }}"
+
+      - service: script.speech_engine
+        data_template:
+          value1: >
+            {{ [
+            "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} for about 20 minutes."
+            ] | random }}
+
+      - delay: 00:10:00
+      - event: event_fridge_still_hot_loop

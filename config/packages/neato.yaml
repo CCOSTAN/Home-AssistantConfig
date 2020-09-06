@@ -54,7 +54,7 @@ automation:
         entity_id: vacuum.carlo_neato
         to: 'error'
       - platform: event
-        event_type: event_did_someone_help_neato
+        event_type: event_did_someone_help_neato_loop
 
     condition:
         - condition: state
@@ -89,4 +89,4 @@ automation:
           apns_id: 'information'
 
       - delay: 00:20:00
-      - event: event_did_someone_help_neato
+      - event: event_did_someone_help_neato_loop
