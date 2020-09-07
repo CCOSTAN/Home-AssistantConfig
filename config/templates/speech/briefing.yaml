@@ -39,6 +39,10 @@
   There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our House.  Please make sure everyone is inside the house.
   {%- endmacro -%}
 
+  {%- macro fridge() -%}
+  The internal temperature of the refrigerator is currently {{ states('sensor.blink_blink1_temperature') }} degrees.
+  {%- endmacro -%}
+
   {%- macro light_check() -%}
   {% if states.group.all_lights.state != 'off' -%}
       There are
@@ -291,6 +295,10 @@
 
     {% if (states('sensor.blitzortung_lightning_counter')|int) > 0 %}
     {{ lightning() }}
+    {% endif %}
+
+    {% if (states('sensor.blink_blink1_temperature')|int) > 50 %}
+    {{ fridge() }}
     {% endif %}
 
     {{ DoorOpened }}
