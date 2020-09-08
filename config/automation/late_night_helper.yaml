@@ -49,3 +49,14 @@
         - light.fridge
         - light.living_room_slider
         - light.M1_front_right
+
+    # Only Disarm if armed.  Otherwise, Exit out.
+    - condition: state
+      entity_id: alarm_control_panel.alexa_guard
+      state:
+        - armed_away
+        - armed_home
+        - armed
+
+    - service: alarm_control_panel.alarm_disarm
+      entity_id: alarm_control_panel.alexa_guard
