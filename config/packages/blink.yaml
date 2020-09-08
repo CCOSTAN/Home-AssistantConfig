@@ -32,7 +32,7 @@ automation:
       - service: script.notify_engine
         data_template:
           title: 'Check Fridge'
-          value1: "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} for about 20 minutes."
+          value1: "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} degrees for at least 20 minutes."
           who: 'family'
           apns_id: 'information'
 
@@ -42,8 +42,8 @@ automation:
         data_template:
           value1: >
             {{ [
-            "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} for about 20 minutes."
+            "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} degrees for at least 20 minutes."
             ] | random }}
 
-      - delay: 00:10:00
+      - delay: 00:30:00
       - event: event_fridge_still_hot_loop
