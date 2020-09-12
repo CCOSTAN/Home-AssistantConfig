@@ -14,7 +14,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.blink_blink1_temperature
-        above: 50
+        above: 55
         for:
           minutes: 20
       - platform: event
@@ -23,7 +23,7 @@ automation:
     condition:
       - condition: numeric_state
         entity_id: sensor.blink_blink1_temperature
-        above: 50
+        above: 55
 
     action:
 
@@ -40,10 +40,8 @@ automation:
 
       - service: script.speech_engine
         data_template:
-          value1: >
-            {{ [
-            "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} degrees for at least 20 minutes."
-            ] | random }}
+          value1: "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} degrees for at least 20 minutes."
+          no_fridge: 1
 
       - delay: 00:30:00
       - event: event_fridge_still_hot_loop

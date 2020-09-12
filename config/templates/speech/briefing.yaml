@@ -297,7 +297,7 @@
     {{ lightning() }}
     {% endif %}
 
-    {% if (states('sensor.blink_blink1_temperature')|int) > 50 %}
+    {% if (states('sensor.blink_blink1_temperature')|int) > 50 and no_fridge != 1 %} 
     {{ fridge() }}
     {% endif %}
 
