@@ -1,3 +1,13 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# ESPHome YAML by Jeremy Shephard
+#-------------------------------------------
+######################################################################
+##  https://www.vcloudinfo.com/2020/09/home-assistant-smart-diy-basketball-backboard-project.html
+######################################################################
+
+
 esphome:
   name: bb_node
   platform: ESP8266
@@ -7,7 +17,7 @@ wifi:
   ssid: "********"
   password: "********"
 
-    
+
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Bb Node Fallback Hotspot"
@@ -28,45 +38,45 @@ sensor:
     name: Baskets
     id: basket
     icon: mdi:basketball-hoop-outline
-  
+
   - platform: template
     name: Swish
     id: swish
     icon: mdi:basketball
-      
+
   - platform: template
     name: Backboards
     id: backboard
     icon: mdi:basketball-hoop
-    
+
   - platform: template
     name: Previous Baskets
     id: last_basket
     icon: mdi:basketball-hoop-outline
-  
+
   - platform: template
     name: Previous Swishes
     id: last_swish
     icon: mdi:basketball
-      
+
   - platform: template
     name: Previous Backboards
     id: last_backboard
     icon: mdi:basketball-hoop
-    
+
 binary_sensor:
   - platform: gpio
     pin: D0
     name: "Vibration Sensor"
     id: bs
     filters:
-      - delayed_on: 50ms 
+      - delayed_on: 50ms
       - delayed_off: 2s
     on_press:
     - lambda: |-
           id(backboard_gbl) += 1;
           id(backboard).publish_state(id(backboard_gbl));
-      
+
     - if:
         condition:
           switch.is_on: bb_on_lights_off
@@ -80,7 +90,7 @@ binary_sensor:
             - delay: 3s
             - light.turn_off: bb_light
   - platform: gpio
-    pin: 
+    pin:
       number: D5
       inverted: True
     name: "Distance Sensor"
@@ -111,7 +121,7 @@ binary_sensor:
                 red: 100%
                 green: 0%
                 blue: 0%
-        
+
         - if:
             condition:
               binary_sensor.is_on: bs
@@ -134,7 +144,7 @@ binary_sensor:
                 red: 100%
                 green: 0%
                 blue: 0%
-        
+
     - if:
         condition:
           switch.is_on: bb_on_lights_off
@@ -152,7 +162,7 @@ binary_sensor:
                 call.perform();
             - delay: 5s
             - light.turn_off: bb_light
-      
+
         - if:
             condition:
               binary_sensor.is_on: bs
@@ -169,10 +179,10 @@ binary_sensor:
                 blue: 10%
             - delay: 3s
             - light.turn_off: bb_light
-      
-    
+
+
 light:
-        
+
   - platform: fastled_clockless
     chipset: WS2812
     name: "FastLED WS2811 Light"
@@ -219,19 +229,19 @@ light:
             - red: 0%
               green: 0%
               blue: 100%
-              num_leds: 20  
+              num_leds: 20
             - red: 0%
               green: 0%
               blue: 0%
-              num_leds: 10  
+              num_leds: 10
             - red: 0%
               green: 0%
               blue: 100%
-              num_leds: 40  
+              num_leds: 40
             - red: 0%
               green: 0%
               blue: 0%
-              num_leds: 10  
+              num_leds: 10
           add_led_interval: 32ms
           reverse: False
     - addressable_fireworks:
@@ -240,7 +250,7 @@ light:
           spark_probability: 80%
           use_random_color: true
           fade_out_rate: 50
-          
+
 switch:
   - platform: template
     name: Basketball Status Lights
@@ -264,7 +274,7 @@ switch:
           id(backboard).publish_state(id(backboard_gbl));
           id(basket).publish_state(id(basket_gbl));
           id(swish).publish_state(id(swish_gbl));
-    
+
   - platform: template
     name: Basketball Always Lights
     id: bb_on
@@ -279,7 +289,7 @@ switch:
         red: 100%
         green: 0%
         blue: 0%
-        
+
     turn_off_action:
     - switch.template.publish:
         id: bb_on
@@ -301,12 +311,12 @@ globals:
     type: int
     restore_value: no
     initial_value: '0'
-    
+
   - id: basket_gbl
     type: int
     restore_value: no
     initial_value: '0'
-    
+
   - id: swish_gbl
     type: int
     restore_value: no
