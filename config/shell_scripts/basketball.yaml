@@ -1,0 +1,313 @@
+esphome:
+  name: bb_node
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: "********"
+  password: "********"
+
+    
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Bb Node Fallback Hotspot"
+    password: "*******"
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+sensor:
+  - platform: template
+    name: Baskets
+    id: basket
+    icon: mdi:basketball-hoop-outline
+  
+  - platform: template
+    name: Swish
+    id: swish
+    icon: mdi:basketball
+      
+  - platform: template
+    name: Backboards
+    id: backboard
+    icon: mdi:basketball-hoop
+    
+  - platform: template
+    name: Previous Baskets
+    id: last_basket
+    icon: mdi:basketball-hoop-outline
+  
+  - platform: template
+    name: Previous Swishes
+    id: last_swish
+    icon: mdi:basketball
+      
+  - platform: template
+    name: Previous Backboards
+    id: last_backboard
+    icon: mdi:basketball-hoop
+    
+binary_sensor:
+  - platform: gpio
+    pin: D0
+    name: "Vibration Sensor"
+    id: bs
+    filters:
+      - delayed_on: 50ms 
+      - delayed_off: 2s
+    on_press:
+    - lambda: |-
+          id(backboard_gbl) += 1;
+          id(backboard).publish_state(id(backboard_gbl));
+      
+    - if:
+        condition:
+          switch.is_on: bb_on_lights_off
+        then:
+            - light.turn_on:
+                id: bb_light
+                brightness: 100%
+                red: 100%
+                green: 0%
+                blue: 0%
+            - delay: 3s
+            - light.turn_off: bb_light
+  - platform: gpio
+    pin: 
+      number: D5
+      inverted: True
+    name: "Distance Sensor"
+    id: ds
+    filters:
+      - delayed_off: 500ms
+    on_press:
+    - if:
+        condition:
+          switch.is_on: bb_on
+        then:
+        - if:
+            condition:
+              binary_sensor.is_off: bs
+            then:
+            - lambda: |-
+                id(swish_gbl) += 1;
+                id(swish).publish_state(id(swish_gbl));
+                auto call = id(bb_light).turn_on();
+                call.set_brightness(1.0);
+                call.set_effect("Strobe Effect With Custom Values");
+                call.perform();
+            - delay: 5s
+            - light.turn_off: bb_light
+            - light.turn_on:
+                id: bb_light
+                brightness: 60%
+                red: 100%
+                green: 0%
+                blue: 0%
+        
+        - if:
+            condition:
+              binary_sensor.is_on: bs
+            then:
+            - lambda: |-
+                id(basket_gbl) += 1;
+                id(backboard_gbl) -= 1;
+                id(basket).publish_state(id(basket_gbl));
+            - light.turn_on:
+                id: bb_light
+                brightness: 100%
+                red: 25%
+                green: 100%
+                blue: 0%
+            - delay: 3s
+            - light.turn_off: bb_light
+            - light.turn_on:
+                id: bb_light
+                brightness: 60%
+                red: 100%
+                green: 0%
+                blue: 0%
+        
+    - if:
+        condition:
+          switch.is_on: bb_on_lights_off
+        then:
+        - if:
+            condition:
+              binary_sensor.is_off: bs
+            then:
+            - lambda: |-
+                id(swish_gbl) += 1;
+                id(swish).publish_state(id(swish_gbl));
+                auto call = id(bb_light).turn_on();
+                call.set_brightness(1.0);
+                call.set_effect("Strobe Effect With Custom Values");
+                call.perform();
+            - delay: 5s
+            - light.turn_off: bb_light
+      
+        - if:
+            condition:
+              binary_sensor.is_on: bs
+            then:
+            - lambda: |-
+                id(basket_gbl) += 1;
+                id(backboard_gbl) -= 1;
+                id(basket).publish_state(id(basket_gbl));
+            - light.turn_on:
+                id: bb_light
+                brightness: 100%
+                red: 0%
+                green: 100%
+                blue: 10%
+            - delay: 3s
+            - light.turn_off: bb_light
+      
+    
+light:
+        
+  - platform: fastled_clockless
+    chipset: WS2812
+    name: "FastLED WS2811 Light"
+    pin: D2
+    num_leds: 150
+    rgb_order: GRB
+    id: bb_light
+    effects:
+    - addressable_scan:
+    - addressable_scan:
+          name: Scan Effect With Custom Values
+          move_interval: 30ms
+          scan_width: 20
+    - strobe:
+    - strobe:
+          name: Strobe Effect With Custom Values
+          colors:
+            - state: True
+              brightness: 100%
+              red: 0%
+              green: 0%
+              blue: 100%
+              duration: 500ms
+            - state: False
+              duration: 250ms
+            - state: True
+              brightness: 100%
+              red: 50%
+              green: 0%
+              blue: 100%
+              duration: 500ms
+    - addressable_color_wipe:
+    - addressable_color_wipe:
+          name: Color Wipe Effect With Custom Values
+          colors:
+            - red: 0%
+              green: 0%
+              blue: 100%
+              num_leds: 10
+            - red: 0%
+              green: 0%
+              blue: 0%
+              num_leds: 10
+            - red: 0%
+              green: 0%
+              blue: 100%
+              num_leds: 20  
+            - red: 0%
+              green: 0%
+              blue: 0%
+              num_leds: 10  
+            - red: 0%
+              green: 0%
+              blue: 100%
+              num_leds: 40  
+            - red: 0%
+              green: 0%
+              blue: 0%
+              num_leds: 10  
+          add_led_interval: 32ms
+          reverse: False
+    - addressable_fireworks:
+          name: Fireworks Effect With Custom Values
+          update_interval: 10ms
+          spark_probability: 80%
+          use_random_color: true
+          fade_out_rate: 50
+          
+switch:
+  - platform: template
+    name: Basketball Status Lights
+    id: bb_on_lights_off
+    icon: mdi:handball
+    turn_on_action:
+    - switch.template.publish:
+        id: bb_on_lights_off
+        state: ON
+    turn_off_action:
+    - switch.template.publish:
+        id: bb_on_lights_off
+        state: OFF
+    - lambda: |-
+          id(last_backboard).publish_state(id(backboard_gbl));
+          id(last_basket).publish_state(id(basket_gbl));
+          id(last_swish).publish_state(id(swish_gbl));
+          id(backboard_gbl) = 0;
+          id(basket_gbl) = 0;
+          id(swish_gbl) = 0;
+          id(backboard).publish_state(id(backboard_gbl));
+          id(basket).publish_state(id(basket_gbl));
+          id(swish).publish_state(id(swish_gbl));
+    
+  - platform: template
+    name: Basketball Always Lights
+    id: bb_on
+    icon: mdi:handball
+    turn_on_action:
+    - switch.template.publish:
+        id: bb_on
+        state: ON
+    - light.turn_on:
+        id: bb_light
+        brightness: 60%
+        red: 100%
+        green: 0%
+        blue: 0%
+        
+    turn_off_action:
+    - switch.template.publish:
+        id: bb_on
+        state: OFF
+    - light.turn_off: bb_light
+    - lambda: |-
+          id(last_backboard).publish_state(id(backboard_gbl));
+          id(last_basket).publish_state(id(basket_gbl));
+          id(last_swish).publish_state(id(swish_gbl));
+          id(backboard_gbl) = 0;
+          id(basket_gbl) = 0;
+          id(swish_gbl) = 0;
+          id(backboard).publish_state(id(backboard_gbl));
+          id(basket).publish_state(id(basket_gbl));
+          id(swish).publish_state(id(swish_gbl));
+
+globals:
+  - id: backboard_gbl
+    type: int
+    restore_value: no
+    initial_value: '0'
+    
+  - id: basket_gbl
+    type: int
+    restore_value: no
+    initial_value: '0'
+    
+  - id: swish_gbl
+    type: int
+    restore_value: no
+    initial_value: '0’
