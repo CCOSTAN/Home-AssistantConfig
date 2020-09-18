@@ -10,22 +10,34 @@
 automation:
   - alias: 'Vacuum -Tweet'
     id: 2346efcd-e8a8-4e86-b5b6-43e54a72a95f
+    mode: single
     trigger:
       - platform: state
         entity_id: vacuum.carlo_neato
         to: 'cleaning'
 
     condition:
-      - condition: template
-        value_template: "{{ states.vacuum.carlo_neato.attributes.battery_level |int < 20 }}"
 
-      - condition: template
-        value_template: >
-          {%- if states.automation.vacuum_tweet.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.vacuum_tweet.attributes.last_triggered)) > 15000 }}
-          {%- else -%}
-            true
-          {%- endif -%}
+      - condition: numeric_state
+        entity_id: vacuum.carlo_neato
+        attribute: battery_level
+        below: 20
+
+      - condition: numeric_state
+        entity_id: automation.vacuum_tweet
+        attribute: last_triggered
+        above: 15000
+
+      # - condition: template
+      #   value_template: "{{ states.vacuum.carlo_neato.attributes.battery_level |int < 20 }}"
+
+      # - condition: template
+      #   value_template: >
+      #     {%- if states.automation.vacuum_tweet.attributes.last_triggered -%}
+      #       {{ (as_timestamp(now()) - as_timestamp(states.automation.vacuum_tweet.attributes.last_triggered)) > 15000 }}
+      #     {%- else -%}
+      #       true
+      #     {%- endif -%}
 
     action:
       - service: script.tweet_engine_image
