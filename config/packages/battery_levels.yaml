@@ -17,7 +17,6 @@ sensor:
     sensors:
       low_battery:
         friendly_name: 'Low Battery'
-        entity_id: []
         value_template: >
           {%- set threshold = 15 -%}
           {%- set domains = ['light', 'switch', 'sensor', 'zwave', 'lock', 'binary_sensor'] -%}
