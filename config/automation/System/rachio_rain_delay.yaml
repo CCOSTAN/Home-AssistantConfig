@@ -4,7 +4,7 @@
 
 - alias: Rachio_Rain_Delay
   id: 55290018-b763-4739-873e-afb556b2b9be
-  
+
   trigger:
     - platform: numeric_state
       entity_id:
@@ -16,13 +16,18 @@
       above: 20
 
   condition:
-    - condition: template
-      value_template: >
-        {%- if states.automation.random_house_stats.attributes.last_triggered -%}
-          {{ (as_timestamp(now()) - as_timestamp(states.automation.rachio_rain_delay.attributes.last_triggered)) > 43200 }}
-        {%- else -%}
-          true
-        {%- endif -%}
+    - condition: numeric_state
+      entity_id: automation.random_house_stats
+      attribute: last_triggered
+      above: 43200
+    
+    # - condition: template
+    #   value_template: >
+    #     {%- if states.automation.random_house_stats.attributes.last_triggered -%}
+    #       {{ (as_timestamp(now()) - as_timestamp(states.automation.rachio_rain_delay.attributes.last_triggered)) > 43200 }}
+    #     {%- else -%}
+    #       true
+    #     {%- endif -%}
 
   action:
     - service: ifttt.trigger

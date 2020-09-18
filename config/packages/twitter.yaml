@@ -240,18 +240,24 @@ automation:
 
   - alias: 'Random House stats'
     id: b274a40d-cb67-4d6a-94d1-5fa685ae5ea4
+    mode: single
     trigger:
       - platform: time_pattern
         hours: '/2'
         minutes: 45
     condition:
-      - condition: template
-        value_template: >
-          {%- if states.automation.random_house_stats.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 10000 }}
-          {%- else -%}
-            true
-          {%- endif -%}
+      - condition: numeric_state
+        entity_id: automation.random_house_stats
+        attribute: last_triggered
+        above: 10000
+
+      # - condition: template
+      #   value_template: >
+      #     {%- if states.automation.random_house_stats.attributes.last_triggered -%}
+      #       {{ (as_timestamp(now()) - as_timestamp(states.automation.random_house_stats.attributes.last_triggered)) > 10000 }}
+      #     {%- else -%}
+      #       true
+      #     {%- endif -%}
     action:
       - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
       - service: script.tweet_engine_random
@@ -280,13 +286,18 @@ automation:
         hours: '/7'
         minutes: 18
     condition:
-      - condition: template
-        value_template: >
-          {%- if states.automation.random_youtube_videos_bearstone.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_youtube_videos_bearstone.attributes.last_triggered)) > 10000 }}
-          {%- else -%}
-            true
-          {%- endif -%}
+      - condition: numeric_state
+        entity_id: automation.random_youtube_videos_bearstone
+        attribute: last_triggered
+        above: 10000
+
+      # - condition: template
+      #   value_template: >
+      #     {%- if states.automation.random_youtube_videos_bearstone.attributes.last_triggered -%}
+      #       {{ (as_timestamp(now()) - as_timestamp(states.automation.random_youtube_videos_bearstone.attributes.last_triggered)) > 10000 }}
+      #     {%- else -%}
+      #       true
+      #     {%- endif -%}
     action:
       - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
       - service: script.tweet_youtube_engine_setup
@@ -295,19 +306,26 @@ automation:
 
   - alias: 'Random YouTube Videos CCostan'
     id: 3e8a4db0-165b-4e1b-acb0-ac4503525660
+    mode: single
 
     trigger:
       - platform: time_pattern
         hours: '/22'
         minutes: 45
+        
     condition:
-      - condition: template
-        value_template: >
-          {%- if states.automation.random_youtube_videos_ccostan.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.random_youtube_videos_ccostan.attributes.last_triggered)) > 10000 }}
-          {%- else -%}
-            true
-          {%- endif -%}
+      - condition: numeric_state
+        entity_id: automation.random_youtube_videos_ccostan
+        attribute: last_triggered
+        above: 10000
+
+      # - condition: template
+      #   value_template: >
+      #     {%- if states.automation.random_youtube_videos_ccostan.attributes.last_triggered -%}
+      #       {{ (as_timestamp(now()) - as_timestamp(states.automation.random_youtube_videos_ccostan.attributes.last_triggered)) > 10000 }}
+      #     {%- else -%}
+      #       true
+      #     {%- endif -%}
     action:
       - service: script.tweet_youtube_engine_setup
         data_template:
