@@ -1,10 +1,12 @@
-###################################
-##  cuckoo Clock simulation.
+#####################################################################
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ## Plays the number of cuckoos per hour and 1 on the half hour.
-###################################
+#####################################################################
 
 - alias: Cuckoo Clock
   id: 33dcd8e2-e87c-4d18-82bc-c7f9b53a1624
+  mode: restart
   trigger:
     - platform: time_pattern
       hours: '*'
@@ -16,22 +18,22 @@
     - condition: time
       after: '09:29:00'
       before: '21:30:00'
-    - condition: state
-      entity_id: group.family
-      state: 'home'
-    - condition: template
-      value_template: >
-        {% if is_state('media_player.livingroomCC', 'playing') %}
-          false
-        {% else %}
-          true
-        {% endif %}
+    - condition: or  #Either we are home or Guest_Mode is on.
+      conditions:
+        - condition: state
+          entity_id: group.family
+          state: 'home'
+        - condition: state
+          entity_id: input_boolean.guest_mode
+          state: 'on'
 
   action:
     - service: script.amp_settings
       data:
         media_player: 'media_player.livingroomcc'
         volume_level: 0.22
+
+    - wait_template: "{{ not is_state('media_player.livingroomCC', 'playing') }}"
 
     - service: media_player.play_media
       data_template:
