@@ -3,62 +3,10 @@
 # # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # Read more about this on https://www.vcloudinfo.com
+# Tesla Powerwall added via UI Integration
+# Tesla Powerwall Monitoring #272
 ######################################################################################################
 
-sensor:
-  - platform: rest
-    resource: https://192.168.10.90/api/system_status/grid_status
-    verify_ssl: false
-    method: GET
-    name: Grid Status
-    scan_interval: 60
-    value_template: "{{ value_json.grid_status == 'SystemGridConnected' }}"
-
-  - platform: rest
-    name: House now
-    resource: https://192.168.10.90/api/meters/aggregates
-    method: GET
-    verify_ssl: false
-    value_template: '{{ value_json.load.instant_power / 1000 | round(2) }}'
-    unit_of_measurement: kWh
-    device_class: power
-
-  - platform: rest
-    name: Grid now
-    resource: https://192.168.10.90/api/meters/aggregates
-    method: GET
-    verify_ssl: false
-    value_template: '{{ value_json.site.instant_power / 1000 | round(2) }}'
-    unit_of_measurement: kWh
-    device_class: power
-
-  - platform: rest
-    name: Solar now
-    resource: https://192.168.10.90/api/meters/aggregates
-    method: GET
-    verify_ssl: false
-    value_template: '{{ value_json.solar.instant_power / 1000 | round(2) }}'
-    unit_of_measurement: kWh
-    device_class: power
-
-  - platform: rest
-    name: PowerWall Battery now
-    resource: https://192.168.10.90/api/meters/aggregates
-    method: GET
-    verify_ssl: false
-    value_template: '{{ value_json.battery.instant_power / 1000 | round(2) }}'
-    unit_of_measurement: kWh
-    device_class: power
-
-  - platform: rest
-    name: PowerWall Battery Capacity
-    resource: https://192.168.10.90/api/system_status/soe
-    method: GET
-    verify_ssl: false
-    value_template: '{{ (value_json.percentage | float | round(0)) }}'
-    unit_of_measurement: '%'
-    scan_interval: 300
-    device_class: battery
 
 #-------------------------------------------
 # Located in the Grafana package.  Tweets out Solar Production Daily!
@@ -68,18 +16,18 @@ automation:
     id: 56a32121-5725-4510-a1fa-10f69a5c82ef
     trigger:
       - platform: state
-        entity_id: sensor.grid_status
+        entity_id: binary_sensor.grid_status
     condition:
       condition: or
       conditions:
         - condition: template
-          value_template: "{{ states('sensor.grid_status') == 'True' }}"
+          value_template: "{{ states('binary_sensor.grid_status') == 'on' }}"
         - condition: template
-          value_template: "{{ states('sensor.grid_status') == 'False' }}"
+          value_template: "{{ states('binary_sensor.grid_status') == 'off' }}"
     action:
       - service: script.notify_engine
         data_template:
-          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('on', 'up')|replace('off', 'down') }}."
           value1: "Please verify with the Tesla App."
           who: 'parents'
           apns_id: 'information'
@@ -90,7 +38,7 @@ automation:
     id: 37288a96-5f49-46c2-85c8-7e8794d23612
     trigger:
       - platform: state
-        entity_id: sensor.grid_status
+        entity_id: binary_sensor.grid_status
         from: 'True'
         to: 'False'
 
@@ -134,7 +82,7 @@ automation:
 
     trigger:
       - platform: state
-        entity_id: sensor.grid_status
+        entity_id: binary_sensor.grid_status
         from: 'True'
         to: 'False'
         for:
@@ -142,7 +90,7 @@ automation:
 
     condition:
       - condition: template
-        value_template: "{{ states('sensor.grid_status') == 'False' }}"
+        value_template: "{{ states('binary_sensor.grid_status') == 'off' }}"
 
     action:
       - service: climate.turn_off
@@ -163,7 +111,7 @@ automation:
 
     trigger:
       - platform: state
-        entity_id: sensor.grid_status
+        entity_id: binary_sensor.grid_status
         from: 'False'
         to: 'True'
         for:
@@ -171,7 +119,7 @@ automation:
 
     condition:
       - condition: template
-        value_template: "{{ states('sensor.grid_status') == 'True' }}"
+        value_template: "{{ states('binary_sensor.grid_status') == 'on' }}"
       - condition: or
         conditions:
           - condition: state

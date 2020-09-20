@@ -14,7 +14,7 @@
 
   condition:
     - condition: template
-      value_template: "{{ states('sensor.grid_status') == 'True' }}"
+      value_template: "{{ states('binary_sensor.grid_status') == 'on' }}"
 
   action:
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'

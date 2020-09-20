@@ -77,7 +77,6 @@ http:
   # login_attempts_threshold: 5
 
 frontend:
-  javascript_version: latest
 
 panel_custom:
   - name: floorplan
@@ -87,14 +86,6 @@ panel_custom:
     config:
       hide_app_toolbar:
       config: /local/custom_ui/floorplan/floorplan.yaml
-
-  - name: clock
-    sidebar_title: Alarm Clock
-    sidebar_icon: mdi:alarm
-    url_path: clock
-    config:
-      hide_app_toolbar:
-      config: /local/custom_ui/floorplan/floorclock.yaml
 
 discovery:
 
@@ -187,7 +178,7 @@ tts:
     voice: Joanna
     cache: True
 
-wink:
+# wink:
 homekit: !include homekit.yaml
 group: !include_dir_merge_named group
 device_tracker: !include_dir_merge_list device_tracker
