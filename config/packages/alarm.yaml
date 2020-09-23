@@ -300,19 +300,60 @@ automation:
           entity_id: group.bed
           state: 'off'
 
+#    action:
+      # - choose:
+      #     - conditions:
+      #         - condition: state
+      #           entity_id: group.entry_points
+      #           state: on
+      #
+      #       sequence:
+      #         - service: script.siren
+      #           data:
+      #             duration: 60
+      # - service: light.turn_on
+      #   entity_id: all
+
     action:
-      - service_template: >-
-          {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-            light.turn_on
-            entity_id:
-              - light.living_room_accents
-            color_name: 'red'
-          {% else %}
-            light.turn_on
-            entity_id:
-              - light.living_room_accents
-            color_name: 'gold'
-          {% endif %}
+      - choose:
+          - conditions: >
+              {{ states.group.entry_points.state == 'on' or
+                 states.group.garage_doors.state != 'closed' }}
+            sequence:
+              - service: scene.turn_on
+                entity_id: scene.Red_living_Room
+        default:
+          - service: scene.turn_on
+            entity_id: scene.tv_time
+
+
+      # - choose:
+      #     - conditions:
+      #         - condition: template
+      #           value_template: "{% states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}"
+      #       sequence:
+      #         - service: light.turn_on
+      #           entity_id: light.living_room_accents
+      #           color_name: 'red'
+      #
+        # default:
+        #   - service: light.turn_on
+        #     entity_id: light.living_room_accents
+        #     color_name: 'gold'
+
+  # - service_template: >-
+  #     {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
+  #       light.turn_on
+  #       entity_id:
+  #         - light.living_room_accents
+  #       color_name: 'red'
+  #     {% else %}
+  #       light.turn_on
+  #       entity_id:
+  #         - light.living_room_accents
+  #       color_name: 'gold'
+  #     {% endif %}
+
 
 #-------------------------------------------#---
   - alias: "Panel Door opened"
