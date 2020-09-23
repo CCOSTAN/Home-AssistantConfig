@@ -190,6 +190,7 @@
       "and one more thing, Change is inevitable.  Growth is optional. ",
       "and one more thing, dont worry, be happy. ",
       "and one more thing, There are far better things ahead of us than behind us. ",
+      "and one more thing, If you want to go fast, go alone but if you want to go far, go with others. ",
       "and one more thing, The key to success is to focus on goals not obstacles. ",
       "and one more thing, Sometimes we are tested not to show our weaknesses, but to discover our strengths. ",
       "and one more thing, Do something today that your future self will thank you for. ",
@@ -297,7 +298,7 @@
     {{ lightning() }}
     {% endif %}
 
-    {% if (states('sensor.blink_blink1_temperature')|int) > 50 and no_fridge != 1 %} 
+    {% if (states('sensor.blink_blink1_temperature')|int) > 50 and no_fridge != 1 %}
     {{ fridge() }}
     {% endif %}
 
