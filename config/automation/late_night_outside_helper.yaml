@@ -22,17 +22,16 @@
     - service: scene.turn_on
       entity_id: scene.front_full_brightness
 
-    - service: light.turn_on
-      entity_id:
-        - light.living_room_accents
-      data_template:
-        # Red if Open, Gold if Closed
-        color_name: >
-          {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          red
-          {% else %}
-          gold
-          {% endif %}
+    - choose:
+        - conditions: >
+            {{ states.group.entry_points.state == 'on' or
+               states.group.garage_doors.state != 'closed' }}
+          sequence:
+            - service: scene.turn_on
+              entity_id: scene.Red_living_Room
+      default:
+        - service: scene.turn_on
+          entity_id: scene.tv_time
 
     - service_template: >
        {% set hour=states("sensor.time").split(':')[0] | int %}
@@ -49,14 +48,13 @@
     - wait_template: >-
         {{ states.group.garage_doors.state == 'closed' }}
     - service: script.monthly_color_scene
-    - service: light.turn_on
-      entity_id:
-        - light.living_room_accents
-      data_template:
-        # Red if Open, Gold if Closed
-        color_name: >
-          {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-          red
-          {% else %}
-          gold
-          {% endif %}
+    - choose:
+        - conditions: >
+            {{ states.group.entry_points.state == 'on' or
+               states.group.garage_doors.state != 'closed' }}
+          sequence:
+            - service: scene.turn_on
+              entity_id: scene.Red_living_Room
+      default:
+        - service: scene.turn_on
+          entity_id: scene.tv_time

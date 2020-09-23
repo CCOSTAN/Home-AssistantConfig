@@ -326,21 +326,6 @@ automation:
           - service: scene.turn_on
             entity_id: scene.tv_time
 
-
-      # - choose:
-      #     - conditions:
-      #         - condition: template
-      #           value_template: "{% states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}"
-      #       sequence:
-      #         - service: light.turn_on
-      #           entity_id: light.living_room_accents
-      #           color_name: 'red'
-      #
-        # default:
-        #   - service: light.turn_on
-        #     entity_id: light.living_room_accents
-        #     color_name: 'gold'
-
   # - service_template: >-
   #     {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
   #       light.turn_on
