@@ -12,11 +12,11 @@
     - platform: state
       entity_id: group.family
       to: 'not_home'
-    - platform: event
-      #Sent from IFTTT Webhooks : {"action":"IFTTT_Away:}
-      event_type: ifttt_webhook_received
-      event_data:
-        action: IFTTT_Away
+    # - platform: event
+    #   #Sent from IFTTT Webhooks : {"action":"IFTTT_Away:}
+    #   event_type: ifttt_webhook_received
+    #   event_data:
+    #     action: IFTTT_Away
 
   condition:
     - condition: state
