@@ -12,7 +12,7 @@ tweet_engine_image:
    sequence:
     - service: mqtt.publish
       data:
-        topic: 'ifttt/message'
+        topic: 'twitter/message'
         payload: >-
           {{ tweet }}
         retain: true
@@ -34,7 +34,7 @@ tweet_engine_no_image:
    sequence:
     - service: mqtt.publish
       data:
-        topic: 'ifttt/message'
+        topic: 'twitter/message'
         payload: >-
           {{ tweet }}
         retain: true
@@ -282,14 +282,3 @@ tweet_engine_random:
            {%- else -%}
              {{ image(pick) }}
            {%- endif -%}
-
-
-    # - service: ifttt.trigger
-    #   data: {"event":"facebook_tweet", "value1":"{{ tweet }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
-
-    # - service: ifttt.trigger
-    #   data:
-    #     event: >-
-    #       facebook_tweet
-    #     value1: >
-    #         {{states.sensor.ifttt_formatted_message.state}} #IOT #SmartHome
