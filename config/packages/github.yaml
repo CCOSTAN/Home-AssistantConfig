@@ -73,11 +73,7 @@ automation:
                 trigger.json.action }} by {{trigger.json.sender.login}}
               {{trigger.json.issue.html_url}}
             {%- endif %}
-            {% set hashtags = [
-              " #Github",
-              " #SmartHomeCode"
-            ] %}
-            {{ phrases|random ~ " " ~ hashtags|random }}
+            #Github #SmartHomeCode
           image: >-
             {% set pictures = [
               "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
