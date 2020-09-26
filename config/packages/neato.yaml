@@ -41,7 +41,7 @@ automation:
 
     action:
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "#Neato returning to base. Vacuumed up a TON. (https://amzn.to/2CKHZya)",
@@ -77,7 +77,7 @@ automation:
       - wait_template: "{{ states.group.family.state == 'home' }}"
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: >
             {% set error =  states.vacuum.carlo_neato.attributes['status'] %}
             {{ [
@@ -91,7 +91,7 @@ automation:
         entity_id: vacuum.carlo_neato
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Help Neato'
           value1: "{{ states.vacuum.carlo_neato.attributes['status'] }}"
           who: 'family'

@@ -22,7 +22,7 @@ automation:
     action:
 
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: '{{trigger.event.data.title}} - {{trigger.event.data.link}}'
           image: >-
             {% set pictures = [

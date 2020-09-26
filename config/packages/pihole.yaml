@@ -15,7 +15,7 @@ automation:
     action:
       - delay: '00:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "I blocked {{states.sensor.pi_hole_ads_blocked_today.state}} ads. That is {{states.sensor.pi_hole_ads_percentage_blocked_today.state}}% of my internet traffic.",
@@ -37,7 +37,7 @@ automation:
     action:
       - delay: '0{{ (range(1, 5)|random|int) }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "There are currently {{states.sensor.pi_hole_dns_unique_clients.state}} clients on my network.",

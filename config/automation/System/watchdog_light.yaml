@@ -16,7 +16,7 @@
 #Turn it off!
   action:
     - service: homeassistant.turn_off
-      data_template:
+      data:
         entity_id: "{{ trigger.entity_id }}"
 
 - alias: Make it Right WatchDog!
@@ -33,7 +33,7 @@
 #Turn it off!
   action:
     - service: homeassistant.turn_off
-      data_template:
+      data:
         entity_id:
           - switch.front_landscaping
           - switch.back_landscaping

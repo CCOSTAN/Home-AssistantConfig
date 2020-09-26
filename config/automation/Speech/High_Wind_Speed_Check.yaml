@@ -18,7 +18,7 @@
 
   action:
     - service: script.notify_engine
-      data_template:
+      data:
         title: 'VERY HIGH WINDS:'
         value1:  >-
           {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
@@ -36,7 +36,7 @@
       entity_id: input_boolean.alert_mode
 
     - service: script.speech_engine
-      data_template:
+      data:
         value1: >
           {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
           {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
@@ -52,7 +52,7 @@
     - service: script.emergency
 
     - service: script.tweet_engine_no_image
-      data_template:
+      data:
         tweet: >
           {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
           {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}

@@ -108,7 +108,7 @@ automation:
         for: '00:02:30'
 
     action:
-    # - service_template: >
+    # - service: >
     #    {% set hour=states("sensor.time").split(':')[0] | int %}
     #    {% if hour >= 7 and hour <= 9 and states.input_boolean.school_mode.state == 'on'%}
     #      input_boolean.turn_off
@@ -118,7 +118,7 @@ automation:
     #   entity_id: input_boolean.alert_mode
 
       - service: script.speech_engine
-        data_template:
+        data:
           DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
           call_garage_check: 1
 
@@ -148,7 +148,7 @@ automation:
         entity_id: input_boolean.alert_mode
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Check/Close Garage Doors - High Speed Wind Alert:'
           value1: "Small: {{ states('cover.small_garage_door')}}"
           value2: "Large: {{ states('cover.large_garage_door')}}"
@@ -156,7 +156,7 @@ automation:
           who: 'parents'
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: >
             "The winds are picking up outside.  The wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.
             {% if is_state('cover.large_garage_door', 'open') -%}
@@ -168,7 +168,7 @@ automation:
             {% endif %}"
 
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "Wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, I'm going to close the @garadget doors.",
@@ -226,7 +226,7 @@ automation:
 
     action:
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Check Garage Doors:'
           value1: "Small: {{ states('cover.small_garage_door')}}"
           value2: "Large: {{ states('cover.large_garage_door')}}"
@@ -235,5 +235,5 @@ automation:
           apns_id: 'information'
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: "Please check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}}"

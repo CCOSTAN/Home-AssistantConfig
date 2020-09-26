@@ -11,19 +11,19 @@
 tweet_engine_image:
    sequence:
     - service: mqtt.publish
-      data_template:
+      data:
         topic: 'ifttt/message'
         payload: >-
           {{ tweet }}
         retain: true
 
-    - service_template: >
+    - service: >
           {% if who == 'ccostan' %}
             notify.ccostan
           {% else %}
             notify.bearstoneha
           {% endif %}
-      data_template:
+      data:
         message: >-
           {{ tweet }} #IOT #SmartHome
         data:
@@ -33,19 +33,19 @@ tweet_engine_image:
 tweet_engine_no_image:
    sequence:
     - service: mqtt.publish
-      data_template:
+      data:
         topic: 'ifttt/message'
         payload: >-
           {{ tweet }}
         retain: true
 
-    - service_template: >
+    - service: >
           {% if who == 'ccostan' %}
             notify.ccostan
           {% else %}
             notify.bearstoneha
           {% endif %}
-      data_template:
+      data:
         message: >-
           {{ tweet }} #IOT #SmartHome
 
@@ -53,7 +53,7 @@ tweet_engine_no_image:
 tweet_engine_random:
    sequence:
     - service: script.tweet_engine_image
-      data_template:
+      data:
         tweet: >-
           {%- macro tweet(topic) -%}
             {% set tweets = {
@@ -285,10 +285,10 @@ tweet_engine_random:
 
 
     # - service: ifttt.trigger
-    #   data_template: {"event":"facebook_tweet", "value1":"{{ tweet }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
+    #   data: {"event":"facebook_tweet", "value1":"{{ tweet }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
 
     # - service: ifttt.trigger
-    #   data_template:
+    #   data:
     #     event: >-
     #       facebook_tweet
     #     value1: >

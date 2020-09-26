@@ -92,5 +92,5 @@ automation:
   #Turn it back on!
     action:
       - service: homeassistant.turn_on
-        data_template:
+        data:
           entity_id: "{{ trigger.entity_id }}"

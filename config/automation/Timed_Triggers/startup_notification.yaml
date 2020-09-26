@@ -10,7 +10,7 @@
       event: start
   action:
     - service: script.notify_engine
-      data_template:
+      data:
         title: 'Home Assistant StartUp'
         value1: 'Home Assistant is Up and Running!'
         who: 'carlo'
@@ -33,7 +33,7 @@
         payload: "get-status"
 
     - service: group.set
-      data_template:
+      data:
         object_id: "arriving"
         entities: []
 

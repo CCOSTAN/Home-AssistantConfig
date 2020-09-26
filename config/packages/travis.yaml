@@ -31,7 +31,7 @@ automation:
 
     action:
       - service: script.notify_engine
-        data_template:
+        data:
           value1: 'Travis validation testing failed.'
           who: 'carlo'
           apns: 'information'

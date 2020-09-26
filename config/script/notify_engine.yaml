@@ -2,7 +2,7 @@
 ###Script to send notifications to IFTTT to notify me on the mobile Phone! Call like this:
   # action:
     # service: script.notify_engine
-    # data_template:
+    # data:
       # title: 'Ios Title'
       # value1: 'Startup: Home Assistant is Up and Running!'
       # value2: "{{ trigger.to_state.state }}"
@@ -26,9 +26,9 @@ notify_engine:
           entity_id: input_boolean.text_notifications
           state: 'on'
     # - service: ifttt.trigger
-    #   data_template: {"event":"notify_engine", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
+    #   data: {"event":"notify_engine", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
 
-    - service_template: >
+    - service: >
           {% if who == 'stacey' %}
             notify.mobile_app_stacey_6s
           {% elif who == 'carlo' %}
@@ -40,7 +40,7 @@ notify_engine:
           {% else %}
             notify.ios_family
           {% endif %}
-      data_template:
+      data:
         title: "{{ title }}"
         message: "{{ value1 }} {{ value2 }} {{ value3 }}"
         data:

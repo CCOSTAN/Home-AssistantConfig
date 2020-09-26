@@ -7,7 +7,7 @@
 amp_settings:
   sequence:
     - service: media_player.volume_set
-      data_template:
+      data:
         entity_id: >-
             {% if media_player | length == 0 %}
               {% set media_player = [

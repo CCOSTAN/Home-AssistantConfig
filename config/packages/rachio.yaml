@@ -28,13 +28,13 @@ automation:
 
     action:
       - service: mqtt.publish
-        data_template:
+        data:
           payload: '{{ states("sensor.date") }}'
           topic: 'ifttt/rachio/watering_time'
           retain: true
 
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "Just finished watering the lawn with @_Rachio.",

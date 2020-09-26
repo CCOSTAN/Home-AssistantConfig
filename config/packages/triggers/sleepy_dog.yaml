@@ -35,7 +35,7 @@ automation:
       - service: input_boolean.turn_off
         entity_id: input_boolean.sleepy_dog
       - service: script.speech_engine
-        data_template:
+        data:
           call_no_announcement: 1
           value1: >
             {{ [

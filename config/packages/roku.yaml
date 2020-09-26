@@ -52,7 +52,7 @@ automation:
           command: find_remote
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Living Room Remote'
           value1: 'Find Remote'
           ios_category: "REMOTELR"
@@ -74,7 +74,7 @@ automation:
         entity_id: input_boolean.living_room_remote_finder
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Living Room Remote'
           value1: 'Remote has been found.'
           who: "family"

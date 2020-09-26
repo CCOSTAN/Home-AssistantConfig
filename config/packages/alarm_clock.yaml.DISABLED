@@ -109,12 +109,12 @@ automation:
         state: 'home'
     action:
       - service: media_player.volume_set
-        data_template:
+        data:
           entity_id:
             - media_player.alarm_clock
           volume_level: 0.3
       - service: media_player.play_media
-        data_template:
+        data:
           entity_id:
             - media_player.alarm_clock
           #media_content_id: "http://listen.181fm.com/181-kickincountry_128k.mp3"

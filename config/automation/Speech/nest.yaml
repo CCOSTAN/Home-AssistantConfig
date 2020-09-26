@@ -19,6 +19,6 @@
 
   action:
     - service: script.speech_engine
-      data_template:
+      data:
         NestStatus: "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."
         call_window_check: 1

@@ -23,13 +23,13 @@
         message: "Took Medicine today."
 
     - service: mqtt.publish
-      data_template:
+      data:
         payload: '{{ states("sensor.date") }}'
         topic: 'dash/medicine/medicine_time'
         retain: true
 
     - service: script.notify_engine
-      data_template:
+      data:
         title: 'Medicine Reminder Completed'
         value1: 'Carlo Took Medicine today.'
         who: 'parents'

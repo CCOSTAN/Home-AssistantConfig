@@ -21,7 +21,7 @@ monthly_color_scene:
       state: 'below_horizon'
 
     - service: scene.turn_on
-      data_template:
+      data:
         entity_id: >
           scene.month_
           {%- if states.sensor.flag.state == "True" -%}

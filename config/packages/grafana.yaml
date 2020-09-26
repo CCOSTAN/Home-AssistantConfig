@@ -35,7 +35,7 @@ automation:
         offset: '+02:30:00'
     action:
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >-
             {{ [
             "I have just finished crunching the numbers and here is the latest #Solar Production graph. "

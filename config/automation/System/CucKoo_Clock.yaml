@@ -2,6 +2,7 @@
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ## Plays the number of cuckoos per hour and 1 on the half hour.
+# More Info and Video: https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html
 #####################################################################
 
 - alias: Cuckoo Clock
@@ -35,7 +36,7 @@
     - wait_template: "{{ not is_state('media_player.livingroomCC', 'playing') }}"
 
     - service: media_player.play_media
-      data_template:
+      data:
         entity_id: >
           {% if states.group.bed.state == 'off' %}
           media_player.livingroomCC

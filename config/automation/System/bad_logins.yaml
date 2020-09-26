@@ -10,7 +10,7 @@
 
   action:
     - service: script.notify_engine
-      data_template:
+      data:
         value1: 'Bad Login: '
         value2: 'There was a Hack attempt!'
         value3: 'Go Check the GUI for details.'
@@ -18,7 +18,7 @@
         apns_id: 'information'
 
     - service: script.tweet_engine_image
-      data_template:
+      data:
         tweet: >
           {{ [
           "Seriously, I am a Smart Home. I am logging your hack attempt.",

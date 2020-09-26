@@ -62,7 +62,7 @@
         kelvin: 5500
 
     - service: script.speech_engine
-      data_template:
+      data:
         value1: "It is getting a little dark inside the house because of the {{trigger.entity_id.split('_')[2]|replace('precip','rain')|replace('counter','lightning') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')}} outside.  I will turn on some extra lights in the living room."
         call_window_check: 1
         call_garage_check: 1

@@ -37,7 +37,7 @@ automation:
 
     action:
       - service: script.speech_engine
-        data_template:
+        data:
           value1: >
             {{ [
             "Attention please.  The Phyn unit has detected a possible leak.  Please verify there are no leaks in the house. "
@@ -45,7 +45,7 @@ automation:
           call_no_announcement: 1
 
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "The @Phyn has detected a {{ trigger.event.data.alert_type }} and notified us using Home Assistant. ",
@@ -61,7 +61,7 @@ automation:
          {{ states.sun.sun.state == 'above_horizon' }}
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Phyn Leak Detection'
           value1: 'Phyn is sensing {{ trigger.event.data.alert_type }} and turned off the water.  Please verify {{ trigger.event.data.where }}.'
           who: 'parents'
@@ -77,17 +77,17 @@ automation:
         actionName: PHYN_WATER_ON
     action:
       - service: ifttt.trigger
-        data_template: {"event":"phyn_water_on"}
+        data: {"event":"phyn_water_on"}
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Phyn Leak Detection'
           value1: 'Request Recieved. Attempting to Turn the Water back on.'
           who: 'parents'
           apns_id: 'IFTTT_Phyn'
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: >
             {{ [
             "I have been asked to Turn the House Water back on.  Please verify there are no leaks in the house. "

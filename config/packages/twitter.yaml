@@ -189,7 +189,7 @@ automation:
 
     action:
       - service: media_player.play_media
-        data_template:
+        data:
           entity_id:
             - media_player.livingroomCC
             - media_player.bedroom_alarm_panel
@@ -207,7 +207,7 @@ automation:
 
     action:
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >-
             {% set repo = trigger.event.data.repo %}
             {% set issue = trigger.event.data.issue %}
@@ -253,7 +253,7 @@ automation:
     action:
       - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
       - service: script.tweet_engine_random
-        data_template:
+        data:
           pick: >-
             {% set pick = [
               "solar",
@@ -293,7 +293,7 @@ automation:
     action:
       - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
       - service: script.tweet_youtube_engine_setup
-        data_template:
+        data:
           pick: !include ../templates/speech/youtube_picker.yaml
 
   - alias: 'Random YouTube Videos CCostan'
@@ -320,6 +320,6 @@ automation:
       #     {%- endif -%}
     action:
       - service: script.tweet_youtube_engine_setup
-        data_template:
+        data:
           who: 'ccostan'
           pick: !include ../templates/speech/youtube_picker.yaml

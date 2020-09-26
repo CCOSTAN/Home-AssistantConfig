@@ -14,7 +14,7 @@
 
   action:
     - service: script.speech_engine
-      data_template:
+      data:
         value1: >
           {{ [
           "Guest Mode has been enabled for the rest of the day.",
@@ -54,7 +54,7 @@
       entity_id:
         - input_boolean.guest_mode
     - service: script.speech_engine
-      data_template:
+      data:
         value1: >
           {{ [
           "Guest Mode has been disabled and normal automations will continue.",

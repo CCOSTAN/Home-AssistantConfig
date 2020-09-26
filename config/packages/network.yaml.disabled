@@ -148,11 +148,11 @@ automation:
 
     action:
       - service: script.notify_engine
-        data_template:
+        data:
           value1: 'Offline Devices:'
           value3: "{{ states.sensor.network_detail.state }}"
           who: 'carlo'
 
       # - service: script.speech_engine
-      #   data_template:
+      #   data:
       #     value1: "The following Devices are in an Offline state {{ trigger.to_state.state }}"

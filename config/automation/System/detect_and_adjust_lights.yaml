@@ -39,7 +39,7 @@
 
   action:
     - service: light.turn_on
-      data_template:
+      data:
         entity_id: "{{ trigger.event.data.entity_id }}"
         brightness: >
           {% set hour=states("sensor.time").split(':')[0] | int %}

@@ -19,7 +19,7 @@
   action:
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'
     - service: script.tweet_engine_image
-      data_template:
+      data:
         tweet: >-
           {{ [
           "Right before sunset, I turn on the outdoor lights.",
@@ -65,7 +65,7 @@
     - service: light.turn_on
       entity_id:
         - light.outdoor_bathroom
-      data_template:
+      data:
         brightness: >
           {% if states.group.family.state == 'home' -%}
           10

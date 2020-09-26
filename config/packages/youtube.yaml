@@ -31,7 +31,7 @@ automation:
       - delay: '00:10:00'
       
       - service: script.tweet_engine_no_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "New Video! {{ states('sensor.vcloudinfo') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
@@ -41,7 +41,7 @@ automation:
       - delay: '00:10:00'
 
       - service: script.tweet_engine_no_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "New Video! {{ states('sensor.vcloudinfo') }} - {{ state_attr('sensor.vcloudinfo','url') }} "

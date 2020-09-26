@@ -40,5 +40,5 @@
 
   action:
     - service: switch.turn_off
-      data_template:
+      data:
         entity_id: "{{ trigger.entity_id }}"

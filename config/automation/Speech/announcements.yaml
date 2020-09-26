@@ -19,7 +19,7 @@
   action:
     # This Group is defined in the groups directory.
     - service: group.set
-      data_template:
+      data:
         object_id: "arriving"
         add_entities: >-
           {{ trigger.to_state.entity_id }}
@@ -32,7 +32,7 @@
 
     - delay: '00:01:00'
     - service: script.speech_engine
-      data_template:
+      data:
 #         {% set person = state_attr(trigger.entity_id, "friendly_name")%}      This is another way to do it.
 #         {% set person = trigger.entity_id.split('.')[1]|replace('_', ' ')%}
         personarriving: >
@@ -81,7 +81,7 @@
         call_window_check: 1
 
     - service: group.set
-      data_template:
+      data:
         object_id: "arriving"
         entities: []
 

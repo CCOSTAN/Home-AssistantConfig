@@ -28,7 +28,7 @@ automation:
 
     action:
       - service: script.notify_engine
-        data_template:
+        data:
           value1: "The Garage charger is now in {{ states('sensor.carlojuice_charging_status') }} mode."
           who: 'parents'
           apns_id: 'information'
@@ -70,7 +70,7 @@ automation:
         entity_id: switch.juicebox_restart
 
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "The #JuiceBox Pro had to be restarted. It was unable to connect back to @emotorwerks servers.",
@@ -106,13 +106,13 @@ automation:
         entity_id: input_boolean.alert_mode
 
       - service: script.notify_engine
-        data_template:
+        data:
           value1: "The Juice Box Charger is pulling {{ states('sensor.carlojuice_amps') }} AMPs.  This is above the safety mark of 30.  Please unplug charger immediately."
           who: 'parents'
           apns_id: 'JuiceBox'
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: "The Juice Box Charger is pulling {{ states('sensor.carlojuice_amps') }} AMPs.  This is above the safety mark of 30.  Please unplug charger immediately."
 
       - delay: 00:02:00
@@ -140,13 +140,13 @@ automation:
         entity_id: input_boolean.alert_mode
 
       - service: script.notify_engine
-        data_template:
+        data:
           value1: "The Juice Box Charger is running very Hot.  Temperature is around {{ states('sensor.carlojuice_temperature') }} degrees.  This is above the safety mark of 140.  Please unplug the car immediately."
           who: 'parents'
           apns_id: 'JuiceBox'
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: "The Juice Box Charger is running very Hot.  Temperature is around {{ states('sensor.carlojuice_temperature') }} degrees.  This is above the safety mark of 140.  Please unplug the car immediately."
 
       - delay: 00:02:00
@@ -162,7 +162,7 @@ automation:
     action:
       - delay: '0{{ range(0,3) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "The #Chevy Bolt Charged for {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes and Juiced up {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs.",

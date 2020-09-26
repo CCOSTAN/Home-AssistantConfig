@@ -36,7 +36,7 @@ automation:
     action:
       - service: light.turn_on
         entity_id: light.justin_go
-        data_template:
+        data:
           color_name: >
             {% if states.sensor.bear_stone.state|int == 1 %}
               gold
@@ -48,7 +48,7 @@ automation:
               red
             {% endif %}
 
-      - service_template: >
+      - service: >
             {% if states.sensor.bear_stone.state|int > 0 %}
               light.turn_on
             {% else %}

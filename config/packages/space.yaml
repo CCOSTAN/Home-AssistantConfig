@@ -43,12 +43,12 @@ automation:
 
     action:
       - service: script.notify_engine
-        data_template:
+        data:
           value1: 'Go Outside!  There is a Rocket Launch very soon! {{states.sensor.next_launch.attributes.stream }}'
           apns_id: 'information'
 
       - service: script.tweet_engine_no_image
-        data_template:
+        data:
           tweet: >-
             {{ [
             "There is a Rocket launch happening right now!  I can see it if I look closely. {{states.sensor.next_launch.attributes.stream }}",
@@ -70,7 +70,7 @@ automation:
 
     action:
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >-
             {{ [
             "The ISS is above me right now!",
@@ -96,7 +96,7 @@ automation:
     action:
       - delay: '0{{ (range(1, 5)|random|int) }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >-
             {{ [
             "There is a Full Moon out tonight!",

@@ -58,7 +58,7 @@ automation:
 
     action:
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Lightning Warning!'
           value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Be careful if outdoors."
           ios_category: "LIGHTNING"
@@ -66,7 +66,7 @@ automation:
           apns_id: 'Alert'
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Please make sure everyone is inside the house."
           call_window_check: 1
           call_garage_check: 1
@@ -75,7 +75,7 @@ automation:
               minutes: 20
 
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "{{ states('sensor.blitzortung_lightning_counter') }} lightning strike(s) have been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.",

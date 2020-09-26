@@ -14,7 +14,7 @@
       to: 'True'
   action:
     - service: script.notify_engine
-      data_template:
+      data:
         value1: 'Changed IP address:'
         value2: "New IP: {{ states('sensor.exteral_ip') }}"
         value3: ' - Be sure to Change DNS!'
@@ -22,7 +22,7 @@
         apns_id: 'ip-change'
 
     - service: script.tweet_engine_no_image
-      data_template:
+      data:
         tweet: >
           {{ [
           "That's weird. Looks like my IP address changed. @CCostan, please check it out.",

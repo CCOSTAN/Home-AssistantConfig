@@ -8,7 +8,7 @@
 tweet_youtube_engine_setup:
    sequence:
     - service: script.tweet_engine_image
-      data_template:
+      data:
         who: '{{ who }}'
         tweet: >-
           {%- macro tweet(topic) -%}

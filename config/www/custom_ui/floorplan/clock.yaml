@@ -39,7 +39,7 @@ rules:
   - entity: media_player.alarm_clock
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "playing") ? "stop" : "radio_on"}.svg'
     action:
-      service_template: '${(entity.state === "playing") ? "media_player.media_stop" : "media_player.play_media"}'
+      service: '${(entity.state === "playing") ? "media_player.media_stop" : "media_player.play_media"}'
       data:
         media_content_id: http://listen.djcmedia.com:80/americascountryhigh
         media_content_type: audio/mp4

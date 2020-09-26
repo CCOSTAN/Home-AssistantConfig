@@ -160,7 +160,7 @@ automation:
 
       - delay: '0{{ (range(4, 8)|random|int) }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >
             {{ [
             "Today is {{ states.sensor.holiday.state }}. Time to adjust the outside light colors!",

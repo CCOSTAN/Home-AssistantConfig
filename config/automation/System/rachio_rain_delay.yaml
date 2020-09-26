@@ -31,10 +31,10 @@
 
   action:
     - service: ifttt.trigger
-      data_template: {"event":"Rachio_Rain_Delay"}
+      data: {"event":"Rachio_Rain_Delay"}
 
     - service: script.tweet_engine_image
-      data_template:
+      data:
         tweet: >
           {{ [
           "Looks like Rain, Pausing the @_Rachio for 24 hours. (https://github.com/CCOSTAN/Home-AssistantConfig#landscaping)",

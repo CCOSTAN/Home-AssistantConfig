@@ -22,7 +22,7 @@
         volume_level: 0.22
 
     - service: media_player.play_media
-      data_template:
+      data:
         entity_id: >
           {% if states.group.bed.state == 'off' %}
           media_player.livingroomCC

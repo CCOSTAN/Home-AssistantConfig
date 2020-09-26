@@ -27,12 +27,12 @@ automation:
         - wed
     action:
       - service: persistent_notification.create
-        data_template:
+        data:
           title: Low Ink
           message: "{{ trigger.to_state.attributes.friendly_name }} is at {{ trigger.to_state.state }} "
           notification_id: low-battery-alert
       - service: script.notify_engine
-        data_template:
+        data:
           value1: "{{ trigger.to_state.attributes.friendly_name }} is at {{ trigger.to_state.state }} "
           who: 'carlo'
           apns_id: 'information'

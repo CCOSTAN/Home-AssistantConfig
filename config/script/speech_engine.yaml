@@ -28,7 +28,7 @@ speech_engine:
           state: 'on'
 
     - service: script.speech_processing
-      data_template:
+      data:
         media_player: >-
             {% if media_player | length == 0 %}
               {% set media_player = [

@@ -32,7 +32,7 @@ automation:
 
     action:
       - service: script.speech_engine
-        data_template:
+        data:
           DoorLocked: "The {{ trigger.to_state.name }} is now {{ trigger.to_state.state }}."
 
   - alias: 'Door UnLocked Announcement'
@@ -46,5 +46,5 @@ automation:
 
     action:
       - service: script.speech_engine
-        data_template:
+        data:
           DoorUnLocked: "The {{ trigger.to_state.name }} has been {{ trigger.to_state.state }} for 10 minutes. I will lock it in 10 minutes if it is still unlocked."

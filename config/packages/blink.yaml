@@ -30,7 +30,7 @@ automation:
       - service: blink.blink_update
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: 'Check Fridge'
           value1: "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} degrees for at least 20 minutes."
           who: 'family'
@@ -39,7 +39,7 @@ automation:
       - wait_template: "{{ states.group.family.state == 'home' }}"
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} degrees for at least 20 minutes."
           no_fridge: 1
 

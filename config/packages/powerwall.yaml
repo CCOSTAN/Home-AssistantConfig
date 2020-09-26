@@ -26,7 +26,7 @@ automation:
           value_template: "{{ states('binary_sensor.grid_status') == 'off' }}"
     action:
       - service: script.notify_engine
-        data_template:
+        data:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('on', 'up')|replace('off', 'down') }}."
           value1: "Please verify with the Tesla App."
           who: 'parents'
@@ -48,7 +48,7 @@ automation:
          - group.interior_lights
          - group.exterior_lights
       - service: script.notify_engine
-        data_template:
+        data:
          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
          value1: "Taking actions to turning off the House Lights to preserve Battery Power."
          who: 'family'
@@ -62,7 +62,7 @@ automation:
          - group.exterior_lights
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: "Because of the Power Outage, the Lights will be recycled for 3 minutes.  Lights may turn on and off during this time."
 
       - delay:
@@ -73,7 +73,7 @@ automation:
           - group.exterior_lights
 
       - service: script.speech_engine
-        data_template:
+        data:
           value1: "Automatic light recycling has been completed.  Any abnormalities will have to be addressed in the Hue App most likely. "
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
@@ -100,7 +100,7 @@ automation:
            - climate.upstairs
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
           value1: "Taking actions to turning off the AC units to preserve Battery Power."
           who: 'family'
@@ -144,7 +144,7 @@ automation:
           preset_mode: eco
 
       - service: script.notify_engine
-        data_template:
+        data:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
           value1: "All AC systems are set back to normal operations."
           who: 'family'

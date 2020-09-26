@@ -13,11 +13,11 @@
         {{ not is_state('media_player.livingroomCC', 'playing') }}
 
     - service: script.speech_engine
-      data_template:
+      data:
         NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize {{trigger.event.data.host_name}} within Circle."
 
     - service: script.tweet_engine_no_image
-      data_template:
+      data:
         tweet: >
           {{ [
           "New Device on the Network! @MeetCircle has alerted me and now it is locked down.",

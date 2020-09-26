@@ -72,7 +72,7 @@ rules:
   - element: floorplan.save_alarm_time_button
     action:
       service: mqtt.publish
-      data_template: '{
+      data: '{
         "payload": "${(("0" + (parseInt((entities[`floorplan.hours`].state).slice(-2)) + 24) % 24)).slice(-2)}:${("0" + (((parseInt(entities[`floorplan.minutes`].state) / 5) * 5) % 60)).slice(-2)}",
         "topic": "clock/stacey_alarm_time",
         "retain": true
@@ -91,7 +91,7 @@ rules:
   - entity: media_player.alarm_clock
     image_template: '/local/custom_ui/floorplan/buttons/${(entity.state === "playing") ? "stop" : "radio_on"}.svg'
     action:
-      service_template: '${(entity.state === "playing") ? "media_player.media_stop" : "media_player.play_media"}'
+      service: '${(entity.state === "playing") ? "media_player.media_stop" : "media_player.play_media"}'
       data:
         media_content_id: http://listen.djcmedia.com:80/americascountryhigh
         media_content_type: audio/mp4

@@ -12,7 +12,7 @@ speech_processing:
   mode: queued
   sequence:
     - service: mqtt.publish
-      data_template:
+      data:
         topic: 'polly/lastmsg'
         payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | truncate(220)}}"
         retain: true
@@ -48,7 +48,7 @@ speech_processing:
       entity_id: switch.lr_amp
 
     - service: media_player.volume_set
-      data_template:
+      data:
         entity_id: >
           {{ media_player }}
         volume_level: >-
@@ -61,7 +61,7 @@ speech_processing:
           {% endif %}
 
     # - service: notify.alexa_media
-    #   data_template:
+    #   data:
     #     data:
     #       type: tts
     #     target: >
@@ -74,7 +74,7 @@ speech_processing:
     #         {{ speech_message }}
 
     - service: tts.amazon_polly_say
-      data_template:
+      data:
         entity_id: media_player.livingroomCC
         message: >-
           <speak>

@@ -33,7 +33,7 @@
         - service: scene.turn_on
           entity_id: scene.tv_time
 
-    - service_template: >
+    - service: >
        {% set hour=states("sensor.time").split(':')[0] | int %}
        {% if hour >= 5 and hour <= 9 and states.group.bed.state == 'on'%}
          switch.turn_off

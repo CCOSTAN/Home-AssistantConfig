@@ -20,10 +20,10 @@ automation:
 
     action:
       - service: ifttt.trigger
-        data_template:  {"event":"GitPost", "value2":"HACS - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}", "value1":"Update to HACS {{state_attr('sensor.hacs','repositories')}}: There is {{ states.sensor.hacs.state }} update."}
+        data:  {"event":"GitPost", "value2":"HACS - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}", "value1":"Update to HACS {{state_attr('sensor.hacs','repositories')}}: There is {{ states.sensor.hacs.state }} update."}
 
       - service: script.tweet_engine_image
-        data_template:
+        data:
           tweet: >-
             Hey @CCostan - There are {{ states.sensor.hacs.state }} updates to HACS components:
             {%- for repo in state_attr("sensor.hacs","repositories") -%}
