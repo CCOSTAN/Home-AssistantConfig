@@ -61,13 +61,13 @@ automation:
       webhook_id: !secret github_webhook
 
     condition:
-      - condition: numeric_state
-        entity_id: automation.closed_github_issue
-        attribute: last_triggered
-        above: 120
+      # - condition: numeric_state
+      #   entity_id: automation.closed_github_issue
+      #   attribute: last_triggered
+      #   above: 120
 
       - condition: template
-        value_template: '{{- trigger.json.action in ["created", "closed", "opened", "reopened"] }}'
+        value_template: '{{ trigger.json.action in ["created", "closed", "opened", "reopened"] }}'
 
     action:
       - service: script.tweet_engine_image
