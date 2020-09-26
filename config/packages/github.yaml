@@ -55,21 +55,19 @@ automation:
 
   - alias: 'Closed Github Issue'
     id: cccd9bef-17d9-48ae-87e3-6cf883712779
-    mode: queued
+    mode: single
     trigger:
       platform: webhook
       webhook_id: !secret github_webhook
 
     condition:
+      - condition: numeric_state
+        entity_id: automation.closed_github_issue
+        attribute: last_triggered
+        above: 120
+
       - condition: template
-        value_template: >-
-          {%- if trigger.json.action == "created" or "closed" or "opened" or "reopened" %}
-            True
-          {%- elif trigger.json.action != "edited" or "labeled" or "unlabeled" or "pinned" or "unpinned" %}
-            False
-          {%- else -%}
-            False
-          {%- endif -%}
+        value_template: '{{- trigger.json.action in ["created", "closed", "opened", "reopened"] }}'
 
     action:
       - service: script.tweet_engine_image
