@@ -1,0 +1,89 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Read more about the house at https://vCloudInfo.com
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/813
+#-------------------------------------------
+
+#-------------------------------------------
+sensor:
+  - platform: travisci
+    api_key: !secret travisci_api
+    scan_interval: 2400
+    monitored_conditions:
+      - state
+#-------------------------------------------
+
+#automation:
+#Tweets pushed out to twitter.
+
+automation:
+  - alias: "Travis FAILURE Notification"
+    id: 326881a7-47ab-4897-a0c7-74ce290224de
+    mode: restart
+
+    trigger:
+      - platform: state
+        entity_id:
+         - sensor.ccostan_home_assistantconfig_state
+        to: 'failed'
+        for:
+          hours: 2
+
+    action:
+      - service: script.notify_engine
+        data:
+          value1: 'Travis validation testing failed.'
+          who: 'carlo'
+          apns: 'information'
+
+      - service: persistent_notification.create
+        data:
+          title: "Travis-CI FAILURE"
+          message: "Travis validation testing failed."
+          notification_id: "travis_failed"
+
+  - alias: 'Closed Github Issue'
+    id: cccd9bef-17d9-48ae-87e3-6cf883712779
+    mode: queued
+    trigger:
+      platform: webhook
+      webhook_id: !secret github_webhook
+
+    condition:
+      - condition: template
+        value_template: >-
+          {%- if trigger.json.action == "created" or "closed" or "opened" or "reopened" or trigger.json.ref %}
+            True
+          {%- else -%}
+            False
+          {%- endif -%}
+
+    action:
+      - service: script.tweet_engine_image
+        data:
+          tweet: >-
+            New Code Alert!
+            {%- if trigger.json.pull_request -%}
+                {{ trigger.json.pull_request.title }} - Pull Request #{{ trigger.json.pull_request.number}} {{
+                trigger.json.action}} by {{trigger.json.sender.login}}
+                {{trigger.json.pull_request.html_url}}
+            {%- elif trigger.json.issue -%}
+              {{ trigger.json.issue.title }} - Issue #{{ trigger.json.issue.number}} {{
+                trigger.json.action }} by {{trigger.json.sender.login}}
+              {{trigger.json.issue.html_url}}
+            {%- endif %}
+            {% set hashtags = [
+              " #Github",
+              " #SmartHomeCode"
+            ] %}
+            {{ phrases|random ~ " " ~ hashtags|random }}
+          image: >-
+            {% set pictures = [
+              "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
+              "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
+              "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
+              "/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png",
+              "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
+            ] %}
+            {{ pictures|random }}

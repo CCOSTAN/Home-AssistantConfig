@@ -196,40 +196,6 @@ automation:
           media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/twitter-chirp.mp3"
           media_content_type: audio/mp4
 
-  - alias: 'Closed Github Issue'
-    id: cccd9bef-17d9-48ae-87e3-6cf883712779
-    trigger:
-        platform: event
-        #Sent from IFTTT Webhooks : {"action":"closed_github", "repo":" {{RepositoryName}}", "issue":" {{IssueTitle}}","issueurl":" {{IssueURL}}"}
-        event_type: ifttt_webhook_received
-        event_data:
-          action: closed_github
-
-    action:
-      - service: script.tweet_engine_image
-        data:
-          tweet: >-
-            {% set repo = trigger.event.data.repo %}
-            {% set issue = trigger.event.data.issue %}
-            {% set issueurl = trigger.event.data.issueurl %}
-            {% set phrases = [
-              "New Code: " ~ issue ~ " " ~ issueurl
-            ] %}
-            {% set hashtags = [
-              "#Github",
-              "#SmartHomeCode"
-            ] %}
-            {{ phrases|random ~ " " ~ hashtags|random }}
-          image: >-
-            {% set pictures = [
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
-              "/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
-            ] %}
-            {{ pictures|random }}
-
   - alias: 'Random House stats'
     id: b274a40d-cb67-4d6a-94d1-5fa685ae5ea4
     mode: single
