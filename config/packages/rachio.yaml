@@ -6,47 +6,91 @@
 ######################################################################
 ##  [Rachio Sprinkler system](https://amzn.to/2eoPKBW) - Smart Sprinkler controller
 ######################################################################
-
-sensor:
-  - platform: mqtt
-    state_topic: "ifttt/rachio/watering_time"
-    name: "Rachio_watering_time"
+# 
+# sensor:
+#   - platform: mqtt
+#     state_topic: "ifttt/rachio/watering_time"
+#     name: "Rachio_watering_time"
 
 automation:
   ###################################
   ##  LOG IFTTT Stuff - Rachio
   ###################################
-  - alias: 'Log Sprinkler Activity'
-    id: eab41723-231d-4db6-ab22-d1658665639a
+  # - alias: 'Log Sprinkler Activity'
+  #   id: eab41723-231d-4db6-ab22-d1658665639a
+  #   mode: single
+  #
+  #   trigger:
+  #     - platform: event
+  #       #Sent from IFTTT Webhooks : {"action":"IFTTT_Rachio", "water_time":" {{DurationInMinutes}}"}
+  #       event_type: ifttt_webhook_received
+  #       event_data:
+  #         action: IFTTT_Rachio
+  #
+  #   action:
+  #     - service: mqtt.publish
+  #       data:
+  #         payload: '{{ states("sensor.date") }}'
+  #         topic: 'ifttt/rachio/watering_time'
+  #         retain: true
+  #
+  #     - service: script.tweet_engine_image
+  #       data:
+  #         tweet: >
+  #           {{ [
+  #           "Just finished watering the lawn with @_Rachio.",
+  #           "The lawn looked thirsty so I watered it.",
+  #           "My lawn looks great and we definately do not water it nearly as much as everyone else. (https://amzn.to/2eoPKBW)",
+  #           "No rain in the forecast? @_Rachio knows & chose to water the lawn.",
+  #           ".@CCostan does not even think about watering the lawn. Me and @_Rachio take care of that.",
+  #           "Unfortunately, my Rachio Sprinkler system has cloud dependancies. Nimbus and Cumulus to be exact! Time to Water!"
+  #           ] | random + " #SavingWater"}}
+  #         image: >-
+  #           {{ [
+  #           "/config/www/custom_ui/floorplan/images/branding/sprinkler.png",
+  #           "/config/www/custom_ui/floorplan/images/branding/sprinkler2.png",
+  #           "/config/www/custom_ui/floorplan/images/branding/sprinkler3.png"
+  #           ] | random }}
+
+  - alias: Rachio_Rain_Delay
+    id: 55290018-b763-4739-873e-afb556b2b9be
+    mode: single
 
     trigger:
-      - platform: event
-        #Sent from IFTTT Webhooks : {"action":"IFTTT_Rachio", "water_time":" {{DurationInMinutes}}"}
-        event_type: ifttt_webhook_received
-        event_data:
-          action: IFTTT_Rachio
+      - platform: numeric_state
+        entity_id:
+          - sensor.dark_sky_precip_intensity_max
+          - sensor.dark_sky_precip_intensity
+        above: 0.5
+      - platform: numeric_state
+        entity_id: sensor.dark_sky_wind_speed
+        above: 20
+
+    condition:
+
+      - condition: template
+        value_template: >
+          {%- if states.automation.random_house_stats.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.rachio_rain_delay.attributes.last_triggered)) > 43200 }}
+          {%- else -%}
+            true
+          {%- endif -%}
 
     action:
-      - service: mqtt.publish
-        data:
-          payload: '{{ states("sensor.date") }}'
-          topic: 'ifttt/rachio/watering_time'
-          retain: true
 
       - service: script.tweet_engine_image
         data:
           tweet: >
             {{ [
-            "Just finished watering the lawn with @_Rachio.",
-            "The lawn looked thirsty so I watered it.",
-            "My lawn looks great and we definately do not water it nearly as much as everyone else. (https://amzn.to/2eoPKBW)",
-            "No rain in the forecast? @_Rachio knows & chose to water the lawn.",
-            ".@CCostan does not even think about watering the lawn. Me and @_Rachio take care of that.",
-            "Unfortunately, my Rachio Sprinkler system has cloud dependancies. Nimbus and Cumulus to be exact! Time to Water!" 
+            "Looks like Rain, Pausing the @_Rachio for 24 hours. (https://github.com/CCOSTAN/Home-AssistantConfig#landscaping)",
+            "Since it is going to rain tomorrow, I will just pause @_Rachio for 24 hours.",
+            "No reason to water the grass if it is going to rain tomorrow. pausing @_Rachio for 24 hours.",
+            "Mother Nature is watering the grass today so I can pause @_Rachio for 24 hours."
             ] | random + " #SavingWater"}}
           image: >-
             {{ [
-            "/config/www/custom_ui/floorplan/images/branding/sprinkler.png",
-            "/config/www/custom_ui/floorplan/images/branding/sprinkler2.png",
-            "/config/www/custom_ui/floorplan/images/branding/sprinkler3.png"
+            "/config/www/custom_ui/floorplan/images/branding/hat.png",
+            "/config/www/custom_ui/floorplan/images/branding/rain.png",
+            "/config/www/custom_ui/floorplan/images/branding/rain2.png",
+            "/config/www/custom_ui/floorplan/images/branding/rain3.png"
             ] | random }}
