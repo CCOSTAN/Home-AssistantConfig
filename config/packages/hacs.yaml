@@ -5,6 +5,17 @@
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/797
 #-------------------------------------------
 
+#-------------------------------------------
+rest_command:
+  github_new_version_hacs:
+    url: https://api.github.com/repos/ccostan/Home-AssistantConfig/issues
+    method: POST
+    headers:
+      Authorization: !secret github_token
+    payload: '{"title":"HACS {{ repo }} Update Available","body":"{{ message }}"}'
+#-------------------------------------------
+
+
 automation:
   - alias: HACS Component Update Notification
     id: e5266b0b-017f-4c69-83a3-357aaa03dbe2
@@ -19,8 +30,14 @@ automation:
         above: 0
 
     action:
-      - service: ifttt.trigger
-        data:  {"event":"GitPost", "value2":"HACS - {{ as_timestamp(now()) | timestamp_custom('%I:%M:%S %p %d%b%Y', true) }}", "value1":"Update to HACS {{state_attr('sensor.hacs','repositories')}}: There is {{ states.sensor.hacs.state }} update."}
+
+      - service: rest_command.github_new_version_hacs
+        data:
+          repo: 'There are {{ states.sensor.hacs.state }} updates to HACS components at {{ states("sensor.time") }}:'
+          message: >-
+            {%- for repo in state_attr("sensor.hacs","repositories") -%}
+            {{repo['display_name'] }} {{ repo['installed_version'] }} to {{ repo['available_version'] }}
+            {%- endfor %}
 
       - service: script.tweet_engine_image
         data:
