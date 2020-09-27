@@ -52,18 +52,13 @@ automation:
         for:
           minutes: 5
 
-      - condition: numeric_state
-        entity_id: automation.juicebox_selfheal
-        attribute: last_triggered
-        above: 10000
-
-      # - condition: template
-      #   value_template: >
-      #     {%- if states.automation.juicebox_selfheal.attributes.last_triggered -%}
-      #       {{ (as_timestamp(now()) - as_timestamp(states.automation.juicebox_selfheal.attributes.last_triggered)) > 10000 }}
-      #     {%- else -%}
-      #       true
-      #     {%- endif -%}
+      - condition: template
+        value_template: >
+          {%- if states.automation.juicebox_selfheal.attributes.last_triggered -%}
+            {{ (as_timestamp(now()) - as_timestamp(states.automation.juicebox_selfheal.attributes.last_triggered)) > 10000 }}
+          {%- else -%}
+            true
+          {%- endif -%}
 
     action:
       - service: homeassistant.turn_on
