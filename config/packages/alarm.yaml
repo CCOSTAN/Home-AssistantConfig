@@ -243,19 +243,23 @@ automation:
           entity_id: climate.downstairs
       - service: script.speech_engine
         data:
-          value1: >
+          value1: >-
+            {% set opening = state_attr(trigger.entity_id, "friendly_name")%}
+            {%- macro opening_sentence(opening) -%}
             {{ [
-            "The {{ trigger.to_state.attributes.friendly_name }} has been opened for about 5 minutes.  I will shut down the Air Conditioner so you can enjoy the fresh air.",
-            "Since the {{ trigger.to_state.attributes.friendly_name }} is still open, I will turn off the air conditioners until you close it",
-            "The {{ trigger.to_state.attributes.friendly_name }} has been left open, I will turn off the AC to save some money for you.",
-            "We cant have the Air Conditioning running AND have {{ trigger.to_state.attributes.friendly_name }} open so I will turn off the AC.",
-            "Since running the AC while {{ trigger.to_state.attributes.friendly_name }} is open, I will turn off the Air Conditioner.",
-            "Once the {{ trigger.to_state.attributes.friendly_name }} is closed, I will turn the Air Conditioner back on",
-            "So we dont waste money, I will turn off the AC until {{ trigger.to_state.attributes.friendly_name }} has been closed.",
-            "The {{ trigger.to_state.attributes.friendly_name }} is open and we are cooling the outside. I will fix that by turning off the AC for now.",
-            "The fresh Air from the {{ trigger.to_state.attributes.friendly_name }} is great so I will turn off the AC until it is closed again.",
-            "When Doors and windows are left open like the {{ trigger.to_state.attributes.friendly_name }}, I will remember to turn off the AC."
+            "The " ~ opening +" has been opened for about 5 minutes.  I will shut down the Air Conditioner so you can enjoy the fresh air.",
+            "Since the " ~ opening +" is still open, I will turn off the air conditioners until you close it",
+            "The " ~ opening +" has been left open, I will turn off the AC to save some money for you.",
+            "We cant have the Air Conditioning running AND have " ~ opening +" open so I will turn off the AC.",
+            "Since running the AC while " ~ opening +" is open, I will turn off the Air Conditioner.",
+            "Once the " ~ opening +" is closed, I will turn the Air Conditioner back on",
+            "So we dont waste money, I will turn off the AC until " ~ opening +" has been closed.",
+            "The " ~ opening +" is open and we are cooling the outside. I will fix that by turning off the AC for now.",
+            "The fresh Air from the " ~ opening +" is great so I will turn off the AC until it is closed again.",
+            "When Doors and windows are left open like the  " ~ opening +", I will remember to turn off the AC."
             ] | random }}
+            {%- endmacro -%}
+            {{opening_sentence(opening)}}
           call_outside_weather: 1
           call_inside_weather: 1
 #-------------------------------------------#-------------------------------------------

@@ -12,7 +12,7 @@ rest_command:
     method: POST
     headers:
       Authorization: !secret github_token
-    payload: '{"title":"HACS {{ repo }} Update Available","body":"{{ message }}"}'
+    payload: '{"title":"HACS {{ repo }}","body":"{{ message }}"}'
 #-------------------------------------------
 
 
