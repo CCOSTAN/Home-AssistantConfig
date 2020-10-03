@@ -43,7 +43,7 @@
     - service: input_boolean.turn_off
       entity_id: input_boolean.good_night
     - service: homeassistant.turn_off
-      entity_id: group.outdoor_xmas_lights
+      entity_id: group.outdoor_seasonal
     - service: script.interior_off
 
     - wait_template: "{{ states.media_player.master_bedroom.state == 'standby' }}"
