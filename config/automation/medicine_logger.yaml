@@ -2,6 +2,7 @@
 ##  LOG Medicine
 ###################################
 - alias: 'Log Medicine Activity'
+  mode: single
   id: 5e250206-029e-42fb-993f-fc3f04760de3
 
   trigger:
@@ -15,8 +16,6 @@
   action:
     - service: input_boolean.turn_on
       entity_id: input_boolean.medicine
-    - service: automation.turn_off
-      entity_id: automation.log_medicine_activity
     - service: logbook.log
       data:
         name: "Medicine Push"
@@ -36,5 +35,3 @@
         apns_id: 'Medicine'
     - delay:
         minutes: 1
-    - service: automation.turn_on
-      entity_id: automation.log_medicine_activity

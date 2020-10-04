@@ -8,18 +8,20 @@
 ######################################################################
 
 #-------------------------------------------
-august:
-  login_method: email
-  username: !secret august_username
-  password: !secret august_password
+# august:
+#   login_method: email
+#   username: !secret august_username
+#   password: !secret august_password
 
+# Moved Authentication to UI Integrations
 # Added to the LOCK group
 # Added a check lock routine to the Briefing.yaml - Will check locks whenever there is a speech event.
 
+######################################################################
+##  Door Lock Status Announcements - Only during normal hours.
+######################################################################
+
 automation:
-  ######################################################################
-  ##  Door Lock Status Announcements - Only during normal hours.
-  ######################################################################
   - alias: 'Door Locked Announcement'
     id: a4294b3b-51f3-4e32-8e71-b9ef865add3b
     trigger:
@@ -48,3 +50,18 @@ automation:
       - service: script.speech_engine
         data:
           DoorUnLocked: "The {{ trigger.to_state.name }} has been {{ trigger.to_state.state }} for 10 minutes. I will lock it in 10 minutes if it is still unlocked."
+
+  - alias: 'August Battery Monitor'
+    id: 82d6d09b-fba1-4320-8048-067043b490fc
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_door_battery
+        below: 25
+
+    action:
+      - service: script.notify_engine
+        data:
+          title: 'Low Battery'
+          value1: 'The August Door lock is at {{ states("sensor.front_door_battery") }}% '
+          apns_id: 'Battery_Alert'
