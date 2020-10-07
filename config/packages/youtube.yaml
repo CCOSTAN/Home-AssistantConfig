@@ -28,22 +28,26 @@ automation:
         value_template: "{{ trigger.from_state.state != trigger.to_state.state }}"
 
     action:
-      - delay: '00:10:00'
-      
-      - service: script.tweet_engine_no_image
-        data:
-          tweet: >
-            {{ [
-            "New Video! {{ states('sensor.vcloudinfo') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
-            ] | random }}
-          who: 'ccostan'
+      - repeat:
+          count: 1
+          sequence:
+            - delay: '00:03:00'
+            - service: script.tweet_engine_no_image
+              data:
+                tweet: >
+                  {{ [
+                  "New Video! {{ states('sensor.vcloudinfo') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
+                  ] | random }}
+                who: 'ccostan'
 
-      - delay: '00:10:00'
+            - delay: '00:10:00'
 
-      - service: script.tweet_engine_no_image
-        data:
-          tweet: >
-            {{ [
-            "New Video! {{ states('sensor.vcloudinfo') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
-            ] | random }}
-          who: 'BearStoneHA'
+            - service: script.tweet_engine_no_image
+              data:
+                tweet: >
+                  {{ [
+                  "New Video! {{ states('sensor.vcloudinfo') }} - {{ state_attr('sensor.vcloudinfo','url') }} "
+                  ] | random }}
+                who: 'BearStoneHA'
+
+            - delay: '12:30:00'
