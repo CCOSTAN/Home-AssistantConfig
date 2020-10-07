@@ -20,9 +20,9 @@ filter:
     - scene
     - light
   include_entities:
-    - camera.camera1
-    - camera.camera2
-    - camera.camera3
+    - camera.carlo_nvr_camera1
+    - camera.carlo_nvr_camera2
+    - camera.carlo_nvr_camera3
     - camera.front_door
     - light.bedroom
     - light.bedroom_lights
@@ -42,15 +42,15 @@ filter:
     - switch.lr_amp
   # exclude_entities:
 entity_config:
-  camera.camera1:
+  camera.carlo_nvr_camera1:
     linked_motion_sensor: binary_sensor.camera1_motion_sensor
     video_codec: copy
     stream_source: !secret camera1_stream
-  camera.camera2:
+  camera.carlo_nvr_camera2:
     linked_motion_sensor: binary_sensor.camera2_motion_sensor
     video_codec: copy
     stream_source: !secret camera2_stream
-  camera.camera3:
+  camera.carlo_nvr_camera3:
     linked_motion_sensor: binary_sensor.camera3_motion_sensor
     video_codec: copy
     stream_source: !secret camera3_stream

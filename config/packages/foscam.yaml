@@ -3,23 +3,6 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # More Info : https://www.vcloudinfo.com/2019/03/using-foscam-cameras-with-home-assistant-and-synology.html
 #-------------------------------------------
-# homeassistant:
-#   customize_glob:
-#     "*.*_sleep_hours":
-#       unit_of_measurement: hours
-#       icon: mdi:sleep
-#
-#
-#-------------------------------------------
-
-# camera:
-#   - platform: synology
-#     url: !secret synology_url
-#     username: !secret synology_username
-#     password: !secret synology_password
-#     timeout: 15
-#     verify_ssl: False
-
 
 binary_sensor:
   - platform: rest
