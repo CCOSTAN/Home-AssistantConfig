@@ -126,8 +126,8 @@ automation:
               {% endmacro %}
               {% macro getVersion() %}
               {{- [
-               " New @Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }}! Cannot wait for @CCostan to install! (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html) ",
-               " New @Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }} @CCostan! "
+               " New #Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }}! Cannot wait for @CCostan to install! (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html) ",
+               " New #Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }} @CCostan! "
                ] | random -}}
               {% endmacro %}
               {%- macro getRandomSnark() -%}
@@ -151,6 +151,10 @@ automation:
               " I feel like I have tweeted this a couple times before.  WHAT ARE YOU WAITING FOR?!?",
               " I will be turning off the AC until I get my upgrade! #Florida",
               " I promise this is the last one!",
+              " Upgrade or I turn off the AC.  #TryMe #Florida",
+              " The bits are sooo shiny!",
+              " This will be the GREATEST Upgrade EVER!",
+              " That New software smell is the best!",            
               " "
                ] | random -}}
               {%- endmacro -%}
