@@ -74,7 +74,7 @@ automation:
                 trigger.json.action}} by {{trigger.json.sender.login}}
                 {{trigger.json.pull_request.html_url}}
             {%- elif trigger.json.issue -%}
-              Issue Alert {{ trigger.json.issue.number}}: {{ trigger.json.issue.title }} - {{
+            {{ trigger.json.action }} Issue {{ trigger.json.issue.number}}: {{ trigger.json.issue.title }} - {{
                 trigger.json.action }} by {{trigger.json.sender.login}}
               {{trigger.json.issue.html_url}}
             {%- endif %}
