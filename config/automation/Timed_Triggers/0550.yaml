@@ -7,7 +7,7 @@
   mode: single
   trigger:
     - platform: time
-      at: '06:30:00'
+      at: '05:50:00'
 
   condition:
     - condition: state
@@ -28,3 +28,9 @@
     - service: homeassistant.turn_on
       entity_id:
         - group.kitchen_accents
+    - delay: 00:15:00
+    - service: homeassistant.turn_on
+      entity_id:
+        - light.sink
+        - light.fridge
+        - light.k4
