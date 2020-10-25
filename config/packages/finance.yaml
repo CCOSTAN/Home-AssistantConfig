@@ -1,28 +1,44 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Neato Support for D7 Connected Botvac - control my [Neato Vacuum](https://amzn.to/2kqnnqu) with Home Assistant.
+# Tracking stocks with Yahoo Finance Custom Component
+# https://www.vcloudinfo.com/2020/10/how-to-track-stocks-in-home-assistant-using-a-custom-component.html
 #-------------------------------------------
 
 sensor:
-  - platform: alpha_vantage
-    scan_interval: 2400
-    api_key: !secret vantage_api
+  - platform: yahoofinance
+    scan_interval:
+      hours: 4
     symbols:
-      - name: Tesla
-        currency: USD
-        symbol: TSLA
-      - name: VMware
-        currency: USD
-        symbol: VMW
-      - name: Amazon
-        currency: USD
-        symbol: AMZN
+      - TSLA
+      - VMW
+      - AMZN
 
   - platform: coinmarketcap
     currency_id: 1027
   - platform: coinmarketcap
     currency_id: 1
+
+
+# sensor:
+#   - platform: alpha_vantage
+#     scan_interval: 2400
+#     api_key: !secret vantage_api
+#     symbols:
+#       - name: Tesla
+#         currency: USD
+#         symbol: TSLA
+#       - name: VMware
+#         currency: USD
+#         symbol: VMW
+#       - name: Amazon
+#         currency: USD
+#         symbol: AMZN
+#
+#   - platform: coinmarketcap
+#     currency_id: 1027
+#   - platform: coinmarketcap
+#     currency_id: 1
 #-------------------------------------------
 
 ##############################################################################
