@@ -24,10 +24,9 @@ front_house_motion:
         value1: 'Motion has been detected by the front door.'
     - service: scene.turn_on
       entity_id: scene.front_full_brightness
-    - service: switch.turn_on
+    - service: homeassistant.turn_on
       entity_id:
-        - switch.back_landscaping
-        - switch.front_landscaping
+        - group.landscaping
     - service: light.turn_on
       data:
         entity_id:
