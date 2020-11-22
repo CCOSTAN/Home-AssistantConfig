@@ -1,0 +1,26 @@
+- id: '1606000509280'
+  alias: Tag Test1 is scanned
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 6d16ced7-9cb6-483a-b7ff-25aa11cb4f94
+  condition: []
+  action:
+  - type: toggle
+    device_id: 48391a44700b46bc8658dddda0bcee98
+    entity_id: light.sink
+    domain: light
+  mode: single
+- id: '1606000604096'
+  alias: Tag Test1 is scanned
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 6d16ced7-9cb6-483a-b7ff-25aa11cb4f94
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 48391a44700b46bc8658dddda0bcee98
+    entity_id: light.sink
+    domain: light
+  mode: single
