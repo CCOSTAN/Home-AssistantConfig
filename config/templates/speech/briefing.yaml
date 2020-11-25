@@ -161,14 +161,20 @@
       and don't forget, there are {{ states.sensor.fathers_countdown.state }} days until Fathers day!
   {%- elif states('sensor.easter_countdown') | int < 15  -%}
       and don't forget, there are {{ states.sensor.easter_countdown.state }} days until Easter Sunday!
-  {%- elif states('sensor.thanksgiving_day_countdown') | int < 10  -%}
-      and don't forget, there are {{ states.sensor.thanksgiving_day_countdown.state }} days until Thanksgiving!
-  {%- elif states('sensor.halloween_countdown') | int < 30  -%}
+  {%- elif states('sensor.thanksgiving_day_countdown') | int < 10 and states('sensor.thanksgiving_day_countdown') | int > 0  -%}
+      and don't forget, there are {{ states.sensor.thanksgiving_day_countdown.state }} days until Thanksgiving
+  {%- elif states('sensor.thanksgiving_day_countdown') | int < 1  -%}
+      and don't forget, Thanksgiving is tomorrow!
+  {%- elif states('sensor.halloween_countdown') | int < 30 and states('sensor.halloween_countdown') | int > 0 -%}
       and don't forget, there are {{ states.sensor.halloween_countdown.state }} Spooky days until Halloween!
+  {%- elif states('sensor.halloween_countdown') | int < 1  -%}
+      and don't forget, Tomorrow is Halloween!
   {%- elif states('sensor.chanukkah_countdown') | int < 15  -%}
       and don't forget, there are {{ states.sensor.chanukkah_countdown.state }} days until Chanukkah!
-  {%- elif states('sensor.christmas_countdown') | int < 30  -%}
+  {%- elif states('sensor.christmas_countdown') | int < 30 and states('sensor.christmas_countdown') | int > 0  -%}
       and don't forget, there are {{ states.sensor.christmas_countdown.state }} Merry days until Christmas!
+  {%- elif states('sensor.christmas_countdown') | int < 1  -%}
+      and don't forget, Santa Claus is coming tomorrow!
   {% endif %}
   {%- endmacro -%}
 
