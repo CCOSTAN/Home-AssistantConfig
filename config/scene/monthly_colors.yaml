@@ -269,9 +269,9 @@
 
 - name: month_thanksgiving_colors
   entities:
-       light.outdoor_front_lights:
-           state: 'on'
-           rgb_color: *orange
+     light.outdoor_front_lights:
+         state: 'on'
+         rgb_color: *orange
 
 
 - name: month_hanukkah_colors
@@ -282,9 +282,11 @@
       light.flood2:
           state: 'on'
           rgb_color: *blue
+      light.treeflood:
+          state: 'on'
+          rgb_color: *red
       light.front_door:
           state: 'on'
-
           rgb_color: *white
       light.outdoor_sconce_1:
           state: 'on'
@@ -311,11 +313,11 @@
 - name: month_christmas_colors
   entities:
       light.outdoor_foyer:
-        state: 'on'
-        rgb_color: *red
+          state: 'on'
+          rgb_color: *red
       light.treeflood:
-        state: 'on'
-        rgb_color: *red
+          state: 'on'
+          rgb_color: *red
       light.flood2:
           state: 'on'
           rgb_color: *green
