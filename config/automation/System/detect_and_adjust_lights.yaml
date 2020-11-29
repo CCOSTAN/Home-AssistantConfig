@@ -31,6 +31,12 @@
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.office' }}"
     - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.flood2' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.treeflood' }}"
+    - condition: template
+      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.led' }}"
+    - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[1] != 'screensaver' }}"
     - condition: template
       value_template: "{{ trigger.event.data.new_state.state == 'on' }}"
