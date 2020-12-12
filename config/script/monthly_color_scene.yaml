@@ -50,8 +50,7 @@ monthly_color_scene:
           fathers_day
           {%- elif states('sensor.memorial_day_countdown') | int < 3  -%}
           RWB
-          {%- elif now().strftime("%m%d")|int >= 704
-          and now().strftime("%m%d")|int <= 704-%}
+          {%- elif now().strftime("%m%d")|int == 704 -%}
           RWB
           {%- elif states('sensor.labor_day_countdown') | int < 3  -%}
           RWB
@@ -60,16 +59,14 @@ monthly_color_scene:
           halloween
           {%- elif states('sensor.thanksgiving_day_countdown') | int < 4  -%}
           thanksgiving
-          {%- elif states('sensor.chanukkah_countdown') | int < 10  -%}
+          {%- elif states('sensor.chanukkah_countdown') | int <= 1  -%}
           hanukkah
-          {%- elif states('sensor.christmas_countdown') | int < 30  -%}
+          {%- elif states('sensor.chanukkah_countdown') | int >= 357  -%}
+          hanukkah
+          {%- elif states('sensor.christmas_countdown') | int <= 25 -%}
           christmas
           {%- elif now().strftime("%m%d")|int == 1231 -%}
           new_years_day
           {%- else -%}
           standard
           {%- endif -%}_colors
-
-
-# http://www.calendar-365.com/holidays/2019.html
-# Updated for 2019
