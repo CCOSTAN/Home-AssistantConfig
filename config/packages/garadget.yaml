@@ -82,7 +82,7 @@ automation:
         data:
           topic: "garadget/GSmall/command"
           payload: "get-status"
-          
+
       - service: mqtt.publish
         data:
           topic: "garadget/GLarge/command"
@@ -90,6 +90,7 @@ automation:
 
   - alias: 'Garage Door State Change'
     id: afec0987-edb1-4341-a524-a00ae4df9fb7
+    mode: restart
     trigger:
       - platform: state
         entity_id:

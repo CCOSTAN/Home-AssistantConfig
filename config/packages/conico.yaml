@@ -1,0 +1,47 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Conico Cameras via Alexa Media Player
+#-------------------------------------------
+######################################################################
+##  Conico Camera - https://amzn.to/2Kl1eHo
+######################################################################
+
+
+######################################################################
+##  Show Camera on Echo Shows for 20 minutes after garage door opens.
+######################################################################
+
+automation:
+  - alias: 'Garage Camera on Alexa Shows'
+    id: 4373df2a-77f2-4e19-be7c-46c7b27ca583
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id:
+          - cover.large_garage_door
+          - cover.small_garage_door
+        from: 'closed'
+        to: 'open'
+
+    action:
+
+      - service: media_player.play_media
+        data:
+          entity_id:
+            - media_player.kitchen_show
+            - media_player.upstairs
+            - media_player.stacey_bedroom
+          media_content_id: 'show garage camera'
+          media_content_type: custom
+
+      - delay: '00:20:00'
+
+      - service: media_player.play_media
+        data:
+          entity_id:
+            - media_player.kitchen_show
+            - media_player.upstairs
+            - media_player.stacey_bedroom
+          media_content_id: 'hide garage camera'
+          media_content_type: custom
