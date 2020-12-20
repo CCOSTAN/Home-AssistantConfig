@@ -36,15 +36,13 @@ automation:
             sequence:
               - service: media_player.play_media
                 data:
-                  entity_id:
-                    - media_player.stacey_bedroom
+                  entity_id: media_player.stacey_bedroom
                   media_content_id: 'show garage camera'
                   media_content_type: custom
               - delay: '00:10:00'
               - service: media_player.play_media
                 data:
-                  entity_id:
-                    - media_player.stacey_bedroom
+                  entity_id: media_player.stacey_bedroom
                   media_content_id: 'hide garage camera'
                   media_content_type: custom
 
@@ -52,8 +50,7 @@ automation:
             sequence:
               - service: media_player.play_media
                 data:
-                  entity_id:
-                    - media_player.alarm_panel_1
+                  entity_id: media_player.alarm_panel_1
                   media_content_id: 'show garage camera'
                   media_content_type: custom
 
@@ -66,7 +63,6 @@ automation:
           - delay: '00:20:00'
           - service: media_player.play_media
             data:
-              entity_id:
-                - media_player.stacey_bedroom
+              entity_id: media_player.stacey_bedroom
               media_content_id: 'hide garage camera'
               media_content_type: custom
