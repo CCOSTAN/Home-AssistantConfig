@@ -24,16 +24,34 @@ automation:
         from: 'closed'
         to: 'open'
 
-    action:
+      - platform: state
+        entity_id: binary_sensor.mcu1_gpio12 #interior Garage Doors
+        from: 'off'
+        to: 'on'
 
+    action:
       - service: media_player.play_media
         data:
-          entity_id:
-            - media_player.kitchen_show
-            - media_player.upstairs
-            - media_player.stacey_bedroom
+          entity_id: media_player.kitchen_show
           media_content_id: 'show garage camera'
           media_content_type: custom
+
+      - choose:
+          - conditions: "{{ binary_sensor.sleepnumber_carlo_stacey_is_in_bed == 'on' }}"
+            sequence:
+              - service: media_player.play_media
+                data:
+                  entity_id:
+                    - media_player.stacey_bedroom
+                  media_content_id: 'show garage camera'
+                  media_content_type: custom
+
+        default:
+        - service: media_player.play_media
+          data:
+            entity_id: media_player.alarm_panel_1
+            media_content_id: 'show garage camera'
+            media_content_type: custom
 
       - delay: '00:20:00'
 
@@ -43,5 +61,6 @@ automation:
             - media_player.kitchen_show
             - media_player.upstairs
             - media_player.stacey_bedroom
+            - media_player.alarm_panel_1
           media_content_id: 'hide garage camera'
           media_content_type: custom
