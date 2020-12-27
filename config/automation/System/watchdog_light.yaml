@@ -31,6 +31,8 @@
 
 #Turn it off!
   action:
+    - service: script.garage_lights_off  # C by GE Lights  (https://amzn.to/30w3UWy)
+    
     - service: homeassistant.turn_off
       data:
         entity_id:
