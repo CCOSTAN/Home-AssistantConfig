@@ -9,6 +9,8 @@
     - platform: state
       entity_id: group.garage_doors
     - platform: state
+      entity_id: binary_sensor.mcu1_gpio5 #front door
+    - platform: state
       entity_id: sun.sun
       to: 'below_horizon'
       from: 'above_horizon'
@@ -45,8 +47,8 @@
         - switch.back_landscaping
         - switch.front_door_outlet
         - switch.foyer_outlet
-    - wait_template: >-
-        {{ states.group.garage_doors.state == 'closed' }}
+    - wait_template: "{{ is_state('states.group.entry_points.state', 'off') }}"
+    - wait_template: "{{ is_state( 'group.garage_doors', 'closed') }}"
     - service: script.monthly_color_scene
     - choose:
         - conditions: >
