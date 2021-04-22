@@ -2,7 +2,7 @@
 #  C by GE Lights - https://amzn.to/30w3UWy
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-#  These lights are only accessable via Alexa so going to use special Routines to control them. (Loosely)
+# Changing the way we call these routines.. no longer using routines.. using custom commands via ALEXA Media Player.
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/812
 #-------------------------------------------
 
@@ -18,8 +18,20 @@ script:
       - service: media_player.play_media
         data:
           entity_id: media_player.paige_room
-          media_content_id: paigelightoff
-          media_content_type: routine
+          media_content_id: 'turn off paige bed'
+          media_content_type: custom
+
+      # - service: media_player.play_media
+      #   data:
+      #     entity_id: media_player.paige_room
+      #     media_content_id: 'turn off paige light 1'
+      #     media_content_type: custom
+      #
+      # - service: media_player.play_media
+      #   data:
+      #     entity_id: media_player.paige_room
+      #     media_content_id: 'turn off paige light 2'
+      #     media_content_type: custom
 
   paige_lights_on:
     alias: 'Paige Lights On - Just Overhead'
@@ -33,8 +45,33 @@ script:
   garage_lights_off:
     alias: 'ALL Garage Lights Off'
     sequence:
+
       - service: media_player.play_media
         data:
           entity_id: media_player.kitchen_show
-          media_content_id: garagecbygeoff
-          media_content_type: routine
+          media_content_id: 'turn off c life 3'
+          media_content_type: custom
+
+      - delay: "00:01:30"
+
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.kitchen_show
+          media_content_id: 'turn off c life 4'
+          media_content_type: custom
+
+      - delay: "00:01:30"
+
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.kitchen_show
+          media_content_id: 'turn off c sleep 1'
+          media_content_type: custom
+
+      - delay: "00:01:30"
+
+      - service: media_player.play_media
+        data:
+          entity_id: media_player.kitchen_show
+          media_content_id: 'turn off c sleep 2'
+          media_content_type: custom

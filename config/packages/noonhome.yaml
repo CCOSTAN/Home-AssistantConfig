@@ -2,7 +2,7 @@
 #  Noon Home Switches and Lights - https://amzn.to/3fOIPx6
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-#  These lights are only accessable via Alexa so going to use special Routines to control them. (Loosely)
+# Changing the way we call these routines.. no longer using routines.. using custom commands via ALEXA Media Player.
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/366
 #-------------------------------------------
 
@@ -15,8 +15,9 @@ script:
   noon_lights_off:
     alias: 'Bathroom Noon Lights Off'
     sequence:
+
       - service: media_player.play_media
         data:
           entity_id: media_player.master_bathroom
-          media_content_id: noonoff
-          media_content_type: routine
+          media_content_id: 'turn off bathroom lights'
+          media_content_type: custom
