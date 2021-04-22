@@ -21,8 +21,10 @@
 - alias: Make it Right WatchDog!
   id: ddd4397e-951f-46f2-9362-3bff2caa9cf3
   trigger:
-    - platform: time_pattern
-      minutes: '/15'
+    - platform: homeassistant
+      event: start
+    - platform: sun
+      event: sunrise
 
   condition:
     - condition: state
@@ -32,7 +34,7 @@
 #Turn it off!
   action:
     - service: script.garage_lights_off  # C by GE Lights  (https://amzn.to/30w3UWy)
-    
+
     - service: homeassistant.turn_off
       data:
         entity_id:
