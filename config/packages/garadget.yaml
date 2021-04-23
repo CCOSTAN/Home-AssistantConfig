@@ -109,19 +109,22 @@ automation:
         for: '00:02:30'
 
     action:
-    # - service: >
-    #    {% set hour=states("sensor.time").split(':')[0] | int %}
-    #    {% if hour >= 7 and hour <= 9 and states.input_boolean.school_mode.state == 'on'%}
-    #      input_boolean.turn_off
-    #    {% else %}
-    #       input_boolean.turn_on
-    #    {% endif %}
-    #   entity_id: input_boolean.alert_mode
+      - choose:
+          - conditions: "{{ is_state('cover.large_garage_door','closed') }}"
+            sequence:
+              - service: script.speech_engine
+                data:
+                  DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
+                  call_garage_check: 1
+              - delay: "00:20:00"
+              - service: script.garage_lights_off
 
-      - service: script.speech_engine
-        data:
-          DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
-          call_garage_check: 1
+        default:
+          - service: script.speech_engine
+            data:
+              DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
+              call_garage_check: 1
+
 
   ###################################
   ## Garadget Wind Door Checks -  [Garadget](https://amzn.to/2jQLpVQ)
