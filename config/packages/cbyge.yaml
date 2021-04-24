@@ -17,21 +17,9 @@ script:
     sequence:
       - service: media_player.play_media
         data:
-          entity_id: media_player.paige_room
+          entity_id: media_player.tap
           media_content_id: 'turn off paige bed'
           media_content_type: custom
-
-      # - service: media_player.play_media
-      #   data:
-      #     entity_id: media_player.paige_room
-      #     media_content_id: 'turn off paige light 1'
-      #     media_content_type: custom
-      #
-      # - service: media_player.play_media
-      #   data:
-      #     entity_id: media_player.paige_room
-      #     media_content_id: 'turn off paige light 2'
-      #     media_content_type: custom
 
   paige_lights_on:
     alias: 'Paige Lights On - Just Overhead'
@@ -48,7 +36,7 @@ script:
 
       - service: media_player.play_media
         data:
-          entity_id: media_player.kitchen_show
+          entity_id: media_player.tap
           media_content_id: 'turn off c life 3'
           media_content_type: custom
 
@@ -56,7 +44,7 @@ script:
 
       - service: media_player.play_media
         data:
-          entity_id: media_player.kitchen_show
+          entity_id: media_player.tap
           media_content_id: 'turn off c life 4'
           media_content_type: custom
 
@@ -64,7 +52,7 @@ script:
 
       - service: media_player.play_media
         data:
-          entity_id: media_player.kitchen_show
+          entity_id: media_player.tap
           media_content_id: 'turn off c sleep 1'
           media_content_type: custom
 
@@ -72,6 +60,6 @@ script:
 
       - service: media_player.play_media
         data:
-          entity_id: media_player.kitchen_show
+          entity_id: media_player.tap
           media_content_id: 'turn off c sleep 2'
           media_content_type: custom

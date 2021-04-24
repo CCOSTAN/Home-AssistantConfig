@@ -10,6 +10,7 @@ default: info
 logs:
   aiohttp.access: critical
   aiohttp.server: critical
+  aiounifi: error
   custom_components.hacs: error
   hacs: error
   queueman: error
@@ -31,6 +32,9 @@ logs:
   homeassistant.components.sensor.rest: info
   homeassistant.components.sensor.darksky: warn
   homeassistant.components.tplink.switch: error
+  homeassistant.components.unifi: error
+  homeassistant.components.device_tracker.unifi: error
+  homeassistant.components.switch.unifi: error
   homeassistant.components.zwave: warn
   homeassistant.exceptions: info
   homeassistant.helpers.script: info
