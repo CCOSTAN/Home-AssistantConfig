@@ -288,10 +288,10 @@
     {% endif %}
 
     {# Called from Annoucenments #}
-    {{ personarriving }}
+    {{ personarriving | default }}
 
     {# Called from Nest when thermostats turn on #}
-    {{ NestStatus }}
+    {{ NestStatus | default }}
 
     {% if call_inside_weather == 1 %}
     {{ inside_weather() }}
@@ -309,13 +309,13 @@
     {{ fridge() }}
     {% endif %}
 
-    {{ DoorOpened }}
-    {{ DoorClosed }}
+    {{ DoorOpened | default }}
+    {{ DoorClosed | default }}
 
     {{ lock_check() }}
       {# These two lock statements are sent directly from automations. #}
-    {{ DoorLocked }}
-    {{ DoorUnLocked }}
+    {{ DoorLocked | default }}
+    {{ DoorUnLocked | default }}
 
     {% if call_dark_outside == 1 %}
     {{ dark_outside() }}
@@ -329,7 +329,7 @@
     {{ window_check() }}
     {% endif %}
 
-    {{ NewDevice }}
+    {{ NewDevice | default }}
 
     {% if call_light_check == 1 %}
     {{ light_check() }}
@@ -344,7 +344,7 @@
     {% endif %}
 
     {% if value1 is not none %}
-    {{ value1 }}
+    {{ value1 | default }}
     {% endif %}
 
     {# call a Random fact about the house or inspiration quote #}
