@@ -27,7 +27,7 @@ homeassistant:
      allow_bypass_login: true
  # - type: legacy_api_password
  #   api_password: !secret http_password
-
+network:
 system_health:
 
 #Note: The influxdb runs along side the HA DB.  It does not replace it.  influxdb is used to grab data for Grafana.
@@ -36,6 +36,7 @@ influxdb:
   database: home_assistant
 
 config:
+
 cloud:
   alexa:
     filter:
