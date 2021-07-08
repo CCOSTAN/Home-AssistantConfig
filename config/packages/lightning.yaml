@@ -72,7 +72,7 @@ automation:
           call_garage_check: 1
 
       - delay:
-              minutes: 20
+              minutes: 60
 
       - service: script.tweet_engine_image
         data:
@@ -95,4 +95,4 @@ automation:
             ] | random }}
 
       - delay:
-              minutes: 20
+              minutes: 60

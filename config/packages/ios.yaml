@@ -49,40 +49,6 @@ input_boolean:
     icon: mdi:tablet
 
 automation:
-  - alias: Tablet Already taken
-    id: 1f295bb8-8925-4b22-8f75-9fe079b295a8
-    trigger:
-      platform: event
-      event_type: ios.notification_action_fired
-      event_data:
-        actionName: TABLET_TAKEN
-    action:
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.medicine
-
-  - alias: Remind Me Later
-    id: 79b49c85-f832-47d7-b02d-bff099ef6fbc
-    trigger:
-      platform: event
-      event_type: ios.notification_action_fired
-      event_data:
-        actionName: NOT_HOME
-    action:
-      - service: script.notify_engine
-        data:
-          title: 'Medicine Reminder'
-          value1: 'Ok. I will remind you when you get home.'
-          who: 'carlo'
-          apns_id: 'Medicine'
-      - wait_template: >-
-          {{ states.person.carlo.state == 'home' }}
-      - service: script.notify_engine
-        data:
-          title: 'Medicine Reminder'
-          value1: 'Now that your home, please take your medicine!'
-          who: 'carlo'
-          apns_id: 'Medicine'
-
   - alias: Medicine Reminder
     id: 78c47087-8242-470c-97d1-3dc5747ed576
     initial_state: true
@@ -113,5 +79,43 @@ automation:
           ios_category: "tablet"
           who: "carlo"
           apns_id: 'Medicine'
+
+  - alias: Remind Me Later
+    id: 79b49c85-f832-47d7-b02d-bff099ef6fbc
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: NOT_HOME
+    action:
+      - service: script.notify_engine
+        data:
+          title: 'Medicine Reminder'
+          value1: 'Ok. I will remind you when you get home.'
+          who: 'carlo'
+          apns_id: 'Medicine'
+      - wait_template: >-
+          {{ states.person.carlo.state == 'home' }}
+      - service: script.notify_engine
+        data:
+          title: 'Medicine Reminder'
+          value1: 'Now that your home, please take your medicine!'
+          who: 'carlo'
+          apns_id: 'Medicine'
+
+  - alias: Tablet Already taken
+    id: 1f295bb8-8925-4b22-8f75-9fe079b295a8
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: TABLET_TAKEN
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.medicine
+
+
+
+
 
 ## Reminders to take my Medicine! - End.
