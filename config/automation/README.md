@@ -5,7 +5,11 @@
 </h1>
 <h4 align="center">Be sure to :star: my configuration repo so you can keep up to date on any daily progress!</h4>
 <div align="center">
+<<<<<<< HEAD
 <h4>
+=======
+  <h4>    
+>>>>>>> becdad9c550177798f86e1e6fd7b75eb38d0ea32
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/stargazers"><img src="https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/></a>
     <a href="https://github.com/CCOSTAN/Home-AssistantConfig/commits/master"><img src="https://img.shields.io/github/last-commit/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/></a>
   </h4>
