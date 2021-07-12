@@ -5,14 +5,13 @@
 # https://www.vcloudinfo.com/2020/10/how-to-track-stocks-in-home-assistant-using-a-custom-component.html
 #-------------------------------------------
 
-sensor:
-  - platform: yahoofinance
-    scan_interval:
-      hours: 4
-    symbols:
-      - TSLA
-      - VMW
-      - AMZN
+yahoofinance:
+  scan_interval:
+    hours: 4
+  symbols:
+    - TSLA
+    - VMW
+    - AMZN
 
 # sensor:
 #   - platform: alpha_vantage
