@@ -40,7 +40,13 @@ filter:
     - light.outdoor_pool_lights
     - light.upstairs_lights
     - switch.lr_amp
-  # exclude_entities:
+  exclude_entities:
+    - lock.spaceship_door_lock
+    - lock.spaceship_charger_door_lock
+    - lock.spaceship_trunk_lock
+    - lock.spaceship_frunk_lock
+    - climate.spaceship_hvac_climate_system
+    
 entity_config:
   camera.carlo_nvr_camera1:
     linked_motion_sensor: binary_sensor.camera1_motion_sensor
