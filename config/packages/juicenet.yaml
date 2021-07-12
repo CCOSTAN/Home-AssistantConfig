@@ -70,7 +70,7 @@ automation:
             {{ [
             "The #JuiceBox Pro had to be restarted. It was unable to connect back to @emotorwerks servers.",
             "Unfortunately, the Juicebox Pro sometimes can no longer connect to @emotorwerks servers.  Fortunately, #HomeAssistant can fix that with a restart!"
-            ] | random + " (https://www.vcloudinfo.com/2018/06/using-home-assistant-to-fix-my-juicebox.html) #SelfHeal #EV #BoltEV "}}
+            ] | random + " (https://www.vcloudinfo.com/2018/06/using-home-assistant-to-fix-my-juicebox.html) #SelfHeal #EV #Tesla #ModelY "}}
           image: >-
             {{ [
             "/config/www/custom_ui/floorplan/images/branding/car.png",
@@ -160,9 +160,9 @@ automation:
         data:
           tweet: >
             {{ [
-            "The #Chevy Bolt Charged for {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes and Juiced up {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs.",
+            "The #Tesla Model Y Charged for {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes and Juiced up {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs.",
             "The last charging session was {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes. Added {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs ",
-            "The Juice Box Pro added {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs to the #Chevy #BoltEV in {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes."
+            "The Juice Box Pro added {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs to the #Tesla #ModelY in {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes."
             ] | random + " (https://github.com/CCOSTAN/Home-AssistantConfig#garage) #Electric #Solar"}}
           image: >-
             {{ [
