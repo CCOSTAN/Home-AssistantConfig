@@ -19,8 +19,10 @@
     - service: homeassistant.update_entity
       entity_id: binary_sensor.updater
 
-    - service: light.turn_off
-      entity_id: light.hallway_lights
+    - service: homeassistant.turn_off
+      entity_id:
+        - light.hallway_lights
+        - switch.spaceship_update_switch
 
     - service: mqtt.publish
       data:
