@@ -52,7 +52,7 @@ You can definately read more about my voice implimentations in my blog posts (li
     </a>
   </h4>
 
-  **All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
+  **All of my configuration files are tested against the most stable version of home-assistant.**
 
   <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>
 
