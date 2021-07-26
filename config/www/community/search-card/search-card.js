@@ -39,6 +39,9 @@ class SearchCard extends ct.LitElement {
     this.search_text = this.config.search_text || "Type to search...";
 
     this.actions = BUILTIN_ACTIONS.concat(this.config.actions || []);
+
+    this.included_domains = this.config.included_domains;
+    this.excluded_domains = this.config.excluded_domains || [];
   }
 
   getCardSize() {
@@ -122,16 +125,22 @@ class SearchCard extends ct.LitElement {
       var searchRegex = new RegExp(searchText, 'i');
       for (var entity_id in this.hass.states) {
         if (
-            (entity_id.search(searchRegex) >= 0) ||
             (
-              "friendly_name" in this.hass.states[entity_id].attributes &&
-              this.hass.states[entity_id].attributes.friendly_name.search(searchRegex) >= 0
+              entity_id.search(searchRegex) >= 0 ||
+              this.hass.states[entity_id].attributes.friendly_name?.search(searchRegex) >= 0
+            ) 
+            && 
+            (
+              this.included_domains 
+                ? this.included_domains.includes(entity_id.split(".")[0])
+                : !this.excluded_domains.includes(entity_id.split(".")[0])
             )
           ) {
           this.results.push(entity_id);
         }
       }
     } catch (err) {
+      console.warn(err);
     }
 
     this.active_actions = this._getActivatedActions(searchText);
@@ -196,3 +205,11 @@ setTimeout(() => {
     setConfig() { throw new Error("Can't find card-tools. See https://github.com/thomasloven/lovelace-card-tools");}
   });
 }, 2000);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "search-card",
+  name: "Search Card",
+  preview: true,
+  description: "Card to search entities"
+});

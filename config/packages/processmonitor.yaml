@@ -50,9 +50,3 @@ automation:
           value1: 'Hard Drive Monitor:'
           value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
           who: 'carlo'
-
-      - service: persistent_notification.create
-        data:
-          title: "Hard Drive Monitor:"
-          message: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
-          notification_id: "Critical Alert"

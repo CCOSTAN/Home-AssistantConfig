@@ -16,11 +16,11 @@ homeassistant:
   customize:
 
     sensor.holiday:
-      
+
       icon: mdi:beach
       friendly_name: US Holiday
     sensor.flag:
-      
+
       icon: mdi:flag
       friendly_name: Flag Day
 
@@ -153,10 +153,6 @@ automation:
       - condition: template
         value_template: "{{ states.sensor.holiday.state | trim != '' }}"
     action:
-      - service: persistent_notification.create
-        data:
-          message: 'Today is {{ states.sensor.holiday.state }}.'
-          title: '{{ states.sensor.holiday.state }}'
 
       - delay: '0{{ (range(4, 8)|random|int) }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}'
       - service: script.tweet_engine_image

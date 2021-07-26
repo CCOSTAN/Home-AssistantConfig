@@ -51,3 +51,33 @@
 
     - service: homeassistant.turn_off
       entity_id: group.landscaping
+
+- alias: 'Bed Presence AMP Trigger'
+  id: 26846f7b-bc76-43d2-99be-af552d2300f
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      to: 'on'
+      id: "in_bed"
+    - platform: state
+      entity_id:
+        - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      to: 'off'
+      id: "out_of_bed"
+
+  action:
+    choose:
+      - alias: "Some One in Bed"
+        conditions: " {{ trigger.id == 'in_bed'}} "
+        sequence:
+          - service: homeassistant.turn_off
+            target:
+              entity_id: switch.lr_amp
+
+    default:
+      - service: homeassistant.turn_on
+        target:
+          entity_id: switch.lr_amp
