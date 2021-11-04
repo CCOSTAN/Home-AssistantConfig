@@ -6,22 +6,24 @@
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/764
 ######################################################################################################
 
+
+# Moved to UI
 # Reference : https://www.flexfireleds.com/pages/Comparison-between-3528-LEDs-and-5050-LEDs.html
-- platform: flux_led
-  automatic_add: True
-  devices:
-    192.168.10.30:
-      name: led_garage_snip
-      mode: "rgb"
-    192.168.10.31:
-      name: led_outdoor_den
-      mode: "rgb"
-    192.168.10.32:
-      name: led_garage_large
-      mode: "rgb"
-    192.168.10.33:
-      name: led_garage_small
-      mode: "rgb"
+# - platform: flux_led
+#   automatic_add: True
+#   devices:
+#     192.168.10.30:
+#       name: led_garage_snip
+#       mode: "rgb"
+#     192.168.10.31:
+#       name: led_outdoor_den
+#       mode: "rgb"
+#     192.168.10.32:
+#       name: led_garage_large
+#       mode: "rgb"
+#     192.168.10.33:
+#       name: led_garage_small
+#       mode: "rgb"
 
 - platform: group
   name: Kitchen Lights
@@ -115,7 +117,7 @@
     - light.led_outdoor_den
     - light.front_door
     - light.treeflood
-    - light.flood2
+    - light.flood_2
     - light.pathmiddle
 
 - platform: group
