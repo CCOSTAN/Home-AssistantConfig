@@ -20,7 +20,7 @@
   {% if now().strftime('%a') == 'Wed' %}
       Both Recycling and regular Garbage goes out. Please take out all of the garbage cans tonight.
   {% endif %}
-  {% if now().strftime('%j')|int % 2 != 0 %}
+  {% if now().strftime('%j')|int(9999)% 2 != 0 %}
       Today is Justin's day to do the chores.
   {% else %}
       Today is Paige's day to do the chores.
@@ -36,7 +36,7 @@
   {%- endmacro -%}
 
   {%- macro lightning() -%}
-  There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our House.  Please make sure everyone is inside the house.
+  There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int(9999)/ 1.69) | round (1, 'floor')}} Miles of our House.  Please make sure everyone is inside the house.
   {%- endmacro -%}
 
   {%- macro fridge() -%}
@@ -138,11 +138,11 @@
   {%- endmacro -%}
 
   {%- macro uv() -%}
-  {% if states.sensor.dark_sky_uv_index.state|int >= 6 and states.sensor.dark_sky_uv_index.state|int <= 7.9 %}
+  {% if states.sensor.dark_sky_uv_index.state|int(9999)>= 6 and states.sensor.dark_sky_uv_index.state|int(9999)<= 7.9 %}
       Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  You should wear sunscreen if going outside.
-  {% elif states.sensor.dark_sky_uv_index.state|int >= 8 and states.sensor.dark_sky_uv_index.state|int <=10.9 %}
+  {% elif states.sensor.dark_sky_uv_index.state|int(9999)>= 8 and states.sensor.dark_sky_uv_index.state|int(9999)<=10.9 %}
       Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  This is VERY HIGH. Be sure wear sunscreen and re-apply.
-  {% elif states.sensor.dark_sky_uv_index.state|int >= 11 %}
+  {% elif states.sensor.dark_sky_uv_index.state|int(9999)>= 11 %}
       Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  This is EXTREME. You should be very cautious going outside.
   {% endif %}
   {%- endmacro -%}
@@ -155,25 +155,25 @@
 
   {# YOUTUBE VIDEO ********* https://www.vcloudinfo.com/2019/11/adding-days-until-sensor-to-my-home-assistant-speech-routines.html #}
   {%- macro days_until() -%}
-  {%- if states('sensor.mothers_countdown') | int < 20  -%}
+  {%- if states('sensor.mothers_countdown') | int(9999)< 20  -%}
     and don't forget, there is only {{ states.sensor.mothers_countdown.state }} days until Mothers day!
-  {%- elif states('sensor.fathers_countdown') | int < 20  -%}
+  {%- elif states('sensor.fathers_countdown') | int(9999)< 20  -%}
       and don't forget, there are {{ states.sensor.fathers_countdown.state }} days until Fathers day!
-  {%- elif states('sensor.easter_countdown') | int < 15  -%}
+  {%- elif states('sensor.easter_countdown') | int(9999)< 15  -%}
       and don't forget, there are {{ states.sensor.easter_countdown.state }} days until Easter Sunday!
-  {%- elif states('sensor.thanksgiving_day_countdown') | int < 10 and states('sensor.thanksgiving_day_countdown') | int > 0  -%}
+  {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 10 and states('sensor.thanksgiving_day_countdown') | int(9999)> 0  -%}
       and don't forget, there are {{ states.sensor.thanksgiving_day_countdown.state }} days until Thanksgiving
-  {%- elif states('sensor.thanksgiving_day_countdown') | int < 1  -%}
+  {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 1  -%}
       and don't forget, Thanksgiving is tomorrow!
-  {%- elif states('sensor.halloween_countdown') | int < 30 and states('sensor.halloween_countdown') | int > 0 -%}
+  {%- elif states('sensor.halloween_countdown') | int(9999)< 30 and states('sensor.halloween_countdown') | int(9999)> 0 -%}
       and don't forget, there are {{ states.sensor.halloween_countdown.state }} Spooky days until Halloween!
-  {%- elif states('sensor.halloween_countdown') | int < 1  -%}
+  {%- elif states('sensor.halloween_countdown') | int(9999)< 1  -%}
       and don't forget, Tomorrow is Halloween!
-  {%- elif states('sensor.chanukkah_countdown') | int < 15  -%}
+  {%- elif states('sensor.chanukkah_countdown') | int(9999)< 15  -%}
       and don't forget, there are {{ states.sensor.chanukkah_countdown.state }} days until Chanukkah!
-  {%- elif states('sensor.christmas_countdown') | int < 30 and states('sensor.christmas_countdown') | int > 0  -%}
+  {%- elif states('sensor.christmas_countdown') | int(9999)< 30 and states('sensor.christmas_countdown') | int(9999)> 0  -%}
       and don't forget, there are {{ states.sensor.christmas_countdown.state }} Merry days until Christmas!
-  {%- elif states('sensor.christmas_countdown') | int < 1  -%}
+  {%- elif states('sensor.christmas_countdown') | int(9999)< 1  -%}
       and don't forget, Santa Claus is coming tomorrow!
   {% endif %}
   {%- endmacro -%}
@@ -281,9 +281,9 @@
   {%- macro mother_of_all_macros() -%}
 
     {% if call_no_announcement != 1 %}
-      {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
+      {% if now().strftime('%H')|int(9999)< 12 and now().strftime('%H')|int(9999)> 6 %}
           Good morning.
-      {% elif now().strftime('%H')|int >= 12 and now().strftime('%H')|int < 17 %}
+      {% elif now().strftime('%H')|int(9999)>= 12 and now().strftime('%H')|int(9999)< 17 %}
           Good afternoon.
       {% else %}
           Good evening.
@@ -342,7 +342,7 @@
     {{ responsibilities() }}
     {% endif %}
 
-    {% if now().strftime('%H')|int > 21 %}
+    {% if now().strftime('%H')|int(9999)> 21 %}
     {{ medicine() }}
     {% endif %}
 
