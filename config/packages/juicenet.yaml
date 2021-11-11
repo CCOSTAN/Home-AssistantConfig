@@ -54,8 +54,8 @@ automation:
 
       - condition: template
         value_template: >
-          {%- if states.automation.juicebox_selfheal.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.juicebox_selfheal.attributes.last_triggered)) > 10000 }}
+          {%- if state_attr('automation.juicebox_selfheal', 'last_triggered')-%}
+            {{ (as_timestamp(now()) - as_timestamp(state_attr('automation.juicebox_selfheal', 'last_triggered'))) > 10000 }}
           {%- else -%}
             true
           {%- endif -%}
