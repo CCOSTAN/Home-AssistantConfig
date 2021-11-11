@@ -304,11 +304,11 @@
     {{ outside_weather() }}
     {% endif %}
 
-    {% if (states('sensor.blitzortung_lightning_counter')|int) > 0 %}
+    {% if (states('sensor.blitzortung_lightning_counter')|int(0)) > 0 %}
     {{ lightning() }}
     {% endif %}
 
-    {% if (states('sensor.blink_blink1_temperature')|int) > 50 and no_fridge != 1 %}
+    {% if (states('sensor.blink_blink1_temperature')|int(0)) > 50 and no_fridge != 1 %}
     {{ fridge() }}
     {% endif %}
 
@@ -342,7 +342,7 @@
     {{ responsibilities() }}
     {% endif %}
 
-    {% if now().strftime('%H')|int(9999)> 21 %}
+    {% if now().strftime('%H')|int(0) > 21 %}
     {{ medicine() }}
     {% endif %}
 
