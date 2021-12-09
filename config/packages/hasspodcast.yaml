@@ -22,6 +22,11 @@ automation:
 
     action:
 
+      - service: persistent_notification.create
+        data:
+          message: '{{trigger.event.data.title}}'
+          title: '{{trigger.event.data.link}}'
+
       - service: script.tweet_engine_image
         data:
           tweet: '{{trigger.event.data.title}} - {{trigger.event.data.link}}'
