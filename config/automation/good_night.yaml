@@ -19,9 +19,13 @@
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
+    - condition: time
+      after: "15:00:00"
+      before: "04:00:00"
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
+
     - condition: or
       conditions:
         - condition: state
@@ -44,6 +48,7 @@
       entity_id: input_boolean.good_night
     - service: homeassistant.turn_off
       entity_id: group.outdoor_seasonal
+
     - service: script.interior_off
 
     - wait_template: "{{ states.media_player.master_bedroom.state == 'standby' }}"

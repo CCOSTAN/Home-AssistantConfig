@@ -61,8 +61,6 @@ monthly_color_scene:
           thanksgiving
           {%- elif states('sensor.chanukkah_countdown') | int <= 1  -%}
           hanukkah
-          {%- elif states('sensor.chanukkah_countdown') | int >= 357  -%}
-          hanukkah
           {%- elif states('sensor.christmas_countdown') | int <= 25 -%}
           christmas
           {%- elif now().strftime("%m%d")|int == 1231 -%}
