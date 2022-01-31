@@ -6,16 +6,18 @@
 # Publish on Facebook as well - https://www.facebook.com/vcloudinfo/
 # If you do end up using this package, please consider using one or two of the canned tweets that calls back to my main repo
 # so others can bring thier homes online as well.  I have an active search for #Randomstats that helps me find new HA homes using my package online.
+#
+# Disabled the MQTT section.  Used for troubleshooting only. 
 #-------------------------------------------
 
 tweet_engine_image:
    sequence:
-    - service: mqtt.publish
-      data:
-        topic: 'twitter/message'
-        payload: >-
-          {{ tweet }}
-        retain: true
+    # - service: mqtt.publish
+    #   data:
+    #     topic: 'twitter/message'
+    #     payload: >-
+    #       {{ tweet }}
+    #     retain: true
 
     - service: >
           {% if who == 'ccostan' %}
@@ -32,12 +34,12 @@ tweet_engine_image:
 
 tweet_engine_no_image:
    sequence:
-    - service: mqtt.publish
-      data:
-        topic: 'twitter/message'
-        payload: >-
-          {{ tweet }}
-        retain: true
+    # - service: mqtt.publish
+    #   data:
+    #     topic: 'twitter/message'
+    #     payload: >-
+    #       {{ tweet }}
+    #     retain: true
 
     - service: >
           {% if who == 'ccostan' %}
