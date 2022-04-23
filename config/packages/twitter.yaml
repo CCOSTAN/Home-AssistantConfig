@@ -38,14 +38,14 @@ sensor:
     unit_of_measurement: 'Lines'
     scan_interval: 20000
 
-  - platform: history_stats
-    name: Doorbell Presses
-    entity_id: binary_sensor.skybell_front_door_button
-    state: 'on'
-    type: count
-    end: '{{ now() }}'
-    duration:
-      hours: 24
+  # - platform: history_stats
+  #   name: Doorbell Presses
+  #   entity_id: binary_sensor.skybell_front_door_button
+  #   state: 'on'
+  #   type: count
+  #   end: '{{ now() }}'
+  #   duration:
+  #     hours: 24
 
   - platform: history_stats
     name: Speech time
