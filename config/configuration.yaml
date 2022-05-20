@@ -188,3 +188,8 @@ switch: !include_dir_merge_list switch
 script: !include_dir_merge_named script
 input_boolean: !include_dir_merge_named input_boolean
 shell_command: !include_dir_merge_named shell_command
+
+camera:
+  - platform: generic
+    still_image_url: http://192.168.10.10:8123/local/front-doorbell.jpg
+    stream_source: rtsp://192.168.10.10:8554/front-doorbell
