@@ -16,23 +16,10 @@
         who: 'carlo'
         apns_id: 'information'
 
-    - service: homeassistant.update_entity
-      entity_id: binary_sensor.updater
-
     - service: homeassistant.turn_off
       entity_id:
         - light.hallway_lights
         #- switch.spaceship_update_switch - Tesla integration was removed.
-
-    - service: mqtt.publish
-      data:
-        topic: "garadget/GSmall/command"
-        payload: "get-status"
-
-    - service: mqtt.publish
-      data:
-        topic: "garadget/GLarge/command"
-        payload: "get-status"
 
     - service: group.set
       data:
@@ -50,5 +37,4 @@
         title: "Home Assistant Restarted"
         data:
           type: announce
-          #method: all
         message: "Home Assistant has been restarted."

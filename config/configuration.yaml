@@ -5,15 +5,6 @@
 ######################################################################################################
 
 homeassistant:
-  name: Bear Stone
-  latitude: !secret homeassistant_latitude
-  longitude: !secret homeassistant_longitude
-  elevation: !secret homeassistant_elevation
-  unit_system: imperial
-  time_zone: America/New_York
-  currency: USD
-  external_url: !secret external_url
-  internal_url: !secret internal_url
   # customize: !include_dir_merge_named customize
   customize_domain:
     automation:
@@ -26,8 +17,6 @@ homeassistant:
        - 192.168.10.0/24
 #      - !secret external_ip
      allow_bypass_login: true
- # - type: legacy_api_password
- #   api_password: !secret http_password
 network:
 zeroconf:
 system_health:
@@ -70,12 +59,12 @@ cloud:
     #   light.kitchen_lights:
     #     display_categories: LIGHT
 
-http:
-  server_port: !secret http_port
-  ssl_certificate: !secret ssl_certificate
-  ssl_key: !secret ssl_key
-  ip_ban_enabled: false
-  login_attempts_threshold: 3
+# http:
+#   server_port: !secret http_port
+#   ssl_certificate: !secret ssl_certificate
+#   ssl_key: !secret ssl_key
+#   ip_ban_enabled: false
+#   login_attempts_threshold: 3
 
 frontend:
 
