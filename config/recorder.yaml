@@ -5,15 +5,10 @@
 purge_keep_days: 14
 include:
   entities:
-    - group.landscaping
     - device_tracker.spaceship_location_tracker
 exclude:
   domains:
-#    - automation
     - device_tracker
-    - group
-    - scene
-#    - script
   entity_globs:
     - sensor.*uptime*
   entities:
@@ -45,8 +40,6 @@ exclude:
     - sensor.pi_hole_ads_percentage_blocked_today
     - sensor.pi_hole_dns_queries_today
     - sensor.small_garage_door_since
-    - sensor.sleepnumber_carlo_carlo_pressure
-    - sensor.sleepnumber_carlo_stacey_pressure
     - sensor.time
     - sensor.rachio_watering_time
     - sun.sun
