@@ -14,7 +14,7 @@ speech_processing:
     - service: mqtt.publish
       data:
         topic: 'polly/lastmsg'
-        payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | truncate(220)}}"
+        payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | striptags | truncate(220)}}"
         retain: true
 
     - condition: and
@@ -49,8 +49,9 @@ speech_processing:
 
     - service: media_player.volume_set
       data:
-        entity_id: >
-          {{ media_player }}
+        # entity_id: >
+        #   {{ media_player }}
+        entity_id: media_player.livingroomCC
         volume_level: >-
           {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
             0.3
@@ -60,18 +61,6 @@ speech_processing:
             0.3
           {% endif %}
 
-    # - service: notify.alexa_media
-    #   data:
-    #     data:
-    #       type: tts
-    #     target: >
-    #       {% if states.group.bed.state == 'off' %}
-    #       media_player.office
-    #       {% else %}
-    #       media_player.master_bathroom
-    #       {% endif %}
-    #     message: >-
-    #         {{ speech_message }}
 
     - service: tts.amazon_polly_say
       data:
