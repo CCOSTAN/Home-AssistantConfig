@@ -49,9 +49,8 @@ speech_processing:
 
     - service: media_player.volume_set
       data:
-        # entity_id: >
-        #   {{ media_player }}
-        entity_id: media_player.livingroomCC
+        entity_id: >
+          {{ media_player }}
         volume_level: >-
           {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
             0.3

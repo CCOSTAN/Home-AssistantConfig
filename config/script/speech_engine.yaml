@@ -29,7 +29,16 @@ speech_engine:
 
     - service: script.speech_processing
       data:
-        media_player: media_player.livingroomcc
+        media_player: >-
+           {% if media_player | length == 0 %}
+             {% set media_player = [
+               'media_player.livingroomcc'
+             ] %}
+           {% endif %}
+           {% if media_player is not string and media_player is sequence %}
+             {% set media_player = media_player|join(', ') %}
+           {% endif %}
+           {{ media_player }}
         speech_message: !include ../templates/speech/briefing.yaml
 
     - service: input_boolean.turn_off

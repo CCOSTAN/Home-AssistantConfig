@@ -76,6 +76,7 @@ automation:
     action:
       - wait_template: "{{ states.group.family.state == 'home' }}"
       - wait_template: "{{ is_state('group.bed', 'off') }}"
+      - delay: 00:05:00
 
       - service: script.speech_engine
         data:
