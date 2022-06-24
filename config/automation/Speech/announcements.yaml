@@ -74,7 +74,15 @@
           "It looks like "~person ~ is_are + " finally home! I will get the house ready for you. "
           ] | random }}
           {%- endmacro -%}
+
+          {%- macro Alexa_Guard() -%}
+          {% if not is_state('alarm_control_panel.alexa_guard', 'disarmed') -%}
+              I will now disarm the Guard functions.
+          {% endif -%}
+          {%- endmacro -%}
+
           {{greeting_sentence(person, is_are)}}
+          {{Alexa_Guard()}}
         call_responsibilities: 1
         call_no_announcement: 1
         call_garage_check: 1

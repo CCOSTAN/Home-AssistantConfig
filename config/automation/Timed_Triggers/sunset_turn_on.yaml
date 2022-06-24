@@ -86,8 +86,8 @@
     - service: light.turn_on
       entity_id:
        - light.living_room_accents
-    - wait_template: >-
-       {{ is_state('group.garage_doors', 'closed') }}
+    # - wait_template: >-
+    #    {{ is_state('group.garage_doors', 'closed') }}
     - wait_template: >-
        {{ is_state('group.entry_points', 'off') }}
     - service: script.speech_engine
