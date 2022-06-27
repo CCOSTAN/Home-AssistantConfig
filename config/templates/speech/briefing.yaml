@@ -100,18 +100,18 @@
   {%- endmacro -%}
 
   {%- macro garage_check() -%}
-  # {% if states.group.garage_doors.state !='closed' -%}
-  #     The
-  #     {%- for state in states.cover -%}
-  #     {%- endfor %}
-  #     {% for group in states.cover|groupby('state') -%}
-  #     {%- for entity in group.list  if entity.state == 'open' and entity.attributes.device_class == 'garage'  -%}
-  #         {{ ' and' if loop.last and not loop.first }}
-  #         {{ entity.attributes.friendly_name }}
-  #     {%- endfor -%}
-  #     {%- endfor %}
-  #     need to be closed.
-  # {%- endif -%}
+  {% if states.group.garage_doors.state !='closed' -%}
+      The
+      {%- for state in states.cover -%}
+      {%- endfor %}
+      {% for group in states.cover|groupby('state') -%}
+      {%- for entity in group.list  if entity.state == 'open' and entity.attributes.device_class == 'garage'  -%}
+          {{ ' and' if loop.last and not loop.first }}
+          {{ entity.attributes.friendly_name }}
+      {%- endfor -%}
+      {%- endfor %}
+      need to be closed.
+  {%- endif -%}
   {%- endmacro -%}
 
   {%- macro medicine() -%}
@@ -327,7 +327,7 @@
     {{ dark_outside() }}
     {% endif %}
 
-    {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
+    {% if call_garage_check == 999 or is_state('sun.sun', '9999') %}
     {{ garage_check() }}
     {% endif %}
 
