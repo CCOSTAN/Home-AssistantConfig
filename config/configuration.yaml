@@ -17,11 +17,25 @@ homeassistant:
        - 192.168.10.0/24
 #      - !secret external_ip
      allow_bypass_login: true
-network:
-zeroconf:
-system_health:
-my:
+
+# This is the section that loads with the default_config
+
+dhcp:
 energy:
+frontend:
+homeassistant_alerts:
+image:
+media_source:
+my:
+network:
+person:
+sun:
+ssdp:
+stream:
+system_health:
+webhook:
+zeroconf:
+### End of the default_Config stuff
 
 config:
 
@@ -66,22 +80,9 @@ cloud:
 #   ip_ban_enabled: false
 #   login_attempts_threshold: 3
 
-frontend:
-
-# panel_custom:
-#   - name: floorplan
-#     sidebar_title: Alarm Panel
-#     sidebar_icon: mdi:security-home
-#     url_path: floorplan
-#     config:
-#       hide_app_toolbar:
-#       config: /local/custom_ui/floorplan/floorplan.yaml
-
 discovery:
 
 #updater:
-
-sun:
 
 light: !include light_groups.yaml
 
@@ -156,7 +157,6 @@ nest:
 # climate:
 #   platform: nest
 
-media_source:
 tts:
   - platform: amazon_polly
     aws_access_key_id: !secret aws_access_key_ID
@@ -176,8 +176,3 @@ switch: !include_dir_merge_list switch
 script: !include_dir_merge_named script
 input_boolean: !include_dir_merge_named input_boolean
 shell_command: !include_dir_merge_named shell_command
-
-camera:
-  - platform: generic
-    still_image_url: http://192.168.10.10:8123/local/front-doorbell.jpg
-    stream_source: rtsp://192.168.10.10:8554/front-doorbell
