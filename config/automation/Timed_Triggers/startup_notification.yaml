@@ -30,10 +30,8 @@
       entity_id: sun.sun
       state: 'above_horizon'
 
-    - service: notify.alexa_media
+    - service: notify.alexa_media_office
       data:
-        target:
-          - media_player.office
         title: "Home Assistant Restarted"
         data:
           type: announce
