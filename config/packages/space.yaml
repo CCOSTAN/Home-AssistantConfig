@@ -12,8 +12,6 @@
 
 sensor:
 
-  - platform: moon
-
   - platform: rest
     scan_interval: 1800
     name: SpaceX Starman
@@ -91,7 +89,7 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.moon
-        to: 'Full Moon'
+        to: 'full_moon'
     action:
       - delay: '0{{ (range(1, 5)|random|int) }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
       - service: script.tweet_engine_image
