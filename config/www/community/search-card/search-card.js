@@ -63,9 +63,8 @@ class SearchCard extends ct.LitElement {
                        slot="prefix"></ha-icon>
             <ha-icon-button slot="suffix"
                                @click="${this._clearInput}"
-                               icon="mdi:close"
                                alt="Clear"
-                               title="Clear"></ha-icon-button>
+                               title="Clear"><ha-icon icon="mdi:close"></ha-icon></ha-icon-button>
           </paper-input>
           ${results.length > 0 ?
               ct.LitHtml `<div id="count">Showing ${results.length} of ${this.results.length} results</div>`
