@@ -57,6 +57,8 @@ monthly_color_scene:
           {%- elif now().strftime("%m%d")|int >= 1001
           and now().strftime("%m%d")|int <= 1031-%}
           halloween
+          {%- elif now().strftime("%m%d")|int == 1111 -%}
+          veterans
           {%- elif states('sensor.thanksgiving_day_countdown') | int < 4  -%}
           thanksgiving
           {%- elif states('sensor.chanukkah_countdown') | int <= 1  -%}
