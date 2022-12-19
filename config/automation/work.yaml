@@ -2,22 +2,30 @@
 ##  Time to work - Set it up!
 ######################################################################
 
+# Define an alias for this automation
 - alias: Time to Work
+  # Give the automation a unique ID
   id: 5ccdc0c7-5a90-4d0d-b3dd-d855fa6cf77d
+  # Set the trigger for the automation
   trigger:
+    # The automation will be triggered when the state of the "input_boolean.work" entity changes from "off" to "on"
     - platform: state
       entity_id: input_boolean.work
       to: 'on'
       from: 'off'
 
+  # Set the actions to be performed by the automation
   action:
+    # Turn off the "light.dinette_lights", "light.kitchen_lights", and "light.living_room_lights" lights
     - service: light.turn_off
       entity_id:
         - light.dinette_lights
         - light.kitchen_lights
         - light.living_room_lights
+    # Turn on the "light.office_lamp" light
     - service: light.turn_on
       entity_id:
         - light.office_lamp
+    # Turn off the "input_boolean.work" entity
     - service: input_boolean.turn_off
       entity_id: input_boolean.work

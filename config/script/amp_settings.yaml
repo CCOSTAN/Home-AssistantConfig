@@ -4,10 +4,16 @@
 ## Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ######################################################################################################
 
+# Set the AMP settings
 amp_settings:
+  # Define the sequence of actions to be performed
   sequence:
+    # Set the volume for the specified media players
     - service: media_player.volume_set
       data:
+        # Set the entity ID for the media players to be controlled
+        # If the "media_player" variable is not defined, set it to a list of media player entities
+        # If the "media_player" variable is a list, convert it to a comma-separated string
         entity_id: >-
             {% if media_player | length == 0 %}
               {% set media_player = [
@@ -22,6 +28,9 @@ amp_settings:
             {% endif %}
 
             {{ media_player }}
+        # Set the volume level for the media players
+        # If the "volume_level" variable is not defined, set it based on the current time of day
+        # Otherwise, use the value of the "volume_level" variable
         volume_level: >-
           {% if volume_level is none %}
             {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
@@ -34,13 +43,13 @@ amp_settings:
           {% endif %}
           {{volume_level}}
 
+    # If the "switch.lr_amp" switch is off and the "group.bed" group is off, turn on the "switch.lr_amp" switch
     - condition: state
       entity_id: switch.lr_amp
       state: 'off'
     - condition: state
       entity_id: group.bed
       state: 'off'
-
     - service: switch.turn_on
       data:
         entity_id: switch.lr_amp

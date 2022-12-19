@@ -15,9 +15,13 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ######################################################################################################
 
+# Define the "speech_engine" script
 speech_engine:
+  # Set the mode to "queued"
   mode: queued
+  # Define the sequence of actions to be performed
   sequence:
+    # If the state of the "group.family" entity is "home" or the state of the "input_boolean.guest_mode" entity is "on", proceed with the script
     - condition: or
       conditions:
         - condition: state
@@ -27,8 +31,12 @@ speech_engine:
           entity_id: input_boolean.guest_mode
           state: 'on'
 
+    # Run the "script.speech_processing" service with the specified media player and speech message
     - service: script.speech_processing
       data:
+        # Set the entity ID for the media players to be controlled
+        # If the "media_player" variable is not defined, set it to a list of media player entities
+        # If the "media_player" variable is a list, convert it to a comma-separated string
         media_player: >-
            {% if media_player | length == 0 %}
              {% set media_player = [
@@ -39,8 +47,10 @@ speech_engine:
              {% set media_player = media_player|join(', ') %}
            {% endif %}
            {{ media_player }}
+        # Include the speech message from the "speech/briefing.yaml" template file
         speech_message: !include ../templates/speech/briefing.yaml
 
+    # Turn off the "input_boolean.home_stats" and "input_boolean.responsibilities" input booleans
     - service: input_boolean.turn_off
       data:
         entity_id:

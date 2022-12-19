@@ -21,13 +21,13 @@ automation:
     mode: single
     trigger:
       - platform: state
-        entity_id: vacuum.carlo_neato
+        entity_id: vacuum.neato_vac
         to: 'cleaning'
 
     condition:
 
       - condition: numeric_state
-        entity_id: vacuum.carlo_neato
+        entity_id: vacuum.neato_vac
         attribute: battery_level
         below: 20
 
@@ -48,7 +48,7 @@ automation:
             "Everyday I have the Neato Botvac go out and clean the house on its own.",
             "Since we have a cat that sheds all day, we have Neato Vacuum go out daily to clean.",
             "Time to recharge the Neato Vacuum."
-            ] | random + " Battery Level:{{states.vacuum.carlo_neato.attributes.battery_level }} #Robots"}}
+            ] | random + " Battery Level:{{states.vacuum.neato_vac.attributes.battery_level }} #Robots"}}
           image: >-
             {{ [
             "/config/www/custom_ui/floorplan/images/branding/neato.png"
@@ -63,14 +63,14 @@ automation:
     id: 6548de52-a4a4-4df2-9d66-9c2c15577a7e
     trigger:
       - platform: state
-        entity_id: vacuum.carlo_neato
+        entity_id: vacuum.neato_vac
         to: 'error'
       - platform: event
         event_type: event_did_someone_help_neato_loop
 
     condition:
         - condition: state
-          entity_id: vacuum.carlo_neato
+          entity_id: vacuum.neato_vac
           state: 'error'
 
     action:
@@ -81,7 +81,7 @@ automation:
       - service: script.speech_engine
         data:
           value1: >
-            {% set error =  states.vacuum.carlo_neato.attributes['status'] %}
+            {% set error =  states.vacuum.neato_vac.attributes['status'] %}
             {{ [
             "Neato is asking for help.  The error reported is " ~ error + " .  Please find him and help him.",
             "Please be nice and help Neato.  He is complaining about " ~ error + ".",
@@ -90,15 +90,15 @@ automation:
             ] | random }}
 
       - service: vacuum.locate
-        entity_id: vacuum.carlo_neato
+        entity_id: vacuum.neato_vac
 
       - service: script.notify_engine
         data:
           title: 'Help Neato'
-          value1: "{{ states.vacuum.carlo_neato.attributes['status'] }}"
+          value1: "{{ states.vacuum.neato_vac.attributes['status'] }}"
           who: 'family'
           ios_category: 'camera'
-          camera_entity: 'camera.carlo_neato_cleaning_map'
+          camera_entity: 'camera.neato_vac_cleaning_map'
           content_type: 'jpeg'
           apns_id: 'information'
 

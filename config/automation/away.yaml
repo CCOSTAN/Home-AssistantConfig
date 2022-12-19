@@ -2,35 +2,46 @@
 ##  Shut it all down.  No one is here
 ######################################################################
 
+# Define an alias for this automation
 - alias: 'Away Mode'
+  # Give the automation a unique ID
   id: 712e845a-9d72-4993-b8af-890b167c807b
+  # Set the mode to "single"
   mode: single
+  # Set the trigger for the automation
   trigger:
+    # The automation will be triggered when the state of the "binary_sensor.downstairs_nest_away" entity changes to "on"
     - platform: state
       entity_id: binary_sensor.downstairs_nest_away
       to: 'on'
+    # The automation will also be triggered when the state of the "group.family" entity changes to "not_home"
     - platform: state
       entity_id: group.family
       to: 'not_home'
 
+  # Set the conditions for the automation to run
   condition:
+    # The automation will only run if the state of the "group.family" entity is "not_home"
     - condition: state
       entity_id: group.family
       state: 'not_home'
+    # The automation will also only run if the state of the "input_boolean.guest_mode" entity is "off"
     - condition: state
       entity_id: input_boolean.guest_mode
       state: 'off'
 
+  # Set the actions to be performed by the automation
   action:
+    # Run the "script.interior_off" service
     - service: script.interior_off
 
+    # Turn off the "switch.back_landscaping" switch
     - service: switch.turn_off
       entity_id: switch.back_landscaping
 
-    # Arms Alexa Guard unless Guest Mode is on.  Disarms in the Announcements.yaml
+    # Arm the "alarm_control_panel.alexa_guard" alarm unless the "input_boolean.guest_mode" entity is "on"
     - condition: template
       value_template: >
         {{ states.input_boolean.guest_mode.state != "on" }}
-
     - service: alarm_control_panel.alarm_arm_away
       entity_id: alarm_control_panel.alexa_guard
