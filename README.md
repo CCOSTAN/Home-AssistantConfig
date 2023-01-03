@@ -471,7 +471,7 @@ The Hubs help the home communicate across all the various protocols running in t
 
 <details>
 <summary>Using <a href=https://amzn.to/2efNoBP>
-Etekcity Outlets</a></summary><p align="center">
+Etekcity Outlets</a> to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/kitchen_lights_and_accents.yaml>
 Kitchen Accents Automation - /config/automation/kitchen_lights_and_accents.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/master_bath_accents.yaml>
