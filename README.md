@@ -410,7 +410,7 @@ AMP redirect script - /config/script/amp_settings.yam</a><br>
 </td><td align="center"><a href="https://www.amazon.com/TP-Link-HS100-Required-Google-Assistant/dp/B0178IC734/ref=as_li_ss_il?ac_md=0-0-aHMxMDA=-ac_d_rm&keywords=HS100&pd_rd_i=B0178IC734&pd_rd_r=3e0cf386-7879-4383-bab1-a842746ee724&pd_rd_w=SR8qM&pd_rd_wg=2uLFe&pf_rd_p=404c4843-2c96-4d0d-a5fe-2b0598693e61&pf_rd_r=6WZ3KGN3EJ9B23GC84JS&qid=1567261967&s=gateway&linkCode=li2&tag=vmw0a-20&linkId=9a49bb07f7e1c0391b7a052fcdc52226&language=en_US" target="_blank"><img border="0" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0178IC734&Format=_SL160_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1&tag=vmw0a-20&language=en_US" ></a><img src="https://ir-na.amazon-adsystem.com/e/ir?t=vmw0a-20&language=en_US&l=li2&o=1&a=B0178IC734" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" /></td></tr>
 <tr><td colspan="4">
 
-To me, Voice is the coolest part of the smart home.  It gives it personality.  It's something not just anyone has and helps your house stand apart from the pack.  I use the [Amazon Polly TTS](https://home-assistant.io/components/tts/) component since it sounds the closest to Alexa.  This gives a seemless transition from Alexa to Home Assistant responding.  Most think it is just one system.  The mixer allows TTS to mix right in over Music.  The TP-Link Outlet  is used to turn off the Mixer and AMP when we do not need it.  It's a great inexpensive solution.
+To me, Voice is the coolest part of the smart home.  It gives it personality.  It's something not just anyone has and helps your house stand apart from the pack.  I use the [Amazon Polly TTS](https://www.home-assistant.io/integrations/tts/) component since it sounds the closest to Alexa.  This gives a seemless transition from Alexa to Home Assistant responding.  Most think it is just one system.  The mixer allows TTS to mix right in over Music.  The TP-Link Outlet  is used to turn off the Mixer and AMP when we do not need it.  It's a great inexpensive solution.
 <details>
 <summary>Turn off all the voice devices when we are not home or in bed.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/away.yaml>
@@ -470,7 +470,8 @@ Once you can teach your house to talk, you just keep expanding on its vocabulary
 The Hubs help the home communicate across all the various protocols running in the house.  The Hue hubs (I have 2 actually) talk to most of the lights. The Gen 1 handles upstairs and outside and the gen 2 handles everything else. Some lights and switches talk over Zwave to the Wink Hub.  The RM Pro talks 433Mhz to my EtekCity outlets.
 
 <details>
-<summary>Using [Etekcity Outlets](https://amzn.to/2efNoBP) to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
+<summary>Using <a href=https://amzn.to/2efNoBP>
+Etekcity Outlets</a> to control accent lighting above kitchen cabinets and room cutouts.</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/kitchen_lights_and_accents.yaml>
 Kitchen Accents Automation - /config/automation/kitchen_lights_and_accents.yaml</a><br>
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/automation/master_bath_accents.yaml>
