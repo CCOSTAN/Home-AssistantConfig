@@ -959,9 +959,7 @@ Feel free to join the conversations there.
 [![Screenshot of Alarm Clock View](https://i.imgur.com/mLMrky1.jpg)](https://www.vcloudinfo.com/2017/11/building-worlds-greatest-smart-alarm.html)
 [![Screenshot of Alarm View](https://i.imgur.com/zmb3Rtn.png)](https://www.vcloudinfo.com/2017/07/visualizing-smart-home-using-home.html)
 
-**All files are now being edited with [Atom](https://atom.io/).**
-
-**All of my configuration files are tested against the most stable version of home-assistant using [Travis](https://travis-ci.org/CCOSTAN/Home-AssistantConfig).**
+**All files are now being edited with [VSCode](https://code.visualstudio.com/).**
 
 **Still have questions on my Config?** <br>
 **Message me on twitter :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.twitter.com/ccostan) or [![Follow Bear Stone Home](https://img.shields.io/twitter/follow/BearStoneHA)](https://www.twitter.com/BearStoneHA)
