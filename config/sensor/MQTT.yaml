@@ -2,6 +2,7 @@
 ## Various MQTT sensors
 ###################################################
 
-- platform: mqtt
-  state_topic: "dash/medicine/medicine_time"
-  name: "Medicine time"
+mqtt: 
+  binary_sensor:
+      - state_topic:  "dash/medicine/medicine_time"
+        name: "Medicine time"

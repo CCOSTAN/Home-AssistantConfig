@@ -10,13 +10,13 @@ homeassistant:
 
 
 #---Sensor for Light-----------------------------
-binary_sensor:
-  - platform: mqtt
-    state_topic: "NodeMCU4/Motion/Motion"
-    name: "Office_Motion"
-    payload_on: 1
-    payload_off: 0
-    device_class: motion
+mqtt: 
+  binary_sensor:
+      - state_topic: "NodeMCU4/Motion/Motion"
+        name: "Office_Motion"
+        payload_on: 1
+        payload_off: 0
+        device_class: motion
 
 
 automation:

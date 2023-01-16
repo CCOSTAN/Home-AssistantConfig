@@ -27,8 +27,6 @@ homeassistant:
       friendly_name: 'Front Den Windows'
     binary_sensor.MCU1_GPIO14:
       friendly_name: 'Office Window'
-
-
     binary_sensor.MCU2_GPIO4:
       friendly_name: 'Dinette Windows'
     binary_sensor.MCU2_GPIO5:
@@ -43,7 +41,6 @@ homeassistant:
       friendly_name: 'Upstairs Bedroom Window'
     binary_sensor.MCU2_GPIO14:
       friendly_name: 'Justin Window'
-
     binary_sensor.MCU3_GPIO4:
       friendly_name: 'Stacey Bedroom Window'
     binary_sensor.MCU3_GPIO5:
@@ -66,36 +63,42 @@ mqtt:
   binary_sensor:
       - state_topic: "NodeMCU1/GPIO4/Status"
         name: "MCU1_GPIO4"
+        unique_id: 6829f4c5-9f99-45c4-a5d9-3c7a42b05abe
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU1/GPIO5/Status"
         name: "MCU1_GPIO5"
+        unique_id: f5db33bf-f1e6-4d92-a637-3db4865aa2f4
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU1/GPIO10/Status"
         name: "MCU1_GPIO10"
+        unique_id: ed998ae1-6ca6-4af8-ad6b-415992579c4c
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU1/GPIO12/Status"
         name: "MCU1_GPIO12"
+        unique_id: ba72e789-0550-4ce5-95de-f7cd93eec7a1
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU1/GPIO13/Status"
         name: "MCU1_GPIO13"
+        unique_id: 862ed4ad-b704-4ec0-9385-0fdbdd3db4cb
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU1/GPIO14/Status"
         name: "MCU1_GPIO14"
+        unique_id: e3c8a195-71d4-4a14-b14e-d21f261c768d
         payload_on: 1
         payload_off: 0
         device_class: opening
@@ -103,42 +106,49 @@ mqtt:
 
       - state_topic: "NodeMCU2/GPIO4/Status"
         name: "MCU2_GPIO4"
+        unique_id: 27f7e335-fe5b-43d8-863f-8738dadf311e
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU2/GPIO5/Status"
         name: "MCU2_GPIO5"
+        unique_id: a0d35c49-00ec-4f34-b70a-43e862be5d64
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU2/GPIO9/Status"
         name: "MCU2_GPIO9"
+        unique_id: c12c6a9d-17ea-4a1d-874b-54d747251949
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU2/GPIO10/Status"
         name: "MCU2_GPIO10"
+        unique_id: 4427df18-0f23-4f92-87bd-656275a0054e
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU2/GPIO12/Status"
         name: "MCU2_GPIO12"
+        unique_id: 03b06196-9f7f-4324-ba60-133cfbf1ee01
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU2/GPIO13/Status"
         name: "MCU2_GPIO13"
+        unique_id: 3dbcf4e1-f2e1-4bfd-9861-08cbd989c404
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU2/GPIO14/Status"
         name: "MCU2_GPIO14"
+        unique_id: 04f1298a-4138-45a0-aeda-58334eec56f2
         payload_on: 1
         payload_off: 0
         device_class: opening
@@ -146,31 +156,36 @@ mqtt:
 
       - state_topic: "NodeMCU3/GPIO4/Status"
         name: "MCU3_GPIO4"
+        unique_id: 4cefd30a-4695-4ea1-a0fe-f82535d8d950
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU3/GPIO5/Status"
         name: "MCU3_GPIO5"
+        unique_id: 524b7e7e-af9b-471b-be61-e2d4590c23d4
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU3/GPIO10/Status"
         name: "MCU3_GPIO10"
+        unique_id: def60584-261a-472c-ab52-a34d4ff3038e
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU3/GPIO14/Status"
         name: "MCU3_GPIO14"
+        unique_id: 031b204f-fa31-4d5b-ac6e-24f26c4afb06
         payload_on: 1
         payload_off: 0
         device_class: opening
 
       - state_topic: "NodeMCU3/Light/Status"
         name: "MCU3_Light"
-        payload_on: 1
+        unique_id: 0b3ec37b-1fe9-4a7f-9336-6079727d725e
+        payload_on: 1 
         payload_off: 0
         device_class: opening
 
