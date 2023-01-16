@@ -62,117 +62,117 @@ homeassistant:
       friendly_name: Interior doors
 
 #-------------------------------------------
-binary_sensor:
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO4/Status"
-    name: "MCU1_GPIO4"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO5/Status"
-    name: "MCU1_GPIO5"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO10/Status"
-    name: "MCU1_GPIO10"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO12/Status"
-    name: "MCU1_GPIO12"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO13/Status"
-    name: "MCU1_GPIO13"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU1/GPIO14/Status"
-    name: "MCU1_GPIO14"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
+mqtt: 
+  binary_sensor:
+      - state_topic: "NodeMCU1/GPIO4/Status"
+        name: "MCU1_GPIO4"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
 
-  - platform: mqtt
-    state_topic: "NodeMCU2/GPIO4/Status"
-    name: "MCU2_GPIO4"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU2/GPIO5/Status"
-    name: "MCU2_GPIO5"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU2/GPIO9/Status"
-    name: "MCU2_GPIO9"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU2/GPIO10/Status"
-    name: "MCU2_GPIO10"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU2/GPIO12/Status"
-    name: "MCU2_GPIO12"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU2/GPIO13/Status"
-    name: "MCU2_GPIO13"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU2/GPIO14/Status"
-    name: "MCU2_GPIO14"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
+      - state_topic: "NodeMCU1/GPIO5/Status"
+        name: "MCU1_GPIO5"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
 
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO4/Status"
-    name: "MCU3_GPIO4"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO5/Status"
-    name: "MCU3_GPIO5"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO10/Status"
-    name: "MCU3_GPIO10"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/GPIO14/Status"
-    name: "MCU3_GPIO14"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
-  - platform: mqtt
-    state_topic: "NodeMCU3/Light/Status"
-    name: "MCU3_Light"
-    payload_on: 1
-    payload_off: 0
-    device_class: opening
+      - state_topic: "NodeMCU1/GPIO10/Status"
+        name: "MCU1_GPIO10"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU1/GPIO12/Status"
+        name: "MCU1_GPIO12"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU1/GPIO13/Status"
+        name: "MCU1_GPIO13"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU1/GPIO14/Status"
+        name: "MCU1_GPIO14"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+
+      - state_topic: "NodeMCU2/GPIO4/Status"
+        name: "MCU2_GPIO4"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU2/GPIO5/Status"
+        name: "MCU2_GPIO5"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU2/GPIO9/Status"
+        name: "MCU2_GPIO9"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU2/GPIO10/Status"
+        name: "MCU2_GPIO10"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU2/GPIO12/Status"
+        name: "MCU2_GPIO12"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU2/GPIO13/Status"
+        name: "MCU2_GPIO13"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU2/GPIO14/Status"
+        name: "MCU2_GPIO14"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+
+      - state_topic: "NodeMCU3/GPIO4/Status"
+        name: "MCU3_GPIO4"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU3/GPIO5/Status"
+        name: "MCU3_GPIO5"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU3/GPIO10/Status"
+        name: "MCU3_GPIO10"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU3/GPIO14/Status"
+        name: "MCU3_GPIO14"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
+
+      - state_topic: "NodeMCU3/Light/Status"
+        name: "MCU3_Light"
+        payload_on: 1
+        payload_off: 0
+        device_class: opening
 
 # input_boolean:
 #   elephant:
