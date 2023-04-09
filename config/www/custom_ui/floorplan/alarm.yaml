@@ -25,7 +25,7 @@ rules:
 
   - name: temp_darksky
     entities:
-      - sensor.dark_sky_temperature
+      - sensor.pirateweather_temperature
     text_template: '${entity.state ? Math.ceil(entity.state) + "°": "undefined"}'
     class_template: 'return "static-temp";'
 
@@ -33,7 +33,7 @@ rules:
     entities:
       - sensor.downstairs_thermostat_humidity
       - sensor.upstairs_thermostat_humidity
-      - sensor.dark_sky_humidity
+      - sensor.pirateweather_humidity
       - sensor.carlojuice_amps
     text_template: '${entity.state ? Math.ceil(entity.state) : "undefined"}'
     class_template: 'return "static-temp";'
@@ -240,7 +240,7 @@ rules:
 
   - name: Dark Sky Sensors
     entities:
-      - sensor.dark_sky_minutely_summary
+      - sensor.pirateweather_minutely_summary
     image_template: '
       var imageName = "";
 

@@ -124,15 +124,15 @@ tweet_engine_random:
 
               "weather": [
                 "The #Landscaping lights where on for about {{ states.sensor.landscaping_light_time.attributes.value }} yesterday. (https://youtu.be/FcBVu_yk2iY)",
-                "I keep the average humidity of the house at {{ states('sensor.downstairs_thermostat_humidity') }} percent. Outside is {{ states('sensor.dark_sky_humidity') }} #Nest (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
-                "Outside is {{ states('sensor.dark_sky_temperature') }}. I keep the average inside temperature at {{ states('sensor.downstairs_thermostat_temperature') }}. #Weather (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
-                "I know that it will be {{ states('sensor.dark_sky_minutely_summary') }} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",
-                "The current UV index is {{ states('sensor.dark_sky_uv_index') }} and the Moon is {{ states('sensor.moon') }}.  #Space"
+                "I keep the average humidity of the house at {{ states('sensor.downstairs_thermostat_humidity') }} percent. Outside is {{ states('sensor.pirateweather_humidity') }} #Nest (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
+                "Outside is {{ states('sensor.pirateweather_temperature') }}. I keep the average inside temperature at {{ states('sensor.downstairs_thermostat_temperature') }}. #Weather (https://github.com/CCOSTAN/Home-AssistantConfig#nest)",
+                "I know that it will be {{ states('sensor.pirateweather_minutely_summary') }} So I will adjust the Heating/Cooling, irrigation and lighting accordingly. #Nest #Rachio #Hue",
+                "The current UV index is {{ states('sensor.pirateweather_uv_index') }} and the Moon is {{ states('sensor.moon') }}.  #Space"
               ],
 
               "cloud": [
-                "Average Cloud Coverage: {{ states('sensor.dark_sky_cloud_coverage') }}%, Average Temp: {{ states('sensor.dark_sky_temperature') }}Â°F #Solar (https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)",
-                "Unfortunately, Bear Stone has plenty of cloud dependancies. Nimbus and Cumulus to be exact! Average Cloud Coverage: {{ states('sensor.dark_sky_cloud_coverage') }}% "
+                "Average Cloud Coverage: {{ states('sensor.pirateweather_cloud_coverage') }}%, Average Temp: {{ states('sensor.pirateweather_temperature') }}Â°F #Solar (https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html)",
+                "Unfortunately, Bear Stone has plenty of cloud dependancies. Nimbus and Cumulus to be exact! Average Cloud Coverage: {{ states('sensor.pirateweather_cloud_coverage') }}% "
               ],
 
               "speedtest": [

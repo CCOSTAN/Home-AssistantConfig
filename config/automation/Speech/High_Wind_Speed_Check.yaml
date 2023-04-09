@@ -7,13 +7,13 @@
   mode: single
   trigger:
     - platform: numeric_state
-      entity_id: sensor.dark_sky_wind_speed
+      entity_id: sensor.pirateweather_wind_speed
       above: 24
     - platform: numeric_state
-      entity_id: sensor.dark_sky_wind_speed
+      entity_id: sensor.pirateweather_wind_speed
       above: 40
     - platform: numeric_state
-      entity_id: sensor.dark_sky_wind_speed
+      entity_id: sensor.pirateweather_wind_speed
       above: 60
 
   action:
@@ -21,7 +21,7 @@
       data:
         title: 'VERY HIGH WINDS:'
         value1:  >-
-          {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
+          {% set windspeed = states.sensor.pirateweather_wind_speed.state | round %}
           {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
              HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors!
           {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
@@ -38,7 +38,7 @@
     - service: script.speech_engine
       data:
         value1: >
-          {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
+          {% set windspeed = states.sensor.pirateweather_wind_speed.state | round %}
           {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
              HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors!
           {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
@@ -54,7 +54,7 @@
     - service: script.tweet_engine_no_image
       data:
         tweet: >
-          {% set windspeed = states.sensor.dark_sky_wind_speed.state | round %}
+          {% set windspeed = states.sensor.pirateweather_wind_speed.state | round %}
           {% if ( windspeed > 25 ) and ( windspeed <= 40 ) %}
              HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors! #Florida #Weather (https://amzn.to/2jQLpVQ)
           {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}

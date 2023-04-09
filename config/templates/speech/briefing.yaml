@@ -32,7 +32,7 @@
   {%- endmacro -%}
 
   {%- macro outside_weather() -%}
-  Outside, it is going to be {{ states('sensor.dark_sky_minutely_summary') }}
+  Outside, it is going to be {{ states('sensor.pirateweather_minutely_summary') }}
   {%- endmacro -%}
 
   {%- macro lightning() -%}
@@ -138,12 +138,12 @@
   {%- endmacro -%}
 
   {%- macro uv() -%}
-  {% if states.sensor.dark_sky_uv_index.state|int(9999)>= 6 and states.sensor.dark_sky_uv_index.state|int(9999)<= 7.9 %}
-      Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  You should wear sunscreen if going outside.
-  {% elif states.sensor.dark_sky_uv_index.state|int(9999)>= 8 and states.sensor.dark_sky_uv_index.state|int(9999)<=10.9 %}
-      Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  This is VERY HIGH. Be sure wear sunscreen and re-apply.
-  {% elif states.sensor.dark_sky_uv_index.state|int(9999)>= 11 %}
-      Today's UV index is {{ states.sensor.dark_sky_uv_index.state }}.  This is EXTREME. You should be very cautious going outside.
+  {% if states.sensor.pirateweather_uv_index.state|int(9999)>= 6 and states.sensor.pirateweather_uv_index.state|int(9999)<= 7.9 %}
+      Today's UV index is {{ states.sensor.pirateweather_uv_index.state }}.  You should wear sunscreen if going outside.
+  {% elif states.sensor.pirateweather_uv_index.state|int(9999)>= 8 and states.sensor.pirateweather_uv_index.state|int(9999)<=10.9 %}
+      Today's UV index is {{ states.sensor.pirateweather_uv_index.state }}.  This is VERY HIGH. Be sure wear sunscreen and re-apply.
+  {% elif states.sensor.pirateweather_uv_index.state|int(9999)>= 11 %}
+      Today's UV index is {{ states.sensor.pirateweather_uv_index.state }}.  This is EXTREME. You should be very cautious going outside.
   {% endif %}
   {%- endmacro -%}
 

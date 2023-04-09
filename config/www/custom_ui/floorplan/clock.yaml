@@ -53,13 +53,13 @@ rules:
 
   - name: temp_darksky
     entities:
-      - sensor.dark_sky_temperature
+      - sensor.pirateweather_temperature
     text_template: '${entity.state ? Math.ceil(entity.state) + "°": "undefined"}'
     class_template: 'return "static-temp";'
 
   - name: text_states
     entities:
-      - sensor.dark_sky_minutely_summary
+      - sensor.pirateweather_minutely_summary
     hover_over: false
     more_info: false
     text_template: '${entity.state ? entity.state : "undefined"}'
@@ -103,8 +103,8 @@ rules:
 
   - name: Dark Sky Sensors
     entities:
-      - entity: sensor.dark_sky_minutely_summary
-        element: sensor.dark_sky_minutely_summary_icon
+      - entity: sensor.pirateweather_minutely_summary
+        element: sensor.pirateweather_minutely_summary_icon
 
     image_template: '
       var imageName = "";

@@ -8,10 +8,10 @@
 
   trigger:
     - platform: state
-      entity_id: sensor.dark_sky_precip
+      entity_id: sensor.pirateweather_precip
       to: 'rain'
     - platform: numeric_state
-      entity_id: sensor.dark_sky_precip_intensity
+      entity_id: sensor.pirateweather_precip_intensity
       above: 0.2
     - platform: numeric_state
       entity_id: sensor.blitzortung_lightning_counter
@@ -31,10 +31,10 @@
       - condition: or
         conditions:
           - condition: numeric_state
-            entity_id: sensor.dark_sky_cloud_coverage
+            entity_id: sensor.pirateweather_cloud_coverage
             above: 90
           - condition: numeric_state
-            entity_id: sensor.dark_sky_precip_intensity
+            entity_id: sensor.pirateweather_precip_intensity
             above: 0.2
           - condition: numeric_state
             entity_id: sensor.blitzortung_lightning_counter
