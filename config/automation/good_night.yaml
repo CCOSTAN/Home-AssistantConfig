@@ -48,7 +48,11 @@
       entity_id: input_boolean.good_night
     - service: homeassistant.turn_off
       entity_id: group.outdoor_seasonal
-
+    - service: homeassistant.turn_off
+      entity_id: switch.kitchen_accent_2
+    - service: homeassistant.turn_off
+      entity_id: group.master_bathroom_accents
+    
     - service: script.interior_off
 
     - wait_template: "{{ states.media_player.master_bedroom.state == 'standby' }}"
