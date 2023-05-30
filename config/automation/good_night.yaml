@@ -85,6 +85,11 @@
           - service: homeassistant.turn_off
             target:
               entity_id: switch.lr_amp
+          - service: homeassistant.turn_off
+            target:
+              entity_id: 
+                - switch.kitchen_accent_2
+                - group.master_bathroom_accents
 
     default:
       - service: homeassistant.turn_on

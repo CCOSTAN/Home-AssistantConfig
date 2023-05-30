@@ -32,7 +32,7 @@
   {%- endmacro -%}
 
   {%- macro outside_weather() -%}
-  Outside, it is going to be {{ states('sensor.pirateweather_minutely_summary') }}
+  Outside, it is going to be {{ states('sensor.pirateweather_temperature') }} degrees and {{ states('sensor.pirateweather_summary') }}
   {%- endmacro -%}
 
   {%- macro lightning() -%}

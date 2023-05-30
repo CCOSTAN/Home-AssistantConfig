@@ -30,6 +30,13 @@ automation:
         from: 'off'
         to: 'on'
 
+      - platform: state
+        entity_id:
+          - person.carlo
+          - person.stacey
+        from: 'not_home'
+        to: 'home'        
+
     action:
       - choose:
           - conditions: "{{ is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed','on') }}"

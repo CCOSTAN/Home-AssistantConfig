@@ -91,27 +91,6 @@ logbook:
       - sensor.sleepnumber_carlo_stacey_pressure
       - sensor.sleepnumber_carlo_carlo_pressure
 
-history:
-  include:
-    domains:
-      - sensor
-      - switch
-      - media_player
-      - light
-      - binary_sensor
-      - cover
-
-  exclude:
-    entities:
-     - sensor.date
-     - sensor.pi_hole_ads_blocked_today
-     - sensor.pi_hole_ads_percentage_blocked_today
-     - sensor.pi_hole_dns_queries_today
-     - sensor.floorplan_date
-     - sensor.floorplan_time
-     - sensor.ha_uptime
-     - sensor.time
-
 logger: !include logger.yaml
 recorder: !include recorder.yaml
 
