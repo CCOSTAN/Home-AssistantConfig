@@ -4,6 +4,25 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 #-------------------------------------------
 
+### Building out some Historical stats for tweeting. #####################
+command_line:
+  - sensor:
+      name: 'Lines of Code'
+      unique_id: lines_of_code
+      command: "find /config -name '*.yaml' | xargs cat | wc -l"
+      scan_interval: 20000
+
+command_line:
+  - sensor:
+      name: 'GitHub Stats'
+      unique_id: github_stats_command
+      command: 'curl https://api.github.com/repos/ccostan/home-assistantconfig'
+      scan_interval: 20000
+      value_template: '{{ value_json.name }}'
+      json_attributes:
+      - open_issues
+      - stargazers_count
+
 notify:
   - name: BearStoneHA
     platform: twitter
@@ -18,26 +37,6 @@ notify:
     access_token: !secret twitter_access_token2
     access_token_secret: !secret twitter_access_token_secret2
 
-### Building out some Historical stats for tweeting. #####################
-sensor:
-  - platform: command_line
-    command: 'curl https://api.github.com/repos/ccostan/home-assistantconfig'
-    name: GitHub Stats
-    unit_of_measurement: 'Count'
-    scan_interval: 20000
-    value_template: '{{ value_json.name }}'
-    json_attributes:
-      - open_issues
-#      - subscribers_count
-#      - forks
-      - stargazers_count
-
-  - platform: command_line
-    name: Lines of Code
-    command: "find /config -name '*.yaml' | xargs cat | wc -l"
-    unit_of_measurement: 'Lines'
-    scan_interval: 20000
-
   # - platform: history_stats
   #   name: Doorbell Presses
   #   entity_id: binary_sensor.skybell_front_door_button
@@ -46,7 +45,7 @@ sensor:
   #   end: '{{ now() }}'
   #   duration:
   #     hours: 24
-
+sensor:
   - platform: history_stats
     name: Speech time
     entity_id: media_player.livingroomCC

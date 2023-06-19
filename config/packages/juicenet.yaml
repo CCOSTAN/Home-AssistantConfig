@@ -8,12 +8,11 @@
 # juicenet:
 #     access_token: !secret juicenet_access_token
 
-switch:
-  - platform: command_line
-    switches:
-      juicebox_restart:
-        command_on: "/usr/bin/curl -k 'http://192.168.10.91/command/reboot'"
-        friendly_name: Restart Juicebox
+command_line:
+    switch:
+      name: Restart Juicebox
+      unique_id: restart_juicebox_switch
+      command_on: "/usr/bin/curl -k 'http://192.168.10.91/command/reboot'"
 
 #############################################################################
 ###  Automations - Alerts related to the JuiceBox (https://amzn.to/2AZVQ37)
@@ -62,7 +61,7 @@ automation:
 
     action:
       - service: homeassistant.turn_on
-        entity_id: switch.juicebox_restart
+        entity_id: switch.restart_juicebox
 
       - service: script.tweet_engine_image
         data:
