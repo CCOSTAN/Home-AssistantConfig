@@ -1,7 +1,7 @@
 #-------------------------------------------
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# NRoku Related Functions - https://amzn.to/2Ctp8cr
+# Roku Related Functions - https://amzn.to/2Ctp8cr
 #-------------------------------------------
 
 input_boolean:
@@ -9,24 +9,6 @@ input_boolean:
     name: "Living Room Remote Finder"
     initial: off
     icon: mdi:remote
-
-ios:
-  push:
-    categories:
-      - name: RemoteLR
-        identifier: 'REMOTELR'
-        actions:
-          - identifier: 'LR_REMOTE_FOUND'
-            title: 'Remote Found'
-            activationMode: 'background'
-            authenticationRequired: no
-            destructive: no
-
-          - identifier: 'LR_REMOTE_NOT_FOUND'
-            title: 'Not Yet'
-            activationMode: 'background'
-            authenticationRequired: no
-            destructive: no
 
 ##############################################################################
 ###  Automations
@@ -41,9 +23,9 @@ automation:
         to: 'on'
 
       - platform: event
-        event_type: ios.notification_action_fired
+        event_type: mobile_app_notification_action
         event_data:
-          actionName: LR_REMOTE_NOT_FOUND
+          action: LR_REMOTE_NOT_FOUND
 
     action:
       - service: remote.send_command
@@ -51,13 +33,23 @@ automation:
         data:
           command: find_remote
 
-      - service: script.notify_engine
+      - service: notify.mobile_ios_family
         data:
-          title: 'Living Room Remote'
-          value1: 'Find Remote'
-          ios_category: "REMOTELR"
-          who: "family"
-          apns_id: 'RemoteLR'
+          title: Living Room Remote Finder
+          message: Have you found the Remote?
+          data:
+            actions:
+              - action: LR_REMOTE_FOUND
+                title: Remote Found
+                activationMode: background
+                authenticationRequired: false
+                destructive: false
+
+              - action: LR_REMOTE_NOT_FOUND
+                title: Not Yet
+                activationMode: background
+                authenticationRequired: false
+                destructive: true
 
       - service: input_boolean.turn_off
         entity_id: input_boolean.living_room_remote_finder
@@ -66,9 +58,9 @@ automation:
     id: 1f295bb8-ROKU-4b22-8f75-9fe079b295a8
     trigger:
       platform: event
-      event_type: ios.notification_action_fired
+      event_type: mobile_app_notification_action
       event_data:
-        actionName: LR_REMOTE_FOUND
+        action: LR_REMOTE_FOUND
     action:
       - service: input_boolean.turn_off
         entity_id: input_boolean.living_room_remote_finder
