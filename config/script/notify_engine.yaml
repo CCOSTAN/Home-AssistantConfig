@@ -32,7 +32,7 @@ notify_engine:
 
     - service: >
           {% if who == 'stacey' %}
-            notify.mobile_app_iphone
+            notify.mobile_app_stacey_iphone11
           {% elif who == 'carlo' %}
             notify.mobile_app_carlo_xsmax
           {% elif who == 'parents' %}
@@ -46,14 +46,16 @@ notify_engine:
         title: "{{ title }}"
         message: "{{ value1 }} {{ value2 }} {{ value3 }}"
         data:
-          attachment:
-            url: "{{ url }}"
-            content-type: "{{ content_type }}"
-            hide-thumbnail: false
+          # attachment:
+          #   url: "{{ url }}"
+          #   content-type: "{{ content_type }}"
+          #   hide-thumbnail: false
           apns_headers:
             'apns-collapse-id': "{{ apns_id }}"
           push:
 #           sound: "{{ ios_sound }}"
 #           badge: "{{ ios_badge }}"
+#           interruption-level: time-sensitive
+#           interruption-level: critical
             category: "{{ ios_category }}"
           entity_id: "{{ camera_entity }}"
