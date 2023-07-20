@@ -46,10 +46,6 @@ notify_engine:
         title: "{{ title }}"
         message: "{{ value1 }} {{ value2 }} {{ value3 }}"
         data:
-          # attachment:
-          #   url: "{{ url }}"
-          #   content-type: "{{ content_type }}"
-          #   hide-thumbnail: false
           apns_headers:
             'apns-collapse-id': "{{ apns_id }}"
           push:
@@ -59,3 +55,7 @@ notify_engine:
 #           interruption-level: critical
             category: "{{ ios_category }}"
           entity_id: "{{ camera_entity }}"
+          # attachment:
+          #   url: "{{ url }}"
+          #   content-type: "{{ content_type }}"
+          #   hide-thumbnail: false

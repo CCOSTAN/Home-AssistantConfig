@@ -3,6 +3,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # Phyn Smart Water ShutOff Support
 # https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html
+# Added in Custom HACK integration via https://github.com/MizterB/homeassistant-phyn
 #-------------------------------------------
 ######################################################################
 ##  Phyn Plus Water ShutOff - https://amzn.to/2Zy3sbJ
@@ -36,26 +37,6 @@ automation:
           action: IFTTT_Phyn
 
     action:
-      - service: script.speech_engine
-        data:
-          value1: >
-            {{ [
-            "Attention please.  The Phyn unit has detected a possible leak.  Please verify there are no leaks in the house. "
-            ] | random }}
-          call_no_announcement: 1
-
-      - service: script.tweet_engine_image
-        data:
-          tweet: >
-            {{ [
-            "The @Phyn has detected a {{ trigger.event.data.alert_type }} and notified us using Home Assistant. ",
-            "I am shutting down the water since @Phyn detected {{ trigger.event.data.alert_type }} .",
-            "Time to let @ccostan know that @Phyn has detected {{ trigger.event.data.alert_type }} ."
-            ] | random + " #SavingWater (https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html)" }}
-          image: >-
-            {{ [
-            "/config/www/custom_ui/floorplan/images/branding/pipeleak.png"
-            ] | random }}
 
       - wait_template: >-
          {{ states.sun.sun.state == 'above_horizon' }}
