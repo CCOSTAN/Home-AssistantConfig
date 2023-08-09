@@ -6,7 +6,7 @@ For the sandbox.
 #########################################################
 Create fast Customize for groups, sensors, covers etc...  Just change that first line below 'sensor' to 'group', 'covers' etc..
 
-{% for state in states.sensor -%}
+{% for state in states.group -%}
   {% if loop.first %}
 {% elif loop.last %}
 {% else %}
@@ -22,7 +22,7 @@ Create fast Customize for groups, sensors, covers etc...  Just change that first
 
 #########################################################
 #This code lists out EVERY possible entity and attribute for that entity.
-# source: https://github.com/skalavala/smarthome/blob/master/Entities.md
+# source: https://github.com/skalavala/smarthome/blob/primary/Entities.md
 #########################################################
 
 {{ "_".ljust(90, "_") }}
