@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # Changing the way we call these routines.. no longer using routines.. using custom commands via ALEXA Media Player.
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/366
+# Noon No longer supported.
 #-------------------------------------------
 
 ##################################################
@@ -11,13 +12,13 @@
 ## Called in the AWAY / interior_off script to shut all devices down.
 ##################################################
 
-script:
-  noon_lights_off:
-    alias: 'Bathroom Noon Lights Off'
-    sequence:
+# script:
+#   noon_lights_off:
+#     alias: 'Bathroom Noon Lights Off'
+#     sequence:
 
-      - service: media_player.play_media
-        data:
-          entity_id: media_player.master_bathroom
-          media_content_id: 'turn off bathroom lights'
-          media_content_type: custom
+#       - service: media_player.play_media
+#         data:
+#           entity_id: media_player.master_bathroom
+#           media_content_id: 'turn off bathroom lights'
+#           media_content_type: custom
