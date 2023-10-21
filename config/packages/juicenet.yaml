@@ -63,20 +63,6 @@ automation:
       - service: homeassistant.turn_on
         entity_id: switch.restart_juicebox
 
-      - service: script.tweet_engine_image
-        data:
-          tweet: >
-            {{ [
-            "The #JuiceBox Pro had to be restarted. It was unable to connect back to @emotorwerks servers.",
-            "Unfortunately, the Juicebox Pro sometimes can no longer connect to @emotorwerks servers.  Fortunately, #HomeAssistant can fix that with a restart!"
-            ] | random + " (https://www.vcloudinfo.com/2018/06/using-home-assistant-to-fix-my-juicebox.html) #SelfHeal #EV #Tesla #ModelY "}}
-          image: >-
-            {{ [
-            "/config/www/custom_ui/floorplan/images/branding/car.png",
-            "/config/www/custom_ui/floorplan/images/branding/bearstone_car.png",
-            "/config/www/custom_ui/floorplan/images/branding/batteries.png",
-            "/config/www/custom_ui/floorplan/images/branding/charge.png"
-            ] | random }}
 
   - alias: 'JuiceBox AMP Alert!'
     id: b805f213-a938-4d90-8d18-e88ff4d41776
@@ -145,28 +131,3 @@ automation:
 
       - delay: 00:02:00
       - event: event_did_someone_help_juicebox_TEMP
-
-  - alias: 'JuiceBox Tweet Stat!'
-    id: ed7d21d5-0ff7-40e3-9492-213c23a8b964
-    initial_state: 'on'
-    trigger:
-      - platform: state
-        entity_id: sensor.carlojuice_charging_status
-        from: 'charging'
-    action:
-      - delay: '0{{ range(0,3) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
-      - service: script.tweet_engine_image
-        data:
-          tweet: >
-            {{ [
-            "The #Tesla Model Y Charged for {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes and Juiced up {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs.",
-            "The last charging session was {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes. Added {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs ",
-            "The Juice Box Pro added {{states.sensor.carlojuice_energy_added.state |int /1000}} KwHs to the #Tesla #ModelY in {{(states.sensor.carlojuice_charge_time.state  | int /60) | round() }} minutes."
-            ] | random + " (https://github.com/CCOSTAN/Home-AssistantConfig#garage) #Electric #Solar"}}
-          image: >-
-            {{ [
-            "/config/www/custom_ui/floorplan/images/branding/car.png",
-            "/config/www/custom_ui/floorplan/images/branding/bearstone_car.png",
-            "/config/www/custom_ui/floorplan/images/branding/batteries.png",
-            "/config/www/custom_ui/floorplan/images/branding/charge.png"
-            ] | random }}

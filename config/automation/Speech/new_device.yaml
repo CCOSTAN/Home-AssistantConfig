@@ -16,11 +16,4 @@
       data:
         NewDevice: "There has been a new device detected on the network.  Be sure to appropriately catagorize {{trigger.event.data.host_name}} within Circle."
 
-    - service: script.tweet_engine_no_image
-      data:
-        tweet: >
-          {{ [
-          "New Device on the Network! @MeetCircle has alerted me and now it is locked down.",
-          "Constant monitoring of the network by @MeetCircle has detected a new device in the environment."
-          ] | random + " (https://amzn.to/2eAgaA6)"}}
 ##############################################################################

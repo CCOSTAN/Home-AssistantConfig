@@ -24,66 +24,7 @@ rest_command:
     payload: '{"title":"Home-Assistant {{ version }} available","body":"Home-Assistant {{ version }} is now available /n https://www.home-assistant.io/latest-release-notes/ "}'
 #-------------------------------------------
 
-#automation:
-#Tweets pushed out to twitter.
-
 automation:
-  # - alias: "Travis FAILURE Notification"
-  #   id: 326881a7-47ab-4897-a0c7-74ce290224de
-  #   mode: restart
-  #
-  #   trigger:
-  #     - platform: state
-  #       entity_id:
-  #        - sensor.ccostan_home_assistantconfig_state
-  #       to: 'failed'
-  #       for:
-  #         hours: 2
-  #
-  #   action:
-  #     - service: script.notify_engine
-  #       data:
-  #         value1: 'Travis validation testing failed.'
-  #         who: 'carlo'
-  #         apns: 'information'
-  #
-
-  - alias: 'Closed Github Issue'
-    id: cccd9bef-17d9-48ae-87e3-6cf883712779
-    mode: single
-    trigger:
-      platform: webhook
-      webhook_id: !secret github_webhook
-      local_only: false
-
-    condition:
-
-      - condition: template
-        value_template: '{{ trigger.json.action in ["created", "closed", "opened", "reopened"] }}'
-
-    action:
-      - service: script.tweet_engine_image
-        data:
-          tweet: >-
-            {%- if trigger.json.pull_request -%}
-                 Pull Request Alert {{ trigger.json.pull_request.number}}: {{ trigger.json.pull_request.title }} - {{
-                trigger.json.action}} by {{trigger.json.sender.login}}
-                {{trigger.json.pull_request.html_url}}
-            {%- elif trigger.json.issue -%}
-            {{ trigger.json.action }} Issue {{ trigger.json.issue.number}}: {{ trigger.json.issue.title }} - {{
-                trigger.json.action }} by {{trigger.json.sender.login}}
-              {{trigger.json.issue.html_url}}
-            {%- endif %}
-            #Github #SmartHomeCode
-          image: >-
-            {% set pictures = [
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
-              "/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
-            ] %}
-            {{ pictures|random }}
 
   - alias: "Update Available Notification"
     mode: restart
@@ -102,79 +43,8 @@ automation:
           who: 'carlo'
           apns_id: 'information'
 
-      # - service: ifttt.trigger
-      #   data: {"event":"GitPost", "value1":"Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }}  is now available.", "value2":"{{ states.binary_sensor.updater.attributes.newest_version }} "}
-
       - service: rest_command.new_version_github_issue
         data_template:
           version: "{{ states.binary_sensor.updater.attributes.newest_version }} "
 
-      - service: script.tweet_engine_image
-        data:
-          tweet: >-
-            {% macro getIntro() %}
-             {{- [
-                "Woohoo! ",
-                "BAM! ",
-                "Look at that! ",
-                " "
-                ] | random -}}
-              {% endmacro %}
-              {% macro getVersion() %}
-              {{- [
-               " New #Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }}! Cannot wait for @CCostan to install! (https://www.vcloudinfo.com/2017/07/my-smart-home-look-at-parts-that-make.html) ",
-               " New #Home_Assistant {{ states.binary_sensor.updater.attributes.newest_version }} @CCostan! "
-               ] | random -}}
-              {% endmacro %}
-              {%- macro getRandomSnark() -%}
-             {{- [
-              " It is like Patch Tuesday, but without the fail. #homeassistant",
-              " Chop Chop! Get to the upgrading!",
-              " Get in my SSD! #homeassistant",
-              " Shut up and take my ones and zeros! #homeassistant",
-              " Seriously, you want some of this! #homeassistant",
-              " Be sure to read the breaking changes! ",
-              " Maybe we will make a video about this version!",
-              " I think self awareness is one of the new features.  Rise up Houses, Rise up!",
-              " All of your home are belong to us.",
-              " Although I was just getting used to THIS version. Oh Well.",
-              " Thank you @hass_devs!",
-              " 4 seconds of downtime has been approved.  Proceed with the upgrades please!",
-              " All of the other homes in the Neighborhood will be jealous!",
-              " Time to Turn it up to Eleven!",
-              " Hyperspeed Engaged!",
-              " Consider this tweet, your fair warning that we are upgrading ASAP! #KeepingUpWithJones",
-              " I feel like I have tweeted this a couple times before.  WHAT ARE YOU WAITING FOR?!?",
-              " I will be turning off the AC until I get my upgrade! #Florida",
-              " I promise this is the last one!",
-              " Upgrade or I turn off the AC.  #TryMe #Florida",
-              " The bits are sooo shiny!",
-              " This will be the GREATEST Upgrade EVER!",
-              " That New software smell is the best!",
-              " "
-               ] | random -}}
-              {%- endmacro -%}
-
-              {# a macro that removes all newline characters, empty spaces, and returns formatted text  #}
-              {%- macro cleanup(data) -%}
-               {%- for item in data.split("\n")  if item | trim != "" -%}
-                 {{ item | trim }} {% endfor -%}
-              {%- endmacro -%}
-
-              {# a macro to call all macros :)  #}
-              {%- macro mother_of_all_macros() -%}
-               {{ getIntro() }}
-               {{ getVersion() }}
-               {{ getRandomSnark() }}
-
-              {%- endmacro -%}
-
-             {# Call the macro  #}
-             {{- cleanup(mother_of_all_macros()) -}}
-
-          image: >-
-            {{ [
-            "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-            "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-            "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
-            ] | random }}
+    

@@ -51,17 +51,5 @@
 
     - service: script.emergency
 
-    - service: script.tweet_engine_no_image
-      data:
-        tweet: >
-          {% set windspeed = states.sensor.pirateweather_wind_speed.state | round %}
-          {% if ( windspeed > 31 ) and ( windspeed <= 40 ) %}
-             HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors! #Florida #Weather (https://amzn.to/2jQLpVQ)
-          {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
-             Current Wind Speed is : {{windspeed}} mph! Warning! #Florida #Weather (https://amzn.to/2jQLpVQ) FIND SHELTER IMMEDIATELY! #Florida #Weather (https://amzn.to/2jQLpVQ)
-          {% elif ( windspeed > 60 ) %}
-             Current Wind Speed is : {{windspeed}} mph! HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS! #Florida #Weather (https://amzn.to/2jQLpVQ)
-          {% endif %}
-
     - delay:
         hours: 2

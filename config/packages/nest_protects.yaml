@@ -5,7 +5,7 @@
 # - Write up- https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html
 ######################################################################################################
 #-----------------------------------
-# This group is used primarily for tweet stats
+# 
 group:
   protects:
     name: Nest Protects
@@ -63,10 +63,6 @@ automation:
           who: "family"
           apns_id: '{{ trigger.to_state.attributes.friendly_name }}'
 
-      - service: script.tweet_engine_no_image
-        data:
-          tweet: "An emergency has been detected on {{ trigger.to_state.attributes.friendly_name }} @CCostan (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html)"
-
       - service: script.emergency
         data:
           call_garage_open: 1
@@ -98,6 +94,3 @@ automation:
           who: "family"
           apns_id: '{{ trigger.to_state.attributes.friendly_name }}'
 
-      - service: script.tweet_engine_no_image
-        data:
-          tweet: "Oh NO! {{ trigger.to_state.attributes.friendly_name }} is now in {{ (trigger.to_state.state)|replace('_', ' ') }} mode. @Nest. (https://www.vcloudinfo.com/2017/06/psa-check-out-your-smoke-detectors-once.html) @ccostan #Safety"

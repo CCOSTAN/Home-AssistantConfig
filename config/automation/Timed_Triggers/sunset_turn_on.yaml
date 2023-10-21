@@ -18,40 +18,6 @@
 
   action:
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'
-    - service: script.tweet_engine_image
-      data:
-        tweet: >-
-          {{ [
-          "Right before sunset, I turn on the outdoor lights.",
-          "The sun is officially down. Exterior Cameras are now motion activated.",
-          "Since it gets dark around sunset, I will turn on the landscaping lights.",
-          "The sun has been ushered off the stage. Activate the perimiter cameras.",
-          "When the Sun goes down, I help out by turning on the outside lights. It is the little things in life.",
-          "Time to turn on the Landscaping lights.",
-          "Daytime is over, Time to turn on the exterior lights.",
-          "Once the Sun goes down, we turn on the exterior lights.",
-          "Switching to night mode!",
-          "Since it is sunset, I will turn on the exterior lights.",
-          "The outside world has switched to dark mode.",
-          "If you have not looked outside lately the light of the day is gone."
-          ] | random + [
-          " #Sunset",
-          " #HomeAutomation",
-          " #AccentLighting",
-          " (https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html)",
-          " (https://youtu.be/FcBVu_yk2iY)",
-          " (https://www.vcloudinfo.com/2018/09/unboxing-philips-hue-calla-landscape.html)"
-          ] | random }}
-        image: >-
-          {{ [
-          "/config/www/custom_ui/floorplan/images/branding/light.png",
-          "/config/www/custom_ui/floorplan/images/branding/light2.png",
-          "/config/www/custom_ui/floorplan/images/branding/light3.png",
-          "/config/www/custom_ui/floorplan/images/branding/light4.png",
-          "/config/www/custom_ui/floorplan/images/branding/light5.png",
-          "/config/www/custom_ui/floorplan/images/branding/landscape_light.png",
-          "/config/www/custom_ui/floorplan/images/branding/sunset.png"
-          ] | random }}
     - service: script.speech_engine
       data:
         call_dark_outside: 1

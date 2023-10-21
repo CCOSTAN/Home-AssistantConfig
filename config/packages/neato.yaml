@@ -12,47 +12,8 @@
 #   client_id: !secret neato_client_id
 #   client_secret: !secret neato_client_secret
 
-##############################################################################
-###  Automations - Tweet out When neato is heading back to his Dock for recharging.
-##############################################################################
+
 automation:
-  - alias: 'Vacuum -Tweet'
-    id: 2346efcd-e8a8-4e86-b5b6-43e54a72a95f
-    mode: single
-    trigger:
-      - platform: state
-        entity_id: vacuum.neato_vac
-        to: 'cleaning'
-
-    condition:
-
-      - condition: numeric_state
-        entity_id: vacuum.neato_vac
-        attribute: battery_level
-        below: 20
-
-      - condition: template
-        value_template: >
-          {%- if states.automation.vacuum_tweet.attributes.last_triggered -%}
-            {{ (as_timestamp(now()) - as_timestamp(states.automation.vacuum_tweet.attributes.last_triggered)) > 15000 }}
-          {%- else -%}
-            true
-          {%- endif -%}
-
-    action:
-      - service: script.tweet_engine_image
-        data:
-          tweet: >
-            {{ [
-            "#Neato returning to base. Vacuumed up a TON. (https://amzn.to/2CKHZya)",
-            "Everyday I have the Neato Botvac go out and clean the house on its own.",
-            "Since we have a cat that sheds all day, we have Neato Vacuum go out daily to clean.",
-            "Time to recharge the Neato Vacuum."
-            ] | random + " Battery Level:{{states.vacuum.neato_vac.attributes.battery_level }} #Robots"}}
-          image: >-
-            {{ [
-            "/config/www/custom_ui/floorplan/images/branding/neato.png"
-            ] | random }}
 
 ##############################################################################
 ###  Automations - Help Neato!

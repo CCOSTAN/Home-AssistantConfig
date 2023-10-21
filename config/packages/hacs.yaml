@@ -39,23 +39,5 @@ automation:
             {{repo['display_name'] }} {{ repo['installed_version'] }} to {{ repo['available_version'] }}
             {%- endfor %}
 
-      - service: script.tweet_engine_image
-        data:
-          tweet: >-
-            Hey @CCostan - There are {{ states.sensor.hacs.state }} updates to HACS components:
-            {%- for repo in state_attr("sensor.hacs","repositories") -%}
-            {{repo['display_name'] }} {{ repo['installed_version'] }} to {{ repo['available_version'] }}
-            {%- endfor %}
-          image: >-
-            {% set pictures = [
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad2.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad3.png",
-              "/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png",
-              "/config/www/custom_ui/floorplan/images/branding/repo_ad4.png"
-            ] %}
-            {{ pictures|random }}
-          who: 'BearStoneHA'
-
       - delay:
           days: 1

@@ -21,11 +21,4 @@
         who: 'carlo'
         apns_id: 'ip-change'
 
-    - service: script.tweet_engine_no_image
-      data:
-        tweet: >
-          {{ [
-          "That's weird. Looks like my IP address changed. @CCostan, please check it out.",
-          "Time to update @GoDaddy @CCostan. Looks like my IP address changed."
-          ] | random + " #HomeAutomation"}}
 ##############################################################################

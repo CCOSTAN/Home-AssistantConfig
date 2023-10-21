@@ -27,12 +27,3 @@ automation:
           message: '{{trigger.event.data.title}}'
           title: '{{trigger.event.data.link}}'
 
-      - service: script.tweet_engine_image
-        data:
-          tweet: '{{trigger.event.data.title}} - {{trigger.event.data.link}}'
-          image: >-
-            {% set pictures = [
-              "/config/www/custom_ui/floorplan/images/branding/BearStoneParty.png",
-              "/config/www/custom_ui/floorplan/images/branding/Chalk-Podcast.png"
-            ] %}
-            {{ pictures|random }}
