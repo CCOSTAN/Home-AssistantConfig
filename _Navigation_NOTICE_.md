@@ -11,7 +11,7 @@
   </h4>
 </div>
 <p><font size="3">
-You can definately read more about my voice implimentations in my blog posts (linked below) or on the main repo page.  Voice separates the average home from the Smart Home.  Once you start teaching your home to talk, tweet or text, you'll be hard pressed to stop.</p>
+You can definitely read more about my voice implementations in my blog posts (linked below) or on the main repo page.  Voice separates the average home from the Smart Home.  Once you start teaching your home to talk, tweet or text, you'll be hard pressed to stop.</p>
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="http://www.vCloudInfo.com/tag/iot">
