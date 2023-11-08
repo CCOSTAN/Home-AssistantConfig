@@ -1,0 +1,28 @@
+- alias: 'Home Flash'
+  id: home-flash
+  mode: restart
+  trigger:
+    - platform: state
+      entity_id:
+        - person.carlo
+        - person.stacey
+        - person.paige
+        - person.justin
+      from: 'not_home'
+      to: 'home'
+
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+
+  action:
+    - service: light.turn_on
+      entity_id: light.outdoor_front_lights
+      data:
+        flash: long
+    - delay: '00:00:40'
+    - service: light.turn_on
+      entity_id: light.outdoor_front_lights
+      data:
+        flash: long
