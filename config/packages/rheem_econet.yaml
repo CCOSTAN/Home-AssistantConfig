@@ -4,16 +4,66 @@
 # Support for Rheem Water Heaters (https://amzn.to/36yOSnN)
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/892
 # https://www.home-assistant.io/integrations/econet/
-# No Sensors are added.  Only 2 Services to put the mode in Vacation Mode (and then exit)
 #-------------------------------------------
-
-# Moved to UI
-
-# water_heater:
-#   - platform: econet
-#     username: !secret rheem_username
-#     password: !secret rheem_password
 
 ##############################################################################
 ###  Automations
 ##############################################################################
+
+automation:
+  - alias: "Rheem Water Heater Health Monitoring"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.rheem_wh_compressor_health
+        below: 90  # Adjust threshold as needed
+      - platform: numeric_state
+        entity_id: sensor.rheem_wh_tank_health
+        below: 90  # Adjust threshold as needed
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: sensor.rheem_wh_compressor_health
+            sequence:
+              - service: script.notify_engine
+                data:
+                  title: "Maintenance Alert"
+                  value1: "Rheem Water Tank Compressor Health below recommended level."
+                  who: 'carlo'
+                  apns_id: 'information'
+          - conditions:
+              - condition: trigger
+                id: sensor.rheem_wh_tank_health
+            sequence:
+              - service: script.notify_engine
+                data:
+                  title: "Maintenance Alert"
+                  value1: "Rheem Water Tank Health below recommended level."
+                  who: 'carlo'
+                  apns_id: 'information'
+
+  - alias: "Rheem Water Heater Hot Water Availability Alert"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.rheem_wh_available_hot_water
+        below: 30  # Alert when available hot water drops below 30%
+    action:
+      - service: script.notify_engine
+        data:
+          title: "Hot Water Alert"
+          value1: "Available hot water is below 30%."
+          who: 'carlo'
+          apns_id: 'information'
+      - service: script.speech_engine
+        data:
+          value1: "Please be aware that the hot water has dropped below 30% availability.  Please consider taking a shower at another time."
+
+      - wait_template: "{{ states('sensor.rheem_wh_available_hot_water')|float > 50 }}"
+        timeout: '01:00:00'  # Adjust timeout as needed
+      - service: script.speech_engine
+        data:
+          value1: "The available hot water is now above 50%. Normal showering can resume."
+
+
+
+

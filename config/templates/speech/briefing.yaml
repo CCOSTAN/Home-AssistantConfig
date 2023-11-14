@@ -1,31 +1,42 @@
 >-
   {%- macro dark_outside() -%}
-  {{ [
-      'It is pretty dark outside. I will turn on the outside lights now.',
-      'The sun is offical down. Exterior Cameras are now motion activated.',
-      'The sun has been ushered off the stage. Activating the perimiter cameras.',
-      'It is a little past Sunset. Time to turn on the outside lights. I am on it.',
-      'I will switch on the outside lights. It is getting dark outside.',
-      'Time to turn on the front lights. I will take care of it.',
-      'Switching to night mode! ',
-      'If you have not looked outside lately the light of the day is gone.',
-      'The outside world has switched to dark mode.'
-  ]|random }}
+    {{ [
+        'It is pretty dark outside. I will turn on the outside lights now.',
+        'The sun is official down. Exterior Cameras are now motion activated.',
+        'The sun has been ushered off the stage. Activating the perimeter cameras.',
+        'It is a little past Sunset. Time to turn on the outside lights. I am on it.',
+        'I will switch on the outside lights. It is getting dark outside.',
+        'Time to turn on the front lights. I will take care of it.',
+        'Switching to night mode!',
+        'If you have not looked outside lately the light of the day is gone.',
+        'The outside world has switched to dark mode.',
+        'Evening has arrived. Engaging outdoor security protocols.',
+        'Darkness falls. Its time for the lights to rise. Activating now.',
+        'Night has begun its shift. Illuminating the exterior for safety.',
+        'Goodbye daylight, hello moonlight. Outdoor lights are coming on.',
+        'As night takes the stage, its time for lights to shine outside.',
+        'Sunset complete. Implementing nighttime security measures.',
+        'Dusk is here, let there be light! Activating outdoor lights.'
+    ]|random }}
   {%- endmacro -%}
 
+
   {%- macro responsibilities() -%}
-  {% if now().strftime('%a') == 'Wed' or now().strftime('%a') == 'Sun' %}
-      Today is {{ now().strftime('%A') }} and {{ now().strftime('%A') }} is garbage day.
-  {% endif %}
-  {% if now().strftime('%a') == 'Wed' %}
-      Both Recycling and regular Garbage goes out. Please take out all of the garbage cans tonight.
-  {% endif %}
-  {% if now().strftime('%j')|int(9999)% 2 != 0 %}
-      Today is Justin's day to do the chores.
-  {% else %}
-      Today is Paige's day to do the chores.
-  {% endif %}
+    {% set day_of_week = now().strftime('%a') %}
+    {% if day_of_week in ['Wed', 'Sun'] %}
+    Today is {{ now().strftime('%A') }} and {{ now().strftime('%A') }} is garbage day.
+    {% if day_of_week == 'Wed' %}
+        Both Recycling and regular Garbage goes out. Please take out all of the garbage cans tonight.
+    {% endif %}
+    {% endif %}
+    {% set day_of_year = now().strftime('%j')|int(9999) %}
+    {% if day_of_year % 2 != 0 %}
+    Today is Justin's day to do the chores.
+    {% else %}
+    Today is Paige's day to do the chores.
+    {% endif %}
   {%- endmacro -%}
+    
 
   {%- macro inside_weather() -%}
   Inside the house, it is {{ states.climate.downstairs.attributes['current_temperature'] }} degrees with around {{ states('sensor.downstairs_thermostat_humidity') }} percent humidity.
