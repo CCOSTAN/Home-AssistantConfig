@@ -63,7 +63,7 @@ automation:
           value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Be careful if outdoors."
           ios_category: "LIGHTNING"
           who: 'family'
-          apns_id: 'Alert'
+          group: 'Alert'
 
       - service: script.speech_engine
         data:

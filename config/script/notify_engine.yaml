@@ -10,7 +10,7 @@
       # who: "stacey | carlo | paige | family | parents"
       # camera_entity: 'Camera.Camera'
       # content-type: "jpeg"
-      # apns_id: "Something_Unique" if important or information
+      # group: "Something_Unique" if important or information
 
     # @CCOSTAN
     # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
@@ -42,10 +42,9 @@ notify_engine:
         title: "{{ title }}"
         message: "{{ value1 }} {{ value2 }} {{ value3 }}"
         data:
-          apns_headers:
-            'apns-collapse-id': "{{ apns_id }}"
+          group: "{{ group|default('information'),true }}"
           push:
-            category: "{{ ios_category }}"
+            interuption_level: "{{ level|default('active'),true }}"
           entity_id: "{{ camera_entity }}"
 
 notify_engine_two_button:
@@ -81,4 +80,4 @@ notify_engine_two_button:
               action: "{{ action2 }}"
               icon: "{{ icon2|default ('sfsymbols:house.circle', true) }}"
               destructive: "{{ destructive2|default('false', true) }}"         
-          apns_id: "{{ apns_id }}"
+          group: "{{ group|default('information'),true }}"

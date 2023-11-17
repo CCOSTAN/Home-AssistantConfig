@@ -13,7 +13,7 @@
           value1: 'Check the MQTT Dump'
           value2: '/dump/{{ trigger.platform }}'
           who: 'carlo'
-          apns_id: 'information'
+          group: 'information'
       - service: mqtt.publish
         data:
           topic: '/dump/{{ trigger.platform }}'

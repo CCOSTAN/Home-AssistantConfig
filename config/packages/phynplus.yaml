@@ -47,7 +47,7 @@ automation:
           value1: 'Phyn is sensing {{ trigger.event.data.alert_type }} and turned off the water.  Please verify {{ trigger.event.data.where }}.'
           who: 'parents'
           ios_category: "phyn"
-          apns_id: 'IFTTT_Phyn'
+          group: 'IFTTT_Phyn'
 
   - alias: Turn Phyn Water On
     id: 1f295bb8-8925-4b22-PHYN-9fe079b295a8
@@ -65,7 +65,7 @@ automation:
           title: 'Phyn Leak Detection'
           value1: 'Request Recieved. Attempting to Turn the Water back on.'
           who: 'parents'
-          apns_id: 'IFTTT_Phyn'
+          group: 'IFTTT_Phyn'
 
       - service: script.speech_engine
         data:

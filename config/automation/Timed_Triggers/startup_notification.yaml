@@ -14,7 +14,7 @@
         title: 'Home Assistant StartUp'
         value1: 'Home Assistant is Up and Running!'
         who: 'carlo'
-        apns_id: 'information'
+        group: 'information'
 
     - service: homeassistant.turn_off
       entity_id:
@@ -32,7 +32,7 @@
 
     - service: notify.alexa_media_office
       data:
-        title: "Home Assistant Restarted"
+        message: "Home Assistant has been restarted."
         data:
           type: announce
-        message: "Home Assistant has been restarted."
+

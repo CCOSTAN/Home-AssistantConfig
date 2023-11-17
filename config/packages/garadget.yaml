@@ -102,7 +102,7 @@ automation:
           icon2: 'sfsymbols:house.circle'
           destructive2: 'true'
           who: "{{ person_triggered }}"
-          apns_id: 'Welcome_Home'
+          group: 'Welcome_Home'
 
   - alias: 'Open Large Garage Door Action'
     id: 85e02a74-2ecc-4815-95a6-db864a6dffd7
@@ -190,8 +190,8 @@ automation:
     id: 2819207a-1716-4552-be34-a8e0f7af004e
     trigger:
       - platform: numeric_state
-        entity_id: sensor.dark_sky_wind_speed
-        above: 20
+        entity_id: ssensor.pirateweather_wind_speed
+        above: 30
 
     condition:
       - condition: or
@@ -212,13 +212,13 @@ automation:
           title: 'Check/Close Garage Doors - High Speed Wind Alert:'
           value1: "Small: {{ states('cover.small_garage_door')}}"
           value2: "Large: {{ states('cover.large_garage_door')}}"
-          apns_id: 'information'
+          group: 'information'
           who: 'parents'
 
       - service: script.speech_engine
         data:
           value1: >
-            "The winds are picking up outside.  The wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.
+            "The winds are picking up outside.  The wind speed is {{ states('sensor.pirateweather_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.
             {% if is_state('cover.large_garage_door', 'open') -%}
               The Large Garage Door is open
             {% endif -%}
@@ -231,8 +231,8 @@ automation:
         data:
           tweet: >
             {{ [
-            "Wind speed is {{ states('sensor.dark_sky_wind_speed')|round}} miles per hour.  For safety, I'm going to close the @garadget doors.",
-            "Getting pretty windy! {{ states('sensor.dark_sky_wind_speed')|round}}MPH. Time to ask @Garadget to close the garage doors."
+            "Wind speed is {{ states('sensor.pirateweather_wind_speed')|round}} miles per hour.  For safety, I'm going to close the @garadget doors.",
+            "Getting pretty windy! {{ states('sensor.pirateweather_wind_speed')|round}}MPH. Time to ask @Garadget to close the garage doors."
             ] | random + "(https://amzn.to/2jQLpVQ)"}}
           image: >-
             {{ [
@@ -292,7 +292,7 @@ automation:
           value2: "Large: {{ states('cover.large_garage_door')}}"
           who: "family"
           camera_entity: "camera.camera2"
-          apns_id: 'information'
+          group: 'information'
 
       - service: script.speech_engine
         data:

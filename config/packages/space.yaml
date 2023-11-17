@@ -42,6 +42,6 @@ automation:
       - service: script.notify_engine
         data:
           value1: 'Go Outside!  There is a Rocket Launch very soon! {{states.sensor.next_launch.attributes.stream }}'
-          apns_id: 'information'
+          group: 'information'
 
 

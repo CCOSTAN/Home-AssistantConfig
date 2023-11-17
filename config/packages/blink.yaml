@@ -34,7 +34,7 @@ automation:
           title: 'Check Fridge'
           value1: "Please check the fridge, the temperature has been {{ states('sensor.blink_blink1_temperature') }} degrees for at least 20 minutes."
           who: 'family'
-          apns_id: 'information'
+          group: 'information'
 
       - wait_template: "{{ states.group.family.state == 'home' }}"
 

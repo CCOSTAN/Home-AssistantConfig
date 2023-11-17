@@ -41,7 +41,7 @@ automation:
           title: 'Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} '
           value1: "Home Assistant {{ states.binary_sensor.updater.attributes.newest_version }} is now available."
           who: 'carlo'
-          apns_id: 'information'
+          group: 'information'
 
       - service: rest_command.new_version_github_issue
         data_template:

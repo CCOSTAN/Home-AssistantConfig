@@ -28,7 +28,7 @@ automation:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('on', 'up')|replace('off', 'down') }}."
           value1: "Please verify with the Tesla App."
           who: 'parents'
-          apns_id: 'information'
+          group: 'information'
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/779
   - alias: Shut Things down if running on PowerWall
@@ -50,7 +50,7 @@ automation:
          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
          value1: "Taking actions to turning off the House Lights to preserve Battery Power."
          who: 'family'
-         apns_id: 'information'
+         group: 'information'
 
       - delay:
          minutes: 1
@@ -102,7 +102,7 @@ automation:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
           value1: "Taking actions to turning off the AC units to preserve Battery Power."
           who: 'family'
-          apns_id: 'information'
+          group: 'information'
 
   - alias: Turn back on the Nest Thermostats after a Power Outage
     id: 14faf84b-cb24-4391-a97f-b83479a67fc7
@@ -146,4 +146,4 @@ automation:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
           value1: "All AC systems are set back to normal operations."
           who: 'family'
-          apns_id: 'information'
+          group: 'information'

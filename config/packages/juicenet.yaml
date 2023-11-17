@@ -30,7 +30,7 @@ automation:
         data:
           value1: "The Garage charger is now in {{ states('sensor.carlojuice_charging_status') }} mode."
           who: 'parents'
-          apns_id: 'information'
+          group: 'information'
 
   - alias: 'Juicebox Self-Heal'
     id: e693f117-c75d-4bb9-a8f3-c104b226d0c5
@@ -89,7 +89,7 @@ automation:
         data:
           value1: "The Juice Box Charger is pulling {{ states('sensor.carlojuice_amps') }} AMPs.  This is above the safety mark of 30.  Please unplug charger immediately."
           who: 'parents'
-          apns_id: 'JuiceBox'
+          group: 'JuiceBox'
 
       - service: script.speech_engine
         data:
@@ -123,7 +123,7 @@ automation:
         data:
           value1: "The Juice Box Charger is running very Hot.  Temperature is around {{ states('sensor.carlojuice_temperature') }} degrees.  This is above the safety mark of 140.  Please unplug the car immediately."
           who: 'parents'
-          apns_id: 'JuiceBox'
+          group: 'JuiceBox'
 
       - service: script.speech_engine
         data:

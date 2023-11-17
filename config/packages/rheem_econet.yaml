@@ -30,7 +30,7 @@ automation:
                   title: "Maintenance Alert"
                   value1: "Rheem Water Tank Compressor Health below recommended level."
                   who: 'carlo'
-                  apns_id: 'information'
+                  group: 'information'
           - conditions:
               - condition: trigger
                 id: sensor.rheem_wh_tank_health
@@ -40,7 +40,7 @@ automation:
                   title: "Maintenance Alert"
                   value1: "Rheem Water Tank Health below recommended level."
                   who: 'carlo'
-                  apns_id: 'information'
+                  group: 'information'
 
   - alias: "Rheem Water Heater Hot Water Availability Alert"
     trigger:
@@ -53,7 +53,7 @@ automation:
           title: "Hot Water Alert"
           value1: "Available hot water is below 30%."
           who: 'carlo'
-          apns_id: 'information'
+          group: 'information'
       - service: script.speech_engine
         data:
           value1: "Please be aware that the hot water has dropped below 30% availability.  Please consider taking a shower at another time."

@@ -77,7 +77,7 @@ automation:
           value1: 'Please take your Medicine!'
           ios_category: "tablet"
           who: "carlo"
-          apns_id: 'Medicine'
+          group: 'Medicine'
 
   - alias: Remind Me Later
     id: 79b49c85-f832-47d7-b02d-bff099ef6fbc
@@ -92,7 +92,7 @@ automation:
           title: 'Medicine Reminder'
           value1: 'Ok. I will remind you when you get home.'
           who: 'carlo'
-          apns_id: 'Medicine'
+          group: 'Medicine'
       - wait_template: >-
           {{ states.person.carlo.state == 'home' }}
       - service: script.notify_engine
@@ -100,7 +100,7 @@ automation:
           title: 'Medicine Reminder'
           value1: 'Now that your home, please take your medicine!'
           who: 'carlo'
-          apns_id: 'Medicine'
+          group: 'Medicine'
 
   - alias: Tablet Already taken
     id: 1f295bb8-8925-4b22-8f75-9fe079b295a8
