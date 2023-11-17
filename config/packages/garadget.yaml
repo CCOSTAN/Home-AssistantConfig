@@ -22,7 +22,6 @@
   #   payload_close: "close"
   #   payload_stop: "stop"
 
-
 mqtt:
   cover:
     - name: "Large Garage Door"
@@ -69,10 +68,66 @@ group:
       # - cover.small_garage_door
 
 ######################################################################
-##  Garage Status Announcements - Only during normal hours.
+##  Send a notification to anyone coming home asking if they want to open the garage door.
 ######################################################################
 
 automation:
+  - alias: 'Garage Helper'
+    id: 365adc21-5e96-4e78-9e94-089901a29430
+    mode: parallel
+    trigger:
+      - platform: state
+        entity_id:
+          - person.carlo
+          - person.stacey
+        from: 'not_home'
+        to: 'home'
+    condition:
+      - condition: state
+        entity_id: cover.large_garage_door
+        state: 'closed'
+    action:
+      - variables:
+          person_triggered: "{{ trigger.to_state.entity_id.split('.')[1] }}"
+      - service: script.notify_engine_two_button
+        data:
+          title: 'Welcome Home!'
+          value1: 'Open Garage Door?'
+          title1: 'Yes'
+          action1: 'OPEN_LARGE_GARAGE'
+          icon1: 'sfsymbols:arrow.up.circle'
+          destructive1: 'false'
+          title2: 'No'
+          action2: 'NO_OPEN_LARGE_GARAGE'
+          icon2: 'sfsymbols:house.circle'
+          destructive2: 'true'
+          who: "{{ person_triggered }}"
+          apns_id: 'Welcome_Home'
+
+  - alias: 'Open Large Garage Door Action'
+    id: 85e02a74-2ecc-4815-95a6-db864a6dffd7
+    trigger:
+      platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: OPEN_LARGE_GARAGE
+    condition:
+      - condition: state
+        entity_id: cover.large_garage_door
+        state: 'closed'
+      - condition: state
+        entity_id: group.family
+        state: 'home'
+    action:
+      - service: cover.open_cover
+        entity_id: cover.large_garage_door
+
+
+
+######################################################################
+##  Garage Status Announcements - Only during normal hours.
+######################################################################
+
   - alias: 'Update Garage Get-Status'
     id: 2b9e8359-c189-4399-b415-50107513fe90
     trigger:
@@ -242,3 +297,4 @@ automation:
       - service: script.speech_engine
         data:
           value1: "Please check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}}"
+

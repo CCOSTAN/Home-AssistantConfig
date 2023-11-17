@@ -1,5 +1,5 @@
 ######################################################################################################
-###Script to send notifications to IFTTT to notify me on the mobile Phone! Call like this:
+###Script to send notifications to the mobile Phone! Call like this:
   # action:
     # service: script.notify_engine
     # data:
@@ -11,8 +11,6 @@
       # camera_entity: 'Camera.Camera'
       # content-type: "jpeg"
       # apns_id: "Something_Unique" if important or information
-
-    # IFTTT Maker channel should look like this: https://files.gitter.im/home-assistant/home-assistant/phkx/blob
 
     # @CCOSTAN
     # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
@@ -27,8 +25,6 @@ notify_engine:
         - condition: state
           entity_id: input_boolean.text_notifications
           state: 'on'
-    # - service: ifttt.trigger
-    #   data: {"event":"notify_engine", "value1":"{{ value1 }}", "value2":"{{ value2 }}", "value3":"{{ value3 }}"}
 
     - service: >
           {% if who == 'stacey' %}
@@ -49,13 +45,40 @@ notify_engine:
           apns_headers:
             'apns-collapse-id': "{{ apns_id }}"
           push:
-#           sound: "{{ ios_sound }}"
-#           badge: "{{ ios_badge }}"
-#           interruption-level: time-sensitive
-#           interruption-level: critical
             category: "{{ ios_category }}"
           entity_id: "{{ camera_entity }}"
-          # attachment:
-          #   url: "{{ url }}"
-          #   content-type: "{{ content_type }}"
-          #   hide-thumbnail: false
+
+notify_engine_two_button:
+  sequence:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: input_boolean.text_notifications
+          state: 'on'
+
+    - service: >
+          {% if who == 'stacey' %}
+            notify.mobile_app_stacey_iphone11
+          {% elif who == 'carlo' %}
+            notify.mobile_app_carlo_xsmax
+          {% elif who == 'parents' %}
+            notify.ios_parents
+          {% elif who == 'family' %}
+            notify.ios_family
+          {% else %}
+            notify.ios_family
+          {% endif %}
+      data:
+        message: "{{ value1 }} {{ value2 }} {{ value3 }}"
+        title: "{{ title|default('', true) }}"
+        data:
+          actions:
+            - title: "{{ title1|default('', true) }}"
+              action: "{{ action1 }}"
+              icon: "{{ icon1|default ('sfsymbols:house.circle', true) }}"
+              destructive: "{{ destructive1|default('false', true) }}"
+            - title: "{{ title2|default('', true) }}"
+              action: "{{ action2 }}"
+              icon: "{{ icon2|default ('sfsymbols:house.circle', true) }}"
+              destructive: "{{ destructive2|default('false', true) }}"         
+          apns_id: "{{ apns_id }}"
