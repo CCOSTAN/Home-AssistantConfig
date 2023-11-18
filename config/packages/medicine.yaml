@@ -1,0 +1,85 @@
+######################################################################
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# ## - Reminders to take my medicine
+#-------------------------------------------
+######################################################################
+
+
+input_boolean:
+  medicine:
+    name: Medicine Reminder
+    initial: off
+    icon: mdi:tablet
+
+automation:
+  - alias: Medicine Reminder
+    id: 78c47087-8242-470c-97d1-3dc5747ed576
+    initial_state: true
+    trigger:
+      - platform: time_pattern
+        minutes: '/45'
+      - platform: time
+        at: '21:30:00'
+      - platform: state
+        entity_id: person.carlo
+        to: 'home'
+
+    condition:
+      - condition: time
+        after: '21:30:00'
+      - condition: state
+        entity_id: person.carlo
+        state: 'home'
+      - condition: state
+        entity_id: input_boolean.medicine
+        state: 'off'
+
+    action:
+      - service: script.notify_engine_two_button
+        data:
+          title: 'Medicine Alert!'
+          value1: 'Please take your Medicine!'
+          title1: 'Took Medicine'
+          action1: 'TABLET_TAKEN'
+          icon1: 'sfsymbols:arrow.up.circle'
+          who: "carlo"
+          group: 'Medicine'
+
+  - alias: Tablet Already taken
+    id: 1f295bb8-8925-4b22-8f75-9fe079b295a8
+    trigger:
+      platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: TABLET_TAKEN
+    action:
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.medicine
+
+  # - alias: Remind Me Later
+  #   id: 79b49c85-f832-47d7-b02d-bff099ef6fbc
+  #   trigger:
+  #     platform: event
+  #     event_type: mobile_app_notification_action
+  #     event_data:
+  #       action: NOT_HOME
+  #   action:
+  #     - service: script.notify_engine_two_button
+  #       data:
+  #         title: 'Medicine Reminder'
+  #         value1: 'Ok. I will remind you when you get home.'
+  #         who: 'carlo'
+  #         group: 'Medicine'
+  #     - wait_template: >-
+  #         {{ states.person.carlo.state == 'home' }}
+  #     - service: script.notify_engine_two_button
+  #       data:
+  #         title: 'Medicine Reminder'
+  #         value1: 'Now that your home, please take your medicine!'
+  #         who: 'carlo'
+  #         group: 'Medicine'
+
+
+## Reminders to take my Medicine! - End.
