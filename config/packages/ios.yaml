@@ -22,24 +22,6 @@ notify:
 
 mobile_app:
 
-ios:
-  push:
-    categories:
-      - name: Medicine
-        identifier: 'tablet'
-        actions:
-          - identifier: 'TABLET_TAKEN'
-            title: 'Tablet Taken'
-            activationMode: 'background'
-            authenticationRequired: no
-            destructive: yes
-
-          - identifier: 'NOT_HOME'
-            title: 'I am not Home'
-            activationMode: 'background'
-            authenticationRequired: no
-            destructive: no
-
 ## - Reminders to take my medicine
 input_boolean:
   medicine:
@@ -71,50 +53,49 @@ automation:
         state: 'off'
 
     action:
-      - service: script.notify_engine
+      - service: script.notify_engine_two_button
         data:
           title: 'Medicine Alert!'
           value1: 'Please take your Medicine!'
-          ios_category: "tablet"
+          title1: 'Took Medicine'
+          action1: 'TABLET_TAKEN'
+          icon1: 'sfsymbols:arrow.up.circle'
           who: "carlo"
-          group: 'Medicine'
-
-  - alias: Remind Me Later
-    id: 79b49c85-f832-47d7-b02d-bff099ef6fbc
-    trigger:
-      platform: event
-      event_type: ios.notification_action_fired
-      event_data:
-        actionName: NOT_HOME
-    action:
-      - service: script.notify_engine
-        data:
-          title: 'Medicine Reminder'
-          value1: 'Ok. I will remind you when you get home.'
-          who: 'carlo'
-          group: 'Medicine'
-      - wait_template: >-
-          {{ states.person.carlo.state == 'home' }}
-      - service: script.notify_engine
-        data:
-          title: 'Medicine Reminder'
-          value1: 'Now that your home, please take your medicine!'
-          who: 'carlo'
           group: 'Medicine'
 
   - alias: Tablet Already taken
     id: 1f295bb8-8925-4b22-8f75-9fe079b295a8
     trigger:
       platform: event
-      event_type: ios.notification_action_fired
+      event_type: mobile_app_notification_action
       event_data:
-        actionName: TABLET_TAKEN
+        action: TABLET_TAKEN
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.medicine
 
-
-
+  # - alias: Remind Me Later
+  #   id: 79b49c85-f832-47d7-b02d-bff099ef6fbc
+  #   trigger:
+  #     platform: event
+  #     event_type: mobile_app_notification_action
+  #     event_data:
+  #       action: NOT_HOME
+  #   action:
+  #     - service: script.notify_engine_two_button
+  #       data:
+  #         title: 'Medicine Reminder'
+  #         value1: 'Ok. I will remind you when you get home.'
+  #         who: 'carlo'
+  #         group: 'Medicine'
+  #     - wait_template: >-
+  #         {{ states.person.carlo.state == 'home' }}
+  #     - service: script.notify_engine_two_button
+  #       data:
+  #         title: 'Medicine Reminder'
+  #         value1: 'Now that your home, please take your medicine!'
+  #         who: 'carlo'
+  #         group: 'Medicine'
 
 
 ## Reminders to take my Medicine! - End.
