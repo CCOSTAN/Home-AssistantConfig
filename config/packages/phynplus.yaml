@@ -9,18 +9,6 @@
 ##  Phyn Plus Water ShutOff - https://amzn.to/2Zy3sbJ
 ######################################################################
 
-ios:
-  push:
-    categories:
-      - name: Phyn
-        identifier: 'phyn'
-        actions:
-          - identifier: 'PHYN_WATER_ON'
-            title: 'Turn Water Back On'
-            activationMode: 'background'
-            authenticationRequired: no
-            destructive: yes
-
 automation:
   ###################################
   ##  From IFTTT - Notifications
@@ -37,25 +25,21 @@ automation:
           action: IFTTT_Phyn
 
     action:
-
-      - wait_template: >-
-         {{ states.sun.sun.state == 'above_horizon' }}
-
       - service: script.notify_engine
         data:
           title: 'Phyn Leak Detection'
           value1: 'Phyn is sensing {{ trigger.event.data.alert_type }} and turned off the water.  Please verify {{ trigger.event.data.where }}.'
           who: 'parents'
-          ios_category: "phyn"
-          group: 'IFTTT_Phyn'
+          group: 'Phyn'
+          level: 'critical'
 
   - alias: Turn Phyn Water On
     id: 1f295bb8-8925-4b22-PHYN-9fe079b295a8
     trigger:
       platform: event
-      event_type: ios.notification_action_fired
+      event_type: mobile_app_notification_action
       event_data:
-        actionName: PHYN_WATER_ON
+        action: PHYN_WATER_ON
     action:
       - service: ifttt.trigger
         data: {"event":"phyn_water_on"}
@@ -65,7 +49,8 @@ automation:
           title: 'Phyn Leak Detection'
           value1: 'Request Recieved. Attempting to Turn the Water back on.'
           who: 'parents'
-          group: 'IFTTT_Phyn'
+          group: 'Phyn'
+          level: 'time-sensitive'
 
       - service: script.speech_engine
         data:
