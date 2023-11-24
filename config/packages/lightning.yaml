@@ -11,32 +11,18 @@ input_boolean:
     initial: off
     icon: mdi:weather-lightning
 
-ios:
-  push:
-    categories:
-      - name: Lightning
-        identifier: 'LIGHTNING'
-        actions:
-          - identifier: 'SNOOZE_LIGHTNING'
-            title: 'Snooze Alerts until tomorrow'
-            activationMode: 'background'
-            authenticationRequired: no
-            destructive: no
-
 automation:
 
   - alias: Snooze Lightning
     id: 1f295bb8-8925-4b22-8f75-9l1ghtn1nga8
     trigger:
       platform: event
-      event_type: ios.notification_action_fired
+      event_type: mobile_app_notification_action
       event_data:
-        actionName: SNOOZE_LIGHTNING
+        action: SNOOZE_LIGHTNING
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.snooze_lightning
-
-
 
   - alias: 'Lightning Notification'
     id: 6e054688-5e75-48bd-9411-52a3e26264d1
@@ -57,13 +43,15 @@ automation:
         state: 'off'
 
     action:
-      - service: script.notify_engine
+      - service: script.notify_engine_two_button
         data:
           title: 'Lightning Warning!'
           value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Be careful if outdoors."
-          ios_category: "LIGHTNING"
-          who: 'family'
-          group: 'Alert'
+          title1: 'Snooze Alerts until tomorrow'
+          action1: 'SNOOZE_LIGHTNING'
+          icon1: 'sfsymbols:arrow.up.circle'
+          who: "Family"
+          group: 'Information'
 
       - service: script.speech_engine
         data:

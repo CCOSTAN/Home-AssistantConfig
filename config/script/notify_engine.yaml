@@ -1,22 +1,33 @@
 ######################################################################################################
-###Script to send notifications to the mobile Phone! Call like this:
-  # action:
-    # service: script.notify_engine
-    # data:
-      # title: 'Ios Title'
-      # value1: 'Startup: Home Assistant is Up and Running!'
-      # value2: "{{ trigger.to_state.state }}"
-      # value3:
-      # who: "stacey | carlo | paige | family | parents"
-      # camera_entity: 'Camera.Camera'
-      # content-type: "jpeg"
-      # group: "Something_Unique" if important or information
+### Script for Sending Notifications to Mobile Phones
+# This script (`notify_engine`) and its variant (`notify_engine_two_button`) are designed to send 
+# customized notifications to specified recipients in Home Assistant.
+# - The script dynamically chooses the notification service based on the 'who' parameter, 
+#   allowing targeting individuals like Stacey, Carlo, or groups like family or parents.
+# - Notifications include a title and a composite message from 'value1', 'value2', and 'value3'.
+# - The script can optionally attach camera snapshots, specify notification groups, and set interruption levels.
 
-    # @CCOSTAN
-    # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Usage:
+# To call this script, specify the action as `script.notify_engine` or `script.notify_engine_two_button`
+# and provide the necessary data parameters:
+#   - 'title': The notification title.
+#   - 'value1', 'value2', 'value3': Components of the message.
+#   - 'who': Recipient identifier (e.g., 'stacey', 'carlo', 'paige', 'family', 'parents').
+#   - 'camera_entity': Camera entity ID for snapshots (optional).
+#   - 'group': Notification group (optional, defaults to 'information').
+#   - 'level': Interruption level for the notification (optional, defaults to 'active').
 
-    # Need this script to work with Android? Check out this Video. https://youtu.be/mK1wdpxhLbM
+# The 'notify_engine_two_button' variant includes additional parameters for two interactive buttons:
+#   - 'title1', 'title2': Titles for the action buttons.
+#   - 'action1', 'action2': Actions to be performed when buttons are pressed.
+#   - 'icon1', 'icon2': Icons for the buttons (optional).
+#   - 'destructive1', 'destructive2': Boolean flags to mark buttons as destructive (optional).
+
+# Author: @CCOSTAN
+# Original Repository: https://github.com/CCOSTAN/Home-AssistantConfig
+# Video Tutorial for Android Compatibility: https://youtu.be/mK1wdpxhLbM
 ######################################################################################################
+
 
 notify_engine:
   sequence:
