@@ -15,13 +15,14 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.grid_status
+
     condition:
-      condition: or
-      conditions:
-        - condition: template
-          value_template: "{{ states('binary_sensor.grid_status') == 'on' }}"
-        - condition: template
-          value_template: "{{ states('binary_sensor.grid_status') == 'off' }}"
+      - condition: template
+       # Check that both current and previous states are not 'unavailable', 'unknown', or 'null'.
+        value_template: >-
+          {{ states('binary_sensor.grid_status') not in ['unavailable', 'unknown', 'null'] and
+            trigger.from_state.state not in ['unavailable', 'unknown', 'null'] }}
+
     action:
       - service: script.notify_engine
         data:
@@ -37,7 +38,6 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.grid_status
-        from: 'True'
         to: 'False'
 
     action:
@@ -81,7 +81,6 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.grid_status
-        from: 'True'
         to: 'False'
         for:
           minutes: 6
