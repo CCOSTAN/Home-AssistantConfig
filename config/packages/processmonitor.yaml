@@ -7,14 +7,9 @@
 #     sensor.process_mosquitto:
 #       friendly_name: 'Mosquitto'
 #
-#
-
+#  Uses SYSTEMMONITOR integration
 #-------------------------------------------
-sensor:
-  - platform: systemmonitor
-    resources:
-      - type: disk_use_percent
-        arg: /
+
 
 #-------------------------------------------
 ##############################################################################
