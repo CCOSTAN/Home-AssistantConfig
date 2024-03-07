@@ -2,7 +2,7 @@
 Floorplan Fully Kiosk for Home Assistant
 Version: 1.0.7.50
 By Petar Kozul
-https://github.com/pkozul/ha-floorplan
+https://github.com/ExperienceLovelace/ha-floorplan
 */
 
 'use strict';

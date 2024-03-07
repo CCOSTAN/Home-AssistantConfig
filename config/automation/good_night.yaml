@@ -55,12 +55,6 @@
     
     - service: script.interior_off
 
-    - wait_template: "{{ states.media_player.master_bedroom.state == 'standby' }}"
-      timeout: '00:30:00'
-
-    - service: homeassistant.turn_off
-      entity_id: group.landscaping
-
 - alias: 'Bed Presence AMP Trigger'
   id: 26846f7b-bc76-43d2-99be-af552d2300f
   trigger:
@@ -90,7 +84,8 @@
               entity_id: 
                 - switch.kitchen_accent_2
                 - group.master_bathroom_accents
-
+                - group.landscaping     
+                
     default:
       - service: homeassistant.turn_on
         target:

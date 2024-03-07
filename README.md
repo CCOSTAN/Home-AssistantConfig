@@ -69,7 +69,7 @@ As of 2018, I have migrated everything to a Docker based platform.  You can read
 * [Docker](https://Docker.com) - Docker runs on a Ubuntu Server Core base. [Video on Ubuntu Upgrades](https://youtu.be/w-YNtU1qtlk)
 * [Youtube Video on Upgrading Home Assistant in Docker](https://youtu.be/ipatCbsY-54) - Be sure to Subscribe to get all Home Assistant videos.
 * [Home Assistant Container](https://home-assistant.io/) - It all starts here.
-* The amazing [Floorplan](https://github.com/pkozul/ha-floorplan) project to help visualize my smarthome.
+* The amazing [Floorplan](https://github.com/ExperienceLovelace/ha-floorplan) project to help visualize my smarthome.
 * SSL via [SSLS](https://SSLS.com) - 5 Bucks A Year! - Keeps me safe! - [Youtube Video on Port Forwarding](https://youtu.be/y5NOP1F-xGU) - On my Arris TG1682 Modem
 * [Docker-Compose.yaml](https://github.com/CCOSTAN/Docker_Support) - Realtime list of all the Containers.
 * [Dasher Container](https://github.com/maddox/dasher) to leverage those cheap [Amazon Dash Buttons](https://youtu.be/rwQVe6sIi9w)
