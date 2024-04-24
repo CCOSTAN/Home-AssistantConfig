@@ -83,16 +83,16 @@ automation:
         from: 'not_home'
         to: 'home'
     condition:
-      - condition: state
-        entity_id: cover.large_garage_door
-        state: 'closed'
+        - condition: state
+          entity_id: cover.large_garage_door
+          state: 'closed'
     action:
       - variables:
           person_triggered: "{{ trigger.to_state.entity_id.split('.')[1] }}"
       - service: script.notify_engine_two_button
         data:
           title: 'Welcome Home!'
-          value1: 'Open Garage Door?'
+          value1: 'Open Large Garage door?'
           title1: 'Yes'
           action1: 'OPEN_LARGE_GARAGE'
           icon1: 'sfsymbols:arrow.up.circle'
@@ -111,7 +111,7 @@ automation:
       event_type: mobile_app_notification_action
       event_data:
         action: OPEN_LARGE_GARAGE
-    condition:
+    conditions:
       - condition: state
         entity_id: cover.large_garage_door
         state: 'closed'
@@ -122,6 +122,43 @@ automation:
       - service: cover.open_cover
         entity_id: cover.large_garage_door
 
+  - alias: 'Prompt to Open Front Door'
+    id: ece2b4a8-af21-41f4-a8fc-480a4d1ddabc
+    trigger:
+      platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: 'NO_OPEN_LARGE_GARAGE'
+    conditions:
+      - condition: state
+        entity_id: group.family
+        state: 'home'
+    action:
+      - service: script.notify_engine_two_button
+        data:
+          title: 'Unlock Front Door?'
+          value1: 'Do you want to unlock the front door instead?'
+          title1: 'Yes'
+          action1: 'UNLOCK_FRONT_DOOR'
+          icon1: 'sfsymbols:unlock'
+          destructive1: 'false'
+          title2: 'No'
+          action2: 'KEEP_FRONT_DOOR_LOCKED'
+          icon2: 'sfsymbols:lock'
+          destructive2: 'true'
+          who: "{{ person_triggered }}"
+          group: 'Welcome_Home'
+
+  - alias: 'Unlock Front Door Action'
+    id: c3106db1-f2c4-4800-b1a3-76d440228600
+    trigger:
+      platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: 'UNLOCK_FRONT_DOOR'
+    action:
+      - service: lock.unlock
+        entity_id: lock.front_door
 
 
 ######################################################################

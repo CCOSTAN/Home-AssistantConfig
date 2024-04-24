@@ -9,9 +9,12 @@ include:
 exclude:
   domains:
     - device_tracker
+    - camera
   entity_globs:
     - sensor.*uptime*
     - sensor.vpn_client_*
+    - binary_sensor.*_motion
+    - binary_sensor.*is_present
   entities:
     - automation.update_garage_get_status
     - binary_sensor.camera1_motion_sensor
@@ -20,7 +23,6 @@ exclude:
     - binary_sensor.powerwall_charging
     - media_player.carlo_s_4th_fire
     - media_player.alarm_panel_2
-    - media_player.tap
     - script.speech_processing
     - script.amp_settings
     - sensor.carlo_ap
