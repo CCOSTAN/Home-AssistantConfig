@@ -46,7 +46,7 @@ automation:
       - service: script.notify_engine_two_button
         data:
           title: 'Lightning Warning!'
-          value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Be careful if outdoors."
+          value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.609) | round (1, 'floor')}} Miles of our home.  Be careful if outdoors."
           title1: 'Snooze Alerts until tomorrow'
           action1: 'SNOOZE_LIGHTNING'
           icon1: 'sfsymbols:arrow.up.circle'
@@ -55,7 +55,7 @@ automation:
 
       - service: script.speech_engine
         data:
-          value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.69) | round (1, 'floor')}} Miles of our home.  Please make sure everyone is inside the house."
+          value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.609) | round (1, 'floor')}} Miles of our home.  Please make sure everyone is inside the house."
           call_window_check: 1
           call_garage_check: 1
           
