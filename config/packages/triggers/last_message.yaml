@@ -16,9 +16,10 @@ input_boolean:
     initial: off
 #-------------------------------------------
 mqtt: 
-  binary_sensor:
-      - state_topic: "polly/lastmsg"
-        name: "Last Message"
+  sensor:
+    - state_topic: "polly/lastmsg"
+      name: "Last Message"
+      
 ##############################################################################
 ###  Automations -
 ##############################################################################
