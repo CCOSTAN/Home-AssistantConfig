@@ -55,21 +55,29 @@ speech_processing:
           {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
             0.3
           {% elif now().strftime('%H')|int > 12 and now().strftime('%H')|int < 20 %}
-            0.5
+            0.3
           {% else %}
             0.3
           {% endif %}
 
+    # - service: tts.amazon_polly_say
+    #   data:
+    #     entity_id: media_player.livingroomCC
+    #     message: >-
+    #       <speak>
+    #       <amazon:auto-breaths>
+    #         {{ speech_message }}
+    #       </amazon:auto-breaths>
+    #       </speak>
+    #     cache: true
 
-    - service: tts.amazon_polly_say
+    - service: tts.cloud_say
       data:
         entity_id: media_player.livingroomCC
+        options: 
+          voice: JennyNeural
         message: >-
-          <speak>
-          <amazon:auto-breaths>
-            {{ speech_message }}
-          </amazon:auto-breaths>
-          </speak>
+              {{ speech_message }}
         cache: true
 
     - service: input_boolean.turn_off
