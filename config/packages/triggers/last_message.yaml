@@ -19,6 +19,9 @@ mqtt:
   sensor:
     - state_topic: "polly/lastmsg"
       name: "Last Message"
+
+    - state_topic: "polly/lastmsg_openai"
+      name: "Last AI Message"
       
 ##############################################################################
 ###  Automations -
@@ -34,18 +37,19 @@ automation:
         to: 'on'
 
     action:
-      - service: tts.amazon_polly_say
+      - service: tts.cloud_say
         entity_id:
           - media_player.livingroomCC
           - media_player.entry_alarm_panel
           - media_player.bedroom_alarm_panel
         data:
-          message: >
-            <speak>
-            {{states.sensor.last_message.state}}
-            </speak>
-          cache: true
+          options: 
+            voice: JennyNeural
+          message: >-
+             {{states.sensor.last_ai_message.state}}
+          cache: false
 
       - service: input_boolean.turn_off
         entity_id:
           - input_boolean.lastmsg
+

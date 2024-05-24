@@ -14,7 +14,7 @@ speech_processing:
     - service: mqtt.publish
       data:
         topic: 'polly/lastmsg'
-        payload: "This message is from {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | striptags | truncate(220)}}"
+        payload: "Message: {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | striptags | truncate(220)}}"
         retain: true
 
     - condition: and
@@ -53,11 +53,11 @@ speech_processing:
           {{ media_player }}
         volume_level: >-
           {% if now().strftime('%H')|int < 12 and now().strftime('%H')|int > 6 %}
-            0.3
+            0.2
           {% elif now().strftime('%H')|int > 12 and now().strftime('%H')|int < 20 %}
             0.3
           {% else %}
-            0.3
+            0.2
           {% endif %}
 
     # - service: tts.amazon_polly_say
@@ -71,14 +71,28 @@ speech_processing:
     #       </speak>
     #     cache: true
 
+    - service: conversation.process
+      data:
+        agent_id: conversation.openai_conversation
+        text: >- 
+          Please take the following system generated information and review and relay the information as yourself. There should be no followups in your response since this is a broadcast only. Here is the information:
+          {{ speech_message }}
+      response_variable: agent
+
     - service: tts.cloud_say
       data:
         entity_id: media_player.livingroomCC
         options: 
           voice: JennyNeural
         message: >-
-              {{ speech_message }}
+              {{ agent.response.speech.plain.speech }}
         cache: true
+
+    - service: mqtt.publish
+      data:
+        topic: 'polly/lastmsg_openai'
+        payload: "Message: {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ agent.response.speech.plain.speech | striptags | truncate(220)}}"
+        retain: true
 
     - service: input_boolean.turn_off
       data:
