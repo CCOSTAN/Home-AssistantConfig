@@ -235,10 +235,10 @@ automation:
         conditions:
           - condition: state
             entity_id: cover.large_garage_door
-            state: 'opened'
+            state: 'open'
           - condition: state
             entity_id: cover.small_garage_door
-            state: 'opened'
+            state: 'open'
 
     action:
       - service: input_boolean.turn_on
@@ -263,19 +263,6 @@ automation:
               {% if is_state('cover.large_garage_door', 'open') -%}and
               {%- endif %} The small Garage Door is open.
             {% endif %}"
-
-      - service: script.tweet_engine_image
-        data:
-          tweet: >
-            {{ [
-            "Wind speed is {{ states('sensor.pirateweather_wind_speed')|round}} miles per hour.  For safety, I'm going to close the @garadget doors.",
-            "Getting pretty windy! {{ states('sensor.pirateweather_wind_speed')|round}}MPH. Time to ask @Garadget to close the garage doors."
-            ] | random + "(https://amzn.to/2jQLpVQ)"}}
-          image: >-
-            {{ [
-            "/config/www/custom_ui/floorplan/images/branding/windy.png"
-            ] | random }}
-
 
   ##############################################################################
 
@@ -306,9 +293,9 @@ automation:
             - condition: or
               conditions:
                 - condition: template
-                  value_template: "{{ states('cover.large_garage_door') == 'opened' }}"
+                  value_template: "{{ states('cover.large_garage_door') == 'open' }}"
                 - condition: template
-                  value_template: "{{ states('cover.small_garage_door') == 'opened' }}"
+                  value_template: "{{ states('cover.small_garage_door') == 'open' }}"
         - condition: and
           conditions:
             - condition: state
@@ -317,9 +304,9 @@ automation:
             - condition: or
               conditions:
                 - condition: template
-                  value_template: "{{ states('cover.large_garage_door') == 'opened' }}"
+                  value_template: "{{ states('cover.large_garage_door') == 'open' }}"
                 - condition: template
-                  value_template: "{{ states('cover.small_garage_door') == 'opened'}}"
+                  value_template: "{{ states('cover.small_garage_door') == 'open'}}"
 
     action:
       - service: script.notify_engine
@@ -333,5 +320,5 @@ automation:
 
       - service: script.speech_engine
         data:
-          value1: "Please check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}}"
+          value1: "Please check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}} [Only mention the garage door that is open]"
 

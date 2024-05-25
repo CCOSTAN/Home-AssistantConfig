@@ -55,11 +55,6 @@
         - input_boolean.guest_mode
     - service: script.speech_engine
       data:
-        value1: >
-          {{ [
-          "Guest Mode has been disabled and normal automations will continue.",
-          "Let me disable guest mode since there are no longer any guests in the house. ",
-          "I have disabled guest mode and have resumed normal operations! ",
-          "Disabling guest mode! "
-          ] | random }}
+        value1: >-
+          Guest Mode has been disabled and normal automations will continue.
         call_no_announcement: 1

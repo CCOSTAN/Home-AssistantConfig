@@ -75,7 +75,8 @@ speech_processing:
       data:
         agent_id: conversation.openai_conversation
         text: >- 
-          Please take the following system generated information and review and relay the information as yourself. There should be no followups in your response since this is a broadcast only. Here is the information:
+          Take the following system generated information and review and relay the information as yourself. 
+          Here is the information:
           {{ speech_message }}
       response_variable: agent
 

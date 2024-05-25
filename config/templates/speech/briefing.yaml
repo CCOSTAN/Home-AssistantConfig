@@ -1,32 +1,14 @@
 >-
   {%- macro dark_outside() -%}
-    {{ [
-        'It is pretty dark outside. I will turn on the outside lights now.',
-        'The sun is official down. Exterior Cameras are now motion activated.',
-        'The sun has been ushered off the stage. Activating the perimeter cameras.',
-        'It is a little past Sunset. Time to turn on the outside lights. I am on it.',
-        'I will switch on the outside lights. It is getting dark outside.',
-        'Time to turn on the front lights. I will take care of it.',
-        'Switching to night mode!',
-        'If you have not looked outside lately the light of the day is gone.',
-        'The outside world has switched to dark mode.',
-        'Evening has arrived. Engaging outdoor security protocols.',
-        'Darkness falls. Its time for the lights to rise. Activating now.',
-        'Night has begun its shift. Illuminating the exterior for safety.',
-        'Goodbye daylight, hello moonlight. Outdoor lights are coming on.',
-        'As night takes the stage, its time for lights to shine outside.',
-        'Sunset complete. Implementing nighttime security measures.',
-        'Dusk is here, let there be light! Activating outdoor lights.'
-    ]|random }}
+    The sun has set. I will turn on the outside lights.
   {%- endmacro -%}
-
 
   {%- macro responsibilities() -%}
     {% set day_of_week = now().strftime('%a') %}
     {% if day_of_week in ['Wed', 'Sun'] %}
     Today is {{ now().strftime('%A') }} and {{ now().strftime('%A') }} is garbage day.
     {% if day_of_week == 'Wed' %}
-        Both Recycling and regular Garbage goes out. Please take out all of the garbage cans tonight.
+        Both Recycling and regular Garbage goes out. 
     {% endif %}
     {% endif %}
     {% set day_of_year = now().strftime('%j')|int(9999) %}
@@ -36,14 +18,13 @@
     Today is Paige's day to do the chores.
     {% endif %}
   {%- endmacro -%}
-    
 
   {%- macro inside_weather() -%}
-  Inside the house, it is {{ states.climate.downstairs.attributes['current_temperature'] }} degrees with around {{ states('sensor.downstairs_thermostat_humidity') }} percent humidity.
+  Inside the house, it is {{ states.climate.downstairs.attributes['current_temperature'] }} degrees with {{ states('sensor.downstairs_thermostat_humidity') }} percent humidity. [Only mention humidity if it seems unusually high]
   {%- endmacro -%}
 
   {%- macro outside_weather() -%}
-  Outside, it is going to be {{ states('sensor.pirateweather_temperature') }} degrees and {{ states('sensor.pirateweather_summary') }}
+  Outside, it is going to be {{ states('sensor.pirateweather_temperature') }} degrees and {{ states('sensor.pirateweather_summary') }} with {{ states('sensor.pirateweather_humidity') }} % humidity. [Only mention humidity if it seems unusually high]
   {%- endmacro -%}
 
   {%- macro lightning() -%}
@@ -133,19 +114,12 @@
 
   {%- macro iss() -%}
   {% if is_state('binary_sensor.iss', 'on') -%}
-      Here is something interesting. The international space station is above us now. There are {{ states.binary_sensor.iss.attributes['number_of_people_in_space'] }} people in space right now.
+      The international space station is above us now and there are {{ states.binary_sensor.iss.attributes['number_of_people_in_space'] }} people in space right now. [Add an additional ISS fact at the end]
   {% endif -%}
   {%- endmacro -%}
 
   {%- macro moon() -%}
-    {%- if states.sensor.moon.state == 'Full moon' -%}
-      {{ [
-           "Check out the full moon tonight!",
-           "Hey look, There is the full moon. ",
-           "The moon is huge! And full. ",
-           "If you want to see the full moon tonight is the night."
-           ] | random }}
-    {%- endif -%}
+        Current Moon phase: {{ states('sensor.moon') }} [Give a fact and mention today's phase]
   {%- endmacro -%}
 
   {%- macro uv() -%}
@@ -160,7 +134,7 @@
 
   {%- macro holiday() -%}
   {% if states.sensor.holiday.state != '' %}
-      Today is {{ states.sensor.holiday.state }}.
+      Today is {{ states.sensor.holiday.state }}. [Give an interesting fact or quote related to today]
   {% endif %}
   {%- endmacro -%}
 
@@ -190,125 +164,7 @@
   {%- endmacro -%}
 
   {% macro inspirational_quote() %}
-      {% set inspirational_quote = [
-      "and one more thing, Life is about making an impact, make it a positive one. ",
-      "and one more thing, Whatever the mind of man can conceive and believe, it can achieve. ",
-      "and one more thing, Strive not to be a success, but rather to be of value. ",
-      "and one more thing, I attribute my overall success to never giving or taking an excuse. ",
-      "and one more thing, You miss one hundred percent of the shots you dont take. ",
-      "and one more thing, The most difficult thing is the decision to act, the rest is merely tenacity. ",
-      "and one more thing, The only difference between who you are and who you want to be, is what you do. ",
-      "and one more thing, Every strike brings me closer to the next home run. ",
-      "and one more thing, Defining thepurpose is the starting point of all achievement. ",
-      "and one more thing, Life is not about getting and having, its about giving and being. ",
-      "and one more thing, We become what we think about. ",
-      "and one more thing, Be the change that you wish to see in the world. ",
-      "and one more thing, A wise man changes his mind but a fool never will. ",
-      "and one more thing, Life is short. Smile while you still have teeth.",
-      "and one more thing, Change is inevitable.  Growth is optional. ",
-      "and one more thing, dont worry, be happy. ",
-      "and one more thing, Every mountain top is within reach if you just keep climbing.",
-      "and one more thing, Being positive in a negative situation is not naïve; its leadership.",
-      "and one more thing, What you get by achieving your goals is not as important as what you become by achieving your goals.",
-      "and one more thing, If you want to achieve greatness, stop asking for permission.",
-      "and one more thing, To live a creative life, we must lose our fear of being wrong.",
-      "and one more thing, If you are not willing to risk the usual, you will have to settle for the ordinary.",
-      "and one more thing, Trust because you are willing to accept the risk, not because its safe or certain.",
-      "and one more thing, All our dreams can come true if we have the courage to pursue them.",
-      "and one more thing, Good things come to people who wait, but better things come to those who go out and get them.",
-      "and one more thing, If you do what you always did, you will get what you always got.",
-      "and one more thing, Success is the sum of small efforts, repeated day in and day out.",
-      "and one more thing, Only put off until tomorrow what you are willing to die having left undone.",
-      "and one more thing, People who are crazy enough to think they can change the world, are the ones who do.",
-      "and one more thing, Just when the caterpillar thought the world was ending, it turned into a butterfly.",
-      "and one more thing, Successful entrepreneurs are givers and not takers of positive energy.",
-      "and one more thing, Whenever you see a successful person you only see the public glories, never the private sacrifices to reach them.",
-      "and one more thing, Opportunities dont happen, you create them.",
-      "and one more thing, Start by doing whats necessary; then do whats possible; and suddenly you are doing the impossible.",
-      "and one more thing, Some people dream of great accomplishments, while others stay awake and do them.",
-      "and one more thing, The distance between insanity and genius is measured only by success.",
-      "and one more thing, It does not matter how slowly you go as long as you do not stop.",
-      "and one more thing, Positive thinking will let you do everything better than negative thinking will.",
-      "and one more thing, Trust the process. ",
-      "and one more thing, There are far better things ahead of us than behind us. ",
-      "and one more thing, If you want to go fast, go alone but if you want to go far, go with others. ",
-      "and one more thing, The key to success is to focus on goals not obstacles. ",
-      "and one more thing, Sometimes we are tested not to show our weaknesses, but to discover our strengths. ",
-      "and one more thing, Do something today that your future self will thank you for. ",
-      "and one more thing, Life is ten percent what happens to you and ninety percent of how you react to it. ",
-      "and one more thing, The most common way people give up their power is by thinking they do not have any. ",
-      "and one more thing, The mind is everything. What you think, you will become.  ",
-      "and one more thing, Always try to Live your best life. ",
-      "and one more thing, When nothing goes right, go left. ",
-      "and one more thing, The best time to plant a tree was twenty years ago. The second best time is now. ",
-      "and one more thing, An unexamined life is not worth living. ",
-      "and one more thing, Eighty percent of success is showing up. ",
-      "and one more thing, Do not stop when you are tired, stop when you are done. ",
-      "and one more thing, Luck is being prepared and ready for the opportunities when they come. ",
-      "and one more thing, Do not wait for opportunity.  Create it.",
-      "and one more thing, action is the foundation of success. ",
-      "and one more thing, All progress takes place outside the comfort zone. ",
-      "and one more thing, You can make mistakes but you should never quit. ",
-      "and one more thing, Do not let the fear of losing be greater than the excitement of winning. ",
-      "and one more thing, The way to get started is to quit talking and begin doing. ",
-      "and one more thing, when you feel like quitting, remember why you started. ",
-      "and one more thing, The harder you work, the more luck people will think you have. ",
-      "and one more thing, The harder you work for something, the greater you will feel when you achieve it. ",
-      "and one more thing, Your time is limited, so do not waste it living someone elses life. ",
-      "and one more thing, Winning is not everything, but wanting to win is. ",
-      "and one more thing, I am not a product of my circumstances. I am a product of my decisions. ",
-      "and one more thing, You can never cross the ocean until you have the courage to lose sight of the shore. ",
-      "and one more thing, Either you run the day, or the day runs you. ",
-      "and one more thing, Whether you think you can or you think you cannot, you will be right. ",
-      "and one more thing, The two most important days in your life are the day you are born and the day you find out why. ",
-      "and one more thing, Never ruin a good day by thinking about a bad yesterday. ",
-      "and one more thing, Whatever you can do, or dream you can, begin it. Boldness has genius, power and magic in it. ",
-      "and one more thing, The best revenge is massive success. ",
-      "and one more thing, The universe cant put good into your hands unless you let go of the bad.",
-      "and one more thing, People often say that motivation does not last. Well, neither does bathing. That is why we recommend it daily. ",
-      "and one more thing, Life shrinks or expands in proportion to ones courage. ",
-      "and one more thing, If you hear a voice within you say you cannot paint, then by all means paint and that voice will be silenced. ",
-      "and one more thing, Do not raise your voice, instead improve your argument. ",
-      "and one more thing, There is only one way to avoid criticism: do nothing, say nothing, and be nothing. ",
-      "and one more thing, Ask and it will be given to you; search, and you will find; knock and the door will be opened for you. ",
-      "and one more thing, The only person you are destined to become is the person you decide to be. ",
-      "and one more thing, Go confidently in the direction of your dreams. Live the life you have imagined. ",
-      "and one more thing, Certain things catch your eye, but pursue only those that capture the heart. ",
-      "and one more thing, Believe you can and you are halfway there. ",
-      "and one more thing, Good things take time. ",
-      "and one more thing, If you cant beat the Fear... just do it scared! ",
-      "and one more thing, There is no place like home. ",
-      "and one more thing, Life can be tough but so are you. ",
-      "and one more thing, Everything you have ever wanted is on the other side of fear. ",
-      "and one more thing, Start where you are. Use what you have. Do what you can. ",
-      "and one more thing, Fall seven times and stand up eight. ",
-      "and one more thing, Everything has beauty, but not everyone can see. ",
-      "and one more thing, Life is like riding a bicycle. To keep your balance, you must keep moving. ",
-      "and one more thing, Life is not measured by the number of breaths we take, but by the moments that take our breath away. ",
-      "and one more thing, in any given moment, we can choose to move forward and grow or retreat.",
-      "and one more thing, Happiness is not something readymade. It comes from your own actions. ",
-      "and one more thing, If you are offered a seat on a rocket ship, do not ask what seat! Just get on. ",
-      "and one more thing, If the wind will not move you forward, take to the oars. ",
-      "and one more thing, If you can dream it, you can do it. ",
-      "and one more thing, You can not fall if you do not climb. But theres no joy in living your whole life on the ground. ",
-      "and one more thing, Too many of us are not living our dreams because we are living our fears. ",
-      "and one more thing, Live your dreams or live your fears.  You can only choose one… ",
-      "and one more thing, Challenges are what make life interesting and overcoming them is what makes life meaningful. ",
-      "and one more thing, If you want to lift yourself up, lift up someone else. ",
-      "and one more thing, Be nice to others and nice things will happen to you.",
-      "and one more thing, Everyone has a plan until they get punched in the face.  Be ready to pivot and adapt to the situation. ",
-      "and one more thing, You are the Artist of your OWN life.  Dont hand the paint brush to anyone else. ",
-      "and one more thing, Try to be a rainbow for someone elses cloud. ",
-      "and one more thing, It is nice to be important, but more important to be nice.",
-      "and one more thing, You have within you right now, everything you need to deal with whatever the world can throw at you.",
-      "and one more thing, The only way to do great work is to love what you do. If you havent found it yet, keep looking. Dont settle.",
-      "and one more thing, Life is too short to waste time hating anyone.",
-      "and one more thing, Be yourself, everyone else is already taken.",
-      "and one more thing, Dream big, work hard, stay focused, and surround yourself with good people.",
-      "and one more thing, What we fear doing most is usually what we need to do most.",
-      "and one more thing, Be the energy you want to attract."
-      ] %}
-      {{inspirational_quote|random}}
+        [Give a fact or inspirational quote relevant to the day or situation at the end of the message with the phrase and one more thing.]
   {% endmacro %}
 
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}
