@@ -36,8 +36,6 @@
     - delay: '00:01:00'
     - service: script.speech_engine
       data:
-#         {% set person = state_attr(trigger.entity_id, "friendly_name")%}      This is another way to do it.
-#         {% set person = trigger.entity_id.split('.')[1]|replace('_', ' ')%}
         personarriving: >
           {% set person = expand('group.arriving')|map(attribute='name')|join(' and ') %}
           {% set peoplecount = expand('group.arriving') | count %}

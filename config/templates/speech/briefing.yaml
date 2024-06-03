@@ -17,6 +17,7 @@
     {% else %}
     Today is Paige's day to do the chores.
     {% endif %}
+    [Only mention chores if today is garbage day or if this is the only information point you have]
   {%- endmacro -%}
 
   {%- macro inside_weather() -%}
@@ -114,7 +115,7 @@
 
   {%- macro iss() -%}
   {% if is_state('binary_sensor.iss', 'on') -%}
-      The international space station is above us now and there are {{ states.binary_sensor.iss.attributes['number_of_people_in_space'] }} people in space right now. [Add an additional ISS fact at the end]
+      The international space station is above us now and there are {{ states.binary_sensor.iss.attributes['number_of_people_in_space'] }} people in space right now. [include an ISS fact at the end]
   {% endif -%}
   {%- endmacro -%}
 
@@ -164,7 +165,11 @@
   {%- endmacro -%}
 
   {% macro inspirational_quote() %}
-        [Give a fact or inspirational quote relevant to the day or situation at the end of the message with the phrase and one more thing.]
+        [Include an inspirational quote relevant to the day or situation at the end of the message. "]
+  {% endmacro %}
+
+  {% macro fact_of_the_day() %}
+        [Include a fact about something that happened in the past on this day at the end of the message]
   {% endmacro %}
 
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}
@@ -251,7 +256,7 @@
     {% endif %}
 
     {# call a Random fact about the house or inspiration quote #}
-    {{ ([iss, moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote]|random)() }}
+    {{ ([iss, moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote, fact_of_the_day]|random)() }}
 
   {%- endmacro -%}
   {{- cleanup(mother_of_all_macros()) -}}
