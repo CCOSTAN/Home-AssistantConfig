@@ -168,6 +168,18 @@
         [Include an inspirational quote relevant to the day or situation at the end of the message. "]
   {% endmacro %}
 
+  {% macro justin_work() %}
+        {% set current_hour = now().hour %}
+        {% set current_minute = now().minute %}
+        {% set waze_travel_time = states('sensor.waze_travel_time') | int %}
+        
+        {% if (8 <= current_hour <= 9 and current_minute <= 30) or (17 <= current_hour <= 18 and current_minute <= 30) %}
+            {% if waze_travel_time => 35 %}
+                [This message is IMPORTANT] There is traffic on the route to take justin to work. The current travel time is {{ waze_travel_time }} minutes.
+            {% endif %}
+        {% endif %}
+  {% endmacro %}
+
   {% macro fact_of_the_day() %}
         [Include a fact about something that happened in the past on this day at the end of the message]
   {% endmacro %}
@@ -256,7 +268,7 @@
     {% endif %}
 
     {# call a Random fact about the house or inspiration quote #}
-    {{ ([iss, moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote, fact_of_the_day]|random)() }}
+    {{ ([justin_work, iss, moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote, fact_of_the_day]|random)() }}
 
   {%- endmacro -%}
   {{- cleanup(mother_of_all_macros()) -}}
