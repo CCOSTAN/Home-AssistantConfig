@@ -19,7 +19,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.waze_travel_time
-        above: 35
+        above: 34
 
     condition:
       - condition: or
@@ -35,7 +35,7 @@ automation:
       - service: script.notify_engine
         data:
           value1: 'There is traffic on the Spectrum Route'
-          value2: "Reported Time is :{{ states.sensor.waze_travel_time.state }} minutes"
+          value2: "Reported Time is : {{ states.sensor.waze_travel_time.state }} minutes"
           who: 'family'
 
       - service: input_boolean.turn_on
@@ -43,4 +43,5 @@ automation:
 
       - service: script.speech_engine
         data:
-          value1: "Attention! There is traffic on the Spectrum Route for Justins job.  The estimated travel time right now is {{ states.sensor.waze_travel_time.state }} minutes."
+          value1: "Attention! Traffic on the Spectrum Route for Justins job. Estimated travel time right now is {{ states.sensor.waze_travel_time.state }} minutes. Beep beep! [If you think this could be weather related, mention that as well]"
+          call_outside_weather: 1
