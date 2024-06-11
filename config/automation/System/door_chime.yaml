@@ -3,7 +3,8 @@
 ## Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 ###################################
 
-- alias: Door Chime
+- alias: Door 
+  mode: queued
   id: ae0fb37b-67cf-48a4-a609-999d44272e90
   trigger:
     - platform: state
@@ -20,6 +21,9 @@
       data:
         media_player: 'media_player.livingroomcc'
         volume_level: 0.22
+
+    - wait_template: "{{ not is_state('media_player.livingroomcc', 'playing') }}"
+      timeout: '00:01:00'  # Adjust the timeout as needed
 
     - service: media_player.play_media
       data:

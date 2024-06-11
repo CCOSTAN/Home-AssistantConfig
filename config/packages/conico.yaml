@@ -28,16 +28,7 @@ automation:
       - platform: state
         entity_id: binary_sensor.mcu1_gpio12 #interior Garage Doors
         from: 'off'
-        to: 'on'
-
-      - platform: state
-        entity_id:
-          - person.carlo
-          - person.stacey
-          - person.paige
-          - person.justin
-        from: 'not_home'
-        to: 'home'       
+        to: 'on' 
 
       - platform: state
         entity_id:

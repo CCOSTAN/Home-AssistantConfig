@@ -43,5 +43,7 @@ automation:
 
       - service: script.speech_engine
         data:
-          value1: "Attention! Traffic on the Spectrum Route for Justins job. Estimated travel time right now is {{ states.sensor.waze_travel_time.state }} minutes. Beep beep! [If you think this could be weather related, mention that as well]"
-          call_outside_weather: 1
+          value1: "Attention! Traffic on the Spectrum Route for Justins job. Estimated travel time right now is {{ states.sensor.waze_travel_time.state }} minutes. Beep beep!"
+
+          
+
