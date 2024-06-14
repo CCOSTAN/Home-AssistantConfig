@@ -172,6 +172,10 @@
         [Include a fact about something that happened in the past on this day at the end of the message]
   {% endmacro %}
 
+  {%- macro traffic_time() -%} 
+         Current traffic is Spectrum Offices: {{ states.sensor.waze_travel_time.state }} minutes.   
+  {%- endmacro -%}
+
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}
   {%- macro cleanup(data) -%}
     {%- for item in data.split("\n")  if item | trim != "" -%}
@@ -184,6 +188,10 @@
 
   {# a macro to call all macros :)  #}
   {%- macro mother_of_all_macros() -%}
+
+    {% set day_of_week = now().strftime('%a') %}
+    {% set hour = now().hour %}
+    {% set minute = now().minute %}
 
     {% if call_no_announcement != 1 %}
       {% if now().strftime('%H')|int(9999)< 12 and now().strftime('%H')|int(9999)> 6 %}
@@ -249,6 +257,12 @@
 
     {% if now().strftime('%H')|int(0) > 21 %}
     {{ medicine() }}
+    {% endif %}
+   
+    {% if day_of_week in ['Tue', 'Wed', 'Thu', 'Fri', 'Sat'] %}
+        {% if (hour == 8 and minute >= 30) or (hour == 9 and minute <= 20) or (hour == 17 and minute >= 0) or (hour == 18 and minute <= 20) %}
+            {{ traffic_time() }}
+        {% endif %}
     {% endif %}
 
     {% if value1 is not none %}

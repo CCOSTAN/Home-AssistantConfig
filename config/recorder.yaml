@@ -13,6 +13,8 @@ exclude:
   entity_globs:
     - sensor.*uptime*
     - sensor.vpn_client_*
+    - sensor.*_first_connection*
+    - sensor.*_last_connection*
     - binary_sensor.*_motion
     - binary_sensor.*is_present
   entities:
@@ -40,8 +42,6 @@ exclude:
     - sensor.floorplan_time_2
     - sensor.ha_uptime
     - sensor.large_garage_door_since
-    - sensor.last_message
-    - sensor.last_ai_message
     - sensor.low_battery
     - sensor.medicine_time
     - sensor.network
