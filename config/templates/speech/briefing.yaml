@@ -120,7 +120,9 @@
   {%- endmacro -%}
 
   {%- macro moon() -%}
+        {% if (now().hour == 17) %}
         Current Moon phase: {{ states('sensor.moon') }} [Give a fact and mention today's phase]
+        {% endif %}
   {%- endmacro -%}
 
   {%- macro uv() -%}
@@ -173,7 +175,7 @@
   {% endmacro %}
 
   {%- macro traffic_time() -%} 
-         Current traffic is Spectrum Offices: {{ states.sensor.waze_travel_time.state }} minutes.   
+         Current traffic to Spectrum Offices: {{ states.sensor.waze_travel_time.state }} minutes.   
   {%- endmacro -%}
 
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}

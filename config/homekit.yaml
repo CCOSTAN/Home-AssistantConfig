@@ -20,10 +20,12 @@ filter:
     - scene
     - light
   include_entities:
-    - camera.carlo_nvr_camera1
-    - camera.carlo_nvr_camera2
-    - camera.carlo_nvr_camera3
-    - camera.front_door
+    - camera.bedroomgate
+    - camera.driveway
+    - camera.filtergate
+    - camera.frontdoorbell
+    - camera.poolcam
+    - camera.birdseye
     - light.bedroom
     - light.bedroom_lights
     - light.den_lights
@@ -48,8 +50,8 @@ filter:
     - climate.spaceship_hvac_climate_system
     
 entity_config:
-  camera.carlo_nvr_camera1:
-    linked_motion_sensor: binary_sensor.camera1_motion_sensor
+  camera.frontdoorbell:
+    linked_motion_sensor: binary_sensor.frontdoorbell_all_occupancy
     video_codec: copy
     stream_source: !secret camera1_stream
   camera.carlo_nvr_camera2:
