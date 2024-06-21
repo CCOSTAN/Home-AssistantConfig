@@ -38,21 +38,11 @@
       data:
         personarriving: >
           {% set person = expand('group.arriving')|map(attribute='name')|join(' and ') %}
-          {% set peoplecount = expand('group.arriving') | count %}
-          {% if peoplecount == 1 %}
-            {% set is_are = ' is ' %}
-          {% else %}
-            {% set is_are = ' are ' %}
-          {% endif %}
-          {%- macro greeting_sentence(person, is_are) -%}
-          {{ [
-          "Welcome back home " ~ person,
-          person  ~ is_are + " home now."
-          ] | random }}
-          [Welcome them home in a random style]
+          {%- macro greeting_sentence(person) -%}
+            {{ ["[Welcome " ~ person + " home]"] }}
           {%- endmacro -%}
 
-          {{greeting_sentence(person, is_are)}}
+          {{greeting_sentence(person)}}
         call_responsibilities: 1
         call_no_announcement: 1
         call_garage_check: 1

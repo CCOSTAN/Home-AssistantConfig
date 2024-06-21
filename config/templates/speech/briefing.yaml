@@ -17,23 +17,49 @@
     {% else %}
     Today is Paige's day to do the chores.
     {% endif %}
-    [Only mention chores if today is garbage day or if this is the only information point you have]
+    [Only mention chores if today is garbage day or if this is the only information you have]
   {%- endmacro -%}
 
   {%- macro inside_weather() -%}
-  Inside the house, it is {{ states.climate.downstairs.attributes['current_temperature'] }} degrees with {{ states('sensor.downstairs_thermostat_humidity') }} percent humidity. [Only mention humidity if it seems unusually high]
+     Inside the house, it is {{ states.climate.downstairs.attributes['current_temperature'] }} degrees with {{ states('sensor.downstairs_thermostat_humidity') }} percent humidity. [Only mention humidity if it seems unusually high]
   {%- endmacro -%}
 
-  {%- macro outside_weather() -%}
+  {%- macro outside_weather2() -%}
   Outside, it is going to be {{ states('sensor.pirateweather_temperature') }} degrees and {{ states('sensor.pirateweather_summary') }} with {{ states('sensor.pirateweather_humidity') }} % humidity. [Only mention humidity if it seems unusually high]
   {%- endmacro -%}
 
+  {% macro outside_weather() %}
+    [Here is the current weather outside]
+    {%- for entity in states.sensor if 'pirateweather' in entity.entity_id %}
+        {%- set state = entity.state %}
+        {%- set unit = entity.attributes.unit_of_measurement if 'unit_of_measurement' in entity.attributes else '' %}
+        {%- set friendly_name = ' '.join(entity.attributes.friendly_name.split(' ')[1:]) %}
+        {%- if state not in ['0', '0.0', 'none'] and 'UV Index' not in friendly_name %}
+        {%- if 'Temperature' in friendly_name -%}
+            {{ friendly_name }}: {{ state }} {{ unit }}
+        {%- elif 'Minutely' in friendly_name -%}
+            {{ friendly_name }}: {{ state }} {{ unit }}
+        {%- elif 'Precip' in friendly_name -%}
+            {{ friendly_name }}: {{ state }} {{ unit }}
+        {%- elif 'Wind Speed' in friendly_name and state | float > 15 -%}
+            {{ friendly_name }}: {{ state }} {{ unit }}
+        {%- elif 'Cloud Coverage' in friendly_name and state | float > 75 -%}
+            {{ friendly_name }}: {{ state }} {{ unit }}
+        {%- elif 'Humidity' in friendly_name and (state | float < 50 or state | float > 85) -%}
+            {{ friendly_name }}: {{ state }} {{ unit }}
+        {%- elif 'Nearest Storm Distance' in friendly_name and state | float <= 10 -%}
+            {{ friendly_name }}: {{ state }} {{ unit }}
+        {%- endif -%}
+        {%- endif %}
+    {% endfor -%}
+  {%- endmacro -%}
+
   {%- macro lightning() -%}
-  There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int(9999)/ 1.69) | round (1, 'floor')}} Miles of our House.  Please make sure everyone is inside the house.
+     There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int(9999)/ 1.69) | round (1, 'floor')}} Miles of our House.  Please make sure everyone is inside the house.
   {%- endmacro -%}
 
   {%- macro fridge() -%}
-  The internal temperature of the refrigerator is currently {{ states('sensor.blink_blink1_temperature') }} degrees.
+    The internal temperature of the refrigerator is currently {{ states('sensor.blink_blink1_temperature') }} degrees.
   {%- endmacro -%}
 
   {%- macro light_check() -%}
@@ -175,7 +201,7 @@
   {% endmacro %}
 
   {%- macro traffic_time() -%} 
-         Current traffic to Spectrum Offices: {{ states.sensor.waze_travel_time.state }} minutes.   
+         Travel Time to Spectrum: {{ states.sensor.waze_travel_time.state }} minutes.   
   {%- endmacro -%}
 
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}

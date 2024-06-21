@@ -12,7 +12,7 @@
       to: 'rain'
     - platform: numeric_state
       entity_id: sensor.pirateweather_precip_intensity
-      above: 0.2
+      above: 0.5
     - platform: numeric_state
       entity_id: sensor.blitzortung_lightning_counter
       above: 1
@@ -30,9 +30,6 @@
     conditions:
       - condition: or
         conditions:
-          # - condition: numeric_state
-          #   entity_id: sensor.pirateweather_cloud_coverage
-          #   above: 90
           - condition: numeric_state
             entity_id: sensor.pirateweather_precip_intensity
             above: 0.2
@@ -64,6 +61,7 @@
     - service: script.speech_engine
       data:
         value1: "Because of the {{trigger.entity_id.split('_')[2]|replace('precip','rain')|replace('counter','lightning')|replace('carlo','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')| replace('carlo','and clouds')}} outside.  I will turn on some extra lights in the living room."
+        call_outside_weather: 1
         call_window_check: 1
         call_garage_check: 1
 
