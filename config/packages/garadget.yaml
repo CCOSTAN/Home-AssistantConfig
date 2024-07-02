@@ -315,7 +315,7 @@ automation:
           value1: "Small: {{ states('cover.small_garage_door')}}"
           value2: "Large: {{ states('cover.large_garage_door')}}"
           who: "family"
-          camera_entity: "camera.camera2"
+          camera_entity: "camera.birdseye"
           group: 'information'
 
       - service: script.speech_engine

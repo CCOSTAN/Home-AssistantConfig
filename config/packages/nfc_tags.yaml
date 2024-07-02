@@ -1,0 +1,18 @@
+#-------------------------------------------
+# Messing around with NFC stickers - https://amzn.to/3L7efQv
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# 
+#-------------------------------------------
+
+automation:
+  - alias: 'Toggle Office Lamp with NFC tag'
+    id: 30c6d2bb-fe8b-4101-9241-03416726cdf4
+    mode: single
+    trigger:
+      - platform: tag
+        tag_id: 1411ea22-5b6f-4a73-9ba1-e8b9bd73f08b
+
+    action:
+      - service: switch.toggle
+        entity_id: switch.office_lamp_switch_socket

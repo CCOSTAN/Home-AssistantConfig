@@ -38,19 +38,15 @@ automation:
       - wait_template: "{{ states.group.family.state == 'home' }}"
       - wait_template: "{{ is_state('group.bed', 'off') }}"
       - delay: 00:05:00
+      
+      - service: vacuum.locate
+        entity_id: vacuum.neato_vac
 
       - service: script.speech_engine
         data:
           value1: >
             {% set error =  states.vacuum.neato_vac.attributes['status'] %}
-            {{ [
-            "Neato is asking for help.  The error reported is " ~ error + " .  Please find him and help him.",
-            "Please be nice and help Neato.  He is complaining about " ~ error + ".",
-            "Something is wrong with Neato.  Please find him and help him.  I have detected a " ~ error + " error."
-            ] | random }}
-
-      - service: vacuum.locate
-        entity_id: vacuum.neato_vac
+             {{ "Neato Vacuum is complaining about " ~ error ~ " [ask Residents to help]" }}
 
       - service: script.notify_engine
         data:
@@ -61,6 +57,10 @@ automation:
           camera_entity: 'camera.neato_vac_cleaning_map'
           content_type: 'jpeg'
           group: 'information'
+
+      - delay: 00:01:00            
+      - service: vacuum.locate
+        entity_id: vacuum.neato_vac
 
       - delay: 00:20:00
       - event: event_did_someone_help_neato_loop
