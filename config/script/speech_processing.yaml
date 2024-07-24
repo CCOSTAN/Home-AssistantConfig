@@ -11,12 +11,11 @@
 speech_processing:
   mode: queued
   sequence:
-    - service: mqtt.publish
-      data:
-        topic: 'polly/lastmsg'
-        payload: "Message: {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ speech_message | striptags | truncate(220)}}"
-        retain: true
 
+    - event: openai_instructions_sent
+      event_data:
+        instructions: "{{ speech_message | striptags }}"
+  
     - condition: and
       conditions:
         - condition: or
@@ -60,23 +59,10 @@ speech_processing:
             0.2
           {% endif %}
 
-    # - service: tts.amazon_polly_say
-    #   data:
-    #     entity_id: media_player.livingroomCC
-    #     message: >-
-    #       <speak>
-    #       <amazon:auto-breaths>
-    #         {{ speech_message }}
-    #       </amazon:auto-breaths>
-    #       </speak>
-    #     cache: true
-
     - service: conversation.process
       data:
         agent_id: conversation.openai_conversation
         text: >- 
-          Take the following system generated information and review and relay the information as yourself. 
-          Here is the information:
           {{ speech_message }}
       response_variable: agent
 
@@ -89,11 +75,9 @@ speech_processing:
               {{ agent.response.speech.plain.speech }}
         cache: true
 
-    - service: mqtt.publish
-      data:
-        topic: 'polly/lastmsg_openai'
-        payload: "Message: {{ now().strftime('%-I') }}:{{ now().strftime('%M') }} {{ now().strftime('%p') }}. {{ agent.response.speech.plain.speech | striptags | truncate(220)}}"
-        retain: true
+    - event: openai_iresponse
+      event_data:
+        response: "{{ now().strftime('%B %d,%Y %-I:%M %p') }} {{ now().strftime('%p') }}. {{ agent.response.speech.plain.speech | striptags}}"
 
     - service: input_boolean.turn_off
       data:

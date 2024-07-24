@@ -6,16 +6,10 @@
   {%- macro responsibilities() -%}
     {% set day_of_week = now().strftime('%a') %}
     {% if day_of_week in ['Wed', 'Sun'] %}
-    Today is {{ now().strftime('%A') }} and {{ now().strftime('%A') }} is garbage day.
+    Today is garbage day.
     {% if day_of_week == 'Wed' %}
         Both Recycling and regular Garbage goes out. 
     {% endif %}
-    {% endif %}
-    {% set day_of_year = now().strftime('%j')|int(9999) %}
-    {% if day_of_year % 2 != 0 %}
-    Today is Justin's day to do the chores.
-    {% else %}
-    Today is Paige's day to do the chores.
     {% endif %}
   {%- endmacro -%}
 
@@ -51,10 +45,16 @@
         {%- endif -%}
         {%- endif %}
     {% endfor -%}
+
+      {%- if states('sensor.pirateweather_alerts') == '1' -%}
+        {%- set alert_description = state_attr('sensor.pirateweather_alerts', 'description') %}
+        [WEATHER ALERT: Summarize the WHAT, WHEN and IMPACTS.] {{ alert_description }}
+      {%- endif %}
   {%- endmacro -%}
 
   {%- macro lightning() -%}
-     There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int(9999)/ 1.69) | round (1, 'floor')}} Miles of our House.  Please make sure everyone is inside the house.
+     There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int(9999)/ 1.69) | round (1, 'floor')}} Miles of our House.  
+     Nearest Storm Distance : {{states('sensor.pirateweather_nearest_storm_distance')}} Miles.
   {%- endmacro -%}
 
   {%- macro fridge() -%}
@@ -215,11 +215,27 @@
 
   {# a macro to call all macros :)  #}
   {%- macro mother_of_all_macros() -%}
-
+    
+    {# Augmenting the System Prompt for OpenAI #}
+    {% set current_date = now() %} 
+    {% set month = current_date.strftime('%B') %} 
     {% set day_of_week = now().strftime('%a') %}
     {% set hour = now().hour %}
     {% set minute = now().minute %}
+    {% set day = current_date.strftime('%d') %} 
+    {% set year = current_date.strftime('%Y') %}
+    {% set time = current_date.strftime('%I:%M %p') %}
+    Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
+    Residents: 
+      - Carlo (Dad): {{ states('person.carlo') }}
+      - Stacey (Mom): {{ states('person.stacey') }}
+      - Justin (Son): {{ states('person.justin') }}
+      - Paige (Daughter): {{ states('person.paige') }}
+        and our cat Molly: Always home.
+    [Avoid repeating information from the last broadcast if it was recently broadcasted]
+    Last broadcast: {{states('input_text.lastmsg_openai')}} 
 
+    New Information: 
     {% if call_no_announcement != 1 %}
       {% if now().strftime('%H')|int(9999)< 12 and now().strftime('%H')|int(9999)> 6 %}
           Good morning.

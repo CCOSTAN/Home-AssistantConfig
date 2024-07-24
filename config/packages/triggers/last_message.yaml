@@ -7,22 +7,34 @@ homeassistant:
     input_boolean.lastmsg:
       friendly_name: 'Repeat Message'
       icon: mdi:repeat-once
-
-      
+ 
 #-------------------------------------------
 input_boolean:
   lastmsg:
     name: Last Message
     initial: off
 #-------------------------------------------
-mqtt: 
-  sensor:
-    - state_topic: "polly/lastmsg"
-      name: "Last Message"
 
-    - state_topic: "polly/lastmsg_openai"
-      name: "Last AI Message"
-      
+template:
+  - trigger:
+      platform: event
+      event_type: openai_instructions_sent
+    sensor:
+      - name: "OpenAI"
+        state: "{{now()}}"
+        attributes:
+          instructions: "{{ trigger.event.data.instructions }}"
+  
+  - trigger:
+      platform: event
+      event_type: openai_response
+    sensor:
+      - name: "OpenAI"
+        state: "{{now()}}"
+        attributes:
+          response: "{{ trigger.event.data.response }}"
+
+
 ##############################################################################
 ###  Automations -
 ##############################################################################
@@ -46,7 +58,7 @@ automation:
           options: 
             voice: JennyNeural
           message: >-
-             {{states.sensor.last_ai_message.state}}
+             "{{ state_attr('sensor.openai', 'response') }}"
           cache: false
 
       - service: input_boolean.turn_off

@@ -39,7 +39,7 @@
         personarriving: >
           {% set person = expand('group.arriving')|map(attribute='name')|join(' and ') %}
           {%- macro greeting_sentence(person) -%}
-            {{ ["[Welcome " ~ person + " home]"] }}
+            {{"[Welcome " + person + " home]" }}
           {%- endmacro -%}
 
           {{greeting_sentence(person)}}
