@@ -75,9 +75,9 @@ speech_processing:
               {{ agent.response.speech.plain.speech }}
         cache: true
 
-    - event: openai_iresponse
+    - event: openai_response
       event_data:
-        response: "{{ now().strftime('%B %d,%Y %-I:%M %p') }} {{ now().strftime('%p') }}. {{ agent.response.speech.plain.speech | striptags}}"
+        response: "{{ now().strftime('%B %d,%Y %-I:%M %p') }} {{ agent.response.speech.plain.speech }}"
 
     - service: input_boolean.turn_off
       data:

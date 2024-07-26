@@ -17,10 +17,6 @@
      Inside the house, it is {{ states.climate.downstairs.attributes['current_temperature'] }} degrees with {{ states('sensor.downstairs_thermostat_humidity') }} percent humidity. [Only mention humidity if it seems unusually high]
   {%- endmacro -%}
 
-  {%- macro outside_weather2() -%}
-  Outside, it is going to be {{ states('sensor.pirateweather_temperature') }} degrees and {{ states('sensor.pirateweather_summary') }} with {{ states('sensor.pirateweather_humidity') }} % humidity. [Only mention humidity if it seems unusually high]
-  {%- endmacro -%}
-
   {% macro outside_weather() %}
     [Here is the current weather outside]
     {%- for entity in states.sensor if 'pirateweather' in entity.entity_id %}
@@ -175,7 +171,7 @@
   {%- elif states('sensor.easter_countdown') | int(9999)< 15  -%}
       and don't forget, there are {{ states.sensor.easter_countdown.state }} days until Easter Sunday!
   {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 10 and states('sensor.thanksgiving_day_countdown') | int(9999)> 0  -%}
-      and don't forget, there are {{ states.sensor.thanksgiving_day_countdown.state }} days until Thanksgiving
+      and don't forget, there are {{ states.sensor.thanksgiving_day_countdown.state }} thankful days until Thanksgiving
   {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 1  -%}
       and don't forget, Thanksgiving is tomorrow!
   {%- elif states('sensor.halloween_countdown') | int(9999)< 30 and states('sensor.halloween_countdown') | int(9999)> 0 -%}
@@ -232,8 +228,8 @@
       - Justin (Son): {{ states('person.justin') }}
       - Paige (Daughter): {{ states('person.paige') }}
         and our cat Molly: Always home.
-    [Avoid repeating information from the last broadcast if it was recently broadcasted]
-    Last broadcast: {{states('input_text.lastmsg_openai')}} 
+    Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
+    [Avoid repeating information from the previous broadcast if it was within the hour]
 
     New Information: 
     {% if call_no_announcement != 1 %}

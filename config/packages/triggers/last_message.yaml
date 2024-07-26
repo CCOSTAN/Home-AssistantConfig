@@ -20,8 +20,9 @@ template:
       platform: event
       event_type: openai_instructions_sent
     sensor:
-      - name: "OpenAI"
-        state: "{{now()}}"
+      - name: "openai_instructions"
+        unique_id: openai_instructions
+        state: "on"
         attributes:
           instructions: "{{ trigger.event.data.instructions }}"
   
@@ -29,8 +30,9 @@ template:
       platform: event
       event_type: openai_response
     sensor:
-      - name: "OpenAI"
-        state: "{{now()}}"
+      - name: "openai_response"
+        unique_id: openai_response
+        state: "on"
         attributes:
           response: "{{ trigger.event.data.response }}"
 
@@ -58,7 +60,7 @@ automation:
           options: 
             voice: JennyNeural
           message: >-
-             "{{ state_attr('sensor.openai', 'response') }}"
+             "{{ state_attr('sensor.openai_response', 'response') }}"
           cache: false
 
       - service: input_boolean.turn_off
