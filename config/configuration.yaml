@@ -99,13 +99,6 @@ recorder: !include recorder.yaml
 #  config_path: /srv/hass/hass_venv/lib/python3.4/site-packages/libopenzwave-0.3.1-py3.4-linux-armv7l.egg/config
 
 tts:
-  - platform: amazon_polly
-    aws_access_key_id: !secret aws_access_key_ID
-    aws_secret_access_key: !secret aws_secret_access_key
-    region_name: 'us-east-1'
-    text_type: ssml
-    voice: Joanna
-    cache: True
 
 homekit: !include homekit.yaml
 group: !include_dir_merge_named group

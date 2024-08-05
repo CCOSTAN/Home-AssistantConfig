@@ -13,7 +13,7 @@
 automation:
 
 ##############################################################################
-###  Automations - Help Neato!
+###  Automations - Help Vacuum!
 ### https://www.vcloudinfo.com/2020/05/home-assistant-neato-vacuum-automation.html
 ##############################################################################
 
@@ -22,18 +22,20 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.l10s_vacuum_error
-        from: 'No error'
       - platform: event
         event_type: event_did_someone_help_vacuum_loop
-
+     
     condition:
-        - condition: template
-          value_template: "{{ states('sensor.l10s_vacuum_error') != 'No error' }}"
+      - condition: template
+        value_template: "{{ states('sensor.l10s_vacuum_error') not in ['no_error', 'unavailable'] }}"
 
     action:
-      - wait_template: "{{ states.group.family.state == 'home' }}"
       - wait_template: "{{ is_state('group.bed', 'off') }}"
-      - delay: 00:05:00
+        timeout:
+          seconds: 600
+        continue_on_timeout: true
+      - wait_template: "{{ is_state('group.family', 'home') }}"
+      - delay: 00:03:00
       
       - service: vacuum.locate
         entity_id: vacuum.l10s_vacuum
@@ -43,11 +45,12 @@ automation:
           value1: > 
              {% set error_description = state_attr('sensor.l10s_vacuum_error', 'description') %}
              {{ "Vacuum is complaining: " ~ error_description ~ " [ask Residents to help]" }}
+             Currently in {{states('sensor.l10s_vacuum_current_room')}}"
 
       - service: script.notify_engine
         data:
           title: 'Help vacuum'
-          value1: "{{ state_attr('sensor.l10s_vacuum_error', 'description') }}"
+          value1: "{{ state_attr('sensor.l10s_vacuum_error', 'description') }} - {{states('sensor.l10s_vacuum_current_room')}}"
           who: 'family'
           ios_category: 'camera'
           camera_entity: 'camera.l10s_vacuum_map'

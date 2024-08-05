@@ -1,0 +1,48 @@
+#-------------------------------------------
+#  Pirate Weather Forecast Sensors
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+
+automation:
+  - alias: "Update Daily Weather Forecasts"
+    id: a8717b62-da37-4811-9f7c-96d178a7bfda_daily
+    trigger:
+      - platform: time_pattern
+        minutes: "/30"
+    action:
+      - service: weather.get_forecasts
+        data:
+          type: daily
+        target:
+          entity_id: weather.pirateweather
+        response_variable: daily
+
+  - alias: "Update Hourly Weather Forecasts"
+    id: a8717b62-da37-4811-9f7c-96d178a7bfda_hourly
+    trigger:
+      - platform: time_pattern
+        minutes: "/30"
+    action:
+      - service: weather.get_forecasts
+        data:
+          type: hourly
+        target:
+          entity_id: weather.pirateweather
+        response_variable: hourly
+
+sensor:
+  - platform: template
+    sensors:
+      pirateweather_daily:
+        friendly_name: "Pirate Weather Daily"
+        unique_id: pirateweather_daily
+        value_template: "{{ daily['weather.pirateweather'].forecast[0].condition }}"
+        attribute_templates:
+          forecast: "{{ daily['weather.pirateweather'].forecast }}"
+      
+      pirateweather_hourly:
+        friendly_name: "Pirate Weather Hourly"
+        unique_id: pirateweather_hourly
+        value_template: "{{ hourly['weather.pirateweather'].forecast[0].condition }}"
+        attribute_templates:
+          forecast: "{{ hourly['weather.pirateweather'].forecast[:24] }}"
