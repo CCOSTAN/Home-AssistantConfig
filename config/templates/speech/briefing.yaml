@@ -19,6 +19,7 @@
 
   {% macro outside_weather() %}
     [Here is the current weather outside]
+    Air Quality: {{state_attr('sensor.bear_stone_common_air_quality_index', 'description')}}
     {%- for entity in states.sensor if 'pirateweather' in entity.entity_id %}
         {%- set state = entity.state %}
         {%- set unit = entity.attributes.unit_of_measurement if 'unit_of_measurement' in entity.attributes else '' %}
@@ -42,9 +43,11 @@
         {%- endif %}
     {% endfor -%}
 
-      {%- if states('sensor.pirateweather_alerts') == '1' -%}
-        {%- set alert_description = state_attr('sensor.pirateweather_alerts', 'description') %}
-        [WEATHER ALERT: Summarize the WHAT, WHEN and IMPACTS.] {{ alert_description }}
+      {%- if states('sensor.nws_alerts')|int > 0 -%}
+        {%- set alert_description = state_attr('sensor.nws_alerts', 'Alerts') %}
+        [WEATHER ALERT: Summarize the WHAT, WHEN and IMPACTS. Use the Situation Overview Section to best understand what is going on] 
+        {{ alert_description }}
+        [END of Weather Alert]
       {%- endif %}
   {%- endmacro -%}
 
@@ -187,6 +190,11 @@
   {% endif %}
   {%- endmacro -%}
 
+  {% macro air_quality() %}
+    {{states('sensor.bear_stone_common_air_quality_index')}}
+    {{state_attr('sensor.bear_stone_common_air_quality_index', 'description')}}
+  {% endmacro %}
+
   {% macro inspirational_quote() %}
         [Include an inspirational quote relevant to the day or situation at the end of the message. "]
   {% endmacro %}
@@ -256,6 +264,10 @@
     {{ outside_weather() }}
     {% endif %}
 
+    {% if (states('sensor.bear_stone_common_air_quality_index')|int(0)) > 50 %}
+    {{ air_quality() }}
+    {% endif %}
+
     {% if (states('sensor.blitzortung_lightning_counter')|int(0)) > 0 %}
     {{ lightning() }}
     {% endif %}
@@ -298,10 +310,8 @@
     {{ medicine() }}
     {% endif %}
    
-    {% if day_of_week in ['Tue', 'Wed', 'Thu', 'Fri', 'Sat'] %}
-        {% if (hour == 8 and minute >= 30) or (hour == 9 and minute <= 20) or (hour == 17 and minute >= 0) or (hour == 18 and minute <= 20) %}
-            {{ traffic_time() }}
-        {% endif %}
+    {% if day_of_week in ['Mon', 'Wed', 'Sun'] and (hour in [7, 8, 13, 14] or 17 <= hour <= 21) %}
+        {{ traffic_time() }}
     {% endif %}
 
     {% if value1 is not none %}
