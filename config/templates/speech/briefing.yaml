@@ -203,10 +203,6 @@
         [Include a fact about something that happened in the past on this day at the end of the message]
   {% endmacro %}
 
-  {%- macro traffic_time() -%} 
-         Travel Time to Spectrum: {{ states.sensor.waze_travel_time.state }} minutes.   
-  {%- endmacro -%}
-
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}
   {%- macro cleanup(data) -%}
     {%- for item in data.split("\n")  if item | trim != "" -%}
@@ -230,12 +226,12 @@
     {% set year = current_date.strftime('%Y') %}
     {% set time = current_date.strftime('%I:%M %p') %}
     Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
-    Residents: 
-      - Carlo (Dad): {{ states('person.carlo') }}
-      - Stacey (Mom): {{ states('person.stacey') }}
-      - Justin (Son): {{ states('person.justin') }}
-      - Paige (Daughter): {{ states('person.paige') }}
-        and our cat Molly: Always home.
+    Residents: Location
+    - Carlo (Dad): {{ states('device_tracker.life360_carlo_costanzo') }} at {{ state_attr('device_tracker.life360_carlo_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_carlo_costanzo', 'place') != None else 'Away' }} 
+    - Stacey (Mom): {{ states('device_tracker.life360_stacey_costanzo')}} at {{ state_attr('device_tracker.life360_stacey_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_stacey_costanzo', 'place') != None else 'Away' }} 
+    - Justin (Son): {{ states('device_tracker.life360_justin_costanzo') }} at {{ state_attr('device_tracker.life360_justin_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_justin_costanzo', 'place') != None else 'Away' }} 
+    - Paige (Daughter): {{ states('device_tracker.life360_paige_costanzo') }} at {{ state_attr('device_tracker.life360_paige_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_paige_costanzo', 'place') != None else 'Away' }} 
+    and our cat Molly: Always home.
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
     [Avoid repeating information from the previous broadcast if it was within the hour]
 
@@ -310,10 +306,6 @@
     {{ medicine() }}
     {% endif %}
    
-    {% if day_of_week in ['Mon', 'Wed', 'Sun'] and (hour in [7, 8, 13, 14] or 17 <= hour <= 21) %}
-        {{ traffic_time() }}
-    {% endif %}
-
     {% if value1 is not none %}
     {{ value1 | default }}
     {% endif %}

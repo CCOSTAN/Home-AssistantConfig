@@ -22,11 +22,15 @@ automation:
         above: 34
 
     condition:
-      - condition: or
-        conditions:
-          - condition: time
-            after: '08:00:00'
-            before: '20:30:00'
+      - condition: time
+        after: '08:00:00'
+        before: '20:30:00'
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
 
     action:
       - service: script.notify_engine
