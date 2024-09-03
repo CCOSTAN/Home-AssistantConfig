@@ -1,10 +1,17 @@
-##########  ############################################################
-# @CCOSTAN
-# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-##  Announce when people come or go.
-## Announce over all Chromecast Audios
-#  Read more at https://vCloudInfo.com
-######################################################################
+#-------------------------------------------
+# People Greeting Announcement
+# Description: Announces when family members arrive home
+#
+# Features:
+# - Triggers when a person's state changes from 'not_home' to 'home'
+# - Waits for specific sensors to confirm entry
+# - Uses speech_engine script for personalized welcome messages
+# - Includes responsibility reminders and home status checks
+#
+# Integration: Uses ChromeCast for audio output
+# Follow me https://www.vcloudinfo.com/click-here
+# More Blog Posts: https://www.vcloudinfo.com
+#-------------------------------------------
 - alias: 'People Greeting'
   id: 29c5c9dd-550a-4761-a224-78cdc3dd9f43
   mode: restart

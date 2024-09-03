@@ -1,12 +1,22 @@
-#####################################################################################################
-###Script to actually send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
-  # action:
-    # service: script.speech_engine
-    # media_player:
-    # speech_message:
-# # @CCOSTAN
-# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-######################################################################################################
+#-------------------------------------------
+# Speech Processing Script
+# Description: Sends notifications to ChromeCast Audio devices
+#
+# Features:
+# - Operates during specified hours
+# - Only activates when family is home or guest mode is on
+# - Adjustable volume based on time of day
+#
+# Usage:
+#   action: 
+#     service: script.speech_engine
+#     data:
+#       media_player: [target_media_player]
+#       speech_message: [message_to_speak]
+#
+# Original Repo: https://github.com/CCOSTAN/Home-AssistantConfig
+# follow me on X for updates: https://x.com/CCOSTAN
+#-------------------------------------------
 
 speech_processing:
   mode: queued

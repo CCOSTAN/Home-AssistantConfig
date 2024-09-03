@@ -1,17 +1,23 @@
 #-------------------------------------------
-# @CCOSTAN
-# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Conico Cameras via Alexa Media Player
+# Conico Cameras Configuration
+# Description: Integrates Conico Cameras with Alexa Media Player
+# Last Updated: 2023-11-15
+#
+# Features:
+# - Displays garage camera feed on Echo Show devices
+# - Triggers based on garage door state and occupancy changes
+#
+# Hardware:
+# - Conico Camera: https://amzn.to/2Kl1eHo
+# - Amazon Echo Show devices
+#
+# Integration: Alexa Media Player
+#
+# Original Repo: https://github.com/CCOSTAN/Home-AssistantConfig
+# Blog Post: https://www.vcloudinfo.com/2019/03/integrating-smart-cameras-with-alexa-echo-shows.html
+# Follow me on https://www.vcloudinfo.com/click-here
 #-------------------------------------------
-######################################################################
-##  Conico Camera - https://amzn.to/2Kl1eHo
-######################################################################
 
-
-######################################################################
-##  Show Camera on Echo Shows for 20 minutes after garage door opens.
-##  Show Image based on where Home Assistant thinks we are.
-######################################################################
 
 automation:
   - alias: 'Garage Camera on Alexa Shows'
