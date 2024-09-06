@@ -32,10 +32,14 @@
 
   # Set the actions to be performed by the automation
   action:
-    # Run the "script.interior_off" service
+    # Lock the front door
+    - service: lock.lock
+      entity_id: lock.front_door
+      
+    # Turn off all interior lights and devices
     - service: script.interior_off
 
-    # Turn off the "switch.back_landscaping" switch
+    # Turn off the back landscaping lights
     - service: switch.turn_off
       entity_id: switch.back_landscaping
 
