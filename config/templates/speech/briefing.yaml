@@ -155,12 +155,6 @@
   {% endif -%}
   {%- endmacro -%}
 
-  {%- macro iss() -%}
-  {% if is_state('binary_sensor.iss', 'on') -%}
-      The international space station is above us now and there are {{ states.binary_sensor.iss.attributes['number_of_people_in_space'] }} people in space right now. [include an ISS fact at the end]
-  {% endif -%}
-  {%- endmacro -%}
-
   {%- macro moon() -%}
         {% if (now().hour == 17) %}
         Current Moon phase: {{ states('sensor.moon') }} [Give a fact and mention today's phase]
@@ -245,10 +239,10 @@
     {% set time = current_date.strftime('%I:%M %p') %}
     Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
     Residents: Location
-    - Carlo (Dad): {{ states('device_tracker.life360_carlo_costanzo') }} at {{ state_attr('device_tracker.life360_carlo_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_carlo_costanzo', 'place') != None else 'Away' }} 
-    - Stacey (Mom): {{ states('device_tracker.life360_stacey_costanzo')}} at {{ state_attr('device_tracker.life360_stacey_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_stacey_costanzo', 'place') != None else 'Away' }} 
-    - Justin (Son): {{ states('device_tracker.life360_justin_costanzo') }} at {{ state_attr('device_tracker.life360_justin_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_justin_costanzo', 'place') != None else 'Away' }} 
-    - Paige (Daughter): {{ states('device_tracker.life360_paige_costanzo') }} at {{ state_attr('device_tracker.life360_paige_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_paige_costanzo', 'place') != None else 'Away' }} 
+    - Carlo (Dad): {{ states('person.carlo') }} at {{ state_attr('device_tracker.life360_carlo_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_carlo_costanzo', 'place') != None else 'Away' }} 
+    - Stacey (Mom): {{ states('person.stacey')}} at {{ state_attr('device_tracker.life360_stacey_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_stacey_costanzo', 'place') != None else 'Away' }} 
+    - Justin (Son): {{ states('person.justin') }} at {{ state_attr('device_tracker.life360_justin_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_justin_costanzo', 'place') != None else 'Away' }} 
+    - Paige (Daughter): {{ states('person.paige') }} at {{ state_attr('device_tracker.life360_paige_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_paige_costanzo', 'place') != None else 'Away' }} 
     and our cat Molly: Always home.
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
     [Avoid repeating information from the previous broadcast if it was within the hour]
@@ -329,7 +323,7 @@
     {% endif %}
 
     {# call a Random fact about the house or inspiration quote #}
-    {{ ([iss, moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote, fact_of_the_day]|random)() }}
+    {{ ([moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote, fact_of_the_day]|random)() }}
 
   {%- endmacro -%}
   {{- cleanup(mother_of_all_macros()) -}}
