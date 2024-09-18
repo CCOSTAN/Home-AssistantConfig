@@ -32,10 +32,10 @@ sensor:
     scan_interval: 14400
     value_template: >
       {% set today = now().month  ~ '/' ~ now().day  %}
-      {% set holiday =  value_json.MAJOR_US.static[ today ] %}
+      {% set holiday = value_json.MAJOR_US.static[today] if today in value_json.MAJOR_US.static else "" %}
       {% if holiday | trim == "" %}
         {% set today = now().month  ~ '/' ~ now().day ~ '/' ~ now().year %}
-        {% set holiday =  value_json.MAJOR_US.dynamic[ today ] %}
+        {% set holiday = value_json.MAJOR_US.dynamic[today] if today in value_json.MAJOR_US.dynamic else "" %}
       {% endif %}
       {{ holiday }}
 
@@ -43,16 +43,24 @@ sensor:
 # Sensor Uses Flag data from this calendar - http://www.webcal.fi/en-US/flag_days.php
 ################################################################################
   - platform: rest
-    resource: https://www.webcal.fi/cal.php?id=335&format=json&start_year=current_year&end_year=current_year&tz=America%2FNew_York
+    resource: https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/json_data/flag_days.json
     name: Flag
     scan_interval: 14400
     value_template: >-
-      {%- set now_string = now().strftime('%Y-%m-%d') %}
-      {% for day_val in value_json if day_val.date == now_string  %}
+      {%- set now_string = now().strftime('%m/%d') %}
+      {% set static_days = value_json.Flag_Days_US.static %}
+      {% set dynamic_days = value_json.Flag_Days_US.dynamic %}
+      {% if static_days is defined and now_string in static_days %}
         True
-        {% else %}
+      {% elif dynamic_days is defined %}
+        {% for day_val in dynamic_days %}
+          {% if day_val.date == now_string %}
+            True
+          {% endif %}
+        {% endfor %}
+      {% else %}
         False
-      {% endfor -%}
+      {% endif %}
 
 ################################################################################
 # Countdown Sensor using WolfRam Alpha Natural language queries
