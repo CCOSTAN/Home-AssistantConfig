@@ -48,13 +48,14 @@ sensor:
     scan_interval: 14400
     value_template: >-
       {%- set now_string = now().strftime('%m/%d') %}
+      {%- set now_full_string = now().strftime('%m/%d/%Y') %}
       {% set static_days = value_json.Flag_Days_US.static %}
       {% set dynamic_days = value_json.Flag_Days_US.dynamic %}
       {% if static_days is defined and now_string in static_days %}
         True
       {% elif dynamic_days is defined %}
         {% for day_val in dynamic_days %}
-          {% if day_val.date == now_string %}
+          {% if day_val.date == now_full_string %}
             True
           {% endif %}
         {% endfor %}
