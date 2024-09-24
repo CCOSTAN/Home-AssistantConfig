@@ -65,3 +65,11 @@ entity_config:
     linked_motion_sensor: binary_sensor.camera3_motion_sensor
     video_codec: copy
     stream_source: !secret camera3_stream
+  camera.poolcam:
+    linked_motion_sensor: binary_sensor.poolcam_motion_sensor
+    video_codec: copy
+    stream_source: !secret camera4_stream
+  camera.birdseye:
+    linked_motion_sensor: binary_sensor.birdseye_motion_sensor
+    video_codec: copy
+    stream_source: !secret camera5_stream

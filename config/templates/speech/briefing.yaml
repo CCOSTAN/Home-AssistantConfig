@@ -63,7 +63,7 @@
 
       {%- if states('sensor.nws_alerts')|int > 0 -%}
         {%- set alert_description = state_attr('sensor.nws_alerts', 'Alerts') %}
-        [WEATHER ALERT: Summarize the WHAT, WHEN and IMPACTS. Use the Situation Overview Section to best understand what is going on] 
+        [WEATHER ALERT: Summarize the weather alert and give overall details on any storms. Use the Situation Overview Section to best understand what is going on - Be sure to highlight any impacts to Seminole County or Tallahassee] 
         {{ alert_description }}
         [END of Weather Alert]
       {%- endif %}
@@ -239,10 +239,10 @@
     {% set time = current_date.strftime('%I:%M %p') %}
     Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
     Residents: Location
-    - Carlo (Dad): {{ states('person.carlo') }} at {{ state_attr('device_tracker.life360_carlo_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_carlo_costanzo', 'place') != None else 'Away' }} 
-    - Stacey (Mom): {{ states('person.stacey')}} at {{ state_attr('device_tracker.life360_stacey_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_stacey_costanzo', 'place') != None else 'Away' }} 
-    - Justin (Son): {{ states('person.justin') }} at {{ state_attr('device_tracker.life360_justin_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_justin_costanzo', 'place') != None else 'Away' }} 
-    - Paige (Daughter): {{ states('person.paige') }} at {{ state_attr('device_tracker.life360_paige_costanzo', 'place') | replace(' (Costanzo Family)', '') | replace(' (Desantis Family)', '') if state_attr('device_tracker.life360_paige_costanzo', 'place') != None else 'Away' }} 
+    - Carlo (Dad): {{ states('person.carlo') }} at {{ states('sensor.carlo_place') if states('sensor.carlo_place') != None else 'Away' }} 
+    - Stacey (Mom): {{ states('person.stacey')}} at {{ states('sensor.stacey_place') if states('sensor.stacey_place') != None else 'Away' }} 
+    - Justin (Son): {{ states('person.justin') }} at {{ states('sensor.justin_place') if states('sensor.justin_place') != None else 'Away' }} 
+    - Paige (Daughter): {{ states('person.paige') }} at {{ states('sensor.paige_place') if states('sensor.paige_place') != None else 'Away' }} 
     and our cat Molly: Always home.
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
     [Avoid repeating information from the previous broadcast if it was within the hour]
