@@ -11,9 +11,6 @@
   trigger:
     - platform: event
       event_type: upstairs_light_on
-    - platform: state
-      entity_id: binary_sensor.upstairs_nest_away
-      to: 'off'
 
   condition:
     - condition: state
@@ -29,17 +26,10 @@
 - alias: 'Upstairs Light Turn off'
   id: ee50f882-94b7-4cfc-bc2e-4a3e07ae08a8
   trigger:
-    - platform: event
-      event_type: upstairs_light_off
-    - platform: state
-      entity_id: binary_sensor.upstairs_nest_away
-      to: 'on'
-
     - platform: state
       entity_id: light.upstairs_lights
       to: 'on'
       for: '02:00:00'
-
   action:
     service: light.turn_off
     entity_id: light.upstairs_lights

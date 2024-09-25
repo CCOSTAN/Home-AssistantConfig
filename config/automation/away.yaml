@@ -10,10 +10,6 @@
   mode: single
   # Set the trigger for the automation
   trigger:
-    # The automation will be triggered when the state of the "binary_sensor.downstairs_nest_away" entity changes to "on"
-    - platform: state
-      entity_id: binary_sensor.downstairs_nest_away
-      to: 'on'
     # The automation will also be triggered when the state of the "group.family" entity changes to "not_home"
     - platform: state
       entity_id: group.family
