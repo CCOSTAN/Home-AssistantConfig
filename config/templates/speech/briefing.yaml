@@ -245,7 +245,7 @@
     - Paige (Daughter): {{ states('person.paige') }} at {{ states('sensor.paige_place') if states('sensor.paige_place') != None else 'Away' }} 
     and our cat Molly: Always home.
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
-    [Avoid repeating information from the previous broadcast if it was within the hour]
+    [Announce where everyone is if they are not at home. Avoid repeating information from the previous broadcast if it was within the hour]
 
     New Information: 
     {% if call_no_announcement != 1 %}
