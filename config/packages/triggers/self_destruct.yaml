@@ -45,8 +45,8 @@ automation:
     - service: media_player.play_media
       entity_id:
           - media_player.livingroomCC
-          - media_player.entry_alarm_panel
-          - media_player.bedroom_alarm_panel
+          # - media_player.entry_alarm_panel
+          # - media_player.bedroom_alarm_panel
       data:
         media_content_id: >
           "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/speechcons/self_destruct.mp3"
@@ -55,8 +55,8 @@ automation:
       entity_id: all
       data:
         flash: long
-    - service: switch.turn_off
-      entity_id: all
+    # - service: switch.turn_off
+    #   entity_id: all
 
     - service: light.turn_off
       entity_id: all

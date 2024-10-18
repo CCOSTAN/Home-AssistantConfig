@@ -67,6 +67,11 @@ mqtt:
       unit_of_measurement: '%'
       value_template: '{{ value_json.bright }}'
 
+input_text:
+  last_person_home:
+    name: Last Person Home
+    initial: 'Carlo'
+
 group:
   garage_doors:     # This group is used to check if doors are open or Closed.
     name: Garage Doors
@@ -239,7 +244,7 @@ automation:
     id: 2819207a-1716-4552-be34-a8e0f7af004e
     trigger:
       - platform: numeric_state
-        entity_id: ssensor.pirateweather_wind_speed
+        entity_id: sensor.pirateweather_wind_speed
         above: 30
 
     condition:
@@ -267,7 +272,7 @@ automation:
       - service: script.speech_engine
         data:
           value1: >
-            "The winds are picking up outside.  The wind speed is {{ states('sensor.pirateweather_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.
+            "The wind speed is {{ states('sensor.pirateweather_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.
             {% if is_state('cover.large_garage_door', 'open') -%}
               The Large Garage Door is open
             {% endif -%}

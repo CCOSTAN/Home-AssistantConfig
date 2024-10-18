@@ -63,7 +63,7 @@
 
       {%- if states('sensor.nws_alerts')|int > 0 -%}
         {%- set alert_description = state_attr('sensor.nws_alerts', 'Alerts') %}
-        [WEATHER ALERT: Summarize the weather alert and give overall details on any storms. Use the Situation Overview Section to best understand what is going on - Be sure to highlight any impacts to Seminole County or Tallahassee] 
+        [Summarize the included weather alert and give overall details on any storms releavant to the residents of the home. Use the Situation Overview Section to best understand what is going on - Be sure to highlight any impacts to Seminole County or Tallahassee] 
         {{ alert_description }}
         [END of Weather Alert]
       {%- endif %}
@@ -239,10 +239,10 @@
     {% set time = current_date.strftime('%I:%M %p') %}
     Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
     Residents: Location
-    - Carlo (Dad): {{ states('person.carlo') }} at {{ states('sensor.carlo_place') if states('sensor.carlo_place') != None else 'Away' }} 
-    - Stacey (Mom): {{ states('person.stacey')}} at {{ states('sensor.stacey_place') if states('sensor.stacey_place') != None else 'Away' }} 
-    - Justin (Son): {{ states('person.justin') }} at {{ states('sensor.justin_place') if states('sensor.justin_place') != None else 'Away' }} 
-    - Paige (Daughter): {{ states('person.paige') }} at {{ states('sensor.paige_place') if states('sensor.paige_place') != None else 'Away' }} 
+    - Carlo (Dad): {{ states('person.carlo') }} at {{ states('sensor.carlo_place') if states('sensor.carlo_place') != unknown else 'Away' }} 
+    - Stacey (Mom): {{ states('person.stacey')}} at {{ states('sensor.stacey_place') if states('sensor.stacey_place') != unknown else 'Away' }} 
+    - Justin (Son): {{ states('person.justin') }} at {{ states('sensor.justin_place') if states('sensor.justin_place') != unknown else 'Away' }} 
+    - Paige (Daughter): {{ states('person.paige') }} at {{ states('sensor.paige_place') if states('sensor.paige_place') != unknown else 'Away' }} 
     and our cat Molly: Always home.
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
     [Announce where everyone is if they are not at home. Avoid repeating information from the previous broadcast if it was within the hour]

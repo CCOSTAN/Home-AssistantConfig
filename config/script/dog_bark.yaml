@@ -22,6 +22,14 @@ dog_bark:
     - condition: state
       entity_id: input_boolean.speech_notifications
       state: 'on'
+
+    - condition: time
+      after: "9:00:00"
+      before: "20:00:00"
+    - condition: state
+      entity_id: group.bed
+      state: 'off'
+      
     - service: switch.turn_on
       entity_id: switch.lr_amp
 
@@ -45,7 +53,5 @@ dog_bark:
       data:
         entity_id:
           - media_player.livingroomCC
-          - media_player.entry_alarm_panel
-          - media_player.bedroom_alarm_panel
         media_content_id: "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/dog-barking-2-bullmastiff.mp3"
         media_content_type: audio/mp4

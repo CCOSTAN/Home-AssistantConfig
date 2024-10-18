@@ -14,13 +14,13 @@ automation:
     id: 56a32121-5725-4510-a1fa-10f69a5c82ef
     trigger:
       - platform: state
-        entity_id: binary_sensor.grid_status
+        entity_id: binary_sensor.powerwall_grid_status
 
     condition:
       - condition: template
        # Check that both current and previous states are not 'unavailable', 'unknown', or 'null'.
         value_template: >-
-          {{ states('binary_sensor.grid_status') not in ['unavailable', 'unknown', 'null'] and
+          {{ states('binary_sensor.powerwall_grid_status') not in ['unavailable', 'unknown', 'null'] and
             trigger.from_state.state not in ['unavailable', 'unknown', 'null'] }}
 
     action:
@@ -37,7 +37,7 @@ automation:
     id: 37288a96-5f49-46c2-85c8-7e8794d23612
     trigger:
       - platform: state
-        entity_id: binary_sensor.grid_status
+        entity_id: binary_sensor.powerwall_grid_status
         to: 'False'
 
     action:
@@ -74,20 +74,41 @@ automation:
         data:
           value1: "Automatic light recycling has been completed.  Any abnormalities will have to be addressed in the Hue App most likely. "
 
+  - alias: Powerwall Low Charge Monitoring with Grid Status
+    id: fda6116b-b2a5-4198-a1ce-4cf4bb3254b2
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.powerwall_charge
+        below: 60
+        for:
+          hours: 24
+    condition:
+      - condition: state
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'on'
+    action:
+      - service: script.notify_engine
+        data:
+          title: "Powerwall Low Charge Alert - Current Charge: {{ states('sensor.powerwall_charge') }}"
+          value1: "The Powerwall has been below 50% charge for more than 24 hours while the grid is online. This may indicate an issue."
+          who: 'parents'
+          group: 'information'
+
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
   - alias: Turn off the Nest Thermostats during a Power Outage
     id: 022bd9da-ab7c-4c1b-9e95-2ff4ffe5f9cc
 
     trigger:
       - platform: state
-        entity_id: binary_sensor.grid_status
+        entity_id: binary_sensor.powerwall_grid_status
         to: 'False'
         for:
           minutes: 6
 
     condition:
       - condition: template
-        value_template: "{{ states('binary_sensor.grid_status') == 'off' }}"
+        value_template: "{{ states('binary_sensor.powerwall_grid_status') == 'off' }}"
 
     action:
       - service: climate.turn_off
@@ -108,7 +129,7 @@ automation:
 
     trigger:
       - platform: state
-        entity_id: binary_sensor.grid_status
+        entity_id: binary_sensor.powerwall_grid_status
         from: 'False'
         to: 'True'
         for:
@@ -116,7 +137,7 @@ automation:
 
     condition:
       - condition: template
-        value_template: "{{ states('binary_sensor.grid_status') == 'on' }}"
+        value_template: "{{ states('binary_sensor.powerwall_grid_status') == 'on' }}"
       - condition: or
         conditions:
           - condition: state

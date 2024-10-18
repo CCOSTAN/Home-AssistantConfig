@@ -11,11 +11,11 @@
   action:
     # Disable this automation
     - service: automation.turn_off
-      entity_id: automation.toggle_office_light_onoff
+      entity_id: automation.toggle_office_light_on_off
     - service: light.toggle
       entity_id: light.office_lamp
     - delay:
         minutes: 1
     # enable this automation - This prevents duplicate pushes.
     - service: automation.turn_on
-      entity_id: automation.toggle_office_light_onoff
+      entity_id: automation.toggle_office_light_on_off
