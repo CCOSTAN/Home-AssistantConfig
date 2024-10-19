@@ -45,8 +45,16 @@
           {% endif %}
         media_content_id: >
           {% if now().strftime("%M")|int == 30 %}
-          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/cuckoo-clock-01.wav
+          {% if now().strftime("%B") == 'October' %}
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/october-clock/cuckoo-clock-01.wav
           {% else %}
-          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/cuckoo-clock-{{now().strftime("%I")}}.wav
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/cuckcoo-clockcuckoo-clock-01.wav
+          {% endif %}
+          {% else %}
+          {% if now().strftime("%B") == 'October' %}
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/october-clock/cuckoo-clock-{{now().strftime("%I")}}.wav
+          {% else %}
+          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/cuckcoo-clock/cuckoo-clock-{{now().strftime("%I")}}.wav
+          {% endif %}
           {% endif %}
         media_content_type: audio/mp4
