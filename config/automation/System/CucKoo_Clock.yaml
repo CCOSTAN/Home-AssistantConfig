@@ -34,12 +34,7 @@
 
     - service: media_player.play_media
       data:
-        entity_id: >
-          {% if states.group.bed.state == 'off' %}
-          media_player.livingroomCC
-          {% else %}
-          media_player.alarm_clock, media_player.bedroom_alarm_panel
-          {% endif %}
+        entity_id: media_player.livingroomCC
         media_content_id: >
           {% if now().strftime("%M")|int == 30 %}
           {% if now().strftime("%B") == 'October' %}
