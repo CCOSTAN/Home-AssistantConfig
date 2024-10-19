@@ -15,9 +15,6 @@
       minutes: 30
 
   condition:
-    - condition: time
-      after: '09:29:00'
-      before: '21:30:00'
     - condition: or  #Either we are home or Guest_Mode is on.
       conditions:
         - condition: state

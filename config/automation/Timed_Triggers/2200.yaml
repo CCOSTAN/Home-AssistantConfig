@@ -13,6 +13,8 @@
 
   action:
     - wait_template: >-
+       {{ not is_state('input_boolean.guest_mode', 'on') or is_state('group.bed', 'on') }}
+    - wait_template: >-
        {{ not is_state('media_player.livingroomCC', 'playing') }}
     - wait_template: >-
        {{ not is_state('media_player.whole_house', 'playing') }}
