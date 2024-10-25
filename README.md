@@ -797,7 +797,7 @@ Motion automations - /config/script/front_house_motion.yaml</a><br>
 [JuiceBox Pro 40 EVSE](https://amzn.to/2AIdSdx)
 </td><td align="center">
 
-[Chevy Bolt Electric Car](https://amzn.to/2DRP83a)
+[Tesla Model Y Electric Car](https://amzn.to/3UM4BZ5)
 </td><td align="center">
 
 [Siri, are my garage doors closed?](https://www.vCloudInfo.com/2017/07/my-smart-home-look-at-parts-that-make.html)
