@@ -14,7 +14,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.blink_blink1_temperature
-        above: 55
+        above: 60
         for:
           minutes: 20
       - platform: event
@@ -23,7 +23,7 @@ automation:
     condition:
       - condition: numeric_state
         entity_id: sensor.blink_blink1_temperature
-        above: 55
+        above: 60
 
     action:
 

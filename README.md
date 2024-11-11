@@ -960,7 +960,7 @@ Feel free to join the conversations there.
 [![Screenshot of Alarm Clock View](https://i.imgur.com/mLMrky1.jpg)](https://www.vcloudinfo.com/2017/11/building-worlds-greatest-smart-alarm.html)
 [![Screenshot of Alarm View](https://i.imgur.com/zmb3Rtn.png)](https://www.vcloudinfo.com/2017/07/visualizing-smart-home-using-home.html)
 
-**All files are now being edited with [VSCode](https://code.visualstudio.com/).**
+**All files are now being edited with [Cursor.ai](https://www.cursor.com/).**
 
 **Still have questions on my Config?** <br>
 **Message me on X :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.x.com/ccostan) or [![Follow Bear Stone Home](https://img.shields.io/twitter/follow/BearStoneHA)](https://www.x.com/BearStoneHA)
