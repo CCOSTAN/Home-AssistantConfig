@@ -28,7 +28,8 @@ filter:
     - camera.filtergate
     - camera.frontdoorbell
     - camera.poolcam
-    - camera.birdseye
+    - camera.frontlawn
+    - camera.garagecam
     - light.bedroom
     - light.bedroom_lights
     - light.den_lights
@@ -56,20 +57,28 @@ entity_config:
   camera.frontdoorbell:
     linked_motion_sensor: binary_sensor.frontdoorbell_all_occupancy
     video_codec: copy
-    stream_source: !secret camera1_stream
-  camera.carlo_nvr_camera2:
-    linked_motion_sensor: binary_sensor.camera2_motion_sensor
-    video_codec: copy
-    stream_source: !secret camera2_stream
-  camera.carlo_nvr_camera3:
-    linked_motion_sensor: binary_sensor.camera3_motion_sensor
-    video_codec: copy
-    stream_source: !secret camera3_stream
+    stream_source: rtsp://192.168.10.14:8554/frontdoorbell?mp4
   camera.poolcam:
     linked_motion_sensor: binary_sensor.poolcam_motion_sensor
     video_codec: copy
-    stream_source: !secret camera4_stream
-  camera.birdseye:
-    linked_motion_sensor: binary_sensor.birdseye_motion_sensor
+    stream_source: rtsp://192.168.10.14:8554/poolcam?mp4
+  camera.frontlawn:
+    linked_motion_sensor: binary_sensor.frontlawn_motion_sensor
     video_codec: copy
-    stream_source: !secret camera5_stream
+    stream_source: rtsp://192.168.10.14:8554/frontlawn?mp4
+  camera.garagecam:
+    linked_motion_sensor: binary_sensor.garagecam_motion_sensor
+    video_codec: copy
+    stream_source: rtsp://192.168.10.14:8554/garagecam?mp4
+  camera.bedroomgate:
+    linked_motion_sensor: binary_sensor.bedroomgate_motion_sensor
+    video_codec: copy
+    stream_source: rtsp://192.168.10.14:8554/bedroomgate?mp4
+  camera.driveway:
+    linked_motion_sensor: binary_sensor.driveway_motion_sensor
+    video_codec: copy
+    stream_source: rtsp://192.168.10.14:8554/driveway?mp4
+  camera.filtergate:
+    linked_motion_sensor: binary_sensor.filtergate_motion_sensor
+    video_codec: copy
+    stream_source: rtsp://192.168.10.14:8554/filtergate?mp4

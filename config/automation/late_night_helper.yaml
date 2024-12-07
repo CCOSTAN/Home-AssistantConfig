@@ -23,8 +23,8 @@
   action:
     - service: light.turn_on
       entity_id:
-        - light.living_room_slider
-        - light.foyer_door
+        - light.slider
+        - light.foyer
         - light.fridge
         - light.M1_front_right
         - light.S1
@@ -37,14 +37,15 @@
     - service: switch.turn_on
       entity_id:
         - group.kitchen_Accents
+        - switch.front_office_lamp
     - delay: '00:05:00'
     - service: light.turn_off
       entity_id:
         - light.S1
         - light.S4
-        - light.foyer_door
+        - light.foyer
         - light.fridge
-        - light.living_room_slider
+        - light.slider
         - light.M1_front_right
 
 
