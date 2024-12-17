@@ -53,9 +53,8 @@ notify_engine:
         title: "{{ title }}"
         message: "{{ value1 }} {{ value2 }} {{ value3 }}"
         data:
-          group: "{{ group|default('information'),true }}"
-          push:
-            interuption_level: "{{ level|default('active'),true }}"
+          group: "{{ group|default('information') }}"
+          interuption_level: "{{ level|default('active') }}"
           entity_id: "{{ camera_entity|default('', true) }}"
 
 notify_engine_two_button:
