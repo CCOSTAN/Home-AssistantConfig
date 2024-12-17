@@ -56,7 +56,7 @@ notify_engine:
           group: "{{ group|default('information'),true }}"
           push:
             interuption_level: "{{ level|default('active'),true }}"
-          entity_id: "{{ camera_entity }}"
+          entity_id: "{{ camera_entity|default('', true) }}"
 
 notify_engine_two_button:
   sequence:

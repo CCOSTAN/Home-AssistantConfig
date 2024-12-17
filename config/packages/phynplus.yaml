@@ -19,6 +19,11 @@ automation:
         entity_id: switch.phyn_shutoff_valve
         to: 'off'
 
+    condition:
+      - condition: time
+        after: '05:00'
+        before: '04:00'
+
     action:
       - service: script.notify_engine_two_button
         data:
