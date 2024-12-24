@@ -21,8 +21,8 @@ automation:
 
     condition:
       - condition: time
+        before: '03:00'
         after: '05:00'
-        before: '04:00'
 
     action:
       - service: script.notify_engine_two_button
