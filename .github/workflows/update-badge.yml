@@ -27,8 +27,9 @@ jobs:
         id: gen_badge
         run: |
           HA_VERSION=$(cat config/.HA_VERSION)
-          badgen "label=HA Version" "status=$HA_VERSION" "color=blue" > ha-version-badge.svg
+          badgen --label "HA Version" --status "$HA_VERSION" --color "blue" > ha-version-badge.svg
           echo "::set-output name=haVersion::$HA_VERSION"
+
 
       - name: Commit and Push changes
         run: |
