@@ -1,0 +1,42 @@
+name: Update HA Version Badge
+
+on:
+  push:
+    branches: [ "master" ]   # If your default branch is "master", change this
+  schedule:
+    - cron: '0 0 * * *'    # Runs daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install Badgen
+        run: npm install -g badgen-cli
+
+      - name: Generate Badge
+        id: gen_badge
+        run: |
+          HA_VERSION=$(cat config/.HA_VERSION)
+          badgen --label "HA Version" --status "$HA_VERSION" --color "blue" > ha-version-badge.svg
+          echo "::set-output name=haVersion::$HA_VERSION"
+
+
+      - name: Commit and Push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add ha-version-badge.svg
+          # Only commit if there's a change
+          git diff --quiet --cached || git commit -m "Update HA version badge to ${{ steps.gen_badge.outputs.haVersion }}"
+          git push
