@@ -79,24 +79,3 @@ automation:
 
           - service: script.garage_lights_off
 
-  - alias: 'FrontDoor Bell Camera on Front Door Lock'
-    id: Doorbell_camera_front_door
-    mode: single
-    trigger:
-      - platform: state
-        entity_id: lock.front_door_lock
-        to: 'unlocked'
-    action:
-      - service: media_player.play_media
-        target:
-          entity_id: media_player.kitchen
-        data:
-          media_content_id: 'show front doorbell camera'
-          media_content_type: custom
-      - delay: '00:20:00'
-      - service: media_player.play_media
-        target:
-          entity_id: media_player.kitchen
-        data:
-          media_content_id: 'hide front doorbell camera'
-          media_content_type: custom

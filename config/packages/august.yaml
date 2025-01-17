@@ -10,6 +10,7 @@
 # Moved Authentication to UI Integrations
 # Added to the LOCK group
 # Added a check lock routine to the Briefing.yaml - Will check locks whenever there is a speech event.
+# Door will autoLock in 20 minutes.  this is set up in the August App.
 
 ######################################################################
 ##  Door Lock Status Announcements - Only during normal hours.
@@ -31,20 +32,6 @@ automation:
         data:
           DoorLocked: "The {{ trigger.to_state.name }} is now {{ trigger.to_state.state }}."
 
-  - alias: 'Door UnLocked Announcement'
-    id: 5922becc-3249-40ea-bdb4-db97cc40c413
-    trigger:
-      - platform: state
-        entity_id:
-          - lock.front_door
-        to: 'unlocked'
-        for: '00:10:00'
-
-    action:
-      - service: script.speech_engine
-        data:
-          DoorUnLocked: "The {{ trigger.to_state.name }} has been {{ trigger.to_state.state }} for 10 minutes. I will lock it in 10 minutes if it is still unlocked."
-
   - alias: 'August Battery Monitor'
     id: 82d6d09b-fba1-4320-8048-067043b490fc
     mode: single
@@ -59,3 +46,25 @@ automation:
           title: 'Low Battery'
           value1: 'The August Door lock is at {{ states("sensor.front_door_battery") }}% '
           group: 'Battery_Alert'
+
+  - alias: 'FrontDoor Bell Camera on Front Door Lock'
+    id: Doorbell_camera_front_door
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: lock.front_door
+        to: 'unlocked'
+    action:
+      - service: media_player.play_media
+        target:
+          entity_id: media_player.kitchen
+        data:
+          media_content_id: 'show front doorbell camera'
+          media_content_type: custom
+      - delay: '00:20:00'
+      - service: media_player.play_media
+        target:
+          entity_id: media_player.kitchen
+        data:
+          media_content_id: 'hide front doorbell camera'
+          media_content_type: custom

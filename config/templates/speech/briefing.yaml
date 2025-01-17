@@ -75,7 +75,7 @@
   {%- endmacro -%}
 
   {%- macro fridge() -%}
-    The internal temperature of the refrigerator is currently {{ states('sensor.blink_blink1_temperature') }} degrees.
+    The internal temperature of the refrigerator is currently {{ states('sensor.blink_blink1_temperature') }} degrees. The freezer temperature is {{ states('sensor.refrigerator_freezer_temp') }} degrees and the fridge temperature is {{ states('sensor.refrigerator_fridge_temp') }} degrees. {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}The fridge door is currently open.{% endif %}
   {%- endmacro -%}
 
   {%- macro light_check() -%}
@@ -280,7 +280,7 @@
     {{ lightning() }}
     {% endif %}
 
-    {% if (states('sensor.blink_blink1_temperature')|int(0)) > 55 and no_fridge != 1 %}
+    {% if (states('sensor.blink_blink1_temperature')|int(0) > 55 or states('sensor.refrigerator_freezer_temp')|float > 5 or states('sensor.refrigerator_fridge_temp')|float > 50 or is_state('binary_sensor.refrigerator_door_open', 'on')) and no_fridge != 1 %}
     {{ fridge() }}
     {% endif %}
 
