@@ -18,16 +18,6 @@ automation:
         above: 60
         for:
           minutes: 20
-      - platform: numeric_state
-        entity_id: sensor.refrigerator_freezer_temp
-        above: 5
-        for:
-          minutes: 10
-      - platform: numeric_state
-        entity_id: sensor.refrigerator_fridge_temp
-        above: 50
-        for:
-          minutes: 10
       - platform: state
         entity_id: binary_sensor.refrigerator_door_open
         to: 'on'
@@ -42,12 +32,7 @@ automation:
         - condition: numeric_state
           entity_id: sensor.blink_blink1_temperature
           above: 60
-        - condition: numeric_state
-          entity_id: sensor.refrigerator_freezer_temp
-          above: 5
-        - condition: numeric_state
-          entity_id: sensor.refrigerator_fridge_temp
-          above: 50
+
         - condition: state
           entity_id: binary_sensor.refrigerator_door_open
           state: 'on'
@@ -59,14 +44,10 @@ automation:
           value1: >
             {% if trigger.platform == 'numeric_state' %}
               The Blink camera temperature sensor has detected {{ states('sensor.blink_blink1_temperature') }} degrees for over 20 minutes.
-            {% elif trigger.platform == 'binary_sensor' and trigger.entity_id == 'sensor.refrigerator_freezer_temp' %}
-              The freezer temperature has been above -1 degrees for over 10 minutes.
-            {% elif trigger.platform == 'binary_sensor' and trigger.entity_id == 'sensor.refrigerator_fridge_temp' %}
-              The fridge temperature has been above 50 degrees for over 10 minutes.
             {% elif trigger.platform == 'binary_sensor' and trigger.entity_id == 'binary_sensor.refrigerator_door_open' %}
               The fridge door has been open for over 10 minutes.
             {% else %}
-              The fridge is still hot after the previous alert. The freezer temperature is {{ states('sensor.refrigerator_freezer_temp') }} degrees and the fridge temperature is {{ states('sensor.refrigerator_fridge_temp') }} degrees. {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}The fridge door is currently open.{% endif %}
+              The fridge is still hot after the previous alert. The fridge temperature is {{ states('sensor.blink_blink1_temperature') }} degrees. {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}The fridge door is currently open.{% endif %}
             {% endif %}
           who: 'family'
           group: 'information'
@@ -75,7 +56,7 @@ automation:
 
       - service: script.speech_engine
         data:
-          value1: "Please check the fridge. The Blink camera in the fridge temperature is {{ states('sensor.blink_blink1_temperature') }} degrees, the freezer temperature is {{ states('sensor.refrigerator_freezer_temp') }} degrees, and the fridge temperature is {{ states('sensor.refrigerator_fridge_temp') }} degrees for over 20 minutes. {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}The fridge door is currently open.{% endif %}"
+          value1: "Please check the fridge. The fridge temperature is {{ states('sensor.blink_blink1_temperature') }} degrees for over 20 minutes. {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}The fridge door is currently open.{% endif %}"
           no_fridge: 1
 
       - delay: 00:30:00

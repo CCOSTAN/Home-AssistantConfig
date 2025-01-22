@@ -1,4 +1,7 @@
-*.DISABLED
+# .gitignore for Home Assistant - https://www.vcloudinfo.com/click-here
+# Ignore common Home Assistant files and directories
+
+# System files
 *.pid
 *.xml
 *.csr
@@ -10,15 +13,41 @@
 *.sqlite
 *.log*
 *.db
+core.*
+core
+.uuid
+
+# Home Assistant specific
+*.DISABLED
 .cloud
 .storage
 .vscode
 .google.token
-.uuid
-core.*
-core
 home-assistant_v2
 home-assistant_v2.*
+.homekit.state
+ipchange.yaml
+ip_bans.yaml
+production_auth.json
+OZW_Log.txt
+.spotify-token-cache
+google_calendars.yaml
+.ring_cache.pickle
+.ios.conf
+
+# Configuration files
+secrets.yaml
+secrets
+known_devices.yaml
+entity_registry.yaml
+.google_maps_location_sharing.cookies*
+google_service_account.json
+service_account.json
+*.token
+*.tokens
+*.cookies
+
+# Directories
 backups
 deps
 /config/backups
@@ -27,22 +56,10 @@ __pycache__
 hacs
 alexa_media
 custom_components
-<<<<<<< HEAD
-/config/www/community/
-=======
 /config/www/community
->>>>>>> 5816fb3 (Add .gitignore file)
 community
 image
 tts
-secrets.yaml
-secrets
-known_devices.yaml
-.homekit.state
-ipchange.yaml
-ip_bans.yaml
-production_auth.json
-OZW_Log.txt
-
-
-
+.ssh
+.auth
+.nest

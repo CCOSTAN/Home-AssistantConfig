@@ -17,6 +17,24 @@ automation:
 ### https://www.vcloudinfo.com/2020/05/home-assistant-neato-vacuum-automation.html
 ##############################################################################
 
+  - alias: 'Vacuum Sensor Cleaning Silencer'
+    id: 6548de52-a4a4-4df2-9d66-9c2c15577a7f
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.l10s_vacuum_sensor_dirty_left
+        below: 10
+        
+    condition:
+      - condition: state
+        entity_id: sensor.l10s_vacuum_task_status
+        state: 'completed'
+        
+    action:
+      - service: button.press
+        target:
+          entity_id: button.l10s_vacuum_reset_sensor
+        
+
   - alias: 'Help Vacuum'
     id: 6548de52-a4a4-4df2-9d66-9c2c15577a7e
     trigger:
