@@ -1,1 +1,0 @@
-const t=(t,o)=>{void 0!==o?.fit?t.style.setProperty("--frigate-card-media-layout-fit",o.fit):t.style.removeProperty("--frigate-card-media-layout-fit");for(const e of["x","y"])void 0!==o?.position?.[e]?t.style.setProperty(`--frigate-card-media-layout-position-${e}`,`${o.position[e]}%`):t.style.removeProperty(`--frigate-card-media-layout-position-${e}`)};export{t as u};
