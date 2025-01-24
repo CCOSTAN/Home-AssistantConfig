@@ -7,7 +7,7 @@
 <p align="center"><a align="center" target="_blank" href="https://vcloudinfo.us12.list-manage.com/subscribe?u=45cab4343ffdbeb9667c28a26&id=e01847e94f"><img src="https://feeds.feedburner.com/RecentCommitsToBearStoneHA.1.gif" alt="Recent Commits to Bear Stone Smart Home" style="border:0"></a></p>
 <div align="center">
 
-[![X Follow](https://img.shields.io/twitter/follow/ccostan?color=blue&amp;label=talk&amp;logo=twitter&amp;style=for-the-badge)](https://x.com/ccostan)
+[![X Follow](https://img.shields.io/static/v1?label=talk&message=3k&color=blue&logo=twitter&style=for-the-badge)](https://x.com/ccostan)
 [![YouTube Subscribe](https://img.shields.io/youtube/channel/subscribers/UC301G8JJFzY0BZ_0lshpKpQ?label=VIEW&logo=Youtube&logoColor=%23DF5D44&style=for-the-badge)](https://www.youtube.com/vCloudInfo?sub_confirmation=1)
 [![GitHub Follow](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig?label=sTARS&amp;logo=Github&amp;style=for-the-badge)](https://github.com/CCOSTAN) <br>
 [![HA Version Badge](https://raw.githubusercontent.com/ccostan/home-assistantconfig/master/ha-version-badge.svg)](https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/.HA_VERSION)
