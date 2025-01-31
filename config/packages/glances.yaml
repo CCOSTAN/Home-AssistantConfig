@@ -1,0 +1,47 @@
+#-------------------------------------------
+# Setting up Glances Integration for home assistant to track ProxMox stats
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# 
+#-------------------------------------------
+
+sensor:
+  - platform: template
+    sensors:
+      proxmox_garage_avg_temp:
+        friendly_name: "Proxmox Garage Average Temperature"
+        unit_of_measurement: "°F"
+        value_template: >-
+          {{ (
+            (states('sensor.proxmox1_package_id_0_temperature') | float(0) + 
+             states('sensor.proxmox1_pch_skylake_1_temperature') | float(0) + 
+             states('sensor.proxmox1_core_0_temperature') | float(0) + 
+             states('sensor.proxmox1_core_1_temperature') | float(0) + 
+             states('sensor.proxmox1_core_2_temperature') | float(0) + 
+             states('sensor.proxmox1_core_3_temperature') | float(0) + 
+             states('sensor.proxmox1_acpitz_1_temperature') | float(0) + 
+             states('sensor.proxmox1_acpitz_2_temperature') | float(0) + 
+             states('sensor.proxmox2_package_id_0_temperature') | float(0) + 
+             states('sensor.proxmox2_pch_skylake_1_temperature') | float(0) + 
+             states('sensor.proxmox2_core_0_temperature') | float(0) + 
+             states('sensor.proxmox2_core_1_temperature') | float(0) + 
+             states('sensor.proxmox2_core_2_temperature') | float(0) + 
+             states('sensor.proxmox2_core_3_temperature') | float(0) + 
+             states('sensor.proxmox2_acpitz_1_temperature') | float(0) + 
+             states('sensor.proxmox2_acpitz_2_temperature') | float(0)
+            ) / 16 ) | round(1) }}
+
+automation:
+  - alias: "Garage Proxmox High Temperature Warning"
+    id: proxmox-garage-high-temp-warning-automation
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.proxmox_garage_avg_temp
+        above: 145  # Adjust threshold as needed
+    action:
+      - service: script.notify_engine
+        data:
+          title: "🔥 Proxmox Garage Alert!"
+          value1: "The average temperature of your Proxmox servers is above 90°F!"
+          who: 'carlo'
+          group: 'information'
