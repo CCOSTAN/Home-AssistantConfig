@@ -1,6 +1,5 @@
 #-------------------------------------------
 # Setting up some fun flash lights if anyone scores in the superbowl.  Will need to update the sensors each year though.
-
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/1502# 
@@ -22,3 +21,15 @@ automation:
       - service: input_boolean.turn_on
         target:
           entity_id: input_boolean.flash
+      - service: light.turn_on
+        target:
+          entity_id: light.outdoor_front_lights
+        data:
+          rgb_color: >
+            {% if trigger.entity_id == 'sensor.team_tracker_phi' %}
+            [0, 255, 0]
+            {% else %}
+            [255, 0, 0]
+            {% endif %}
+
+

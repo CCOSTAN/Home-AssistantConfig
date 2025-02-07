@@ -15,23 +15,6 @@
       data:
         flash: long
 
-    - service: input_boolean.turn_off
-      entity_id: input_boolean.flash
-
-- alias: 'Flash Timer Lights'
-  id: caac7e80-6f43-4029-ad40-420e70f67cd7
-  trigger:
-    - platform: state
-      entity_id: input_boolean.flash
-      to: 'on'
-      from: 'off'
-    - platform: event
-      #Sent from IFTTT Webhooks : {"action":"Flash_Timer"}
-      event_type: ifttt_webhook_received
-      event_data:
-        action: Flash_Timer
-
-  action:
     - service: light.turn_on
       entity_id:
         - light.bedroom
@@ -44,6 +27,20 @@
         - light.office_lamp
         - light.main_slider
         - light.garage_attic
+        - light.bedroom_lights
+        - light.den_2
+        - light.den1
+        - light.dinette_lights
+        - light.dining_room_lights
+        - light.foyer
+        - light.garage_lights
+        - light.hallway_lights
+        - light.kitchen_lights
+        - light.living_room_accents
+        - light.living_room_lights
+        - light.office_lights
+        - light.upstairs_lights
+        - light.garage_hallway
         # - light.den_lamp
       data:
         flash: long
