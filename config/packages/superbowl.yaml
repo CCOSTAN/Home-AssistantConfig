@@ -1,0 +1,24 @@
+#-------------------------------------------
+# Setting up some fun flash lights if anyone scores in the superbowl.  Will need to update the sensors each year though.
+
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# https://github.com/CCOSTAN/Home-AssistantConfig/issues/1502# 
+#-------------------------------------------
+
+automation:
+  - alias: 'Super Bowl Team Score Change'
+    id: 5b3a4c89-1234-4567-8901-23456789abcd
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.team_tracker_kc
+      - platform: state
+        entity_id: sensor.team_tracker_phi
+    condition:
+      - condition: template
+        value_template: "{{ now().month == 2 }}"
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.flash
