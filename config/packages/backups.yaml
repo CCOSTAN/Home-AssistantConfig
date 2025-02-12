@@ -1,0 +1,35 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+# Added Duplicati to HA - https://github.com/CCOSTAN/Home-AssistantConfig/issues/1498
+
+#-------------------------------------------
+automation:
+  - alias: 'Backup Job Failed Notification'
+    id: 5b3a4c89-1234-4567-8901-23456789abcf
+    trigger:
+      - platform: state
+        entity_id: sensor.dockerconfigs_backup_error_message
+        from: '-'
+    action:
+      - service: script.notify_engine
+        data:
+          who: 'carlo'
+          value1: 'Backup Job Error!'
+          value2: "Error: {{ states('sensor.dockerconfigs_backup_error_message') }}"
+
+  - alias: 'Backup Size Change Alert'
+    id: 5b3a4c89-1234-4567-8901-23456789abd0
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.dockerconfigs_backup_target_size
+        above: 10000000000 # Alert if backup size is over 10GB
+    action:
+      - service: script.notify_engine
+        data:
+          who: 'carlo'
+          value1: 'Backup Size Warning'
+          value2: >
+            Backup target size has grown to {{ states('sensor.dockerconfigs_backup_target_size') | float / 1000000000 }} GB.
+            Please verify backup contents and available storage.
