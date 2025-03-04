@@ -1,0 +1,132 @@
+cards:
+  - type: custom:mushroom-vacuum-card
+    entity: vacuum.l10s_vacuum
+    icon_animation: true
+    commands:
+      - return_home
+      - start_pause
+      - locate
+    double_tap_action:
+      action: none
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/vacuum
+    visibility:
+      - condition: state
+        entity: vacuum.l10s_vacuum
+        state_not: docked
+    primary_info: name
+    fill_container: true
+    grid_options:
+      rows: 1
+      columns: full
+    layout: horizontal
+  - type: custom:search-card
+    max_results: 10
+  - type: custom:bubble-card
+    card_type: button
+    button_type: slider
+    entity: light.living_room_lights
+    name: Living Room Lights
+    icon: mdi:sofa
+    show_state: true
+    show_attribute: false
+    show_last_changed: true
+    tap_action:
+      action: navigate
+      navigation_path: "#living_room"
+    grid_options:
+      columns: 6
+      rows: 1
+    card_layout: large
+  - type: vertical-stack
+    cards:
+      - type: custom:bubble-card
+        card_type: pop-up
+        hash: "#living_room"
+        button_type: slider
+        entity: light.living_room_lights
+        name: Living Room Lights
+        icon: mdi:sofa
+        show_attribute: false
+        slide_to_close_distance: "100000"
+        trigger: []
+        bg_opacity: "35"
+        show_state: true
+        show_last_changed: true
+        tap_action:
+          action: toggle
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.m1_front_left
+        name: Front Left
+        icon: mdi:light-recessed
+        show_state: true
+        show_attribute: false
+        show_last_changed: true
+        sub_button: []
+        grid_options:
+          columns: 6
+          rows: 1
+        columns: 2
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.m1_front_right
+        name: Front Right
+        icon: mdi:light-recessed
+        show_state: true
+        show_attribute: false
+        show_last_changed: true
+        sub_button: []
+        grid_options:
+          columns: 6
+          rows: 1
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.m1_back_left
+        name: Back Left
+        icon: mdi:light-recessed
+        show_state: true
+        show_attribute: false
+        show_last_changed: true
+        sub_button: []
+        grid_options:
+          columns: 6
+          rows: 1
+      - type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        entity: light.m1_back_right
+        name: Back Right
+        icon: mdi:light-recessed
+        show_state: true
+        show_attribute: false
+        show_last_changed: true
+        sub_button: []
+        grid_options:
+          columns: 6
+          rows: 1
+    grid_options:
+      columns: 12
+      rows: auto
+  - type: custom:bubble-card
+    card_type: button
+    button_type: switch
+    entity: group.interior_switches
+    name: Interior Switches
+    icon: mdi:lightning-bolt
+    show_state: true
+    show_attribute: false
+    show_last_changed: false
+    button_action:
+      tap_action:
+        action: more-info
+    grid_options:
+      columns: 6
+      rows: 1
+    tap_action:
+      action: toggle
+    card_layout: large

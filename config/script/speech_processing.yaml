@@ -83,7 +83,7 @@ speech_processing:
           voice: JennyNeural
         message: >-
               {{ agent.response.speech.plain.speech }}
-        cache: true
+        cache: false
 
     - event: openai_response
       event_data:
