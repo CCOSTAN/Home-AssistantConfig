@@ -1,12 +1,13 @@
 ######################################################################
-##  Automation for 08:30 AM Daily Tasks
+##  Automation for 07:00 AM Daily Tasks
 ##  https://www.vcloudinfo.com/click-here
 ##  This automation handles actions to be performed at 8:30 AM,
 ##  typically related to the family's morning routine.
 ######################################################################
 
-- alias: 'Kids left for the day'
-  id: 7cc9a7d6-8918-4a4a-98e7-a46abc9df4f1
+- alias: 'Kids 830'
+  id: 3e0c4f40-0d55-42a0-9af9-37124b1b9b8b
+  mode: single
   trigger:
     - platform: time
       at: '08:30:00'
@@ -15,22 +16,30 @@
     - condition: state
       entity_id: group.family
       state: home
+
     - condition: state
-      entity_id: input_boolean.guest_mode
-      state: 'off'
-    - condition: state
-      entity_id: input_boolean.school_mode
-      state: 'on'
-    - condition: time
-      weekday:
-        - mon
-        - tue
-        - wed
-        - thu
-        - fri
+      entity_id: sun.sun
+      state: below_horizon
+
   action:
-    - wait_template: "{{ is_state('group.garage_doors', 'open') }}"
-      timeout: '00:45:00'
-    - delay: 00:03:00
+    - service: homeassistant.turn_on
+      entity_id:
+        - light.d1
+        - light.d2
+        - light.sink
+        - light.fridge
+        - light.k4
+        - group.kitchen_accents
+        - switch.office_lamp_switch_socket
+        
+    - wait_template: >-
+       {{ states.sun.sun.state == 'above_horizon' }}
+    - service: homeassistant.turn_on
+      entity_id: switch.alarm_panel_1_motion_detection   
+    - service: button.press
+      entity_id: button.alarm_panel_1_restart_browser
+    - service: homeassistant.turn_off
+      entity_id:
+        - group.kitchen_accents        
     - service: light.turn_off
       entity_id: all

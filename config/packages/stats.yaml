@@ -91,6 +91,19 @@ sensor:
         value_template: >
           {{ states.light | list | count }}
 
+      lights_on_count:
+        friendly_name: "Number of lights on"
+        value_template: >-
+           {% set lights = states.light | selectattr('state', 'eq', 'on') | list %}
+           {% set qty = lights | count %}
+           {% set p1 = 'lights are' if qty > 1 else 'light is' %}
+
+           {% if qty == 0 %} 
+            No lights on.
+           {% else %}
+            {{ qty }} {{ p1 }} on.
+           {% endif %}
+
       protect_count:
         friendly_name: 'Number of Smoke Detectors'
         value_template: >

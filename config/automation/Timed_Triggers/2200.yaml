@@ -17,7 +17,7 @@
     - wait_template: >-
        {{ not is_state('media_player.livingroomCC', 'playing') }}
     - wait_template: >-
-       {{ not is_state('media_player.whole_house', 'playing') }}
+       {{ not is_state('media_player.everywhere', 'playing') }}
 
     - service: script.speech_engine
       data:

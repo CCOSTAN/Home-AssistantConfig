@@ -51,7 +51,9 @@
         - group.outdoor_seasonal
         - switch.kitchen_accent_2
         - group.master_bathroom_accents
+        - switch.alarm_panel_1_motion_detection
     - service: script.interior_off
+    
 
 - alias: 'Bed Presence AMP Trigger'
   id: 26846f7b-bc76-43d2-99be-af552d2300f
@@ -66,7 +68,6 @@
       entity_id: group.bed
       to: 'off'
       id: "out_of_bed"
-
   action:
     choose:
       - alias: "SomeOne in Bed"
@@ -83,8 +84,8 @@
                 - switch.kitchen_accent_2
                 - light.outdoor_bathroom
                 - group.master_bathroom_accents
-                - group.landscaping     
-
+                - group.landscaping    
+                - switch.alarm_panel_1_motion_detection 
     default:
       - service: homeassistant.turn_on
         target:

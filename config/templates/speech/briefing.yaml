@@ -244,6 +244,7 @@
     - Justin (Son): {{ states('person.justin') }} at {{ states('sensor.justin_place') if states('sensor.justin_place') != unknown else 'Away' }} 
     - Paige (Daughter): {{ states('person.paige') }} at {{ states('sensor.paige_place') if states('sensor.paige_place') != unknown else 'Away' }} 
     and our cat Molly: Always home.
+    - Location Context: When Paige is at FSU, you can say she is at her Dorm.  When Justin is at Stefanos, you can say he is at work. 
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
     [Announce where everyone is if they are not at home. Avoid repeating information from the previous broadcast if it was within the hour]
 

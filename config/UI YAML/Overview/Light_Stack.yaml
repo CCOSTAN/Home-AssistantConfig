@@ -130,3 +130,58 @@ cards:
     tap_action:
       action: toggle
     card_layout: large
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: group.exterior_lights
+    name: Exterior Lights
+    icon: mdi:palm-tree
+    show_state: true
+    show_attribute: false
+    show_last_changed: true
+    grid_options:
+      columns: 6
+      rows: 1
+  - type: custom:bubble-card
+    card_type: button
+    entity: sensor.lights_on_count
+    name: Lights On
+    icon: mdi:lightbulb-on-outline
+    show_state: true
+    tap_action:
+      action: navigate
+      navigation_path: "#lights-popup"
+    button_action:
+      tap_action:
+        action: navigate
+        navigation_path: "#lights-popup"
+  - type: vertical-stack
+    cards:
+      - type: custom:bubble-card
+        card_type: pop-up
+        hash: "#lights-popup"
+        name: Lights Control
+        icon: mdi:lightbulb-group
+        width_desktop: 500px
+        show_header: true
+        entity: sensor.lights_on_count
+        button_type: name
+      - type: custom:auto-entities
+        filter:
+          include:
+            - domain: light
+          exclude:
+            - state: "off"
+            - state: unavailable
+            - hidden_by: user
+        show_empty: true
+        entity: sensor.lights_on_count
+        button_type: state
+        show_name: true
+        card:
+          type: custom:auto-entities
+          card:
+            type: entities
+          filter:
+            include: []
+            exclude: []

@@ -1,0 +1,53 @@
+# Power Stack Card Configuration
+# For more information visit: https://www.vcloudinfo.com/click-here
+
+type: vertical-stack
+cards:
+  - type: grid
+    cards:
+      - type: custom:power-flow-card-plus
+        entities:
+          battery:
+            state_of_charge: sensor.powerwall_charge
+            entity: sensor.powerwall_battery_power
+            use_metadata: false
+            invert_state: false
+            state_of_charge_unit_white_space: true
+            show_state_of_charge: true
+          grid:
+            secondary_info: {}
+            entity: sensor.powerwall_site_power
+          solar:
+            display_zero_state: true
+            secondary_info: {}
+            entity: sensor.powerwall_solar_power
+            icon: mdi:white-balance-sunny
+            color_icon: true
+          home:
+            secondary_info: {}
+            entity: sensor.powerwall_load_power
+        clickable_entities: true
+        display_zero_lines:
+          mode: grey_out
+          transparency: 50
+          grey_color:
+            - 189
+            - 189
+            - 189
+        use_new_flow_rate_model: true
+        w_decimals: 0
+        kw_decimals: 1
+        min_flow_rate: 0.75
+        max_flow_rate: 4
+        max_expected_power: 2000
+        min_expected_power: 0.01
+        watt_threshold: 1000
+        transparency_zero_lines: 0
+        grid_options:
+          columns: full
+          rows: auto
+      - type: vertical-stack
+        cards:
+          - type: energy-solar-graph
+          - type: energy-water-graph
+
