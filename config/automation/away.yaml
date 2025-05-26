@@ -12,6 +12,16 @@
     - platform: state
       entity_id: group.family
       to: 'not_home'
+    - platform: sun
+      event: sunrise
+      offset: '-02:00:00'
+    - platform: sun
+      event: sunset
+      offset: '+00:30:00'
+    - platform: time
+      at: 
+        - '03:00:00'
+        - '12:00:00'
 
   condition:
     - condition: state

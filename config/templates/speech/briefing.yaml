@@ -238,16 +238,48 @@
     {% set year = current_date.strftime('%Y') %}
     {% set time = current_date.strftime('%I:%M %p') %}
     Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
-    Residents: Location
-    - Carlo (Dad): {{ states('person.carlo') }} at {{ states('sensor.carlo_place') if states('sensor.carlo_place') != unknown else 'Away' }} 
-    - Stacey (Mom): {{ states('person.stacey')}} at {{ states('sensor.stacey_place') if states('sensor.stacey_place') != unknown else 'Away' }} 
-    - Justin (Son): {{ states('person.justin') }} at {{ states('sensor.justin_place') if states('sensor.justin_place') != unknown else 'Away' }} 
-    - Paige (Daughter): {{ states('person.paige') }} at {{ states('sensor.paige_place') if states('sensor.paige_place') != unknown else 'Away' }} 
-    and our cat Molly: Always home.
-    - Location Context: When Paige is at FSU, you can say she is at her Dorm.  When Justin is at Stefanos, you can say he is at work. 
-    Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
-    [Announce where everyone is if they are not at home. Avoid repeating information from the previous broadcast if it was within the hour]
 
+    Residents: Location
+    - Carlo (Dad): {{ states('person.carlo') }} at 
+      {%- if states('sensor.carlo_place') != 'unknown' %}
+        {{ states('sensor.carlo_place') }}
+      {% else -%}
+        Away
+      {% endif -%}
+      {%- if states('person.carlo') != 'home' %}
+        (Direction of travel: {{ state_attr('sensor.carlo_place', 'direction_of_travel') }})            
+      {% endif -%}
+    - Stacey (Mom): {{ states('person.stacey') }} at 
+      {%- if states('sensor.stacey_place') != 'unknown' %}
+        {{ states('sensor.stacey_place') }}
+      {% else -%}
+        Away
+      {% endif -%}
+      {%- if states('person.stacey') != 'home' %}
+        (Direction of travel: {{ state_attr('sensor.stacey_place', 'direction_of_travel') }})            
+      {% endif -%}
+    - Justin (Son): {{ states('person.justin') }} at 
+      {%- if states('sensor.justin_place') != 'unknown' %}
+        {{ states('sensor.justin_place') }}
+      {% else -%}
+        Away
+      {% endif -%}
+      {%- if states('person.justin') != 'home' %}
+        (Direction of travel: {{ state_attr('sensor.justin_place', 'direction_of_travel') }})            
+      {% endif -%}
+    - Paige (Daughter): {{ states('person.paige') }} at 
+      {%- if states('sensor.paige_place') != 'unknown' %}
+        {{ states('sensor.paige_place') }}
+      {% else -%}
+        Away
+      {% endif -%}
+      {%- if states('person.paige') != 'home' %}
+        (Direction of travel: {{ state_attr('sensor.paige_place', 'direction_of_travel') }})            
+      {% endif -%}
+    and our cat Molly: Always home.
+    Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
+    [Mention where each person is and approximately how long they have been there, using conversational and friendly language or if they are not at home or just arrived. Avoid repeating information from the previous broadcast if it was within the hour]
+   
     New Information: 
     {% if call_no_announcement != 1 %}
       {% if now().strftime('%H')|int(9999)< 12 and now().strftime('%H')|int(9999)> 6 %}

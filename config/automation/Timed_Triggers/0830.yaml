@@ -35,7 +35,15 @@
     - wait_template: >-
        {{ states.sun.sun.state == 'above_horizon' }}
     - service: homeassistant.turn_on
-      entity_id: switch.alarm_panel_1_motion_detection   
+      entity_id: 
+        - switch.alarm_panel_1_motion_detection
+        - switch.office_lamp_switch_socket
+    - service: number.set_value
+      target:
+        entity_id: number.alarm_panel_1_screen_brightness
+      data:
+        value: 100
+
     - service: button.press
       entity_id: button.alarm_panel_1_restart_browser
     - service: homeassistant.turn_off

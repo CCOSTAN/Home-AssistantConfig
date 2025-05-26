@@ -1,0 +1,25 @@
+#-------------------------------------------
+# Locator Automation
+# Description: Announces the location of all family members when triggered
+#
+# Features:
+# - Triggered by input_boolean.locator (for Alexa integration)
+# - Uses speech_engine script to announce where everyone is
+# - Designed for use with Alexa ("Alexa, turn on locator")
+#
+# Follow me on https://www.vcloudinfo.com/click-here
+#-------------------------------------------
+- alias: 'Locator'
+  id: locator-announcement-001
+  mode: single
+  trigger:
+    - platform: state
+      entity_id: input_boolean.locator
+      to: 'on'
+  action:
+    - service: script.speech_engine
+      data:
+        call_no_announcement: 1
+    - service: input_boolean.turn_off
+      data:
+        entity_id: input_boolean.locator

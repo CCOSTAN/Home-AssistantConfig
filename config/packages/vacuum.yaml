@@ -48,10 +48,18 @@ automation:
         value_template: "{{ states('sensor.l10s_vacuum_error') not in ['no_error', 'unavailable'] }}"
 
     action:
+
+      - service: script.notify_engine
+        data:
+          title: 'Help vacuum'
+          value1: "{{ states('sensor.l10s_vacuum_error') }} - {{states('sensor.l10s_vacuum_current_room')}}"
+          who: 'family'
+          ios_category: 'camera'
+          camera_entity: 'camera.l10s_vacuum_map'
+          content_type: 'jpeg'
+          group: 'information'
+
       - wait_template: "{{ is_state('group.bed', 'off') }}"
-        timeout:
-          seconds: 600
-        continue_on_timeout: true
       - wait_template: "{{ is_state('group.family', 'home') }}"
       - delay: 00:03:00
       
@@ -61,19 +69,8 @@ automation:
       - service: script.speech_engine
         data:
           value1: > 
-             {% set error_description = state_attr('sensor.l10s_vacuum_error', 'description') %}
-             {{ "Vacuum is complaining: " ~ error_description ~ " [ask Residents to help]" }}
+             {{ "Vacuum error: " ~ states('sensor.l10s_vacuum_error') ~ " [ask Residents to help]" }}
              Currently in {{states('sensor.l10s_vacuum_current_room')}}"
-
-      - service: script.notify_engine
-        data:
-          title: 'Help vacuum'
-          value1: "{{ state_attr('sensor.l10s_vacuum_error', 'description') }} - {{states('sensor.l10s_vacuum_current_room')}}"
-          who: 'family'
-          ios_category: 'camera'
-          camera_entity: 'camera.l10s_vacuum_map'
-          content_type: 'jpeg'
-          group: 'information'
 
       - delay: 00:01:00            
       - service: vacuum.locate

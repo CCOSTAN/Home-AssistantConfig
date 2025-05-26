@@ -53,6 +53,11 @@
         - group.master_bathroom_accents
         - switch.alarm_panel_1_motion_detection
     - service: script.interior_off
+    - service: number.set_value
+      target:
+        entity_id: number.alarm_panel_1_screen_brightness
+      data:
+        value: 0
     
 
 - alias: 'Bed Presence AMP Trigger'
@@ -86,6 +91,11 @@
                 - group.master_bathroom_accents
                 - group.landscaping    
                 - switch.alarm_panel_1_motion_detection 
+          - service: number.set_value
+            target:
+              entity_id: number.alarm_panel_1_screen_brightness
+            data:
+              value: 0
     default:
       - service: homeassistant.turn_on
         target:

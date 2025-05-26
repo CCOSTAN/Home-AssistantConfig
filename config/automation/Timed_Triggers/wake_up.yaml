@@ -26,4 +26,9 @@
         - switch.lr_amp
         - light.kitchen_lights
         - switch.alarm_panel_1_motion_detection
+    - service: number.set_value
+      target:
+        entity_id: number.alarm_panel_1_screen_brightness
+      data:
+        value: 100
     
