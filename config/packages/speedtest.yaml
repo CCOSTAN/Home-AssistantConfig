@@ -1,0 +1,72 @@
+# Automation to notify Carlo if internet speeds fall below 400 Mbps
+# For more info or questions, visit https://www.vcloudinfo.com/click-here
+
+automation:
+  - alias: "Notify Carlo if Internet Speed is Slow"
+    id: notify-carlo-slow-internet-speed
+    description: "Sends a notification to Carlo's phone if download or upload speed falls below 400 Mbps."
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.speedtest_download
+        below: 400
+      - platform: numeric_state
+        entity_id: sensor.speedtest_upload
+        below: 300
+
+    condition:
+      - condition: state
+        entity_id: group.bed
+        state: 'off'
+      - condition: template # Checks to make sure the system hasn't been restarted in the past 10 minutes
+        value_template: >-
+          {% set uptime = states('sensor.ha_uptime') | as_datetime %}
+          {% set now = now() %}
+          {{ (now - uptime).total_seconds() / 60 >= 10 }}
+
+    action:
+      - service: script.notify_engine
+        data:
+          title: "⚠️ Internet Speed Alert"
+          value1: >-
+            Download: {{ states('sensor.speedtest_download') }} Mbps,
+            Upload: {{ states('sensor.speedtest_upload') }} Mbps.
+          value2: "One or both speeds are below 400 Mbps."
+          who: "parents"
+          group: "information"
+          level: "active"
+    mode: single
+
+  - alias: "Notify Carlo if Internet Speed is Restored"
+    id: notify-carlo-internet-speed-restored
+    description: "Sends a notification to Carlo's phone when download and upload speeds are back above 400/300 Mbps."
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.speedtest_download
+        above: 400
+      - platform: numeric_state
+        entity_id: sensor.speedtest_upload
+        above: 300
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.speedtest_download
+        above: 400
+      - condition: numeric_state
+        entity_id: sensor.speedtest_upload
+        above: 300
+      - condition: template # Checks to make sure the system hasn't been restarted in the past 10 minutes
+        value_template: >-
+          {% set uptime = states('sensor.ha_uptime') | as_datetime %}
+          {% set now = now() %}
+          {{ (now - uptime).total_seconds() / 60 >= 10 }}
+    action:
+      - service: script.notify_engine
+        data:
+          title: "✅ Internet Speed Restored"
+          value1: >-
+            Download: {{ states('sensor.speedtest_download') }} Mbps,
+            Upload: {{ states('sensor.speedtest_upload') }} Mbps.
+          value2: "Internet speeds are back to normal."
+          who: "parents"
+          group: "information"
+          level: "active"
+    mode: single

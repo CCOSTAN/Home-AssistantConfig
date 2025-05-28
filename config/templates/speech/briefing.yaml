@@ -278,7 +278,7 @@
       {% endif -%}
     and our cat Molly: Always home.
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
-    [Mention where each person is and approximately how long they have been there, using conversational and friendly language or if they are not at home or just arrived. Avoid repeating information from the previous broadcast if it was within the hour]
+    [For each person, mention their location. For those not at home, briefly state where they are and approximately how long they have been there, using relative time e.g., about 30 minutes, around 2 hours, not exact timestamps. If the same location update has already been broadcasted, do not repeat it.]
    
     New Information: 
     {% if call_no_announcement != 1 %}
