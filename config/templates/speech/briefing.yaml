@@ -240,7 +240,7 @@
     Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
 
     Residents: Location
-    - Carlo (Dad): {{ states('person.carlo') }} at 
+    - Carlo: {{ states('person.carlo') }} at 
       {%- if states('sensor.carlo_place') != 'unknown' %}
         {{ states('sensor.carlo_place') }}
       {% else -%}
@@ -249,7 +249,7 @@
       {%- if states('person.carlo') != 'home' %}
         (Direction of travel: {{ state_attr('sensor.carlo_place', 'direction_of_travel') }})            
       {% endif -%}
-    - Stacey (Mom): {{ states('person.stacey') }} at 
+    - Stacey: {{ states('person.stacey') }} at 
       {%- if states('sensor.stacey_place') != 'unknown' %}
         {{ states('sensor.stacey_place') }}
       {% else -%}
@@ -258,7 +258,7 @@
       {%- if states('person.stacey') != 'home' %}
         (Direction of travel: {{ state_attr('sensor.stacey_place', 'direction_of_travel') }})            
       {% endif -%}
-    - Justin (Son): {{ states('person.justin') }} at 
+    - Justin: {{ states('person.justin') }} at 
       {%- if states('sensor.justin_place') != 'unknown' %}
         {{ states('sensor.justin_place') }}
       {% else -%}
@@ -267,7 +267,7 @@
       {%- if states('person.justin') != 'home' %}
         (Direction of travel: {{ state_attr('sensor.justin_place', 'direction_of_travel') }})            
       {% endif -%}
-    - Paige (Daughter): {{ states('person.paige') }} at 
+    - Paige: {{ states('person.paige') }} at 
       {%- if states('sensor.paige_place') != 'unknown' %}
         {{ states('sensor.paige_place') }}
       {% else -%}
@@ -276,7 +276,9 @@
       {%- if states('person.paige') != 'home' %}
         (Direction of travel: {{ state_attr('sensor.paige_place', 'direction_of_travel') }})            
       {% endif -%}
-    and our cat Molly: Always home.
+      {% if range(1, 100) | random <= 25 %}
+      and our cat Molly: Always home.
+      {% endif %}
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
     [For each person, mention their location. For those not at home, briefly state where they are and approximately how long they have been there, using relative time e.g., about 30 minutes, around 2 hours, not exact timestamps. If the same location update has already been broadcasted, do not repeat it.]
    
