@@ -1,0 +1,68 @@
+input_datetime:
+  downstairs_last_filter_change:
+    name: Last Filter Change
+    has_date: true
+    has_time: true
+
+  upstairs_last_filter_change:
+    name: Last Filter Change
+    has_date: true
+    has_time: true
+
+sensor:
+  - platform: history_stats
+    name: Upstairs AC Runtime Since Last Filter Change
+    entity_id: climate.upstairs
+    state: 'cooling'
+    type: time
+    start: "{{ states('input_datetime.upstairs_last_filter_change') }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: Downstairs AC Runtime Since Last Filter Change
+    entity_id: climate.downstairs
+    state: 'cooling'
+    type: time
+    start: "{{ states('input_datetime.downstairs_last_filter_change') }}"
+    end: "{{ now() }}"
+
+script:
+  reset_filter_change_date:
+    alias: Reset Downstairs Filter Change Date
+    sequence:
+      - service: input_datetime.set_datetime
+        data:
+          entity_id: input_datetime.downstairs_last_filter_change
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+
+automation:
+  - alias: Notify Downstairs Filter Change Due
+    description: "Notify when AC runtime exceeds threshold since last filter change"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
+        above: 800 
+    action:
+      - service: script.notify_engine
+        data:
+          title: "Home Maintenance Reminder"
+          value1: "It's time to change your Downstairs AC filter."
+          value2: "Runtime has exceeded 800 hours. Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago."
+          who: "Carlo"
+          group: "maintenance"
+          level: "active"
+
+  - alias: Notify Upstairs Filter Change Due
+    description: "Notify when AC runtime exceeds threshold since last filter change"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
+        above: 450
+    action:
+      - service: script.notify_engine
+        data:
+          title: "Home Maintenance Reminder"
+          value1: "It's time to change your Upstairs AC filter."
+          value2: "Runtime has exceeded 450 hours. Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago."
+          who: "Carlo"
+          group: "maintenance"
