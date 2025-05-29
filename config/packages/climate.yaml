@@ -13,7 +13,8 @@ sensor:
   - platform: history_stats
     name: Upstairs AC Runtime Since Last Filter Change
     entity_id: climate.upstairs
-    state: 'cooling'
+    attribute: hvac_action
+    value: 'cooling'
     type: time
     start: "{{ states('input_datetime.upstairs_last_filter_change') }}"
     end: "{{ now() }}"
@@ -21,7 +22,8 @@ sensor:
   - platform: history_stats
     name: Downstairs AC Runtime Since Last Filter Change
     entity_id: climate.downstairs
-    state: 'cooling'
+    attribute: hvac_action
+    value: 'cooling'
     type: time
     start: "{{ states('input_datetime.downstairs_last_filter_change') }}"
     end: "{{ now() }}"
