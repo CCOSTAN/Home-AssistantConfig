@@ -9,23 +9,34 @@ input_datetime:
     has_date: true
     has_time: true
 
+binary_sensor:
+  - platform: template
+    sensors:
+      downstairs_ac_cooling:
+        friendly_name: "Downstairs AC is Cooling"
+        value_template: >
+          {{ state_attr('climate.downstairs', 'hvac_action') == 'cooling' }}
+
+      upstairs_ac_cooling:
+        friendly_name: "Upstairs AC is Cooling"
+        value_template: >
+          {{ state_attr('climate.upstairs', 'hvac_action') == 'cooling' }}
+
 sensor:
   - platform: history_stats
-    name: Upstairs AC Runtime Since Last Filter Change
-    entity_id: climate.upstairs
-    attribute: hvac_action
-    value: 'cooling'
+    name: Downstairs AC Runtime Since Last Filter Change
+    entity_id: binary_sensor.downstairs_ac_cooling
+    state: 'on'
     type: time
-    start: "{{ states('input_datetime.upstairs_last_filter_change') }}"
+    start: "{{ states('input_datetime.downstairs_last_filter_change') }}"
     end: "{{ now() }}"
 
   - platform: history_stats
-    name: Downstairs AC Runtime Since Last Filter Change
-    entity_id: climate.downstairs
-    attribute: hvac_action
-    value: 'cooling'
+    name: Upstairs AC Runtime Since Last Filter Change
+    entity_id: binary_sensor.upstairs_ac_cooling
+    state: 'on'
     type: time
-    start: "{{ states('input_datetime.downstairs_last_filter_change') }}"
+    start: "{{ states('input_datetime.upstairs_last_filter_change') }}"
     end: "{{ now() }}"
 
 script:
