@@ -208,11 +208,11 @@
   {% endmacro %}
 
   {% macro inspirational_quote() %}
-        [Include an inspirational quote relevant to the day or situation at the end of the message. "]
+        [Include an inspirational quote relevant to the day or situation at the end of the message"]
   {% endmacro %}
 
   {% macro fact_of_the_day() %}
-        [Include a fact about something that happened in the past on this day at the end of the message]
+        [Include a relevant fact about something that happened in the past on this day at the end of the message]
   {% endmacro %}
 
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}
@@ -280,7 +280,7 @@
       and our cat Molly: Always home.
       {% endif %}
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
-    [For each person, mention their location. For those not at home, briefly state where they are and approximately how long they have been there, using relative time e.g., about 30 minutes, around 2 hours, not exact timestamps. If the same location update has already been broadcasted, do not repeat it.]
+    [For each person, mention their location. If they are not at home, briefly state where they are and approximately how long they have been there, using relative time e.g., about 30 minutes, around 2 hours, not exact timestamps. If the same location update has already been broadcasted, do not repeat it.]
    
     New Information: 
     {% if call_no_announcement != 1 %}
