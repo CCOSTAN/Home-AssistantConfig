@@ -63,7 +63,7 @@
 
       {%- if states('sensor.nws_alerts')|int > 0 -%}
         {%- set alert_description = state_attr('sensor.nws_alerts', 'Alerts') %}
-        [Summarize the included weather alert and give overall details on any storms releavant to the residents of the home. Use the Situation Overview Section to best understand what is going on - Be sure to highlight any impacts to Seminole County or Tallahassee] 
+        [Summarize the included weather alert and give overall details on any storms relevant to the residents of the home. Use the Situation Overview Section to best understand what is going on - Be sure to highlight any impacts to Seminole County or Tallahassee] 
         {{ alert_description }}
         [END of Weather Alert]
       {%- endif %}
@@ -246,36 +246,36 @@
       {% else -%}
         Away
       {% endif -%}
-      {%- if states('person.carlo') != 'home' %}
-        (Direction of travel: {{ state_attr('sensor.carlo_place', 'direction_of_travel') }})            
-      {% endif -%}
+      # {%- if states('person.carlo') != 'home' %}
+      #   (Direction of travel: {{ state_attr('sensor.carlo_place', 'direction_of_travel') }})            
+      # {% endif -%}
     - Stacey: {{ states('person.stacey') }} at 
       {%- if states('sensor.stacey_place') != 'unknown' %}
         {{ states('sensor.stacey_place') }}
       {% else -%}
         Away
       {% endif -%}
-      {%- if states('person.stacey') != 'home' %}
-        (Direction of travel: {{ state_attr('sensor.stacey_place', 'direction_of_travel') }})            
-      {% endif -%}
+      # {%- if states('person.stacey') != 'home' %}
+      #   (Direction of travel: {{ state_attr('sensor.stacey_place', 'direction_of_travel') }})            
+      # {% endif -%}
     - Justin: {{ states('person.justin') }} at 
       {%- if states('sensor.justin_place') != 'unknown' %}
         {{ states('sensor.justin_place') }}
       {% else -%}
         Away
       {% endif -%}
-      {%- if states('person.justin') != 'home' %}
-        (Direction of travel: {{ state_attr('sensor.justin_place', 'direction_of_travel') }})            
-      {% endif -%}
+      # {%- if states('person.justin') != 'home' %}
+      #   (Direction of travel: {{ state_attr('sensor.justin_place', 'direction_of_travel') }})            
+      # {% endif -%}
     - Paige: {{ states('person.paige') }} at 
       {%- if states('sensor.paige_place') != 'unknown' %}
         {{ states('sensor.paige_place') }}
       {% else -%}
         Away
       {% endif -%}
-      {%- if states('person.paige') != 'home' %}
-        (Direction of travel: {{ state_attr('sensor.paige_place', 'direction_of_travel') }})            
-      {% endif -%}
+      # {%- if states('person.paige') != 'home' %}
+      #   (Direction of travel: {{ state_attr('sensor.paige_place', 'direction_of_travel') }})            
+      # {% endif -%}
       {% if range(1, 100) | random <= 25 %}
       and our cat Molly: Always home.
       {% endif %}

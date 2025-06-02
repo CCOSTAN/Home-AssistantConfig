@@ -30,14 +30,14 @@
         - light.fridge
         - light.k4
         - group.kitchen_accents
-        - switch.office_lamp_switch_socket
+        - switch.office_lamp_switch
         
     - wait_template: >-
        {{ states.sun.sun.state == 'above_horizon' }}
     - service: homeassistant.turn_on
       entity_id: 
         - switch.alarm_panel_1_motion_detection
-        - switch.office_lamp_switch_socket
+        - switch.office_lamp_switch
     - service: number.set_value
       target:
         entity_id: number.alarm_panel_1_screen_brightness
