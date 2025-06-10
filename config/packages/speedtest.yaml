@@ -8,7 +8,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.speedtest_download
-        below: 400
+        below: 300
       - platform: numeric_state
         entity_id: sensor.speedtest_upload
         below: 300
@@ -30,7 +30,7 @@ automation:
           value1: >-
             Download: {{ states('sensor.speedtest_download') }} Mbps,
             Upload: {{ states('sensor.speedtest_upload') }} Mbps.
-          value2: "One or both speeds are below 400 Mbps."
+          value2: "One or both speeds are below 300 Mbps."
           who: "parents"
           group: "information"
           level: "active"
@@ -38,18 +38,18 @@ automation:
 
   - alias: "Notify Carlo if Internet Speed is Restored"
     id: notify-carlo-internet-speed-restored
-    description: "Sends a notification to Carlo's phone when download and upload speeds are back above 400/300 Mbps."
+    description: "Sends a notification to Carlo's phone when download and upload speeds are back above 300/300 Mbps."
     trigger:
       - platform: numeric_state
         entity_id: sensor.speedtest_download
-        above: 400
+        above: 300
       - platform: numeric_state
         entity_id: sensor.speedtest_upload
         above: 300
     condition:
       - condition: numeric_state
         entity_id: sensor.speedtest_download
-        above: 400
+        above: 300
       - condition: numeric_state
         entity_id: sensor.speedtest_upload
         above: 300

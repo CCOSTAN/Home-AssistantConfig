@@ -17,3 +17,20 @@
       data:
         NestStatus: "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."
         call_window_check: 1
+
+- alias: 'Prevent Upstairs Nest Below 76'
+  id: 7812fdaf-a3f8-498b-8f07-28e977e528ff
+  trigger:
+    - platform: numeric_state
+      entity_id: climate.upstairs
+      attribute: temperature
+      below: 76
+  action:
+    - delay:
+        minutes: 3
+    - service: climate.set_temperature
+      data:
+        entity_id: climate.upstairs
+        temperature: 77
+
+

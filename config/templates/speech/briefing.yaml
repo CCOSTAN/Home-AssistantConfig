@@ -246,41 +246,29 @@
       {% else -%}
         Away
       {% endif -%}
-      # {%- if states('person.carlo') != 'home' %}
-      #   (Direction of travel: {{ state_attr('sensor.carlo_place', 'direction_of_travel') }})            
-      # {% endif -%}
     - Stacey: {{ states('person.stacey') }} at 
       {%- if states('sensor.stacey_place') != 'unknown' %}
         {{ states('sensor.stacey_place') }}
       {% else -%}
         Away
       {% endif -%}
-      # {%- if states('person.stacey') != 'home' %}
-      #   (Direction of travel: {{ state_attr('sensor.stacey_place', 'direction_of_travel') }})            
-      # {% endif -%}
     - Justin: {{ states('person.justin') }} at 
       {%- if states('sensor.justin_place') != 'unknown' %}
         {{ states('sensor.justin_place') }}
       {% else -%}
         Away
       {% endif -%}
-      # {%- if states('person.justin') != 'home' %}
-      #   (Direction of travel: {{ state_attr('sensor.justin_place', 'direction_of_travel') }})            
-      # {% endif -%}
     - Paige: {{ states('person.paige') }} at 
       {%- if states('sensor.paige_place') != 'unknown' %}
         {{ states('sensor.paige_place') }}
       {% else -%}
         Away
       {% endif -%}
-      # {%- if states('person.paige') != 'home' %}
-      #   (Direction of travel: {{ state_attr('sensor.paige_place', 'direction_of_travel') }})            
-      # {% endif -%}
       {% if range(1, 100) | random <= 25 %}
       and our cat Molly: Always home.
       {% endif %}
     Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
-    [For each person, mention their location. If they are not at home, briefly state where they are and approximately how long they have been there, using relative time e.g., about 30 minutes, around 2 hours, not exact timestamps. If the same location update has already been broadcasted, do not repeat it.]
+    [For each person, mention their location. If the same location update has already been broadcasted, do not repeat it.]
    
     New Information: 
     {% if call_no_announcement != 1 %}
