@@ -239,26 +239,26 @@
     {% set time = current_date.strftime('%I:%M %p') %}
     Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
 
-    Residents: Location
-    - Carlo: {{ states('person.carlo') }} at 
+    Resident: Location
+    - Carlo: 
       {%- if states('sensor.carlo_place') != 'unknown' %}
         {{ states('sensor.carlo_place') }}
       {% else -%}
         Away
       {% endif -%}
-    - Stacey: {{ states('person.stacey') }} at 
+    - Stacey:   
       {%- if states('sensor.stacey_place') != 'unknown' %}
         {{ states('sensor.stacey_place') }}
       {% else -%}
         Away
       {% endif -%}
-    - Justin: {{ states('person.justin') }} at 
+    - Justin: 
       {%- if states('sensor.justin_place') != 'unknown' %}
         {{ states('sensor.justin_place') }}
       {% else -%}
         Away
       {% endif -%}
-    - Paige: {{ states('person.paige') }} at 
+    - Paige: 
       {%- if states('sensor.paige_place') != 'unknown' %}
         {{ states('sensor.paige_place') }}
       {% else -%}
