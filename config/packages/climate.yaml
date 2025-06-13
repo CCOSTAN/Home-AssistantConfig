@@ -79,3 +79,18 @@ automation:
           value2: "Runtime has exceeded 450 hours. Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago."
           who: "Carlo"
           group: "maintenance"
+
+  - alias: 'Prevent Upstairs Nest Below 76'
+    id: 7812fdaf-a3f8-498b-8f07-28e977e528ff
+    trigger:
+      - platform: numeric_state
+        entity_id: climate.upstairs
+        attribute: temperature
+        below: 76
+    action:
+      - delay:
+          minutes: 3
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.upstairs
+          temperature: 77
