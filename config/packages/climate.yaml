@@ -1,14 +1,20 @@
+# --------------------------------------------------
+#  AC Filter‑change runtime tracker
+# --------------------------------------------------
+
 input_datetime:
   downstairs_last_filter_change:
     name: Downstairs Last Filter Change
     has_date: true
     has_time: true
-
   upstairs_last_filter_change:
     name: Upstairs Last Filter Change
     has_date: true
     has_time: true
 
+# ---------------------------------------------------------------------------
+#  Binary sensors – true when the thermostat reports the compressor is running
+# ---------------------------------------------------------------------------
 binary_sensor:
   - platform: template
     sensors:
@@ -16,71 +22,106 @@ binary_sensor:
         friendly_name: "Downstairs AC is Cooling"
         value_template: >
           {{ state_attr('climate.downstairs', 'hvac_action') == 'cooling' }}
-
       upstairs_ac_cooling:
         friendly_name: "Upstairs AC is Cooling"
         value_template: >
           {{ state_attr('climate.upstairs', 'hvac_action') == 'cooling' }}
 
 sensor:
-  - platform: history_stats
-    name: Downstairs AC Runtime Since Last Filter Change
-    entity_id: binary_sensor.downstairs_ac_cooling
-    state: 'on'
-    type: time
-    start: "{{ states('input_datetime.downstairs_last_filter_change') }}"
-    end: "{{ now() }}"
+  - platform: template
+    sensors:
+      downstairs_ac_cooling_numeric:
+        friendly_name: "Downstairs AC Cooling Numeric"
+        value_template: "{{ 1 if is_state('binary_sensor.downstairs_ac_cooling', 'on') else 0 }}"
+      upstairs_ac_cooling_numeric:
+        friendly_name: "Upstairs AC Cooling Numeric "
+        value_template: "{{ 1 if is_state('binary_sensor.upstairs_ac_cooling', 'on') else 0 }}"
 
-  - platform: history_stats
-    name: Upstairs AC Runtime Since Last Filter Change
-    entity_id: binary_sensor.upstairs_ac_cooling
-    state: 'on'
-    type: time
-    start: "{{ states('input_datetime.upstairs_last_filter_change') }}"
-    end: "{{ now() }}"
+  - platform: integration
+    name: Downstairs AC Runtime Raw
+    source: sensor.downstairs_ac_cooling_numeric
+    unit_time: h
+    method: left
+    round: 2
+  - platform: integration
+    name: Upstairs AC Runtime Raw
+    source: sensor.upstairs_ac_cooling_numeric
+    unit_time: h
+    method: left
+    round: 2
+
+# ---------------------------------------------------------------------------
+#  Utility‑meters that act like odometers (reset when you swap the filter)
+# ---------------------------------------------------------------------------
+utility_meter:
+  downstairs_ac_runtime_since_last_filter_change:
+    source: sensor.downstairs_ac_runtime_raw
+    cycle: none        # never auto‑reset
+  upstairs_ac_runtime_since_last_filter_change:
+    source: sensor.upstairs_ac_runtime_raw
+    cycle: none
 
 script:
-  reset_filter_change_date:
-    alias: Reset Downstairs Filter Change Date
+  reset_downstairs_filter:
+    alias: Reset Downstairs Filter
+    mode: queued
     sequence:
       - service: input_datetime.set_datetime
         data:
           entity_id: input_datetime.downstairs_last_filter_change
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: utility_meter.reset
+        target:
+          entity_id: utility_meter.downstairs_ac_runtime_since_last_filter_change
+
+  reset_upstairs_filter:
+    alias: Reset Upstairs Filter
+    mode: queued
+    sequence:
+      - service: input_datetime.set_datetime
+        data:
+          entity_id: input_datetime.upstairs_last_filter_change
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: utility_meter.reset
+        target:
+          entity_id: utility_meter.upstairs_ac_runtime_since_last_filter_change
 
 automation:
   - alias: Notify Downstairs Filter Change Due
-    description: "Notify when AC runtime exceeds threshold since last filter change"
+    description: Notify when downstairs runtime exceeds threshold since last filter change
     trigger:
       - platform: numeric_state
         entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
-        above: 800 
+        above: 800      # hours
     action:
-      - service: script.notify_engine
+      - service: script.notify_engine        # <-- keep your existing notify helper
         data:
           title: "Home Maintenance Reminder"
           value1: "It's time to change your Downstairs AC filter."
-          value2: "Runtime has exceeded 800 hours. Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago."
+          value2: >
+            Runtime has exceeded 800 h. Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
           who: "Carlo"
           group: "maintenance"
           level: "active"
 
   - alias: Notify Upstairs Filter Change Due
-    description: "Notify when AC runtime exceeds threshold since last filter change"
+    description: Notify when upstairs runtime exceeds threshold since last filter change
     trigger:
       - platform: numeric_state
         entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
-        above: 450
+        above: 450      # hours
     action:
       - service: script.notify_engine
         data:
           title: "Home Maintenance Reminder"
           value1: "It's time to change your Upstairs AC filter."
-          value2: "Runtime has exceeded 450 hours. Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago."
+          value2: >
+            Runtime has exceeded 450 h. Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
           who: "Carlo"
           group: "maintenance"
 
-  - alias: 'Prevent Upstairs Nest Below 76'
+  
+  - alias: Prevent Upstairs Nest Below 76
     id: 7812fdaf-a3f8-498b-8f07-28e977e528ff
     trigger:
       - platform: numeric_state
@@ -88,8 +129,7 @@ automation:
         attribute: temperature
         below: 76
     action:
-      - delay:
-          minutes: 3
+      - delay: "00:03:00"
       - service: climate.set_temperature
         data:
           entity_id: climate.upstairs

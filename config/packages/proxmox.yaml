@@ -1,0 +1,17 @@
+#-------------------------------------------
+# Setting up nightly reboot schedule for Frigate server via Proxmox
+# https://www.vcloudinfo.com/click-here
+#-------------------------------------------
+
+automation:
+  - alias: "Nightly Frigate Server Reboot"
+    id: nightly_frigate_reboot
+    description: "Reboots the Frigate server every day at 5 AM"
+    trigger:
+      - platform: time
+        at: "05:00:00"
+    action:
+      - service: button.press
+        target:
+          entity_id: button.qemu_docker2_101_reboot
+    mode: single
