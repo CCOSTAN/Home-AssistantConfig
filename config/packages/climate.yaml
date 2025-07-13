@@ -56,12 +56,10 @@ sensor:
 utility_meter:
   downstairs_ac_runtime_since_last_filter_change:
     source: sensor.downstairs_ac_runtime_raw
-    cycle: none        # never auto‑reset
   upstairs_ac_runtime_since_last_filter_change:
     source: sensor.upstairs_ac_runtime_raw
-    cycle: none
-
-script:
+  
+  script:
   reset_downstairs_filter:
     alias: Reset Downstairs Filter
     mode: queued
@@ -72,7 +70,7 @@ script:
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
       - service: utility_meter.reset
         target:
-          entity_id: utility_meter.downstairs_ac_runtime_since_last_filter_change
+          entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
 
   reset_upstairs_filter:
     alias: Reset Upstairs Filter
@@ -84,7 +82,7 @@ script:
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
       - service: utility_meter.reset
         target:
-          entity_id: utility_meter.upstairs_ac_runtime_since_last_filter_change
+          entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
 
 automation:
   - alias: Notify Downstairs Filter Change Due
