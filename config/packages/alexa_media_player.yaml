@@ -12,4 +12,3 @@ sensor:
             {{ states.media_player | selectattr('attributes.last_called','eq',True) | map(attribute='entity_id') | first | default('none') }}
 
 #-------------------------------------------
-
