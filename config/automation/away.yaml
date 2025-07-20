@@ -63,3 +63,8 @@
           - climate.downstairs
           - climate.upstairs
         preset_mode: 'eco'
+    - service: script.notify_engine
+      data:
+        title: "Thermostat Eco Mode Triggered"
+        value1: "DEBUG: Everyone is gone and the Automation was triggered."
+        who: "carlo"
