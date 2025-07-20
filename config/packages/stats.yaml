@@ -11,16 +11,30 @@ command_line:
       unique_id: lines_of_code
       command: "find /config -name '*.yaml' | xargs cat | wc -l"
       scan_interval: 20000
+      value_template: "{{ value | int }}"
+      unit_of_measurement: "lines"
+      state_class: measurement
+      device_class: measurement
 
   - sensor:
-      name: 'GitHub Stats'
-      unique_id: github_stats_command
-      command: 'curl https://api.github.com/repos/ccostan/home-assistantconfig'
+      name: 'GitHub Open Issues'
+      unique_id: github_open_issues
+      command: 'curl -s https://api.github.com/repos/ccostan/home-assistantconfig'
       scan_interval: 20000
-      value_template: '{{ value_json.name }}'
-      json_attributes:
-      - open_issues
-      - stargazers_count
+      value_template: '{{ value_json.open_issues }}'
+      unit_of_measurement: 'issues'
+      state_class: measurement
+      device_class: count
+
+  - sensor:
+      name: 'GitHub Stargazers'
+      unique_id: github_stargazers
+      command: 'curl -s https://api.github.com/repos/ccostan/home-assistantconfig'
+      scan_interval: 20000
+      value_template: '{{ value_json.stargazers_count }}'
+      unit_of_measurement: 'stars'
+      state_class: measurement
+      device_class: count
 
 sensor:
   - platform: history_stats
@@ -66,22 +80,29 @@ sensor:
         friendly_name: 'Number of Sensors'
         value_template: >-
           {{ states.sensor | list | count }}
+        unit_of_measurement: 'count'
+        icon_template: mdi:counter
 
       automation_count:
         friendly_name: 'Number of Automations'
         value_template: >-
-          {{ states.automation| list | count }}
+          {{ states.automation | list | count }}
+        unit_of_measurement: 'count'
+        icon_template: mdi:robot
 
       script_count:
         friendly_name: 'Number of Scripts'
-        value_template: >
+        value_template: >-
           {{ states.script | list | count }}
+        unit_of_measurement: 'count'
+        icon_template: mdi:script-text
 
       binary_sensor_count:
         friendly_name: 'Number of Binary Sensors'
         value_template: >-
           {{ states.binary_sensor | list | count }}
-
+        unit_of_measurement: 'count'
+        icon_template: mdi:binary-sensor
       tracker_count:
         friendly_name: 'Number of Devices'
         value_template: >-
