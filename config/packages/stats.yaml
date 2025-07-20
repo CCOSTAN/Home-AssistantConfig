@@ -12,19 +12,14 @@ command_line:
       command: "find /config -name '*.yaml' | xargs cat | wc -l"
       scan_interval: 20000
       value_template: "{{ value | int }}"
-      unit_of_measurement: "lines"
-      state_class: measurement
-      device_class: measurement
-
+      unit_of_measurement: "count"
   - sensor:
       name: 'GitHub Open Issues'
       unique_id: github_open_issues
       command: 'curl -s https://api.github.com/repos/ccostan/home-assistantconfig'
       scan_interval: 20000
       value_template: '{{ value_json.open_issues }}'
-      unit_of_measurement: 'issues'
-      state_class: measurement
-      device_class: count
+      unit_of_measurement: 'count'
 
   - sensor:
       name: 'GitHub Stargazers'
@@ -32,9 +27,7 @@ command_line:
       command: 'curl -s https://api.github.com/repos/ccostan/home-assistantconfig'
       scan_interval: 20000
       value_template: '{{ value_json.stargazers_count }}'
-      unit_of_measurement: 'stars'
-      state_class: measurement
-      device_class: count
+      unit_of_measurement: 'count'
 
 sensor:
   - platform: history_stats
