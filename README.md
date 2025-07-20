@@ -259,10 +259,8 @@ Defining Guest Mode - /config/input_boolean/home_modes.yaml#L1-L4</a><br>
 Using Guest mode as a condition - /config/script/speech_engine.yaml#L26-L28</a><br>
 <p></details>
 <details>
-<summary>Track garbage days and chore days for the kids. Voice reminders and Alexa intergration/request for info.'</summary><p align="center">
+<summary>Track garbage days. Voice reminders and Alexa intergration/request for info.'</summary><p align="center">
 <a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/input_boolean/hidden_booleans.yaml#L5-L7>
-Defining responsibilities trigger - /config/input_boolean/hidden_booleans.yaml#L5-L7</a><br>
-<a href=https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/script/speech_engine.yaml#L56-L68>
 Responsibility Speech Code - /config/script/speech_engine.yaml#L56-L68</a><br>
 <p></details>
 <details>

@@ -1,6 +1,8 @@
-# --------------------------------------------------
-#  AC Filter‑change runtime tracker
-# --------------------------------------------------
+######################################################################
+##  AC related automations
+##  For more info visit https://www.vcloudinfo.com/click-here
+##  Contact: @CCOSTAN 
+######################################################################
 
 input_datetime:
   downstairs_last_filter_change:
@@ -118,6 +120,19 @@ automation:
           who: "Carlo"
           group: "maintenance"
 
+  - alias: 'AC Status off Announcement'
+    id: 7812fdaf-a3f8-498b-8f07-28e977e528fe
+    trigger:
+      - platform: state
+        entity_id:
+          - climate.downstairs
+          - climate.upstairs
+        from: 'off'
+    action:
+      - service: script.speech_engine
+        data:
+          NestStatus: "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."
+          call_window_check: 1
   
   - alias: Prevent Upstairs Nest Below 76
     id: 7812fdaf-a3f8-498b-8f07-28e977e528ff
@@ -132,3 +147,31 @@ automation:
         data:
           entity_id: climate.upstairs
           temperature: 77
+
+  - alias: Set Downstairs Nest to 76 When Both in Bed
+    id: set_downstairs_nest_76_both_in_bed
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        to: 'on'
+      - platform: numeric_state
+        entity_id: climate.downstairs
+        attribute: temperature
+        above: 76
+    condition:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+            state: 'on'
+          - condition: state
+            entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+            state: 'on'
+    action:
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.downstairs
+          temperature: 76
+
