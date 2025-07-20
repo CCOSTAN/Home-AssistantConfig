@@ -286,11 +286,11 @@
     New Information: 
     {% if call_no_announcement != 1 %}
       {% if now().strftime('%H')|int(9999)< 12 and now().strftime('%H')|int(9999)> 6 %}
-          Good morning.
+          Good morning. [if there is only one person home, address them specifically]
       {% elif now().strftime('%H')|int(9999)>= 12 and now().strftime('%H')|int(9999)< 17 %}
-          Good afternoon.
+          Good afternoon. [if there is only one person home, address them specifically]
       {% else %}
-          Good evening.
+          Good evening. [if there is only one person home, address them specifically]
       {% endif %}
     {% endif %}
 

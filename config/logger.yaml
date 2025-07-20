@@ -14,13 +14,12 @@
 
 default: info
 logs:
+  AIOGitHubAPI: error
   aiohttp.access: critical
   aiohttp.server: critical
   aiounifi: error
   custom_components.hacs: error
   hacs: error
-  queueman: error
-  AIOGitHubAPI: error
   homeassistant.core: error
   homeassistant.config_entries: error
   homeassistant.components.automation: warn
@@ -29,10 +28,14 @@ logs:
   homeassistant.components.device_tracker: error
   homeassistant.components.discovery: warn
   homeassistant.components.feedreader: error
+  homeassistant.components.history: error
   homeassistant.components.http: warn
   homeassistant.components.ipp: critical
+  homeassistant.components.logbook: error
   homeassistant.components.media_player: info
+  homeassistant.components.mqtt: error
   homeassistant.components.mqtt.discovery: critical
+  homeassistant.components.persistent_notification: critical
   homeassistant.components.rest.sensor: critical
   homeassistant.components.recorder: error
   homeassistant.components.sensor.pi_hole: critical
@@ -47,9 +50,11 @@ logs:
   homeassistant.helpers.script: info
   homeassistant.helpers.entity: critical
   homeassistant.loader: warn
+  homeassistant.components.websocket_api: error
   pubnub: critical
   py.warnings: error
   pyhap.hap_server: warn
+  queueman: error
   urllib3.connectionpool: error
   requests.packages.urllib3.connectionpool: critical
   root: warn

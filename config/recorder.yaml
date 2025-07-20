@@ -11,28 +11,38 @@
 #-------------------------------------------
 #db_url: sqlite:///data/home-assistant_v2.db
 purge_keep_days: 30
-include:
-  entities:
-    - device_tracker.spaceship_location_tracker
 exclude:
   domains:
-    - device_tracker
+    - automation
     - camera
+    - device_tracker
+    - feedreader
+    - image
+    - media_player
+    - persistent_notification
+    - sun
+    - zone
   entity_globs:
+    - binary_sensor.*_motion
+    - binary_sensor.*_motion_*
+    - binary_sensor.*is_present
+    - media_player.*echo*
+    - sensor.*_battery
+    - sensor.*_first_connection*
+    - sensor.*_geocoded_location
+    - sensor.*_last_connection*
+    - sensor.*_last_updated
+    - sensor.*_location
+    - sensor.*_place
+    - sensor.*_since
     - sensor.*uptime*
     - sensor.vpn_client_*
-    - sensor.*_first_connection*
-    - sensor.*_last_connection*
-    - binary_sensor.*_motion
-    - binary_sensor.*is_present
-    - binary_sensor.*_motion_*
   entities:
-    - automation.update_garage_get_status
+ 
     - binary_sensor.powerwall_charging
-    - media_player.carlo_s_4th_fire
-    - media_player.alarm_panel_2
-    - script.speech_processing
+    - binary_sensor.rheem_wh_running
     - script.amp_settings
+    - script.speech_processing
     - sensor.carlo_ap
     - sensor.carlo_fast
     - sensor.clock_am_pm
@@ -42,23 +52,23 @@ exclude:
     - sensor.clock_time
     - sensor.clock_time_2
     - sensor.date
+    - sensor.dockerconfigs_backup_date
+    - sensor.dockerconfigs_backup_error_message
+    - sensor.dockerconfigs_backup_status
     - sensor.external_ip
     - sensor.floorplan_date
     - sensor.floorplan_time
     - sensor.floorplan_time_2
     - sensor.ha_uptime
     - sensor.large_garage_door_since
+    - sensor.small_garage_door_since
     - sensor.low_battery
     - sensor.network
     - sensor.network_detail
     - sensor.pi_hole_ads_blocked_today
     - sensor.pi_hole_ads_percentage_blocked_today
     - sensor.pi_hole_dns_queries_today
-    - sensor.small_garage_door_since
-    - sensor.large_garage_door_since
+    - sensor.rachio_watering_time
     - sensor.stacey_iphone11_activity
     - sensor.time
-    - sensor.rachio_watering_time
-    - binary_sensor.rheem_wh_running
-    - sun.sun
-    - zone.home
+
