@@ -148,18 +148,16 @@ automation:
           entity_id: climate.upstairs
           temperature: 77
 
-  - alias: Set Downstairs Nest to 76 When Both in Bed
+  - alias: Set Downstairs Nest to 76 When both in bed
     id: set_downstairs_nest_76_both_in_bed
     trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-        to: 'on'
       - platform: numeric_state
         entity_id: climate.downstairs
         attribute: temperature
         above: 76
+      - platform: state
+        entity_id: group.bed
+        to: 'on'
     condition:
       - condition: and
         conditions:
@@ -169,6 +167,10 @@ automation:
           - condition: state
             entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
             state: 'on'
+      - condition: numeric_state
+        entity_id: climate.downstairs
+        attribute: temperature
+        above: 76
     action:
       - service: climate.set_temperature
         data:
