@@ -66,13 +66,19 @@ ifttt:
 
 logbook:
   exclude:
+    entity_globs:
+      - sensor.*_location
+      - sensor.*_place
+      - sensor.*_geocoded_location  
+      - sensor.pirateweather_*
+      - weather.*
     entities:
       - automation.detect_lights_and_adjust_the_brightness_when_turned_on_based_on_time
       - automation.cuckoo_clock
       - binary_sensor.office_motion
+      - binary_sensor.rheem_wh_running
       - group.garage_doors
       - media_player.LivingRoomCC
-      - py.warnings
       - sensor.small_garage_status
       - sensor.large_garage_status
       - sensor.small_garage_time_in_state
@@ -86,8 +92,8 @@ logbook:
       - sensor.pi_hole_dns_queries_today
       - sensor.time
       - sensor.date
-      - sensor.floorplan_date
-      - sensor.floorplan_time
+      - sensor.downstairs_ac_cooling_numeric
+      - sensor.upstairs_ac_cooling_numeric
       - sensor.ha_uptime
       - sensor.sleepnumber_carlo_stacey_pressure
       - sensor.sleepnumber_carlo_carlo_pressure
