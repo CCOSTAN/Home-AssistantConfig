@@ -79,10 +79,6 @@ group:
       - cover.large_garage_door
       - cover.small_garage_door
 
-######################################################################
-##  Send a notification to anyone coming home asking if they want to open the garage door.
-######################################################################
-
 automation:
 
   ######################################################################
@@ -100,11 +96,6 @@ automation:
         from: 'not_home'
         to: 'home'
     condition:
-      # Only if the person has been away for at least 60 minutes
-      - condition: template
-        value_template: >
-          {{ (as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed)) > 3600 }}
-      # Garage door must be closed
       - condition: state
         entity_id: cover.large_garage_door
         state: 'closed'
@@ -115,13 +106,22 @@ automation:
       - service: cover.open_cover
         target:
           entity_id: cover.large_garage_door
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.last_person_home
+        data:
+          value: "{{ trigger.to_state.entity_id.split('.')[1] }}"
       - service: script.notify_engine 
         data:
           who: 'parents'
           value1: "Large Garage has been auto-opened for {{ states('input_text.last_person_home') }}."
           title: 'Garage Auto-Opened'
           group: 'Welcome_Home'
-          camera_entity: camera.frontdoorbell
+          camera_entity: camera.garagecam
+
+######################################################################
+##  Send a notification to anyone coming home asking if they want to open the garage door.
+######################################################################
 
   - alias: 'Garage Helper'
     id: 365adc21-5e96-4e78-9e94-089901a29430
