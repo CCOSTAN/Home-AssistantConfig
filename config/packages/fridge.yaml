@@ -1,0 +1,38 @@
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Support for LG Fridges (https://amzn.to/3lOYTCv)
+# Added ThinLg HACS integration for Fridge sensors - https://github.com/ollo69/ha-smartthinq-sensors
+#-------------------------------------------
+
+automation:
+  - alias: 'Fridge Door Open'
+    id: 2346efcd-e8a8-4e86-b5b6-43eBl1nkFr1dge95D00r0pen
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.refrigerator_door_open
+        to: 'on'
+        for:
+          minutes: 5
+    condition:
+      - condition: state
+        entity_id: binary_sensor.refrigerator_door_open
+        state: 'on'
+    action:
+      - service: script.notify_engine
+        data:
+          title: 'Fridge Door Open'
+          value1: >
+            The fridge door has been open for more than 5 minutes. Please check and close the fridge door to avoid temperature issues.
+          who: 'family'
+          group: 'information'
+
+      - wait_template: "{{ states.group.family.state == 'home' }}"
+
+      - service: script.speech_engine
+        data:
+          value1: "Attention! The fridge door has been open for more than 5 minutes. Please close the fridge door."
+
+      - delay: 00:30:00
+      - event: event_fridge_door_open
