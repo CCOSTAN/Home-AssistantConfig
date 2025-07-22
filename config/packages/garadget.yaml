@@ -123,46 +123,6 @@ automation:
 ##  Send a notification to anyone coming home asking if they want to open the garage door.
 ######################################################################
 
-automation:
-
-  ######################################################################
-  ##  Automation: Auto-open Large Garage Door when someone comes home
-  ######################################################################
-  - alias: 'Auto Open Large Garage Door On Arrival'
-    id: 7e2b1c3a-4b1e-4b2a-9c1a-automated_garage_door
-    mode: single
-    trigger:
-      - platform: state
-        entity_id:
-          - person.carlo
-          - person.stacey
-          - person.justin
-        from: 'not_home'
-        to: 'home'
-    condition:
-      # Only if the person has been away for at least 60 minutes
-      - condition: template
-        value_template: >
-          {{ (as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed)) > 3600 }}
-      # Garage door must be closed
-      - condition: state
-        entity_id: cover.large_garage_door
-        state: 'closed'
-      - condition: state
-        entity_id: group.bed
-        state: 'off'
-    action:
-      - service: cover.open_cover
-        target:
-          entity_id: cover.large_garage_door
-      - service: script.notify_engine 
-        data:
-          who: 'parents'
-          value1: "Large Garage has been auto-opened for {{ states('input_text.last_person_home') }}."
-          title: 'Garage Auto-Opened'
-          group: 'Welcome_Home'
-          camera_entity: camera.frontdoorbell
-
   - alias: 'Garage Helper'
     id: 365adc21-5e96-4e78-9e94-089901a29430
     mode: parallel
