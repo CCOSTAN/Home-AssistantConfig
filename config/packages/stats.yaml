@@ -100,11 +100,15 @@ sensor:
         friendly_name: 'Number of Devices'
         value_template: >-
           {{ states.device_tracker| list | count }}
+        unit_of_measurement: 'count'
+        icon_template: mdi:account-group
+
       lights_count:
         friendly_name: 'Number of Lights'
         value_template: >
           {{ states.light | list | count }}
-
+        unit_of_measurement: 'count'
+        icon_template: mdi:lightbulb
       lights_on_count:
         friendly_name: "Number of lights on"
         value_template: >-
@@ -117,7 +121,8 @@ sensor:
            {% else %}
             {{ qty }} {{ p1 }} on.
            {% endif %}
-
+        unit_of_measurement: 'count'
+        icon_template: mdi:binary-sensor
       protect_count:
         friendly_name: 'Number of Smoke Detectors'
         value_template: >
@@ -130,9 +135,12 @@ sensor:
           {% else %}
           0
           {% endif %}
+        unit_of_measurement: 'count'
+        icon_template: mdi:smoke-detector
       camera_count:
         friendly_name: 'Number of online Cameras'
         value_template: >
           {{ states.camera | list | count }}
-
+        unit_of_measurement: 'count'
+        icon_template: mdi:camera
 #############################################################
