@@ -15,3 +15,22 @@ automation:
         target:
           entity_id: button.qemu_docker2_101_reboot
     mode: single
+
+  - alias: "Notify Carlo of Proxmox Updates"
+    id: notify_carlo_proxmox_updates
+    description: "Sends a notification to Carlo when there are updates available for the Proxmox hosts."
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.node_proxmox02_updates_packages
+        to: 'on'
+      - platform: state
+        entity_id: binary_sensor.node_proxmox1_updates_packages
+        to: 'on'
+    action:
+      - service: script.notify_engine
+        data:
+          who: carlo
+          title: "Proxmox Updates Available"
+          value1: "There are updates available for the Proxmox hosts. Please review and apply updates as needed."
+          group: "information"
+    mode: single

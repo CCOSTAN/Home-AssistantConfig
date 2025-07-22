@@ -21,7 +21,7 @@
     The sun has set. I will turn on the outside lights.
   {%- endmacro -%}
 
-  {%- macro responsibilities() -%}
+  {%- macro garbage_day() -%}
     {% set day_of_week = now().strftime('%a') %}
     {% if day_of_week in ['Wed', 'Sun'] %}
     Today is garbage day.
@@ -286,11 +286,11 @@
     New Information: 
     {% if call_no_announcement != 1 %}
       {% if now().strftime('%H')|int(9999)< 12 and now().strftime('%H')|int(9999)> 6 %}
-          Good morning.
+          Good morning. [if there is only one person home, address them specifically]
       {% elif now().strftime('%H')|int(9999)>= 12 and now().strftime('%H')|int(9999)< 17 %}
-          Good afternoon.
+          Good afternoon. [if there is only one person home, address them specifically]
       {% else %}
-          Good evening.
+          Good evening. [if there is only one person home, address them specifically]
       {% endif %}
     {% endif %}
 
@@ -346,8 +346,8 @@
     {{ light_check() }}
     {% endif %}
 
-    {% if call_responsibilities == 1 %}
-    {{ responsibilities() }}
+    {% if call_garbage_day == 1 %}
+    {{ garbage_day() }}
     {% endif %}
 
     {% if now().strftime('%H')|int(0) > 21 %}

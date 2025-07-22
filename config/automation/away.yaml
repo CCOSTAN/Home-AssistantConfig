@@ -41,3 +41,30 @@
       entity_id: switch.back_landscaping
 
 
+# Set thermostats to eco mode when everyone is away
+- alias: 'Set Thermostats to Eco When Away'
+  id: 1e2d3c4b-eco-thermostat-away
+  mode: single
+  trigger:
+    - platform: state
+      entity_id: group.family
+      to: 'not_home'
+  condition:
+    - condition: state
+      entity_id: group.family
+      state: 'not_home'
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
+  action:
+    - service: climate.set_preset_mode
+      data:
+        entity_id:
+          - climate.downstairs
+          - climate.upstairs
+        preset_mode: 'eco'
+    - service: script.notify_engine
+      data:
+        title: "Thermostat Eco Mode Triggered"
+        value1: "DEBUG: Everyone is gone and the Automation was triggered."
+        who: "carlo"

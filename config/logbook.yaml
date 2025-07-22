@@ -1,0 +1,42 @@
+#-------------------------------------------
+# Logbook Configuration
+# Description: Settings for the Home Assistant logbook component
+#  This component is responsible for displaying items in the logbook.
+# Follow me on https://www.vcloudinfo.com/click-here
+# Original Repo: https://github.com/CCOSTAN/Home-AssistantConfig
+#-------------------------------------------
+
+exclude:
+  entity_globs:
+    - sensor.*_location
+    - sensor.*_place
+    - sensor.*_geocoded_location  
+    - sensor.pirateweather_*
+    - weather.*
+  entities:
+    - automation.cuckoo_clock
+    - automation.detect_lights_and_adjust_the_brightness_when_turned_on_based_on_time
+    - binary_sensor.office_motion
+    - binary_sensor.refrigerator_door_open
+    - binary_sensor.rheem_wh_running
+    - group.garage_doors
+    - media_player.LivingRoomCC
+    - sensor.date
+    - sensor.downstairs_ac_cooling_numeric
+    - sensor.ha_uptime
+    - sensor.large_garage_reflection_rate
+    - sensor.large_garage_status
+    - sensor.large_garage_time_in_state
+    - sensor.large_garage_wifi_signal_strength
+    - sensor.pi_hole_ads_blocked_today
+    - sensor.pi_hole_ads_percentage_blocked_today
+    - sensor.pi_hole_dns_queries_today
+    - sensor.rheem_wh_running_state
+    - sensor.sleepnumber_carlo_carlo_pressure
+    - sensor.sleepnumber_carlo_stacey_pressure
+    - sensor.small_garage_reflection_rate
+    - sensor.small_garage_status
+    - sensor.small_garage_time_in_state
+    - sensor.small_garage_wifi_signal_strength
+    - sensor.time
+    - sensor.upstairs_ac_cooling_numeric

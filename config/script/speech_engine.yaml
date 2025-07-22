@@ -3,11 +3,12 @@
   # action:
     # service: script.speech_engine
     # data:
+    #   value1:
     #   call_no_announcement:
     #   call_dark_outside:
     #   call_window_check:
     #   call_garage_check:
-    #   call_responsibilities
+    #   call_garbage_day
     #   call_light_check
     #   call_inside_weather
     #   call_outside_weather
@@ -50,9 +51,8 @@ speech_engine:
         # Include the speech message from the "speech/briefing.yaml" template file
         speech_message: !include ../templates/speech/briefing.yaml
 
-    # Turn off the "input_boolean.home_stats" and "input_boolean.responsibilities" input booleans
+    # Turn off the "input_boolean.home_stats"
     - service: input_boolean.turn_off
       data:
         entity_id:
           - input_boolean.home_stats
-          - input_boolean.responsibilities
