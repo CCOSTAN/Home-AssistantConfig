@@ -93,7 +93,7 @@ automation:
           - person.carlo
           - person.stacey
           - person.justin
-        from: 'not_home'
+        from: 'driving'
         to: 'home'
     condition:
       - condition: state
@@ -102,6 +102,9 @@ automation:
       - condition: state
         entity_id: group.bed
         state: 'off'
+      - condition: state
+        entity_id: group.family
+        state: 'home'
     action:
       - service: cover.open_cover
         target:
@@ -131,7 +134,7 @@ automation:
         entity_id:
           - person.carlo
           - person.stacey
-        from: 'not_home'
+#       from: 'driving'
         to: 'home'
     condition:
         - condition: state
