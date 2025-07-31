@@ -153,7 +153,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: climate.downstairs
-        attribute: target_temp_high
+        attribute: temperature
         above: 76
       - platform: state
         entity_id: group.bed
@@ -169,7 +169,7 @@ automation:
             state: 'on'
       - condition: numeric_state
         entity_id: climate.downstairs
-        attribute: target_temp_high
+        attribute: temperature
         above: 76
       - condition: state
         entity_id: sun.sun
