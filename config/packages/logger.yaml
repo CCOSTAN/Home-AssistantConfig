@@ -3,7 +3,6 @@
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 #-------------------------------------------
-
 input_select:
   log_level:
     name: Log Level
@@ -34,4 +33,3 @@ automation:
       - service: logger.set_level
         data:
           homeassistant.components: "{{ states.input_select.log_level.state }}"
-

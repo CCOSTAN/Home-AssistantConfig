@@ -179,4 +179,92 @@ automation:
         data:
           entity_id: climate.downstairs
           temperature: 76
+  - alias: 'Set Downstairs Thermostat to 79 During Daylight'
+    id: set_downstairs_thermostat_79_daylight
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sun.sun
+        to: 'above_horizon'
+      - platform: numeric_state
+        entity_id: climate.downstairs
+        attribute: temperature
+        below: 78
+    condition:
+      - condition: state
+        entity_id: sun.sun
+        state: 'above_horizon'
+      - condition: template
+        value_template: "{{ state_attr('climate.downstairs', 'temperature') < 79 }}"
+    action:
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.downstairs
+          temperature: 80
+          
+# Set thermostats to eco mode when everyone is away
+  - alias: 'Set Thermostats to Eco When Away'
+    id: 1e2d3c4b-eco-thermostat-away
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: 'not_home'
+    condition:
+      - condition: state
+        entity_id: group.family
+        state: 'not_home'
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+    action:
+      - service: climate.set_preset_mode
+        data:
+          entity_id:
+            - climate.downstairs
+            - climate.upstairs
+          preset_mode: 'eco'
 
+  # Automation: Set Thermostats Back to Cool Mode
+  - alias: 'Set Thermostats to Cool When Home'
+    id: 1e2d3c4b-cool-thermostat-home
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: 'home'
+      - platform: state
+        entity_id: person.justin
+        to: 'home'
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: group.family
+            state: 'home'
+          - condition: state
+            entity_id: person.justin
+            state: 'home'
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: group.family
+                state: 'home'
+            sequence:
+              - service: climate.set_preset_mode
+                data:
+                  entity_id: climate.downstairs
+                  preset_mode: 'cool'
+          - conditions:
+              - condition: state
+                entity_id: person.justin
+                state: 'home'
+            sequence:
+              - service: climate.set_preset_mode
+                data:
+                  entity_id: climate.upstairs
+                  preset_mode: 'cool'
