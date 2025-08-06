@@ -258,7 +258,7 @@ automation:
               - service: climate.set_preset_mode
                 data:
                   entity_id: climate.downstairs
-                  preset_mode: 'cool'
+                  preset_mode: 'none'
           - conditions:
               - condition: state
                 entity_id: person.justin
@@ -267,4 +267,4 @@ automation:
               - service: climate.set_preset_mode
                 data:
                   entity_id: climate.upstairs
-                  preset_mode: 'cool'
+                  preset_mode: 'none'
