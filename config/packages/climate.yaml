@@ -189,13 +189,16 @@ automation:
       - platform: numeric_state
         entity_id: climate.downstairs
         attribute: temperature
-        below: 78
+        below: 79
     condition:
       - condition: state
         entity_id: sun.sun
         state: 'above_horizon'
       - condition: template
         value_template: "{{ state_attr('climate.downstairs', 'temperature') < 79 }}"
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
     action:
       - service: climate.set_temperature
         data:
