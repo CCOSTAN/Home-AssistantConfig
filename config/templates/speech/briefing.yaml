@@ -49,19 +49,19 @@
             {{ friendly_name }}: {{ state }} {{ unit }}
         {%- elif 'Precip' in friendly_name -%}
             {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Wind Speed' in friendly_name and state | float > 15 -%}
+        {%- elif 'Wind Speed' in friendly_name and state | float(0) > 15 -%}
             {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Cloud Coverage' in friendly_name and state | float > 75 -%}
+        {%- elif 'Cloud Coverage' in friendly_name and state | float(0) > 75 -%}
             {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Humidity' in friendly_name and (state | float < 50 or state | float > 85) -%}
+        {%- elif 'Humidity' in friendly_name and (state | float(0) < 50 or state | float(0) > 85) -%}
             {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Nearest Storm Distance' in friendly_name and state | float <= 10 -%}
+        {%- elif 'Nearest Storm Distance' in friendly_name and state | float(0) <= 10 -%}
             {{ friendly_name }}: {{ state }} {{ unit }}
         {%- endif -%}
         {%- endif %}
     {% endfor -%}
 
-      {%- if states('sensor.nws_alerts')|int > 0 -%}
+      {%- if states('sensor.nws_alerts') | int(0) > 0 -%}
         {%- set alert_description = state_attr('sensor.nws_alerts', 'Alerts') %}
         [Summarize the included weather alert and give overall details on any storms relevant to the residents of the home. Use the Situation Overview Section to best understand what is going on - Be sure to highlight any impacts to Seminole County or Tallahassee] 
         {{ alert_description }}
@@ -332,7 +332,7 @@
     {{ dark_outside() }}
     {% endif %}
 
-    {% if call_garage_check == 999 or is_state('sun.sun', '9999') %}
+    {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
     {{ garage_check() }}
     {% endif %}
 
