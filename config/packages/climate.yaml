@@ -120,7 +120,7 @@ automation:
           who: "Carlo"
           group: "maintenance"
 
-  - alias: 'AC Status off Announcement'
+  - alias: 'AC Status Announcement'
     id: 7812fdaf-a3f8-498b-8f07-28e977e528fe
     trigger:
       - platform: state
@@ -128,6 +128,11 @@ automation:
           - climate.downstairs
           - climate.upstairs
         from: 'off'
+      - platform: state
+        entity_id:
+          - climate.downstairs
+          - climate.upstairs
+        to: 'off'
     action:
       - service: script.speech_engine
         data:

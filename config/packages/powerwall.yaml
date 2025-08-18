@@ -38,7 +38,7 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.powerwall_grid_status
-        to: 'False'
+        to: 'off'
 
     action:
       - service: homeassistant.turn_off
@@ -102,7 +102,7 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.powerwall_grid_status
-        to: 'False'
+        to: 'off'
         for:
           minutes: 6
 
@@ -130,10 +130,10 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.powerwall_grid_status
-        from: 'False'
-        to: 'True'
+        from: 'off'
+        to: 'on'
         for:
-          minutes: 5
+          minutes: 10
 
     condition:
       - condition: template
@@ -151,7 +151,7 @@ automation:
       - service: climate.set_hvac_mode
         data:
           entity_id: climate.downstairs
-          hvac_mode: auto
+          hvac_mode: cool
       - service: climate.set_hvac_mode
         data:
           entity_id: climate.upstairs
