@@ -269,7 +269,6 @@ automation:
                   DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
                   call_garage_check: 1
               - delay: "00:10:00"
-              - service: script.garage_lights_off
 
         default:
           - service: script.speech_engine
@@ -316,11 +315,11 @@ automation:
           value1: >
             "The wind speed is {{ states('sensor.pirateweather_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.
             {% if is_state('cover.large_garage_door', 'open') -%}
-              The Large Garage Door is open
+              Large Garage Door: open
             {% endif -%}
             {% if is_state('cover.small_garage_door', 'open') -%}
               {% if is_state('cover.large_garage_door', 'open') -%}and
-              {%- endif %} The small Garage Door is open.
+              {%- endif %} Small Garage Door: open.
             {% endif %}"
 
   ##############################################################################
@@ -379,7 +378,7 @@ automation:
 
       - service: script.speech_engine
         data:
-          value1: "Check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}} [Only mention the garage door that is open and remind us to close it for the night]"
+          value1: "Check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}} [Always mention the specific garage door that is currently open and remind us to close it for the night]"
 
   - alias: 'Garage Camera on Alexa Shows'
     id: 4373df2a-77f2-4e19-be7c-46c7b27ca583
@@ -437,7 +436,6 @@ automation:
               media_content_id: 'hide garage camera'
               media_content_type: custom
 
-          - service: script.garage_lights_off
 
   - alias: 'Garage Camera on Alexa Shows'
     id: 4373df2a-77f2-4e19-be7c-46c7b27ca583
@@ -494,6 +492,5 @@ automation:
             data:
               media_content_id: 'hide garage camera'
               media_content_type: custom
-
-          - service: script.garage_lights_off
+              
 

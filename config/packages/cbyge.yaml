@@ -29,29 +29,3 @@ script:
           entity_id: media_player.paige_room
           media_content_id: paigelighton
           media_content_type: routine
-
-  garage_lights_off:
-    alias: 'ALL Garage Lights Off'
-    sequence:
-
-      - service: media_player.play_media
-        data:
-          entity_id: media_player.garage
-          media_content_id: 'turn off c life 3'
-          media_content_type: custom
-
-      - delay: "00:01:30"
-
-      - service: media_player.play_media
-        data:
-          entity_id: media_player.garage
-          media_content_id: 'turn off c sleep 1'
-          media_content_type: custom
-
-      - delay: "00:01:30"
-
-      - service: media_player.play_media
-        data:
-          entity_id: media_player.garage
-          media_content_id: 'turn off c sleep 2'
-          media_content_type: custom

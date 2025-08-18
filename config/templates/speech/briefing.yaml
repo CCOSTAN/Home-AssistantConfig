@@ -18,7 +18,7 @@
 
 >-
   {%- macro dark_outside() -%}
-    The sun has set. I will turn on the outside lights.
+    [Because the sun has set, outside lights have been turned on]
   {%- endmacro -%}
 
   {%- macro garbage_day() -%}
@@ -26,7 +26,7 @@
     {% if day_of_week in ['Wed', 'Sun'] %}
     Today is garbage day.
     {% if day_of_week == 'Wed' %}
-        Both Recycling and regular Garbage goes out. 
+    Both Recycling and regular Garbage goes out. 
     {% endif %}
     {% endif %}
   {%- endmacro -%}
@@ -163,7 +163,7 @@
 
   {%- macro uv() -%}
   {% if states.sensor.pirateweather_uv_index.state|int(9999)>= 6 %}
-      Today's UV index is {{ states.sensor.pirateweather_uv_index.state }}. 
+        UV index is {{ states.sensor.pirateweather_uv_index.state }}. 
     {%- for entity in states.sensor if 'pirateweather' in entity.entity_id %}
         {%- set state = entity.state %}
         {%- set unit = entity.attributes.unit_of_measurement if 'unit_of_measurement' in entity.attributes else '' %}
@@ -180,13 +180,13 @@
         {%- endif -%}
         {%- endif %}
     {% endfor -%}
-      [Give helpful tip based on the current UV index and weather conditions]
+      [Give a helpful suggestion based on the current UV index or weather conditions]
   {% endif %}
   {%- endmacro -%}
 
   {%- macro holiday() -%}
   {% if states.sensor.holiday.state != '' %}
-      Today is {{ states.sensor.holiday.state }}. [Give an interesting fact or quote related to today]
+      Today is {{ states.sensor.holiday.state }}.
   {% endif %}
   {%- endmacro -%}
 
@@ -197,7 +197,7 @@
   {%- elif states('sensor.fathers_countdown') | int(9999)< 20  -%}
       and don't forget, there are {{ states.sensor.fathers_countdown.state }} days until Fathers day!
   {%- elif states('sensor.easter_countdown') | int(9999)< 15  -%}
-      and don't forget, there are {{ states.sensor.easter_countdown.state }} days until Easter Sunday!
+      and don't forget, there are {{ states.sensor.easter_countdown.state }} colorful days until Easter Sunday!
   {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 10 and states('sensor.thanksgiving_day_countdown') | int(9999)> 0  -%}
       and don't forget, there are {{ states.sensor.thanksgiving_day_countdown.state }} thankful days until Thanksgiving
   {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 1  -%}
@@ -220,12 +220,8 @@
     {{state_attr('sensor.bear_stone_common_air_quality_index', 'description')}}
   {% endmacro %}
 
-  {% macro inspirational_quote() %}
-        [Include an inspirational quote relevant to the day or situation at the end of the message"]
-  {% endmacro %}
-
   {% macro fact_of_the_day() %}
-        [Include a relevant fact about something that happened in the past on this day at the end of the message]
+        [incorporate into the message a relevant fact about something that happened in the past on this day]
   {% endmacro %}
 
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}
@@ -250,9 +246,9 @@
     {% set day = current_date.strftime('%d') %} 
     {% set year = current_date.strftime('%Y') %}
     {% set time = current_date.strftime('%I:%M %p') %}
-    Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}
+    [Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}]
 
-    Resident: Location
+    [Resident: Location:
     - Carlo: 
       {%- if states('sensor.carlo_place') != 'unknown' %}
         {{ states('sensor.carlo_place') }}
@@ -278,12 +274,10 @@
         Away
       {% endif -%}
       {% if range(1, 100) | random <= 25 %}
-      and our cat Molly: Always home.
+      Cat Molly: Always home.
       {% endif %}
-    Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}"
-    [For each person, mention their location. If the same location update has already been broadcasted, do not repeat it.]
-   
-    New Information: 
+    ]
+    [Sensor Data: 
     {% if call_no_announcement != 1 %}
       {% if now().strftime('%H')|int(9999)< 12 and now().strftime('%H')|int(9999)> 6 %}
           Good morning. [if there is only one person home, address them specifically]
@@ -359,7 +353,9 @@
     {% endif %}
 
     {# call a Random fact about the house or inspiration quote #}
-    {{ ([moon, uv, holiday, days_until, outside_weather, outside_weather, inspirational_quote, fact_of_the_day]|random)() }}
+    {{ ([moon, uv, holiday, days_until, outside_weather, outside_weather, fact_of_the_day]|random)() }}
+    ]
+    [Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}" ]
 
   {%- endmacro -%}
   {{- cleanup(mother_of_all_macros()) -}}
