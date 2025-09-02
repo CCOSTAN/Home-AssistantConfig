@@ -16,13 +16,13 @@ automation:
 
     trigger:
       - platform: state
-        entity_id: switch.phyn_shutoff_valve
-        to: 'off'
+        entity_id: valve.phyn_shutoff_valve
+        to: 'closed'
 
     condition:
-      - condition: time
-        before: '03:00'
-        after: '05:00'
+      - condition: state
+        entity_id: binary_sensor.phyn_leak_test_running
+        state: 'off'
 
     action:
       - service: script.notify_engine_two_button
@@ -46,7 +46,7 @@ automation:
         action: PHYN_WATER_ON
     action:
       - service: homeassistant.turn_on
-        entity_id: switch.phyn_shutoff_valve
+        entity_id: valve.phyn_shutoff_valve
 
       - service: script.notify_engine
         data:
