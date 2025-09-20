@@ -36,6 +36,17 @@ automation:
           icon1: 'sfsymbols:arrow.up.circle'
           icon2: 'sfsymbols:clock'
           level: 'critical'
+      
+      - service: persistent_notification.create
+        data:
+          title: '🚨 Phyn Leak Detection Alert'
+          message: |
+            **CRITICAL**: Phyn has detected a potential leak and automatically shut off the main water supply.
+            
+            **Action Required**: Please verify there are no leaks in the house before turning the water back on.
+            
+            **Time**: {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
+          notification_id: 'phyn_leak_detection'
 
   - alias: Turn Phyn Water On
     id: 1f295bb8-8925-4b22-PHYN-9fe079b295a8
@@ -47,6 +58,10 @@ automation:
     action:
       - service: homeassistant.turn_on
         entity_id: valve.phyn_shutoff_valve
+
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: 'phyn_leak_detection'
 
       - service: script.notify_engine
         data:
@@ -82,3 +97,16 @@ automation:
           icon1: 'sfsymbols:arrow.up.circle'
           icon2: 'sfsymbols:clock'
           level: 'critical'
+
+  - alias: Dismiss Phyn Notification When Valve Opens
+    id: 3f295bb8-8925-4b22-PHYN-9fe079b295a8
+    trigger:
+      - platform: state
+        entity_id: valve.phyn_shutoff_valve
+        to: 'open'
+    action:
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: 'phyn_leak_detection'
+
+
