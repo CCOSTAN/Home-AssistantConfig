@@ -31,7 +31,7 @@ automation:
             Download: {{ states('sensor.speedtest_download') }} Mbps,
             Upload: {{ states('sensor.speedtest_upload') }} Mbps.
           value2: "One or both speeds are below 300 Mbps."
-          who: "parents"
+          who: "carlo"
           group: "information"
           level: "active"
     mode: single
