@@ -24,8 +24,8 @@
       value_template: "{{ trigger.event.data.entity_id is not none }}"
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('.')[0] == 'light' }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.tv' }}"
+    # - condition: template
+    #   value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.tv' }}"
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.couch' }}"
     - condition: template
@@ -34,8 +34,8 @@
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.flood_2' }}"
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.treeflood' }}"
-    - condition: template
-      value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.led' }}"
+    # - condition: template
+    #   value_template: "{{ trigger.event.data.entity_id.split('_')[0] != 'light.led' }}"
     - condition: template
       value_template: "{{ trigger.event.data.entity_id.split('_')[1] != 'screensaver' }}"
     - condition: template

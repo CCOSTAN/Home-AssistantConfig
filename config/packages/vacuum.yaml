@@ -78,3 +78,40 @@ automation:
 
       - delay: 00:20:00
       - event: event_did_someone_help_vacuum_loop
+
+  # https://www.vcloudinfo.com/click-here - For more info or contact.
+
+  - alias: 'Set Vacuum Mode: Weekdays Sweeping, Weekends Sweeping and Mopping'
+    id: l10s_vacuum_mode_schedule
+    trigger:
+      - platform: time
+        at: '08:00:00'
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: time
+                weekday:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+            sequence:
+              - service: select.select_option
+                target:
+                  entity_id: select.l10s_vacuum_cleaning_mode
+                data:
+                  option: sweeping
+          - conditions:
+              - condition: time
+                weekday:
+                  - sat
+                  - sun
+            sequence:
+              - service: select.select_option
+                target:
+                  entity_id: select.l10s_vacuum_cleaning_mode
+                data:
+                  option: sweeping_and_mopping
+        default: []

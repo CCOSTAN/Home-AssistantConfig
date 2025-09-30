@@ -37,8 +37,8 @@
     - wait_template: "{{ states.binary_sensor.mcu1_gpio12.state == 'on' }}"
       timeout: '00:05:00'
 
-    - wait_template: "{{ states.binary_sensor.kitchen_door.state == 'on' }}"
-      timeout: '00:1:00'
+    # - wait_template: "{{ states.binary_sensor.kitchen_door.state == 'on' }}"
+    #   timeout: '00:1:00'
 
     - delay: '00:01:00'
     - service: script.speech_engine

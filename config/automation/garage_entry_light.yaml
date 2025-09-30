@@ -9,9 +9,9 @@
   id: 5ea2a2b5-e3de-4acd-823c-dac3eeaa6118
 
   trigger:
-    - platform: state
-      entity_id: binary_sensor.kitchen_door
-      to: 'on'
+    # - platform: state
+    #   entity_id: binary_sensor.kitchen_door
+    #   to: 'on'
     - platform: state
       entity_id: binary_sensor.mcu1_gpio12
       to: 'on'
@@ -37,19 +37,19 @@
       to: 'off'
       for:
         seconds: 15
-    - platform: state
-      entity_id: binary_sensor.kitchen_door
-      to: 'off'
-      for:
-        seconds: 15
+    # - platform: state
+    #   entity_id: binary_sensor.kitchen_door
+    #   to: 'off'
+    #   for:
+    #     seconds: 15
 
   condition:
     - condition: state
       entity_id: binary_sensor.mcu1_gpio12
       state: 'off'
-    - condition: state
-      entity_id: binary_sensor.kitchen_door
-      state: 'off'
+    # - condition: state
+    #   entity_id: binary_sensor.kitchen_door
+    #   state: 'off'
     - condition: state
       entity_id: light.garage_hallway
       state: 'on'
