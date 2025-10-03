@@ -331,6 +331,11 @@ automation:
       - platform: time_pattern
         minutes: '/45'
       - platform: state
+        entity_id:
+          - cover.large_garage_door
+          - cover.small_garage_door
+        to: 'open'
+      - platform: state
         entity_id: group.family
         to: not_home
         for: 00:05:00
@@ -370,8 +375,17 @@ automation:
       - service: script.notify_engine
         data:
           title: 'Check Garage Doors:'
-          value1: "Small: {{ states('cover.small_garage_door')}}"
-          value2: "Large: {{ states('cover.large_garage_door')}}"
+          value1: >
+            {% set open = [] %}
+            {% if is_state('cover.small_garage_door','open') %}{% set _ = open.append('Small garage door') %}{% endif %}
+            {% if is_state('cover.large_garage_door','open') %}{% set _ = open.append('Large garage door') %}{% endif %}
+            {% if open|length == 0 %}
+              All garage doors are closed.
+            {% elif open|length == 1 %}
+              {{ open[0] }} is open.
+            {% else %}
+              {{ open|join(' and ') }} are open.
+            {% endif %}
           who: "family"
           camera_entity: "camera.garagecam"
           group: 'information'
