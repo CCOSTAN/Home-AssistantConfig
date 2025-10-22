@@ -176,6 +176,9 @@ automation:
         entity_id: climate.downstairs
         attribute: temperature
         above: 76
+      - condition: numeric_state
+        entity_id: sensor.pirateweather_temperature
+        above: 88
       - condition: state
         entity_id: sun.sun
         state: 'below_horizon'
@@ -184,8 +187,8 @@ automation:
         data:
           entity_id: climate.downstairs
           temperature: 76
-  - alias: 'Set Downstairs Thermostat to 79 During Daylight'
-    id: set_downstairs_thermostat_79_daylight
+  - alias: 'Set Downstairs Thermostat to 80 During Daylight'
+    id: set_downstairs_thermostat_80_daylight
     mode: single
     trigger:
       - platform: state
@@ -204,6 +207,9 @@ automation:
       - condition: state
         entity_id: input_boolean.guest_mode
         state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.pirateweather_temperature
+        above: 80
     action:
       - service: climate.set_temperature
         data:
