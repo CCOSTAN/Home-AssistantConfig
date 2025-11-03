@@ -234,10 +234,12 @@ automation:
     action:
       - service: climate.set_preset_mode
         data:
-          entity_id:
-            - climate.downstairs
-            - climate.upstairs
+          entity_id: climate.downstairs
           preset_mode: 'eco'
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.upstairs
+          temperature: 84
 
   # Automation: Set Thermostats Back to Cool Mode
   - alias: 'Set Thermostats to Cool When Home'
@@ -278,7 +280,7 @@ automation:
                 entity_id: person.justin
                 state: 'home'
             sequence:
-              - service: climate.set_preset_mode
+              - service: climate.set_temperature
                 data:
                   entity_id: climate.upstairs
-                  preset_mode: 'none'
+                  temperature: 80

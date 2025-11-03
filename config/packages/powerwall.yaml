@@ -156,10 +156,10 @@ automation:
         data:
           entity_id: climate.upstairs
           hvac_mode: cool
-      - service: climate.set_preset_mode
+      - service: climate.set_temperature
         data:
           entity_id: climate.upstairs
-          preset_mode: eco
+          temperature: 80
 
       - service: script.notify_engine
         data:
