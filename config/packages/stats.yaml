@@ -143,4 +143,13 @@ sensor:
           {{ states.camera | list | count }}
         unit_of_measurement: 'count'
         icon_template: mdi:camera
-#############################################################
+      total_wifi_clients:
+        friendly_name: "Total WiFi Clients"
+        unique_id: total_wifi_clients
+        unit_of_measurement: "clients"
+        icon_template: mdi:wifi
+        value_template: >
+          {% set g = states('sensor.unifi_ap_garage_clients') | int(0) %}
+          {% set o = states('sensor.unifi_ap_office_clients') | int(0) %}
+          {% set s = states('sensor.unifi_ap_study_clients') | int(0) %}
+          {{ g + o + s }}
