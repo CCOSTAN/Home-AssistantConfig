@@ -1,0 +1,90 @@
+# Wireless AP client alert configurations
+# See related discussion: https://github.com/CCOSTAN/Home-AssistantConfig/issues/1534
+# This file contains sensors and alerts for tracking Unifi AP clients.
+
+automation:
+  - id: unifi_ap_no_clients_repair_combined
+    alias: "Unifi AP Create Repair Issue after 5m of 0 Clients"
+    mode: single
+
+    trigger:
+      - platform: state
+        entity_id: sensor.unifi_ap_office_clients
+        to: "0"
+        for: { minutes: 5 }
+
+      - platform: state
+        entity_id: sensor.unifi_ap_study_clients
+        to: "0"
+        for: { minutes: 5 }
+
+      - platform: state
+        entity_id: sensor.unifi_ap_garage_clients
+        to: "0"
+        for: { minutes: 5 }
+
+    variables:
+      ap_name: >
+        {% if trigger.entity_id == 'sensor.unifi_ap_office_clients' %}
+          Office
+        {% elif trigger.entity_id == 'sensor.unifi_ap_study_clients' %}
+          Study
+        {% else %}
+          Garage
+        {% endif %}
+
+      uptime_sensor: >
+        {% if trigger.entity_id == 'sensor.unifi_ap_office_clients' %}
+          sensor.unifi_ap_office_uptime
+        {% elif trigger.entity_id == 'sensor.unifi_ap_study_clients' %}
+          sensor.unifi_ap_study_uptime
+        {% else %}
+          sensor.unifi_ap_garage_uptime
+        {% endif %}
+
+      issue_id: >
+        {{ ap_name | lower }}_ap_no_clients
+
+    action:
+      - service: repairs.create
+        data:
+          issue_id: "{{ issue_id }}"
+          fixable: false
+          severity: error
+          title: "{{ ap_name }} AP has 0 Wi-Fi Clients"
+          description: >
+            The {{ ap_name }} Unifi AP has reported 0 connected clients for
+            at least 5 minutes.  
+            Current uptime: {{ states(uptime_sensor) }}.
+            View and manage this AP here:
+            https://unifi.ui.com
+
+  - id: unifi_ap_no_clients_repair_resolved_combined
+    alias: "Unifi AP Resolve Repair Issue When Clients Return"
+    mode: single
+
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.unifi_ap_office_clients
+          - sensor.unifi_ap_study_clients
+          - sensor.unifi_ap_garage_clients
+        above: 0
+
+    variables:
+      ap_name: >
+        {% if trigger.entity_id == 'sensor.unifi_ap_office_clients' %}
+          Office
+        {% elif trigger.entity_id == 'sensor.unifi_ap_study_clients' %}
+          Study
+        {% else %}
+          Garage
+        {% endif %}
+
+      issue_id: >
+        {{ ap_name | lower }}_ap_no_clients
+
+    action:
+      - service: repairs.remove
+        data:
+          issue_id: "{{ issue_id }}"
