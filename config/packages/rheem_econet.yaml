@@ -5,6 +5,7 @@
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/892
 # https://www.home-assistant.io/integrations/econet/
 #-------------------------------------------
+# Powerwall outage control for Rheem WH lives in config/packages/powerwall.yaml
 
 ##############################################################################
 ###  Automations
@@ -76,6 +77,22 @@ automation:
         data:
           value1: "The available hot water is now above 50%. Normal showering can resume. Gallons used today: {{sensor.phyn_daily_water_usage}}"
 
+#-------------------------------------------
+# Available Rheem entities snapshot (for reference)
+# automation.rheem_water_heater_health_monitoring
+# automation.rheem_water_heater_hot_water_availability_alert
+# binary_sensor.rheem_wh_running
+# binary_sensor.rheem_wh_shutoff_valve
+# sensor.rheem_wh_alert_count
+# sensor.rheem_wh_available_hot_water
+# sensor.rheem_wh_compressor_health
+# sensor.rheem_wh_override_status
+# sensor.rheem_wh_power_usage_today
+# sensor.rheem_wh_running_state
+# sensor.rheem_wh_tank_health
+# sensor.rheem_wh_water_usage_today
+# sensor.rheem_wh_wifi_signal
+# water_heater.rheem_wh
 
 
 

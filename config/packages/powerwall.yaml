@@ -125,6 +125,69 @@ automation:
             - switch.poe_garage_port_5_poe
             - switch.poe_garage_port_6_poe
 
+  - alias: "Powerwall outage - Rheem WH off at night"
+    id: d686f650-65ad-4cc6-8e27-8b5ee76b5338
+    description: "During outages, turn off the water heater after sunset to protect battery"
+    mode: single
+    trigger:
+      - platform: sun
+        event: sunset
+      - platform: state
+        entity_id: binary_sensor.powerwall_grid_status
+        to: 'off'
+        for:
+          minutes: 1
+    condition:
+      - condition: state
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'off'
+      - condition: or
+        conditions:
+          - condition: sun
+            after: sunset
+          - condition: sun
+            before: sunrise
+    action:
+      - service: water_heater.set_operation_mode
+        target:
+          entity_id: water_heater.rheem_wh
+        data:
+          state: off
+
+  - alias: "Powerwall outage - Rheem WH heat pump after sunrise and 50%"
+    id: 7b6e8bb0-7d0c-4e63-89cf-ff6e7811b579
+    description: "During outages, restore water heater to heat pump once battery is healthy during daytime"
+    mode: single
+    trigger:
+      - platform: sun
+        event: sunrise
+      - platform: numeric_state
+        entity_id: sensor.powerwall_charge
+        above: 50
+        for:
+          minutes: 5
+      - platform: state
+        entity_id: binary_sensor.powerwall_grid_status
+        to: 'off'
+        for:
+          minutes: 1
+    condition:
+      - condition: state
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.powerwall_charge
+        above: 50
+      - condition: sun
+        after: sunrise
+        before: sunset
+    action:
+      - service: water_heater.set_operation_mode
+        target:
+          entity_id: water_heater.rheem_wh
+        data:
+          state: heat_pump
+
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
   - alias: Turn off the Nest Thermostats during a Power Outage
     id: 022bd9da-ab7c-4c1b-9e95-2ff4ffe5f9cc
