@@ -81,3 +81,8 @@
         message: "The Kitchen Accent plug was switched off. Please turn it back on."
         data:
           type: announce
+    - service: script.notify_engine
+      data:
+        title: "Kitchen Accent Power"
+        value1: "The Kitchen Accent plug was switched off. Please turn it back on."
+        who: 'parents'
