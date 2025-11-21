@@ -188,6 +188,40 @@ automation:
         data:
           state: heat_pump
 
+  - alias: "Notify to restore PoE ports when grid returns"
+    id: 1ae8b5c5-8627-4a44-8c8a-5bf8ca5e1bf5
+    description: "Prompt to turn PoE ports back on after outage shutdown steps"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.powerwall_grid_status
+        from: 'off'
+        to: 'on'
+        for:
+          minutes: 10
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: switch.poe_garage_port_3_poe
+            state: 'off'
+          - condition: state
+            entity_id: switch.poe_garage_port_4_poe
+            state: 'off'
+          - condition: state
+            entity_id: switch.poe_garage_port_5_poe
+            state: 'off'
+          - condition: state
+            entity_id: switch.poe_garage_port_6_poe
+            state: 'off'
+    action:
+      - service: script.notify_engine
+        data:
+          title: "Grid restored - turn PoE ports back on"
+          value1: "Power is back. Remember to re-enable PoE ports 3-6 if cameras stayed offline."
+          who: 'family'
+          group: 'information'
+
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
   - alias: Turn off the Nest Thermostats during a Power Outage
     id: 022bd9da-ab7c-4c1b-9e95-2ff4ffe5f9cc
