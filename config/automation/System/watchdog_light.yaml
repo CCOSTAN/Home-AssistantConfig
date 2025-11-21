@@ -52,3 +52,32 @@
           - light.hallway
           - light.hallway_lights
           - light.foyer
+
+##############################################################################
+###  Alert when the Kitchen Accent power is cut and the switches go offline
+##############################################################################
+
+- alias: Kitchen Accent Power Reminder
+  id: b7c767d3-359f-4db4-9156-bba9e7d90602
+  mode: single
+  trigger:
+    - platform: state
+      entity_id:
+        - switch.kitchen_accent_1
+        - switch.kitchen_accent_2
+      to: 'unavailable'
+      for: '00:00:30'
+
+  condition:
+    - condition: state
+      entity_id: group.bed
+      state: 'off'
+    - condition: template
+      value_template: "{{ trigger.from_state is not none and trigger.from_state.state != 'unavailable' }}"
+
+  action:
+    - service: notify.alexa_media_kitchen
+      data:
+        message: "The Kitchen Accent plug was switched off. Please turn it back on."
+        data:
+          type: announce
