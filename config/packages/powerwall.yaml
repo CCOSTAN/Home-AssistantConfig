@@ -45,6 +45,8 @@ automation:
         entity_id:
          - group.interior_lights
          - group.exterior_lights
+         - switch.kitchen_accent_2
+         - switch.master_bathroom_accent_2
       - service: script.notify_engine
         data:
          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
@@ -58,6 +60,8 @@ automation:
         entity_id:
          - group.interior_lights
          - group.exterior_lights
+         - switch.kitchen_accent_2
+         - switch.master_bathroom_accent_2
 
       - service: script.speech_engine
         data:
@@ -69,6 +73,8 @@ automation:
         entity_id:
           - group.interior_lights
           - group.exterior_lights
+          - switch.kitchen_accent_2
+          - switch.master_bathroom_accent_2
 
       - service: script.speech_engine
         data:
@@ -94,6 +100,30 @@ automation:
           value1: "The Powerwall has been below 50% charge for more than 24 hours while the grid is online. This may indicate an issue."
           who: 'parents'
           group: 'information'
+
+  - alias: "Shut down Docker hosts and camera PoE at 75% Powerwall"
+    id: 25b3d3d8-92fa-454a-9f1c-6d3fd0f3af58
+    description: "Protect battery by shutting down non-essentials when Powerwall drops below 75%"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.powerwall_charge
+        below: 75
+        for:
+          minutes: 3
+    action:
+      - service: button.press
+        target:
+          entity_id:
+            - button.qemu_docker2_101_shutdown
+            - button.qemu_docker69_169_shutdown
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.poe_garage_port_3_poe
+            - switch.poe_garage_port_4_poe
+            - switch.poe_garage_port_5_poe
+            - switch.poe_garage_port_6_poe
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
   - alias: Turn off the Nest Thermostats during a Power Outage
