@@ -55,9 +55,16 @@ cloud:
         - cover
         - input_boolean
         - camera
+      exclude_entities:
+        - light.m1_back_left
+        - light.m1_back_right
+        - light.m1_front_left
+        - light.m1_front_right
+        - light.main_slider
+        - light.living_room
     entity_config:
       light.living_room_lights:
-        name: Living Room Lights
+        name: Living Room Color Lights
       light.main_slider:
         name: Living Room Slider
 
