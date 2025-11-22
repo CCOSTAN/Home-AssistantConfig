@@ -43,7 +43,6 @@ filter:
     - light.living_room_lights
     - light.office_lights
     - light.outdoor_front_lights
-    - light.outdoor_pool_lights
     - light.upstairs_lights
     - light.upstairs_lamp
     - light.sink
@@ -57,7 +56,6 @@ filter:
     
 entity_config:
   camera.frontdoorbell:
-    linked_motion_sensor: binary_sensor.frontdoorbell_all_occupancy
     video_codec: copy
     stream_source: rtsp://192.168.10.14:8554/frontdoorbell?mp4
   camera.poolcam:

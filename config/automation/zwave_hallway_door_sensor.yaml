@@ -4,53 +4,6 @@
 ###################################
 
 ##############################################################
-- alias: Hallway ZWave Enerwave Door Sensors Open
-  id: 1dbd1ba4-6718-4510-b5ab-2a6edd540be4
-  
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.hallway_pantry
-      to: 'on'
-    - platform: state
-      entity_id: binary_sensor.hallway_linen
-      to: 'on'
-
-  condition:
-    condition: or
-    conditions:
-      - condition: sun
-        after: sunset
-        after_offset: '-03:00:00'
-      - condition: numeric_state
-        entity_id: sensor.pirateweather_cloud_coverage
-        above: 50
-
-  action:
-    - service: light.turn_on
-      entity_id:
-        - light.kids_hallway
-        - light.k4
-    - delay: 00:20:00
-    - service: light.turn_off
-      entity_id: light.kids_hallway
-
-##############################################################
-- alias: ZWave Enerwave Door Sensors Closed
-  id: ceaeca80-e6dc-4b18-9d77-02cc4b09d272
-  
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.hallway_pantry
-      to: 'off'
-    - platform: state
-      entity_id: binary_sensor.hallway_linen
-      to: 'off'
-
-  action:
-    service: light.turn_off
-    entity_id: light.kids_hallway
-
-##############################################################
 - alias: Shutdown Helper light
   id: e3f4beff-4fa8-42e3-be5a-32b45106ac8a
   
@@ -59,12 +12,6 @@
       entity_id: light.k4
       to: 'on'
       for: '00:20:00'
-    - platform: state
-      entity_id: binary_sensor.hallway_pantry
-      to: 'off'
-    - platform: state
-      entity_id: binary_sensor.hallway_linen
-      to: 'off'
 
   condition:
     condition: state
