@@ -23,6 +23,13 @@
         {{ day in ['Wed', 'Sun'] }}
 
   action:
+
+      # One inside reminder via Chromecasts (speech_engine targets living room)
+    - service: script.speech_engine
+      data:
+        call_garbage_day: 1
+        value1: >-
+          Reminder: it's garbage day. Please take the cans to the curb before you leave.
     - variables:
         reminder_delays: [30, 60, 90]  # cumulative delays to hit 30s, 90s, 180s
 
@@ -49,3 +56,5 @@
                 Reminder: it's garbage day. {% if day == 'Wed' %}Both recycling and regular garbage go out today. {% endif %}Please take the cans to the curb before you leave.
               data:
                 type: announce
+
+
