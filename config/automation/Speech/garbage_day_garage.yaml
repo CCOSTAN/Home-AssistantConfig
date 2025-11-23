@@ -1,0 +1,51 @@
+#-------------------------------------------
+# Garage Garbage Day Reminders
+# Description: After either garage door opens on garbage day, play staggered reminders in the garage to take cans out.
+#
+# Schedule: 30s, 90s, and 180s after the door opens (skips if it isn't garbage day or the doors close).
+# Output: Uses Alexa announce in the garage so it plays locally (speech_engine is limited to Chromecasts inside).
+#-------------------------------------------
+- alias: 'Garage Garbage Day Reminders'
+  id: 3f97f3be-3d0a-4d2d-9100-5b9c0dbfd5c3
+  mode: restart
+
+  trigger:
+    - platform: state
+      entity_id: group.garage_doors
+      from: 'closed'
+      to: 'open'
+
+  condition:
+    # Only run on garbage days (Wed/Sun)
+    - condition: template
+      value_template: >-
+        {% set day = now().strftime('%a') %}
+        {{ day in ['Wed', 'Sun'] }}
+
+  action:
+    - variables:
+        reminder_delays: [30, 60, 90]  # cumulative delays to hit 30s, 90s, 180s
+
+    - repeat:
+        for_each: "{{ reminder_delays }}"
+        sequence:
+          - delay:
+              seconds: "{{ repeat.item }}"
+
+          # Skip if the doors closed during the wait or it's no longer garbage day
+          - condition: state
+            entity_id: group.garage_doors
+            state: 'open'
+
+          - condition: template
+            value_template: >-
+              {% set day = now().strftime('%a') %}
+              {{ day in ['Wed', 'Sun'] }}
+
+          - service: notify.alexa_media_garage
+            data:
+              message: >-
+                {% set day = now().strftime('%a') %}
+                Reminder: it's garbage day. {% if day == 'Wed' %}Both recycling and regular garbage go out today. {% endif %}Please take the cans to the curb before you leave.
+              data:
+                type: announce
