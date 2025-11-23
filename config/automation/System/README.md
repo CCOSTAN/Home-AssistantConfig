@@ -1,65 +1,53 @@
+
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
   Bear Stone Smart Home Documentation
 </h1>
 <h4 align="center">Be sure to :star: my configuration repo so you can keep up to date on any daily progress!</h4>
+
 <div align="center">
 
 [![X Follow](https://img.shields.io/static/v1?label=talk&message=3k&color=blue&logo=twitter&style=for-the-badge)](https://x.com/ccostan)
 [![YouTube Subscribe](https://img.shields.io/youtube/channel/subscribers/UC301G8JJFzY0BZ_0lshpKpQ?label=VIEW&logo=Youtube&logoColor=%23DF5D44&style=for-the-badge)](https://www.youtube.com/vCloudInfo?sub_confirmation=1)
-[![GitHub Follow](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig?label=sTARS&amp;logo=Github&amp;style=for-the-badge)](https://github.com/CCOSTAN) <br>
+[![GitHub Stars](https://img.shields.io/github/stars/CCOSTAN/Home-AssistantConfig?label=STARS&logo=Github&style=for-the-badge)](https://github.com/CCOSTAN) <br>
 [![HA Version Badge](https://raw.githubusercontent.com/ccostan/home-assistantconfig/master/ha-version-badge.svg)](https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/.HA_VERSION)
-  <h4>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/commits/master"><img src="https://img.shields.io/github/last-commit/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/></a>
-        <a href="https://github.com/CCOSTAN/Home-AssistantConfig/commits/master"><img src="https://img.shields.io/github/commit-activity/y/CCOSTAN/Home-AssistantConfig.svg?style=plasticr"/></a>
-  </h4>
+[![Last Commit](https://img.shields.io/github/last-commit/CCOSTAN/Home-AssistantConfig.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig/commits/master)
+[![Commit Activity](https://img.shields.io/github/commit-activity/y/CCOSTAN/Home-AssistantConfig.svg?style=plastic)](https://github.com/CCOSTAN/Home-AssistantConfig/commits/master)
+
 </div>
-<p><font size="3">
-This directory is primarily used for automations that are just running in the background all the time.  Little robots just doing thier thing to help make the house the smartest and most proactive it can be for us.</p>
-<div align="center"><a name="menu"></a>
-  <h4>
-    <a href="https://www.vCloudInfo.com/tag/iot">
-      Blog
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#devices">
-      Devices
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc">
-      Todo List
-    </a>
-    <span> | </span>
-    <a href="https://x.com/BearStoneHA">
-      Smart Home Stats
-    </a>
-    <span> | </span>
-    <a href="https://www.vcloudinfo.com/click-here">
-      Follow Me
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig/tree/master/config">
-      Code
-    </a>
-    <span> | </span>
-    <a href="https://github.com/CCOSTAN/Home-AssistantConfig#diagram">
-      Diagram
-    </a>    
-    <span> | </span>
-    <a href="https://youtube.com/vCloudInfo">
-      Youtube
-    </a>
-    <span> | </span>
-    <a href="https://amzn.to/2HXSx2M">
-      Support
-    </a>
-  </h4>
+
+Meta automations that keep Home Assistant healthy—watchdogs, diagnostics, and recovery tasks for the stack itself.
+
+### Quick navigation
+- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Automation home](..) | [Packages](../../packages)
+
+![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
+
+### Featured files to browse
+| File | Why it matters |
+| --- | --- |
+| [detect_and_adjust_lights.yaml](detect_and_adjust_lights.yaml) | Auto-untangles stuck lights and re-syncs states. |
+| [watchdog_light.yaml](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
+| [trigger_dump.yaml](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
+| [door_chime.yaml](door_chime.yaml) | Friendly tones for door open/close events. |
+
+### Tips
+- Great place to drop temporary diagnostics without touching user-facing automations.
+- When cloning, change `id:` fields to avoid UUID collisions.
+
+
+**All of my configuration files are tested against the most stable version of home-assistant.**
 
 <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>
 
 **Still have questions on my Config?** <br>
-**Message me on X :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.x.com/ccostan) or [![Follow Bear Stone Home](https://img.shields.io/twitter/follow/BearStoneHA)](https://www.x.com/BearStoneHA)
-<!-- Subscribe Section -->
-<a href="https://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a>.
-<!-- Subscribe Section END-->
+**Message me on X :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.x.com/ccostan)
+
+<p align="center">
+<a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:5px">You can buy me a coffee</span></a><a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"></a>
+<br>
+<a href="https://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
+<a href="https://www.vCloudInfo.com/p/affiliate-disclosure.html">
+Affiliate Disclosure
+</a></p>
