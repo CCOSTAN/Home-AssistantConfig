@@ -40,10 +40,6 @@ You can definitely read more about my voice implementations in my blog posts (li
       Todo List
     </a>
     <span> | </span>
-    <a href="https://x.com/BearStoneHA">
-      Smart Home Stats
-    </a>
-    <span> | </span>
     <a href="https://www.vcloudinfo.com/click-here">
       Follow Me
     </a>
@@ -56,7 +52,7 @@ You can definitely read more about my voice implementations in my blog posts (li
 <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>
 
 **Still have questions on my Config?** <br>
-**Message me on X :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.x.com/ccostan) or [![Follow Bear Stone Home](https://img.shields.io/twitter/follow/BearStoneHA)](https://www.x.com/BearStoneHA)
+**Message me on X :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.x.com/ccostan)
 <!-- Subscribe Section -->
 <a href="http://eepurl.com/dmXFYz"><img align="left" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a>.
 <!-- Subscribe Section END-->

@@ -69,9 +69,18 @@ Only listing hardware that appears in active packages/automations here. The full
 ### Gear and affiliate links
 - I keep a detailed, affiliate-supported gear list in `docs/legacy-readme.md`. Browsing or purchasing through those links helps support this project; thanks!
 
-### Stay connected
-- Blog: [vCloudInfo.com/tag/iot](https://www.VCloudInfo.com/tag/iot)
-- YouTube: [youtube.com/vCloudInfo](https://youtube.com/vCloudInfo)
-- X: [@ccostan](https://x.com/ccostan) | [@BearStoneHA](https://x.com/BearStoneHA)
-- Mailing list: [Subscribe](https://eepurl.com/dmXFYz)
-- Buy me a coffee: [link](https://www.buymeacoffee.com/vCloudInfo)
+**All of my configuration files are tested against the most stable version of home-assistant.**
+
+<a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>
+
+**Still have questions on my Config?** <br>
+**Message me on X :** [![Follow CCostan](https://img.shields.io/twitter/follow/CCostan)](https://www.x.com/ccostan)
+
+<p align="center">
+<a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"><span style="margin-left:5px">You can buy me a coffee</span></a><a target="_blank" href="https://www.buymeacoffee.com/vCloudInfo"><img src="https://www.buymeacoffee.com/assets/img/BMC-btn-logo.svg" alt="Buy me a coffee"></a>
+<br>
+<a href="https://eepurl.com/dmXFYz"><img align="center" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/email_link.png" height="50" ></a><br>
+<a href="https://www.vCloudInfo.com/p/affiliate-disclosure.html">
+Affiliate Disclosure
+</a></p>
+
