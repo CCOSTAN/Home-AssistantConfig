@@ -40,6 +40,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | --- | --- | --- |
 | [alarm.yaml](alarm.yaml) | NodeMCU-powered perimeter monitoring with arm/disarm helpers and rich notifications. | `binary_sensor.mcu*_gpio*`, `group.family`, notify + siren scripts |
 | [garadget.yaml](garadget.yaml) | MQTT-based control + status for both garage doors, feeding entry/exit lighting routines. | `cover.large_garage_door`, `cover.small_garage_door`, `sensor.garadget_reflection` |
+| [august.yaml](august.yaml) | Front-door August smart lock with Alexa Show camera pop-up when unlocked. | `lock.front_door`, media_player actions for front doorbell camera |
 | [holiday.yaml](holiday.yaml) | REST-driven US holiday + flag sensors that color scenes and exterior lighting. | `sensor.holiday`, `sensor.flag`, JSON feed at `config/json_data/holidays.json` |
 | [lightning.yaml](lightning.yaml) | Blitzortung lightning counter monitoring with snoozeable push actions. | `sensor.blitzortung_lightning_counter`, `input_boolean.snooze_lightning`, notify engine actions |
 | [phynplus.yaml](phynplus.yaml) | Tie the Phyn Plus smart shutoff into HA notifications, automations, and valve overrides. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `script.notify_engine_two_button` |
@@ -60,6 +61,7 @@ When a package has a dedicated blog post or video, I link it right inside the YA
 | [powerwall.yaml](powerwall.yaml) | Monitoring Tesla Powerwall health + what to automate when the grid drops. | [Blog](https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html) |
 | [vacuum.yaml](vacuum.yaml) | Keeping Neato/Dreame bots smart with HA scenes and maintenance timers. | [Blog](https://www.vcloudinfo.com/2020/05/home-assistant-neato-vacuum-automation.html) |
 | [grafana.yaml.disabled](grafana.yaml.disabled) | Rendering Grafana dashboards to images for Lovelace and social posts. | [Blog](https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html) · [Blog](https://www.vcloudinfo.com/2018/09/re-installing-tesla-solar-panels-again.html) · [Video](https://youtu.be/BartadUzGOA) |
+| [august.yaml](august.yaml) | Smart lock control and status from HA. | [YouTube short](https://youtu.be/UdcCeAyo9Ak?si=O-f607NHbRLKZxao) |
 
 ### Hardware referenced in packages (affiliate links)
 These are the devices that power the packages above. Affiliate links never change the price but they do help fund more tinkering—thanks!
@@ -67,6 +69,8 @@ These are the devices that power the packages above. Affiliate links never chang
 | Device | Package(s) | Automation tie-in | Buy |
 | --- | --- | --- | --- |
 | Garadget garage door controller | [garadget.yaml](garadget.yaml) | MQTT covers feed entry lighting, notifications, and security checks. | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
+| August smart lock | [august.yaml](august.yaml) | Front-door lock/unlock + status for routines and alerts. | [![Buy](https://img.shields.io/badge/Buy-August%20Lock-orange?logo=amazon)](https://amzn.to/48jVzZ3) |
+| Amazon Echo Show | Pops up the front doorbell camera when the August lock unlocks. | [august.yaml](august.yaml) | [![Buy](https://img.shields.io/badge/Buy-Echo%20Show-orange?logo=amazon)](https://amzn.to/4ptA3YO) |
 | Phyn Plus water shutoff | [phynplus.yaml](phynplus.yaml) | Leak events trigger valve closes + critical push notifications. | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
 | Rachio sprinkler controller | [rachio.yaml](rachio.yaml) | Rain skips and seasonal watering adjustments happen automatically. | [![Buy](https://img.shields.io/badge/Buy-Rachio-orange?logo=amazon)](https://amzn.to/2eoPKBW) |
 | Tesla Powerwall 2 | [powerwall.yaml](powerwall.yaml) | Grid outages kick off load-shed scripts and status pings. | [![Buy](https://img.shields.io/badge/Buy-Powerwall-orange?logo=tesla)](https://amzn.to/3UM4BZ5) |

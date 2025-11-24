@@ -51,10 +51,11 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 
 ### Gear tied to real automations (affiliate links)
 Only listing hardware that appears in active packages/automations here. The full catalog (including older gear) remains in `docs/legacy-readme.md`.
-
+https://amzn.to/48jVzZ3
 | Device | What it drives (friendly name -> file) | Buy |
 | --- | --- | --- |
 | Garadget garage door controller | Garage doors: open/close, reflection alerts - [garadget package](config/packages/garadget.yaml) | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
+| August smart lock | Front-door lock control + status - [august package](config/packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-August%20Lock-orange?logo=amazon)](https://amzn.to/48jVzZ3) |
 | Phyn Plus water shutoff | Leak detection + auto shutoff - [phynplus package](config/packages/phynplus.yaml) | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
 | Rachio sprinkler controller | Rain-skips and seasonal watering - [rachio package](config/packages/rachio.yaml) | [![Buy](https://img.shields.io/badge/Buy-Rachio-orange?logo=amazon)](https://amzn.to/2eoPKBW) |
 | Tesla Powerwall 2 | Grid-outage alerts + load-shed automations - [powerwall package](config/packages/powerwall.yaml) | [![Buy](https://img.shields.io/badge/Buy-Powerwall-orange?logo=tesla)](https://amzn.to/3UM4BZ5) |
@@ -62,6 +63,7 @@ Only listing hardware that appears in active packages/automations here. The full
 | Raspberry Pi 3 + Aeon Z-Wave stick | Z-Wave backbone for door/hall sensors - [garage entry helper](config/automation/garage_entry_light.yaml) | [![Pi](https://img.shields.io/badge/Buy-Pi%203-orange?logo=raspberrypi)](https://amzn.to/2e3DOBY) [![Z-Wave](https://img.shields.io/badge/Buy-Z--Wave%20Stick-orange?logo=zwave)](https://amzn.to/2eAiAP0) |
 | Roku streaming device | TV presence -> scenes/lighting - [roku package](config/packages/roku.yaml) | [![Buy](https://img.shields.io/badge/Buy-Roku-orange?logo=roku)](https://amzn.to/2Ctp8cr) |
 | Amazon Dash Button | Quick actions (office lamp toggle) - [dash buttons automation](config/automation/dash_buttons.yaml) | [![Buy](https://img.shields.io/badge/Buy-Dash%20Button-orange?logo=amazon)](https://amzn.to/2dPKZhM) |
+| Amazon Echo Show | Front door camera pop-up when the August lock unlocks - [august package](config/packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-Echo%20Show-orange?logo=amazon)](https://amzn.to/4ptA3YO) |
 | Dreame/Neato vacuum | Cleaning schedules + notifications - [vacuum package](config/packages/vacuum.yaml) | [![Buy](https://img.shields.io/badge/Buy-Vacuum-orange?logo=amazon)](https://amzn.to/4f7NpFP) |
 | Flux/LED strip controller | Monthly color scenes for exterior - [monthly color scene](config/script/monthly_color_scene.yaml) | [![Buy](https://img.shields.io/badge/Buy-LED%20Controller-orange?logo=amazon)](https://amzn.to/2jUBSBE) |
 | Etekcity/433MHz outlet | Accent lighting relays - [garage entry helper](config/automation/garage_entry_light.yaml) | [![Buy](https://img.shields.io/badge/Buy-433MHz%20Outlet-orange?logo=amazon)](https://amzn.to/2efNoBP) |

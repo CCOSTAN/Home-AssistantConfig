@@ -53,6 +53,8 @@ Only including devices that have active references in the files above. Want the 
 | Device | What it drives (friendly name -> file) | Buy |
 | --- | --- | --- |
 | Garadget garage door controller | Garage doors: open/close, reflection alerts – [garadget package](packages/garadget.yaml) + [garage entry helper](automation/garage_entry_light.yaml) | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
+| August smart lock | Front-door lock status + remote control – [august package](packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-August%20Lock-orange?logo=amazon)](https://amzn.to/48jVzZ3) |
+| Amazon Echo Show | Pops up the front doorbell camera when the August lock unlocks – [august package](packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-Echo%20Show-orange?logo=amazon)](https://amzn.to/4ptA3YO) |
 | Phyn Plus water shutoff | Leak detection + auto shutoff – [phynplus package](packages/phynplus.yaml) | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
 | Rachio sprinkler controller | Rain-skips and seasonal watering – [rachio package](packages/rachio.yaml) | [![Buy](https://img.shields.io/badge/Buy-Rachio-orange?logo=amazon)](https://amzn.to/2eoPKBW) |
 | Tesla Powerwall 2 | Grid-outage alerts + load-shed automations – [powerwall package](packages/powerwall.yaml) | [![Buy](https://img.shields.io/badge/Buy-Powerwall-orange?logo=tesla)](https://amzn.to/3UM4BZ5) |

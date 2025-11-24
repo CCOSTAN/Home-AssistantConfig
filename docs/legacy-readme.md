@@ -44,6 +44,7 @@ Legacy gear catalog and inspiration hub. This doc preserves older hardware refer
 | Amazon Dash Button | Repurposed as quick-action triggers (office lamp, scenes). | [Buy](https://amzn.to/2dPKZhM) |
 | Circle by Disney | Legacy parental controls + device discovery alerts. | [Buy](https://mbsy.co/circlemedia/41927098) |
 | Last Message trigger | Alexa “repeat last notification” helper. | [Package](../config/packages/triggers/last_message.yaml) |
+| August smart lock | Front-door lock control + presence-aware routines. | [Buy](https://amzn.to/48jVzZ3) · [Video](https://youtu.be/UdcCeAyo9Ak?si=O-f607NHbRLKZxao) |
 
 ### Lighting, LEDs, and ambience
 | Gear | What it drove | Buy / Watch |
