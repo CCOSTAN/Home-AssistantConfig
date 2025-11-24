@@ -46,6 +46,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [phynplus.yaml](phynplus.yaml) | Tie the Phyn Plus smart shutoff into HA notifications, automations, and valve overrides. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `script.notify_engine_two_button` |
 | [powerwall.yaml](powerwall.yaml) | Track Tesla Powerwall grid status and shed loads automatically when off-grid. | `binary_sensor.powerwall_grid_status`, `sensor.powerwall_*`, `script.notify_engine` |
 | [vacuum.yaml](vacuum.yaml) | Dreame (ex-Neato) vacuum orchestration with maintenance reminders and reset helpers. | `sensor.l10s_vacuum_task_status`, `sensor.l10s_vacuum_sensor_dirty_left`, `button.l10s_vacuum_reset_sensor` |
+| [hass_agent_homepc.yaml](hass_agent_homepc.yaml) | Mirrors PC lock/unlock state from HASS.Agent to the office lamp for instant desk presence cues. | `sensor.carlo_homepc_carlo_homepc_sessionstate`, `switch.office_lamp_switch` |
 | [finance.yaml](finance.yaml) | Yahoo Finance sensor bundle for portfolio glances and Lovelace cards. | `sensor.tsla`, `sensor.aapl`, `sensor.amzn`, `sensor.msft` |
 
 ### Blog & video deep dives
