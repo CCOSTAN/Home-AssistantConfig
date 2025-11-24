@@ -19,9 +19,9 @@
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
 ### Quick navigation
-- [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png) | [YouTube](https://youtube.com/vCloudInfo)
+- [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg) | [YouTube](https://youtube.com/vCloudInfo)
 - Config highlights: `config/packages`, `config/automation`, `config/script`, `config/scene`, `config/templates`, `config/www`
-- Gear & affiliate catalog: see `docs/legacy-readme.md` (full device list with links)
+- Gear & affiliate catalog: see `legacy-readme.md` (full device list with links)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
@@ -47,10 +47,10 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 - Weather-aware lighting: [config/automation/dark_rainy_day.yaml](config/automation/dark_rainy_day.yaml)
 
 ### Network diagram
-![Smart Home Diagram](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png)
+![Smart Home Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg)
 
 ### Gear tied to real automations (affiliate links)
-Only listing hardware that appears in active packages/automations here. The full catalog (including older gear) remains in `docs/legacy-readme.md`.
+Only listing hardware that appears in active packages/automations here. The full catalog (including older gear) remains in `legacy-readme.md`.
 https://amzn.to/48jVzZ3
 | Device | What it drives (friendly name -> file) | Buy |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ https://amzn.to/48jVzZ3
 | Etekcity/433MHz outlet | Accent lighting relays - [garage entry helper](config/automation/garage_entry_light.yaml) | [![Buy](https://img.shields.io/badge/Buy-433MHz%20Outlet-orange?logo=amazon)](https://amzn.to/2efNoBP) |
 
 ### Gear and affiliate links
-- I keep a detailed, affiliate-supported gear list in `docs/legacy-readme.md`. Browsing or purchasing through those links helps support this project; thanks!
+- I keep a detailed, affiliate-supported gear list in `legacy-readme.md`. Browsing or purchasing through those links helps support this project; thanks!
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

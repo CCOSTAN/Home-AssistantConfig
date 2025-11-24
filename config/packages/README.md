@@ -21,7 +21,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 ### Quick navigation
 - [Repo overview](../../README.md) | [Config index](../README.md) | [Automations](../automation) | [Scripts](../script) | [Scenes](../scene) | [Templates](../templates) | [Package triggers](triggers) | [YouTube](https://youtube.com/vCloudInfo) | [Blog](https://www.vcloudinfo.com)
 - Disabled/staging packages follow the `.disabled` or `.NOTWORKING` suffix; remove it after you update credentials or hardware.
-- Looking for the full gear list? See [../docs/legacy-readme.md](../../docs/legacy-readme.md).
+- Looking for the full gear list? See [../legacy-readme.md](../../legacy-readme.md).
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 

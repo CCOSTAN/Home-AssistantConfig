@@ -19,9 +19,9 @@
 Live view of the `config/` directory my production Home Assistant instance loads every night. Use this README as a map when you want to jump directly into the most interesting packages, automations, and supporting assets.
 
 ### Quick navigation
-- [Repo overview](../README.md) | [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png) | [YouTube](https://youtube.com/vCloudInfo)
+- [Repo overview](../README.md) | [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg) | [YouTube](https://youtube.com/vCloudInfo)
 - Directory highlights: [packages](packages), [automation](automation), [script](script), [scene](scene), [templates](templates), [www](www), [custom_components](custom_components)
-- Gear & affiliate catalog: see [../docs/legacy-readme.md](../docs/legacy-readme.md) for the complete shopping list
+- Gear & affiliate catalog: see [../legacy-readme.md](../legacy-readme.md) for the complete shopping list
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
@@ -45,10 +45,10 @@ Live view of the `config/` directory my production Home Assistant instance loads
 | Scripts | Reusable building blocks for lighting, notifications, and safety responses. | [script/monthly_color_scene.yaml](script/monthly_color_scene.yaml), [script/notify_engine.yaml](script/notify_engine.yaml), [script/speech_engine.yaml](script/speech_engine.yaml) |
 | Scenes | Seasonal and ambiance presets that the scripts and automations call into. | [scene/monthly_colors.yaml](scene/monthly_colors.yaml), [scene/living_room.yaml](scene/living_room.yaml) |
 | Templates & Speech | Human-friendly voice briefings and templated responses. | [templates/speech/briefing.yaml](templates/speech/briefing.yaml) |
-| Dashboards & Media | UI chrome, floorplans, sound bites, and automation assets. | [www/custom_ui/floorplan/images/branding/bearstoneflow.png](www/custom_ui/floorplan/images/branding/bearstoneflow.png), [media/](media) |
+| Dashboards & Media | UI chrome, floorplans, sound bites, and automation assets. | [www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg](www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg), [media/](media) |
 
 ### Gear tied to these automations (affiliate links)
-Only including devices that have active references in the files above. Want the legacy list? Jump to [../docs/legacy-readme.md](../docs/legacy-readme.md).
+Only including devices that have active references in the files above. Want the legacy list? Jump to [../legacy-readme.md](../legacy-readme.md).
 
 | Device | What it drives (friendly name -> file) | Buy |
 | --- | --- | --- |
