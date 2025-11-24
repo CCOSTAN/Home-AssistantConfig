@@ -46,6 +46,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 | Scenes | Seasonal and ambiance presets that the scripts and automations call into. | [scene/monthly_colors.yaml](scene/monthly_colors.yaml), [scene/living_room.yaml](scene/living_room.yaml) |
 | Templates & Speech | Human-friendly voice briefings and templated responses. | [templates/speech/briefing.yaml](templates/speech/briefing.yaml) |
 | Dashboards & Media | UI chrome, floorplans, sound bites, and automation assets. | [www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg](www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg), [media/](media) |
+| Seasonal Audio | Cuckoo clock with Halloween and Christmas sound packs. | [automation/System/CucKoo_Clock.yaml](automation/System/CucKoo_Clock.yaml) |
 
 ### Gear tied to these automations (affiliate links)
 Only including devices that have active references in the files above. Want the legacy list? Jump to [../legacy-readme.md](../legacy-readme.md).

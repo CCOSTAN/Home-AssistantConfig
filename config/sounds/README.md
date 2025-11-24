@@ -27,6 +27,7 @@ Audio assets (alert tones, chimes, TTS snippets) used by automations and scripts
 ### Tips
 - Keep filenames descriptive so automations stay readable.
 - Subfolders hold themed or device-specific sounds.
+- Seasonal cuckoo clock uses `october-clock` (Halloween) and `december-clock` (Christmas) variants, falling back to `cuckoo-clock`.
 
 
 **All of my configuration files are tested against the most stable version of home-assistant.**

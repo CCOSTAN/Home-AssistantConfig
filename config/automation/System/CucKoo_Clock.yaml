@@ -39,17 +39,15 @@
       data:
         entity_id: media_player.livingroomCC
         media_content_id: >
-          {% if now().strftime("%M")|int == 30 %}
-          {% if now().strftime("%B") == 'October' %}
-          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/october-clock/cuckoo-clock-01.wav
+          {% set month = now().strftime("%B") %}
+          {% set base = "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/" %}
+          {% if month == 'October' %}
+            {% set folder = 'october-clock' %}
+          {% elif month == 'December' %}
+            {% set folder = 'december-clock' %}
           {% else %}
-          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/cuckoo-clock/cuckoo-clock-01.wav
+            {% set folder = 'cuckoo-clock' %}
           {% endif %}
-          {% else %}
-          {% if now().strftime("%B") == 'October' %}
-          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/october-clock/cuckoo-clock-{{now().strftime("%I")}}.wav
-          {% else %}
-          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/cuckoo-clock/cuckoo-clock-{{now().strftime("%I")}}.wav
-          {% endif %}
-          {% endif %}
+          {% set file = 'cuckoo-clock-01.wav' if now().strftime("%M")|int == 30 else 'cuckoo-clock-' ~ now().strftime("%I") ~ '.wav' %}
+          {{ base ~ folder ~ '/' ~ file }}
         media_content_type: audio/mp4
