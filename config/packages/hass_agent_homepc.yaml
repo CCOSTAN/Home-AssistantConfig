@@ -1,0 +1,35 @@
+#-------------------------------------------
+# Control the office lamp based on CARLO-HOMEPC session state via HASS.Agent.
+# Sleep Number bed-triggered PC lock/monitor sleep lives in config/packages/sleepiq.yaml.
+# Docs: https://hassagent.readthedocs.io/en/latest/
+#-------------------------------------------
+
+automation:
+  - alias: "Office Lamp - Follow CARLO-HOMEPC Session"
+    id: 7b3f9e14-55b1-44aa-a6eb-2e0873a4c2bb
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.carlo_homepc_carlo_homepc_sessionstate
+        to: 'Locked'
+        id: locked
+      - platform: state
+        entity_id: sensor.carlo_homepc_carlo_homepc_sessionstate
+        to: 'Unlocked'
+        id: unlocked
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: locked
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.office_lamp_switch
+          - conditions:
+              - condition: trigger
+                id: unlocked
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.office_lamp_switch

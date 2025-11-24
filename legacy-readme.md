@@ -19,7 +19,7 @@
 Legacy gear catalog and inspiration hub. This doc preserves older hardware references, affiliate links, and blog/video write-ups for anyone browsing the full history of the Bear Stone Smart Home. For the current configuration and actively maintained gear list, start at the main README and config index below.
 
 ### Quick navigation
-- [Repo overview](../README.md) | [Config index](../config/README.md) | [Packages](../config/packages/README.md) | [YouTube](https://youtube.com/vCloudInfo) | [Blog](https://www.vcloudinfo.com)
+- [Repo overview](README.md) | [Config index](config/README.md) | [Packages](config/packages/README.md) | [YouTube](https://youtube.com/vCloudInfo) | [Blog](https://www.vcloudinfo.com)
 - Looking for the latest gear tied to live automations? See the gear table in `README.md` and `config/README.md`.
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
@@ -43,12 +43,13 @@ Legacy gear catalog and inspiration hub. This doc preserves older hardware refer
 | Echo Dot / Echo / Tap | Voice input for modes, guest toggles, and whole-home music. | [Buy](https://amzn.to/2e3vHFQ) |
 | Amazon Dash Button | Repurposed as quick-action triggers (office lamp, scenes). | [Buy](https://amzn.to/2dPKZhM) |
 | Circle by Disney | Legacy parental controls + device discovery alerts. | [Buy](https://mbsy.co/circlemedia/41927098) |
-| Last Message trigger | Alexa “repeat last notification” helper. | [Package](../config/packages/triggers/last_message.yaml) |
+| Last Message trigger | Alexa “repeat last notification” helper. | [Package](config/packages/triggers/last_message.yaml) |
+| August smart lock | Front-door lock control + presence-aware routines. | [Buy](https://amzn.to/48jVzZ3) · [Video](https://youtu.be/UdcCeAyo9Ak?si=O-f607NHbRLKZxao) |
 
 ### Lighting, LEDs, and ambience
 | Gear | What it drove | Buy / Watch |
 | --- | --- | --- |
-| Flux/LED strip controller | Exterior monthly color scenes + holiday palettes. | [Buy](https://amzn.to/2jUBSBE) · [Scenes](../config/scene/monthly_colors.yaml) |
+| Flux/LED strip controller | Exterior monthly color scenes + holiday palettes. | [Buy](https://amzn.to/2jUBSBE) · [Scenes](config/scene/monthly_colors.yaml) |
 | Hue Lightstrip | TV backlights + media-aware accent lighting. | [Buy](https://amzn.to/2FGbPpL) |
 | Etekcity 433MHz outlets | Accent lighting relays + printer power control. | [Buy](https://amzn.to/2efNoBP) |
 | Holiday lighting routines | Color changes by holiday; motion/garage overrides. | [Blog](https://www.vcloudinfo.com/2019/02/breaking-down-the-flag-sensor-in-home-assistant.html) · [Video](https://youtu.be/nsWq4uVrQ0g) |
@@ -59,7 +60,7 @@ Legacy gear catalog and inspiration hub. This doc preserves older hardware refer
 | Garadget | MQTT garage control + reflection monitoring + safety alerts. | [Buy](https://amzn.to/2jQLpVQ) · [Blog](https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html) |
 | JuiceBox Pro 40 EVSE | Managed EV charging (amps watchdog + notifications). | [Buy](https://www.amazon.com/dp/B00UB9R4KO) |
 | Tesla Model Y | Presence, charging stats, and outage/load automation. | [Blog](https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html) |
-| Garage entry helper | Lights + safety cues when doors open/close. | [Automation](../config/automation/garage_entry_light.yaml) |
+| Garage entry helper | Lights + safety cues when doors open/close. | [Automation](config/automation/garage_entry_light.yaml) |
 
 ### Water, weather, and safety
 | Gear | What it drove | Buy / Deep dive |
@@ -74,7 +75,7 @@ Legacy gear catalog and inspiration hub. This doc preserves older hardware refer
 | Roku | Media presence for lighting/scenes and announcements. | [Buy](https://amzn.to/2Ctp8cr) |
 | Samsung/Fire TV | Theater scenes and backlight coordination. | [Buy](https://amzn.to/2efNNnq) |
 | Synology NVR 1218 | Camera recording with HA-integrated views. | [Buy](https://amzn.to/2COe9aU) · [Video](https://youtu.be/GmpP52yG0S8) |
-| Floorplan + Lovelace dashboards | Visual status of sensors, cameras, and rooms. | [Diagram](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png) |
+| Floorplan + Lovelace dashboards | Visual status of sensors, cameras, and rooms. | [Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg) |
 
 ### Blog & video inspiration (archived)
 - Docker migration journey: [Blog](https://www.vcloudinfo.com/2018/02/journey-to-docker.html) · [Ubuntu upgrade video](https://youtu.be/w-YNtU1qtlk)
@@ -85,7 +86,7 @@ Legacy gear catalog and inspiration hub. This doc preserves older hardware refer
 - Home Assistant Pi Day + Pi-hole stats: [Video](https://youtu.be/woA88DFlH5c)
 
 ### Historical diagram
-![Smart Home Diagram](https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/bearstoneflow.png)
+![Smart Home Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg)
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

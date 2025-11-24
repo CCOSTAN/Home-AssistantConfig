@@ -49,6 +49,19 @@ group:
       - sensor.sleepnumber_carlo_stacey_sleepnumber
 #      - sensor.Stacey_sleep_hours
 
-##############################################################################
-###  Automations - Detect when things are not right. Like any Good Watchdog.
-##############################################################################
+automation:
+  - alias: "CARLO-HOMEPC - Lock PC and Sleep Monitors When Carlo Is in Bed"
+    id: 25c69640-4c38-46a2-82ae-5a32c3c6f1b4
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        from: 'off'
+        to: 'on'
+    action:
+      - service: button.press
+        target:
+          entity_id: button.carlo_homepc_carlo_homepc_lock
+      - service: button.press
+        target:
+          entity_id: button.carlo_homepc_carlo_homepc_monitorsleep
