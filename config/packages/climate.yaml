@@ -183,6 +183,10 @@ automation:
         entity_id: climate.upstairs
         attribute: temperature
         below: 76
+    condition:
+      - condition: state
+        entity_id: binary_sensor.grid_status
+        state: 'normal'
     action:
       - delay: "00:03:00"
       - service: climate.set_temperature
@@ -205,6 +209,9 @@ automation:
           - condition: state
             entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
             state: 'on'
+          - condition: state
+            entity_id: binary_sensor.grid_status
+            state: 'normal'
       - condition: state
         entity_id: sun.sun
         state: 'below_horizon'
@@ -238,6 +245,9 @@ automation:
           - condition: state
             entity_id: input_boolean.guest_mode
             state: 'off'
+          - condition: state
+            entity_id: binary_sensor.grid_status
+            state: 'normal'
     action:
       - service: climate.set_hvac_mode
         data:
@@ -323,6 +333,9 @@ automation:
       - condition: state
         entity_id: input_boolean.guest_mode
         state: 'off'
+      - condition: state
+        entity_id: binary_sensor.grid_status
+        state: 'normal'
     action:
       - service: climate.set_preset_mode
         data:
@@ -367,6 +380,10 @@ automation:
     trigger:
       - platform: time
         at: "03:00:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.grid_status
+        state: 'normal'
     action:
       - service: climate.set_hvac_mode
         data:
@@ -397,6 +414,9 @@ automation:
         value_template: "{{ now().month in [10, 11, 12, 1, 2, 3] }}"  
       - condition: template # Only run if AC is idle (prevents fighting other automations)
         value_template: "{{ state_attr('climate.downstairs', 'hvac_action') == 'idle' }}"
+      - condition: state # Never run if the grid is down and running on powerwall.
+        entity_id: binary_sensor.grid_status
+        state: 'normal'
     action:
       - service: climate.set_preset_mode
         data:
