@@ -2,6 +2,38 @@
 ##  AC related automations
 ##  For more info visit https://www.vcloudinfo.com/click-here
 ##  Contact: @CCOSTAN 
+# --------------------------------------------------------------
+# Entity reference and attribute summaries:
+#
+# Entity ID: climate.downstairs
+# Supported hvac_modes:     heat, cool, heat_cool, off
+# Supported fan_modes:      on, off
+# Supported preset_modes:   none, eco
+# Supported temperature range: 50°F (min_temp) – 90°F (max_temp)
+#
+# Current state (example):
+#   current_temperature: 77
+#   temperature:         83
+#   target_temp_high:    null
+#   target_temp_low:     null
+#   current_humidity:    58
+#   fan_mode:            off
+#   hvac_action:         idle
+#   preset_mode:         none
+# Supported features: 411
+# --------------------------------------------------------------
+# Entity ID: climate.upstairs
+# Supported hvac_modes:     off, heat, cool, heat_cool
+# Supported temperature range: 50°F (min_temp) – 90°F (max_temp)
+#
+# Current state (example):
+#   current_temperature: 76
+#   temperature:         78
+#   target_temp_high:    null
+#   target_temp_low:     null
+#   friendly_name: Upstairs
+# Supported features: 387
+
 ######################################################################
 
 input_datetime:
@@ -86,6 +118,11 @@ script:
         target:
           entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
 
+##############################################################################
+###  AUTOMATIONS - Thermostat schedules, guardrails, and presence/weather logic
+### Some shutoff automations are also in the ALARM.yaml package when windows/doors are left open.
+### There are also some automations in the POWERWALL.yaml package when the grid is down.
+##############################################################################
 automation:
   - alias: Notify Downstairs Filter Change Due
     description: Notify when downstairs runtime exceeds threshold since last filter change
@@ -151,15 +188,11 @@ automation:
       - service: climate.set_temperature
         data:
           entity_id: climate.upstairs
-          temperature: 77
+          temperature: 78
 
-  - alias: Set Downstairs Nest to 76 When both in bed
-    id: set_downstairs_nest_76_both_in_bed
+  - alias: Set Downstairs to 77 When Both in Bed
+    id: set_downstairs_nest_77_both_in_bed
     trigger:
-      - platform: numeric_state
-        entity_id: climate.downstairs
-        attribute: temperature
-        above: 76
       - platform: state
         entity_id: group.bed
         to: 'on'
@@ -172,13 +205,6 @@ automation:
           - condition: state
             entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
             state: 'on'
-      - condition: numeric_state
-        entity_id: climate.downstairs
-        attribute: temperature
-        above: 76
-      - condition: numeric_state
-        entity_id: sensor.pirateweather_temperature
-        above: 88
       - condition: state
         entity_id: sun.sun
         state: 'below_horizon'
@@ -186,35 +212,70 @@ automation:
       - service: climate.set_temperature
         data:
           entity_id: climate.downstairs
-          temperature: 76
-  - alias: 'Set Downstairs Thermostat to 80 During Daylight'
-    id: set_downstairs_thermostat_80_daylight
+          temperature: 77
+  
+  - alias: 'Set Downstairs Thermostat Daytime Target'
+    id: set_downstairs_thermostat_daytime_target
     mode: single
     trigger:
       - platform: state
         entity_id: sun.sun
         to: 'above_horizon'
+      - platform: time
+        at: "08:00:00"
       - platform: numeric_state
-        entity_id: climate.downstairs
-        attribute: temperature
-        below: 79
-    condition:
-      - condition: state
-        entity_id: sun.sun
-        state: 'above_horizon'
-      - condition: template
-        value_template: "{{ state_attr('climate.downstairs', 'temperature') < 79 }}"
-      - condition: state
-        entity_id: input_boolean.guest_mode
-        state: 'off'
-      - condition: numeric_state
         entity_id: sensor.pirateweather_temperature
-        above: 80
+        above: 92
+      - platform: state
+        entity_id: group.family
+        to: 'home'
+    condition:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: 'above_horizon'
+          - condition: state
+            entity_id: input_boolean.guest_mode
+            state: 'off'
     action:
-      - service: climate.set_temperature
+      - service: climate.set_hvac_mode
         data:
           entity_id: climate.downstairs
-          temperature: 80
+          hvac_mode: cool
+      - choose:
+          - conditions:
+              - condition: and
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.pirateweather_temperature
+                    above: 92
+                  - condition: state
+                    entity_id: group.family
+                    state: 'home'
+            sequence:
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 78
+          - conditions:
+              - condition: state
+                entity_id: group.family
+                state: 'home'
+            sequence:
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 80
+          - conditions:
+              - condition: state
+                entity_id: group.family
+                state: 'not_home'
+            sequence:
+              - service: climate.set_preset_mode
+                data:
+                  entity_id: climate.downstairs
+                  preset_mode: 'eco'
           
 # Set thermostats to eco mode when everyone is away
   - alias: 'Set Thermostats to Eco When Away'
@@ -236,6 +297,10 @@ automation:
         data:
           entity_id: climate.downstairs
           preset_mode: 'eco'
+      - service: climate.set_hvac_mode
+        data:
+          entity_id: climate.downstairs
+          hvac_mode: cool
       - service: climate.set_temperature
         data:
           entity_id: climate.upstairs
@@ -249,38 +314,67 @@ automation:
       - platform: state
         entity_id: group.family
         to: 'home'
-      - platform: state
-        entity_id: person.justin
-        to: 'home'
     condition:
       - condition: or
         conditions:
           - condition: state
             entity_id: group.family
             state: 'home'
-          - condition: state
-            entity_id: person.justin
-            state: 'home'
       - condition: state
         entity_id: input_boolean.guest_mode
         state: 'off'
     action:
+      - service: climate.set_preset_mode
+        data:
+          entity_id: climate.downstairs
+          preset_mode: 'none'
+      - service: climate.set_hvac_mode
+        data:
+          entity_id:
+            - climate.downstairs
+            - climate.upstairs
+          hvac_mode: cool
       - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                above: 92
+              - condition: state
+                entity_id: group.family
+                state: 'home'
+            sequence:
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 78
           - conditions:
               - condition: state
                 entity_id: group.family
                 state: 'home'
             sequence:
-              - service: climate.set_preset_mode
-                data:
-                  entity_id: climate.downstairs
-                  preset_mode: 'none'
-          - conditions:
-              - condition: state
-                entity_id: person.justin
-                state: 'home'
-            sequence:
               - service: climate.set_temperature
                 data:
-                  entity_id: climate.upstairs
+                  entity_id: climate.downstairs
                   temperature: 80
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.upstairs
+          temperature: 82
+
+  - alias: 'Reset Upstairs to 82 Each Night'
+    id: reset_upstairs_thermostat_nightly_82
+    mode: single
+    trigger:
+      - platform: time
+        at: "03:00:00"
+    action:
+      - service: climate.set_hvac_mode
+        data:
+          entity_id: climate.upstairs
+          hvac_mode: cool
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.upstairs
+          temperature: 82
+
+
