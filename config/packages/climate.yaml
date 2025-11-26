@@ -377,4 +377,80 @@ automation:
           entity_id: climate.upstairs
           temperature: 82
 
+  - alias: 'Humidity Control'
+    id: AC_Humidity_Control
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.downstairs_humidity
+        above: 60
+      - platform: time
+        at: "02:00:00"
+    condition:
+      - condition: time
+        after: "01:00:00"
+        before: "08:00:00"
+      - condition: numeric_state
+        entity_id: sensor.downstairs_humidity
+        above: 60
+      - condition: template #Only needed in the winter months
+        value_template: "{{ now().month in [10, 11, 12, 1, 2, 3] }}"  
+      - condition: template # Only run if AC is idle (prevents fighting other automations)
+        value_template: "{{ state_attr('climate.downstairs', 'hvac_action') == 'idle' }}"
+    action:
+      - service: climate.set_preset_mode
+        data:
+          entity_id: climate.downstairs
+          preset_mode: 'none'
+      - service: climate.set_hvac_mode
+        data:
+          entity_id: climate.downstairs
+          hvac_mode: cool
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.downstairs
+          temperature: 77
+      - delay: "00:20:00"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: group.family
+                state: 'not_home'
+            sequence:
+              - service: climate.set_preset_mode
+                data:
+                  entity_id: climate.downstairs
+                  preset_mode: 'eco'
+          - conditions:
+              - condition: and
+                conditions:
+                  - condition: state
+                    entity_id: group.family
+                    state: 'home'
+                  - condition: numeric_state
+                    entity_id: sensor.pirateweather_temperature
+                    above: 92
+            sequence:
+              - service: climate.set_hvac_mode
+                data:
+                  entity_id: climate.downstairs
+                  hvac_mode: cool
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 78
+          - conditions:
+              - condition: state
+                entity_id: group.family
+                state: 'home'
+            sequence:
+              - service: climate.set_hvac_mode
+                data:
+                  entity_id: climate.downstairs
+                  hvac_mode: cool
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 80
+      - delay: "02:00:00"      # stops it from being triggered again too soon.
 
