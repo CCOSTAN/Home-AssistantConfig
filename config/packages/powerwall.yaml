@@ -5,8 +5,36 @@
 # Read more about this on https://www.vcloudinfo.com
 # Tesla Powerwall added via UI Integration
 # Tesla Powerwall Monitoring #272
-######################################################################################################
-
+######################################################################
+# --------------------------------------------------------------
+# Binary Sensors:
+#  - binary_sensor.powerwall_charging ............. battery_charging (on=charging)
+#  - binary_sensor.powerwall_connected_to_tesla ... connectivity (on=connected)
+#  - binary_sensor.powerwall_grid_services_active .. power (on=active)
+#  - binary_sensor.powerwall_grid_status .......... power (on=grid up)
+#  - binary_sensor.powerwall_status ............... power (on=system ok)
+#
+# Power & Energy Sensors:
+#  - sensor.powerwall_charge ...................... battery %, 0–100
+#  - sensor.powerwall_backup_reserve .............. reserve %, 0–100
+#  - sensor.powerwall_battery_power ............... kW (+discharge / -charge)
+#  - sensor.powerwall_load_power .................. kW house load
+#  - sensor.powerwall_site_power .................. kW (+export / -import)
+#  - sensor.powerwall_solar_power ................. kW solar production
+#
+# Lifetime kWh Meters:
+#  - sensor.powerwall_battery_export .............. kWh → grid/load
+#  - sensor.powerwall_battery_import .............. kWh ← battery charged
+#  - sensor.powerwall_load_export ................. kWh exported from loads
+#  - sensor.powerwall_load_import ................. kWh imported to loads
+#  - sensor.powerwall_site_export ................. kWh site → grid
+#  - sensor.powerwall_site_import ................. kWh site ← grid
+#  - sensor.powerwall_solar_export ................ kWh solar → site/battery/grid
+#  - sensor.powerwall_solar_import ................ kWh solar ← grid (rare)
+#
+# Switches:
+#  - switch.powerwall_off_grid_operation .......... island mode toggle
+######################################################################
 
 #-------------------------------------------
 automation:
