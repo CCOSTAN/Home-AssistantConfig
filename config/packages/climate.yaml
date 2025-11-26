@@ -231,8 +231,8 @@ automation:
         below: 76
     condition:
       - condition: state
-        entity_id: binary_sensor.grid_status
-        state: 'normal'
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'on'
     action:
       - delay: "00:03:00"
       - service: climate.set_temperature
@@ -256,8 +256,8 @@ automation:
             entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
             state: 'on'
           - condition: state
-            entity_id: binary_sensor.grid_status
-            state: 'normal'
+            entity_id: binary_sensor.powerwall_grid_status
+            state: 'on'
       - condition: state
         entity_id: sun.sun
         state: 'below_horizon'
@@ -292,8 +292,8 @@ automation:
             entity_id: input_boolean.guest_mode
             state: 'off'
           - condition: state
-            entity_id: binary_sensor.grid_status
-            state: 'normal'
+            entity_id: binary_sensor.powerwall_grid_status
+            state: 'on'
     action:
       - service: climate.set_hvac_mode
         data:
@@ -348,8 +348,8 @@ automation:
         entity_id: input_boolean.guest_mode
         state: 'off'
       - condition: state
-        entity_id: binary_sensor.grid_status
-        state: 'normal'
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'on'
     action:
       - service: climate.set_preset_mode
         data:
@@ -375,8 +375,8 @@ automation:
         at: "03:00:00"
     condition:
       - condition: state
-        entity_id: binary_sensor.grid_status
-        state: 'normal'
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'on'
     action:
       - service: climate.set_hvac_mode
         data:
@@ -408,8 +408,8 @@ automation:
       - condition: template # Only run if AC is idle (prevents fighting other automations)
         value_template: "{{ state_attr('climate.downstairs', 'hvac_action') == 'idle' }}"
       - condition: state # Never run if the grid is down and running on powerwall.
-        entity_id: binary_sensor.grid_status
-        state: 'normal'
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'on'
     action:
       - service: climate.set_preset_mode
         data:
