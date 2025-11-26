@@ -49,6 +49,11 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [hass_agent_homepc.yaml](hass_agent_homepc.yaml) | Mirrors PC lock/unlock state from HASS.Agent to the office lamp for instant desk presence cues. | `sensor.carlo_homepc_carlo_homepc_sessionstate`, `switch.office_lamp_switch` |
 | [finance.yaml](finance.yaml) | Yahoo Finance sensor bundle for portfolio glances and Lovelace cards. | `sensor.tsla`, `sensor.aapl`, `sensor.amzn`, `sensor.msft` |
 
+### Nest climate control
+- Logic lives in [climate.yaml](climate.yaml) and centralizes downstairs/upstairs Nest schedules, grid-aware guardrails, humidity pulses, and presence/weather-based targets.
+- Shared script keeps targets consistent: away → eco, home + >92°F → 78°F, home default → 80°F. Grid-down conditions pause non-essential cool-downs.
+![Nest Climate Control](../www/custom_ui/floorplan/images/branding/Nest_Climate_Control.png)
+
 ### Blog & video deep dives
 When a package has a dedicated blog post or video, I link it right inside the YAML comments. Here are the same references for quick browsing:
 
@@ -75,6 +80,7 @@ These are the devices that power the packages above. Affiliate links never chang
 | Phyn Plus water shutoff | [phynplus.yaml](phynplus.yaml) | Leak events trigger valve closes + critical push notifications. | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
 | Rachio sprinkler controller | [rachio.yaml](rachio.yaml) | Rain skips and seasonal watering adjustments happen automatically. | [![Buy](https://img.shields.io/badge/Buy-Rachio-orange?logo=amazon)](https://amzn.to/2eoPKBW) |
 | Tesla Powerwall 2 | [powerwall.yaml](powerwall.yaml) | Grid outages kick off load-shed scripts and status pings. | [![Buy](https://img.shields.io/badge/Buy-Powerwall-orange?logo=tesla)](https://amzn.to/3UM4BZ5) |
+| Google Nest thermostat | [climate.yaml](climate.yaml) | Presence/weather/grid-aware cooling targets, humidity pulses, and eco recovery. | [![Buy](https://img.shields.io/badge/Buy-Nest%20Thermostat-orange?logo=google)](https://amzn.to/4olpINw) |
 | Dreame/Neato vacuum | [vacuum.yaml](vacuum.yaml) | Scheduled cleaning, maintenance reminders, and voice callouts. | [![Buy](https://img.shields.io/badge/Buy-Vacuum-orange?logo=amazon)](https://amzn.to/4f7NpFP) |
 | NodeMCU motion/contact sensor | [alarm.yaml](alarm.yaml), [office_motion.yaml](office_motion.yaml) | ESP8266 nodes feed the alarm matrix and room-aware lighting. | [![Buy](https://img.shields.io/badge/Buy-Motion%20Node-orange?logo=amazon)](https://amzn.to/2oUgj5i) |
 | Roku streaming device | [roku.yaml](roku.yaml) | Media presence drives lighting, announcements, and scenes. | [![Buy](https://img.shields.io/badge/Buy-Roku-orange?logo=roku)](https://amzn.to/2Ctp8cr) |
