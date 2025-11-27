@@ -49,6 +49,11 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [hass_agent_homepc.yaml](hass_agent_homepc.yaml) | Mirrors PC lock/unlock state from HASS.Agent to the office lamp for instant desk presence cues. | `sensor.carlo_homepc_carlo_homepc_sessionstate`, `switch.office_lamp_switch` |
 | [finance.yaml](finance.yaml) | Yahoo Finance sensor bundle for portfolio glances and Lovelace cards. | `sensor.tsla`, `sensor.aapl`, `sensor.amzn`, `sensor.msft` |
 
+### Garadget automations
+- Logic lives in [garadget.yaml](garadget.yaml): auto-open on arrival, entry helper prompt (unlock front door or open garage), auto-unlock for Paige/Justin, wind checks, nightly open-door reminders, and camera pop-ups.
+- MQTT-based covers for large/small doors; notifications and speech wired to the house notify/speech engines.
+![Garadget Automation](../www/custom_ui/floorplan/images/branding/Garadget%20Automation.png)
+
 ### Nest climate control
 - Logic lives in [climate.yaml](climate.yaml) and centralizes downstairs/upstairs Nest schedules, grid-aware guardrails, humidity pulses, and presence/weather-based targets.
 - Shared script keeps targets consistent: away → eco, home + >92°F → 78°F, home default → 80°F. Grid-down conditions pause non-essential cool-downs.

@@ -1,21 +1,29 @@
 #-------------------------------------------
-# Garadget Configuration
-# Description: Setup for Garadget garage door opener/sensor
+# Garadget Configuration for Home Assistant
 #
-# Integration: MQTT
-# Hardware: Garadget (https://amzn.to/2jQLpVQ)
+# This package sets up the Garadget garage doors using MQTT cover and sensor platforms.
+# 
+# Automation Integration:
+#   - Fully supports Home Assistant automation for notifications, 
+#     remote control, and state monitoring.
+#   - Works seamlessly with notification engines (see `script.notify_engine`)
+#     for actionable alerts when garage state changes or manual intervention is required.
 #
 # Features:
-#   - Garage door status monitoring
-#   - Remote open/close control
-#   - Door brightness sensing
+#   - Garage door status monitoring (open/close state, time since change)
+#   - Remote open, close, and stop actions
+#   - Door brightness sensing (helps detect obstacles or sunlight conditions)
 #
-# Documentation:
-#   - Integration Guide: https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
-#   - Access Token Update: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
+# Integration/Setup Guides:
+#   - Setup:    https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
+#   - Token Fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 #
-# Original Repository: https://github.com/CCOSTAN/Home-AssistantConfig
-# Follow me on https://www.vcloudinfo.com/click-here
+# Hardware:
+#   - Garadget unit (https://amzn.to/2jQLpVQ)
+#
+# Repository & Author:
+#   - https://github.com/CCOSTAN/Home-AssistantConfig
+#   - @CCOSTAN | More info: https://www.vcloudinfo.com/click-here
 #-------------------------------------------
 
 mqtt:
@@ -92,7 +100,6 @@ automation:
         entity_id:
           - person.carlo
           - person.stacey
-          - person.justin
         from: 'driving'
         to: 'home'
     condition:
@@ -123,10 +130,10 @@ automation:
           camera_entity: camera.garagecam
 
 ######################################################################
-##  Send a notification to anyone coming home asking if they want to open the garage door.
+##  Entry helper prompt after arrival if auto-open didn’t fire.
 ######################################################################
 
-  - alias: 'Garage Helper'
+  - alias: 'Entry Helper'
     id: 365adc21-5e96-4e78-9e94-089901a29430
     mode: parallel
     trigger:
@@ -134,34 +141,39 @@ automation:
         entity_id:
           - person.carlo
           - person.stacey
-#       from: 'driving'
         to: 'home'
     condition:
         - condition: state
           entity_id: cover.large_garage_door
           state: 'closed'
     action:
-      # - variables:
-      #     person_triggered: "{{ trigger.to_state.entity_id.split('.')[1] }}"
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.last_person_home
-        data:
-          value: "{{ trigger.to_state.entity_id.split('.')[1] }}"
-      - service: script.notify_engine_two_button
-        data:
-          title: 'Welcome Home!'
-          value1: 'Open Large Garage door?'
-          title1: 'Yes'
-          action1: 'OPEN_LARGE_GARAGE'
-          icon1: 'sfsymbols:arrow.up.circle'
-          destructive1: 'false'
-          title2: 'No'
-          action2: 'NO_OPEN_LARGE_GARAGE'
-          icon2: 'sfsymbols:house.circle'
-          destructive2: 'true'
-          who: "{{ states('input_text.last_person_home') }}"
-          group: 'Welcome_Home'
+      # Give the auto-open routine a chance to fire; if the door opened, skip the prompt.
+      - delay: "00:00:25"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: cover.large_garage_door
+                state: 'closed'
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.last_person_home
+                data:
+                  value: "{{ trigger.to_state.entity_id.split('.')[1] }}"
+              - service: script.notify_engine_two_button
+                data:
+                  title: 'Welcome Home!'
+                  value1: 'Choose: unlock front door or open garage?'
+                  title1: 'Unlock Door'
+                  action1: 'UNLOCK_FRONT_DOOR'
+                  icon1: 'sfsymbols:lock.open'
+                  destructive1: 'false'
+                  title2: 'Open Garage'
+                  action2: 'OPEN_LARGE_GARAGE'
+                  icon2: 'sfsymbols:arrow.up.circle'
+                  destructive2: 'false'
+                  who: "{{ states('input_text.last_person_home') }}"
+                  group: 'Welcome_Home'
 
   - alias: 'Open Large Garage Door Action'
     id: 85e02a74-2ecc-4815-95a6-db864a6dffd7
@@ -181,33 +193,6 @@ automation:
       - service: cover.open_cover
         entity_id: cover.large_garage_door
 
-  - alias: 'Prompt to Open Front Door'
-    id: ece2b4a8-af21-41f4-a8fc-480a4d1ddabc
-    trigger:
-      platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: NO_OPEN_LARGE_GARAGE
-    condition:
-      - condition: state
-        entity_id: group.family
-        state: 'home'
-    action:
-      - service: script.notify_engine_two_button
-        data:
-          title: 'Unlock Front Door?'
-          value1: 'Do you want to unlock the front door instead?'
-          title1: 'Yes'
-          action1: 'UNLOCK_FRONT_DOOR'
-          icon1: 'sfsymbols:unlock'
-          destructive1: 'false'
-          title2: 'No'
-          action2: 'KEEP_FRONT_DOOR_LOCKED'
-          icon2: 'sfsymbols:lock'
-          destructive2: 'true'
-          who: "{{ states('input_text.last_person_home') }}"
-          group: 'Welcome_Home'
-
   - alias: 'Unlock Front Door Action'
     id: c3106db1-f2c4-4800-b1a3-76d440228600
     trigger:
@@ -218,6 +203,34 @@ automation:
     action:
       - service: lock.unlock
         entity_id: lock.front_door
+
+  ######################################################################
+  ##  Auto-unlock front door when Paige or Justin arrive from driving
+  ######################################################################
+  - alias: 'Auto Unlock Front Door on Arrival (Paige/Justin)'
+    id: 8f4f5f6a-9c2d-4f4c-9f6c-7d5e5b2e2c3d
+    mode: single
+    trigger:
+      - platform: state
+        entity_id:
+          - person.paige
+          - person.justin
+        from: 'driving'
+        to: 'home'
+    condition:
+      - condition: state
+        entity_id: lock.front_door
+        state: 'locked'
+    action:
+      - service: lock.unlock
+        target:
+          entity_id: lock.front_door
+      - service: script.notify_engine
+        data:
+          title: "Front door auto-unlocked"
+          value1: "Unlocking for {{ trigger.to_state.name }} arriving from driving."
+          who: "family"
+          group: "Welcome_Home"
 
 
 ######################################################################
@@ -449,65 +462,4 @@ automation:
             data:
               media_content_id: 'hide garage camera'
               media_content_type: custom
-
-
-
-  - alias: 'Garage Camera on Alexa Shows'
-    id: 4373df2a-77f2-4e19-be7c-46c7b27ca583
-    mode: single
-    trigger:
-      - platform: state
-        entity_id:
-          - cover.large_garage_door
-          - cover.small_garage_door
-        from: 'closed'
-        to: 'open'
-
-      - platform: state
-        entity_id: binary_sensor.mcu1_gpio12 #interior Garage Doors
-        from: 'off'
-        to: 'on' 
-
-      - platform: state
-        entity_id:
-          - person.carlo
-          - person.stacey
-          - person.paige
-          - person.justin
-        to: 'not_home'
-        from: 'home'    
-
-    action:
-      - choose:
-          - conditions: "{{ is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed','on') }}"
-            sequence:
-              - service: media_player.play_media
-                data:
-                  entity_id: media_player.stacey_bedroom
-                  media_content_id: 'show garage camera from home assistant'
-                  media_content_type: custom
-              - delay: '00:10:00'
-              - service: media_player.play_media
-                data:
-                  entity_id: media_player.stacey_bedroom
-                  media_content_id: 'hide garage camera'
-                  media_content_type: custom
-
-        default:
-          - service: media_player.play_media
-            target:
-              entity_id: media_player.kitchen
-            data:
-              media_content_id: 'show garage camera from home assistant'
-              media_content_type: custom
-          - delay: '00:20:00'
-          - service: media_player.play_media
-            target:
-              entity_id: media_player.kitchen
-            data:
-              media_content_id: 'hide garage camera'
-              media_content_type: custom
-
-
-              
 

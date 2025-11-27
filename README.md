@@ -44,6 +44,7 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 - Dash-button triggers for quick actions: [config/automation/dash_buttons.yaml](config/automation/dash_buttons.yaml)
 - PC lock/unlock-driven lighting via HASS.Agent: [config/packages/hass_agent_homepc.yaml](config/packages/hass_agent_homepc.yaml)
 - Seasonal cuckoo clock with October and Christmas sound packs: [config/automation/System/CucKoo_Clock.yaml](config/automation/System/CucKoo_Clock.yaml)
+- Garage arrival and entry helpers: [config/packages/garadget.yaml](config/packages/garadget.yaml)
 - Battery and solar awareness: [config/packages/powerwall.yaml](config/packages/powerwall.yaml)
 - Presence-aware office comfort: [config/packages/office_motion.yaml](config/packages/office_motion.yaml)
 - Weather-aware lighting: [config/automation/dark_rainy_day.yaml](config/automation/dark_rainy_day.yaml)
