@@ -29,7 +29,32 @@ Reusable lighting and ambiance presets. Automations and scripts call these scene
 | File | Why it matters |
 | --- | --- |
 | [monthly_colors.yaml](monthly_colors.yaml) | Exterior lighting colors mapped to holidays and seasons. |
-| [living_room.yaml](living_room.yaml) | Core living-room presets used by media and presence automations. |
+| [living_room.yaml](living_room.yaml) | Core living-room presets: TV Time, red alert, new daytime cool and evening amber defaults. |
+
+### Scene color schemes
+| Scene | Colors / temps | Driven by |
+| --- | --- | --- |
+| TV Time | Gold accents, low brightness, fronts off | Called by media/TV automations |
+| Red_living_Room | All fixtures red, mid/high brightness | Alert/entry automations (garage/doors) |
+| Living_Room_Daytime_Cool | 5500K cool white, full brightness | Living room default automation (day) |
+| Living_Room_Evening_Amber | 2700K warm/amber, softer brightness | Living room default automation (night) |
+| month_standard_colors | Baseline white/neutral monthly palette | `script.monthly_color_scene` after sunset |
+| month_RWB_colors | Red/white/blue set (patriotic/July 4th) | `script.monthly_color_scene` (flag/holiday) |
+| month_valentine_colors | Valentine pinks/reds | `script.monthly_color_scene` (Feb 10–14) |
+| month_mardi_gras_colors | Purple/green/gold Mardi Gras | `script.monthly_color_scene` (Mar 5) |
+| month_st_patty_colors | Green-centric St. Patrick's | `script.monthly_color_scene` (Mar 15–17) |
+| month_pi_colors | Pi Day playful hues | `script.monthly_color_scene` (Mar 14) |
+| month_easter_colors | Pastel Easter set | `script.monthly_color_scene` (Easter countdown) |
+| month_starwars_colors | Star Wars themed mix | `script.monthly_color_scene` (May 4) |
+| month_cinco_de_mayo_colors | Cinco de Mayo festive mix | `script.monthly_color_scene` (May 5) |
+| month_mothers_day_colors | Mother's Day palette | `script.monthly_color_scene` (countdown) |
+| month_fathers_day_colors | Father's Day palette | `script.monthly_color_scene` (countdown) |
+| month_halloween_colors | Halloween oranges/purples | `script.monthly_color_scene` (Oct 1–31) |
+| month_veterans_colors | Veterans Day palette | `script.monthly_color_scene` (Nov 11) |
+| month_thanksgiving_colors | Autumn harvest tones | `script.monthly_color_scene` (countdown) |
+| month_hanukkah_colors | Hanukkah blues/whites | `script.monthly_color_scene` (Hanukkah countdown) |
+| month_christmas_colors | Christmas reds/greens | `script.monthly_color_scene` (Christmas countdown) |
+| month_new_years_day_colors | New Year's bright/celebratory | `script.monthly_color_scene` (Jan 1 & Dec 31) |
 
 ### Tips
 - Adjust scenes once and let all dependent automations inherit the change.
