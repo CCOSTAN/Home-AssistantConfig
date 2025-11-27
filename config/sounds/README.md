@@ -20,6 +20,7 @@
 Audio assets (alert tones, chimes, TTS snippets) used by automations and scripts.
 
 ### Quick navigation
+- You are here: `config/sounds/` (audio assets)
 - [Repo overview](../../README.md) | [Config index](../README.md) | [Automations](../automation) | [Scripts](../script)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)

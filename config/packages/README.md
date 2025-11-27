@@ -19,6 +19,7 @@
 Live collection of plug-and-play Home Assistant packages. Each YAML file in this folder bundles sensors, helpers, automations, scripts, and Lovelace assets needed for a specific subsystem so you can drop it into `configuration.yaml` with a single `packages:` include.
 
 ### Quick navigation
+- You are here: `config/packages/` (self-contained packages)
 - [Repo overview](../../README.md) | [Config index](../README.md) | [Automations](../automation) | [Scripts](../script) | [Scenes](../scene) | [Templates](../templates) | [Package triggers](triggers) | [YouTube](https://youtube.com/vCloudInfo) | [Blog](https://www.vcloudinfo.com)
 - Disabled/staging packages follow the `.disabled` or `.NOTWORKING` suffix; remove it after you update credentials or hardware.
 - Looking for the full gear list? See [../legacy-readme.md](../../legacy-readme.md).

@@ -20,6 +20,7 @@
 Reusable scripts that other automations call for notifications, lighting, and safety responses. Pass variables in; let the script do the heavy lifting.
 
 ### Quick navigation
+- You are here: `config/script/` (scripts library)
 - [Repo overview](../../README.md) | [Config index](../README.md) | [Automations](../automation) | [Scenes](../scene) | [Blog: Speech engine video](https://www.vcloudinfo.com/2018/12/breaking-down-my-home-assistant-volume.html)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
@@ -30,10 +31,10 @@ Reusable scripts that other automations call for notifications, lighting, and sa
 | [notify_engine.yaml](notify_engine.yaml) | Single entrypoint for rich push notifications. |
 | [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech. |
 | [monthly_color_scene.yaml](monthly_color_scene.yaml) | Seasonal lighting scenes used across automations. |
-| [interior_off.yaml](interior_off.yaml) | One-call “all interior lights off” helper. |
+| [interior_off.yaml](interior_off.yaml) | One-call ï¿½all interior lights offï¿½ helper. |
 
 ### Tips
-- Keep scripts generic—route data via `data:`/`variables:` and reuse everywhere.
+- Keep scripts genericï¿½route data via `data:`/`variables:` and reuse everywhere.
 - If you copy a script, rename any `alias` and `id` fields to avoid duplicates.
 
 

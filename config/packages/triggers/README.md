@@ -17,9 +17,10 @@
 
 </div>
 
-Small, reusable trigger packages—button presses, state trackers, and helper flows that other packages import.
+Small, reusable trigger packagesï¿½button presses, state trackers, and helper flows that other packages import.
 
 ### Quick navigation
+- You are here: `config/packages/triggers/` (shared trigger examples)
 - [Repo overview](../../../README.md) | [Config index](../../README.md) | [Packages home](..) | [Automation home](../../automation)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)

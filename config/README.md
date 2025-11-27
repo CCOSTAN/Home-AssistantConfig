@@ -19,6 +19,7 @@
 Live view of the `config/` directory my production Home Assistant instance loads every night. Use this README as a map when you want to jump directly into the most interesting packages, automations, and supporting assets.
 
 ### Quick navigation
+- You are here: `config/` (configuration root)
 - [Repo overview](../README.md) | [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg) | [YouTube](https://youtube.com/vCloudInfo)
 - Directory highlights: [packages](packages), [automation](automation), [script](script), [scene](scene), [templates](templates), [www](www), [custom_components](custom_components)
 - Gear & affiliate catalog: see [../legacy-readme.md](../legacy-readme.md) for the complete shopping list

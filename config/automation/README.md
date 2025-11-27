@@ -20,6 +20,7 @@
 Event-driven automations that sit outside the self-contained packages. These tie motion, presence, weather, and time-of-day signals together for real rooms and routines.
 
 ### Quick navigation
+- You are here: `config/automation/` (standalone automations)
 - [Repo overview](../../README.md) | [Config index](../README.md) | [Packages](../packages) | [Scripts](../script) | [Scenes](../scene)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)

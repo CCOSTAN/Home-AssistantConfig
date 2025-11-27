@@ -20,6 +20,7 @@
 Reusable lighting and ambiance presets. Automations and scripts call these scenes to avoid duplicating brightness/color targets everywhere.
 
 ### Quick navigation
+- You are here: `config/scene/` (scenes library)
 - [Repo overview](../../README.md) | [Config index](../README.md) | [Scripts](../script) | [Automations](../automation)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
