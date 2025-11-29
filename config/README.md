@@ -22,7 +22,6 @@ Live view of the `config/` directory my production Home Assistant instance loads
 - You are here: `config/` (configuration root)
 - [Repo overview](../README.md) | [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg) | [YouTube](https://youtube.com/vCloudInfo)
 - Directory highlights: [packages](packages), [automation](automation), [script](script), [scene](scene), [templates](templates), [www](www), [custom_components](custom_components)
-- Gear & affiliate catalog: see [../legacy-readme.md](../legacy-readme.md) for the complete shopping list
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
@@ -50,7 +49,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 | Seasonal Audio | Cuckoo clock with Halloween and Christmas sound packs. | [automation/System/CucKoo_Clock.yaml](automation/System/CucKoo_Clock.yaml) |
 
 ### Gear tied to these automations (affiliate links)
-Only including devices that have active references in the files above. Want the legacy list? Jump to [../legacy-readme.md](../legacy-readme.md).
+Only including devices that have active references in the files above.
 
 | Device | What it drives (friendly name -> file) | Buy |
 | --- | --- | --- |
