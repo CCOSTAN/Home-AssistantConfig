@@ -1,30 +1,14 @@
 #-------------------------------------------
-# Garadget Configuration for Home Assistant
-#
-# This package sets up the Garadget garage doors using MQTT cover and sensor platforms.
-# 
-# Automation Integration:
-#   - Fully supports Home Assistant automation for notifications, 
-#     remote control, and state monitoring.
-#   - Works seamlessly with notification engines (see `script.notify_engine`)
-#     for actionable alerts when garage state changes or manual intervention is required.
-#
-# Features:
-#   - Garage door status monitoring (open/close state, time since change)
-#   - Remote open, close, and stop actions
-#   - Door brightness sensing (helps detect obstacles or sunlight conditions)
-#
-# Integration/Setup Guides:
-#   - Setup:    https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
-#   - Token Fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
-#
-# Hardware:
-#   - Garadget unit (https://amzn.to/2jQLpVQ)
-#
-# Repository & Author:
-#   - https://github.com/CCOSTAN/Home-AssistantConfig
-#   - @CCOSTAN | More info: https://www.vcloudinfo.com/click-here
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Garadget Garage Doors - MQTT cover control and monitoring.
 #-------------------------------------------
+######################################################################
+##  Open/close commands, reflection alerts, and actionable notifications.
+######################################################################
+# Setup: https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
+# Token fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
+# Hardware: Garadget unit https://amzn.to/2jQLpVQ
 
 mqtt:
   cover:

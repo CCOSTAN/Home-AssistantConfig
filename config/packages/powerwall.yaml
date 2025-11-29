@@ -1,11 +1,13 @@
-######################################################################################################
-### @Tesla Powerwall - https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html
-# # @CCOSTAN
+#-------------------------------------------
+# @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Read more about this on https://www.vcloudinfo.com
-# Tesla Powerwall added via UI Integration
-# Tesla Powerwall Monitoring #272
+# Tesla Powerwall - Monitoring and outage automations.
+#-------------------------------------------
 ######################################################################
+##  Powerwall status sensors and load-shedding helpers.
+######################################################################
+# Read more: https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html | Issue #272
+# Tesla Powerwall added via UI Integration
 # --------------------------------------------------------------
 # Binary Sensors:
 #  - binary_sensor.powerwall_charging ............. battery_charging (on=charging)
@@ -23,14 +25,14 @@
 #  - sensor.powerwall_solar_power ................. kW solar production
 #
 # Lifetime kWh Meters:
-#  - sensor.powerwall_battery_export .............. kWh → grid/load
-#  - sensor.powerwall_battery_import .............. kWh ← battery charged
+#  - sensor.powerwall_battery_export .............. kWh -> grid/load
+#  - sensor.powerwall_battery_import .............. kWh <- battery charged
 #  - sensor.powerwall_load_export ................. kWh exported from loads
 #  - sensor.powerwall_load_import ................. kWh imported to loads
-#  - sensor.powerwall_site_export ................. kWh site → grid
-#  - sensor.powerwall_site_import ................. kWh site ← grid
-#  - sensor.powerwall_solar_export ................ kWh solar → site/battery/grid
-#  - sensor.powerwall_solar_import ................ kWh solar ← grid (rare)
+#  - sensor.powerwall_site_export ................. kWh site -> grid
+#  - sensor.powerwall_site_import ................. kWh site <- grid
+#  - sensor.powerwall_solar_export ................ kWh solar -> site/battery/grid
+#  - sensor.powerwall_solar_import ................ kWh solar <- grid (rare)
 #
 # Switches:
 #  - switch.powerwall_off_grid_operation .......... island mode toggle

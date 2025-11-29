@@ -1,7 +1,12 @@
-# Wireless AP client alert configurations
-# See related discussion: https://github.com/CCOSTAN/Home-AssistantConfig/issues/1534
-# This file contains sensors and alerts for tracking Unifi AP clients.
-
+#-------------------------------------------
+# @CCOSTAN
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Wireless AP Alerts - Unifi client monitoring and repair triggers.
+#-------------------------------------------
+######################################################################
+##  Alert when APs have zero clients; create repair issues.
+######################################################################
+# Discussion: https://github.com/CCOSTAN/Home-AssistantConfig/issues/1534
 automation:
   - id: unifi_ap_no_clients_repair_combined
     alias: "Unifi AP Create Repair Issue after 5m of 0 Clients"

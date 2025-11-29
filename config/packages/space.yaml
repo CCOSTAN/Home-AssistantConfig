@@ -1,10 +1,11 @@
 #-------------------------------------------
-#  Space Related Packages
 # @CCOSTAN
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# Space - ISS and space-related sensors.
 #-------------------------------------------
-
-
+######################################################################
+##  Track space events and ISS passes.
+######################################################################
 sensor:
 
   - platform: rest
@@ -38,5 +39,4 @@ automation:
         data:
           value1: 'Go Outside!  There is a Rocket Launch very soon! {{states.sensor.next_launch.attributes.stream }}'
           group: 'information'
-
 
