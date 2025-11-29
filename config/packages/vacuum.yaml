@@ -18,6 +18,9 @@ input_boolean:
   l10s_vacuum_weekday_cycle_active:
     name: L10s Weekday Cleaning Active
     icon: mdi:robot-vacuum
+  l10s_vacuum_on_demand:
+    name: Dream Clean (On-Demand)
+    icon: mdi:rocket-launch
 
 input_datetime:
   l10s_vacuum_last_weekday_cycle:
@@ -33,8 +36,7 @@ input_text:
   l10s_vacuum_room_catalog:
     name: L10s Vacuum Room Catalog
     # Room order (id:name): 14 Kitchen, 12 Dining, 10 Living, 7 Master Bedroom, 15 Foyer, 9 Stacey Office,
-    # 17 Formal Dining, 13 Hallway, 8 Justin Bedroom, 6 Paige Bedroom, 2 Office, 1 Pool Bath, 3 Kids Bathroom, 4 Master Bathroom.  
-    # Skip 11 Garage Hallway.
+    # 17 Formal Dining, 13 Hallway, 8 Justin Bedroom, 6 Paige Bedroom, 4 Master Bathroom, 2 Office, 1 Pool Bath, 3 Kids Bathroom. Skip 11 Garage Hallway.
     initial: "14,12,10,7,15,9,17,13,8,6,4,2,1,3"
     icon: mdi:map
     max: 255
@@ -110,7 +112,7 @@ automation:
 ### https://www.vcloudinfo.com/2020/05/home-assistant-neato-vacuum-automation.html
 ##############################################################################
 
-  - alias: 'Away Vacuum: Reset Queue Monday Sweep'
+  - alias: 'Away Vacuum: Reset Queue (Mon/Sat)'
     id: 93a6e7dc-9c32-4d53-9f7c-651cd60f4b84
     trigger:
       - platform: time
@@ -119,34 +121,6 @@ automation:
       - condition: time
         weekday:
           - mon
-    action:
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.l10s_vacuum_room_queue
-        data:
-          value: "{{ states('input_text.l10s_vacuum_room_catalog') }}"
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.l10s_vacuum_rooms_cleaned_today
-        data:
-          value: ""
-      - service: input_boolean.turn_off
-        target:
-          entity_id: input_boolean.l10s_vacuum_weekday_cycle_active
-      - service: input_datetime.set_datetime
-        target:
-          entity_id: input_datetime.l10s_vacuum_last_weekday_cycle
-        data:
-          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-
-  - alias: 'Away Vacuum: Reset Queue Saturday Mop'
-    id: 7b472a11-f582-4a56-8b65-0f36d4fb29a7
-    trigger:
-      - platform: time
-        at: '08:55:00'
-    condition:
-      - condition: time
-        weekday:
           - sat
     action:
       - service: input_text.set_value
@@ -168,6 +142,24 @@ automation:
         data:
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
 
+  - alias: 'Away Vacuum: On-Demand Start'
+    id: 8a21c28f-1ef9-45b0-8d50-7a5aa4ed5f94
+    trigger:
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_on_demand
+        to: 'on'
+    condition:
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+      - condition: template
+        value_template: "{{ not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
+    action:
+      - service: script.l10s_vacuum_start_next_room
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.l10s_vacuum_on_demand
+
   - alias: 'Away Vacuum: Start or Resume When Empty'
     id: 7f7e0a3c-6452-4f6b-8464-c6c25770a148
     trigger:
@@ -180,6 +172,9 @@ automation:
       - condition: state
         entity_id: group.family
         state: 'not_home'
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
       - condition: template
         value_template: "{{ not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
     action:
@@ -315,6 +310,9 @@ automation:
       - condition: state
         entity_id: group.family
         state: 'not_home'
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
       - condition: time
         after: '10:05:00'
         before: '21:30:00'
@@ -333,6 +331,9 @@ automation:
       - condition: state
         entity_id: group.family
         state: 'not_home'
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
       - condition: template
         value_template: "{{ states('input_text.l10s_vacuum_room_queue') | length > 0 }}"
       - condition: template
