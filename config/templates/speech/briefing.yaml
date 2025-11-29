@@ -78,31 +78,6 @@
     The internal temperature of the refrigerator is currently {{ states('sensor.blink_blink1_temperature') }} degrees. The freezer temperature is {{ states('sensor.refrigerator_freezer_temp') }} degrees and the fridge temperature is {{ states('sensor.refrigerator_fridge_temp') }} degrees. {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}The fridge door is currently open.{% endif %}
   {%- endmacro -%}
 
-  {%- macro light_check() -%}
-  {% if states.group.all_lights.state != 'off' -%}
-      There are
-  {% for state in states.light if state.state == 'on' -%}
-      {%- if loop.last -%}
-      {{ loop.index }}
-      {%- endif -%}
-  {%- endfor %}
-  lights on right now.
-  {% set comma = joiner(', ') %}
-  The
-  {% for group in states.group|groupby('state') -%}
-      {%- for entity in group.list if entity.state == 'on'
-      and entity.name.split(' ')[1]|lower == 'lights'
-      and entity.name.split(' ')[0]|lower != 'all'
-      and entity.name.split(' ')[0]|lower != 'interior'
-      -%}
-      {{ 'and' if loop.last and not loop.first else comma() }}
-      {{ entity.name|replace('Lights','')}}
-      {%- endfor -%}
-  {%- endfor -%}
-  lights are on.
-  {%- endif -%}
-  {%- endmacro -%}
-
   {%- macro window_check() -%}
   {% if states.group.entry_points.state != 'off' -%}
       {% set comma = joiner(', ') %}
@@ -153,6 +128,13 @@
   {% if is_state('input_boolean.medicine', 'off') -%}
       It looks like Carlo has not taken his medicine yet. Please make sure Carlo takes his medicine now.
   {% endif -%}
+  {%- endmacro -%}
+
+  {%- macro vacuum_rooms_cleaned() -%}
+  {% set cleaned = states('input_text.l10s_vacuum_rooms_cleaned_today') %}
+  {% if cleaned | length > 0 %}
+    Vacuum cleaned: {{ cleaned }}.
+  {% endif %}
   {%- endmacro -%}
 
   {%- macro moon() -%}
@@ -336,10 +318,6 @@
 
     {{ NewDevice | default }}
 
-    {% if call_light_check == 1 %}
-    {{ light_check() }}
-    {% endif %}
-
     {% if call_garbage_day == 1 %}
     {{ garbage_day() }}
     {% endif %}
@@ -347,6 +325,12 @@
     {% if now().strftime('%H')|int(0) > 21 %}
     {{ medicine() }}
     {% endif %}
+
+    {{ vacuum_rooms_cleaned() }}
+
+    {{ holiday() }}
+
+    {{ outside_weather }}
    
     {% if value1 is not none %}
     {{ value1 | default }}
