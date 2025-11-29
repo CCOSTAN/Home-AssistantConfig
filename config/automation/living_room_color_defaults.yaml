@@ -1,6 +1,12 @@
 ######################################################################
-# Living room color defaults: cool white by day, amber by evening.
-# Restores after entry/garage secure and when lights are turned on.
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Living Room Color Defaults - cool white by day, amber by evening
+#  Restores after entry/garage secure and when lights are turned on.
+# -------------------------------------------------------------------
+# Notes: Returns to defaults after entry points close; keeps prior off states.
 ######################################################################
 
 - alias: 'Living Room Defaults on Turn-On'
@@ -70,6 +76,12 @@
               data:
                 kelvin: 5500
                 brightness: 255
+            - service: light.turn_on
+              target:
+                entity_id: light.living_room_accents
+              data:
+                kelvin: 5500
+                brightness: 200
       default:
         - service: light.turn_on
           target:
@@ -77,12 +89,19 @@
           data:
             kelvin: 2700
             brightness: 200
+        - service: light.turn_on
+          target:
+            entity_id: light.living_room_accents
+          data:
+            kelvin: 2700
+            brightness: 170
 
 - alias: 'Living Room Red on Entry/Garage Open'
   id: living_room_red_on_entry_open
   mode: restart
   variables:
     was_off: "{{ is_state('light.living_room_lights', 'off') }}"
+    accents_were_off: "{{ is_state('light.living_room_accents', 'off') }}"
   trigger:
     - platform: state
       entity_id: group.entry_points
@@ -109,3 +128,9 @@
             - service: light.turn_off
               target:
                 entity_id: light.living_room_lights
+    - choose:
+        - conditions: "{{ accents_were_off }}"
+          sequence:
+            - service: light.turn_off
+              target:
+                entity_id: light.living_room_accents
