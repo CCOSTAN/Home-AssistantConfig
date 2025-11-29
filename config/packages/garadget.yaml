@@ -352,10 +352,6 @@ automation:
         entity_id: group.family
         to: not_home
         for: 00:05:00
-      - platform: state
-        entity_id: input_boolean.tv_time
-        to: 'on'
-        from: 'off'
 
     condition:
       condition: or

@@ -77,3 +77,35 @@
           data:
             kelvin: 2700
             brightness: 200
+
+  - alias: 'Living Room Red on Entry/Garage Open'
+    id: living_room_red_on_entry_open
+    mode: restart
+    variables:
+      was_off: "{{ is_state('light.living_room_lights', 'off') }}"
+    trigger:
+      - platform: state
+        entity_id: group.entry_points
+        to: 'on'
+      - platform: state
+        entity_id: group.garage_doors
+        from: 'closed'
+        to: 'open'
+    action:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.red_living_room
+      - wait_for_trigger:
+          - platform: state
+            entity_id: group.entry_points
+            to: 'off'
+          - platform: state
+            entity_id: group.garage_doors
+            to: 'closed'
+        timeout: "01:00:00"
+      - choose:
+          - conditions: "{{ was_off }}"
+            sequence:
+              - service: light.turn_off
+                target:
+                  entity_id: light.living_room_lights

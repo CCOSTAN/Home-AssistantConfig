@@ -1,14 +1,18 @@
 - name: TV Time
   entities:
        light.m1_front_left:
-           state: off
+           state: on
+           rgb_color: &gold [255,223,0]
+           brightness: 100
        light.m1_front_right:
-           state: off
+           state: on
+           rgb_color: *gold
+           brightness: 100
        light.main_slider:
            state: off
        light.m1_back_right:
            state: on
-           rgb_color: &gold [255,223,0]
+           rgb_color: *gold
            brightness: 50
        light.m1_back_left:
            state: on
