@@ -1,10 +1,13 @@
-#-------------------------------------------
-# Logbook Configuration
-# Description: Settings for the Home Assistant logbook component
-#  This component is responsible for displaying items in the logbook.
-# Follow me on https://www.vcloudinfo.com/click-here
-# Original Repo: https://github.com/CCOSTAN/Home-AssistantConfig
-#-------------------------------------------
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Logbook Configuration - Activity/Logbook display controls
+#  Defines what is hidden from the Activity/logbook view to keep noise down.
+# -------------------------------------------------------------------
+# Notes: Filters vcloudinfo availability chatter plus location/weather noise.
+######################################################################
 
 exclude:
   entity_globs:
@@ -13,7 +16,6 @@ exclude:
     - sensor.*_geocoded_location  
     - sensor.pirateweather_*
     - weather.*
-    - *vcloudinfo*
   entities:
     - automation.cuckoo_clock
     - automation.detect_lights_and_adjust_the_brightness_when_turned_on_based_on_time
@@ -42,3 +44,4 @@ exclude:
     - sensor.small_garage_wifi_signal_strength
     - sensor.time
     - sensor.upstairs_ac_cooling_numeric
+    - sensor.vcloudinfo_com
