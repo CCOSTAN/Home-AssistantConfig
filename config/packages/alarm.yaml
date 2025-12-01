@@ -1,10 +1,12 @@
-#-------------------------------------------
-# @CCOSTAN
-# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Alarm Package - Arming helpers, sensors, and alerting.
-#-------------------------------------------
 ######################################################################
-##  Alarm sensors, customization, and automations for home security.
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Alarm Package - Arming helpers, sensors, and alerting.
+#  Alarm sensors, customization, and automations for home security.
+# -------------------------------------------------------------------
+# Notes: Turns HVAC off when doors/windows are open and restores cool mode after closure.
 ######################################################################
 homeassistant:
   customize_glob:
@@ -289,6 +291,10 @@ automation:
       - service: climate.turn_on
         data:
           entity_id: climate.downstairs
+      - service: climate.set_hvac_mode
+        data:
+          entity_id: climate.downstairs
+          hvac_mode: cool
 
 #-------------------------------------------#-------------------------------------------
   - alias: 'Alarm lights in Living room'
@@ -310,20 +316,6 @@ automation:
           entity_id: group.bed
           state: 'off'
 
-#    action:
-      # - choose:
-      #     - conditions:
-      #         - condition: state
-      #           entity_id: group.entry_points
-      #           state: on
-      #
-      #       sequence:
-      #         - service: script.siren
-      #           data:
-      #             duration: 60
-      # - service: light.turn_on
-      #   entity_id: all
-
     action:
       - choose:
           - conditions: >
@@ -335,20 +327,6 @@ automation:
         default:
           - service: scene.turn_on
             entity_id: scene.tv_time
-
-  # - service: >-
-  #     {% if states.group.entry_points.state == 'on' or states.group.garage_doors.state != 'closed' -%}
-  #       light.turn_on
-  #       entity_id:
-  #         - light.living_room_accents
-  #       color_name: 'red'
-  #     {% else %}
-  #       light.turn_on
-  #       entity_id:
-  #         - light.living_room_accents
-  #       color_name: 'gold'
-  #     {% endif %}
-
 
 #-------------------------------------------#---
   - alias: "Panel Door opened"
