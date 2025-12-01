@@ -161,11 +161,11 @@ automation:
         to: 'on'
     condition:
       - condition: state
-        entity_id: group.family
-        state: 'not_home'
-      - condition: state
         entity_id: input_boolean.guest_mode
         state: 'off'
+      - condition: template
+        value_template: >
+          {{ is_state('input_boolean.l10s_vacuum_on_demand', 'on') or is_state('group.family', 'not_home') }}
       - condition: template
         value_template: "{{ not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
     action:
