@@ -204,38 +204,38 @@ automation:
         for: '00:03:00'
     variables:
       room_map: {14:'kitchen',12:'dining-room',10:'living room',7:'master-bedroom',15:'foyer',9:'stacey-office',17:'formal-dining',13:'hallway',8:'justin-bedroom',6:'paige-bedroom',4:'master-bathroom',2:'office',1:'pool-bath',3:'kids-bathroom'}
-      queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | string | replace(' ', '') }}"
-      queue_list: "{{ queue_raw.split(',') if queue_raw | length > 0 else [] }}"
-      queue_ints: "{{ queue_list | map('int') | list }}"
-      next_room_id: "{{ queue_list[0] | int(0) if queue_list | length > 0 else 0 }}"
-      current_room_id: "{{ state_attr('sensor.l10s_vacuum_current_room', 'room_id') | int(0) }}"
-      next_room_name: "{{ room_map.get(next_room_id, '') }}"
-      current_room_name: "{{ states('sensor.l10s_vacuum_current_room') | lower | replace('-', ' ') }}"
-      name_match: "{{ next_room_name | lower | replace('-', ' ') }}"
-      matched_room_id: >
-        {% set target = 0 %}
-        {% if current_room_id in queue_ints %}
-          {% set target = current_room_id %}
+      queue_ints: >
+        {% set queue = states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') %}
+        {% if queue %}
+          {{ queue | regex_findall('[0-9]+') | map('int') | list }}
         {% else %}
-          {% for r in queue_ints %}
-            {% set nm = room_map.get(r, '') | lower | replace('-', ' ') %}
-            {% if nm != '' and nm in current_room_name %}
-              {% set target = r %}
+          []
+        {% endif %}
+      current_room_id: >
+        {% set trigger_room_id = trigger.to_state.attributes.room_id if trigger.to_state and trigger.to_state.attributes and 'room_id' in trigger.to_state.attributes else none %}
+        {% set sensor_room_id = state_attr('sensor.l10s_vacuum_current_room', 'room_id') %}
+        {{ (trigger_room_id if trigger_room_id is not none else sensor_room_id) | int(0) }}
+      matched_room_id: >
+        {% set q = queue_ints %}
+        {% set cur = current_room_id %}
+        {{ cur if cur > 0 and cur in q else 0 }}
+      remaining_rooms: >
+        {% set m = matched_room_id %}
+        {% set q = queue_ints %}
+        {% if m == 0 %}
+          {{ q | join(',') }}
+        {% else %}
+          {% set found = false %}
+          {% set rem = [] %}
+          {% for r in q %}
+            {% if not found and r == m %}
+              {% set found = true %}
+            {% else %}
+              {% set rem = rem + [r] %}
             {% endif %}
           {% endfor %}
+          {{ rem | join(',') }}
         {% endif %}
-        {{ target }}
-      remaining_rooms: >
-        {% set rem = [] %}
-        {% set removed = namespace(done=false) %}
-        {% for r in queue_ints %}
-          {% if not removed.done and r == matched_room_id %}
-            {% set removed.done = true %}
-          {% else %}
-            {% set rem = rem + [r] %}
-          {% endif %}
-        {% endfor %}
-        {{ rem | join(',') }}
     condition:
       - condition: template
         value_template: "{{ queue_ints | length > 0 }}"
@@ -247,12 +247,6 @@ automation:
     action:
       - condition: template
         value_template: >
-          {% set head = (states('input_text.l10s_vacuum_room_queue') | string | replace(' ', '')).split(',')[0] if states('input_text.l10s_vacuum_room_queue') | length > 0 else '' %}
-          {% set head_int = head | int(0) %}
-          {% set head_name = room_map.get(head_int, '') %}
-          {% set current_id = state_attr('sensor.l10s_vacuum_current_room', 'room_id') | int(0) %}
-          {% set current_name = states('sensor.l10s_vacuum_current_room') | lower | replace('-', ' ') %}
-          {% set name_match_check = head_name | lower | replace('-', ' ') %}
           {{ is_state('vacuum.l10s_vacuum', 'cleaning') and matched_room_id != 0 }}
       - service: input_text.set_value
         target:
