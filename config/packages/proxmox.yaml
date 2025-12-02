@@ -1,16 +1,18 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Proxmox Frigate Host - Nightly reboot schedule.
-#-------------------------------------------
+# -------------------------------------------------------------------
+# Proxmox Host Automations - reboots and update alerts
+#  Nightly Frigate host reboot plus update repair issues.
+# -------------------------------------------------------------------
+# Notes: Creates HA repair issues when proxmox nodes report updates.
 ######################################################################
-##  Automates nightly reboot of the Frigate server via Proxmox API.
-######################################################################
-# More info: https://www.vcloudinfo.com/click-here
 automation:
   - alias: "Nightly Frigate Server Reboot"
     id: nightly_frigate_reboot
     description: "Reboots the Frigate server every day at 5 AM"
+    mode: single
     trigger:
       - platform: time
         at: "05:00:00"
@@ -18,23 +20,39 @@ automation:
       - service: button.press
         target:
           entity_id: button.qemu_docker2_101_reboot
-    mode: single
 
-  - alias: "Notify Carlo of Proxmox Updates"
-    id: notify_carlo_proxmox_updates
-    description: "Sends a notification to Carlo when there are updates available for the Proxmox hosts."
+  - alias: "Proxmox Updates Repair Issues"
+    id: proxmox_updates_repair
+    description: "Track repair issues when Proxmox hosts report updates."
+    mode: restart
     trigger:
       - platform: state
-        entity_id: binary_sensor.node_proxmox02_updates_packages
-        to: 'on'
-      - platform: state
         entity_id: binary_sensor.node_proxmox1_updates_packages
-        to: 'on'
+      - platform: state
+        entity_id: binary_sensor.node_proxmox02_updates_packages
+    variables:
+      node_name: >
+        {% if 'proxmox1' in trigger.entity_id %}Proxmox1{% else %}Proxmox02{% endif %}
+      issue_id: >
+        {% if 'proxmox1' in trigger.entity_id %}
+          proxmox1_updates_available
+        {% else %}
+          proxmox02_updates_available
+        {% endif %}
     action:
-      - service: script.notify_engine
-        data:
-          who: carlo
-          title: "Proxmox Updates Available"
-          value1: "There are updates available for the Proxmox hosts. Please review and apply updates as needed."
-          group: "information"
-    mode: single
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'on' }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  severity: warning
+                  persistent: false
+                  title: "{{ node_name }} has updates available"
+                  description: >
+                    {{ trigger.entity_id }} is ON, indicating pending updates on {{ node_name }}.
+                    Apply updates in Proxmox, then reload this sensor to clear the issue.
+        default:
+          - service: repairs.remove
+            data:
+              issue_id: "{{ issue_id }}"
