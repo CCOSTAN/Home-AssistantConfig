@@ -9,11 +9,9 @@ homeassistant:
       friendly_name: 'Computer Screens'
       icon: mdi:monitor-multiple
       emulated_hue_
-      
-      
-
+   
 #-------------------------------------------
-switch:
+button:
   - platform: mqtt
     name: computer_screens
     state_topic: 'carlo-ultra/monitor/all/power/state'
