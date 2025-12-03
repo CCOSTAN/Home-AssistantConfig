@@ -1,23 +1,344 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Vacuum - Dreame/Neato cleaning schedules and alerts.
-#-------------------------------------------
+# -------------------------------------------------------------------
+# Dreame Vacuum Orchestration - Room queue, away/on-demand runs
+#  Weekday sweep, weekend mop, bathrooms last, notifications
+# -------------------------------------------------------------------
 ######################################################################
-##  Vacuum control and notifications (migrated from Neato to Dreame).
+
+## 1. Helpers
 ######################################################################
-# Neato D7: https://amzn.to/2kqnnqu | Dreame: https://amzn.to/4f7NpFP
-##############################################################################
-###  Configuration - Authentication via the DEVELOPER Portal
-### HACS - https://github.com/Tasshack/dreame-vacuum
-##############################################################################
+
+input_boolean:
+  l10s_vacuum_weekday_cycle_active:
+    name: L10s Weekday Cleaning Active
+    icon: mdi:robot-vacuum
+  l10s_vacuum_on_demand:
+    name: Dream Clean (On-Demand)
+    icon: mdi:rocket-launch
+
+input_datetime:
+  l10s_vacuum_last_weekday_cycle:
+    name: L10s Last Weekday Cleaning Cycle
+    has_date: true
+    has_time: true
+
+input_text:
+  l10s_vacuum_room_queue:
+    name: L10s Vacuum Room Queue
+    icon: mdi:format-list-bulleted
+    max: 255
+  l10s_vacuum_room_catalog:
+    name: L10s Vacuum Room Catalog
+    # Room order (id:name): 14 Kitchen, 12 Dining, 10 Living, 7 Master Bedroom, 15 Foyer, 9 Stacey Office,
+    # 17 Formal Dining, 13 Hallway, 8 Justin Bedroom, 6 Paige Bedroom, 4 Master Bathroom, 2 Office, 1 Pool Bath, 3 Kids Bathroom.
+    initial: "14,12,10,7,15,9,17,13,8,6,4,2,1,3"
+    icon: mdi:map
+    max: 255
+  l10s_vacuum_rooms_cleaned_today:
+    name: L10s Vacuum Rooms Cleaned Today
+    icon: mdi:clipboard-check-outline
+    max: 255
+
+## 2. Script: Start Next Room
+######################################################################
+
+script:
+
+  l10s_vacuum_start_next_room:
+    alias: 'Away Vacuum: Start Next Room'
+    mode: single
+    sequence:
+      - variables:
+          # Weekday runs are sweeping (vacuum only), weekend runs are mopping
+          cleaning_mode: "{{ 'mopping' if now().weekday() in [5, 6] else 'sweeping' }}"
+          catalog_raw: "{{ states('input_text.l10s_vacuum_room_catalog') | default('', true) | string | replace(' ', '') }}"
+          queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
+          last_reset_raw: "{{ states('input_datetime.l10s_vacuum_last_weekday_cycle') }}"
+          last_reset_date_str: >
+            {% set dt = as_datetime(last_reset_raw, default=None) %}
+            {{ dt.date().isoformat() if dt is not none else '' }}
+          catalog_ints: "{{ catalog_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
+          queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
+          # Seed if queue is empty AND last reset was not today
+          can_seed_today: "{{ last_reset_date_str == '' or last_reset_date_str != now().date().isoformat() }}"
+          will_seed: >
+            {% set empty_queue = queue_ints | length == 0 %}
+            {% set on_demand = is_state('input_boolean.l10s_vacuum_on_demand', 'on') %}
+            {{ (empty_queue or (on_demand and queue_ints | length <= 1)) and catalog_ints | length > 0 and (can_seed_today or on_demand) }}
+          seeded_queue_list: "{{ catalog_ints if will_seed else queue_ints }}"
+          valid_queue_list: "{{ seeded_queue_list }}"
+          # Define bathroom IDs for mopping separation
+          bath_ids: [1, 3, 4]
+          nonbath_list: "{{ valid_queue_list | reject('in', bath_ids) | list }}"
+          bath_list: "{{ valid_queue_list | select('in', bath_ids) | list }}"
+          # Prioritize non-bathrooms first, then bathrooms
+          segments_to_clean: >
+            {% if nonbath_list | length > 0 %}
+              {{ nonbath_list }}
+            {% elif bath_list | length > 0 %}
+              {{ bath_list }}
+            {% else %}
+              []
+            {% endif %}
+
+      # 1. Seed the queue if necessary
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ will_seed }}"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.l10s_vacuum_room_queue
+                data:
+                  value: "{{ catalog_raw }}"
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.l10s_vacuum_last_weekday_cycle
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+        default: []
+
+      # 2. Check if there is anything to clean and stop if not
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ segments_to_clean | length == 0 }}"
+            sequence:
+              - stop: 'No rooms left to clean today.'
+        default: []
+
+      # 3. Start cleaning
+      - service: select.select_option
+        target:
+          entity_id: select.l10s_vacuum_cleaning_mode
+        data:
+          option: "{{ cleaning_mode }}"
+      - service: vacuum.set_fan_speed
+        target:
+          entity_id: vacuum.l10s_vacuum
+        data:
+          fan_speed: Standard
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.l10s_vacuum_weekday_cycle_active
+      - service: dreame_vacuum.vacuum_clean_segment
+        target:
+          entity_id: vacuum.l10s_vacuum
+        data:
+          # Clean the non-bathrooms if any, otherwise clean the bathrooms
+          segments: "{{ segments_to_clean }}"
+
+
+## 3. Automations
+######################################################################
 
 automation:
 
-##############################################################################
-###  Automations - Help Vacuum!
-### https://www.vcloudinfo.com/2020/05/home-assistant-neato-vacuum-automation.html
-##############################################################################
+  - alias: 'Away Vacuum: Reset Queue (Mon/Sat)'
+    id: 93a6e7dc-9c32-4d53-9f7c-651cd60f4b84
+    trigger:
+      - platform: time
+        at: '08:55:00'
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - sat
+    action:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.l10s_vacuum_room_queue
+        data:
+          value: "{{ states('input_text.l10s_vacuum_room_catalog') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.l10s_vacuum_rooms_cleaned_today
+        data:
+          value: ""
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.l10s_vacuum_weekday_cycle_active
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.l10s_vacuum_last_weekday_cycle
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.l10s_vacuum_on_demand
+
+  - alias: 'Away Vacuum: Start or Resume When we leave or On-Demand'
+    id: 7f7e0a3c-6452-4f6b-8464-c6c25770a148
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: 'not_home'
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_on_demand
+        to: 'on'
+    condition:
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+      - condition: template
+        value_template: >
+          {{ is_state('input_boolean.l10s_vacuum_on_demand', 'on') or is_state('group.family', 'not_home') }}
+      - condition: template
+        value_template: "{{ not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
+    action:
+      - service: script.l10s_vacuum_start_next_room
+
+  - alias: 'Away Vacuum: Dock When Family Returns'
+    id: 1ef172f2-4b30-4e5b-953d-d4d1ca8701ad
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: 'home'
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_on_demand
+        to: 'off'
+    condition:
+      - condition: state
+        entity_id: input_boolean.l10s_vacuum_weekday_cycle_active
+        state: 'on'
+      - condition: template
+        value_template: >
+          {{ is_state('vacuum.l10s_vacuum', 'cleaning') or is_state('vacuum.l10s_vacuum', 'returning') or is_state('vacuum.l10s_vacuum', 'paused') }}
+    action:
+      - service: vacuum.pause
+        target:
+          entity_id: vacuum.l10s_vacuum
+      - delay: 00:00:10
+      - service: vacuum.return_to_base
+        target:
+          entity_id: vacuum.l10s_vacuum
+
+  - alias: 'Away Vacuum: Confirm Room Cleaned'
+    id: c581c570-55b0-4acd-8b5d-53cfb486cc2a
+    trigger:
+      - platform: state
+        entity_id: sensor.l10s_vacuum_current_room
+        for: '00:03:00'
+      - platform: state
+        entity_id: vacuum.l10s_vacuum
+        to: 'cleaning'
+        for: '00:03:00'
+    variables:
+      room_map: {14:'kitchen',12:'dining-room',10:'living room',7:'master-bedroom',15:'foyer',9:'stacey-office',17:'formal-dining',13:'hallway',8:'justin-bedroom',6:'paige-bedroom',4:'master-bathroom',2:'office',1:'pool-bath',3:'kids-bathroom'}
+      catalog_raw: "{{ states('input_text.l10s_vacuum_room_catalog') | default('', true) | string | replace(' ', '') }}"
+      catalog_ints: "{{ catalog_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
+      queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
+      queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list | default([], true) }}"
+      working_queue: "{{ queue_ints if queue_ints | length > 0 else catalog_ints }}"
+      current_room_id: "{{ trigger.to_state.attributes.room_id | default(state_attr('sensor.l10s_vacuum_current_room', 'room_id'), true) | int(0) }}"
+      matched_room_id: "{{ current_room_id if current_room_id > 0 and current_room_id in (working_queue | default([], true)) else 0 }}"
+      remaining_rooms: "{{ working_queue | reject('equalto', matched_room_id) | list | join(',') }}"
+      remaining_value: >
+        {% set rem = remaining_rooms | string %}
+        {% if rem | length == 0 and working_queue | length > 1 %}
+          {{ working_queue | join(',') }}
+        {% else %}
+          {{ rem }}
+        {% endif %}
+      remaining_value_str: >
+        {% set rv = remaining_value %}
+        {% if rv is string %}
+          {{ rv }}
+        {% elif rv is iterable %}
+          {{ rv | map('string') | join(',') }}
+        {% else %}
+          {{ rv | string }}
+        {% endif %}
+
+    condition:
+      # Only run if there's actually a queue and a room was successfully matched to the start of the queue
+      - condition: template
+        value_template: "{{ working_queue | length > 0 }}"
+      - condition: template
+        value_template: "{{ matched_room_id != 0 }}"
+      - condition: template
+        value_template: "{{ matched_room_id != 0 }}"
+
+    action:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.l10s_vacuum_room_queue
+        data:
+          value: "{{ remaining_value_str }}"
+      - variables:
+          cleaned_raw: "{{ states('input_text.l10s_vacuum_rooms_cleaned_today') | default('', true) | string }}"
+          cleaned_parts: "{{ cleaned_raw | regex_findall('[^,]+') | map('trim') | reject('equalto','') | list }}"
+          room_name: "{{ room_map.get(matched_room_id, states('sensor.l10s_vacuum_current_room')) }}"
+          updated_cleaned: >
+            {% set parts = cleaned_parts %}
+            {% if room_name not in parts %}
+              {{ (parts + [room_name]) | join(', ') }}
+            {% else %}
+              {{ parts | join(', ') }}
+            {% endif %}
+          remaining_count: "{{ remaining_value_str | regex_findall('[^,]+') | length if remaining_value_str | length > 0 else 0 }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.l10s_vacuum_rooms_cleaned_today
+        data:
+          value: "{{ updated_cleaned }}"
+      - service: script.notify_engine
+        data:
+          title: 'Vacuum Room Cleaned'
+          value1: "{{ room_name }} is clean."
+          value2: "Remaining: {{ remaining_count }}."
+          ios_category: 'camera'
+          camera_entity: 'camera.l10s_vacuum_map'
+          content_type: 'jpeg'
+          who: 'carlo'
+          group: 'information'
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ remaining_rooms | length > 0 }}"
+            sequence:
+              - service: script.l10s_vacuum_start_next_room
+          - conditions:
+              - condition: template
+                value_template: "{{ remaining_rooms | length == 0 }}"
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.l10s_vacuum_weekday_cycle_active
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.l10s_vacuum_last_weekday_cycle
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+
+  - alias: 'Away Vacuum: Cycle Complete'
+    id: 8fa7779a-957b-49a3-84e7-36ca93c2e0d2
+    trigger:
+      - platform: state
+        entity_id: sensor.l10s_vacuum_task_status
+        to: 'completed'
+      - platform: state
+        entity_id: vacuum.l10s_vacuum
+        to: 'docked'
+        for: 00:05:00
+    condition:
+      - condition: template
+        value_template: "{{ is_state('sensor.l10s_vacuum_task_status', 'completed') }}"
+      - condition: template
+        value_template: "{{ (states('input_text.l10s_vacuum_room_queue') | replace(' ', '')) | length == 0 }}"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.l10s_vacuum_weekday_cycle_active
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.l10s_vacuum_last_weekday_cycle
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
 
   - alias: 'Vacuum Sensor Cleaning Silencer'
     id: 6548de52-a4a4-4df2-9d66-9c2c15577a7f
@@ -25,17 +346,14 @@ automation:
       - platform: numeric_state
         entity_id: sensor.l10s_vacuum_sensor_dirty_left
         below: 10
-        
     condition:
       - condition: state
         entity_id: sensor.l10s_vacuum_task_status
         state: 'completed'
-        
     action:
       - service: button.press
         target:
           entity_id: button.l10s_vacuum_reset_sensor
-        
 
   - alias: 'Help Vacuum'
     id: 6548de52-a4a4-4df2-9d66-9c2c15577a7e
@@ -44,13 +362,10 @@ automation:
         entity_id: sensor.l10s_vacuum_error
       - platform: event
         event_type: event_did_someone_help_vacuum_loop
-     
     condition:
       - condition: template
         value_template: "{{ states('sensor.l10s_vacuum_error') not in ['no_error', 'unavailable'] }}"
-
     action:
-
       - service: script.notify_engine
         data:
           title: 'Help vacuum'
@@ -60,60 +375,18 @@ automation:
           camera_entity: 'camera.l10s_vacuum_map'
           content_type: 'jpeg'
           group: 'information'
-
       - wait_template: "{{ is_state('group.bed', 'off') }}"
       - wait_template: "{{ is_state('group.family', 'home') }}"
       - delay: 00:03:00
-      
       - service: vacuum.locate
         entity_id: vacuum.l10s_vacuum
-
       - service: script.speech_engine
         data:
           value1: > 
-             {{ "Vacuum error: " ~ states('sensor.l10s_vacuum_error') ~ " [ask Residents to help]" }}
-             Currently in {{states('sensor.l10s_vacuum_current_room')}}"
-
-      - delay: 00:01:00            
+            {{ "Vacuum error: " ~ states('sensor.l10s_vacuum_error') ~ " [ask Residents to help]" }}
+            Currently in {{states('sensor.l10s_vacuum_current_room')}}
+      - delay: 00:01:00          
       - service: vacuum.locate
         entity_id: vacuum.l10s_vacuum
-
       - delay: 00:20:00
       - event: event_did_someone_help_vacuum_loop
-
-  # https://www.vcloudinfo.com/click-here - For more info or contact.
-
-  - alias: 'Set Vacuum Mode: Weekdays Sweeping, Weekends Sweeping and Mopping'
-    id: l10s_vacuum_mode_schedule
-    trigger:
-      - platform: time
-        at: '08:00:00'
-    condition: []
-    action:
-      - choose:
-          - conditions:
-              - condition: time
-                weekday:
-                  - mon
-                  - tue
-                  - wed
-                  - thu
-                  - fri
-            sequence:
-              - service: select.select_option
-                target:
-                  entity_id: select.l10s_vacuum_cleaning_mode
-                data:
-                  option: sweeping
-          - conditions:
-              - condition: time
-                weekday:
-                  - sat
-                  - sun
-            sequence:
-              - service: select.select_option
-                target:
-                  entity_id: select.l10s_vacuum_cleaning_mode
-                data:
-                  option: sweeping_and_mopping
-        default: []

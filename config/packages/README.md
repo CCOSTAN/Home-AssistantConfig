@@ -59,6 +59,11 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 - Shared script keeps targets consistent: away → eco, home + >92°F → 78°F, home default → 80°F. Grid-down conditions pause non-essential cool-downs.
 ![Nest Climate Control](../www/custom_ui/floorplan/images/branding/Nest_Climate_Control.png)
 
+### Dreame vacuum automations
+- Logic lives in [vacuum.yaml](vacuum.yaml): weekday sweeping/weekend mopping, room-queue segment cleaning that pauses/docks on arrival, resumes after charging, and per-room notifications/briefing summaries.
+- Uses the Dreame HACS integration with map-based segments and daily resets to cover the whole house without repeating rooms.
+![Dreame Automations](../www/custom_ui/floorplan/images/branding/Dreame%20Automations.png)
+
 ### Blog & video deep dives
 When a package has a dedicated blog post or video, I link it right inside the YAML comments. Here are the same references for quick browsing:
 

@@ -10,6 +10,8 @@
 ######################################################################
 #db_url: sqlite:///data/home-assistant_v2.db
 purge_keep_days: 30
+auto_purge: true
+commit_interval: 30
 exclude:
   domains:
     - camera
@@ -45,8 +47,12 @@ exclude:
     - sensor.*uptime*
     - sensor.sun_next_*
     - sensor.vpn_client_*
+    - sensor.*_wifi_signal_strength
     - switch.*_do_not_disturb_*
     - switch.*_repeat_switch
+    - input_text.l10s_vacuum_*
+    - input_datetime.l10s_vacuum_*
+    - input_boolean.l10s_vacuum_*
 
   entities:
     - automation.update_garage_get_status
@@ -57,6 +63,8 @@ exclude:
     - number.alarm_panel_1_screen_brightness
     - script.amp_settings
     - script.speech_processing
+    - button.l10s_vacuum_backup_map_1
+    - binary_sensor.vcloudinfo_com
     - sensor.bear_stone
     - sensor.carlo_ap
     - sensor.carlo_fast
