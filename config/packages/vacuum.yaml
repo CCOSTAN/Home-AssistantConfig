@@ -54,19 +54,26 @@ script:
       - variables:
           # Weekday runs are sweeping (vacuum only), weekend runs are mopping
           cleaning_mode: "{{ 'mopping' if now().weekday() in [5, 6] else 'sweeping' }}"
-          catalog_raw: "{{ states('input_text.l10s_vacuum_room_catalog') | string | replace(' ', '') }}"
-          queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | string | replace(' ', '') }}"
-          last_reset: "{{ as_datetime(states('input_datetime.l10s_vacuum_last_weekday_cycle'), default=None) }}"
+          catalog_raw: "{{ states('input_text.l10s_vacuum_room_catalog') | default('', true) | string | replace(' ', '') }}"
+          queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
+          last_reset_raw: "{{ states('input_datetime.l10s_vacuum_last_weekday_cycle') }}"
+          last_reset_date_str: >
+            {% set dt = as_datetime(last_reset_raw, default=None) %}
+            {{ dt.date().isoformat() if dt is not none else '' }}
+          catalog_ints: "{{ catalog_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
+          queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
           # Seed if queue is empty AND last reset was not today
-          can_seed_today: "{{ last_reset is none or last_reset.date() != now().date() }}"
-          will_seed: "{{ queue_raw | length == 0 and can_seed_today and catalog_raw | length > 0 }}"
-          seeded_queue_list: >
-            {% set q = catalog_raw.split(',') if will_seed else queue_raw.split(',') %}
-            {{ q | map('int') | list }}
+          can_seed_today: "{{ last_reset_date_str == '' or last_reset_date_str != now().date().isoformat() }}"
+          will_seed: >
+            {% set empty_queue = queue_ints | length == 0 %}
+            {% set on_demand = is_state('input_boolean.l10s_vacuum_on_demand', 'on') %}
+            {{ (empty_queue or (on_demand and queue_ints | length <= 1)) and catalog_ints | length > 0 and (can_seed_today or on_demand) }}
+          seeded_queue_list: "{{ catalog_ints if will_seed else queue_ints }}"
+          valid_queue_list: "{{ seeded_queue_list }}"
           # Define bathroom IDs for mopping separation
           bath_ids: [1, 3, 4]
-          nonbath_list: "{{ seeded_queue_list | reject('in', bath_ids) | list }}"
-          bath_list: "{{ seeded_queue_list | select('in', bath_ids) | list }}"
+          nonbath_list: "{{ valid_queue_list | reject('in', bath_ids) | list }}"
+          bath_list: "{{ valid_queue_list | select('in', bath_ids) | list }}"
           # Prioritize non-bathrooms first, then bathrooms
           segments_to_clean: >
             {% if nonbath_list | length > 0 %}
@@ -216,55 +223,64 @@ automation:
       - platform: state
         entity_id: sensor.l10s_vacuum_current_room
         for: '00:03:00'
+      - platform: state
+        entity_id: vacuum.l10s_vacuum
+        to: 'cleaning'
+        for: '00:03:00'
     variables:
       room_map: {14:'kitchen',12:'dining-room',10:'living room',7:'master-bedroom',15:'foyer',9:'stacey-office',17:'formal-dining',13:'hallway',8:'justin-bedroom',6:'paige-bedroom',4:'master-bathroom',2:'office',1:'pool-bath',3:'kids-bathroom'}
+      catalog_raw: "{{ states('input_text.l10s_vacuum_room_catalog') | default('', true) | string | replace(' ', '') }}"
+      catalog_ints: "{{ catalog_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
       queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
-      queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | list | default([], true) }}"
+      queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list | default([], true) }}"
+      working_queue: "{{ queue_ints if queue_ints | length > 0 else catalog_ints }}"
       current_room_id: "{{ trigger.to_state.attributes.room_id | default(state_attr('sensor.l10s_vacuum_current_room', 'room_id'), true) | int(0) }}"
-      matched_room_id: "{{ current_room_id if current_room_id > 0 and current_room_id in (queue_ints | default([], true)) else 0 }}"
-      remaining_rooms: >
-        {% if matched_room_id == 0 %}
-          {{ queue_ints | join(',') }}
+      matched_room_id: "{{ current_room_id if current_room_id > 0 and current_room_id in (working_queue | default([], true)) else 0 }}"
+      remaining_rooms: "{{ working_queue | reject('equalto', matched_room_id) | list | join(',') }}"
+      remaining_value: >
+        {% set rem = remaining_rooms | string %}
+        {% if rem | length == 0 and working_queue | length > 1 %}
+          {{ working_queue | join(',') }}
         {% else %}
-          {% set rem = [] %}
-          {% set removed = namespace(done=false) %}
-          {% for r in queue_ints %}
-            {% if not removed.done and r == matched_room_id %}
-              {% set removed.done = true %}
-            {% else %}
-              {% set rem = rem + [r] %}
-            {% endif %}
-          {% endfor %}
-          {{ rem | join(',') }}
+          {{ rem }}
+        {% endif %}
+      remaining_value_str: >
+        {% set rv = remaining_value %}
+        {% if rv is string %}
+          {{ rv }}
+        {% elif rv is iterable %}
+          {{ rv | map('string') | join(',') }}
+        {% else %}
+          {{ rv | string }}
         {% endif %}
 
     condition:
       # Only run if there's actually a queue and a room was successfully matched to the start of the queue
       - condition: template
-        value_template: "{{ queue_ints | length > 0 }}"
+        value_template: "{{ working_queue | length > 0 }}"
       - condition: template
         value_template: "{{ matched_room_id != 0 }}"
-      - condition: state
-        entity_id: vacuum.l10s_vacuum
-        state: 'cleaning'
+      - condition: template
+        value_template: "{{ matched_room_id != 0 }}"
 
     action:
       - service: input_text.set_value
         target:
           entity_id: input_text.l10s_vacuum_room_queue
         data:
-          value: "{{ remaining_rooms }}"
+          value: "{{ remaining_value_str }}"
       - variables:
-          cleaned_raw: "{{ states('input_text.l10s_vacuum_rooms_cleaned_today') }}"
+          cleaned_raw: "{{ states('input_text.l10s_vacuum_rooms_cleaned_today') | default('', true) | string }}"
+          cleaned_parts: "{{ cleaned_raw | regex_findall('[^,]+') | map('trim') | reject('equalto','') | list }}"
           room_name: "{{ room_map.get(matched_room_id, states('sensor.l10s_vacuum_current_room')) }}"
           updated_cleaned: >
-            {% set parts = cleaned_raw.split(',') if cleaned_raw | length > 0 else [] %}
+            {% set parts = cleaned_parts %}
             {% if room_name not in parts %}
               {{ (parts + [room_name]) | join(', ') }}
             {% else %}
-              {{ cleaned_raw }}
+              {{ parts | join(', ') }}
             {% endif %}
-          remaining_count: "{{ remaining_rooms.split(',') | length if remaining_rooms | length > 0 else 0 }}"
+          remaining_count: "{{ remaining_value_str | regex_findall('[^,]+') | length if remaining_value_str | length > 0 else 0 }}"
       - service: input_text.set_value
         target:
           entity_id: input_text.l10s_vacuum_rooms_cleaned_today
@@ -272,8 +288,8 @@ automation:
           value: "{{ updated_cleaned }}"
       - service: script.notify_engine
         data:
-          title: 'Vacuum room done'
-          value1: "{{ room_name }} cleaned."
+          title: 'Vacuum Room Cleaned'
+          value1: "{{ room_name }} is clean."
           value2: "Remaining: {{ remaining_count }}."
           ios_category: 'camera'
           camera_entity: 'camera.l10s_vacuum_map'
@@ -324,9 +340,6 @@ automation:
         data:
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
 
-  - alias: 'Away Vacuum: Start Bathrooms When Pending'
-    id: 6b8d7d0e-fc21-4a2f-bd9e-4c51f6b9c2c3
-
   - alias: 'Vacuum Sensor Cleaning Silencer'
     id: 6548de52-a4a4-4df2-9d66-9c2c15577a7f
     trigger:
@@ -371,7 +384,7 @@ automation:
         data:
           value1: > 
             {{ "Vacuum error: " ~ states('sensor.l10s_vacuum_error') ~ " [ask Residents to help]" }}
-            Currently in {{states('sensor.l10s_vacuum_current_room')}}"
+            Currently in {{states('sensor.l10s_vacuum_current_room')}}
       - delay: 00:01:00          
       - service: vacuum.locate
         entity_id: vacuum.l10s_vacuum

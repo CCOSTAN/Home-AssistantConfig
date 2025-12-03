@@ -7,6 +7,9 @@
 #-------------------------------------------
 
 exclude:
+  domains:
+    - persistent_notification
+    - update
   entity_globs:
     - sensor.*_location
     - sensor.*_place
@@ -16,6 +19,16 @@ exclude:
     - input_text.l10s_vacuum_*
     - input_datetime.l10s_vacuum_*
     - input_boolean.l10s_vacuum_*
+    - sensor.*_battery
+    - sensor.*_battery_state
+    - sensor.*_uptime*
+    - sensor.*_last_update*
+    - sensor.*_since
+    - sensor.*_last_boot
+    - sensor.sun_next_*
+    - sensor.*_activity
+    - sensor.*_bssid
+    - sensor.*_wifi_signal_strength
   entities:
     - automation.cuckoo_clock
     - automation.detect_lights_and_adjust_the_brightness_when_turned_on_based_on_time
@@ -44,3 +57,4 @@ exclude:
     - sensor.small_garage_wifi_signal_strength
     - sensor.time
     - sensor.upstairs_ac_cooling_numeric
+    - sensor.vcloudinfo_com
