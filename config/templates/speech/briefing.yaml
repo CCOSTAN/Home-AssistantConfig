@@ -211,21 +211,25 @@
   {% endmacro %}
 
   {# friendly duration/location helper #}
-  {% macro friendly_location(entity_id, name) %}
-    {% set entity = states[entity_id] %}
-    {% if not entity %}
+  {% macro friendly_location(person_id, place_sensor_id, name) %}
+    {% set person = states[person_id] %}
+    {% if not person %}
       {{ name }}: Away
     {% else %}
-      {% set state = states(entity_id) %}
-      {% if state == 'unknown' %}
-        {{ name }}: Away
+      {% set person_state = states(person_id) %}
+      {% set place_state = states(place_sensor_id) if place_sensor_id in states else 'unknown' %}
+      {% set location_label = place_state if place_state not in ['unknown','unavailable','','none'] else person_state %}
+      {% set location_label = 'Away' if location_label in ['unknown','unavailable','','none'] else location_label %}
+      {% set last_changed = as_timestamp(person.last_changed) %}
+      {% set seconds = (as_timestamp(now()) - last_changed) | int(0) if last_changed else 0 %}
+      {% set hours = (seconds // 3600) | int %}
+      {% set minutes = ((seconds % 3600) // 60) | int %}
+      {% set duration = (hours ~ ' hours') if hours >= 1 else (minutes ~ ' minutes') %}
+      {% if person_state == 'driving' %}
+        {% set driving_label = location_label if location_label != 'Away' else '' %}
+        {{ name }}: Driving{% if driving_label %} near {{ driving_label }}{% endif %}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% else %}
-        {% set last_changed = as_timestamp(entity.last_changed) %}
-        {% set seconds = (as_timestamp(now()) - last_changed) | int(0) if last_changed else 0 %}
-        {% set hours = (seconds // 3600) | int %}
-        {% set minutes = ((seconds % 3600) // 60) | int %}
-        {% set duration = (hours ~ ' hours') if hours >= 1 else (minutes ~ ' minutes') %}
-        {{ name }}: {{ state }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
+        {{ name }}: {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% endif %}
     {% endif %}
   {% endmacro %}
@@ -255,10 +259,10 @@
     [Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}]
 
     [Resident: Location:
-    - {{ friendly_location('sensor.carlo_place', 'Carlo') }}
-    - {{ friendly_location('sensor.stacey_place', 'Stacey') }}
-    - {{ friendly_location('sensor.justin_place', 'Justin') }}
-    - {{ friendly_location('sensor.paige_place', 'Paige') }}
+    - {{ friendly_location('person.carlo', 'sensor.carlo_place', 'Carlo') }}
+    - {{ friendly_location('person.stacey', 'sensor.stacey_place', 'Stacey') }}
+    - {{ friendly_location('person.justin', 'sensor.justin_place', 'Justin') }}
+    - {{ friendly_location('person.paige', 'sensor.paige_place', 'Paige') }}
       {% if range(1, 100) | random <= 25 %}
       Cat Molly: Always home.
       {% endif %}
