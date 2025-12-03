@@ -1,19 +1,13 @@
-#-------------------------------------------
-# Speech Briefing Macros
-# Description: Contains various macros for generating speech briefings
-#
-# Features:
-# - Weather reports (inside and outside)
-# - Responsibility reminders
-# - Dark outside notification
-# - Holiday and countdown announcements
-# - Air quality reports
-# - Inspirational quotes and facts
-#
-# Original Repo: https://github.com/CCOSTAN/Home-AssistantConfig
-# Blog Post: https://www.vcloudinfo.com/category/home-assistant
-# Follow me on https://www.vcloudinfo.com/click-here
-#-------------------------------------------
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Speech Briefing Macros - TTS prompt helpers for daily briefings
+#  Generates macro prompts for weather, reminders, and AI-driven speech routines.
+# -------------------------------------------------------------------
+#  Weather, responsibilities, holidays, air quality, and fact prompts parsed by speech_processing/speech_engine.
+######################################################################
 
 
 >-
@@ -32,37 +26,53 @@
   {%- endmacro -%}
 
   {%- macro inside_weather() -%}
-     Inside the house, it is {{ states.climate.downstairs.attributes['current_temperature'] }} degrees with {{ states('sensor.downstairs_thermostat_humidity') }} percent humidity. [Only mention humidity if it seems unusually high]
+    {% set temp = state_attr('climate.downstairs', 'current_temperature') | default('unknown') %}
+    {% set humidity = states('sensor.downstairs_thermostat_humidity') %}
+    Inside the house, it is {{ temp }} degrees{% if humidity not in ['unknown','unavailable','none'] %} with {{ humidity }} percent humidity{% endif %}. [Only mention humidity if it seems unusually high]
   {%- endmacro -%}
 
   {% macro outside_weather() %}
     [Here is the current weather outside]
-    Air Quality: {{state_attr('sensor.bear_stone_common_air_quality_index', 'description')}}
-    {%- for entity in states.sensor if 'pirateweather' in entity.entity_id %}
-        {%- set state = entity.state %}
-        {%- set unit = entity.attributes.unit_of_measurement if 'unit_of_measurement' in entity.attributes else '' %}
-        {%- set friendly_name = ' '.join(entity.attributes.friendly_name.split(' ')[1:]) %}
-        {%- if state not in ['0', '0.0', 'none'] and 'UV Index' not in friendly_name %}
-        {%- if 'Temperature' in friendly_name -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Minutely' in friendly_name -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Precip' in friendly_name -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Wind Speed' in friendly_name and state | float(0) > 15 -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Cloud Coverage' in friendly_name and state | float(0) > 75 -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Humidity' in friendly_name and (state | float(0) < 50 or state | float(0) > 85) -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Nearest Storm Distance' in friendly_name and state | float(0) <= 10 -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- endif -%}
-        {%- endif %}
-    {% endfor -%}
+    {% set aq_description = state_attr('sensor.bear_stone_common_air_quality_index', 'description') | default('') %}
+    {% set aq_index = states('sensor.bear_stone_common_air_quality_index') | int(0) %}
+    {% if aq_description %}
+    Air Quality: {{ aq_description }}
+    {% endif %}
+    {% if aq_index >= 150 %}
+        [Air quality is unhealthy; limit outdoor activity]
+    {% endif %}
+    {% set pirateweather_metrics = states.sensor
+      | selectattr('entity_id','search','pirateweather')
+      | rejectattr('state','in',['0','0.0','none','unknown','unavailable'])
+      | list %}
+    {% for entity in pirateweather_metrics %}
+        {% set value = entity.state %}
+        {% set unit = entity.attributes.unit_of_measurement | default('') %}
+        {% set base_name = entity.attributes.friendly_name | default(entity.entity_id) %}
+        {% set friendly_name = ' '.join(base_name.split(' ')[1:]) or base_name %}
+        {% set numeric = value | float(0) %}
+        {% set include = (
+          'Temperature' in friendly_name
+          or 'Minutely' in friendly_name
+          or 'Precip' in friendly_name
+          or ('Wind Speed' in friendly_name and numeric > 15)
+          or ('Cloud Coverage' in friendly_name and numeric > 75)
+          or ('Humidity' in friendly_name and (numeric < 50 or numeric > 85))
+          or ('Nearest Storm Distance' in friendly_name and numeric <= 10)
+        ) %}
+        {% if include and 'UV Index' not in friendly_name %}
+            {{ friendly_name }}: {{ value }} {{ unit }}
+        {% endif %}
+    {%- endfor %}
+
+    {% set uv_index = states('sensor.pirateweather_uv_index') | float(0) %}
+    {% if uv_index >= 6 %}
+        UV index is {{ uv_index }}.
+        [Give a helpful suggestion based on the current UV index or weather conditions]
+    {% endif %}
 
       {%- if states('sensor.nws_alerts') | int(0) > 0 -%}
-        {%- set alert_description = state_attr('sensor.nws_alerts', 'Alerts') %}
+        {%- set alert_description = state_attr('sensor.nws_alerts', 'Alerts') | default('') %}
         [Summarize the included weather alert and give overall details on any storms relevant to the residents of the home. Use the Situation Overview Section to best understand what is going on - Be sure to highlight any impacts to Seminole County or Tallahassee] 
         {{ alert_description }}
         [END of Weather Alert]
@@ -162,26 +172,7 @@
   {%- endmacro -%}
 
   {%- macro uv() -%}
-  {% if states.sensor.pirateweather_uv_index.state|int(9999)>= 6 %}
-        UV index is {{ states.sensor.pirateweather_uv_index.state }}. 
-    {%- for entity in states.sensor if 'pirateweather' in entity.entity_id %}
-        {%- set state = entity.state %}
-        {%- set unit = entity.attributes.unit_of_measurement if 'unit_of_measurement' in entity.attributes else '' %}
-        {%- set friendly_name = ' '.join(entity.attributes.friendly_name.split(' ')[1:]) %}
-        {%- if state not in ['0', '0.0', 'none'] and 'UV Index' not in friendly_name %}
-        {%- if 'Temperature' in friendly_name -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Minutely' in friendly_name -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Cloud Coverage' in friendly_name and state | float > 75 -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- elif 'Humidity' in friendly_name and (state | float < 50 or state | float > 85) -%}
-            {{ friendly_name }}: {{ state }} {{ unit }}
-        {%- endif -%}
-        {%- endif %}
-    {% endfor -%}
-      [Give a helpful suggestion based on the current UV index or weather conditions]
-  {% endif %}
+  {# UV details are now included in outside_weather with a threshold gate #}
   {%- endmacro -%}
 
   {%- macro holiday() -%}
@@ -215,13 +206,28 @@
   {% endif %}
   {%- endmacro -%}
 
-  {% macro air_quality() %}
-    {{states('sensor.bear_stone_common_air_quality_index')}}
-    {{state_attr('sensor.bear_stone_common_air_quality_index', 'description')}}
-  {% endmacro %}
-
   {% macro fact_of_the_day() %}
         [incorporate into the message a relevant fact about something that happened in the past on this day]
+  {% endmacro %}
+
+  {# friendly duration/location helper #}
+  {% macro friendly_location(entity_id, name) %}
+    {% set entity = states[entity_id] %}
+    {% if not entity %}
+      {{ name }}: Away
+    {% else %}
+      {% set state = states(entity_id) %}
+      {% if state == 'unknown' %}
+        {{ name }}: Away
+      {% else %}
+        {% set last_changed = as_timestamp(entity.last_changed) %}
+        {% set seconds = (as_timestamp(now()) - last_changed) | int(0) if last_changed else 0 %}
+        {% set hours = (seconds // 3600) | int %}
+        {% set minutes = ((seconds % 3600) // 60) | int %}
+        {% set duration = (hours ~ ' hours') if hours >= 1 else (minutes ~ ' minutes') %}
+        {{ name }}: {{ state }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
+      {% endif %}
+    {% endif %}
   {% endmacro %}
 
   {# a macro that removes all newline characters, empty spaces, and returns formatted text and replaces underscores with spaces  #}
@@ -249,30 +255,10 @@
     [Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}]
 
     [Resident: Location:
-    - Carlo: 
-      {%- if states('sensor.carlo_place') != 'unknown' %}
-        {{ states('sensor.carlo_place') }}
-      {% else -%}
-        Away
-      {% endif -%}
-    - Stacey:   
-      {%- if states('sensor.stacey_place') != 'unknown' %}
-        {{ states('sensor.stacey_place') }}
-      {% else -%}
-        Away
-      {% endif -%}
-    - Justin: 
-      {%- if states('sensor.justin_place') != 'unknown' %}
-        {{ states('sensor.justin_place') }}
-      {% else -%}
-        Away
-      {% endif -%}
-    - Paige: 
-      {%- if states('sensor.paige_place') != 'unknown' %}
-        {{ states('sensor.paige_place') }}
-      {% else -%}
-        Away
-      {% endif -%}
+    - {{ friendly_location('sensor.carlo_place', 'Carlo') }}
+    - {{ friendly_location('sensor.stacey_place', 'Stacey') }}
+    - {{ friendly_location('sensor.justin_place', 'Justin') }}
+    - {{ friendly_location('sensor.paige_place', 'Paige') }}
       {% if range(1, 100) | random <= 25 %}
       Cat Molly: Always home.
       {% endif %}
@@ -298,13 +284,7 @@
     {{ inside_weather() }}
     {% endif %}
 
-    {% if call_outside_weather == 1 and is_state('sun.sun', 'above_horizon') %}
     {{ outside_weather() }}
-    {% endif %}
-
-    {% if (states('sensor.bear_stone_common_air_quality_index')|int(0)) > 50 %}
-    {{ air_quality() }}
-    {% endif %}
 
     {% if (states('sensor.blitzortung_lightning_counter')|int(0)) > 0 %}
     {{ lightning() }}
@@ -353,9 +333,9 @@
     {% endif %}
 
     {# call a Random fact about the house or inspiration quote #}
-    {{ ([moon, uv, holiday, days_until, outside_weather, outside_weather, fact_of_the_day]|random)() }}
+    {{ ([moon, holiday, days_until, fact_of_the_day]|random)() }}
     ]
-    [Previous broadcast: "{{ state_attr('sensor.openai_response', 'response') }}" ]
+    [Previous broadcast for context: "{{ state_attr('sensor.openai_response', 'response') }}" ]
 
   {%- endmacro -%}
   {{- cleanup(mother_of_all_macros()) -}}
