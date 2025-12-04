@@ -1,84 +1,103 @@
-#-------------------------------------------
-# HomeKit Configuration for Home Assistant
-#
-# Description: This file controls the HomeKit integration settings,
-# defining which entities are exposed to Apple HomeKit.
-#
-# Follow me on https://www.vcloudinfo.com/click-here
-# Original Repository: https://github.com/CCOSTAN/Home-AssistantConfig
-##-------------------------------------------
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# HomeKit Configuration - Multi-bridge setup for stability.
+#  Main bridge handles lights/locks/climate; cameras + front lock are
+#  isolated in accessory-mode bridges for better reliability.
+# -------------------------------------------------------------------
+######################################################################
 
-filter:
-  include_domains:
-    - climate
-    - cover
-    - lock
-  exclude_domains:
-    - camera
-    - media_player
-    - sensor
-    - script
-    - sensor
-    - switch
-    - scene
-    - light
-  include_entities:
-    - camera.bedroomgate
-    - camera.driveway
-    - camera.filtergate
-    - camera.frontdoorbell
-    - camera.poolcam
-    - camera.frontlawn
-    - camera.garagecam
-    - light.bedroom
-    - light.bedroom_lights
-    - light.den_lights
-    - light.dinette_lights
-    - light.dining_room_lights
-    - light.foyer
-    - light.garage_lights
-    - light.hallway_lights
-    - light.kitchen_lights
-    - light.living_room_accents
-    - light.living_room_lights
-    - light.office_lights
-    - light.outdoor_front_lights
-    - light.upstairs_lights
-    - light.upstairs_lamp
-    - light.sink
-    - switch.lr_amp
-  exclude_entities:
-    - lock.spaceship_door_lock
-    - lock.spaceship_charger_door_lock
-    - lock.spaceship_trunk_lock
-    - lock.spaceship_frunk_lock
-    - climate.spaceship_hvac_climate_system
-    
-entity_config:
-  camera.frontdoorbell:
-    video_codec: copy
-    stream_source: rtsp://192.168.10.14:8554/frontdoorbell?mp4
-  camera.poolcam:
-    linked_motion_sensor: binary_sensor.poolcam_motion_sensor
-    video_codec: copy
-    stream_source: rtsp://192.168.10.14:8554/poolcam?mp4
-  camera.frontlawn:
-    linked_motion_sensor: binary_sensor.frontlawn_motion_sensor
-    video_codec: copy
-    stream_source: rtsp://192.168.10.14:8554/frontlawn?mp4
-  camera.garagecam:
-    linked_motion_sensor: binary_sensor.garagecam_motion_sensor
-    video_codec: copy
-    stream_source: rtsp://192.168.10.14:8554/garagecam?mp4
-  camera.bedroomgate:
-    linked_motion_sensor: binary_sensor.bedroomgate_motion_sensor
-    video_codec: copy
-    stream_source: rtsp://192.168.10.14:8554/bedroomgate?mp4
-  camera.driveway:
-    linked_motion_sensor: binary_sensor.driveway_motion_sensor
-    video_codec: copy
-    stream_source: rtsp://192.168.10.14:8554/driveway?mp4
-  camera.filtergate:
-    linked_motion_sensor: binary_sensor.filtergate_motion_sensor
-    video_codec: copy
-    stream_source: rtsp://192.168.10.14:8554/filtergate?mp4
+# Main bridge (everything except cameras + front door lock)
+- name: Home Assistant Bridge
+  mode: bridge
+  port: 21063
+  filter:
+    include_domains:
+      - climate
+      - cover
+      - lock
+    exclude_domains:
+      - camera
+      - media_player
+      - sensor
+      - script
+      - switch
+      - scene
+      - light
+    include_entities:
+      - light.bedroom
+      - light.bedroom_lights
+      - light.den_lights
+      - light.dinette_lights
+      - light.dining_room_lights
+      - light.foyer
+      - light.garage_lights
+      - light.hallway_lights
+      - light.kitchen_lights
+      - light.living_room_accents
+      - light.living_room_lights
+      - light.office_lights
+      - light.outdoor_front_lights
+      - light.upstairs_lights
+      - light.upstairs_lamp
+      - light.sink
+      - switch.lr_amp
+    exclude_entities:
+      - lock.front_door
+      - lock.spaceship_door_lock
+      - lock.spaceship_charger_door_lock
+      - lock.spaceship_trunk_lock
+      - lock.spaceship_frunk_lock
+      - climate.spaceship_hvac_climate_system
+
+# Cameras in accessory mode (better performance/reliability)
+- name: HomeKit Cameras
+  mode: accessory
+  port: 21064
+  filter:
+    include_entities:
+      - camera.bedroomgate
+      - camera.driveway
+      - camera.filtergate
+      - camera.frontdoorbell
+      - camera.poolcam
+      - camera.frontlawn
+      - camera.garagecam
+  entity_config:
+    camera.frontdoorbell:
+      video_codec: copy
+      stream_source: rtsp://192.168.10.14:8554/frontdoorbell?mp4
+    camera.poolcam:
+      linked_motion_sensor: binary_sensor.poolcam_motion_sensor
+      video_codec: copy
+      stream_source: rtsp://192.168.10.14:8554/poolcam?mp4
+    camera.frontlawn:
+      linked_motion_sensor: binary_sensor.frontlawn_motion_sensor
+      video_codec: copy
+      stream_source: rtsp://192.168.10.14:8554/frontlawn?mp4
+    camera.garagecam:
+      linked_motion_sensor: binary_sensor.garagecam_motion_sensor
+      video_codec: copy
+      stream_source: rtsp://192.168.10.14:8554/garagecam?mp4
+    camera.bedroomgate:
+      linked_motion_sensor: binary_sensor.bedroomgate_motion_sensor
+      video_codec: copy
+      stream_source: rtsp://192.168.10.14:8554/bedroomgate?mp4
+    camera.driveway:
+      linked_motion_sensor: binary_sensor.driveway_motion_sensor
+      video_codec: copy
+      stream_source: rtsp://192.168.10.14:8554/driveway?mp4
+    camera.filtergate:
+      linked_motion_sensor: binary_sensor.filtergate_motion_sensor
+      video_codec: copy
+      stream_source: rtsp://192.168.10.14:8554/filtergate?mp4
+
+# Front door lock in accessory mode (keeps lock responsive/available)
+- name: HomeKit Front Door Lock
+  mode: accessory
+  port: 21065
+  filter:
+    include_entities:
+      - lock.front_door
