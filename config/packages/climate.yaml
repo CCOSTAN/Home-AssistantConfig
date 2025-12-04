@@ -1,12 +1,13 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
 # Climate Control - Seasonal HVAC automations and sensors.
-#-------------------------------------------
+#  Thermostat helpers for upstairs/downstairs comfort.
+# -------------------------------------------------------------------
 ######################################################################
-##  Thermostat helpers for upstairs/downstairs comfort.
-######################################################################
-# For more info visit https://www.vcloudinfo.com/click-here | Contact: @CCOSTAN
+# Contact: @CCOSTAN | Entity reference details below
 # Entity reference and attribute summaries:
 #
 # Entity ID: climate.downstairs
@@ -40,6 +41,28 @@
 
 ######################################################################
 
+# ---------------------------------------------------------------------------
+#  Template helpers – compressor status flags and numeric runtime helpers
+# ---------------------------------------------------------------------------
+template:
+  - binary_sensor:
+      - name: "Downstairs AC is Cooling"
+        unique_id: downstairs_ac_cooling
+        state: >
+          {{ state_attr('climate.downstairs', 'hvac_action') == 'cooling' }}
+      - name: "Upstairs AC is Cooling"
+        unique_id: upstairs_ac_cooling
+        state: >
+          {{ state_attr('climate.upstairs', 'hvac_action') == 'cooling' }}
+
+    sensor:
+      - name: "Downstairs AC Cooling Numeric"
+        unique_id: downstairs_ac_cooling_numeric
+        state: "{{ 1 if is_state('binary_sensor.downstairs_ac_cooling', 'on') else 0 }}"
+      - name: "Upstairs AC Cooling Numeric"
+        unique_id: upstairs_ac_cooling_numeric
+        state: "{{ 1 if is_state('binary_sensor.upstairs_ac_cooling', 'on') else 0 }}"
+
 input_datetime:
   downstairs_last_filter_change:
     name: Downstairs Last Filter Change
@@ -51,30 +74,9 @@ input_datetime:
     has_time: true
 
 # ---------------------------------------------------------------------------
-#  Binary sensors – true when the thermostat reports the compressor is running
+#  Integration sensors tally runtime based on compressor state
 # ---------------------------------------------------------------------------
-binary_sensor:
-  - platform: template
-    sensors:
-      downstairs_ac_cooling:
-        friendly_name: "Downstairs AC is Cooling"
-        value_template: >
-          {{ state_attr('climate.downstairs', 'hvac_action') == 'cooling' }}
-      upstairs_ac_cooling:
-        friendly_name: "Upstairs AC is Cooling"
-        value_template: >
-          {{ state_attr('climate.upstairs', 'hvac_action') == 'cooling' }}
-
 sensor:
-  - platform: template
-    sensors:
-      downstairs_ac_cooling_numeric:
-        friendly_name: "Downstairs AC Cooling Numeric"
-        value_template: "{{ 1 if is_state('binary_sensor.downstairs_ac_cooling', 'on') else 0 }}"
-      upstairs_ac_cooling_numeric:
-        friendly_name: "Upstairs AC Cooling Numeric "
-        value_template: "{{ 1 if is_state('binary_sensor.upstairs_ac_cooling', 'on') else 0 }}"
-
   - platform: integration
     name: Downstairs AC Runtime Raw
     source: sensor.downstairs_ac_cooling_numeric

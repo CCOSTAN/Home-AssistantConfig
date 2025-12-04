@@ -17,7 +17,7 @@
 
 </div>
 
-Standalone sensors that aren’t bundled in packages—time/utility helpers, MQTT feeds, and IP change detectors.
+Standalone sensors that aren't bundled in packages - time/utility helpers and MQTT feeds. (IP change monitoring now lives in `config/packages/ipchange.yaml`.)
 
 ### Quick navigation
 - [Repo overview](../../README.md) | [Config index](../README.md) | [Packages](../packages)
@@ -29,7 +29,6 @@ Standalone sensors that aren’t bundled in packages—time/utility helpers, MQTT fe
 | --- | --- |
 | [date_time.yaml](date_time.yaml) | Time/date sensors used across automations. |
 | [MQTT.yaml](MQTT.yaml) | Generic MQTT sensor definitions. |
-| [ipchange.yaml](ipchange.yaml) | IP change detector for presence/alerts. |
 
 ### Tips
 - Great place for lightweight utility sensors you want everywhere.
@@ -50,3 +49,5 @@ Standalone sensors that aren’t bundled in packages—time/utility helpers, MQTT fe
 <a href="https://www.vCloudInfo.com/p/affiliate-disclosure.html">
 Affiliate Disclosure
 </a></p>
+
+

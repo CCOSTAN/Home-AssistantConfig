@@ -1,16 +1,16 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
 # Alexa Media Player - Sensors and notifications via Alexa Media integration.
-#-------------------------------------------
+#  Track Alexa media state and expose routine/command triggers.
+# -------------------------------------------------------------------
 ######################################################################
-##  Track Alexa media state and expose routine/command triggers.
-######################################################################
-sensor:
-  - platform: template
-    sensors:
-        last_alexa:
-          value_template: >
-            {{ states.media_player | selectattr('attributes.last_called','eq',True) | map(attribute='entity_id') | first | default('none') }}
 
-#-------------------------------------------
+template:
+  - sensor:
+      - name: "Last Alexa"
+        unique_id: last_alexa
+        state: >
+          {{ states.media_player | selectattr('attributes.last_called','eq',True) | map(attribute='entity_id') | first | default('none') }}
