@@ -1,12 +1,13 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
 # Stats - Historical metrics and AI notifications.
-#-------------------------------------------
+#  Build historical stats for AI/alerting.
+# -------------------------------------------------------------------
+# Contact: @CCOSTAN
 ######################################################################
-##  Build historical stats for AI/alerting.
-######################################################################
-# Find me on X @CCOSTAN
 
 ### Building out some Historical stats for AI. #####################
 command_line:
@@ -71,51 +72,56 @@ sensor:
       days: 7
 
 ### Building some interesting stats for tweeting. ###
-  - platform: template
-    sensors:
-      sensor_count:
-        friendly_name: 'Number of Sensors'
-        value_template: >-
+
+template:
+  - sensor:
+      - name: "Number of Sensors"
+        unique_id: stats_number_of_sensors
+        unit_of_measurement: "count"
+        icon: mdi:counter
+        state: >-
           {{ states.sensor | list | count }}
-        unit_of_measurement: 'count'
-        icon_template: mdi:counter
 
-      automation_count:
-        friendly_name: 'Number of Automations'
-        value_template: >-
+      - name: "Number of Automations"
+        unique_id: stats_number_of_automations
+        unit_of_measurement: "count"
+        icon: mdi:robot
+        state: >-
           {{ states.automation | list | count }}
-        unit_of_measurement: 'count'
-        icon_template: mdi:robot
 
-      script_count:
-        friendly_name: 'Number of Scripts'
-        value_template: >-
+      - name: "Number of Scripts"
+        unique_id: stats_number_of_scripts
+        unit_of_measurement: "count"
+        icon: mdi:script-text
+        state: >-
           {{ states.script | list | count }}
-        unit_of_measurement: 'count'
-        icon_template: mdi:script-text
 
-      binary_sensor_count:
-        friendly_name: 'Number of Binary Sensors'
-        value_template: >-
+      - name: "Number of Binary Sensors"
+        unique_id: stats_number_of_binary_sensors
+        unit_of_measurement: "count"
+        icon: mdi:binary-sensor
+        state: >-
           {{ states.binary_sensor | list | count }}
-        unit_of_measurement: 'count'
-        icon_template: mdi:binary-sensor
-      tracker_count:
-        friendly_name: 'Number of Devices'
-        value_template: >-
-          {{ states.device_tracker| list | count }}
-        unit_of_measurement: 'count'
-        icon_template: mdi:account-group
 
-      lights_count:
-        friendly_name: 'Number of Lights'
-        value_template: >
+      - name: "Number of Devices"
+        unique_id: stats_number_of_devices
+        unit_of_measurement: "count"
+        icon: mdi:account-group
+        state: >-
+          {{ states.device_tracker | list | count }}
+
+      - name: "Number of Lights"
+        unique_id: stats_number_of_lights
+        unit_of_measurement: "count"
+        icon: mdi:lightbulb
+        state: >
           {{ states.light | list | count }}
-        unit_of_measurement: 'count'
-        icon_template: mdi:lightbulb
-      lights_on_count:
-        friendly_name: "Number of lights on"
-        value_template: >-
+
+      - name: "Number of lights on"
+        unique_id: stats_number_of_lights_on
+        unit_of_measurement: "count"
+        icon: mdi:binary-sensor
+        state: >-
            {% set lights = states.light | selectattr('state', 'eq', 'on') | list %}
            {% set qty = lights | count %}
            {% set p1 = 'lights are' if qty > 1 else 'light is' %}
@@ -125,11 +131,11 @@ sensor:
            {% else %}
             {{ qty }} {{ p1 }} on.
            {% endif %}
-        unit_of_measurement: 'count'
-        icon_template: mdi:binary-sensor
-      protect_count:
-        friendly_name: 'Number of Smoke Detectors'
-        value_template: >
+
+      - name: "Number of Smoke Detectors"
+        unit_of_measurement: "count"
+        icon: mdi:smoke-detector
+        state: >
           {% if states('group.protects') == 'on' %}
           {% for e in states.group.protects.attributes.entity_id if states(e) == 'on'  %}
           {% if loop.last %}
@@ -139,20 +145,19 @@ sensor:
           {% else %}
           0
           {% endif %}
-        unit_of_measurement: 'count'
-        icon_template: mdi:smoke-detector
-      camera_count:
-        friendly_name: 'Number of online Cameras'
-        value_template: >
+
+      - name: "Number of online Cameras"
+        unique_id: stats_number_of_online_cameras
+        unit_of_measurement: "count"
+        icon: mdi:camera
+        state: >
           {{ states.camera | list | count }}
-        unit_of_measurement: 'count'
-        icon_template: mdi:camera
-      total_wifi_clients:
-        friendly_name: "Total WiFi Clients"
+
+      - name: "Total WiFi Clients"
         unique_id: total_wifi_clients
         unit_of_measurement: "clients"
-        icon_template: mdi:wifi
-        value_template: >
+        icon: mdi:wifi
+        state: >
           {% set g = states('sensor.unifi_ap_garage_clients') | int(0) %}
           {% set o = states('sensor.unifi_ap_office_clients') | int(0) %}
           {% set s = states('sensor.unifi_ap_study_clients') | int(0) %}

@@ -1,18 +1,21 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
 # Glances - ProxMox/server stats via Glances integration.
-#-------------------------------------------
+#  CPU, memory, and disk sensors from Glances API.
+# -------------------------------------------------------------------
 ######################################################################
-##  CPU, memory, and disk sensors from Glances API.
-######################################################################
-sensor:
-  - platform: template
-    sensors:
-      proxmox_garage_avg_temp:
-        friendly_name: "Proxmox Garage Average Temperature"
-        unit_of_measurement: "°F"
-        value_template: >-
+
+template:
+  - sensor:
+      - name: "Proxmox Garage Average Temperature"
+        unique_id: proxmox_garage_avg_temp
+        device_class: temperature
+        state_class: measurement
+        unit_of_measurement: "\u00B0F"
+        state: >-
           {{ (
             (states('sensor.proxmox1_package_id_0_temperature') | float(0) + 
              states('sensor.proxmox1_pch_skylake_1_temperature') | float(0) + 
@@ -42,7 +45,7 @@ automation:
     action:
       - service: script.notify_engine
         data:
-          title: "🔥 Proxmox Garage Alert!"
-          value1: "The average temperature of your Proxmox servers is above 145°F!"
+          title: "?? Proxmox Garage Alert!"
+          value1: "The average temperature of your Proxmox servers is above 145\u00B0F!"
           who: 'carlo'
           group: 'information'
