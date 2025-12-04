@@ -122,15 +122,7 @@ template:
         unit_of_measurement: "count"
         icon: mdi:binary-sensor
         state: >-
-           {% set lights = states.light | selectattr('state', 'eq', 'on') | list %}
-           {% set qty = lights | count %}
-           {% set p1 = 'lights are' if qty > 1 else 'light is' %}
-
-           {% if qty == 0 %} 
-            No lights on.
-           {% else %}
-            {{ qty }} {{ p1 }} on.
-           {% endif %}
+          {{ states.light | selectattr('state', 'eq', 'on') | list | count }}
 
       - name: "Number of Smoke Detectors"
         unit_of_measurement: "count"

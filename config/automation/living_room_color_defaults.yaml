@@ -36,14 +36,14 @@
               target:
                 entity_id: light.living_room_lights
               data:
-                kelvin: 5500
+                color_temp_kelvin: 5500
                 brightness: 255
       default:
         - service: light.turn_on
           target:
             entity_id: light.living_room_lights
           data:
-            kelvin: 2700
+            color_temp_kelvin: 2700
             brightness: 200
 
 - alias: 'Restore Living Room After Entry Secured'
@@ -71,29 +71,29 @@
               state: 'above_horizon'
           sequence:
             - service: light.turn_on
-              target:
-                entity_id: light.living_room_lights
-              data:
-                kelvin: 5500
-                brightness: 255
+            target:
+              entity_id: light.living_room_lights
+            data:
+              color_temp_kelvin: 5500
+              brightness: 255
             - service: light.turn_on
               target:
                 entity_id: light.living_room_accents
               data:
-                kelvin: 5500
+                color_temp_kelvin: 5500
                 brightness: 200
       default:
         - service: light.turn_on
           target:
             entity_id: light.living_room_lights
           data:
-            kelvin: 2700
+            color_temp_kelvin: 2700
             brightness: 200
         - service: light.turn_on
           target:
             entity_id: light.living_room_accents
           data:
-            kelvin: 2700
+            color_temp_kelvin: 2700
             brightness: 170
 
 - alias: 'Living Room Red on Entry/Garage Open'

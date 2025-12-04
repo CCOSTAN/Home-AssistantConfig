@@ -40,7 +40,7 @@ automation:
     id: proxmox-garage-high-temp-warning-automation
     trigger:
       - platform: numeric_state
-        entity_id: sensor.proxmox_garage_avg_temp
+        entity_id: sensor.proxmox_garage_average_temperature
         above: 145  # Adjust threshold as needed
     action:
       - service: script.notify_engine

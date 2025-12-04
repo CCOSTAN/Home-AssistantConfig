@@ -1,4 +1,13 @@
-######################################################################################################
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Notification Engine Scripts - Flexible push helpers for family devices.
+#  Compose messages from value1/value2/value3 with optional actions.
+# -------------------------------------------------------------------
+# Video Tutorial: https://youtu.be/mK1wdpxhLbM
+######################################################################
 ### Script for Sending Notifications to Mobile Phones
 # This script (`notify_engine`) and its variant (`notify_engine_two_button`) are designed to send 
 # customized notifications to specified recipients in Home Assistant.
@@ -23,11 +32,6 @@
 #   - 'icon1', 'icon2': Icons for the buttons (optional).
 #   - 'destructive1', 'destructive2': Boolean flags to mark buttons as destructive (optional).
 
-# Author: @CCOSTAN
-# Original Repository: https://github.com/CCOSTAN/Home-AssistantConfig
-# Video Tutorial for Android Compatibility: https://youtu.be/mK1wdpxhLbM
-######################################################################################################
-
 
 notify_engine:
   sequence:
@@ -51,7 +55,7 @@ notify_engine:
           {% endif %}
       data:
         title: "{{ title }}"
-        message: "{{ value1 }} {{ value2 }} {{ value3 }}"
+        message: "{{ ' '.join([value1|default('', true), value2|default('', true), value3|default('', true)]) | trim }}"
         data:
           group: "{{ group|default('information') }}"
           interuption_level: "{{ level|default('active') }}"
@@ -78,7 +82,7 @@ notify_engine_two_button:
             notify.ios_family
           {% endif %}
       data:
-        message: "{{ value1 }} {{ value2 }} {{ value3 }}"
+        message: "{{ ' '.join([value1|default('', true), value2|default('', true), value3|default('', true)]) | trim }}"
         title: "{{ title|default('', true) }}"
         data:
           actions:
