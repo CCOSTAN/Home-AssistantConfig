@@ -52,6 +52,14 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 ### Network diagram
 ![Smart Home Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg)
 
+**Docker add-ons & utilities**
+| Container | Repo/Docs | Purpose |
+| --- | --- | --- |
+| Home Assistant Time Machine | [saihgupr/HomeAssistantTimeMachine](https://github.com/saihgupr/HomeAssistantTimeMachine) | Browse/diff/restore HA YAML (Lovelace, automations, scripts, ESPHome, packages) against existing backups. Blog walkthrough: [Time Machine for dashboards](https://www.vcloudinfo.com/2025/12/home-assistant-time-machine-dashboards.html). |
+| Duplicati | [duplicati/duplicati](https://github.com/duplicati/duplicati) | Off-box, versioned backups for HA config and media. |
+| Cloudflared | [cloudflare/cloudflared](https://hub.docker.com/r/cloudflare/cloudflared) | Secure tunnel/edge access to Home Assistant without opening inbound ports. |
+| WordPress | [wordpress](https://hub.docker.com/_/wordpress) | Hosts [vCloudInfo.com](https://www.vcloudinfo.com) for docs, how-tos, videos, and long-form writeups that accompany this config. |
+
 ### Gear tied to real automations (affiliate links)
 Only listing hardware that appears in active packages/automations here.
 https://amzn.to/48jVzZ3
