@@ -1,23 +1,26 @@
 #   - This script is used to update the Home Assistant Docker containers
 #   - It will pull the latest images, check if the image ID has changed, and restart the container if needed
-#   - It will also cleanup unused resources after the update    
 
 # Original Repo: https://github.com/CCOSTAN/Home-AssistantConfig
 # Follow me on https://www.vcloudinfo.com/click-here
 
 #!/bin/bash
 
+set -euo pipefail
+
 # Update system packages
 sudo apt-get update && sudo apt-get upgrade -y
 
+DC=(docker compose)
+
 # Pull the latest images
-docker-compose pull
+"${DC[@]}" pull
 
 # Get list of services from docker-compose.yml
-EXISTING_SERVICES=$(docker-compose config --services)
+EXISTING_SERVICES=$("${DC[@]}" config --services)
 
 # Get list of running service containers
-RUNNING_CONTAINERS=$(docker-compose ps --services)
+RUNNING_CONTAINERS=$("${DC[@]}" ps --services)
 
 # Loop through each running service and check if its image has changed
 for service in $RUNNING_CONTAINERS; do
@@ -25,15 +28,15 @@ for service in $RUNNING_CONTAINERS; do
         # Get the current running image ID (remove sha256: prefix)
         CURRENT_IMAGE_ID=$(docker inspect --format='{{.Image}}' "$service" 2>/dev/null | sed 's/^sha256://')
 
-        # Get the latest image ID from docker-compose
-        LATEST_IMAGE_ID=$(docker-compose images -q "$service" 2>/dev/null)
+        # Get the latest image ID from docker compose
+        LATEST_IMAGE_ID=$("${DC[@]}" images -q "$service" 2>/dev/null)
 
         # If the image ID is different, restart the container
         if [ "$CURRENT_IMAGE_ID" != "$LATEST_IMAGE_ID" ] && [ -n "$LATEST_IMAGE_ID" ]; then
             echo "Updating container: $service"
-            docker-compose stop "$service"
-            docker-compose rm -f "$service"
-            docker-compose up -d "$service"
+            "${DC[@]}" stop "$service"
+            "${DC[@]}" rm -f "$service"
+            "${DC[@]}" up -d "$service"
         else
             echo "No update needed for: $service"
         fi
@@ -41,8 +44,3 @@ for service in $RUNNING_CONTAINERS; do
         echo "Skipping non-existent service: $service"
     fi
 done
-
-# Cleanup unused resources
-docker container prune -f
-docker image prune -f
-docker volume prune -f
