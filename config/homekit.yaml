@@ -3,9 +3,9 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# HomeKit Configuration - Multi-bridge setup for stability.
-#  Main bridge handles lights/locks/climate; cameras + front lock are
-#  isolated in accessory-mode bridges for better reliability.
+# HomeKit Configuration - Multi-bridge for stability + Alexa-friendly streams
+#  Main bridge for lights/locks/climate; cameras/lock split to accessory bridges.
+#  Camera streams use go2rtc substreams/restreams for faster Echo Show playback.
 # -------------------------------------------------------------------
 ######################################################################
 
@@ -68,19 +68,19 @@
   entity_config:
     camera.frontdoorbell:
       video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/frontdoorbell?mp4
+      stream_source: rtsp://192.168.10.14:8554/frontdoorbell_alexa
     camera.poolcam:
       linked_motion_sensor: binary_sensor.poolcam_motion_sensor
       video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/poolcam?mp4
+      stream_source: rtsp://192.168.10.14:8554/poolcam_sub
     camera.frontlawn:
       linked_motion_sensor: binary_sensor.frontlawn_motion_sensor
       video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/frontlawn?mp4
+      stream_source: rtsp://192.168.10.14:8554/frontlawn_sub
     camera.garagecam:
       linked_motion_sensor: binary_sensor.garagecam_motion_sensor
       video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/garagecam?mp4
+      stream_source: rtsp://192.168.10.14:8554/garagecam_sub
     camera.bedroomgate:
       linked_motion_sensor: binary_sensor.bedroomgate_motion_sensor
       video_codec: copy
@@ -88,7 +88,7 @@
     camera.driveway:
       linked_motion_sensor: binary_sensor.driveway_motion_sensor
       video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/driveway?mp4
+      stream_source: rtsp://192.168.10.14:8554/driveway_sub
     camera.filtergate:
       linked_motion_sensor: binary_sensor.filtergate_motion_sensor
       video_codec: copy
