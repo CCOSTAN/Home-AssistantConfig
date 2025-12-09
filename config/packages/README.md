@@ -45,7 +45,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [lightning.yaml](lightning.yaml) | Blitzortung lightning counter monitoring with snoozeable push actions. | `sensor.blitzortung_lightning_counter`, `input_boolean.snooze_lightning`, notify engine actions |
 | [phynplus.yaml](phynplus.yaml) | Tie the Phyn Plus smart shutoff into HA notifications, automations, and valve overrides. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `script.notify_engine_two_button` |
 | [powerwall.yaml](powerwall.yaml) | Track Tesla Powerwall grid status and shed loads automatically when off-grid. | `binary_sensor.powerwall_grid_status`, `sensor.powerwall_*`, `script.notify_engine` |
-| [vacuum.yaml](vacuum.yaml) | Dreame (ex-Neato) vacuum orchestration with maintenance reminders and reset helpers. | `sensor.l10s_vacuum_task_status`, `sensor.l10s_vacuum_sensor_dirty_left`, `button.l10s_vacuum_reset_sensor` |
+| [vacuum.yaml](vacuum.yaml) | Dreame (ex-Neato) vacuum orchestration with continuous phased sweep/mop cycles. | `input_select.l10s_vacuum_phase`, `input_text.l10s_vacuum_room_queue`, `sensor.l10s_vacuum_task_status` |
 | [hass_agent_homepc.yaml](hass_agent_homepc.yaml) | Mirrors PC lock/unlock state from HASS.Agent to the office lamp for instant desk presence cues. | `sensor.carlo_homepc_carlo_homepc_sessionstate`, `switch.office_lamp_switch` |
 | [finance.yaml](finance.yaml) | Yahoo Finance sensor bundle for portfolio glances and Lovelace cards. | `sensor.tsla`, `sensor.aapl`, `sensor.amzn`, `sensor.msft` |
 
@@ -60,8 +60,8 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 ![Nest Climate Control](../www/custom_ui/floorplan/images/branding/Nest_Climate_Control.png)
 
 ### Dreame vacuum automations
-- Logic lives in [vacuum.yaml](vacuum.yaml): weekday sweeping/weekend mopping, room-queue segment cleaning that pauses/docks on arrival, resumes after charging, and per-room notifications/briefing summaries.
-- Uses the Dreame HACS integration with map-based segments and daily resets to cover the whole house without repeating rooms.
+- Logic lives in [vacuum.yaml](vacuum.yaml): continuous four-phase loop (sweep main, sweep baths, mop main, mop baths) driven by `input_select.l10s_vacuum_phase` and `input_text.l10s_vacuum_room_queue`, with per-room notifications and automatic reseeding between phases.
+- Uses the Dreame HACS integration with segment IDs to enforce bathrooms last in each sweep/mop pass, dock on arrival, and auto-run if idle for 3+ days.
 ![Dreame Automations](../www/custom_ui/floorplan/images/branding/Dreame%20Automations.png)
 
 ### Blog & video deep dives
