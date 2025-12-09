@@ -35,11 +35,8 @@
     [Here is the current weather outside]
     {% set aq_description = state_attr('sensor.bear_stone_common_air_quality_index', 'description') | default('') %}
     {% set aq_index = states('sensor.bear_stone_common_air_quality_index') | int(0) %}
-    {% if aq_description %}
-    Air Quality: {{ aq_description }}
-    {% endif %}
-    {% if aq_index >= 150 %}
-        [Air quality is unhealthy; limit outdoor activity]
+    {% if aq_index >= 15 %}
+    [Air Quality: {{ aq_description }}]
     {% endif %}
     {% set pirateweather_metrics = states.sensor
       | selectattr('entity_id','search','pirateweather')
