@@ -1,0 +1,96 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# LLM Vision - Garage Cans X Check - detects reflective X on right wall
+#  Trigger with input_button.llmvision_garbage_check to update garbage_cans_out.
+# -------------------------------------------------------------------
+# Notes: LLMVision analyzes camera.garagecam; expects strict "on"/"off" output.
+# Docs: https://llmvision.gitbook.io/getting-started/usage/image-analyzer
+######################################################################
+
+input_button:
+  llmvision_garbage_check:
+    name: "LLM Vision: Garage cans check"
+    icon: mdi:delete-variant
+
+input_boolean:
+  garbage_cans_out:
+    name: "Garbage Cans Out"
+    icon: mdi:trash-can
+
+input_text:
+  llmvision_garbage_last_response:
+    name: "LLM Vision garage response"
+    max: 255
+  llmvision_garbage_last_keyframe:
+    name: "LLM Vision garage key frame"
+    max: 255
+
+input_datetime:
+  llmvision_garbage_last_run:
+    name: "LLM Vision garage last run"
+    has_date: true
+    has_time: true
+
+template:
+  - binary_sensor:
+      - name: "Garbage Cans Out"
+        unique_id: llmvision_garbage_cans_out
+        device_class: presence
+        state: "{{ is_state('input_boolean.garbage_cans_out', 'on') }}"
+        attributes:
+          last_run: "{{ states('input_datetime.llmvision_garbage_last_run') }}"
+          last_response: "{{ states('input_text.llmvision_garbage_last_response') }}"
+          last_key_frame: "{{ states('input_text.llmvision_garbage_last_keyframe') }}"
+          source_camera: camera.garagecam
+
+automation:
+  - alias: LLM Vision - Garbage cans out
+    id: d88a2e6d-78f3-4bb7-9d9f-c4d06e6eb5a9
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_button.llmvision_garbage_check
+    variables:
+      prompt_text: >
+        Examine the image. I have taped a reflective X on the right wall. Look for the reflective X on the right wall. If you clearly see the X, respond exactly: on. If you cannot see the X, respond exactly: off. No other words.
+    action:
+      - service: llmvision.data_analyzer
+        response_variable: llmvision_result
+        data:
+          provider: !secret llmvision_provider_entry
+          model: gpt-4.1-nano
+          message: "{{ prompt_text }}"
+          sensor_entity: input_boolean.garbage_cans_out
+          image_entity:
+            - camera.garagecam
+          include_filename: false
+          target_width: 1280
+          max_tokens: 16
+          expose_images: true
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.llmvision_garbage_last_response
+        data:
+          value: "{{ (llmvision_result.response_text | default('unknown'))[:250] }}"
+      - choose:
+          - conditions: "{{ llmvision_result is defined and llmvision_result.key_frame is defined }}"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.llmvision_garbage_last_keyframe
+                data:
+                  value: "{{ llmvision_result.key_frame }}"
+        default:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.llmvision_garbage_last_keyframe
+            data:
+              value: ""
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.llmvision_garbage_last_run
+        data:
+          datetime: "{{ now() }}"
