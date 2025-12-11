@@ -1,5 +1,14 @@
-# LLM Vision test package: checks the garage camera for garbage cans in the upper-right corner.
-# Trigger with input_button.llmvision_garbage_check to update input_boolean.garbage_cans_in.
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# LLM Vision - Garage Cans X Check - detects reflective X on right wall
+#  Trigger with input_button.llmvision_garbage_check to update garbage_cans_out.
+# -------------------------------------------------------------------
+# Notes: LLMVision analyzes camera.garagecam; expects strict "on"/"off" output.
+# Docs: https://llmvision.gitbook.io/getting-started/usage/image-analyzer
+######################################################################
 
 input_button:
   llmvision_garbage_check:
@@ -7,8 +16,8 @@ input_button:
     icon: mdi:delete-variant
 
 input_boolean:
-  garbage_cans_in:
-    name: "Garbage cans in upper right"
+  garbage_cans_out:
+    name: "Garbage Cans Out"
     icon: mdi:trash-can
 
 input_text:
@@ -27,10 +36,10 @@ input_datetime:
 
 template:
   - binary_sensor:
-      - name: "Garbage cans in"
-        unique_id: llmvision_garbage_cans_in
+      - name: "Garbage Cans Out"
+        unique_id: llmvision_garbage_cans_out
         device_class: presence
-        state: "{{ is_state('input_boolean.garbage_cans_in', 'on') }}"
+        state: "{{ is_state('input_boolean.garbage_cans_out', 'on') }}"
         attributes:
           last_run: "{{ states('input_datetime.llmvision_garbage_last_run') }}"
           last_response: "{{ states('input_text.llmvision_garbage_last_response') }}"
@@ -38,7 +47,7 @@ template:
           source_camera: camera.garagecam
 
 automation:
-  - alias: LLM Vision - Garage cans upper right
+  - alias: LLM Vision - Garbage cans out
     id: d88a2e6d-78f3-4bb7-9d9f-c4d06e6eb5a9
     mode: restart
     trigger:
@@ -46,15 +55,15 @@ automation:
         entity_id: input_button.llmvision_garbage_check
     variables:
       prompt_text: >
-        Examine ONLY the upper-right quadrant of the image (top half + right half). Ignore everything else (car, floor text, door, bikes, bottles, bags). If you see a black garbage can in that upper-right quadrant, respond exactly "on". If none are present there, respond exactly "off". Do not add any other words.
+        Examine the image. I have taped a reflective X on the right wall. Look for the reflective X on the right wall. If you clearly see the X, respond exactly: on. If you cannot see the X, respond exactly: off. No other words.
     action:
       - service: llmvision.data_analyzer
         response_variable: llmvision_result
         data:
           provider: !secret llmvision_provider_entry
-          model: gpt-4o-mini
+          model: gpt-4.1-nano
           message: "{{ prompt_text }}"
-          sensor_entity: input_boolean.garbage_cans_in
+          sensor_entity: input_boolean.garbage_cans_out
           image_entity:
             - camera.garagecam
           include_filename: false

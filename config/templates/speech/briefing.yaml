@@ -35,7 +35,7 @@
     [Here is the current weather outside]
     {% set aq_description = state_attr('sensor.bear_stone_common_air_quality_index', 'description') | default('') %}
     {% set aq_index = states('sensor.bear_stone_common_air_quality_index') | int(0) %}
-    {% if aq_index >= 15 %}
+    {% if aq_index >= 50 %}
     [Air Quality: {{ aq_description }}]
     {% endif %}
     {% set pirateweather_metrics = states.sensor
