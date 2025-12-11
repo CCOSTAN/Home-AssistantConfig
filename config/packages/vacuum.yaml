@@ -168,6 +168,9 @@ automation:
       - condition: template
         value_template: "{{ not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
     action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.l10s_vacuum_on_demand
       - service: script.l10s_vacuum_start_next_room
 
   - alias: 'Away Vacuum: Dock When Family Returns'
@@ -232,6 +235,9 @@ automation:
       - condition: state
         entity_id: vacuum.l10s_vacuum
         state: 'cleaning'
+      - condition: state
+        entity_id: input_boolean.l10s_vacuum_on_demand
+        state: 'on'
 
     action:
       - service: input_text.set_value
@@ -300,6 +306,9 @@ automation:
                   entity_id: input_text.l10s_vacuum_room_queue
                 data:
                   value: ""
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.l10s_vacuum_on_demand
               - service: script.l10s_vacuum_start_next_room
 
   - alias: 'Vacuum Sensor Cleaning Silencer'
