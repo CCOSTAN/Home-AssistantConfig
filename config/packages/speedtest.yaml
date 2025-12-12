@@ -1,17 +1,18 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Speedtest Alerts - Notify when internet speeds drop.
-#-------------------------------------------
+# -------------------------------------------------------------------
+# Speedtest Alerts - Log internet speed drops/restores to Activity feed
+# Related Issue: 1550
+#  Uses `script.send_to_logbook` + `sensor.activity_feed`.
+# -------------------------------------------------------------------
 ######################################################################
-##  Alerts if download/upload fall below thresholds.
-######################################################################
-# For more info or questions, visit https://www.vcloudinfo.com/click-here
 
 automation:
-  - alias: "Notify Carlo if Internet Speed is Slow"
+  - alias: "Internet Speed is Slow (Logbook)"
     id: notify-carlo-slow-internet-speed
-    description: "Sends a notification to Carlo's phone if download or upload speed falls below 400 Mbps."
+    description: "Logs an Activity entry if download or upload speed falls below 300 Mbps."
     trigger:
       - platform: numeric_state
         entity_id: sensor.speedtest_download
@@ -31,21 +32,18 @@ automation:
           {{ (now - uptime).total_seconds() / 60 >= 10 }}
 
     action:
-      - service: script.notify_engine
+      - service: script.send_to_logbook
         data:
-          title: "⚠️ Internet Speed Alert"
-          value1: >-
+          topic: "NETWORK"
+          message: >-
             Download: {{ states('sensor.speedtest_download') }} Mbps,
             Upload: {{ states('sensor.speedtest_upload') }} Mbps.
-          value2: "One or both speeds are below 300 Mbps."
-          who: "carlo"
-          group: "information"
-          level: "active"
+            One or both speeds are below 300 Mbps.
     mode: single
 
-  - alias: "Notify Carlo if Internet Speed is Restored"
+  - alias: "Internet Speed Restored (Logbook)"
     id: notify-carlo-internet-speed-restored
-    description: "Sends a notification to Carlo's phone when download and upload speeds are back above 300/300 Mbps."
+    description: "Logs an Activity entry when download and upload speeds are back above 300/300 Mbps."
     trigger:
       - platform: numeric_state
         entity_id: sensor.speedtest_download
@@ -66,14 +64,11 @@ automation:
           {% set now = now() %}
           {{ (now - uptime).total_seconds() / 60 >= 10 }}
     action:
-      - service: script.notify_engine
+      - service: script.send_to_logbook
         data:
-          title: "✅ Internet Speed Restored"
-          value1: >-
+          topic: "NETWORK"
+          message: >-
             Download: {{ states('sensor.speedtest_download') }} Mbps,
             Upload: {{ states('sensor.speedtest_upload') }} Mbps.
-          value2: "Internet speeds are back to normal."
-          who: "parents"
-          group: "information"
-          level: "active"
+            Internet speeds are back to normal.
     mode: single

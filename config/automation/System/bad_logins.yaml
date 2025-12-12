@@ -1,6 +1,13 @@
-###################################
-##  Uses IFTTT to notify me of bad logins.
-###################################
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Bad Login Attempts - Log security events to Activity feed
+# Related Issue: 1550
+#  Replaces phone push with `script.send_to_logbook` using `sensor.activity_feed`.
+# -------------------------------------------------------------------
+######################################################################
 
 - alias: Login Failure
   id: 814c48ea-e2e1-4b75-92b0-581081af5ce5
@@ -9,11 +16,7 @@
     value_template: "{{ states('persistent_notification.httplogin') != 'unknown' }}"
 
   action:
-    - service: script.notify_engine
+    - service: script.send_to_logbook
       data:
-        value1: 'Bad Login: '
-        value2: 'There was a Hack attempt!'
-        value3: 'Go Check the GUI for details.'
-        who: 'carlo'
-        group: 'information'
-
+        topic: "SYSTEM"
+        message: "Bad Login: There was a hack attempt. Check the HA UI for details."

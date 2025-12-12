@@ -1,14 +1,15 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Phyn Plus Water Shutoff - Leak detection and auto shutoff.
-#-------------------------------------------
-######################################################################
-##  Phyn Plus monitoring via custom integration.
-######################################################################
+# -------------------------------------------------------------------
+# Phyn Plus Water Shutoff - Leak detection and auto shutoff
+# Related Issue: 1550
+#  Push + Activity feed + Repairs issue while valve is closed.
+# -------------------------------------------------------------------
 # Info: https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html
 # HACS: https://github.com/MizterB/homeassistant-phyn
-##  Phyn Plus Water ShutOff - https://amzn.to/2Zy3sbJ
+# Product: https://amzn.to/2Zy3sbJ
 ######################################################################
 
 automation:
@@ -27,6 +28,22 @@ automation:
         state: 'off'
 
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "WATER"
+          message: "Phyn detected a leak and shut off the water. Please verify."
+
+      - service: repairs.create
+        data:
+          issue_id: "phyn_leak_shutoff"
+          title: "Phyn leak shutoff"
+          severity: "critical"
+          persistent: true
+          description: >-
+            Phyn detected a potential leak and automatically closed the main water valve.
+
+            Verify there are no active leaks before restoring water service.
+
       - service: script.notify_engine_two_button
         data:
           title: 'Phyn Leak Detection'
@@ -107,8 +124,11 @@ automation:
         entity_id: valve.phyn_shutoff_valve
         to: 'open'
     action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "phyn_leak_shutoff"
       - service: persistent_notification.dismiss
         data:
           notification_id: 'phyn_leak_detection'
-
 

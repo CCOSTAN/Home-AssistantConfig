@@ -54,5 +54,15 @@ automation:
           data:
             type: announce
 
+      - service: script.send_to_logbook
+        data:
+          topic: "PRINTER"
+          message: >
+            {% if trigger.to_state.state == 'idle' %}
+              Printer has powered on and is ready
+            {% else %}
+              Printer is now printing
+            {% endif %}
+
 
 #-------------------------------------------

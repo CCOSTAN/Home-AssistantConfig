@@ -1,6 +1,14 @@
-###################################
-##  Start Up Section
-###################################
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Startup Logbook Entry - Log HA restarts to Activity feed
+# Related Issue: 1550
+#  Uses `script.send_to_logbook` + `sensor.activity_feed` (no phone push).
+#  Keeps an Alexa announce when daytime.
+# -------------------------------------------------------------------
+######################################################################
 
 - alias: Startup Notification and Shut startup lights
   id: f3f0a8d1-6c40-43e0-91e4-827194f78506
@@ -9,12 +17,10 @@
     - platform: homeassistant
       event: start
   action:
-    - service: script.notify_engine
+    - service: script.send_to_logbook
       data:
-        title: 'Home Assistant StartUp'
-        value1: 'Home Assistant is Up and Running!'
-        who: 'carlo'
-        group: 'information'
+        topic: "SYSTEM"
+        message: "Home Assistant is Up and Running!"
 
     - service: homeassistant.turn_off
       entity_id:
@@ -35,4 +41,3 @@
         message: "Home Assistant has been restarted."
         data:
           type: announce
-

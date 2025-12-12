@@ -1,13 +1,15 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Rheem EcoNet Water Heater - Monitoring and control.
-#-------------------------------------------
-######################################################################
-##  Rheem EcoNet sensors/automations. https://amzn.to/36yOSnN
-######################################################################
-# Docs: https://www.home-assistant.io/integrations/econet/ | Issue #892
+# -------------------------------------------------------------------
+# Rheem EcoNet Water Heater - Monitoring and control
+# Related Issue: 1550
+#  Logs hot-water availability alerts to Activity feed; keeps announcements.
+# -------------------------------------------------------------------
+# Docs: https://www.home-assistant.io/integrations/econet/ | Existing notes: Issue #892
 # Powerwall outage control for Rheem WH lives in config/packages/powerwall.yaml
+######################################################################
 
 ##############################################################################
 ###  Automations
@@ -51,15 +53,13 @@ automation:
         entity_id: sensor.rheem_wh_available_hot_water
         below: 30  # Alert when available hot water drops below 30%
     action:
-      - service: script.notify_engine
+      - service: script.send_to_logbook
         data:
-          title: "Hot Water Alert"
-          value1: "Available hot water is below 30%."
-          who: 'carlo'
-          group: 'information'
+          topic: "WATER"
+          message: "Hot water availability is below 30%."
       - service: script.speech_engine
         data:
-          value1: "Please be aware that the hot water has dropped below 30% availability.  Please consider taking a shower at another time. Gallons used today: {{sensor.phyn_daily_water_usage}}"
+          value1: "Please be aware that the hot water has dropped below 30% availability. Gallons used today: {{sensor.phyn_daily_water_usage}}"
 
       - service: notify.alexa_media_master_bathroom
         data:
@@ -95,6 +95,5 @@ automation:
 # sensor.rheem_wh_water_usage_today
 # sensor.rheem_wh_wifi_signal
 # water_heater.rheem_wh
-
 
 

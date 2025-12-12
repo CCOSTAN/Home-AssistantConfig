@@ -29,6 +29,7 @@ Reusable scripts that other automations call for notifications, lighting, and sa
 | File | Why it matters |
 | --- | --- |
 | [notify_engine.yaml](notify_engine.yaml) | Single entrypoint for rich push notifications. |
+| [send_to_logbook.yaml](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
 | [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech. |
 | [monthly_color_scene.yaml](monthly_color_scene.yaml) | Seasonal lighting scenes used across automations. |
 | [interior_off.yaml](interior_off.yaml) | One-call �all interior lights off� helper. |

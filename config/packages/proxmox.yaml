@@ -20,6 +20,10 @@ automation:
       - service: button.press
         target:
           entity_id: button.qemu_docker2_101_reboot
+      - service: script.send_to_logbook
+        data:
+          topic: "FRIGATE"
+          message: "Frigate server rebooted at 5 AM."
 
   - alias: "Proxmox Updates Repair Issues"
     id: proxmox_updates_repair
@@ -56,3 +60,7 @@ automation:
           - service: repairs.remove
             data:
               issue_id: "{{ issue_id }}"
+          - service: script.send_to_logbook
+            data:
+              topic: "PROXMOX"
+              message: "{{ node_name }} has been Patched"

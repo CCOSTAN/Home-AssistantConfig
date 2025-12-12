@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Alarm Package - Arming helpers, sensors, and alerting.
+# Related Issue: 1550
 #  Alarm sensors, customization, and automations for home security.
 # -------------------------------------------------------------------
 # Notes: Turns HVAC off when doors/windows are open and restores cool mode after closure.
@@ -340,6 +341,10 @@ automation:
         from: 'on'
 
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "SECURITY"
+          message: "Alarm panel door opened."
       - service: script.notify_engine
         data:
           value1: 'Someone has opened up the Alarm Panel Door!'

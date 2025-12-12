@@ -1,12 +1,14 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Lightning Alerts - Monitor nearby strikes and notify.
-#-------------------------------------------
+# -------------------------------------------------------------------
+# Lightning Alerts - Nearby strike warnings and snooze workflow
+# Related Issue: 1550
+#  Keeps push alerts but also logs to Activity feed.
+# -------------------------------------------------------------------
+# Guide: https://www.vcloudinfo.com/2020/08/adding-a-lightning-sensor-to-home-assistant.html | Existing Issue #392
 ######################################################################
-##  Lightning sensor integration and alerting.
-######################################################################
-# Guide: https://www.vcloudinfo.com/2020/08/adding-a-lightning-sensor-to-home-assistant.html | Issue #392
 input_boolean:
   snooze_lightning:
     name: Snooze Lightning
@@ -45,6 +47,11 @@ automation:
         state: 'off'
 
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "WEATHER"
+          message: >-
+            Lightning detected within {{ (states('sensor.blitzortung_lightning_distance') | int / 1.609) | round(1, 'floor') }} miles.
       - service: script.notify_engine_two_button
         data:
           title: 'Lightning Warning!'
