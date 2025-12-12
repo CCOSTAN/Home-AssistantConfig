@@ -35,6 +35,10 @@ automation:
           value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
           value3: 'Attempting to clean'
           who: 'carlo'
+      - service: script.send_to_logbook
+        data:
+          topic: "SYSTEM"
+          message: "Disk usage exceeded 80% (/dev/root: {{ states.sensor.disk_use_percent.state }}%). Attempting to clean."
       - service: tts.clear_cache
 
   - alias: "Disk Use Alarm"
@@ -49,3 +53,7 @@ automation:
           value1: 'Hard Drive Monitor:'
           value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
           who: 'carlo'
+      - service: script.send_to_logbook
+        data:
+          topic: "SYSTEM"
+          message: "Disk usage exceeded 90% (/dev/root: {{ states.sensor.disk_use_percent.state }}%)."

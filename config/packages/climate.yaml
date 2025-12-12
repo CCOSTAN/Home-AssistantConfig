@@ -134,6 +134,10 @@ script:
                 entity_id: group.family
                 state: 'not_home'
             sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Downstairs HVAC set to ECO (family not_home)."
               - service: climate.set_preset_mode
                 data:
                   entity_id: climate.downstairs
@@ -148,6 +152,10 @@ script:
                     entity_id: sensor.pirateweather_temperature
                     above: 92
             sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Downstairs target set to 78F (family home, temp >92F)."
               - service: climate.set_hvac_mode
                 data:
                   entity_id: climate.downstairs
@@ -161,6 +169,10 @@ script:
                 entity_id: group.family
                 state: 'home'
             sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Downstairs target set to 80F (family home)."
               - service: climate.set_hvac_mode
                 data:
                   entity_id: climate.downstairs
@@ -183,6 +195,11 @@ automation:
         entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
         above: 800      # hours
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "MAINTENANCE"
+          message: >-
+            Downstairs AC filter due (runtime >800h). Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
       - service: script.notify_engine        # <-- keep your existing notify helper
         data:
           title: "Home Maintenance Reminder"
@@ -200,6 +217,11 @@ automation:
         entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
         above: 450      # hours
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "MAINTENANCE"
+          message: >-
+            Upstairs AC filter due (runtime >450h). Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
       - service: script.notify_engine
         data:
           title: "Home Maintenance Reminder"
@@ -245,6 +267,10 @@ automation:
         data:
           entity_id: climate.upstairs
           temperature: 78
+      - service: script.send_to_logbook
+        data:
+          topic: "CLIMATE"
+          message: "Upstairs target temp corrected to 78F (guardrail)."
 
   - alias: Set Downstairs to 77 When Both in Bed
     id: set_downstairs_nest_77_both_in_bed
@@ -432,4 +458,3 @@ automation:
       - delay: "00:20:00"
       - service: script.set_downstairs_target_temp_based_on_conditions
       - delay: "02:00:00"      # stops it from being triggered again too soon.
-

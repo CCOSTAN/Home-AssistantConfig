@@ -1,14 +1,15 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Tesla Powerwall - Monitoring and outage automations.
-#-------------------------------------------
-######################################################################
-##  Powerwall status sensors and load-shedding helpers.
-######################################################################
-# Read more: https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html | Issue #272
+# -------------------------------------------------------------------
+# Tesla Powerwall - Monitoring and outage automations
+# Related Issue: 1550
+#  Powerwall status sensors, outage alerting, and load-shedding helpers.
+# -------------------------------------------------------------------
+# Notes: Read more https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html | Existing Issue #272
 # Tesla Powerwall added via UI Integration
-# --------------------------------------------------------------
+######################################################################
 # Binary Sensors:
 #  - binary_sensor.powerwall_charging ............. battery_charging (on=charging)
 #  - binary_sensor.powerwall_connected_to_tesla ... connectivity (on=connected)
@@ -54,6 +55,11 @@ automation:
             trigger.from_state.state not in ['unavailable', 'unknown', 'null'] }}
 
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "POWER"
+          message: >-
+            Grid status is {{ (trigger.to_state.state)|replace('on', 'up')|replace('off', 'down') }}.
       - service: script.notify_engine
         data:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('on', 'up')|replace('off', 'down') }}."
@@ -124,12 +130,51 @@ automation:
         entity_id: binary_sensor.powerwall_grid_status
         state: 'on'
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "POWER"
+          message: "Powerwall charge below 60% for 24h (current: {{ states('sensor.powerwall_charge') }}%)."
+
+      - service: repairs.create
+        data:
+          issue_id: "powerwall_low_charge_60_24h"
+          title: "Powerwall charge low for 24h"
+          severity: "warning"
+          persistent: true
+          description: >-
+            Powerwall has been below 60% for 24 hours while the grid is online.
+
+            Current charge: {{ states('sensor.powerwall_charge') }}%.
+
       - service: script.notify_engine
         data:
           title: "Powerwall Low Charge Alert - Current Charge: {{ states('sensor.powerwall_charge') }}"
           value1: "The Powerwall has been below 50% charge for more than 24 hours while the grid is online. This may indicate an issue."
           who: 'parents'
           group: 'information'
+
+  - alias: "Powerwall Low Charge Resolved - Clear Repair Issue"
+    id: 5fd1f0b3-0e64-4a4b-bd7a-9f5d5e6b8f90
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.powerwall_charge
+        above: 60
+        for:
+          minutes: 10
+    condition:
+      - condition: state
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'on'
+    action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "powerwall_low_charge_60_24h"
+      - service: script.send_to_logbook
+        data:
+          topic: "POWER"
+          message: "Powerwall charge recovered above 60%. Cleared repair issue."
 
   - alias: "Shut down Docker hosts and camera PoE at 75% Powerwall"
     id: 25b3d3d8-92fa-454a-9f1c-6d3fd0f3af58

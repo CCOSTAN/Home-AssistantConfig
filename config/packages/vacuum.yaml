@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Dreame Vacuum Orchestration - Continuous phased sweep/mop with away/on-demand
+# Related Issue: 1550
 #  Phases: sweep main, sweep baths, mop main, mop baths; notifications + idle auto-start
 # -------------------------------------------------------------------
 ######################################################################
@@ -261,16 +262,10 @@ automation:
           entity_id: input_text.l10s_vacuum_rooms_cleaned_today
         data:
           value: "{{ updated_cleaned }}"
-      - service: script.notify_engine
+      - service: script.send_to_logbook
         data:
-          title: 'Vacuum Room Cleaned'
-          value1: "{{ room_name }} is clean."
-          value2: "Remaining: {{ remaining_count }}."
-          ios_category: 'camera'
-          camera_entity: 'camera.l10s_vacuum_map'
-          content_type: 'jpeg'
-          who: 'carlo'
-          group: 'information'
+          topic: "VACUUM"
+          message: "{{ room_name }} is clean. Remaining: {{ remaining_count }}."
       - choose:
           - conditions:
               - condition: template
@@ -337,6 +332,23 @@ automation:
       - condition: template
         value_template: "{{ states('sensor.l10s_vacuum_error') not in ['no_error', 'unavailable'] }}"
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "VACUUM"
+          message: "{{ states('sensor.l10s_vacuum_error') }} - {{ states('sensor.l10s_vacuum_current_room') }}"
+
+      - service: repairs.create
+        data:
+          issue_id: "vacuum_error"
+          title: "Vacuum needs help"
+          severity: "warning"
+          persistent: true
+          description: >-
+            Vacuum reported an error and needs intervention.
+
+            Error: {{ states('sensor.l10s_vacuum_error') }}
+            Room: {{ states('sensor.l10s_vacuum_current_room') }}
+
       - service: script.notify_engine
         data:
           title: 'Help vacuum'
@@ -361,3 +373,20 @@ automation:
         entity_id: vacuum.l10s_vacuum
       - delay: 00:20:00
       - event: event_did_someone_help_vacuum_loop
+
+  - alias: "Vacuum Error Resolved - Clear Repair Issue"
+    id: 2a0b3f7f-2f1e-4d2d-8dd4-0f6e4e34b02b
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.l10s_vacuum_error
+        to: 'no_error'
+    action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "vacuum_error"
+      - service: script.send_to_logbook
+        data:
+          topic: "VACUUM"
+          message: "Vacuum error cleared."

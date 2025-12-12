@@ -46,6 +46,10 @@ automation:
           title: 'Low Battery'
           value1: 'The August Door lock is at {{ states("sensor.front_door_battery") }}% '
           group: 'Battery_Alert'
+      - service: script.send_to_logbook
+        data:
+          topic: "BATTERY"
+          message: "August Door lock battery low: {{ states('sensor.front_door_battery') }}%"
 
   - alias: 'FrontDoor Bell Camera on Front Door Lock'
     id: Doorbell_camera_front_door

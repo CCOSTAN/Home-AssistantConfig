@@ -105,13 +105,10 @@ automation:
           entity_id: input_text.last_person_home
         data:
           value: "{{ trigger.to_state.entity_id.split('.')[1] }}"
-      - service: script.notify_engine 
+      - service: script.send_to_logbook
         data:
-          who: 'parents'
-          value1: "Large Garage has been auto-opened for {{ states('input_text.last_person_home') }}."
-          title: 'Garage Auto-Opened'
-          group: 'Welcome_Home'
-          camera_entity: camera.garagecam
+          topic: "GARAGE"
+          message: "Large Garage was auto-opened for {{ states('input_text.last_person_home') }}."
 
 ######################################################################
 ##  Entry helper prompt after arrival if auto-open didn’t fire.
@@ -215,6 +212,10 @@ automation:
           value1: "Unlocking for {{ trigger.to_state.name }} arriving from driving."
           who: "family"
           group: "Welcome_Home"
+      - service: script.send_to_logbook
+        data:
+          topic: "DOORS"
+          message: "Front door auto-unlocked for {{ trigger.to_state.name }} arriving from driving."
 
 
 ######################################################################

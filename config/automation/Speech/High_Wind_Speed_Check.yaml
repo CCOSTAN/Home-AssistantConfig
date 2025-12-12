@@ -1,6 +1,13 @@
-###################################
-## Tornados are no Joke.
-###################################
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# High Wind Alerts - Severe wind warnings (push + Activity feed)
+# Related Issue: 1550
+#  Logs to Activity feed while keeping existing notifications and actions.
+# -------------------------------------------------------------------
+######################################################################
 
 - alias: 'High Wind Speed Notification'
   id: 5cc158a5-038a-4078-a9fb-c9f9cf9ecd49
@@ -17,6 +24,11 @@
       above: 60
 
   action:
+    - service: script.send_to_logbook
+      data:
+        topic: "WEATHER"
+        message: >-
+          Wind speed is {{ states('sensor.pirateweather_wind_speed') | round }} mph (thresholds: 30/40/60).
     - service: script.notify_engine
       data:
         title: 'VERY HIGH WINDS:'

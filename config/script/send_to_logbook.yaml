@@ -1,0 +1,32 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Send To Logbook - Generic helper for Activity/logbook entries
+# Related Issue: 1550
+#  Calls `logbook.log` using `sensor.activity_feed` as the entity_id.
+# -------------------------------------------------------------------
+######################################################################
+
+send_to_logbook:
+  alias: Send To Logbook
+  mode: queued
+  fields:
+    topic:
+      description: Logbook entry name (headline)
+      example: "n8n"
+    message:
+      description: Logbook entry message
+      example: "Webhook received and workflow started."
+  sequence:
+    - condition: template
+      value_template: >-
+        {{ topic is defined and (topic | string | trim) != '' and
+           message is defined and (message | string | trim) != '' }}
+    - service: logbook.log
+      data:
+        name: "{{ topic | string | trim }}"
+        message: "{{ message | string | trim }}"
+        entity_id: sensor.activity_feed
+

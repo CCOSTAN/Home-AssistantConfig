@@ -1,0 +1,18 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Logbook Activity Feed - Dummy entity for Activity pseudo-filtering
+# Related Issue: 1550
+#  Provides `sensor.activity_feed` as a stable entity_id for `logbook.log`.
+# -------------------------------------------------------------------
+######################################################################
+
+template:
+  - sensor:
+      - name: Activity Feed
+        unique_id: activity_feed
+        icon: mdi:clipboard-text
+        state: "ready"
+

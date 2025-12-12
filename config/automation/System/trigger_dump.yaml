@@ -1,6 +1,13 @@
-###################################
-##  Trigger Dump
-###################################
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Trigger Dump - Log feedreader events to Activity feed
+# Related Issue: 1550
+#  Writes a Logbook entry and publishes payload to MQTT for debugging.
+# -------------------------------------------------------------------
+######################################################################
 
   - alias: Trigger dump - MQTT
     id: 74edd73d-f0a5-45cf-9561-c6a1777236e5
@@ -8,12 +15,10 @@
       - platform: event
         event_type: feedreader
     action:
-      - service: script.notify_engine
+      - service: script.send_to_logbook
         data:
-          value1: 'Check the MQTT Dump'
-          value2: '/dump/{{ trigger.platform }}'
-          who: 'carlo'
-          group: 'information'
+          topic: "SYSTEM"
+          message: "Check the MQTT dump: /dump/{{ trigger.platform }}"
       - service: mqtt.publish
         data:
           topic: '/dump/{{ trigger.platform }}'
