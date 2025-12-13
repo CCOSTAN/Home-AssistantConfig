@@ -265,7 +265,7 @@ automation:
       - service: script.send_to_logbook
         data:
           topic: "VACUUM"
-          message: "{{ room_name }} is clean. Remaining: {{ remaining_count }}."
+          message: "{{ room_name }} is clean. Phase: {{ phase }}. Remaining: {{ remaining_count }}."
       - choose:
           - conditions:
               - condition: template
@@ -335,7 +335,7 @@ automation:
       - service: script.send_to_logbook
         data:
           topic: "VACUUM"
-          message: "{{ states('sensor.l10s_vacuum_error') }} - {{ states('sensor.l10s_vacuum_current_room') }}"
+          message: "{{ states('sensor.l10s_vacuum_error') }} - {{ states('sensor.l10s_vacuum_current_room') }} (phase: {{ states('input_select.l10s_vacuum_phase') }})"
 
       - service: repairs.create
         data:
@@ -389,4 +389,19 @@ automation:
       - service: script.send_to_logbook
         data:
           topic: "VACUUM"
-          message: "Vacuum error cleared."
+          message: "Vacuum error cleared (phase: {{ states('input_select.l10s_vacuum_phase') }})."
+
+  - alias: "Vacuum Phase Changed"
+    id: 3e99c6fb-7c4a-4a9f-8f2d-9f1b9a6b4baf
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: input_select.l10s_vacuum_phase
+    condition:
+      - condition: template
+        value_template: "{{ trigger.from_state is not none and trigger.to_state is not none }}"
+    action:
+      - service: script.send_to_logbook
+        data:
+          topic: "VACUUM"
+          message: "Phase changed: {{ trigger.from_state.state }} -> {{ trigger.to_state.state }}."
