@@ -9,6 +9,7 @@
 # -------------------------------------------------------------------
 # Notes:
 # - `sensor.l10s_vacuum_current_room` can change during transit; require a dwell (`for:`) and then wait for the vacuum to leave before dequeue/phase advance.
+# - Only dequeue a room after it leaves and does not return shortly; prevents boundary "bouncing" and avoids marking a room done if we interrupt and dock.
 # - Avoid reissuing `dreame_vacuum.vacuum_clean_segment` while already cleaning; only send a new segment job when starting/resuming or switching phases.
 ######################################################################
 
@@ -212,6 +213,7 @@ automation:
       cleaned_room_state: "{{ trigger.to_state.state if trigger.to_state is not none else '' }}"
       cleaned_room_id: "{{ (trigger.to_state.attributes.room_id if trigger.to_state is not none else 0) | int(0) }}"
       matched_room_id: "{{ cleaned_room_id if cleaned_room_id > 0 and cleaned_room_id in (queue_ints | default([], true)) else 0 }}"
+      room_name: "{{ room_map.get(matched_room_id, cleaned_room_state) }}"
       remaining_list: >
         {% set rem = [] %}
         {% set removed = namespace(done=false) %}
@@ -251,6 +253,58 @@ automation:
       - wait_template: "{{ states('sensor.l10s_vacuum_current_room') != cleaned_room_state }}"
         timeout: '02:00:00'
         continue_on_timeout: false
+
+      # Do not mark a room "done" if we simply crossed a boundary, or if we are about to be interrupted and dock.
+      - delay: '00:00:20'
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: vacuum.l10s_vacuum
+                state: 'cleaning'
+              - condition: state
+                entity_id: input_boolean.l10s_vacuum_on_demand
+                state: 'on'
+              - condition: state
+                entity_id: group.family
+                state: 'not_home'
+            sequence:
+              - wait_template: "{{ states('sensor.l10s_vacuum_current_room') == cleaned_room_state }}"
+                timeout: '00:12:00'
+                continue_on_timeout: true
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ wait.completed }}"
+                    sequence:
+                      - service: script.send_to_logbook
+                        data:
+                          topic: "VACUUM"
+                          message: "{{ room_name }} revisit detected; keeping it queued."
+                      - stop: "Vacuum returned to the same room; not dequeuing."
+                default: []
+
+              - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: vacuum.l10s_vacuum
+                        state: 'cleaning'
+                      - condition: state
+                        entity_id: group.family
+                        state: 'not_home'
+                    sequence: []
+                default:
+                  - service: script.send_to_logbook
+                    data:
+                      topic: "VACUUM"
+                      message: "{{ room_name }} not dequeued (vacuum state: {{ states('vacuum.l10s_vacuum') }}, family: {{ states('group.family') }})."
+                  - stop: "Vacuum no longer cleaning / family returned; not dequeuing."
+        default:
+          - service: script.send_to_logbook
+            data:
+              topic: "VACUUM"
+              message: "{{ room_name }} not dequeued (vacuum state: {{ states('vacuum.l10s_vacuum') }}, family: {{ states('group.family') }})."
+          - stop: "Not in away-cleaning conditions; not dequeuing."
+
       - service: input_text.set_value
         target:
           entity_id: input_text.l10s_vacuum_room_queue
@@ -259,7 +313,6 @@ automation:
       - variables:
           cleaned_raw: "{{ states('input_text.l10s_vacuum_rooms_cleaned_today') | default('', true) | string }}"
           cleaned_parts: "{{ cleaned_raw | regex_findall('[^,]+') | map('trim') | reject('equalto','') | list }}"
-          room_name: "{{ room_map.get(matched_room_id, cleaned_room_state) }}"
           updated_cleaned: >
             {% set parts = cleaned_parts %}
             {% if room_name not in parts %}
