@@ -12,6 +12,7 @@
 # - Treat 3+ minutes in a room as "being cleaned" and dequeue immediately (queue = remaining rooms).
 # - Phase changes are driven by `sensor.l10s_vacuum_task_status: completed` and an empty queue to avoid skipping ahead on false room transitions.
 # - Avoid reissuing `dreame_vacuum.vacuum_clean_segment` while already cleaning; only send a new segment job when starting/resuming or switching phases.
+# - Jinja2 loop scoping: use a `namespace` when building lists (otherwise the queue can appear empty and get cleared).
 ######################################################################
 
 ## 1. Helpers
@@ -207,26 +208,26 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.l10s_vacuum_current_room
-        for: '00:03:00'
+        for: '00:02:30'
     variables:
-      room_map: {14:'kitchen',12:'dining-room',10:'living room',7:'master-bedroom',15:'foyer',9:'stacey-office',17:'formal-dining',13:'hallway',8:'justin-bedroom',6:'paige-bedroom',4:'master-bathroom',2:'office',1:'pool-bath',3:'kids-bathroom'}
+      room_map: {14: Kitchen, 12: 'Dining Room', 10: 'Living Room', 7: 'Master Bedroom', 15: Foyer, 9: 'Stacey Office', 17: 'Formal Dining', 13: Hallway, 8: 'Justin Bedroom', 6: 'Paige Bedroom', 4: 'Master Bathroom', 2: Office, 1: 'Pool Bath', 3: 'Kids Bathroom'}
       queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
-      queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | list | default([], true) }}"
+      queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list | default([], true) }}"
       cleaned_room_state: "{{ trigger.to_state.state if trigger.to_state is not none else '' }}"
       cleaned_room_id: "{{ (trigger.to_state.attributes.room_id if trigger.to_state is not none else 0) | int(0) }}"
       matched_room_id: "{{ cleaned_room_id if cleaned_room_id > 0 and cleaned_room_id in (queue_ints | default([], true)) else 0 }}"
       room_name: "{{ room_map.get(matched_room_id, cleaned_room_state) }}"
       remaining_list: >
-        {% set rem = [] %}
+        {% set ns = namespace(rem=[]) %}
         {% set removed = namespace(done=false) %}
         {% for r in queue_ints %}
           {% if not removed.done and r == matched_room_id %}
             {% set removed.done = true %}
           {% else %}
-            {% set rem = rem + [r] %}
+            {% set ns.rem = ns.rem + [r] %}
           {% endif %}
         {% endfor %}
-        {{ rem }}
+        {{ ns.rem }}
       remaining_rooms: "{{ remaining_list | join(',') }}"
       remaining_count: "{{ remaining_list | length }}"
       phase_order: ['sweep_main', 'sweep_bath', 'mop_main', 'mop_bath']
