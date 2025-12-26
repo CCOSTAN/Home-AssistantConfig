@@ -56,7 +56,7 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 | Container | Repo/Docs | Purpose |
 | --- | --- | --- |
 | Home Assistant Time Machine | [saihgupr/HomeAssistantTimeMachine](https://github.com/saihgupr/HomeAssistantTimeMachine) | Browse/diff/restore HA YAML (Lovelace, automations, scripts, ESPHome, packages) against existing backups. Blog walkthrough: [Time Machine for dashboards](https://www.vcloudinfo.com/2025/12/home-assistant-time-machine-dashboards.html). |
-| Duplicati | [duplicati/duplicati](https://github.com/duplicati/duplicati) | Off-box, versioned backups for HA config and media. |
+| Duplicati | [duplicati/duplicati](https://github.com/duplicati/duplicati) | Off-box, versioned backups for HA config and media; docker config backups land in OneDrive. |
 | Dozzle | [amir20/dozzle](https://github.com/amir20/dozzle) | Lightweight Docker log viewer (useful for quick tailing across the homelab stacks). |
 | Cloudflared | [cloudflare/cloudflared](https://hub.docker.com/r/cloudflare/cloudflared) | Secure tunnel/edge access to Home Assistant without opening inbound ports. |
 | WordPress | [wordpress](https://hub.docker.com/_/wordpress) | Hosts [vCloudInfo.com](https://www.vcloudinfo.com) for docs, how-tos, videos, and long-form writeups that accompany this config. |
