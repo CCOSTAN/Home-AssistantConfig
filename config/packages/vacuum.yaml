@@ -13,7 +13,9 @@
 # - Phase changes are driven by `sensor.l10s_vacuum_task_status: completed` and an empty queue to avoid skipping ahead on false room transitions.
 # - Avoid reissuing `dreame_vacuum.vacuum_clean_segment` while already cleaning; only send a new segment job when starting/resuming or switching phases.
 # - Jinja2 loop scoping: use a `namespace` when building lists (otherwise the queue can appear empty and get cleared).
-# - Docked + task complete now clears the queue and disables On-Demand to keep the UI state honest.
+# - Docked + task complete clears the queue to keep the UI state honest.
+# - Queue-empty trigger ignores already-completed tasks to avoid immediate reseeding.
+# - Queue-empty no longer auto-reseeds; phase advance handles the next run on completion.
 ######################################################################
 
 ## 1. Helpers
@@ -166,9 +168,6 @@ automation:
       - platform: state
         entity_id: input_boolean.l10s_vacuum_on_demand
         to: 'on'
-      - platform: state
-        entity_id: input_text.l10s_vacuum_room_queue
-        to: ""
     condition:
       - condition: state
         entity_id: input_boolean.guest_mode
@@ -176,6 +175,9 @@ automation:
       - condition: template
         value_template: >
           {{ is_state('input_boolean.l10s_vacuum_on_demand', 'on') or is_state('group.family', 'not_home') }}
+      - condition: template
+        value_template: >
+          true
       - condition: template
         value_template: "{{ not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
     action:
@@ -314,21 +316,31 @@ automation:
       - platform: state
         entity_id: vacuum.l10s_vacuum
         to: 'docked'
+    variables:
+      queue_empty: "{{ (states('input_text.l10s_vacuum_room_queue') | default('', true) | trim) == '' }}"
     condition:
       - condition: state
         entity_id: sensor.l10s_vacuum_task_status
-        state: 'Completed'
+        state: 'completed'
     action:
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.l10s_vacuum_room_queue
-        data:
-          value: ""
-      - service: script.send_to_logbook
-        data:
-          topic: "VACUUM"
-          message: "Docked after completion; queue cleared."
-      - delay: 00:15:00
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ queue_empty }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "Docked after completion; queue already empty."
+          - conditions:
+              - condition: template
+                value_template: "{{ not queue_empty }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "Docked but queue still has rooms; leaving queue intact."
+        default: []
 
   - alias: 'Away Vacuum: Advance Phase on Task Complete'
     id: 3b49236f-6da5-4b4d-a743-82b4ea00db62
@@ -336,7 +348,7 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.l10s_vacuum_task_status
-        to: 'Completed'
+        to: 'completed'
     condition:
       - condition: state
         entity_id: input_boolean.l10s_vacuum_on_demand
@@ -408,7 +420,7 @@ automation:
     condition:
       - condition: state
         entity_id: sensor.l10s_vacuum_task_status
-        state: 'Completed'
+        state: 'completed'
     action:
       - service: button.press
         target:
