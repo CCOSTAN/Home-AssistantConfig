@@ -1,5 +1,11 @@
 ######################################################################
-##  Good night Routine
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Good Night Routine - bedtime shutdown and bed presence actions
+#  Powers down interior accents when the household is in bed.
+# -------------------------------------------------------------------
 ######################################################################
 
 - alias: 'Good Night Trigger'
@@ -88,6 +94,7 @@
             target:
               entity_id: 
                 - switch.kitchen_accent_2
+                - switch.office_accent
                 - light.outdoor_bathroom
                 - group.master_bathroom_accents
                 - group.landscaping    
