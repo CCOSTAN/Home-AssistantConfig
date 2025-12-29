@@ -6,9 +6,9 @@
 # Recorder Configuration - database retention and exclusions
 #  Stores HA history while purging noise and controlling DB size.
 # -------------------------------------------------------------------
-# Notes: Keeps 30 days; excludes vcloudinfo pings and other high-churn entities.
+# Notes: Keeps 30 days; excludes vcloudinfo pings and other high-churn entities; MariaDB via recorder_db_url.
 ######################################################################
-#db_url: sqlite:///data/home-assistant_v2.db
+db_url: !secret recorder_db_url
 purge_keep_days: 30
 auto_purge: true
 commit_interval: 30
@@ -59,6 +59,7 @@ exclude:
     - binary_sensor.bear_stone
     - binary_sensor.vcloudinfo_com
     - binary_sensor.powerwall_charging
+    - sensor.phyn_current_water_pressure
     - sensor.vcloudinfo_com
     - number.alarm_panel_1_screen_brightness
     - script.amp_settings
