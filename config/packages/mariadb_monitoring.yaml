@@ -1,0 +1,166 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# MariaDB Monitoring - SQL sensor bundle for DB health
+#  Recorder-backed metrics for MariaDB performance and capacity checks.
+# -------------------------------------------------------------------
+# Notes: Uses SQL integration against recorder_db_url.
+# Notes: COUNT(*) queries run every 6h; increase scan_interval or disable if slow.
+######################################################################
+
+sql:
+  - name: "MariaDB Status"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT 'running' as status
+      FROM information_schema.GLOBAL_STATUS
+      WHERE VARIABLE_NAME = 'Uptime'
+        AND CAST(VARIABLE_VALUE AS UNSIGNED) > 0;
+    column: "status"
+    value_template: "{{ value if value else 'stopped' }}"
+
+  - name: "MariaDB Version"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT @@version as version;
+    column: "version"
+
+  - name: "MariaDB Performance"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT ROUND(
+        (SELECT VARIABLE_VALUE
+         FROM information_schema.GLOBAL_STATUS
+         WHERE VARIABLE_NAME = 'Queries') /
+        (SELECT VARIABLE_VALUE
+         FROM information_schema.GLOBAL_STATUS
+         WHERE VARIABLE_NAME = 'Uptime')
+      ) as performance;
+    column: "performance"
+    unit_of_measurement: "q/s"
+
+  - name: "Database Size"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size
+      FROM information_schema.tables
+      WHERE table_schema = 'homeassistant';
+    column: "size"
+    unit_of_measurement: "MB"
+    value_template: "{{ value | float(0) }}"
+
+  - name: "Database Tables Count"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT COUNT(*) as count
+      FROM information_schema.tables
+      WHERE table_schema = 'homeassistant';
+    column: "count"
+    unit_of_measurement: "tables"
+
+  - name: "Database Oldest Record"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT DATE_FORMAT(MIN(last_updated), '%Y-%m-%d') as oldest
+      FROM states;
+    column: "oldest"
+
+  - name: "Database Total Records"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT COUNT(*) as count
+      FROM states;
+    column: "count"
+    unit_of_measurement: "records"
+
+  - name: "Database Records Per Day"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT ROUND(COUNT(*) / DATEDIFF(NOW(), MIN(last_updated)), 0) as avg
+      FROM states;
+    column: "avg"
+    unit_of_measurement: "records/day"
+
+  - name: "MariaDB Uptime"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT VARIABLE_VALUE as value
+      FROM information_schema.GLOBAL_STATUS
+      WHERE VARIABLE_NAME = 'Uptime';
+    column: "value"
+    unit_of_measurement: "seconds"
+
+  - name: "MariaDB Connections"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT VARIABLE_VALUE as value
+      FROM information_schema.GLOBAL_STATUS
+      WHERE VARIABLE_NAME = 'Threads_connected';
+    column: "value"
+    unit_of_measurement: "connections"
+
+  - name: "MariaDB Questions"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT VARIABLE_VALUE as value
+      FROM information_schema.GLOBAL_STATUS
+      WHERE VARIABLE_NAME = 'Questions';
+    column: "value"
+    unit_of_measurement: "queries"
+
+  - name: "MariaDB Buffer Pool Size"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT CONCAT(ROUND(@@innodb_buffer_pool_size / 1024 / 1024 / 1024, 1), ' GB') as value;
+    column: "value"
+
+  - name: "MariaDB Max Connections"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT @@max_connections as value;
+    column: "value"
+
+  - name: "MariaDB Log File Size"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT CONCAT(ROUND(@@innodb_log_file_size / 1024 / 1024, 0), ' MB') as value;
+    column: "value"
+
+  - name: "MariaDB Tmp Table Size"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT CONCAT(ROUND(@@tmp_table_size / 1024 / 1024, 0), ' MB') as value;
+    column: "value"
+
+  - name: "MariaDB IO Capacity"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT @@innodb_io_capacity as value;
+    column: "value"
+
+  - name: "MariaDB IO Threads"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT CONCAT(
+        'Read: ', @@innodb_read_io_threads,
+        ', Write: ', @@innodb_write_io_threads
+      ) as value;
+    column: "value"
+
+  - name: "MariaDB Table Cache"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT @@table_open_cache as value;
+    column: "value"
+
+  - name: "MariaDB Buffer Sizes"
+    db_url: !secret recorder_db_url
+    query: >-
+      SELECT CONCAT(
+        'Sort: ', ROUND(@@sort_buffer_size / 1024 / 1024, 0), 'M, ',
+        'Read: ', ROUND(@@read_buffer_size / 1024 / 1024, 0), 'M, ',
+        'Join: ', ROUND(@@join_buffer_size / 1024 / 1024, 0), 'M'
+      ) as value;
+    column: "value"

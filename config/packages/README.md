@@ -44,6 +44,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [holiday.yaml](holiday.yaml) | REST-driven US holiday + flag sensors that color scenes and exterior lighting. | `sensor.holiday`, `sensor.flag`, JSON feed at `config/json_data/holidays.json` |
 | [lightning.yaml](lightning.yaml) | Blitzortung lightning counter monitoring with snoozeable push actions. | `sensor.blitzortung_lightning_counter`, `input_boolean.snooze_lightning`, notify engine actions |
 | [logbook_activity_feed.yaml](logbook_activity_feed.yaml) | Dummy `sensor.activity_feed` + helper to write clean Activity entries (Issue #1550). | `sensor.activity_feed`, `script.send_to_logbook` |
+| [mariadb_monitoring.yaml](mariadb_monitoring.yaml) | MariaDB health sensors and Lovelace dashboard snippet for recorder stats. | `sensor.mariadb_status`, `sensor.database_size` |
 | [phynplus.yaml](phynplus.yaml) | Phyn shutoff automations with push + Activity feed + Repairs issues for leak events. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `repairs.create` |
 | [powerwall.yaml](powerwall.yaml) | Track Tesla Powerwall grid status and shed loads automatically when off-grid (alerts include Activity feed + Repairs). | `binary_sensor.powerwall_grid_status`, `sensor.powerwall_*`, `repairs.create` |
 | [vacuum.yaml](vacuum.yaml) | Dreame vacuum orchestration with room tracking, push alerts, Activity feed, and Repairs issues on errors. | `input_select.l10s_vacuum_phase`, `sensor.l10s_vacuum_error`, `repairs.create` |
