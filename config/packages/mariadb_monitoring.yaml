@@ -63,7 +63,7 @@ sql:
   - name: "Database Oldest Record"
     db_url: !secret recorder_db_url
     query: >-
-      SELECT DATE_FORMAT(MIN(last_updated), '%Y-%m-%d') as oldest
+      SELECT DATE_FORMAT(FROM_UNIXTIME(MIN(last_updated_ts)), '%Y-%m-%d') as oldest
       FROM states;
     column: "oldest"
 
@@ -78,7 +78,11 @@ sql:
   - name: "Database Records Per Day"
     db_url: !secret recorder_db_url
     query: >-
-      SELECT ROUND(COUNT(*) / DATEDIFF(NOW(), MIN(last_updated)), 0) as avg
+      SELECT ROUND(
+        COUNT(*) /
+        GREATEST(DATEDIFF(NOW(), FROM_UNIXTIME(MIN(last_updated_ts))), 1),
+        0
+      ) as avg
       FROM states;
     column: "avg"
     unit_of_measurement: "records/day"
