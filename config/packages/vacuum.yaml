@@ -9,13 +9,14 @@
 # -------------------------------------------------------------------
 # Notes:
 # - `sensor.l10s_vacuum_current_room` can change during transit; require a dwell (`for:`) before dequeuing.
-# - Treat 3+ minutes in a room as "being cleaned" and dequeue immediately (queue = remaining rooms).
-# - Phase changes are driven by `sensor.l10s_vacuum_task_status: completed` and an empty queue to avoid skipping ahead on false room transitions.
+# - Treat 2+ minutes in a room as "being cleaned" and dequeue immediately (queue = remaining rooms).
+# - Phase changes are driven by `sensor.l10s_vacuum_task_status: completed` and an empty queue (queue is the source of truth).
 # - Avoid reissuing `dreame_vacuum.vacuum_clean_segment` while already cleaning; only send a new segment job when starting/resuming or switching phases.
 # - Jinja2 loop scoping: use a `namespace` when building lists (otherwise the queue can appear empty and get cleared).
-# - Docked + task complete clears the queue to keep the UI state honest.
+# - Docked + task complete only logs queue state; no auto-clearing.
 # - Queue-empty trigger ignores already-completed tasks to avoid immediate reseeding.
 # - Queue-empty no longer auto-reseeds; phase advance handles the next run on completion.
+# - Mop phases use `sweeping_and_mopping` instead of mop-only.
 ######################################################################
 
 ## 1. Helpers
@@ -71,7 +72,7 @@ script:
           phase_order: ['sweep_main', 'sweep_bath', 'mop_main', 'mop_bath']
           phase_state: "{{ states('input_select.l10s_vacuum_phase') }}"
           phase: "{{ phase_state if phase_state in phase_order else 'sweep_main' }}"
-          cleaning_mode: "{{ 'mopping' if 'mop_' in phase else 'sweeping' }}"
+          cleaning_mode: "{{ 'sweeping_and_mopping' if 'mop_' in phase else 'sweeping' }}"
           queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
           queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
           phase_segments: >
@@ -317,7 +318,8 @@ automation:
         entity_id: vacuum.l10s_vacuum
         to: 'docked'
     variables:
-      queue_empty: "{{ (states('input_text.l10s_vacuum_room_queue') | default('', true) | trim) == '' }}"
+      queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | trim }}"
+      queue_empty: "{{ queue_raw == '' }}"
     condition:
       - condition: state
         entity_id: sensor.l10s_vacuum_task_status
@@ -339,7 +341,7 @@ automation:
               - service: script.send_to_logbook
                 data:
                   topic: "VACUUM"
-                  message: "Docked but queue still has rooms; leaving queue intact."
+                  message: "Docked after completion; queue still has rooms: {{ queue_raw }}."
         default: []
 
   - alias: 'Away Vacuum: Advance Phase on Task Complete'
@@ -353,9 +355,9 @@ automation:
       - condition: state
         entity_id: input_boolean.l10s_vacuum_on_demand
         state: 'on'
-      - condition: template
-        value_template: "{{ (states('input_text.l10s_vacuum_room_queue') | default('', true) | trim) == '' }}"
     variables:
+      queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | trim }}"
+      queue_empty: "{{ queue_raw == '' }}"
       phase_order: ['sweep_main', 'sweep_bath', 'mop_main', 'mop_bath']
       phase_state: "{{ states('input_select.l10s_vacuum_phase') }}"
       phase: "{{ phase_state if phase_state in phase_order else 'sweep_main' }}"
@@ -363,52 +365,70 @@ automation:
       has_next_phase: "{{ phase_index < (phase_order | length) - 1 }}"
       next_phase: "{{ phase_order[phase_index + 1] if has_next_phase else '' }}"
     action:
-      - service: script.send_to_logbook
-        data:
-          topic: "VACUUM"
-          message: >
-            Phase complete: {{ phase }}. {{
-              'Advancing to ' ~ next_phase ~ '.' if has_next_phase else 'All phases complete; shutting down.'
-            }}
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ has_next_phase }}"
+                value_template: "{{ queue_empty }}"
             sequence:
-              - service: input_select.select_option
-                target:
-                  entity_id: input_select.l10s_vacuum_phase
+              - service: script.send_to_logbook
                 data:
-                  option: "{{ next_phase }}"
-              - service: input_text.set_value
-                target:
-                  entity_id: input_text.l10s_vacuum_room_queue
+                  topic: "VACUUM"
+                  message: >
+                    Phase complete: {{ phase }}. {{
+                      'Advancing to ' ~ next_phase ~ '.' if has_next_phase else 'All phases complete; shutting down.'
+                    }}
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ has_next_phase }}"
+                    sequence:
+                      - service: input_select.select_option
+                        target:
+                          entity_id: input_select.l10s_vacuum_phase
+                        data:
+                          option: "{{ next_phase }}"
+                      - service: input_text.set_value
+                        target:
+                          entity_id: input_text.l10s_vacuum_room_queue
+                        data:
+                          value: ""
+                      - wait_template: "{{ not is_state('vacuum.l10s_vacuum', 'returning') and not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
+                        timeout: '01:30:00'
+                        continue_on_timeout: false
+                      - service: script.l10s_vacuum_start_next_room
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ not has_next_phase }}"
+                    sequence:
+                      - service: input_select.select_option
+                        target:
+                          entity_id: input_select.l10s_vacuum_phase
+                        data:
+                          option: "sweep_main"
+                      - service: input_text.set_value
+                        target:
+                          entity_id: input_text.l10s_vacuum_room_queue
+                        data:
+                          value: ""
+                      - service: input_boolean.turn_off
+                        target:
+                          entity_id: input_boolean.l10s_vacuum_on_demand
+                      - service: vacuum.return_to_base
+                        target:
+                          entity_id: vacuum.l10s_vacuum
+                default: []
+          - conditions:
+              - condition: template
+                value_template: "{{ not queue_empty }}"
+            sequence:
+              - service: script.send_to_logbook
                 data:
-                  value: ""
+                  topic: "VACUUM"
+                  message: "Task complete but queue not empty for {{ phase }}; resuming: {{ queue_raw }}."
               - wait_template: "{{ not is_state('vacuum.l10s_vacuum', 'returning') and not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
                 timeout: '01:30:00'
                 continue_on_timeout: false
               - service: script.l10s_vacuum_start_next_room
-          - conditions:
-              - condition: template
-                value_template: "{{ not has_next_phase }}"
-            sequence:
-              - service: input_select.select_option
-                target:
-                  entity_id: input_select.l10s_vacuum_phase
-                data:
-                  option: "sweep_main"
-              - service: input_text.set_value
-                target:
-                  entity_id: input_text.l10s_vacuum_room_queue
-                data:
-                  value: ""
-              - service: input_boolean.turn_off
-                target:
-                  entity_id: input_boolean.l10s_vacuum_on_demand
-              - service: vacuum.return_to_base
-                target:
-                  entity_id: vacuum.l10s_vacuum
         default: []
 
   - alias: 'Vacuum Sensor Cleaning Silencer'
