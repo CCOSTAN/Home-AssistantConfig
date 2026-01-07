@@ -3,21 +3,9 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# n8n Discord Router - Route HA events to Discord via JoAnnaBot
+# n8n Discord Router - Route HA events to Discord
 #  Central REST command into n8n's Discord routing webhook
 # -------------------------------------------------------------------
 # <No related GitHub issue>
 # REST endpoint: n8n webhook /discord-router
 ######################################################################
-
-rest_command:
-  send_to_discord:
-    url: "http://192.168.10.69:5678/webhook/discord-router"
-    method: POST
-    content_type: "application/json"
-    payload: >
-      {
-        "topic": "{{ topic }}",
-        "message": "{{ message }}"
-      }
-
