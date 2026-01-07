@@ -3,9 +3,8 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# HomeKit Configuration - Multi-bridge for stability + Alexa-friendly streams
-#  Main bridge for lights/locks/climate; cameras/lock split to accessory bridges.
-#  Camera streams use go2rtc substreams/restreams for faster Echo Show playback.
+# HomeKit Configuration - Multi-bridge (currently disabled)
+#  Kept for reference; `homekit: !include homekit.yaml` is commented out in `configuration.yaml`.
 # -------------------------------------------------------------------
 ######################################################################
 
@@ -45,53 +44,4 @@
       - light.sink
       - switch.lr_amp
     exclude_entities:
-      - lock.front_door
-# Cameras in accessory mode (better performance/reliability)
-- name: HomeKit Cameras
-  mode: accessory
-  port: 21064
-  filter:
-    include_entities:
-      - camera.bedroomgate
-      - camera.driveway
-      - camera.filtergate
-      - camera.frontdoorbell
-      - camera.poolcam
-      - camera.frontlawn
-      - camera.garagecam
-  entity_config:
-    camera.frontdoorbell:
-      video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/frontdoorbell_alexa
-    camera.poolcam:
-      linked_motion_sensor: binary_sensor.poolcam_motion_sensor
-      video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/poolcam_sub
-    camera.frontlawn:
-      linked_motion_sensor: binary_sensor.frontlawn_motion_sensor
-      video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/frontlawn_sub
-    camera.garagecam:
-      linked_motion_sensor: binary_sensor.garagecam_motion_sensor
-      video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/garagecam_sub
-    camera.bedroomgate:
-      linked_motion_sensor: binary_sensor.bedroomgate_motion_sensor
-      video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/bedroomgate?mp4
-    camera.driveway:
-      linked_motion_sensor: binary_sensor.driveway_motion_sensor
-      video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/driveway_sub
-    camera.filtergate:
-      linked_motion_sensor: binary_sensor.filtergate_motion_sensor
-      video_codec: copy
-      stream_source: rtsp://192.168.10.14:8554/filtergate?mp4
-
-# Front door lock in accessory mode (keeps lock responsive/available)
-- name: HomeKit Front Door Lock
-  mode: accessory
-  port: 21065
-  filter:
-    include_entities:
       - lock.front_door

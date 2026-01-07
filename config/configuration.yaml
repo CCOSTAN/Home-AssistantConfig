@@ -1,10 +1,12 @@
-#-------------------------------------------
-# Home Assistant Configuration
-# Author: Carlo Costanzo (@CCOSTAN)
-# GitHub: https://github.com/CCOSTAN/Home-AssistantConfig
-# Blog: https://vCloudInfo.com
-# Description: Main configuration file for Home Assistant setup
-#-------------------------------------------
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Home Assistant Configuration - Core config
+#  Main configuration file for Home Assistant setup.
+# -------------------------------------------------------------------
+######################################################################
 
 homeassistant:
   # customize: !include_dir_merge_named customize
@@ -50,11 +52,26 @@ cloud:
         - light.upstairs_lights
         - light.upstairs_lamp
         - light.sink
+        - camera.frontdoorbell
+        - camera.driveway
+        - camera.garagecam
+        - camera.birdseye
+        - switch.kitchen_accent_1
+        - switch.kitchen_accent_2
+        - switch.front_door_outlet
+        - switch.lr_amp
+        - switch.master_bathroom_accent_1
+        - switch.master_bathroom_accent_2
+        - switch.foyer_outlet
+        - switch.den_outlet
+        - switch.living_room_outlet
+        - switch.living_room_tv_outlet
+        - switch.office_accent
+        - switch.office_lamp_switch
+        - switch.front_office_lamp
       include_domains:
-        - switch
         - cover
         - input_boolean
-        - camera
       exclude_entities:
         - light.m1_back_left
         - light.m1_back_right
@@ -81,7 +98,7 @@ recorder: !include recorder.yaml
 
 tts:
 
-homekit: !include homekit.yaml
+# homekit: !include homekit.yaml
 group: !include_dir_merge_named group
 # device_tracker: !include_dir_merge_list device_tracker - All trackers have been moved to the UI.
 sensor: !include_dir_merge_list sensor
@@ -90,4 +107,3 @@ scene: !include_dir_merge_list scene
 # switch: !include_dir_merge_list switch
 script: !include_dir_merge_named script
 input_boolean: !include_dir_merge_named input_boolean
-
