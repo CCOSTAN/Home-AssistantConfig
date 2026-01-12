@@ -356,6 +356,8 @@ automation:
         entity_id: input_boolean.l10s_vacuum_on_demand
         state: 'on'
     variables:
+      vac_state: "{{ states('vacuum.l10s_vacuum') | default('', true) | string | lower }}"
+      is_docked: "{{ vac_state == 'docked' }}"
       queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | trim }}"
       queue_empty: "{{ queue_raw == '' }}"
       phase_order: ['sweep_main', 'sweep_bath', 'mop_main', 'mop_bath']
@@ -368,7 +370,7 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ queue_empty }}"
+                value_template: "{{ queue_empty and vac_state != 'cleaning' }}"
             sequence:
               - service: script.send_to_logbook
                 data:
@@ -419,7 +421,50 @@ automation:
                 default: []
           - conditions:
               - condition: template
-                value_template: "{{ not queue_empty }}"
+                value_template: "{{ not queue_empty and is_docked }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: >
+                    Task complete and docked with queue still set ({{ queue_raw }}); treating as early reseed.
+                    {{ 'Advancing to ' ~ next_phase ~ '.' if has_next_phase else 'All phases complete; shutting down.' }}
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ has_next_phase }}"
+                    sequence:
+                      - service: input_select.select_option
+                        target:
+                          entity_id: input_select.l10s_vacuum_phase
+                        data:
+                          option: "{{ next_phase }}"
+                      - service: input_text.set_value
+                        target:
+                          entity_id: input_text.l10s_vacuum_room_queue
+                        data:
+                          value: ""
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ not has_next_phase }}"
+                    sequence:
+                      - service: input_select.select_option
+                        target:
+                          entity_id: input_select.l10s_vacuum_phase
+                        data:
+                          option: "sweep_main"
+                      - service: input_text.set_value
+                        target:
+                          entity_id: input_text.l10s_vacuum_room_queue
+                        data:
+                          value: ""
+                      - service: input_boolean.turn_off
+                        target:
+                          entity_id: input_boolean.l10s_vacuum_on_demand
+                default: []
+          - conditions:
+              - condition: template
+                value_template: "{{ not queue_empty and not is_docked }}"
             sequence:
               - service: script.send_to_logbook
                 data:
@@ -430,6 +475,31 @@ automation:
                 continue_on_timeout: false
               - service: script.l10s_vacuum_start_next_room
         default: []
+
+  - alias: 'Away Vacuum: Resume From Dock When Queue Exists'
+    id: d70ad5a2-6047-4af4-8b4a-6e3b78c19774
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: vacuum.l10s_vacuum
+        to: 'docked'
+      - platform: state
+        entity_id: input_text.l10s_vacuum_room_queue
+    condition:
+      - condition: state
+        entity_id: input_boolean.l10s_vacuum_on_demand
+        state: 'on'
+      - condition: state
+        entity_id: vacuum.l10s_vacuum
+        state: 'docked'
+      - condition: template
+        value_template: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | trim != '' }}"
+    action:
+      - service: script.send_to_logbook
+        data:
+          topic: "VACUUM"
+          message: "Docked with queue set; resuming next room without waiting for departure."
+      - service: script.l10s_vacuum_start_next_room
 
   - alias: 'Vacuum Sensor Cleaning Silencer'
     id: 6548de52-a4a4-4df2-9d66-9c2c15577a7f
