@@ -1,0 +1,369 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# APT Updates - Weekly patch reporting for Docker hosts
+#  Receives webhook payloads from docker_10/docker_14/docker_69 after APT runs.
+# -------------------------------------------------------------------
+# Notes: Hosts run a weekly Wednesday 12:00 APT job and POST JSON to these webhooks.
+# Notes: Logbook entry only when `updated: true`; creates Repairs issue if reboot needed.
+######################################################################
+
+input_datetime:
+  apt_docker_10_last_check:
+    name: "docker_10 APT last check"
+    has_date: true
+    has_time: true
+  apt_docker_10_last_update:
+    name: "docker_10 APT last update"
+    has_date: true
+    has_time: true
+  apt_docker_14_last_check:
+    name: "docker_14 APT last check"
+    has_date: true
+    has_time: true
+  apt_docker_14_last_update:
+    name: "docker_14 APT last update"
+    has_date: true
+    has_time: true
+  apt_docker_69_last_check:
+    name: "docker_69 APT last check"
+    has_date: true
+    has_time: true
+  apt_docker_69_last_update:
+    name: "docker_69 APT last update"
+    has_date: true
+    has_time: true
+
+input_text:
+  apt_docker_10_last_result:
+    name: "docker_10 APT last result"
+    max: 255
+  apt_docker_14_last_result:
+    name: "docker_14 APT last result"
+    max: 255
+  apt_docker_69_last_result:
+    name: "docker_69 APT last result"
+    max: 255
+
+input_boolean:
+  apt_docker_10_reboot_required:
+    name: "docker_10 reboot required"
+    icon: mdi:restart-alert
+  apt_docker_14_reboot_required:
+    name: "docker_14 reboot required"
+    icon: mdi:restart-alert
+  apt_docker_69_reboot_required:
+    name: "docker_69 reboot required"
+    icon: mdi:restart-alert
+
+template:
+  - sensor:
+      - name: "docker_10 APT status"
+        unique_id: apt_docker_10_status
+        icon: mdi:package-up
+        state: "{{ states('input_text.apt_docker_10_last_result') }}"
+      - name: "docker_10 APT last check"
+        unique_id: apt_docker_10_last_check
+        device_class: timestamp
+        state: "{{ states('input_datetime.apt_docker_10_last_check') }}"
+      - name: "docker_10 APT last update"
+        unique_id: apt_docker_10_last_update
+        device_class: timestamp
+        state: "{{ states('input_datetime.apt_docker_10_last_update') }}"
+      - name: "docker_10 APT reboot status"
+        unique_id: apt_docker_10_reboot_status
+        icon: >-
+          {{ 'mdi:restart-alert' if is_state('input_boolean.apt_docker_10_reboot_required', 'on')
+             else 'mdi:check-circle' }}
+        state: >-
+          {{ 'REBOOT REQUIRED' if is_state('input_boolean.apt_docker_10_reboot_required', 'on')
+             else 'NO REBOOT NEEDED' }}
+      - name: "docker_14 APT status"
+        unique_id: apt_docker_14_status
+        icon: mdi:package-up
+        state: "{{ states('input_text.apt_docker_14_last_result') }}"
+      - name: "docker_14 APT last check"
+        unique_id: apt_docker_14_last_check
+        device_class: timestamp
+        state: "{{ states('input_datetime.apt_docker_14_last_check') }}"
+      - name: "docker_14 APT last update"
+        unique_id: apt_docker_14_last_update
+        device_class: timestamp
+        state: "{{ states('input_datetime.apt_docker_14_last_update') }}"
+      - name: "docker_14 APT reboot status"
+        unique_id: apt_docker_14_reboot_status
+        icon: >-
+          {{ 'mdi:restart-alert' if is_state('input_boolean.apt_docker_14_reboot_required', 'on')
+             else 'mdi:check-circle' }}
+        state: >-
+          {{ 'REBOOT REQUIRED' if is_state('input_boolean.apt_docker_14_reboot_required', 'on')
+             else 'NO REBOOT NEEDED' }}
+      - name: "docker_69 APT status"
+        unique_id: apt_docker_69_status
+        icon: mdi:package-up
+        state: "{{ states('input_text.apt_docker_69_last_result') }}"
+      - name: "docker_69 APT last check"
+        unique_id: apt_docker_69_last_check
+        device_class: timestamp
+        state: "{{ states('input_datetime.apt_docker_69_last_check') }}"
+      - name: "docker_69 APT last update"
+        unique_id: apt_docker_69_last_update
+        device_class: timestamp
+        state: "{{ states('input_datetime.apt_docker_69_last_update') }}"
+      - name: "docker_69 APT reboot status"
+        unique_id: apt_docker_69_reboot_status
+        icon: >-
+          {{ 'mdi:restart-alert' if is_state('input_boolean.apt_docker_69_reboot_required', 'on')
+             else 'mdi:check-circle' }}
+        state: >-
+          {{ 'REBOOT REQUIRED' if is_state('input_boolean.apt_docker_69_reboot_required', 'on')
+             else 'NO REBOOT NEEDED' }}
+
+  - binary_sensor:
+      - name: "docker_10 APT reboot required"
+        unique_id: apt_docker_10_reboot_required
+        device_class: problem
+        icon: mdi:restart-alert
+        state: "{{ is_state('input_boolean.apt_docker_10_reboot_required', 'on') }}"
+      - name: "docker_14 APT reboot required"
+        unique_id: apt_docker_14_reboot_required
+        device_class: problem
+        icon: mdi:restart-alert
+        state: "{{ is_state('input_boolean.apt_docker_14_reboot_required', 'on') }}"
+      - name: "docker_69 APT reboot required"
+        unique_id: apt_docker_69_reboot_required
+        device_class: problem
+        icon: mdi:restart-alert
+        state: "{{ is_state('input_boolean.apt_docker_69_reboot_required', 'on') }}"
+
+automation:
+  - alias: "APT Update Report - docker_10"
+    id: apt_update_report_docker_10
+    description: "Receive docker_10 APT results and update helpers/logbook."
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret apt_webhook_docker_10
+        allowed_methods:
+          - POST
+        local_only: true
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      success: "{{ payload.get('success', true) | bool }}"
+      updated: "{{ payload.get('updated', false) | bool }}"
+      packages: "{{ payload.get('packages', 0) | int(0) }}"
+      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+      message: "{{ payload.get('message', '') | string }}"
+      result: >-
+        {% if not success %}
+          ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
+        {% elif updated %}
+          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}
+        {% else %}
+          NO UPDATES
+        {% endif %}
+      log_message: >-
+        docker_10 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}.
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.apt_docker_10_last_check
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.apt_docker_10_last_result
+        data:
+          value: "{{ result }}"
+      - choose:
+          - conditions: "{{ success and reboot_required }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.apt_docker_10_reboot_required
+        default:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.apt_docker_10_reboot_required
+      - choose:
+          - conditions: "{{ success and updated }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.apt_docker_10_last_update
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "APT"
+                  message: "{{ log_message }}"
+
+  - alias: "APT Update Report - docker_14"
+    id: apt_update_report_docker_14
+    description: "Receive docker_14 APT results and update helpers/logbook."
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret apt_webhook_docker_14
+        allowed_methods:
+          - POST
+        local_only: true
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      success: "{{ payload.get('success', true) | bool }}"
+      updated: "{{ payload.get('updated', false) | bool }}"
+      packages: "{{ payload.get('packages', 0) | int(0) }}"
+      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+      message: "{{ payload.get('message', '') | string }}"
+      result: >-
+        {% if not success %}
+          ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
+        {% elif updated %}
+          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}
+        {% else %}
+          NO UPDATES
+        {% endif %}
+      log_message: >-
+        docker_14 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}.
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.apt_docker_14_last_check
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.apt_docker_14_last_result
+        data:
+          value: "{{ result }}"
+      - choose:
+          - conditions: "{{ success and reboot_required }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.apt_docker_14_reboot_required
+        default:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.apt_docker_14_reboot_required
+      - choose:
+          - conditions: "{{ success and updated }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.apt_docker_14_last_update
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "APT"
+                  message: "{{ log_message }}"
+
+  - alias: "APT Update Report - docker_69"
+    id: apt_update_report_docker_69
+    description: "Receive docker_69 APT results and update helpers/logbook."
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret apt_webhook_docker_69
+        allowed_methods:
+          - POST
+        local_only: true
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      success: "{{ payload.get('success', true) | bool }}"
+      updated: "{{ payload.get('updated', false) | bool }}"
+      packages: "{{ payload.get('packages', 0) | int(0) }}"
+      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+      message: "{{ payload.get('message', '') | string }}"
+      result: >-
+        {% if not success %}
+          ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
+        {% elif updated %}
+          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}
+        {% else %}
+          NO UPDATES
+        {% endif %}
+      log_message: >-
+        docker_69 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}.
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.apt_docker_69_last_check
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.apt_docker_69_last_result
+        data:
+          value: "{{ result }}"
+      - choose:
+          - conditions: "{{ success and reboot_required }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.apt_docker_69_reboot_required
+        default:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.apt_docker_69_reboot_required
+      - choose:
+          - conditions: "{{ success and updated }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.apt_docker_69_last_update
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "APT"
+                  message: "{{ log_message }}"
+
+  - alias: "APT Reboot Repairs"
+    id: apt_reboot_repairs
+    description: "Create or clear Repairs issues when Docker hosts need a reboot."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.docker_10_apt_reboot_required
+          - binary_sensor.docker_14_apt_reboot_required
+          - binary_sensor.docker_69_apt_reboot_required
+    variables:
+      host_name: >-
+        {% if 'docker_10' in trigger.entity_id %}
+          docker_10
+        {% elif 'docker_14' in trigger.entity_id %}
+          docker_14
+        {% else %}
+          docker_69
+        {% endif %}
+      issue_id: >-
+        {% if 'docker_10' in trigger.entity_id %}
+          apt_docker_10_reboot_required
+        {% elif 'docker_14' in trigger.entity_id %}
+          apt_docker_14_reboot_required
+        {% else %}
+          apt_docker_69_reboot_required
+        {% endif %}
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'on' }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  severity: warning
+                  persistent: true
+                  title: "{{ host_name }} needs reboot"
+                  description: >-
+                    {{ host_name }} reports a reboot is required after APT updates.
+                    Status: {{ states('sensor.' ~ host_name ~ '_apt_status') }}.
+        default:
+          - continue_on_error: true
+            service: repairs.remove
+            data:
+              issue_id: "{{ issue_id }}"

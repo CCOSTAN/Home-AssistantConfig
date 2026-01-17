@@ -154,7 +154,7 @@ automation:
       - condition: template
         value_template: >
           {% set last = state_attr('script.l10s_vacuum_start_next_room','last_triggered') %}
-          {{ last is none or (now() - last).days >= 3 }}
+          {{ last is none or (now() - last).days >= 4 }}
     action:
       - service: input_boolean.turn_on
         target:

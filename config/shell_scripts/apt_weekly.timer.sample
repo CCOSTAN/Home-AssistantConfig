@@ -1,0 +1,9 @@
+[Unit]
+Description=Run APT maintenance weekly on Wednesday at 12:00
+
+[Timer]
+OnCalendar=Wed *-*-* 12:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

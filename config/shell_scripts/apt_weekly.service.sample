@@ -1,0 +1,16 @@
+[Unit]
+Description=Weekly APT maintenance (Home Assistant webhook)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/apt_weekly.sh https://HOMEASSISTANT_HOST:8123/api/webhook/REPLACE_WITH_WEBHOOK_ID
+User=root
+Group=root
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=multi-user.target

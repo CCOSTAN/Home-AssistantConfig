@@ -1,0 +1,35 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Card - APT update status for Docker hosts
+#  Paste this card into the existing Infrastructure dashboard (storage mode).
+# -------------------------------------------------------------------
+# Notes: Depends on `config/packages/apt_updates.yaml`.
+######################################################################
+
+type: entities
+title: "APT Updates (Docker Hosts)"
+show_header_toggle: false
+entities:
+  - type: section
+    label: docker_10
+  - entity: sensor.docker_10_apt_status
+  - entity: sensor.docker_10_apt_last_check
+  - entity: sensor.docker_10_apt_last_update
+  - entity: sensor.docker_10_apt_reboot_status
+
+  - type: section
+    label: docker_14
+  - entity: sensor.docker_14_apt_status
+  - entity: sensor.docker_14_apt_last_check
+  - entity: sensor.docker_14_apt_last_update
+  - entity: sensor.docker_14_apt_reboot_status
+
+  - type: section
+    label: docker_69
+  - entity: sensor.docker_69_apt_status
+  - entity: sensor.docker_69_apt_last_check
+  - entity: sensor.docker_69_apt_last_update
+  - entity: sensor.docker_69_apt_reboot_status
