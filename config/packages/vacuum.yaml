@@ -4,7 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Dreame Vacuum Orchestration - Continuous phased sweep/mop with away/on-demand
-# Related Issue: 1550
+# Related Issue: 1550, 1553
 #  Phases: sweep main, sweep baths, mop main, mop baths; notifications + idle auto-start
 # -------------------------------------------------------------------
 # Notes:
@@ -17,6 +17,7 @@
 # - Queue-empty trigger ignores already-completed tasks to avoid immediate reseeding.
 # - Queue-empty no longer auto-reseeds; phase advance handles the next run on completion.
 # - Mop phases use `sweeping_and_mopping` instead of mop-only.
+# - One-off room clean booleans ignore the queue; they only run when the vacuum is docked/idle.
 ######################################################################
 
 ## 1. Helpers
@@ -25,6 +26,48 @@
 input_boolean:
   l10s_vacuum_on_demand:
     name: Dreame Clean (On-Demand)
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_kitchen:
+    name: Kitchen Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_dining_room:
+    name: Dining Room Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_living_room:
+    name: Living Room Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_master_bedroom:
+    name: Master Bedroom Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_foyer:
+    name: Foyer Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_stacey_office:
+    name: Stacey Office Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_formal_dining:
+    name: Formal Dining Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_hallway:
+    name: Hallway Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_justin_bedroom:
+    name: Justin Bedroom Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_paige_bedroom:
+    name: Paige Bedroom Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_master_bathroom:
+    name: Master Bathroom Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_office:
+    name: Office Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_pool_bath:
+    name: Pool Bath Clean
+    icon: mdi:robot-vacuum
+  l10s_vacuum_clean_kids_bathroom:
+    name: Kids Bathroom Clean
     icon: mdi:robot-vacuum
 
 input_select:
@@ -159,6 +202,127 @@ automation:
       - service: input_boolean.turn_on
         target:
           entity_id: input_boolean.l10s_vacuum_on_demand
+
+  - alias: 'Vacuum: One-Off Room Clean (Alexa)'
+    id: 5e2fd2b1-3f45-4680-ae74-68bb116cf1e8
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_kitchen
+        to: 'on'
+        id: kitchen
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_dining_room
+        to: 'on'
+        id: dining_room
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_living_room
+        to: 'on'
+        id: living_room
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_master_bedroom
+        to: 'on'
+        id: master_bedroom
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_foyer
+        to: 'on'
+        id: foyer
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_stacey_office
+        to: 'on'
+        id: stacey_office
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_formal_dining
+        to: 'on'
+        id: formal_dining
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_hallway
+        to: 'on'
+        id: hallway
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_justin_bedroom
+        to: 'on'
+        id: justin_bedroom
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_paige_bedroom
+        to: 'on'
+        id: paige_bedroom
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_master_bathroom
+        to: 'on'
+        id: master_bathroom
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_office
+        to: 'on'
+        id: office
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_pool_bath
+        to: 'on'
+        id: pool_bath
+      - platform: state
+        entity_id: input_boolean.l10s_vacuum_clean_kids_bathroom
+        to: 'on'
+        id: kids_bathroom
+    variables:
+      room_map:
+        kitchen: {segment: 14, name: Kitchen}
+        dining_room: {segment: 12, name: 'Dining Room'}
+        living_room: {segment: 10, name: 'Living Room'}
+        master_bedroom: {segment: 7, name: 'Master Bedroom'}
+        foyer: {segment: 15, name: Foyer}
+        stacey_office: {segment: 9, name: 'Stacey Office'}
+        formal_dining: {segment: 17, name: 'Formal Dining'}
+        hallway: {segment: 13, name: Hallway}
+        justin_bedroom: {segment: 8, name: 'Justin Bedroom'}
+        paige_bedroom: {segment: 6, name: 'Paige Bedroom'}
+        master_bathroom: {segment: 4, name: 'Master Bathroom'}
+        office: {segment: 2, name: Office}
+        pool_bath: {segment: 1, name: 'Pool Bath'}
+        kids_bathroom: {segment: 3, name: 'Kids Bathroom'}
+      room_key: "{{ trigger.id }}"
+      room_name: "{{ room_map[room_key].name }}"
+      segment_id: "{{ room_map[room_key].segment | int }}"
+      vac_state: "{{ states('vacuum.l10s_vacuum') }}"
+      on_demand: "{{ is_state('input_boolean.l10s_vacuum_on_demand', 'on') }}"
+      queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | trim }}"
+      can_start: "{{ vac_state in ['docked', 'idle'] }}"
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ can_start }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "One-off clean: {{ room_name }}."
+              - continue_on_error: true
+                service: select.select_option
+                target:
+                  entity_id: select.l10s_vacuum_cleaning_mode
+                data:
+                  option: sweeping
+              - continue_on_error: true
+                service: vacuum.set_fan_speed
+                target:
+                  entity_id: vacuum.l10s_vacuum
+                data:
+                  fan_speed: Standard
+              - continue_on_error: true
+                service: dreame_vacuum.vacuum_clean_segment
+                target:
+                  entity_id: vacuum.l10s_vacuum
+                data:
+                  segments: "{{ [segment_id] }}"
+              - delay: "00:00:02"
+        default:
+          - service: script.send_to_logbook
+            data:
+              topic: "VACUUM"
+              message: "One-off clean blocked: {{ room_name }} (vac={{ vac_state }}, on_demand={{ on_demand }}, queue='{{ queue_raw }}')."
+      - service: input_boolean.turn_off
+        data:
+          entity_id: "{{ trigger.entity_id }}"
 
   - alias: 'Away Vacuum: Start or Resume When we leave or On-Demand'
     id: 7f7e0a3c-6452-4f6b-8464-c6c25770a148
@@ -560,10 +724,10 @@ automation:
         entity_id: vacuum.l10s_vacuum
       - service: script.speech_engine
         data:
-          value1: > 
+          value1: >
             {{ "Vacuum error: " ~ states('sensor.l10s_vacuum_error') ~ " [ask Residents to help]" }}
             Currently in {{states('sensor.l10s_vacuum_current_room')}}
-      - delay: 00:01:00          
+      - delay: 00:01:00
       - service: vacuum.locate
         entity_id: vacuum.l10s_vacuum
       - delay: 00:20:00

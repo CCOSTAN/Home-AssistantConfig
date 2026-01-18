@@ -48,7 +48,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [apt_updates.yaml](apt_updates.yaml) | Weekly APT patch reporting for Docker hosts + Repairs reboot alerts. | `sensor.docker_*_apt_status`, `repairs.create`, `script.send_to_logbook` |
 | [phynplus.yaml](phynplus.yaml) | Phyn shutoff automations with push + Activity feed + Repairs issues for leak events. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `repairs.create` |
 | [powerwall.yaml](powerwall.yaml) | Track Tesla Powerwall grid status and shed loads automatically when off-grid (alerts include Activity feed + Repairs). | `binary_sensor.powerwall_grid_status`, `sensor.powerwall_*`, `repairs.create` |
-| [vacuum.yaml](vacuum.yaml) | Dreame vacuum orchestration with room tracking, push alerts, Activity feed, and Repairs issues on errors. | `input_select.l10s_vacuum_phase`, `sensor.l10s_vacuum_error`, `repairs.create` |
+| [vacuum.yaml](vacuum.yaml) | Dreame vacuum orchestration with room tracking, push alerts, Activity feed, Repairs issues on errors, and Alexa one-off room-clean switches. | `input_select.l10s_vacuum_phase`, `sensor.l10s_vacuum_error`, `repairs.create` |
 | [hass_agent_homepc.yaml](hass_agent_homepc.yaml) | Mirrors PC lock/unlock state from HASS.Agent to the office lamp for instant desk presence cues. | `sensor.carlo_homepc_carlo_homepc_sessionstate`, `switch.office_lamp_switch` |
 | [finance.yaml](finance.yaml) | Yahoo Finance sensor bundle for portfolio glances and Lovelace cards. | `sensor.tsla`, `sensor.aapl`, `sensor.amzn`, `sensor.msft` |
 
@@ -66,6 +66,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 - Logic lives in [vacuum.yaml](vacuum.yaml): continuous four-phase loop (sweep main, sweep baths, mop main, mop baths) driven by `input_select.l10s_vacuum_phase` and `input_text.l10s_vacuum_room_queue`, with per-room notifications and automatic reseeding between phases.
 - Uses the Dreame HACS integration with segment IDs to enforce bathrooms last in each sweep/mop pass, dock on arrival, and auto-run if idle for 3+ days.
 - Room queue advances on a 2-minute dwell in `sensor.l10s_vacuum_current_room` (queue = remaining rooms); phase changes happen on `sensor.l10s_vacuum_task_status: completed` and an empty queue.
+- One-off room cleaning for Alexa uses `input_boolean.l10s_vacuum_clean_*` (example: "Kitchen Clean") and runs a segment job without touching or checking the phased queue.
 ![Dreame Automations](../www/custom_ui/floorplan/images/branding/Dreame%20Automations.png)
 
 ### Blog & video deep dives
