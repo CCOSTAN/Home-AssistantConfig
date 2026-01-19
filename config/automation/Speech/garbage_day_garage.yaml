@@ -1,10 +1,16 @@
-#-------------------------------------------
-# Garage Garbage Day Reminders
-# Description: After either garage door opens on garbage day, play staggered reminders in the garage to take cans out.
-#
-# Schedule: 30s, 90s, and 180s after the door opens (skips if it isn't garbage day or the doors close).
-# Output: Uses Alexa announce in the garage so it plays locally (speech_engine is limited to Chromecasts inside).
-#-------------------------------------------
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Garage Garbage Day Reminders - staggered reminders after door opens
+#  On garbage days, announce at 30s/90s/180s if the garage stays open.
+# -------------------------------------------------------------------
+# Notes: Uses Alexa announce in the garage for local playback; also sends
+#  one inside reminder via `script.speech_engine` (Chromecasts).
+# Notes: Debounced garage door open trigger to avoid restarts if the
+#  garage door state flaps (noisy sensors/reflection).
+######################################################################
 - alias: 'Garage Garbage Day Reminders'
   id: 3f97f3be-3d0a-4d2d-9100-5b9c0dbfd5c3
   mode: restart
@@ -14,6 +20,7 @@
       entity_id: group.garage_doors
       from: 'closed'
       to: 'open'
+      for: "00:00:20"
 
   condition:
     # Only run on garbage days (Wed/Sun)

@@ -1,15 +1,25 @@
-###################################
-##  Late Night lights Section
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-###################################
+# -------------------------------------------------------------------
+# Late Night Helper Outside - brighten exterior and restore after secure
+#  Turns on front scene/outlets after dark when doors open or at sunset.
+# -------------------------------------------------------------------
+# Notes: Debounced garage/front door triggers to avoid noisy state flaps
+#  from repeatedly re-running the outside lighting routine.
+######################################################################
 - alias: 'Late Night Helper outside'
   id: 14115d72-6bea-41c1-8411-1eaf41b4ef2b
   trigger:
     - platform: state
       entity_id: group.garage_doors
+      to: 'open'
+      for: "00:00:15"
     - platform: state
       entity_id: binary_sensor.mcu1_gpio5 #front door
+      to: 'on'
+      for: "00:00:02"
     - platform: state
       entity_id: sun.sun
       to: 'below_horizon'

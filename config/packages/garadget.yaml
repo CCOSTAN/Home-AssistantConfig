@@ -1,14 +1,17 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Garadget Garage Doors - MQTT cover control and monitoring.
-#-------------------------------------------
-######################################################################
-##  Open/close commands, reflection alerts, and actionable notifications.
-######################################################################
+# -------------------------------------------------------------------
+# Garadget Garage Doors - MQTT cover control and monitoring
+#  Open/close commands, status polling, and notifications.
+# -------------------------------------------------------------------
+# Notes: Debounces garage door open/close triggers to reduce noisy
+#  state flapping from spamming lights, speech, and Alexa displays.
 # Setup: https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
 # Token fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 # Hardware: Garadget unit https://amzn.to/2jQLpVQ
+######################################################################
 
 mqtt:
   cover:
@@ -333,6 +336,7 @@ automation:
           - cover.large_garage_door
           - cover.small_garage_door
         to: 'open'
+        for: "00:01:00"
       - platform: state
         entity_id: group.family
         to: not_home
@@ -398,11 +402,13 @@ automation:
           - cover.small_garage_door
         from: 'closed'
         to: 'open'
+        for: "00:00:15"
 
       - platform: state
         entity_id: binary_sensor.mcu1_gpio12 #interior Garage Doors
         from: 'off'
         to: 'on' 
+        for: "00:00:05"
 
       - platform: state
         entity_id:
