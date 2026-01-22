@@ -65,8 +65,9 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 ### Dreame vacuum automations
 - Logic lives in [vacuum.yaml](vacuum.yaml): continuous four-phase loop (sweep main, sweep baths, mop main, mop baths) driven by `input_select.l10s_vacuum_phase` and `input_text.l10s_vacuum_room_queue`, with per-room notifications and automatic reseeding between phases.
 - Uses the Dreame HACS integration with segment IDs to enforce bathrooms last in each sweep/mop pass, dock on arrival, and auto-run if idle for 3+ days.
-- Room queue advances on a 2-minute dwell in `sensor.l10s_vacuum_current_room` (queue = remaining rooms); phase changes happen on `sensor.l10s_vacuum_task_status: completed` and an empty queue.
+- Room queue advances on a 2-minute dwell in `sensor.l10s_vacuum_current_room` (queue = remaining rooms); phase changes happen when an empty queue is reseeded after a completed task.
 - One-off room cleaning for Alexa uses `input_boolean.l10s_vacuum_clean_*` (example: "Kitchen Clean") and runs a segment job without touching or checking the phased queue.
+- Formal Dining (room 17/dock) is excluded from phased queues; clean it via the one-off toggle.
 ![Dreame Automations](../www/custom_ui/floorplan/images/branding/Dreame%20Automations.png)
 
 ### Blog & video deep dives

@@ -67,11 +67,19 @@ template:
       - name: "docker_10 APT last check"
         unique_id: apt_docker_10_last_check
         device_class: timestamp
-        state: "{{ states('input_datetime.apt_docker_10_last_check') }}"
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_10_last_check') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
       - name: "docker_10 APT last update"
         unique_id: apt_docker_10_last_update
         device_class: timestamp
-        state: "{{ states('input_datetime.apt_docker_10_last_update') }}"
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_10_last_update') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
       - name: "docker_10 APT reboot status"
         unique_id: apt_docker_10_reboot_status
         icon: >-
@@ -87,11 +95,19 @@ template:
       - name: "docker_14 APT last check"
         unique_id: apt_docker_14_last_check
         device_class: timestamp
-        state: "{{ states('input_datetime.apt_docker_14_last_check') }}"
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_14_last_check') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
       - name: "docker_14 APT last update"
         unique_id: apt_docker_14_last_update
         device_class: timestamp
-        state: "{{ states('input_datetime.apt_docker_14_last_update') }}"
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_14_last_update') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
       - name: "docker_14 APT reboot status"
         unique_id: apt_docker_14_reboot_status
         icon: >-
@@ -107,11 +123,19 @@ template:
       - name: "docker_69 APT last check"
         unique_id: apt_docker_69_last_check
         device_class: timestamp
-        state: "{{ states('input_datetime.apt_docker_69_last_check') }}"
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_69_last_check') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
       - name: "docker_69 APT last update"
         unique_id: apt_docker_69_last_update
         device_class: timestamp
-        state: "{{ states('input_datetime.apt_docker_69_last_update') }}"
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_69_last_update') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
       - name: "docker_69 APT reboot status"
         unique_id: apt_docker_69_reboot_status
         icon: >-
