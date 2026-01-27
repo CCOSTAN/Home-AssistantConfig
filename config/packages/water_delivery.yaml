@@ -1,0 +1,148 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Water Delivery Reminders - ReadyRefresh date helper + garage reminders
+#  Schedule delivery date and announce night-before + garage door alerts.
+# -------------------------------------------------------------------
+# Related Issue: 541
+# Notes: Set input_datetime.water_delivery_date on /lovelace/water (date only).
+# Notes: Night-before reminder fires at 5:30 PM; garage reminders on door open.
+# Notes: Clear button sets delivery date to yesterday to disable reminders.
+######################################################################
+
+input_datetime:
+  water_delivery_date:
+    name: "Water delivery date"
+    has_date: true
+    has_time: false
+    icon: mdi:water
+
+input_button:
+  water_delivery_clear:
+    name: "Clear water delivery date"
+    icon: mdi:calendar-remove
+
+automation:
+  - alias: "Water Delivery - Night Before Reminder"
+    id: 0ac05c7c-9d03-4c1d-8342-0bf8d17b7f8a
+    mode: single
+
+    trigger:
+      - platform: time
+        at: "17:30:00"
+
+    condition:
+      - condition: template
+        value_template: >-
+          {% set date = states('input_datetime.water_delivery_date') %}
+          {% if date in ['unknown', 'unavailable', 'none', ''] %}
+            false
+          {% else %}
+            {{ as_datetime(date).date() == (now() + timedelta(days=1)).date() }}
+          {% endif %}
+
+    action:
+      - service: script.speech_engine
+        data:
+          value1: >-
+            {% set date = states('input_datetime.water_delivery_date') %}
+            {% set delivery = as_datetime(date) %}
+            Reminder: water delivery is tomorrow ({{ delivery.strftime('%a %b %d') | replace(' 0', ' ') }}).
+            Please put the bottles out tonight.
+      - service: notify.alexa_media_garage
+        data:
+          message: >-
+            {% set date = states('input_datetime.water_delivery_date') %}
+            {% set delivery = as_datetime(date) %}
+            Reminder: water delivery is tomorrow ({{ delivery.strftime('%a %b %d') | replace(' 0', ' ') }}).
+            Please put the bottles out tonight.
+          data:
+            type: announce
+
+  - alias: "Water Delivery - Garage Door Reminders"
+    id: 59fd6b6b-79a5-4f71-8c9f-2b6e25c39f84
+    mode: restart
+
+    trigger:
+      - platform: state
+        entity_id: group.garage_doors
+        from: 'closed'
+        to: 'open'
+        for: "00:00:20"
+
+    condition:
+      - condition: template
+        value_template: >-
+          {% set date = states('input_datetime.water_delivery_date') %}
+          {% if date in ['unknown', 'unavailable', 'none', ''] %}
+            false
+          {% else %}
+            {{ as_datetime(date).date() == now().date() }}
+          {% endif %}
+
+    action:
+      - service: script.speech_engine
+        data:
+          value1: >-
+            {% set date = states('input_datetime.water_delivery_date') %}
+            {% set delivery = as_datetime(date) %}
+            Reminder: today is water delivery day ({{ delivery.strftime('%a %b %d') | replace(' 0', ' ') }}).
+            Please put the bottles out before you leave.
+      - service: notify.alexa_media_garage
+        data:
+          message: >-
+            {% set date = states('input_datetime.water_delivery_date') %}
+            {% set delivery = as_datetime(date) %}
+            Reminder: today is water delivery day ({{ delivery.strftime('%a %b %d') | replace(' 0', ' ') }}).
+            Please put the bottles out before you leave.
+          data:
+            type: announce
+
+      - variables:
+          reminder_delays: [30, 60, 90]
+
+      - repeat:
+          for_each: "{{ reminder_delays }}"
+          sequence:
+            - delay:
+                seconds: "{{ repeat.item }}"
+
+            - condition: state
+              entity_id: group.garage_doors
+              state: 'open'
+
+            - condition: template
+              value_template: >-
+                {% set date = states('input_datetime.water_delivery_date') %}
+                {% if date in ['unknown', 'unavailable', 'none', ''] %}
+                  false
+                {% else %}
+                  {{ as_datetime(date).date() == now().date() }}
+                {% endif %}
+
+            - service: notify.alexa_media_garage
+              data:
+                message: >-
+                  {% set date = states('input_datetime.water_delivery_date') %}
+                  {% set delivery = as_datetime(date) %}
+                  Reminder: today is water delivery day ({{ delivery.strftime('%a %b %d') | replace(' 0', ' ') }}).
+                  Please put the bottles out before you leave.
+                data:
+                  type: announce
+
+  - alias: "Water Delivery - Clear Delivery Date"
+    id: 2f4a1a64-2ad0-4605-a4c8-2a8f4b4e6f40
+    mode: single
+
+    trigger:
+      - platform: state
+        entity_id: input_button.water_delivery_clear
+
+    action:
+      - service: input_datetime.set_datetime
+        data:
+          entity_id: input_datetime.water_delivery_date
+          date: >-
+            {{ (now() - timedelta(days=1)).date().isoformat() }}
