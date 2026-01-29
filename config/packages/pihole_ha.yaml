@@ -1,0 +1,63 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Pi-hole HA Sync - Mirror blocking state across DNS nodes
+#  Keep Pi-hole blocking on docker_10 and docker_14 in lockstep.
+# -------------------------------------------------------------------
+# Notes: Uses switch.pi_hole + switch.pi_hole_2 from the Pi-hole integration.
+######################################################################
+
+automation:
+  - id: pihole_ha_sync_blocking_state
+    alias: "Pi-hole HA Sync - Blocking State"
+    description: "Mirror Pi-hole blocking state between primary and secondary DNS nodes."
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.pi_hole
+          - switch.pi_hole_2
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ trigger.entity_id == 'switch.pi_hole'
+                     and trigger.to_state.state == 'off'
+                     and states('switch.pi_hole_2') != 'off' }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.pi_hole_2
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ trigger.entity_id == 'switch.pi_hole'
+                     and trigger.to_state.state == 'on'
+                     and states('switch.pi_hole_2') != 'on' }}
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.pi_hole_2
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ trigger.entity_id == 'switch.pi_hole_2'
+                     and trigger.to_state.state == 'off'
+                     and states('switch.pi_hole') != 'off' }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.pi_hole
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ trigger.entity_id == 'switch.pi_hole_2'
+                     and trigger.to_state.state == 'on'
+                     and states('switch.pi_hole') != 'on' }}
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.pi_hole
+    mode: single

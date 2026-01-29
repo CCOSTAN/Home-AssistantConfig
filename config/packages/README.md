@@ -83,6 +83,7 @@ When a package has a dedicated blog post or video, I link it right inside the YA
 | [phynplus.yaml](phynplus.yaml) | Installing Phyn Plus and wiring its leak events into HA automations. | [Blog](https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html) |
 | [powerwall.yaml](powerwall.yaml) | Monitoring Tesla Powerwall health + what to automate when the grid drops. | [Blog](https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html) |
 | [vacuum.yaml](vacuum.yaml) | Keeping Neato/Dreame bots smart with HA scenes and maintenance timers. | [Blog](https://www.vcloudinfo.com/2020/05/home-assistant-neato-vacuum-automation.html) |
+| [pihole_ha.yaml](pihole_ha.yaml) | Sync Pi-hole blocking state across HA DNS nodes. | |
 | [grafana.yaml.disabled](grafana.yaml.disabled) | Rendering Grafana dashboards to images for Lovelace and social posts. | [Blog](https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html) · [Blog](https://www.vcloudinfo.com/2018/09/re-installing-tesla-solar-panels-again.html) · [Video](https://youtu.be/BartadUzGOA) |
 | [august.yaml](august.yaml) | Smart lock control and status from HA. | [YouTube short](https://youtu.be/UdcCeAyo9Ak?si=O-f607NHbRLKZxao) |
 
