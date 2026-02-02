@@ -392,45 +392,45 @@ automation:
         data:
           value1: "Check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}} [Always mention the specific garage door that is currently open and remind us to close it for the night]"
 
-  - alias: 'Garage Camera on Alexa Shows'
-    id: 4373df2a-77f2-4e19-be7c-46c7b27ca583
-    mode: single
-    trigger:
-      - platform: state
-        entity_id:
-          - cover.large_garage_door
-          - cover.small_garage_door
-        from: 'closed'
-        to: 'open'
-        for: "00:00:15"
+  # - alias: 'Garage Camera on Alexa Shows'
+  #   id: 4373df2a-77f2-4e19-be7c-46c7b27ca583
+  #   mode: single
+  #   trigger:
+  #     - platform: state
+  #       entity_id:
+  #         - cover.large_garage_door
+  #         - cover.small_garage_door
+  #       from: 'closed'
+  #       to: 'open'
+  #       for: "00:00:15"
 
-      - platform: state
-        entity_id: binary_sensor.mcu1_gpio12 #interior Garage Doors
-        from: 'off'
-        to: 'on' 
-        for: "00:00:05"
+  #     - platform: state
+  #       entity_id: binary_sensor.mcu1_gpio12 #interior Garage Doors
+  #       from: 'off'
+  #       to: 'on' 
+  #       for: "00:00:05"
 
-      - platform: state
-        entity_id:
-          - person.carlo
-          - person.stacey
-          - person.paige
-          - person.justin
-        to: 'not_home'
-        from: 'home'    
+  #     - platform: state
+  #       entity_id:
+  #         - person.carlo
+  #         - person.stacey
+  #         - person.paige
+  #         - person.justin
+  #       to: 'not_home'
+  #       from: 'home'    
 
-    action:
-      - service: media_player.play_media
-        target:
-          entity_id: media_player.kitchen
-        data:
-          media_content_id: 'show garage camera from home assistant'
-          media_content_type: custom
-      - delay: '00:20:00'
-      - service: media_player.play_media
-        target:
-          entity_id: media_player.kitchen
-        data:
-          media_content_id: 'hide garage camera'
-          media_content_type: custom
+  #   action:
+  #     - service: media_player.play_media
+  #       target:
+  #         entity_id: media_player.kitchen
+  #       data:
+  #         media_content_id: 'show garage camera from home assistant'
+  #         media_content_type: custom
+  #     - delay: '00:20:00'
+  #     - service: media_player.play_media
+  #       target:
+  #         entity_id: media_player.kitchen
+  #       data:
+  #         media_content_id: 'hide garage camera'
+  #         media_content_type: custom
 
