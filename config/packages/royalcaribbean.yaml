@@ -1,0 +1,46 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Royal Caribbean Price Alerts - Webhook-driven drop notifications
+#  Uses Cruise Tracker webhook to notify via notify_engine + HA UI.
+# -------------------------------------------------------------------
+# Notes: Use script.notify_engine for app notifications.
+######################################################################
+
+automation:
+  - alias: "Royal Caribbean Price Drop Alert"
+    id: royal_caribbean_price_drop_alert
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret royalcaribbean_price_drop_webhook
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      ship: "{{ payload.ship | default('Royal Caribbean') }}"
+      sail_date: "{{ payload.sail_date | default('') }}"
+      room_type: "{{ payload.room_type | default('') }}"
+      old_price: "{{ payload.old_price | default('') }}"
+      new_price: "{{ payload.new_price | default('') }}"
+      booking_id: "{{ payload.booking_id | default('') }}"
+      details: >-
+        {{ [ship, sail_date, room_type] | select('string') | select('length') | join(' | ') }}
+      message: >-
+        New price {{ new_price }} vs {{ old_price }}.
+    action:
+      - service: script.notify_engine
+        data:
+          who: carlo
+          title: "Royal Caribbean price drop"
+          value1: "{{ details }}"
+          value2: "{{ message }}"
+          value3: ""
+          group: "royal_caribbean_price_drop"
+          level: "active"
+      - service: persistent_notification.create
+        data:
+          title: "Royal Caribbean price drop"
+          message: "{{ details }} - {{ message }}"
+          notification_id: >-
+            {{ 'rc_price_drop_' ~ (booking_id if booking_id else sail_date|replace('-', '')) }}
