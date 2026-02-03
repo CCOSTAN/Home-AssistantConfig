@@ -7,6 +7,7 @@
 #  Keep Pi-hole blocking on docker_10 and docker_14 in lockstep.
 # -------------------------------------------------------------------
 # Notes: Uses switch.pi_hole + switch.pi_hole_2 from the Pi-hole integration.
+# Notes: Auto re-enables Pi-hole after 60 minutes of being off.
 ######################################################################
 
 automation:
@@ -60,4 +61,21 @@ automation:
               - service: switch.turn_on
                 target:
                   entity_id: switch.pi_hole
+    mode: single
+
+  - id: pihole_auto_reenable_after_60_minutes
+    alias: "Pi-hole HA - Auto Re-enable After 60 Minutes"
+    description: "Turn Pi-hole back on after it has been off for 60 minutes."
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.pi_hole
+          - switch.pi_hole_2
+        to: "off"
+        for:
+          hours: 1
+    action:
+      - service: switch.turn_on
+        data:
+          entity_id: "{{ trigger.entity_id }}"
     mode: single
