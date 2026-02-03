@@ -1,0 +1,47 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Tugtainer Updates - Container update notifications via webhook
+# Related Issue: 1561
+#  Receives Apprise JSON payloads from Tugtainer and posts HA alerts.
+# -------------------------------------------------------------------
+# Notes: Expects JSON with title/message/type from the Tugtainer template.
+# Notes: Creates persistent notifications and stamps last-update time.
+######################################################################
+
+input_datetime:
+  tugtainer_last_update:
+    name: "Tugtainer last update"
+    has_date: true
+    has_time: true
+
+automation:
+  - alias: "Tugtainer Update Report"
+    id: tugtainer_update_report
+    description: "Receive Tugtainer update notifications and post persistent alerts."
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret tugtainer_updates_webhook
+        allowed_methods:
+          - POST
+        local_only: true
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      title: "{{ payload.title | default('Tugtainer update') }}"
+      message: "{{ payload.message | default('Update event received') }}"
+      event_type: "{{ payload.type | default('info') }}"
+      full_message: >-
+        {{ message }}{% if event_type %} ({{ event_type | upper }}){% endif %}
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.tugtainer_last_update
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: persistent_notification.create
+        data:
+          title: "{{ title }}"
+          message: "{{ full_message }}"

@@ -46,6 +46,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [logbook_activity_feed.yaml](logbook_activity_feed.yaml) | Dummy `sensor.activity_feed` + helper to write clean Activity entries (Issue #1550). | `sensor.activity_feed`, `script.send_to_logbook` |
 | [mariadb_monitoring.yaml](mariadb_monitoring.yaml) | MariaDB health sensors and Lovelace dashboard snippet for recorder stats. | `sensor.mariadb_status`, `sensor.database_size` |
 | [apt_updates.yaml](apt_updates.yaml) | Weekly APT patch reporting for Docker hosts + Repairs reboot alerts. | `sensor.docker_*_apt_status`, `repairs.create`, `script.send_to_logbook` |
+| [tugtainer_updates.yaml](tugtainer_updates.yaml) | Tugtainer container update notifications via webhook + persistent alerts. | `persistent_notification.create`, `input_datetime.tugtainer_last_update` |
 | [phynplus.yaml](phynplus.yaml) | Phyn shutoff automations with push + Activity feed + Repairs issues for leak events. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `repairs.create` |
 | [water_delivery.yaml](water_delivery.yaml) | ReadyRefresh delivery date helper with night-before + garage door Alexa reminders. | `input_datetime.water_delivery_date`, `notify.alexa_media_garage` |
 | [powerwall.yaml](powerwall.yaml) | Track Tesla Powerwall grid status and shed loads automatically when off-grid (alerts include Activity feed + Repairs). | `binary_sensor.powerwall_grid_status`, `sensor.powerwall_*`, `repairs.create` |

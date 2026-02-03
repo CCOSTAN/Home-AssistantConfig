@@ -32,6 +32,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 
 ### How the config is organized
 - **Packages (`packages/`)** – complete subsystems that bundle sensors, switches, automations, scripts, and lovelace assets for a single feature (alarm, garage, water shutoff, etc.).
+- **Container updates** – `packages/tugtainer_updates.yaml` logs container updates from Tugtainer into Home Assistant persistent notifications.
 - **Automations (`automation/`)** – event-driven YAML broken out by area or device; the legacy `automations.yaml` remains for UI-created flows.
 - **Scripts & scenes (`script/`, `scene/`)** – curated lighting and ambiance logic used by presence, holiday, and seasonal routines.
 - **Templates (`templates/`)** – Jinja helpers and speech templates reused by the notify/speech engines.
