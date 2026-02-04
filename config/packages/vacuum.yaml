@@ -10,7 +10,7 @@
 # Notes:
 # - `sensor.l10s_vacuum_current_room` can change during transit; require a dwell (`for:`) before dequeuing.
 # - Treat 2+ minutes in a room as "being cleaned" and dequeue immediately (queue = remaining rooms).
-# - Phase changes happen when the queue is reseeded after task completion (queue is the source of truth).
+# - Phase changes happen when the queue is reseeded after the queue hits zero and the vacuum is not actively cleaning (queue is the source of truth).
 # - Avoid reissuing `dreame_vacuum.vacuum_clean_segment` while already cleaning; only send a new segment job when starting/resuming or switching phases.
 # - Jinja2 loop scoping: use a `namespace` when building lists (otherwise the queue can appear empty and get cleared).
 # - Docked + task complete only logs queue state; no auto-clearing.
@@ -125,10 +125,10 @@ script:
           next_phase: "{{ phase_order[phase_index + 1] if has_next_phase else '' }}"
           queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
           queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
-          task_status: "{{ states('sensor.l10s_vacuum_task_status') | default('', true) | string | lower }}"
-          task_completed: "{{ task_status == 'completed' }}"
+          vac_state: "{{ states('vacuum.l10s_vacuum') | default('', true) | string | lower }}"
+          vac_is_cleaning: "{{ vac_state == 'cleaning' }}"
           phase_ready: "{{ is_state('input_boolean.l10s_vacuum_phase_ready', 'on') }}"
-          advance_phase: "{{ queue_ints | length == 0 and task_completed and phase_ready }}"
+          advance_phase: "{{ queue_ints | length == 0 and phase_ready and not vac_is_cleaning }}"
           reset_cycle: "{{ advance_phase and not has_next_phase }}"
           phase_for_seed: "{{ next_phase if advance_phase and has_next_phase else phase }}"
           cleaning_mode: "{{ 'sweeping_and_mopping' if 'mop_' in phase_for_seed else 'sweeping' }}"
