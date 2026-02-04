@@ -185,11 +185,7 @@
   {% endif %}
   {%- endmacro -%}
 
-  {% macro fact_of_the_day() %}
-        [incorporate into the message a relevant fact about something that happened in the past on this day]
-  {% endmacro %}
-
-  {# friendly duration/location helper #}
+   {# friendly duration/location helper #}
   {% macro friendly_location(person_id, place_sensor_id, name) %}
     {% set person = states[person_id] %}
     {% if not person %}
@@ -318,7 +314,7 @@
     {% endif %}
 
     {# call a Random fact about the house or inspiration quote #}
-    {{ ([moon, holiday, days_until, fact_of_the_day]|random)() }}
+    {{ ([moon, holiday, days_until ]|random)() }}
     ]
     [Previous broadcast for context: "{{ state_attr('sensor.openai_response', 'response') }}" ]
 
