@@ -15,10 +15,10 @@ send_to_logbook:
   fields:
     topic:
       description: Logbook entry name (headline)
-      example: "n8n"
+      example: "startup"
     message:
       description: Logbook entry message
-      example: "Webhook received and workflow started."
+      example: "Home Assistant is Up and Running!"
   sequence:
     - condition: template
       value_template: >-
