@@ -3,11 +3,11 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# APT Updates - Weekly patch reporting for Docker hosts
-#  Receives webhook payloads from docker_10/docker_14/docker_69 after APT runs.
+# Docker Infrastructure - Host patching and container alerts
+#  APT webhook results and container down repairs.
 # -------------------------------------------------------------------
-# Notes: Hosts run a weekly Wednesday 12:00 APT job and POST JSON to these webhooks.
-# Notes: Logbook entry only when `updated: true`; creates Repairs issue if reboot needed.
+# Notes: Hosts run weekly Wed 12:00 APT job and POST JSON to webhooks.
+# Notes: Container watchlist is explicit; extend entity list as needed.
 ######################################################################
 
 input_datetime:
@@ -391,3 +391,66 @@ automation:
             service: repairs.remove
             data:
               issue_id: "{{ issue_id }}"
+
+  - alias: "Docker Container Offline - Create Repairs"
+    id: docker_container_offline_repairs_create
+    description: "Create a Repairs issue when a watched container is down for 5+ minutes."
+    mode: parallel
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.rc_price_checker_state
+          - switch.rc_price_checker_container
+        to: "unavailable"
+        for: "00:05:00"
+      - platform: state
+        entity_id:
+          - sensor.rc_price_checker_state
+        to: "unknown"
+        for: "00:05:00"
+      - platform: state
+        entity_id:
+          - sensor.rc_price_checker_state
+        to: "restarting"
+        for: "00:05:00"
+      - platform: state
+        entity_id:
+          - switch.rc_price_checker_container
+        to: "off"
+        for: "00:05:00"
+    variables:
+      issue_id: "docker_container_{{ trigger.entity_id | replace('.', '_') }}"
+      container_name: >-
+        {{ state_attr(trigger.entity_id, 'friendly_name') | default(trigger.entity_id) }}
+      current_state: "{{ states(trigger.entity_id) }}"
+    action:
+      - service: repairs.create
+        data:
+          issue_id: "{{ issue_id }}"
+          title: "Container offline: {{ container_name }}"
+          description: >-
+            {{ container_name }} has been {{ current_state }} for over 5 minutes.
+            Entity: {{ trigger.entity_id }}.
+          severity: warning
+          persistent: true
+
+  - alias: "Docker Container Offline - Clear Repairs"
+    id: docker_container_offline_repairs_clear
+    description: "Clear Repairs issue once the watched container is back online."
+    mode: parallel
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.rc_price_checker_state
+          - switch.rc_price_checker_container
+    variables:
+      issue_id: "docker_container_{{ trigger.entity_id | replace('.', '_') }}"
+    condition:
+      - condition: template
+        value_template: >-
+          {{ states(trigger.entity_id) not in ['unavailable', 'unknown', 'restarting', 'off'] }}
+    action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "{{ issue_id }}"

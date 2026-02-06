@@ -45,7 +45,8 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [lightning.yaml](lightning.yaml) | Blitzortung lightning counter monitoring with snoozeable push actions. | `sensor.blitzortung_lightning_counter`, `input_boolean.snooze_lightning`, notify engine actions |
 | [logbook_activity_feed.yaml](logbook_activity_feed.yaml) | Dummy `sensor.activity_feed` + helper to write clean Activity entries (Issue #1550). | `sensor.activity_feed`, `script.send_to_logbook` |
 | [mariadb_monitoring.yaml](mariadb_monitoring.yaml) | MariaDB health sensors and Lovelace dashboard snippet for recorder stats. | `sensor.mariadb_status`, `sensor.database_size` |
-| [apt_updates.yaml](apt_updates.yaml) | Weekly APT patch reporting for Docker hosts + Repairs reboot alerts. | `sensor.docker_*_apt_status`, `repairs.create`, `script.send_to_logbook` |
+| [docker_infrastructure.yaml](docker_infrastructure.yaml) | Docker host patching + container-down Repairs alerts. | `sensor.docker_*_apt_status`, `repairs.create` |
+| [mariadb.yaml](mariadb.yaml) | MariaDB recorder health and capacity SQL sensors. | `sensor.mariadb_status`, `sensor.database_size` |
 | [tugtainer_updates.yaml](tugtainer_updates.yaml) | Tugtainer container update notifications via webhook + persistent alerts. | `persistent_notification.create`, `input_datetime.tugtainer_last_update` |
 | [phynplus.yaml](phynplus.yaml) | Phyn shutoff automations with push + Activity feed + Repairs issues for leak events. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `repairs.create` |
 | [water_delivery.yaml](water_delivery.yaml) | ReadyRefresh delivery date helper with night-before + garage door Alexa reminders. | `input_datetime.water_delivery_date`, `notify.alexa_media_garage` |
