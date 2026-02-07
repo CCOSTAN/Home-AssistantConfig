@@ -21,7 +21,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 ### Quick navigation
 - You are here: `config/` (configuration root)
 - [Repo overview](../README.md) | [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg) | [YouTube](https://youtube.com/vCloudInfo)
-- Directory highlights: [packages](packages), [automation](automation), [script](script), [scene](scene), [templates](templates), [www](www), [custom_components](custom_components)
+- Directory highlights: [packages](packages), [automation](automation), [script](script), [scene](scene), [templates](templates), [dashboards](dashboards), [www](www), [custom_components](custom_components)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
@@ -36,6 +36,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 - **Automations (`automation/`)** – event-driven YAML broken out by area or device; the legacy `automations.yaml` remains for UI-created flows.
 - **Scripts & scenes (`script/`, `scene/`)** – curated lighting and ambiance logic used by presence, holiday, and seasonal routines.
 - **Templates (`templates/`)** – Jinja helpers and speech templates reused by the notify/speech engines.
+- **Dashboards (`dashboards/`)** – YAML-managed Lovelace dashboards and UI resources (generated from storage, then maintained as code).
 - **www/ + custom components** – branding assets, floorplans, and any custom components the core install depends on.
 
 ### Featured automations by section

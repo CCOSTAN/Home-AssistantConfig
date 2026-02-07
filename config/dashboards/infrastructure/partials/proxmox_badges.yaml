@@ -1,0 +1,37 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - proxmox badges
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/infrastructure/views/01_proxmox.yaml key `badges`.
+######################################################################
+
+- type: entity
+  show_name: true
+  show_state: true
+  show_icon: true
+  entity: binary_sensor.node_proxmox1_updates_packages
+  name: ProxMox1
+- type: entity
+  show_name: true
+  show_state: true
+  show_icon: true
+  entity: binary_sensor.node_proxmox02_updates_packages
+  name: Proxmox02
+- type: entity
+  icon: mdi:transmission-tower
+  show_name: true
+  show_state: true
+  show_icon: true
+  entity: sensor.garage_ups_status
+  name: Garage UPS
+- type: entity
+  show_name: true
+  show_state: true
+  show_icon: true
+  icon: mdi:microsoft-internet-explorer
+  entity: sensor.vcloudinfo_com
+  name: vCloudinfo

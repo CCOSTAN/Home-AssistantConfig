@@ -1,0 +1,344 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - vacuum sections
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/infrastructure/views/03_vacuum.yaml key `sections`.
+######################################################################
+
+- type: grid
+  cards:
+  - type: tile
+    entity: input_text.l10s_vacuum_room_catalog
+    vertical: false
+    features_position: bottom
+    grid_options:
+      columns: full
+  - type: tile
+    entity: input_text.l10s_vacuum_room_queue
+    vertical: false
+    features_position: bottom
+    grid_options:
+      columns: full
+  - type: tile
+    entity: input_text.l10s_vacuum_rooms_cleaned_today
+    vertical: false
+    features_position: bottom
+    grid_options:
+      columns: full
+  - type: tile
+    grid_options:
+      columns: full
+    entity: sensor.l10s_vacuum_current_room
+    state_content:
+    - state
+    - room_id
+    - last_changed
+    vertical: false
+    features_position: bottom
+  - type: tile
+    entity: input_select.l10s_vacuum_phase
+- type: grid
+  cards:
+  - type: custom:xiaomi-vacuum-map-card
+    map_source:
+      camera: camera.l10s_vacuum_map
+    calibration_source:
+      camera: true
+    entity: vacuum.l10s_vacuum
+    vacuum_platform: Tasshack/dreame-vacuum
+    map_modes:
+    - template: vacuum_clean_zone
+    - template: vacuum_clean_point
+    - template: vacuum_clean_segment
+      predefined_selections:
+      - id: '1'
+        icon:
+          name: mdi:home-outline
+          x: -8100
+          y: 12400
+        label:
+          text: Pool-Bath
+          x: -8100
+          y: 12400
+          offset_y: 35
+        outline:
+        - - -9950
+          - 11350
+        - - -6650
+          - 11350
+        - - -6650
+          - 12900
+        - - -9950
+          - 12900
+      - id: '2'
+        icon:
+          name: mdi:monitor-shimmer
+          x: -4650
+          y: 10900
+        label:
+          text: Office
+          x: -4650
+          y: 10900
+          offset_y: 35
+        outline:
+        - - -6650
+          - 7400
+        - - -2800
+          - 7400
+        - - -2800
+          - 12850
+        - - -6650
+          - 12850
+      - id: '3'
+        icon:
+          name: mdi:home-outline
+          x: -5600
+          y: 5250
+        label:
+          text: Kids-Bathroom
+          x: -5600
+          y: 5250
+          offset_y: 35
+        outline:
+        - - -6450
+          - 4250
+        - - -4750
+          - 4250
+        - - -4750
+          - 6150
+        - - -6450
+          - 6150
+      - id: '4'
+        icon:
+          name: mdi:home-outline
+          x: 7300
+          y: 4100
+        label:
+          text: Master-Bathroom
+          x: 7300
+          y: 4100
+          offset_y: 35
+        outline:
+        - - 5450
+          - 250
+        - - 9400
+          - 250
+        - - 9400
+          - 7850
+        - - 5450
+          - 7850
+      - id: '6'
+        icon:
+          name: mdi:home-outline
+          x: -8450
+          y: 4200
+        label:
+          text: Paige-Bedroom
+          x: -8450
+          y: 4200
+          offset_y: 35
+        outline:
+        - - -9900
+          - 1600
+        - - -6600
+          - 1600
+        - - -6600
+          - 6100
+        - - -9900
+          - 6100
+      - id: '7'
+        icon:
+          name: mdi:home-outline
+          x: 6450
+          y: 10400
+        label:
+          text: Master-Bedroom
+          x: 6450
+          y: 10400
+          offset_y: 35
+        outline:
+        - - 3450
+          - 7850
+        - - 9550
+          - 7850
+        - - 9550
+          - 12850
+        - - 3450
+          - 12850
+      - id: '8'
+        icon:
+          name: mdi:home-outline
+          x: -8300
+          y: 9300
+        label:
+          text: Justin-Bedroom
+          x: -8300
+          y: 9300
+          offset_y: 35
+        outline:
+        - - -9950
+          - 6250
+        - - -6650
+          - 6250
+        - - -6650
+          - 11150
+        - - -9950
+          - 11150
+      - id: '9'
+        icon:
+          name: mdi:home-outline
+          x: 7250
+          y: -2200
+        label:
+          text: Stacey-Office
+          x: 7250
+          y: -2200
+          offset_y: 35
+        outline:
+        - - 5450
+          - -4700
+        - - 9450
+          - -4700
+        - - 9450
+          - 350
+        - - 5450
+          - 350
+      - id: '10'
+        icon:
+          name: mdi:sofa-outline
+          x: 2500
+          y: 4800
+        label:
+          text: Living Room
+          x: 2500
+          y: 4800
+          offset_y: 35
+        outline:
+        - - -650
+          - 750
+        - - 5300
+          - 750
+        - - 5300
+          - 8800
+        - - -650
+          - 8800
+      - id: '11'
+        icon:
+          name: mdi:home-outline
+          x: -5350
+          y: 2600
+        label:
+          text: Garage-Hallway
+          x: -5350
+          y: 2600
+          offset_y: 35
+        outline:
+        - - -6600
+          - 1100
+        - - -4050
+          - 1100
+        - - -4050
+          - 4200
+        - - -6600
+          - 4200
+      - id: '12'
+        icon:
+          name: mdi:home-outline
+          x: 700
+          y: 8900
+        label:
+          text: Dining-Room
+          x: 700
+          y: 8900
+          offset_y: 35
+        outline:
+        - - -4350
+          - 6000
+        - - 2650
+          - 6000
+        - - 2650
+          - 12650
+        - - -4350
+          - 12650
+      - id: '13'
+        icon:
+          name: mdi:home-outline
+          x: -6200
+          y: 6800
+        label:
+          text: Hallway
+          x: -6200
+          y: 6800
+          offset_y: 35
+        outline:
+        - - -7550
+          - 6100
+        - - -4350
+          - 6100
+        - - -4350
+          - 7700
+        - - -7550
+          - 7700
+      - id: '14'
+        icon:
+          name: mdi:chef-hat
+          x: -1700
+          y: 3350
+        label:
+          text: Kitchen
+          x: -1700
+          y: 3350
+          offset_y: 35
+        outline:
+        - - -4200
+          - 950
+        - - -300
+          - 950
+        - - -300
+          - 6100
+        - - -4200
+          - 6100
+      - id: '15'
+        icon:
+          name: mdi:home-outline
+          x: 4050
+          y: -1350
+        label:
+          text: Foyer
+          x: 4050
+          y: -1350
+          offset_y: 35
+        outline:
+        - - 2850
+          - -3500
+        - - 5450
+          - -3500
+        - - 5450
+          - 800
+        - - 2850
+          - 800
+      - id: '17'
+        icon:
+          name: mdi:home-outline
+          x: 750
+          y: -1250
+        label:
+          text: Formal-Dining
+          x: 750
+          y: -1250
+          offset_y: 35
+        outline:
+        - - -1500
+          - -3500
+        - - 2950
+          - -3500
+        - - 2950
+          - 950
+        - - -1500
+          - 950
+    map_locked: true
+    two_finger_pan: true

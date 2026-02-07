@@ -1,0 +1,187 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - proxmox sections
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Standardized on `custom:button-card` + `custom:mini-graph-card` with `card_mod` polish.
+######################################################################
+
+- type: grid
+  column_span: 4
+  columns: 4
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_chip
+    entity: binary_sensor.node_proxmox1_updates_packages
+    name: Proxmox01
+    icon: mdi:server
+    state_display: >
+      [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+  - type: custom:button-card
+    template: bearstone_infra_chip
+    entity: binary_sensor.node_proxmox02_updates_packages
+    name: Proxmox02
+    icon: mdi:server
+    state_display: >
+      [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+  - type: custom:button-card
+    template: bearstone_infra_chip
+    entity: sensor.garage_ups_status
+    name: Garage UPS
+    icon: mdi:transmission-tower
+  - type: custom:button-card
+    template: bearstone_infra_chip
+    entity: sensor.vcloudinfo_com
+    name: vCloudinfo
+    icon: mdi:microsoft-internet-explorer
+
+- type: grid
+  column_span: 4
+  columns: 2
+  square: false
+  cards:
+  - type: vertical-stack
+    cards:
+    - type: custom:mini-graph-card
+      name: Proxmox01
+      icon: mdi:server
+      hours_to_show: 24
+      points_per_hour: 2
+      line_width: 2
+      animate: true
+      show:
+        fill: true
+        legend: true
+        icon: true
+        name: true
+        state: true
+      entities:
+      - entity: sensor.node_proxmox1_cpu_used
+        name: CPU
+      - entity: sensor.node_proxmox1_memory_used_percentage
+        name: Memory
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+    - type: custom:mini-graph-card
+      name: Proxmox01 VMs (CPU / MEM)
+      icon: mdi:chart-line
+      hours_to_show: 24
+      points_per_hour: 2
+      line_width: 2
+      animate: true
+      show:
+        fill: false
+        legend: true
+        icon: true
+        name: true
+        state: false
+      entities:
+      - entity: sensor.qemu_docker69_169_cpu_used
+        name: Docker69 CPU
+      - entity: sensor.qemu_docker69_169_memory_used_percentage
+        name: Docker69 MEM
+      - entity: sensor.qemu_carlo_hass_105_cpu_used
+        name: HASS CPU
+      - entity: sensor.qemu_carlo_hass_105_memory_used_percentage
+        name: HASS MEM
+      - entity: sensor.qemu_wireguard_104_cpu_used
+        name: WireGuard CPU
+      - entity: sensor.qemu_wireguard_104_memory_used_percentage
+        name: WireGuard MEM
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_device_tile
+        entity: sensor.qemu_docker69_169_status
+        name: Docker69
+        icon: mdi:docker
+        label: >
+          [[[ return "Last boot: " + (states['sensor.qemu_docker69_169_last_boot']?.state ?? 'unknown'); ]]]
+        variables:
+          button_entity: button.qemu_docker69_169_reboot
+          name: Docker69
+      - type: custom:button-card
+        template: bearstone_infra_device_tile
+        entity: sensor.qemu_carlo_hass_105_status
+        name: HASS
+        icon: mdi:home-assistant
+        label: >
+          [[[ return "Last boot: " + (states['sensor.qemu_carlo_hass_105_last_boot']?.state ?? 'unknown'); ]]]
+        variables:
+          button_entity: button.qemu_carlo_hass_105_reboot
+          name: HASS
+      - type: custom:button-card
+        template: bearstone_infra_device_tile
+        entity: sensor.qemu_wireguard_104_status
+        name: WireGuard
+        icon: mdi:vpn
+        label: >
+          [[[ return "Last boot: " + (states['sensor.qemu_wireguard_104_last_boot']?.state ?? 'unknown'); ]]]
+        variables:
+          button_entity: button.qemu_wireguard_104_reboot
+          name: WireGuard
+
+  - type: vertical-stack
+    cards:
+    - type: custom:mini-graph-card
+      name: Proxmox02
+      icon: mdi:server
+      hours_to_show: 24
+      points_per_hour: 2
+      line_width: 2
+      animate: true
+      show:
+        fill: true
+        legend: true
+        icon: true
+        name: true
+        state: true
+      entities:
+      - entity: sensor.node_proxmox02_cpu_used
+        name: CPU
+      - entity: sensor.node_proxmox02_memory_used_percentage
+        name: Memory
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+    - type: custom:mini-graph-card
+      name: Frigate VM (CPU / MEM)
+      icon: mdi:video
+      hours_to_show: 24
+      points_per_hour: 2
+      line_width: 2
+      animate: true
+      show:
+        fill: false
+        legend: true
+        icon: true
+        name: true
+        state: false
+      entities:
+      - entity: sensor.qemu_docker2_101_cpu_used
+        name: CPU
+      - entity: sensor.qemu_docker2_101_memory_used_percentage
+        name: MEM
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_device_tile
+        entity: sensor.qemu_docker2_101_status
+        name: Frigate
+        icon: mdi:video
+        label: >
+          [[[ return "Last boot: " + (states['sensor.qemu_docker2_101_last_boot']?.state ?? 'unknown'); ]]]
+        variables:
+          button_entity: button.qemu_docker2_101_reboot
+          name: Frigate

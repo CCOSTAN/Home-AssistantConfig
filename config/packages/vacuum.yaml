@@ -10,7 +10,7 @@
 # Notes:
 # - `sensor.l10s_vacuum_current_room` can change during transit; require a dwell (`for:`) before dequeuing.
 # - Treat 2+ minutes in a room as "being cleaned" and dequeue immediately (queue = remaining rooms).
-# - Phase changes happen when the queue is reseeded after the queue hits zero and the vacuum is not actively cleaning (queue is the source of truth).
+# - Phase changes happen when the queue is reseeded after the queue hits zero (queue is the source of truth).
 # - Avoid reissuing `dreame_vacuum.vacuum_clean_segment` while already cleaning; only send a new segment job when starting/resuming or switching phases.
 # - Jinja2 loop scoping: use a `namespace` when building lists (otherwise the queue can appear empty and get cleared).
 # - Docked + task complete only logs queue state; no auto-clearing.
@@ -128,7 +128,7 @@ script:
           vac_state: "{{ states('vacuum.l10s_vacuum') | default('', true) | string | lower }}"
           vac_is_cleaning: "{{ vac_state == 'cleaning' }}"
           phase_ready: "{{ is_state('input_boolean.l10s_vacuum_phase_ready', 'on') }}"
-          advance_phase: "{{ queue_ints | length == 0 and phase_ready and not vac_is_cleaning }}"
+          advance_phase: "{{ queue_ints | length == 0 and phase_ready }}"
           reset_cycle: "{{ advance_phase and not has_next_phase }}"
           phase_for_seed: "{{ next_phase if advance_phase and has_next_phase else phase }}"
           cleaning_mode: "{{ 'sweeping_and_mopping' if 'mop_' in phase_for_seed else 'sweeping' }}"
@@ -219,7 +219,20 @@ script:
               - stop: 'No rooms left to clean today.'
         default: []
 
-      # 3. Start cleaning
+      # 3. Start cleaning (but don't clobber an active job)
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ vac_is_cleaning }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "Vacuum is already cleaning; queue/phase updated but not issuing a new segment job."
+              - stop: "Already cleaning."
+        default: []
+
+      # 4. Start cleaning
       - service: select.select_option
         target:
           entity_id: select.l10s_vacuum_cleaning_mode
@@ -408,12 +421,6 @@ automation:
         entity_id: input_boolean.guest_mode
         state: 'off'
       - condition: template
-        value_template: >
-          {{ is_state('input_boolean.l10s_vacuum_on_demand', 'on') or is_state('group.family', 'not_home') }}
-      - condition: template
-        value_template: >
-          true
-      - condition: template
         value_template: "{{ not is_state('vacuum.l10s_vacuum', 'cleaning') }}"
     action:
       - service: input_boolean.turn_on
@@ -568,7 +575,7 @@ automation:
                       - service: script.send_to_logbook
                         data:
                           topic: "VACUUM"
-                          message: "Queue empty for phase {{ phase }}; waiting for task completion to advance."
+                          message: "Queue empty for phase {{ phase }}; phase advance armed for next reseed."
                 default: []
         default: []
 

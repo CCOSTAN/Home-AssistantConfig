@@ -24,6 +24,36 @@ homeassistant:
 
 default_config:
 
+# -------------------------------------------------------------------
+# Lovelace (YAML dashboards/resources)
+# Dashboard YAML lives under config/dashboards. Do not edit config/.storage.
+# -------------------------------------------------------------------
+lovelace:
+  resource_mode: yaml
+  resources: !include dashboards/resources.yaml
+  dashboards:
+    lovelace:
+      mode: yaml
+      title: "Overview"
+      icon: mdi:home
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/overview/dashboard.yaml
+    dashboard-infrastructure:
+      mode: yaml
+      title: "Infrastructure"
+      icon: mdi:server-network
+      show_in_sidebar: true
+      require_admin: true
+      filename: dashboards/infrastructure/dashboard.yaml
+    dashboard-kiosk:
+      mode: yaml
+      title: "KIOSK"
+      icon: mdi:tablet-dashboard
+      show_in_sidebar: true
+      require_admin: false
+      filename: dashboards/kiosk/dashboard.yaml
+
 config:
 
 cloud:

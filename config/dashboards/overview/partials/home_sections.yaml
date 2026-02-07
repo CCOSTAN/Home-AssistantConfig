@@ -1,0 +1,412 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Partial - home sections
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/overview/views/01_home.yaml key `sections`.
+######################################################################
+
+- cards:
+  - square: true
+    type: grid
+    cards:
+    - type: picture-entity
+      entity: person.carlo
+      name: Carlo
+      show_state: false
+      show_name: false
+      state_filter:
+        home: none
+        not_home: grayscale(100%) opacity(50%)
+        driving: grayscale(100%) opacity(50%)
+    - type: picture-entity
+      entity: person.stacey
+      name: Stacey
+      show_state: false
+      show_name: false
+      state_filter:
+        home: none
+        not_home: grayscale(100%) opacity(50%)
+        gym: grayscale(100%) opacity(50%)
+        driving: grayscale(100%) opacity(50%)
+    - type: picture-entity
+      entity: person.justin
+      name: Justin
+      show_state: false
+      show_name: false
+      state_filter:
+        home: none
+        not_home: grayscale(100%) opacity(50%)
+        Justin Dorm: grayscale(10%) opacity(50%)
+        Paige Dorm: grayscale(10%) opacity(50%)
+        gym: grayscale(100%) opacity(50%)
+        driving: grayscale(100%) opacity(50%)
+    - type: picture-entity
+      entity: person.paige
+      name: Paige
+      show_state: false
+      show_name: false
+      state_filter:
+        home: none
+        not_home: grayscale(100%) opacity(50%)
+        paige_work: grayscale(100%) opacity(50%)
+        Justin Dorm: grayscale(10%) opacity(50%)
+        Paige Dorm: grayscale(10%) opacity(50%)
+        gym: grayscale(100%) opacity(50%)
+        driving: grayscale(100%) opacity(50%)
+    columns: 4
+  - type: entities
+    entities:
+    - type: conditional
+      conditions:
+      - entity: person.carlo
+        state_not: home
+      row:
+        type: attribute
+        entity: sensor.carlo_place
+        attribute: formatted_place
+        name: Carlo Location
+    - type: conditional
+      conditions:
+      - entity: person.stacey
+        state_not: home
+      row:
+        type: attribute
+        entity: sensor.stacey_place
+        attribute: formatted_place
+        name: Stacey Location
+    - type: conditional
+      conditions:
+      - entity: person.justin
+        state_not: home
+      row:
+        type: attribute
+        entity: sensor.justin_place
+        attribute: formatted_place
+        name: Justin Location
+    - type: conditional
+      conditions:
+      - entity: person.paige
+        state_not: home
+      row:
+        type: attribute
+        entity: sensor.paige_place
+        attribute: formatted_place
+        name: Paige Location
+    state_color: false
+  - type: custom:mushroom-template-card
+    primary: Zoom Map
+    icon: mdi:map-marker
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/family_locator
+    hold_action:
+      action: none
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  - type: map
+    entities:
+    - person.justin
+    - person.paige
+    hours_to_show: 48
+    aspect_ratio: '4:3'
+    theme_mode: auto
+    card_mod:
+      style: null
+      ha-map $ ha-entity-marker $: ".marker { \n  /* Style person marker & adjust position to avoid blocking waypoints */\
+        \ \n  border: 3px solid var(\u2014state-person) !important; \n  border-radius: 50% 50% 50% 0px !important; \n  transform:\
+        \ rotate(-45deg) translate(50%, -50%); \n  overflow: visible !important;\n} \n.entity-picture { \n  /* Correct orientation\
+        \ of person avatar / \n  transform: rotate(45deg); \n  border-radius: 50%; \n} \n"
+      ha-map $: "path:first-child { \n  / Style accuracy radius / \n  stroke: var(\u2014state-person); \n  fill: color-mix(in\
+        \ srgb, var(\u2014state-person) 50%, transparent); \n  stroke-width: 0px; } \npath:nth-child(even) { \n  / Styling\
+        \ for waypoints / \n  stroke: var(\u2014purple-color);\n  stroke-width: 4px; \n} \npath:nth-child(odd):not(:first-child)\
+        \ { \n  / Styling for lines */ \n  stroke: var(\u2014purple-color);\n  stroke-width: 4px; \n}\n:host { \n  /* Define\
+        \ Person State colors. Can be added to theme / \n  \u2014state-person-home: var(\u2014green-color); \n  \u2014state-person-not-home:\
+        \ var(\u2014red-color); \n  \u2014state-person-zone: var(\u2014blue-color); \n  \u2014state-person-unknown: var(\u2014\
+        grey-color); \n  / Set person state color */ \n  \u2014state-person: \n    {% if is_state(config.entities[0].entity,\
+        \ [\u2018home\u2019, \u2018not_home\u2019, \u2018unknown\u2019]) %} \n      var(\u2014state-person-{{ states(config.entities[0].entity)\
+        \ | replace(\u2018_\u2019, \u2018-\u2018) }}) \n    {% else %} \n      var(\u2014state-person-zone) \n    {% endif\
+        \ %}; \n}\n"
+  - type: map
+    entities:
+    - person.carlo
+    - person.stacey
+    hours_to_show: 48
+    aspect_ratio: '4:3'
+    theme_mode: auto
+    card_mod:
+      style: null
+      ha-map $ ha-entity-marker $: ".marker { \n  /* Style person marker & adjust position to avoid blocking waypoints */\
+        \ \n  border: 3px solid var(\u2014state-person) !important; \n  border-radius: 50% 50% 50% 0px !important; \n  transform:\
+        \ rotate(-45deg) translate(50%, -50%); \n  overflow: visible !important;\n} \n.entity-picture { \n  /* Correct orientation\
+        \ of person avatar / \n  transform: rotate(45deg); \n  border-radius: 50%; \n} \n"
+      ha-map $: "path:first-child { \n  / Style accuracy radius / \n  stroke: var(\u2014state-person); \n  fill: color-mix(in\
+        \ srgb, var(\u2014state-person) 50%, transparent); \n  stroke-width: 0px; } \npath:nth-child(even) { \n  / Styling\
+        \ for waypoints / \n  stroke: var(\u2014purple-color); \n  stroke-width: 4px; \n} \npath:nth-child(odd):not(:first-child)\
+        \ { \n  / Styling for lines */ \n  stroke: var(\u2014purple-color); \n  stroke-width: 4px; \n}\n:host { \n  /* Define\
+        \ Person State colors. Can be added to theme / \n  \u2014state-person-home: var(\u2014green-color); \n  \u2014state-person-not-home:\
+        \ var(\u2014red-color); \n  \u2014state-person-zone: var(\u2014blue-color); \n  \u2014state-person-unknown: var(\u2014\
+        grey-color); \n  / Set person state color */ \n  \u2014state-person: \n    {% if is_state(config.entities[0].entity,\
+        \ [\u2018home\u2019, \u2018not_home\u2019, \u2018unknown\u2019]) %} \n      var(\u2014state-person-{{ states(config.entities[0].entity)\
+        \ | replace(\u2018_\u2019, \u2018-\u2018) }}) \n    {% else %} \n      var(\u2014state-person-zone) \n    {% endif\
+        \ %}; \n}\n"
+  column_span: 1
+- cards:
+  - type: custom:mushroom-vacuum-card
+    entity: vacuum.l10s_vacuum
+    icon_animation: true
+    commands:
+    - return_home
+    - start_pause
+    - locate
+    double_tap_action:
+      action: none
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/vacuum
+    visibility:
+    - condition: state
+      entity: vacuum.l10s_vacuum
+      state_not: docked
+    primary_info: name
+    fill_container: true
+    grid_options:
+      rows: 1
+      columns: full
+    layout: horizontal
+  - type: tile
+    entity: climate.downstairs
+    state_content:
+    - current_temperature
+    - temperature
+    vertical: false
+    features_position: bottom
+  - type: tile
+    entity: climate.upstairs
+    show_entity_picture: false
+    hide_state: false
+    state_content:
+    - current_temperature
+    - temperature
+    vertical: false
+    features_position: bottom
+  - type: custom:search-card
+    max_results: 10
+  - type: custom:bubble-card
+    card_type: button
+    button_type: slider
+    entity: light.living_room_lights
+    name: Living Room Lights
+    icon: mdi:sofa
+    show_state: true
+    show_attribute: false
+    show_last_changed: true
+    tap_action:
+      action: navigate
+      navigation_path: '#living_room'
+    grid_options:
+      columns: 6
+      rows: 1
+    card_layout: large
+  - type: custom:bubble-card
+    card_type: button
+    name: Lights On
+    icon: mdi:lightbulb-on-outline
+    show_state: true
+    tap_action:
+      action: navigate
+      navigation_path: '#lights-popup'
+    button_action:
+      tap_action:
+        action: navigate
+        navigation_path: '#lights-popup'
+    grid_options:
+      columns: 6
+      rows: 1
+    card_layout: large
+    button_type: switch
+    show_name: true
+    show_attribute: false
+    attribute: icon
+    entity: sensor.number_of_lights_on
+  - type: vertical-stack
+    cards:
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#living_room'
+      button_type: slider
+      entity: light.living_room_lights
+      name: Living Room Lights
+      icon: mdi:sofa
+      show_attribute: false
+      slide_to_close_distance: '100000'
+      trigger: []
+      bg_opacity: '35'
+      show_state: true
+      show_last_changed: true
+      tap_action:
+        action: toggle
+    - type: custom:bubble-card
+      card_type: button
+      button_type: slider
+      entity: light.m1_front_left
+      name: Front Left
+      icon: mdi:light-recessed
+      show_state: true
+      show_attribute: false
+      show_last_changed: true
+      sub_button: []
+      grid_options:
+        columns: 6
+        rows: 1
+      columns: 2
+    - type: custom:bubble-card
+      card_type: button
+      button_type: slider
+      entity: light.m1_front_right
+      name: Front Right
+      icon: mdi:light-recessed
+      show_state: true
+      show_attribute: false
+      show_last_changed: true
+      sub_button: []
+      grid_options:
+        columns: 6
+        rows: 1
+    - type: custom:bubble-card
+      card_type: button
+      button_type: slider
+      entity: light.m1_back_left
+      name: Back Left
+      icon: mdi:light-recessed
+      show_state: true
+      show_attribute: false
+      show_last_changed: true
+      sub_button: []
+      grid_options:
+        columns: 6
+        rows: 1
+    - type: custom:bubble-card
+      card_type: button
+      button_type: slider
+      entity: light.m1_back_right
+      name: Back Right
+      icon: mdi:light-recessed
+      show_state: true
+      show_attribute: false
+      show_last_changed: true
+      sub_button: []
+      grid_options:
+        columns: 6
+        rows: 1
+    grid_options:
+      columns: 12
+      rows: auto
+  - type: custom:bubble-card
+    card_type: button
+    button_type: switch
+    entity: group.interior_switches
+    name: Interior Switches
+    icon: mdi:lightning-bolt
+    show_state: true
+    show_attribute: false
+    show_last_changed: false
+    button_action:
+      tap_action:
+        action: more-info
+    grid_options:
+      columns: 6
+      rows: 1
+    tap_action:
+      action: toggle
+    card_layout: large
+  - type: custom:bubble-card
+    card_type: button
+    button_type: state
+    entity: group.exterior_lights
+    name: Exterior Lights
+    icon: mdi:palm-tree
+    show_state: true
+    show_attribute: false
+    show_last_changed: true
+    grid_options:
+      columns: 6
+      rows: 1
+  - type: vertical-stack
+    cards:
+    - type: custom:bubble-card
+      card_type: pop-up
+      hash: '#lights-popup'
+      name: Lights Control
+      icon: mdi:lightbulb-group
+      width_desktop: 500px
+      show_header: true
+      entity: sensor.number_of_lights_on
+      button_type: name
+    - type: custom:auto-entities
+      filter:
+        include:
+        - domain: light
+        exclude:
+        - state: 'off'
+        - state: unavailable
+        - hidden_by: user
+      show_empty: true
+      entity: sensor.number_of_lights_on
+      button_type: state
+      show_name: true
+      card:
+        type: custom:auto-entities
+        card:
+          type: entities
+        filter:
+          include: []
+          exclude: []
+- cards:
+  - type: custom:frigate-events-card
+    frigate_client_id: frigate
+    event_count: 5
+  - show_state: true
+    show_name: true
+    camera_view: live
+    type: picture-entity
+    entity: camera.birdseye
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/camera
+  - type: vertical-stack
+    cards:
+    - type: weather-forecast
+      show_current: true
+      show_forecast: true
+      entity: weather.pirateweather
+      forecast_type: hourly
+      secondary_info_attribute: humidity
+    - type: custom:clock-weather-card
+      entity: weather.pirateweather
+      sun_entity: sun.sun
+      temperature_sensor: sensor.pirateweather_temperature
+      humidity_sensor: sensor.pirateweather_humidity
+      weather_icon_type: fill
+      animated_icon: true
+      forecast_rows: 5
+      locale: en-GB
+      time_pattern: HH:mm
+      time_format: 12
+      date_pattern: DDDD
+      hide_today_section: true
+      hide_forecast_section: false
+      show_humidity: true
+      hide_clock: false
+      hide_date: true
+      hourly_forecast: false
+      use_browser_time: false
+      time_zone: null
+      show_decimal: false
+      aqi_sensor: sensor.bear_stone_common_air_quality_index
+      apparent_sensor: null

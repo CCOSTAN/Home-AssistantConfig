@@ -1,0 +1,407 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Include - Docker container rows
+#  Auto-entities include list mapping Portainer status -> restart button.
+# -------------------------------------------------------------------
+# Notes: Generated from core.entity_registry + button restart entities.
+######################################################################
+
+- entity_id: binary_sensor.91aca40203c0_portainer_agent_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: 91aca40203c0_portainer_agent
+    icon: mdi:docker
+    variables:
+      restart_button: button.91aca40203c0_portainer_agent_restart_container
+      name: 91aca40203c0_portainer_agent
+- entity_id: binary_sensor.cloudflared_kch_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: cloudflared_kch
+    icon: mdi:docker
+    variables:
+      restart_button: button.cloudflared_kch_restart_container
+      name: cloudflared_kch
+- entity_id: binary_sensor.cloudflared_wp_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: cloudflared_wp
+    icon: mdi:docker
+    variables:
+      restart_button: button.cloudflared_wp_restart_container
+      name: cloudflared_wp
+- entity_id: binary_sensor.codex_appliance_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: codex_appliance
+    icon: mdi:docker
+    variables:
+      restart_button: button.codex_appliance_restart_container
+      name: codex_appliance
+- entity_id: binary_sensor.college_budget_app_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: college_budget_app
+    icon: mdi:docker
+    variables:
+      restart_button: button.college_budget_app_restart_container
+      name: college_budget_app
+- entity_id: binary_sensor.cruise_tracker_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: cruise_tracker
+    icon: mdi:docker
+    variables:
+      restart_button: button.cruise_tracker_restart_container
+      name: cruise_tracker
+- entity_id: binary_sensor.dashy_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: dashy
+    icon: mdi:docker
+    variables:
+      restart_button: button.dashy_restart_container
+      name: dashy
+- entity_id: binary_sensor.dozzle_agent_10_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: dozzle_agent_10
+    icon: mdi:docker
+    variables:
+      restart_button: button.dozzle_agent_10_restart_container
+      name: dozzle_agent_10
+- entity_id: binary_sensor.dozzle_agent_14_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: dozzle_agent_14
+    icon: mdi:docker
+    variables:
+      restart_button: button.dozzle_agent_14_restart_container
+      name: dozzle_agent_14
+- entity_id: binary_sensor.dozzle_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: dozzle
+    icon: mdi:docker
+    variables:
+      restart_button: button.dozzle_restart_container
+      name: dozzle
+- entity_id: binary_sensor.duplicati_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: duplicati
+    icon: mdi:docker
+    variables:
+      restart_button: button.duplicati_restart_container
+      name: duplicati
+- entity_id: binary_sensor.esphome_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: esphome
+    icon: mdi:docker
+    variables:
+      restart_button: button.esphome_restart_container
+      name: esphome
+- entity_id: binary_sensor.foodie_tracker_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: foodie_tracker
+    icon: mdi:docker
+    variables:
+      restart_button: button.foodie_tracker_restart_container
+      name: foodie_tracker
+- entity_id: binary_sensor.frigate_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: frigate
+    icon: mdi:docker
+    variables:
+      restart_button: button.frigate_restart_container
+      name: frigate
+- entity_id: binary_sensor.games_hub_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: games_hub
+    icon: mdi:docker
+    variables:
+      restart_button: button.games_hub_restart_container
+      name: games_hub
+- entity_id: binary_sensor.home_assistant_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: home-assistant
+    icon: mdi:docker
+    variables:
+      restart_button: button.home_assistant_restart_container
+      name: home-assistant
+- entity_id: binary_sensor.imposter_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: imposter
+    icon: mdi:docker
+    variables:
+      restart_button: button.imposter_restart_container
+      name: imposter
+- entity_id: binary_sensor.infra_info_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: infra_info
+    icon: mdi:docker
+    variables:
+      restart_button: button.infra_info_restart_container
+      name: infra_info
+- entity_id: binary_sensor.kingcrafthomes_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: kingcrafthomes
+    icon: mdi:docker
+    variables:
+      restart_button: button.kingcrafthomes_restart_container
+      name: kingcrafthomes
+- entity_id: binary_sensor.mariadb_backup_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: mariadb-backup
+    icon: mdi:docker
+    variables:
+      restart_button: button.mariadb_backup_restart_container
+      name: mariadb-backup
+- entity_id: binary_sensor.mariadb_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: mariadb
+    icon: mdi:docker
+    variables:
+      restart_button: button.mariadb_restart_container
+      name: mariadb
+- entity_id: binary_sensor.matter_server_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: matter-server
+    icon: mdi:docker
+    variables:
+      restart_button: button.matter_server_restart_container
+      name: matter-server
+- entity_id: binary_sensor.mqtt_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: mqtt
+    icon: mdi:docker
+    variables:
+      restart_button: button.mqtt_restart_container
+      name: mqtt
+- entity_id: binary_sensor.nebula_sync_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: nebula_sync
+    icon: mdi:docker
+    variables:
+      restart_button: button.nebula_sync_restart_container
+      name: nebula_sync
+- entity_id: binary_sensor.panel_notes_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: panel_notes
+    icon: mdi:docker
+    variables:
+      restart_button: button.panel_notes_restart_container
+      name: panel_notes
+- entity_id: binary_sensor.pihole_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: pihole
+    icon: mdi:docker
+    variables:
+      restart_button: button.pihole_restart_container
+      name: pihole
+- entity_id: binary_sensor.pihole_secondary_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: pihole_secondary
+    icon: mdi:docker
+    variables:
+      restart_button: button.pihole_secondary_restart_container
+      name: pihole_secondary
+- entity_id: binary_sensor.poker_tracker_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: poker_tracker
+    icon: mdi:docker
+    variables:
+      restart_button: button.poker_tracker_restart_container
+      name: poker_tracker
+- entity_id: binary_sensor.portainer_agent_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: portainer_agent
+    icon: mdi:docker
+    variables:
+      restart_button: button.portainer_agent_restart_container
+      name: portainer_agent
+- entity_id: binary_sensor.portainer_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: portainer
+    icon: mdi:docker
+    variables:
+      restart_button: button.portainer_restart_container
+      name: portainer
+- entity_id: binary_sensor.postgres_webhooks_engine_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: postgres_webhooks_engine
+    icon: mdi:docker
+    variables:
+      restart_button: button.postgres_webhooks_engine_restart_container
+      name: postgres_webhooks_engine
+- entity_id: binary_sensor.rc_price_checker_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: rc_price_checker
+    icon: mdi:docker
+    variables:
+      restart_button: button.rc_price_checker_restart_container
+      name: rc_price_checker
+- entity_id: binary_sensor.redis_webhooks_engine_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: redis_webhooks_engine
+    icon: mdi:docker
+    variables:
+      restart_button: button.redis_webhooks_engine_restart_container
+      name: redis_webhooks_engine
+- entity_id: binary_sensor.rvtools_ppt_web_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: rvtools_ppt_web
+    icon: mdi:docker
+    variables:
+      restart_button: button.rvtools_ppt_web_restart_container
+      name: rvtools_ppt_web
+- entity_id: binary_sensor.steelesharing_home_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: steelesharing_home
+    icon: mdi:docker
+    variables:
+      restart_button: button.steelesharing_home_restart_container
+      name: steelesharing_home
+- entity_id: binary_sensor.tapple_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: tapple
+    icon: mdi:docker
+    variables:
+      restart_button: button.tapple_restart_container
+      name: tapple
+- entity_id: binary_sensor.tugtainer_agent_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: tugtainer-agent
+    icon: mdi:docker
+    variables:
+      restart_button: button.tugtainer_agent_restart_container
+      name: tugtainer-agent
+- entity_id: binary_sensor.tugtainer_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: tugtainer
+    icon: mdi:docker
+    variables:
+      restart_button: button.tugtainer_restart_container
+      name: tugtainer
+- entity_id: binary_sensor.tugtainer_socket_proxy_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: tugtainer_socket_proxy
+    icon: mdi:docker
+    variables:
+      restart_button: button.tugtainer_socket_proxy_restart_container
+      name: tugtainer_socket_proxy
+- entity_id: binary_sensor.unifi_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: unifi
+    icon: mdi:docker
+    variables:
+      restart_button: button.unifi_restart_container
+      name: unifi
+- entity_id: binary_sensor.webhooks_engine_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: webhooks_engine
+    icon: mdi:docker
+    variables:
+      restart_button: button.webhooks_engine_restart_container
+      name: webhooks_engine
+- entity_id: binary_sensor.wordpress_db_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: wordpress_db
+    icon: mdi:docker
+    variables:
+      restart_button: button.wordpress_db_restart_container
+      name: wordpress_db
+- entity_id: binary_sensor.wordpress_wp_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: wordpress_wp
+    icon: mdi:docker
+    variables:
+      restart_button: button.wordpress_wp_restart_container
+      name: wordpress_wp
+- entity_id: binary_sensor.wyze_bridge_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: wyze-bridge
+    icon: mdi:docker
+    variables:
+      restart_button: button.wyze_bridge_restart_container
+      name: wyze-bridge

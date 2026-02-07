@@ -1,0 +1,33 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# KIOSK View - Overview
+#  YAML-exported Lovelace dashboard (split into view files).
+# -------------------------------------------------------------------
+# Notes: Exported from config/.storage/lovelace.dashboard_kiosk view index 1.
+######################################################################
+
+title: Overview
+path: kiosk_oveview
+icon: mdi:cctv
+type: sections
+max_columns: 2
+sections: !include /config/dashboards/kiosk/partials/kiosk_oveview_sections.yaml
+badges: !include /config/dashboards/kiosk/partials/kiosk_oveview_badges.yaml
+cards: []
+visible:
+- user: be280a93c9d7416e98d25d0470f414be
+- user: 9543feb5402742a0ab90f301f09f1c0e
+dense_section_placement: true
+background:
+  opacity: 100
+  alignment: center
+  size: cover
+  repeat: no-repeat
+  attachment: fixed
+  image: /api/image/serve/caf7862354abd804ef658f899fb3218b/original
+header:
+  layout: center
+  badges_position: top
