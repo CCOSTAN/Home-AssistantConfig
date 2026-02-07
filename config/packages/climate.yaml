@@ -150,6 +150,20 @@ script:
                     state: 'home'
                   - condition: numeric_state
                     entity_id: sensor.pirateweather_temperature
+                    below: 75
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Skipping downstairs HVAC changes (outside temp <75F)."
+          - conditions:
+              - condition: and
+                conditions:
+                  - condition: state
+                    entity_id: group.family
+                    state: 'home'
+                  - condition: numeric_state
+                    entity_id: sensor.pirateweather_temperature
                     above: 92
             sequence:
               - service: script.send_to_logbook
@@ -165,9 +179,14 @@ script:
                   entity_id: climate.downstairs
                   temperature: 78
           - conditions:
-              - condition: state
-                entity_id: group.family
-                state: 'home'
+              - condition: and
+                conditions:
+                  - condition: state
+                    entity_id: group.family
+                    state: 'home'
+                  - condition: numeric_state
+                    entity_id: sensor.pirateweather_temperature
+                    above: 75
             sequence:
               - service: script.send_to_logbook
                 data:
