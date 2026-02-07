@@ -83,6 +83,7 @@ https://amzn.to/48jVzZ3
 
 ### Gear and affiliate links
 - Browsing or purchasing through the affiliate links above helps support this project; thanks!
+- Full gear list: https://www.vcloudinfo.com/gear-list
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 
