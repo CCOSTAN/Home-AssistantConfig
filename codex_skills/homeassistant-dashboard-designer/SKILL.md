@@ -7,9 +7,23 @@ description: "Design, update, and refactor Home Assistant Lovelace dashboards (Y
 
 Design dashboards as systems: predictable structure, reusable templates, minimal drift. Treat Stitch as inspiration only; translate to safe Lovelace YAML.
 
-## Input Contract (Ask For This If Missing)
+## Primary Input: Natural Language (Default)
 
-Request structured intent, not raw YAML:
+You can give natural-language guidance. The skill must infer the structured intent internally (dashboard intent, view name, entity mapping, constraints) while enforcing the design system and validating entities/services via the Home Assistant MCP when available.
+
+Minimum helpful info to include in natural language:
+- What to change (add/remove/refactor) and why (the goal).
+- Where to change it: the exact view/partial path(s) under `config/dashboards/**`.
+- Any constraints you care about: desktop/mobile columns, time window preferences for graphs, "do not touch" templates/sections.
+
+If any of the above is missing, ask targeted clarifying questions (do not demand a full "intent block").
+
+Example natural-language request:
+- "Refactor `config/dashboards/infrastructure/views/06_mariadb.yaml` to match the button-card-first system used in other Infrastructure views. Keep the same entities, no new templates, 4 columns desktop / 2 columns mobile."
+
+## Optional Input: Structured Intent (Allowed, Not Required)
+
+If the user provides structured intent, accept it. Do not require it.
 
 ```yaml
 dashboard_type: infra  # infra|home|energy|environment
@@ -28,7 +42,7 @@ notes:
   - "Preserve existing templates; minimize diff."
 ```
 
-If updating an existing view, also ask:
+If updating an existing view and not obvious from context, ask:
 
 - Which view file (single view dict) is the source of truth?
 - Any "don't touch" areas/templates?
@@ -126,7 +140,7 @@ Max layout nesting depth: 2. No horizontal-stack inside grid cells.
 ## Workflow (Do This In Order)
 
 1. Read the target dashboard/view/partials/templates to understand existing patterns and avoid drift.
-2. Determine intent: `infra` (NOC), `home`, `energy`, or `environment`. Keep one intent per view.
+2. Determine intent from the user's request and existing dashboard context: `infra` (NOC), `home`, `energy`, or `environment`. Keep one intent per view.
 3. Validate entities and services before editing:
    - Prefer the Home Assistant MCP for live entity/service validation (required when available).
    - If MCP is not available, ask the user to confirm entity IDs and services (do not guess).

@@ -65,7 +65,15 @@ http_headers = { "Accept" = "application/json" }
 Invoke in chat:
 - `$homeassistant-dashboard-designer`
 
-Then provide the structured intent block described in `SKILL.md` (dashboard intent, view name, entity map, and layout constraints).
+Then describe what you want in natural language (what to change + where + any constraints). The skill will infer the structured intent internally and enforce the button-card-first / layout constraints defined in `SKILL.md`.
+
+Examples:
+- "Refactor `config/dashboards/infrastructure/partials/mariadb_sections.yaml` to match the existing Infrastructure design language. Preserve existing templates and keep diffs small."
+- "Add a new Infrastructure view for Docker containers using the same layout rules as the other views (4 columns desktop / 2 columns mobile)."
+
+Optional:
+- If you already have an entity list, include it.
+- If you do not, enable the Home Assistant MCP so Codex can validate entity IDs/services against your live HA instance (recommended).
 
 ## Home Assistant MCP (Built-In) Enablement
 
