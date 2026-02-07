@@ -22,6 +22,7 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 - You are here: `/` (root repo guide)
 - [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg) | [YouTube](https://youtube.com/vCloudInfo)
 - Config readmes: [Config index](config/README.md) | [Packages](config/packages/README.md) | [Automations](config/automation/README.md) | [Scripts](config/script/README.md) | [Scenes](config/scene/README.md) | [Sounds](config/sounds/README.md) | [Package triggers](config/packages/triggers/README.md)
+- Codex skills (optional): [codex_skills](codex_skills)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
