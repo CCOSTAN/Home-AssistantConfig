@@ -117,3 +117,11 @@ If working in this repo's `config/dashboards/` tree:
 - Includes must use absolute container paths starting with `/config/`.
 - Views are one file per view, and the dashboard file uses `!include_dir_list`.
 - Files under `config/dashboards/**/*.yaml` must include the standard `@CCOSTAN` header block.
+
+## Validation (Home Assistant MCP)
+
+When available, use the Home Assistant MCP to validate:
+- Entity IDs referenced by Lovelace cards/templates.
+- Service names and payload fields used by actions (for example, `button.press`, `script.*`, etc.).
+
+If MCP is not available, do not guess entity IDs. Ask the user to confirm them.

@@ -127,7 +127,9 @@ Max layout nesting depth: 2. No horizontal-stack inside grid cells.
 
 1. Read the target dashboard/view/partials/templates to understand existing patterns and avoid drift.
 2. Determine intent: `infra` (NOC), `home`, `energy`, or `environment`. Keep one intent per view.
-3. Validate entities and services before editing (prefer Home Assistant MCP live context; otherwise ask user to confirm entity IDs).
+3. Validate entities and services before editing:
+   - Prefer the Home Assistant MCP for live entity/service validation (required when available).
+   - If MCP is not available, ask the user to confirm entity IDs and services (do not guess).
 4. Draft layout with constraints: a top-level `grid` and optional `vertical-stack` groups.
 5. Implement using Tier 1 cards first; reuse existing templates; avoid one-off styles.
 6. If fallback cards are necessary, add an inline comment explaining why Tier 1 cannot satisfy the requirement.
@@ -141,3 +143,16 @@ Max layout nesting depth: 2. No horizontal-stack inside grid cells.
 ## References
 
 - Read `references/dashboard_rules.md` when you need the full constraint set and repo-specific mapping notes.
+
+## Home Assistant MCP Validation (Required When Available)
+
+Before writing Lovelace YAML, confirm:
+- Every `entity:` (and any entities referenced via variables) exists.
+- Every service you plan to call exists and the payload shape is correct (especially `service_data`).
+
+When Home Assistant MCP is enabled, use it to:
+- List/confirm entities (avoid typos like `sensor.foo_bar` vs `sensor.foobar`).
+- Confirm the dashboard card references match real entities.
+- Validate service names and fields before committing YAML changes.
+
+If MCP is not enabled or not reachable, stop and ask for the missing entity/service IDs rather than inventing them.

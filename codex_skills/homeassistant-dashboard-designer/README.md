@@ -67,6 +67,25 @@ Invoke in chat:
 
 Then provide the structured intent block described in `SKILL.md` (dashboard intent, view name, entity map, and layout constraints).
 
+## Home Assistant MCP (Built-In) Enablement
+
+The Home Assistant MCP lets Codex validate entity IDs and service calls against your *real* HA instance before it edits YAML.
+
+1. Create a Home Assistant Long-Lived Access Token (Profile page in HA).
+2. Set an environment variable (do not commit tokens):
+   - `HOMEASSISTANT_MCP_AUTH=Bearer <your_long_lived_access_token>`
+3. Add this to your `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.homeassistant]
+url = "http://<your-ha-host>:8123/api/mcp"
+env_http_headers = { "Authorization" = "HOMEASSISTANT_MCP_AUTH" }
+```
+
+Notes:
+- Use `https://` if your HA is behind TLS.
+- Keep tokens in environment variables, not in files under git.
+
 ### Notes
 - This skill intentionally contains no secrets. Configure MCP credentials via environment variables in your local Codex setup.
 
@@ -84,4 +103,3 @@ Then provide the structured intent block described in `SKILL.md` (dashboard inte
 <a href="https://www.vCloudInfo.com/p/affiliate-disclosure.html">
 Affiliate Disclosure
 </a></p>
-
