@@ -1,0 +1,54 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Partial - camera sections
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/overview/views/03_camera.yaml key `sections`.
+######################################################################
+
+- type: grid
+  cards:
+  - type: picture-glance
+    camera_image: camera.frontdoorbell
+    camera_view: auto
+    entities: []
+    grid_options:
+      columns: 12
+      rows: 7
+  - type: picture-glance
+    camera_image: camera.poolcam
+    camera_view: auto
+    entities: []
+- type: grid
+  column_span: 3
+  cards:
+  - type: picture-glance
+    camera_image: camera.garagecam
+    camera_view: auto
+    entities: []
+  - type: picture-glance
+    camera_image: camera.frontlawn
+    camera_view: auto
+    entities: []
+  - type: picture-glance
+    camera_image: camera.driveway
+    camera_view: auto
+    entities: []
+  - type: picture-glance
+    camera_image: camera.kidsgate
+    camera_view: auto
+    entities: []
+  - type: picture-glance
+    camera_image: camera.bedroomgate
+    camera_view: auto
+    entities: []
+  - type: picture-glance
+    camera_image: camera.filtergate
+    camera_view: auto
+    entities: []
+  - type: custom:frigate-events-card
+    frigate_client_id: frigate
+    event_count: 3

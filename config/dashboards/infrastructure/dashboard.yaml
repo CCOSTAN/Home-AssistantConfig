@@ -1,0 +1,13 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Dashboard - YAML entrypoint
+#  YAML-exported Lovelace dashboard (split into view files).
+# -------------------------------------------------------------------
+# Notes: Entry point for dashboard key `dashboard-infrastructure`. Views are loaded from /config/dashboards/infrastructure/views.
+######################################################################
+
+button_card_templates: !include /config/dashboards/infrastructure/templates/button_card_templates.yaml
+views: !include_dir_list /config/dashboards/infrastructure/views

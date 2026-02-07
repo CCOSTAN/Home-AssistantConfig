@@ -1,0 +1,82 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - Docker containers sections
+#  Sections layout for the Docker containers view.
+# -------------------------------------------------------------------
+# Notes: Uses Portainer entities (`binary_sensor.*_status`, `button.*_restart_container`).
+######################################################################
+
+- type: grid
+  column_span: 4
+  columns: 4
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_chip
+    entity: binary_sensor.node_proxmox1_updates_packages
+    name: Proxmox01
+    icon: mdi:server
+    state_display: >
+      [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+  - type: custom:button-card
+    template: bearstone_infra_chip
+    entity: binary_sensor.node_proxmox02_updates_packages
+    name: Proxmox02
+    icon: mdi:server
+    state_display: >
+      [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+  - type: custom:button-card
+    template: bearstone_infra_chip
+    entity: sensor.garage_ups_status
+    name: Garage UPS
+    icon: mdi:transmission-tower
+  - type: custom:button-card
+    template: bearstone_infra_chip
+    entity: sensor.vcloudinfo_com
+    name: vCloudinfo
+    icon: mdi:microsoft-internet-explorer
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:auto-entities
+    show_empty: true
+    grid_options:
+      columns: full
+    card:
+      type: grid
+      title: Docker Containers
+      columns: 4
+      square: false
+    card_param: cards
+    filter:
+      include: !include /config/dashboards/infrastructure/partials/docker_container_rows_include.yaml
+      exclude:
+      - state: unavailable
+    sort:
+      method: name
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: markdown
+    grid_options:
+      columns: full
+    content: |-
+      **Tip:** Hold a container row to restart it (confirmation required).
+    card_mod:
+      style: |
+        ha-card {
+          background: transparent;
+          border: none;
+          box-shadow: none;
+          text-align: center;
+          color: var(--secondary-text-color);
+        }

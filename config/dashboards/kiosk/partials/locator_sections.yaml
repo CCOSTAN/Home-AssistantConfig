@@ -1,0 +1,134 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Kiosk Partial - locator sections
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/kiosk/views/02_locator.yaml key `sections`.
+######################################################################
+
+- cards:
+  - square: true
+    type: grid
+    cards:
+    - type: picture-entity
+      entity: person.carlo
+      name: Carlo
+      show_state: false
+      show_name: false
+      state_filter:
+        home: none
+        not_home: grayscale(100%) opacity(50%)
+    - type: picture-entity
+      entity: person.stacey
+      name: Stacey (Mom)
+      show_state: false
+      show_name: false
+      state_filter:
+        home: none
+        not_home: grayscale(100%) opacity(50%)
+    - type: picture-entity
+      entity: person.justin
+      name: Justin (Son)
+      show_state: false
+      show_name: false
+      state_filter:
+        home: none
+        not_home: grayscale(100%) opacity(50%)
+    - type: picture-entity
+      entity: person.paige
+      name: Paige (Daughter)
+      show_state: false
+      show_name: false
+      state_filter:
+        home: none
+        not_home: grayscale(100%) opacity(50%)
+    columns: 4
+  - type: entities
+    entities:
+    - type: conditional
+      conditions:
+      - entity: person.carlo
+        state_not: home
+      row:
+        type: attribute
+        entity: sensor.carlo_place
+        name: Carlo Location
+    - type: conditional
+      conditions:
+      - entity: person.stacey
+        state_not: home
+      row:
+        type: attribute
+        entity: sensor.stacey_place
+        attribute: place_name
+        name: Stacey Location
+    - type: conditional
+      conditions:
+      - entity: person.justin
+        state_not: home
+      row:
+        type: attribute
+        entity: sensor.justin_place
+        attribute: place_name
+        name: Justin Location
+    - type: conditional
+      conditions:
+      - entity: person.paige
+        state_not: home
+      row:
+        type: attribute
+        entity: sensor.paige_place
+        attribute: place_name
+        name: Paige Location
+  - show_state: true
+    show_name: true
+    camera_view: live
+    type: picture-entity
+    entity: camera.birdseye
+  column_span: 1
+- type: grid
+  cards:
+  - type: custom:mushroom-template-card
+    primary: Family Map
+    icon: mdi:map-marker
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/family_locator
+    hold_action:
+      action: none
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  - type: map
+    entities:
+    - person.justin
+    - person.paige
+    hours_to_show: 48
+    aspect_ratio: '4:3'
+    theme_mode: auto
+    card_mod:
+      style: null
+      ha-map $ ha-entity-marker $: ".marker { \n  /* Style person marker & adjust position to avoid blocking waypoints */\
+        \ \n  border: 3px solid var(\u2014state-person) !important; \n  border-radius: 50% 50% 50% 0px !important; \n  transform:\
+        \ rotate(-45deg) translate(50%, -50%); \n  overflow: visible !important;\n} \n.entity-picture { \n  /* Correct orientation\
+        \ of person avatar / \n  transform: rotate(45deg); \n  border-radius: 50%; \n} \n"
+      ha-map $: "path:first-child { \n  / Style accuracy radius / \n  stroke: var(\u2014state-person); \n  fill: color-mix(in\
+        \ srgb, var(\u2014state-person) 50%, transparent); \n  stroke-width: 0px; } \npath:nth-child(even) { \n  / Styling\
+        \ for waypoints / \n  stroke: var(\u2014purple-color); \n  stroke-width: 4px; \n} \npath:nth-child(odd):not(:first-child)\
+        \ { \n  / Styling for lines */ \n  stroke: var(\u2014purple-color); \n  stroke-width: 4px; \n}\n:host { \n  /* Define\
+        \ Person State colors. Can be added to theme / \n  \u2014state-person-home: var(\u2014green-color); \n  \u2014state-person-not-home:\
+        \ var(\u2014red-color); \n  \u2014state-person-zone: var(\u2014blue-color); \n  \u2014state-person-unknown: var(\u2014\
+        grey-color); \n  / Set person state color */ \n  \u2014state-person: \n    {% if is_state(config.entities[0].entity,\
+        \ [\u2018home\u2019, \u2018not_home\u2019, \u2018unknown\u2019]) %} \n      var(\u2014state-person-{{ states(config.entities[0].entity)\
+        \ | replace(\u2018_\u2019, \u2018-\u2018) }}) \n    {% else %} \n      var(\u2014state-person-zone) \n    {% endif\
+        \ %}; \n}\n"
+  - show_current: true
+    show_forecast: true
+    type: weather-forecast
+    entity: weather.pirateweather
+    forecast_type: daily
+    secondary_info_attribute: humidity

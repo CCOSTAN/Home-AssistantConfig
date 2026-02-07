@@ -1,0 +1,304 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Templates - custom:button-card
+#  Shared `button_card_templates` used across Infrastructure views.
+# -------------------------------------------------------------------
+# Notes: Keep templates generic; view-specific tuning stays in the view partials.
+######################################################################
+
+bearstone_infra_base:
+  show_icon: true
+  show_name: true
+  show_state: true
+  tap_action:
+    action: more-info
+  styles:
+    card:
+    - border-radius: 18px
+    - padding: 14px
+    - box-shadow: none
+    - background: var(--ha-card-background, var(--card-background-color))
+    - border: 1px solid rgba(0,0,0,0.06)
+    - overflow: hidden
+    grid:
+    - grid-template-areas: "\"i n\" \"i s\""
+    - grid-template-columns: 40px 1fr
+    - grid-template-rows: min-content min-content
+    icon:
+    - width: 22px
+    - color: var(--primary-text-color)
+    name:
+    - font-weight: 700
+    - font-size: 14px
+    - justify-self: start
+    - padding-bottom: 2px
+    state:
+    - font-size: 12px
+    - opacity: 0.75
+    - justify-self: start
+
+bearstone_infra_chip:
+  template: bearstone_infra_base
+  show_state: true
+  styles:
+    card:
+    - border-radius: 999px
+    - padding: 10px 12px
+    - border: 1px solid rgba(0,0,0,0.06)
+    - background: rgba(255,255,255,0.75)
+    - backdrop-filter: blur(6px)
+    - -webkit-backdrop-filter: blur(6px)
+    grid:
+    - grid-template-areas: "\"i n\" \"i s\""
+    - grid-template-columns: 28px 1fr
+    icon:
+    - width: 18px
+    name:
+    - font-weight: 700
+    - font-size: 12px
+    state:
+    - font-size: 11px
+    - opacity: 0.7
+
+bearstone_infra_chip_running:
+  template: bearstone_infra_chip
+  state:
+  - value: 'on'
+    styles:
+      card:
+      - border-color: rgba(67,160,71,0.45)
+      - background: rgba(232,245,233,0.85)
+      icon:
+      - color: rgba(46,125,50,1)
+  - value: 'off'
+    styles:
+      card:
+      - border-color: rgba(229,57,53,0.35)
+      - background: rgba(255,235,238,0.85)
+      icon:
+      - color: rgba(198,40,40,1)
+  - value: unavailable
+    styles:
+      card:
+      - border-color: rgba(229,57,53,0.35)
+      - background: rgba(255,235,238,0.85)
+      icon:
+      - color: rgba(198,40,40,1)
+
+bearstone_infra_tile:
+  template: bearstone_infra_base
+  show_label: true
+  label: '[[[ return variables.label ? variables.label : "" ]]]'
+  styles:
+    grid:
+    - grid-template-areas: "\"i n\" \"i l\""
+    - grid-template-rows: min-content min-content
+    label:
+    - font-size: 12px
+    - opacity: 0.8
+    - justify-self: start
+  state:
+  - value: unavailable
+    styles:
+      card:
+      - border-color: rgba(229,57,53,0.35)
+      - background: rgba(255,235,238,0.85)
+
+bearstone_infra_reboot:
+  template: bearstone_infra_tile
+  show_state: false
+  icon: mdi:restart
+  label: '[[[ return variables.subtitle ? variables.subtitle : "Hold to reboot" ]]]'
+  hold_action:
+    action: call-service
+    service: button.press
+    service_data:
+      entity_id: '[[[ return variables.button_entity ]]]'
+    confirmation:
+      text: '[[[ return "Reboot " + (variables.name ? variables.name : "device") + "?" ]]]'
+  styles:
+    icon:
+    - color: var(--secondary-text-color)
+
+bearstone_infra_device_tile:
+  template: bearstone_infra_tile
+  show_state: true
+  label: '[[[ return variables.subtitle ? variables.subtitle : "" ]]]'
+  hold_action:
+    action: call-service
+    service: button.press
+    service_data:
+      entity_id: '[[[ return variables.button_entity ]]]'
+    confirmation:
+      text: '[[[ return "Restart " + (variables.name ? variables.name : "device") + "?" ]]]'
+  styles:
+    state:
+    - font-weight: 700
+
+bearstone_infra_container_row:
+  template: bearstone_infra_list_row_running
+  show_label: false
+  tap_action:
+    action: none
+  hold_action:
+    action: call-service
+    service: button.press
+    service_data:
+      entity_id: '[[[ return variables.restart_button ]]]'
+    confirmation:
+      text: '[[[ return "Restart container " + entity.attributes.friendly_name + "?" ]]]'
+  icon: mdi:docker
+
+bearstone_infra_panel_header:
+  show_icon: false
+  show_state: false
+  show_label: false
+  tap_action:
+    action: none
+  styles:
+    card:
+    - background: transparent
+    - border: none
+    - box-shadow: none
+    - padding: 6px 2px 10px 2px
+    name:
+    - font-size: 18px
+    - font-weight: 800
+    - justify-self: start
+
+bearstone_infra_list_row:
+  show_icon: true
+  show_name: true
+  show_state: true
+  show_label: false
+  tap_action:
+    action: more-info
+  styles:
+    card:
+    - border-radius: 14px
+    - padding: 12px 12px
+    - box-shadow: none
+    - border: 1px solid rgba(0,0,0,0.03)
+    - background: rgba(0,0,0,0.02)
+    - width: 100%
+    - box-sizing: border-box
+    grid:
+    - grid-template-areas: "\"i n s\""
+    - grid-template-columns: 24px 1fr auto
+    - align-items: center
+    - column-gap: 10px
+    icon:
+    - width: 18px
+    - color: var(--primary-color)
+    name:
+    - font-weight: 700
+    - font-size: 14px
+    - justify-self: start
+    - opacity: 0.95
+    - min-width: 0
+    - overflow: hidden
+    - text-overflow: ellipsis
+    - white-space: nowrap
+    state:
+    - justify-self: end
+    - font-weight: 700
+    - font-size: 13px
+    - opacity: 0.8
+    - padding-left: 8px
+    - white-space: nowrap
+
+bearstone_infra_list_row_running:
+  template: bearstone_infra_list_row
+  state:
+  - value: 'on'
+    styles:
+      card:
+      - border-color: rgba(67,160,71,0.45)
+      - background: rgba(232,245,233,0.85)
+      icon:
+      - color: rgba(46,125,50,1)
+      state:
+      - color: rgba(46,125,50,1)
+      - opacity: 1
+  - value: 'off'
+    styles:
+      card:
+      - border-color: rgba(229,57,53,0.35)
+      - background: rgba(255,235,238,0.85)
+      icon:
+      - color: rgba(198,40,40,1)
+      state:
+      - color: rgba(198,40,40,1)
+      - opacity: 1
+  - value: Running
+    styles:
+      icon:
+      - color: rgba(46,125,50,1)
+      state:
+      - color: rgba(46,125,50,1)
+      - opacity: 1
+  - value: running
+    styles:
+      icon:
+      - color: rgba(46,125,50,1)
+      state:
+      - color: rgba(46,125,50,1)
+      - opacity: 1
+  - value: Stopped
+    styles:
+      icon:
+      - color: rgba(198,40,40,1)
+      state:
+      - color: rgba(198,40,40,1)
+      - opacity: 1
+  - value: stopped
+    styles:
+      icon:
+      - color: rgba(198,40,40,1)
+      state:
+      - color: rgba(198,40,40,1)
+      - opacity: 1
+  - value: unavailable
+    styles:
+      icon:
+      - color: rgba(198,40,40,1)
+      state:
+      - color: rgba(198,40,40,1)
+      - opacity: 1
+
+bearstone_infra_kpi:
+  show_icon: true
+  show_name: true
+  show_state: true
+  show_label: false
+  tap_action:
+    action: more-info
+  styles:
+    card:
+    - border-radius: 14px
+    - padding: 12px
+    - box-shadow: none
+    - border: 1px solid rgba(0,0,0,0.03)
+    - background: rgba(0,0,0,0.02)
+    grid:
+    - grid-template-areas: "\"i\" \"n\" \"s\""
+    - grid-template-rows: 22px min-content min-content
+    - row-gap: 6px
+    - justify-items: center
+    icon:
+    - width: 18px
+    - color: var(--primary-color)
+    name:
+    - font-size: 11px
+    - font-weight: 800
+    - opacity: 0.65
+    - text-transform: uppercase
+    - text-align: center
+    - letter-spacing: 0.6px
+    state:
+    - font-size: 16px
+    - font-weight: 800
+    - opacity: 0.9

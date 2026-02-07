@@ -1,0 +1,51 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Partial - cameras cards
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/overview/views/04_cameras.yaml key `cards`.
+######################################################################
+
+- type: custom:frigate-card
+  cameras:
+  - camera_entity: camera.frontdoorbell
+    dependencies:
+      all_cameras: true
+      cameras:
+      - camera.bedroomgate
+      - camera.filtergate
+      - camera.driveway
+  - camera_entity: camera.bedroomgate
+  - camera_entity: camera.filtergate
+  - camera_entity: camera.driveway
+  - camera_entity: camera.poolcam
+    live_provider: auto
+  - camera_entity: camera.blink1
+    live_provider: auto
+  - camera_entity: camera.frontlawn
+    live_provider: auto
+  - camera_entity: camera.kidsgate
+  - camera_entity: camera.garagecam
+  view:
+    default: snapshots
+    update_cycle_camera: true
+    scan:
+      enabled: true
+  menu:
+    style: outside
+  media_gallery:
+    controls:
+      thumbnails:
+        size: 175
+        show_favorite_control: false
+        show_details: false
+  dimensions:
+    min_height: '500'
+    aspect_ratio: '16:9'
+    aspect_ratio_mode: unconstrained
+  media_viewer:
+    layout:
+      fit: cover

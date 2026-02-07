@@ -1,0 +1,61 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Partial - admin sections
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/overview/views/07_admin.yaml key `sections`.
+######################################################################
+
+- type: grid
+  cards:
+  - type: tile
+    entity: automation.llm_vision_garage_cans_upper_right
+  - type: tile
+    entity: input_text.llmvision_garbage_last_keyframe
+  - type: tile
+    entity: input_datetime.llmvision_garbage_last_run
+  - type: tile
+    entity: input_text.llmvision_garbage_last_response
+  - type: tile
+    entity: calendar.llm_vision_timeline
+  - type: tile
+    entity: update.llm_vision_update
+  - type: tile
+    entity: input_button.llmvision_garbage_check
+- type: grid
+  cards:
+  - type: markdown
+    title: AI Diagnostics
+    content: '**OpenAI Response:**
+
+
+      {{ state_attr(''sensor.openai_response'', ''response'') }}
+
+      '
+  - type: markdown
+    title: AI Diagnostics
+    content: '**OpenAI Instructions:**
+
+
+      {{ state_attr(''sensor.openai_instructions'', ''instructions'') }}
+
+      '
+- type: grid
+  cards:
+  - camera_view: auto
+    type: picture-glance
+    title: Bedroom Tablet
+    image: https://demo.home-assistant.io/stub_config/kitchen.png
+    entities:
+    - entity: switch.alarm_panel_1_screensaver
+    image_entity: image.alarm_panel_1_screenshot
+  - camera_view: auto
+    type: picture-glance
+    title: Bedroom Tablet
+    image: https://demo.home-assistant.io/stub_config/kitchen.png
+    entities:
+    - entity: sensor.alarm_panel_1_battery
+    camera_image: camera.alarm_panel_1

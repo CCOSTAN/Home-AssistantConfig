@@ -1,0 +1,29 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# KIOSK View - Locator
+#  YAML-exported Lovelace dashboard (split into view files).
+# -------------------------------------------------------------------
+# Notes: Exported from config/.storage/lovelace.dashboard_kiosk view index 2.
+######################################################################
+
+type: sections
+max_columns: 3
+title: Locator
+path: locator
+icon: mdi:map-marker-radius-outline
+dense_section_placement: true
+background:
+  opacity: 100
+  alignment: center
+  size: cover
+  repeat: no-repeat
+  attachment: fixed
+  image: /api/image/serve/caf7862354abd804ef658f899fb3218b/original
+visible:
+- user: be280a93c9d7416e98d25d0470f414be
+- user: 9543feb5402742a0ab90f301f09f1c0e
+sections: !include /config/dashboards/kiosk/partials/locator_sections.yaml
+cards: []

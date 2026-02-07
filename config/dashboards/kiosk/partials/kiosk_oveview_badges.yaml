@@ -1,0 +1,20 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Kiosk Partial - kiosk_oveview badges
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/kiosk/views/01_kiosk_oveview.yaml key `badges`.
+######################################################################
+
+- type: entity
+  show_name: true
+  show_state: false
+  show_icon: true
+  entity: switch.alarm_panel_1_screensaver
+  tap_action:
+    action: toggle
+  show_entity_picture: false
+  name: Turn On ScreenSaver

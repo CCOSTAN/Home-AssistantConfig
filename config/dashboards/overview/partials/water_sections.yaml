@@ -1,0 +1,117 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Partial - water sections
+#  Reusable list extracted from a view for smaller diffs and safer edits.
+# -------------------------------------------------------------------
+# Notes: Extracted from config/dashboards/overview/views/06_water.yaml key `sections`.
+######################################################################
+
+- cards:
+  - type: tile
+    entity: sensor.downstairs_ac_runtime_since_last_filter_change
+  - type: tile
+    entity: sensor.upstairs_ac_runtime_since_last_filter_change
+  - type: tile
+    entity: input_datetime.downstairs_last_filter_change
+  - type: tile
+    entity: input_datetime.upstairs_last_filter_change
+  - type: custom:power-flow-card-plus
+    entities:
+      battery:
+        state_of_charge: sensor.powerwall_charge
+        entity: sensor.powerwall_battery_power
+        use_metadata: false
+        invert_state: false
+        state_of_charge_unit_white_space: true
+        show_state_of_charge: true
+      grid:
+        secondary_info: {}
+        entity: sensor.powerwall_site_power
+      solar:
+        display_zero_state: true
+        secondary_info: {}
+        entity: sensor.powerwall_solar_power
+        icon: mdi:white-balance-sunny
+        color_icon: true
+      home:
+        secondary_info: {}
+        entity: sensor.powerwall_load_power
+    clickable_entities: true
+    display_zero_lines:
+      mode: grey_out
+      transparency: 50
+      grey_color:
+      - 189
+      - 189
+      - 189
+    use_new_flow_rate_model: true
+    w_decimals: 0
+    kw_decimals: 1
+    min_flow_rate: 0.75
+    max_flow_rate: 4
+    max_expected_power: 2000
+    min_expected_power: 0.01
+    watt_threshold: 1000
+    transparency_zero_lines: 0
+    grid_options:
+      columns: full
+      rows: auto
+  - type: energy-solar-graph
+  column_span: 1
+- type: grid
+  cards:
+  - type: tile
+    entity: sensor.blink_blink1_temperature
+  - type: tile
+    entity: sensor.carlo_nas01_temperature
+  - type: tile
+    entity: sensor.carlo_nvr_temperature
+  - type: custom:mini-graph-card
+    entities:
+    - entity: sensor.upstairs_temperature
+      name: Upstairs
+    - entity: sensor.downstairs_temperature
+      name: Downstairs
+    name: House
+    hours_to_show: 24
+    points_per_hour: 1
+- type: grid
+  cards:
+  - type: custom:mushroom-template-card
+    primary: "{{ states('sensor.rheem_wh_available_hot_water') }}% - {{ state_attr('water_heater.rheem_wh', 'temperature')\
+      \ }}\xB0F\n"
+    secondary: Hot Water Available
+    icon: mdi:water-alert
+    entity: sensor.rheem_wh_available_hot_water
+    icon_color: red
+    tap_action:
+      action: more-info
+    hold_action:
+      action: none
+    double_tap_action:
+      action: none
+  - type: tile
+    entity: sensor.phyn_daily_water_usage
+  - type: tile
+    entity: sensor.phyn_average_water_temperature
+  - type: tile
+    entity: sensor.rheem_wh_water_usage_today
+  - type: tile
+    entity: input_datetime.water_delivery_date
+  - type: custom:mushroom-template-card
+    primary: ReadyRefresh Login
+    secondary: Manage water delivery
+    icon: mdi:water
+    tap_action:
+      action: url
+      url_path: https://www.readyrefresh.com/en/login
+    hold_action:
+      action: none
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  - type: energy-water-graph
