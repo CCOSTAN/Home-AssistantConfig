@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -34,7 +33,6 @@ Standalone sensors that aren't bundled in packages - time/utility helpers and MQ
 - Great place for lightweight utility sensors you want everywhere.
 - Fold frequently used sensors into packages when they grow.
 
-
 **All of my configuration files are tested against the most stable version of home-assistant.**
 
 <a name="bottom" href="https://github.com/CCOSTAN/Home-AssistantConfig#logo"><img align="right" border="0" src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/www/custom_ui/floorplan/images/branding/up_arrow.png" width="25" ></a>
@@ -49,5 +47,3 @@ Standalone sensors that aren't bundled in packages - time/utility helpers and MQ
 <a href="https://www.vCloudInfo.com/p/affiliate-disclosure.html">
 Affiliate Disclosure
 </a></p>
-
-

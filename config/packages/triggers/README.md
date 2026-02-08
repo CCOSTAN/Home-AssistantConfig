@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -35,7 +34,6 @@ Small, reusable trigger packages�button presses, state trackers, and helper fl
 ### Tips
 - Drop these alongside your packages to keep repeated patterns DRY.
 - Most helpers expose booleans/entities you can hook into without editing their logic.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

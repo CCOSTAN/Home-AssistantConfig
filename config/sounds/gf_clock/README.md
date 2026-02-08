@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -26,8 +25,7 @@ Grandfather clock chimes and cues used for hourly or themed announcements.
 
 ### Tips
 - Pair with `automation/Timed_Triggers/` routines for on-the-hour cues.
-- Normalize levels so chimes don’t spike TTS volume.
-
+- Normalize levels so chimes donï¿½t spike TTS volume.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

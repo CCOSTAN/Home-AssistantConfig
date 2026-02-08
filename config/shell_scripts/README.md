@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -35,7 +34,6 @@ Longer-running shell helpers referenced by automations, packages, or cron. Anyth
 ### Tips
 - Make scripts executable and test them manually before wiring into HA.
 - Document expected env vars or secrets at the top of each script.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

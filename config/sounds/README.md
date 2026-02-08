@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -29,7 +28,6 @@ Audio assets (alert tones, chimes, TTS snippets) used by automations and scripts
 - Keep filenames descriptive so automations stay readable.
 - Subfolders hold themed or device-specific sounds.
 - Seasonal cuckoo clock uses `october-clock` (Halloween) and `december-clock` (Christmas) variants, falling back to `cuckoo-clock`.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 
