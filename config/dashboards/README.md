@@ -48,6 +48,9 @@ This folder is referenced from `config/configuration.yaml` via:
 - `lovelace.resources: !include dashboards/resources.yaml`
 - `lovelace.dashboards: ... filename: dashboards/<dashboard>/dashboard.yaml`
 
+Lovelace resources are loaded from:
+- `config/dashboards/resources.yaml` (referenced by `lovelace.resources`)
+
 ### Migration / Cutover Notes
 - During migration you may have both storage dashboards (from the UI) and YAML dashboards (from this folder) at the same time.
 - Do not try to create YAML dashboards with the same dashboard ID/key as an existing storage dashboard; remove/disable the storage version first in the UI.

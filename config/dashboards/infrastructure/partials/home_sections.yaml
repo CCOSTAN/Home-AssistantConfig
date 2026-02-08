@@ -9,45 +9,48 @@
 # Notes: Standardized on `custom:button-card` + `custom:mini-graph-card` with `card_mod` polish.
 ######################################################################
 
+- !include /config/dashboards/infrastructure/partials/infra_top_chips_section.yaml
+
 - type: grid
   column_span: 4
   columns: 4
   square: false
   cards:
   - type: custom:button-card
-    template: bearstone_infra_chip
-    entity: binary_sensor.node_proxmox1_updates_packages
-    name: Proxmox01
-    icon: mdi:server
-    state_display: >
-      [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+    template: bearstone_infra_kpi
+    entity: sensor.total_wifi_clients
+    name: Wi-Fi Clients
+    icon: mdi:wifi
   - type: custom:button-card
-    template: bearstone_infra_chip
-    entity: binary_sensor.node_proxmox02_updates_packages
-    name: Proxmox02
-    icon: mdi:server
-    state_display: >
-      [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+    template: bearstone_infra_kpi
+    entity: sensor.garage_ups_load
+    name: UPS Load
+    icon: mdi:battery-charging-60
   - type: custom:button-card
-    template: bearstone_infra_chip
-    entity: sensor.garage_ups_status
-    name: Garage UPS
-    icon: mdi:transmission-tower
+    template: bearstone_infra_kpi
+    entity: sensor.carlo_nvr_volume_1_volume_used
+    name: NVR Used
+    icon: mdi:harddisk
   - type: custom:button-card
-    template: bearstone_infra_chip
-    entity: sensor.vcloudinfo_com
-    name: vCloudinfo
-    icon: mdi:microsoft-internet-explorer
+    template: bearstone_infra_kpi
+    entity: sensor.carlo_nas01_volume_1_volume_used
+    name: NAS Used
+    icon: mdi:nas
 
 - type: grid
   column_span: 3
-  columns: 2
+  columns: 3
   square: false
   cards:
-  - type: vertical-stack
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
     cards:
-    - type: custom:mini-graph-card
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
       name: Proxmox01
+    - type: custom:mini-graph-card
+      name: CPU / Memory
       icon: mdi:server
       hours_to_show: 24
       points_per_hour: 2
@@ -55,7 +58,7 @@
       animate: true
       show:
         fill: true
-        legend: true
+        legend: false
         icon: true
         name: true
         state: true
@@ -64,8 +67,6 @@
         name: CPU
       - entity: sensor.node_proxmox1_memory_used_percentage
         name: Memory
-      card_mod:
-        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
     - type: grid
       columns: 3
       square: false
@@ -101,10 +102,15 @@
           button_entity: button.qemu_wireguard_104_reboot
           name: WireGuard
 
-  - type: vertical-stack
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
     cards:
-    - type: custom:mini-graph-card
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
       name: Proxmox02
+    - type: custom:mini-graph-card
+      name: CPU / Memory
       icon: mdi:server
       hours_to_show: 24
       points_per_hour: 2
@@ -112,7 +118,7 @@
       animate: true
       show:
         fill: true
-        legend: true
+        legend: false
         icon: true
         name: true
         state: true
@@ -121,10 +127,8 @@
         name: CPU
       - entity: sensor.node_proxmox02_memory_used_percentage
         name: Memory
-      card_mod:
-        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
     - type: grid
-      columns: 3
+      columns: 1
       square: false
       cards:
       - type: custom:button-card
@@ -138,9 +142,21 @@
           button_entity: button.qemu_docker2_101_reboot
           name: Frigate
 
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Pi-hole
+    - type: custom:pi-hole
+      device_id: d69637da16f7d7f3626070582be59808
+      grid_options:
+        columns: full
+
 - type: grid
-  column_span: 1
-  columns: 1
+  column_span: 4
+  columns: 4
   square: false
   cards:
   - type: custom:mini-graph-card
@@ -186,22 +202,37 @@
       graph: line
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
-
-- type: grid
-  column_span: 2
-  columns: 2
-  square: true
-  cards:
   - type: custom:flex-horseshoe-card
     entities:
     - entity: sensor.carlo_nvr_volume_1_volume_used
-      name: NVR Video
+      name: NVR Used
       decimals: 1
       unit: '%'
     - entity: sensor.carlo_nvr_volume_1_total_size
       name: Total
       decimals: 2
       unit: TiB
+    layout:
+      names:
+      - entity_index: 0
+        xpos: 50
+        ypos: 22
+        styles:
+        - font-size: 0.9em;
+        - opacity: 0.75;
+      states:
+      - entity_index: 0
+        xpos: 50
+        ypos: 54
+        styles:
+        - font-size: 2.2em;
+        - font-weight: 800;
+      - entity_index: 1
+        xpos: 50
+        ypos: 76
+        styles:
+        - font-size: 0.95em;
+        - opacity: 0.75;
     show:
       horseshoe_style: colorstopgradient
     horseshoe_scale:
@@ -216,13 +247,34 @@
   - type: custom:flex-horseshoe-card
     entities:
     - entity: sensor.carlo_nas01_volume_1_volume_used
-      name: NAS Storage
+      name: NAS Used
       decimals: 1
       unit: '%'
     - entity: sensor.carlo_nas01_volume_1_total_size
       name: Total
       decimals: 2
       unit: TiB
+    layout:
+      names:
+      - entity_index: 0
+        xpos: 50
+        ypos: 22
+        styles:
+        - font-size: 0.9em;
+        - opacity: 0.75;
+      states:
+      - entity_index: 0
+        xpos: 50
+        ypos: 54
+        styles:
+        - font-size: 2.2em;
+        - font-weight: 800;
+      - entity_index: 1
+        xpos: 50
+        ypos: 76
+        styles:
+        - font-size: 0.95em;
+        - opacity: 0.75;
     show:
       horseshoe_style: colorstopgradient
     horseshoe_scale:
@@ -236,104 +288,113 @@
       style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
 
 - type: grid
-  column_span: 2
-  columns: 1
+  column_span: 4
+  columns: 2
   square: false
   cards:
-  - type: custom:mini-graph-card
-    name: Wi-Fi Overview
-    icon: mdi:wifi
-    hours_to_show: 24
-    line_width: 2
-    points_per_hour: 1
-    smoothing: true
-    show:
-      graph: line
-      legend: true
-      labels: false
-      name: true
-      icon: true
-      state: true
-    entities:
-    - entity: sensor.total_wifi_clients
-      name: Total
-      show_state: true
-      show_graph: false
-      show_line: false
-      show_points: false
-      show_fill: false
-      show_legend: false
-    - entity: sensor.unifi_ap_office_clients
-      name: Office AP
-      show_state: true
-    - entity: sensor.unifi_ap_study_clients
-      name: Study AP
-      show_state: true
-    - entity: sensor.unifi_ap_garage_clients
-      name: Garage AP
-      show_state: true
+  - type: custom:vertical-stack-in-card
     card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Wi-Fi Overview
+    - type: custom:mini-graph-card
+      name: Clients
+      icon: mdi:wifi
+      hours_to_show: 24
+      line_width: 2
+      points_per_hour: 1
+      smoothing: true
+      show:
+        graph: line
+        legend: false
+        labels: false
+        name: true
+        icon: true
+        state: true
+      entities:
+      - entity: sensor.total_wifi_clients
+        name: Total
+        show_state: true
+        show_graph: false
+        show_line: false
+        show_points: false
+        show_fill: false
+        show_legend: false
+      - entity: sensor.unifi_ap_office_clients
+        name: Office AP
+        show_state: true
+      - entity: sensor.unifi_ap_study_clients
+        name: Study AP
+        show_state: true
+      - entity: sensor.unifi_ap_garage_clients
+        name: Garage AP
+        show_state: true
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_device_tile
+        name: Garage AP
+        icon: mdi:access-point
+        entity: sensor.unifi_ap_garage_clients
+        label: >
+          [[[ return "Uptime: " + (states['sensor.unifi_ap_garage_uptime']?.state ?? 'unknown'); ]]]
+        variables:
+          button_entity: button.unifi_ap_garage_restart
+          name: Garage AP
+      - type: custom:button-card
+        template: bearstone_infra_device_tile
+        name: Office AP
+        icon: mdi:access-point
+        entity: sensor.unifi_ap_office_clients
+        label: >
+          [[[ return "Uptime: " + (states['sensor.unifi_ap_office_uptime']?.state ?? 'unknown'); ]]]
+        variables:
+          button_entity: button.unifi_ap_office_restart
+          name: Office AP
+      - type: custom:button-card
+        template: bearstone_infra_device_tile
+        name: Study AP
+        icon: mdi:access-point
+        entity: sensor.unifi_ap_study_clients
+        label: >
+          [[[ return "Uptime: " + (states['sensor.unifi_ap_study_uptime']?.state ?? 'unknown'); ]]]
+        variables:
+          button_entity: button.unifi_ap_study_restart
+          name: Study AP
 
-- type: grid
-  column_span: 4
-  columns: 3
-  square: false
-  cards:
-  - type: custom:button-card
-    template: bearstone_infra_device_tile
-    name: Garage AP
-    icon: mdi:access-point
-    entity: sensor.unifi_ap_garage_clients
-    label: >
-      [[[ return "Uptime: " + (states['sensor.unifi_ap_garage_uptime']?.state ?? 'unknown'); ]]]
-    variables:
-      button_entity: button.unifi_ap_garage_restart
-      name: Garage AP
-  - type: custom:button-card
-    template: bearstone_infra_device_tile
-    name: Office AP
-    icon: mdi:access-point
-    entity: sensor.unifi_ap_office_clients
-    label: >
-      [[[ return "Uptime: " + (states['sensor.unifi_ap_office_uptime']?.state ?? 'unknown'); ]]]
-    variables:
-      button_entity: button.unifi_ap_office_restart
-      name: Office AP
-  - type: custom:button-card
-    template: bearstone_infra_device_tile
-    name: Study AP
-    icon: mdi:access-point
-    entity: sensor.unifi_ap_study_clients
-    label: >
-      [[[ return "Uptime: " + (states['sensor.unifi_ap_study_uptime']?.state ?? 'unknown'); ]]]
-    variables:
-      button_entity: button.unifi_ap_study_restart
-      name: Study AP
-
-- type: grid
-  column_span: 4
-  columns: 3
-  square: false
-  cards:
-  - type: custom:button-card
-    template: bearstone_infra_tile
-    name: docker_10
-    icon: mdi:server
-    entity: sensor.docker_10_apt_status
-    label: >
-      [[[ return "Last update: " + (states['sensor.docker_10_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_10_apt_reboot_status']?.state ?? ''); ]]]
-  - type: custom:button-card
-    template: bearstone_infra_tile
-    name: docker_69
-    icon: mdi:server
-    entity: sensor.docker_69_apt_status
-    label: >
-      [[[ return "Last update: " + (states['sensor.docker_69_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_69_apt_reboot_status']?.state ?? ''); ]]]
-  - type: custom:button-card
-    template: bearstone_infra_tile
-    name: docker_14
-    icon: mdi:server
-    entity: sensor.docker_14_apt_status
-    label: >
-      [[[ return "Last update: " + (states['sensor.docker_14_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_14_apt_reboot_status']?.state ?? ''); ]]]
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: APT Status
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_tile
+        name: docker_10
+        icon: mdi:server
+        entity: sensor.docker_10_apt_status
+        label: >
+          [[[ return "Last update: " + (states['sensor.docker_10_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_10_apt_reboot_status']?.state ?? ''); ]]]
+      - type: custom:button-card
+        template: bearstone_infra_tile
+        name: docker_69
+        icon: mdi:server
+        entity: sensor.docker_69_apt_status
+        label: >
+          [[[ return "Last update: " + (states['sensor.docker_69_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_69_apt_reboot_status']?.state ?? ''); ]]]
+      - type: custom:button-card
+        template: bearstone_infra_tile
+        name: docker_14
+        icon: mdi:server
+        entity: sensor.docker_14_apt_status
+        label: >
+          [[[ return "Last update: " + (states['sensor.docker_14_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_14_apt_reboot_status']?.state ?? ''); ]]]

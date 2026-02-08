@@ -9,8 +9,12 @@
 # Notes: Exported from config/.storage/lovelace.dashboard_infrastructure view index 4.
 ######################################################################
 
-type: panel
 icon: mdi:clipboard-text-outline
 title: Activity
 path: activity
-cards: !include /config/dashboards/infrastructure/partials/view_cards.yaml
+type: sections
+theme: default
+max_columns: 4
+badges: []
+cards: []
+sections: !include /config/dashboards/infrastructure/partials/activity_sections.yaml

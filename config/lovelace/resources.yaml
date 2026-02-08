@@ -3,13 +3,11 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure Partial - pi_hole cards
-#  Reusable list extracted from a view for smaller diffs and safer edits.
+# Lovelace Resources - Custom card JS resources
+#  YAML-managed Lovelace resources (resource_mode: yaml).
 # -------------------------------------------------------------------
-# Notes: Extracted from config/dashboards/infrastructure/views/02_pi_hole.yaml key `cards`.
+# Notes: This file is NOT used in this repo's wiring.
+#        Resources are loaded via `lovelace.resources: !include dashboards/resources.yaml` in `configuration.yaml`.
 ######################################################################
 
-- type: custom:pi-hole
-  device_id: d69637da16f7d7f3626070582be59808
-  grid_options:
-    columns: full
+# (Intentionally empty)

@@ -9,45 +9,48 @@
 # Notes: Standardized on `custom:button-card` + `custom:mini-graph-card` with `card_mod` polish.
 ######################################################################
 
+- !include /config/dashboards/infrastructure/partials/infra_top_chips_section.yaml
+
 - type: grid
   column_span: 4
   columns: 4
   square: false
   cards:
   - type: custom:button-card
-    template: bearstone_infra_chip
-    entity: binary_sensor.node_proxmox1_updates_packages
-    name: Proxmox01
-    icon: mdi:server
-    state_display: >
-      [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+    template: bearstone_infra_kpi
+    entity: sensor.node_proxmox1_cpu_used
+    name: P1 CPU
+    icon: mdi:cpu-64-bit
   - type: custom:button-card
-    template: bearstone_infra_chip
-    entity: binary_sensor.node_proxmox02_updates_packages
-    name: Proxmox02
-    icon: mdi:server
-    state_display: >
-      [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+    template: bearstone_infra_kpi
+    entity: sensor.node_proxmox1_memory_used_percentage
+    name: P1 MEM
+    icon: mdi:memory
   - type: custom:button-card
-    template: bearstone_infra_chip
-    entity: sensor.garage_ups_status
-    name: Garage UPS
-    icon: mdi:transmission-tower
+    template: bearstone_infra_kpi
+    entity: sensor.node_proxmox02_cpu_used
+    name: P2 CPU
+    icon: mdi:cpu-64-bit
   - type: custom:button-card
-    template: bearstone_infra_chip
-    entity: sensor.vcloudinfo_com
-    name: vCloudinfo
-    icon: mdi:microsoft-internet-explorer
+    template: bearstone_infra_kpi
+    entity: sensor.node_proxmox02_memory_used_percentage
+    name: P2 MEM
+    icon: mdi:memory
 
 - type: grid
   column_span: 4
   columns: 2
   square: false
   cards:
-  - type: vertical-stack
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
     cards:
-    - type: custom:mini-graph-card
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
       name: Proxmox01
+    - type: custom:mini-graph-card
+      name: Host CPU / Memory
       icon: mdi:server
       hours_to_show: 24
       points_per_hour: 2
@@ -55,7 +58,7 @@
       animate: true
       show:
         fill: true
-        legend: true
+        legend: false
         icon: true
         name: true
         state: true
@@ -64,10 +67,8 @@
         name: CPU
       - entity: sensor.node_proxmox1_memory_used_percentage
         name: Memory
-      card_mod:
-        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
     - type: custom:mini-graph-card
-      name: Proxmox01 VMs (CPU / MEM)
+      name: VMs CPU / Memory
       icon: mdi:chart-line
       hours_to_show: 24
       points_per_hour: 2
@@ -75,7 +76,7 @@
       animate: true
       show:
         fill: false
-        legend: true
+        legend: false
         icon: true
         name: true
         state: false
@@ -92,8 +93,6 @@
         name: WireGuard CPU
       - entity: sensor.qemu_wireguard_104_memory_used_percentage
         name: WireGuard MEM
-      card_mod:
-        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
     - type: grid
       columns: 3
       square: false
@@ -129,10 +128,15 @@
           button_entity: button.qemu_wireguard_104_reboot
           name: WireGuard
 
-  - type: vertical-stack
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
     cards:
-    - type: custom:mini-graph-card
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
       name: Proxmox02
+    - type: custom:mini-graph-card
+      name: Host CPU / Memory
       icon: mdi:server
       hours_to_show: 24
       points_per_hour: 2
@@ -140,7 +144,7 @@
       animate: true
       show:
         fill: true
-        legend: true
+        legend: false
         icon: true
         name: true
         state: true
@@ -149,10 +153,8 @@
         name: CPU
       - entity: sensor.node_proxmox02_memory_used_percentage
         name: Memory
-      card_mod:
-        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
     - type: custom:mini-graph-card
-      name: Frigate VM (CPU / MEM)
+      name: Frigate VM CPU / Memory
       icon: mdi:video
       hours_to_show: 24
       points_per_hour: 2
@@ -160,7 +162,7 @@
       animate: true
       show:
         fill: false
-        legend: true
+        legend: false
         icon: true
         name: true
         state: false
@@ -169,8 +171,6 @@
         name: CPU
       - entity: sensor.qemu_docker2_101_memory_used_percentage
         name: MEM
-      card_mod:
-        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
     - type: grid
       columns: 3
       square: false
