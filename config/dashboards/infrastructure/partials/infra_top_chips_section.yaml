@@ -1,0 +1,41 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - Top status chips (shared)
+#  Common "chips row" used across Infrastructure views.
+# -------------------------------------------------------------------
+# Notes: Keep this lightweight; it should render fast on every view.
+######################################################################
+
+type: grid
+column_span: 4
+columns: 4
+square: false
+cards:
+- type: custom:button-card
+  template: bearstone_infra_chip
+  entity: binary_sensor.node_proxmox1_updates_packages
+  name: Proxmox01
+  icon: mdi:server
+  state_display: >
+    [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+- type: custom:button-card
+  template: bearstone_infra_chip
+  entity: binary_sensor.node_proxmox02_updates_packages
+  name: Proxmox02
+  icon: mdi:server
+  state_display: >
+    [[[ return entity.state === 'on' ? 'Updates pending' : 'Up to date'; ]]]
+- type: custom:button-card
+  template: bearstone_infra_chip
+  entity: sensor.garage_ups_status
+  name: Garage UPS
+  icon: mdi:transmission-tower
+- type: custom:button-card
+  template: bearstone_infra_chip
+  entity: sensor.vcloudinfo_com
+  name: vCloudinfo
+  icon: mdi:microsoft-internet-explorer
+

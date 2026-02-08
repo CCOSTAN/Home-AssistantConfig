@@ -3,16 +3,10 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure View - Pi-Hole
-#  YAML-exported Lovelace dashboard (split into view files).
+# Lovelace UI - Overview dashboard (YAML mode)
+#  Main Lovelace UI entrypoint (defined as a YAML dashboard in `configuration.yaml`).
 # -------------------------------------------------------------------
-# Notes: Exported from config/.storage/lovelace.dashboard_infrastructure view index 2.
+# Notes: Delegates to `/config/dashboards/overview/dashboard.yaml`.
 ######################################################################
 
-type: panel
-path: pi-hole
-title: Pi-Hole
-icon: mdi:pi-hole
-visible:
-- user: be280a93c9d7416e98d25d0470f414be
-cards: !include /config/dashboards/infrastructure/partials/pi_hole_cards.yaml
+!include /config/dashboards/overview/dashboard.yaml

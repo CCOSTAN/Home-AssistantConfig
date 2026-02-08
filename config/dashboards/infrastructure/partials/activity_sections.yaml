@@ -3,10 +3,10 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure Partial - Docker containers sections
-#  Sections layout for the Docker containers view.
+# Infrastructure Partial - Activity sections
+#  Activity feed wrapped in the standard Infrastructure layout.
 # -------------------------------------------------------------------
-# Notes: Uses Portainer entities (`binary_sensor.*_status`, `button.*_restart_container`).
+# Notes: Uses Logbook card targeted at `sensor.activity_feed`.
 ######################################################################
 
 - !include /config/dashboards/infrastructure/partials/infra_top_chips_section.yaml
@@ -22,19 +22,10 @@
     cards:
     - type: custom:button-card
       template: bearstone_infra_panel_header
-      name: Docker Containers
-    - type: custom:auto-entities
-      show_empty: true
+      name: Activity Feed
+    - type: logbook
+      target:
+        entity_id:
+        - sensor.activity_feed
       grid_options:
         columns: full
-      card:
-        type: grid
-        columns: 4
-        square: false
-      card_param: cards
-      filter:
-        include: !include /config/dashboards/infrastructure/partials/docker_container_rows_include.yaml
-        exclude:
-        - state: unavailable
-      sort:
-        method: name

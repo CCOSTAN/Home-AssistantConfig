@@ -6,10 +6,41 @@
 # Infrastructure Partial - mariadb sections
 #  Reusable list extracted from a view for smaller diffs and safer edits.
 # -------------------------------------------------------------------
-# Notes: Stitch-inspired MariaDB layout (3 panel columns).
+# Notes: Stitch-inspired MariaDB layout (KPI strip + 3 panel columns).
 ######################################################################
 
-- column_span: 1
+- !include /config/dashboards/infrastructure/partials/infra_top_chips_section.yaml
+
+- type: grid
+  column_span: 4
+  columns: 4
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.database_size
+    name: DB Size
+    icon: mdi:database
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.database_tables_count
+    name: Tables
+    icon: mdi:table
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.mariadb_connections
+    name: Conn.
+    icon: mdi:lan-connect
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.mariadb_uptime
+    name: Uptime
+    icon: mdi:timer-outline
+
+- type: grid
+  column_span: 4
+  columns: 3
+  square: false
   cards:
   - type: custom:vertical-stack-in-card
     card_mod:
@@ -18,16 +49,6 @@
     - type: custom:button-card
       template: bearstone_infra_panel_header
       name: Database Statistics
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.database_size
-      name: Database Size
-      icon: mdi:database
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.database_tables_count
-      name: Number of Tables
-      icon: mdi:table
     - type: custom:button-card
       template: bearstone_infra_list_row
       entity: sensor.database_total_records
@@ -44,8 +65,6 @@
       name: Oldest Record
       icon: mdi:clock-start
 
-- column_span: 1
-  cards:
   - type: custom:vertical-stack-in-card
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
@@ -75,22 +94,10 @@
       icon: mdi:chart-line
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.mariadb_uptime
-      name: Uptime
-      icon: mdi:timer-outline
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.mariadb_connections
-      name: Active Connections
-      icon: mdi:lan-connect
-    - type: custom:button-card
-      template: bearstone_infra_list_row
       entity: sensor.mariadb_questions
       name: Total Queries
       icon: mdi:database-search
 
-- column_span: 1
-  cards:
   - type: custom:vertical-stack-in-card
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
