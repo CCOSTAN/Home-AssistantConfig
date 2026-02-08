@@ -184,6 +184,19 @@ script:
               - stop: "All phases complete."
         default: []
 
+      # If the queue is empty but the phase-ready flag is not armed yet, reseed the same phase.
+      # This is the common case when we haven't positively confirmed the last room as cleaned.
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ (queue_ints | length == 0) and (not phase_ready) }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "Queue empty but phase_ready is off; reseeding phase {{ phase }} (no phase advance)."
+        default: []
+
       # 1. Seed the queue if necessary
       - choose:
           - conditions:
@@ -579,10 +592,13 @@ automation:
               - condition: template
                 value_template: "{{ queue_empty }}"
             sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.l10s_vacuum_phase_ready
               - service: script.send_to_logbook
                 data:
                   topic: "VACUUM"
-                  message: "Docked after completion; queue already empty."
+                  message: "Docked after completion; queue already empty. Phase advance armed."
           - conditions:
               - condition: template
                 value_template: "{{ not queue_empty }}"
