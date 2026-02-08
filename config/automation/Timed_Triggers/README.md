@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -35,7 +34,6 @@ Time-based routines for wake/sleep cycles, sunrise/sunset shifts, and nightly wa
 ### Tips
 - If you add new timed routines, keep names numeric or descriptive for easy sorting.
 - Template your conditions to respect holidays/guests before firing loud routines.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

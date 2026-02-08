@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -37,7 +36,6 @@ Reusable scripts that other automations call for notifications, lighting, and sa
 ### Tips
 - Keep scripts generic�route data via `data:`/`variables:` and reuse everywhere.
 - If you copy a script, rename any `alias` and `id` fields to avoid duplicates.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

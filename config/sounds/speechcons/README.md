@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -27,7 +26,6 @@ Speechcon/SSML-friendly sound snippets sprinkled into the speech engine for vari
 ### Tips
 - Use sparingly; novelty wears off fast if played too often.
 - Keep filenames aligned with the SSML tags you reference.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

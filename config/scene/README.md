@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -59,7 +58,6 @@ Reusable lighting and ambiance presets. Automations and scripts call these scene
 ### Tips
 - Adjust scenes once and let all dependent automations inherit the change.
 - Pair with `script/monthly_color_scene.yaml` for dynamic monthly palettes.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

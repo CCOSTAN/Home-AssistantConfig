@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -17,7 +16,7 @@
 
 </div>
 
-Meta automations that keep Home Assistant healthy—watchdogs, diagnostics, and recovery tasks for the stack itself.
+Meta automations that keep Home Assistant healthyï¿½watchdogs, diagnostics, and recovery tasks for the stack itself.
 
 ### Quick navigation
 - [Repo overview](../../../README.md) | [Config index](../../README.md) | [Automation home](..) | [Packages](../../packages)
@@ -35,7 +34,6 @@ Meta automations that keep Home Assistant healthy—watchdogs, diagnostics, and re
 ### Tips
 - Great place to drop temporary diagnostics without touching user-facing automations.
 - When cloning, change `id:` fields to avoid UUID collisions.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

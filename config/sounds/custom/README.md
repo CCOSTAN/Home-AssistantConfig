@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -27,7 +26,6 @@ Custom/recorded sounds for bespoke automations (alarms, alerts, gags).
 ### Tips
 - Note volume expectations in the automation that plays each file.
 - Store lossless masters elsewhere; keep deployment files compressed.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <a name="logo" href="https://www.vCloudInfo.com/tag/iot"><img src="https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/x_profile.png" alt="Bear Stone Smart Home" width="200"></a>
   <br>
@@ -36,7 +35,6 @@ Event-driven automations that sit outside the self-contained packages. These tie
 ### Tips
 - Use these as patterns if you are migrating UI-created automations out of `automations.yaml`.
 - Most automations expose helpers (input booleans, scenes) so you can extend them without editing IDs.
-
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 
