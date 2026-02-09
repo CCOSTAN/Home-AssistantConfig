@@ -35,10 +35,14 @@ function Get-EffectiveUrlAndStatus {
 
 $targets = @(
   '/',
+  '/lovelace',
+  '/lovelace/cameras',
   '/profile',
   '/dashboard-infrastructure',
+  '/dashboard-infrastructure/home',
+  '/dashboard-infrastructure/activity',
   '/dashboard-infrastructure/docker',
-  '/dashboard-infrastructure/mariadb',
+  '/dashboard-infrastructure/vacuum',
   '/dashboard-kiosk'
 )
 
@@ -47,7 +51,7 @@ foreach ($path in $targets) {
   $url = "$BaseUrl$path"
   $r = Get-EffectiveUrlAndStatus -Url $url
 
-  $isLogin = $r.EffectiveUrl -match '/(login|auth/authorize)\b'
+  $isLogin = $r.EffectiveUrl -match '/(login|auth/authorize)\\b'
   $statusOk = $r.StatusCode -ge 200 -and $r.StatusCode -lt 400
 
   if ($isLogin -or -not $statusOk) {
