@@ -6,6 +6,7 @@
 # Climate Control - Seasonal HVAC automations and sensors.
 #  Thermostat helpers for upstairs/downstairs comfort.
 # -------------------------------------------------------------------
+# Related Issue: 1571
 ######################################################################
 # Contact: @CCOSTAN | Entity reference details below
 # Entity reference and attribute summaries:
@@ -148,6 +149,28 @@ script:
                   - condition: state
                     entity_id: group.family
                     state: 'home'
+                  - condition: template
+                    value_template: >-
+                      {{ states('sensor.pirateweather_temperature') in ['unknown','unavailable','none',''] }}
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Outside temp unavailable; allowing downstairs cool mode (defaulting to 80F)."
+              - service: climate.set_hvac_mode
+                data:
+                  entity_id: climate.downstairs
+                  hvac_mode: cool
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 80
+          - conditions:
+              - condition: and
+                conditions:
+                  - condition: state
+                    entity_id: group.family
+                    state: 'home'
                   - condition: numeric_state
                     entity_id: sensor.pirateweather_temperature
                     below: 75
@@ -184,9 +207,8 @@ script:
                   - condition: state
                     entity_id: group.family
                     state: 'home'
-                  - condition: numeric_state
-                    entity_id: sensor.pirateweather_temperature
-                    above: 75
+                  - condition: template
+                    value_template: "{{ states('sensor.pirateweather_temperature')|float(-999) >= 75 }}"
             sequence:
               - service: script.send_to_logbook
                 data:
@@ -346,10 +368,21 @@ automation:
             entity_id: binary_sensor.powerwall_grid_status
             state: 'on'
     action:
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.downstairs
-          hvac_mode: cool
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                below: 75
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Skipping downstairs cool mode (outside temp <75F)."
+        default:
+          - service: climate.set_hvac_mode
+            data:
+              entity_id: climate.downstairs
+              hvac_mode: cool
       - service: script.set_downstairs_target_temp_based_on_conditions
           
 # Set thermostats to eco mode when everyone is away
@@ -372,10 +405,21 @@ automation:
         data:
           entity_id: climate.downstairs
           preset_mode: 'eco'
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.downstairs
-          hvac_mode: cool
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                below: 75
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Skipping downstairs cool mode (outside temp <75F)."
+        default:
+          - service: climate.set_hvac_mode
+            data:
+              entity_id: climate.downstairs
+              hvac_mode: cool
       - service: climate.set_temperature
         data:
           entity_id: climate.upstairs
@@ -406,11 +450,24 @@ automation:
         data:
           entity_id: climate.downstairs
           preset_mode: 'none'
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                below: 75
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Skipping downstairs cool mode (outside temp <75F)."
+        default:
+          - service: climate.set_hvac_mode
+            data:
+              entity_id: climate.downstairs
+              hvac_mode: cool
       - service: climate.set_hvac_mode
         data:
-          entity_id:
-            - climate.downstairs
-            - climate.upstairs
+          entity_id: climate.upstairs
           hvac_mode: cool
       - service: script.set_downstairs_target_temp_based_on_conditions
       - service: climate.set_temperature
@@ -462,18 +519,29 @@ automation:
         entity_id: binary_sensor.powerwall_grid_status
         state: 'on'
     action:
-      - service: climate.set_preset_mode
-        data:
-          entity_id: climate.downstairs
-          preset_mode: 'none'
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.downstairs
-          hvac_mode: cool
-      - service: climate.set_temperature
-        data:
-          entity_id: climate.downstairs
-          temperature: 77
-      - delay: "00:20:00"
-      - service: script.set_downstairs_target_temp_based_on_conditions
-      - delay: "02:00:00"      # stops it from being triggered again too soon.
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                below: 75
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Skipping downstairs cool mode (outside temp <75F)."
+        default:
+          - service: climate.set_preset_mode
+            data:
+              entity_id: climate.downstairs
+              preset_mode: 'none'
+          - service: climate.set_hvac_mode
+            data:
+              entity_id: climate.downstairs
+              hvac_mode: cool
+          - service: climate.set_temperature
+            data:
+              entity_id: climate.downstairs
+              temperature: 77
+          - delay: "00:20:00"
+          - service: script.set_downstairs_target_temp_based_on_conditions
+          - delay: "02:00:00"      # stops it from being triggered again too soon.

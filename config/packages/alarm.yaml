@@ -5,9 +5,10 @@
 # -------------------------------------------------------------------
 # Alarm Package - Arming helpers, sensors, and alerting.
 # Related Issue: 1550
+# Related Issue: 1571
 #  Alarm sensors, customization, and automations for home security.
 # -------------------------------------------------------------------
-# Notes: Turns HVAC off when doors/windows are open and restores cool mode after closure.
+# Notes: Turns HVAC off when doors/windows are open and restores cool mode after closure (weather-gated for downstairs).
 ######################################################################
 homeassistant:
   customize_glob:
@@ -292,10 +293,21 @@ automation:
       - service: climate.turn_on
         data:
           entity_id: climate.downstairs
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.downstairs
-          hvac_mode: cool
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                below: 75
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Skipping downstairs cool mode (outside temp <75F)."
+        default:
+          - service: climate.set_hvac_mode
+            data:
+              entity_id: climate.downstairs
+              hvac_mode: cool
 
 #-------------------------------------------#-------------------------------------------
   - alias: 'Alarm lights in Living room'
