@@ -368,21 +368,6 @@ automation:
             entity_id: binary_sensor.powerwall_grid_status
             state: 'on'
     action:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.pirateweather_temperature
-                below: 75
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Skipping downstairs cool mode (outside temp <75F)."
-        default:
-          - service: climate.set_hvac_mode
-            data:
-              entity_id: climate.downstairs
-              hvac_mode: cool
       - service: script.set_downstairs_target_temp_based_on_conditions
           
 # Set thermostats to eco mode when everyone is away
@@ -450,21 +435,6 @@ automation:
         data:
           entity_id: climate.downstairs
           preset_mode: 'none'
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.pirateweather_temperature
-                below: 75
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Skipping downstairs cool mode (outside temp <75F)."
-        default:
-          - service: climate.set_hvac_mode
-            data:
-              entity_id: climate.downstairs
-              hvac_mode: cool
       - service: climate.set_hvac_mode
         data:
           entity_id: climate.upstairs
