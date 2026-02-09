@@ -5,6 +5,7 @@
 # -------------------------------------------------------------------
 # Tesla Powerwall - Monitoring and outage automations
 # Related Issue: 1550
+# Related Issue: 1571
 #  Powerwall status sensors, outage alerting, and load-shedding helpers.
 # -------------------------------------------------------------------
 # Notes: Read more https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html | Existing Issue #272
@@ -350,10 +351,21 @@ automation:
             state: 'off'
 
     action:
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.downstairs
-          hvac_mode: cool
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                below: 75
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "CLIMATE"
+                  message: "Skipping downstairs cool mode (outside temp <75F)."
+        default:
+          - service: climate.set_hvac_mode
+            data:
+              entity_id: climate.downstairs
+              hvac_mode: cool
       - service: climate.set_hvac_mode
         data:
           entity_id: climate.upstairs
@@ -366,6 +378,6 @@ automation:
       - service: script.notify_engine
         data:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
-          value1: "All AC systems are set back to normal operations."
+          value1: "All AC systems are set back to normal operations (downstairs cool may be skipped if outside <75F)."
           who: 'family'
           group: 'information'
