@@ -46,7 +46,12 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
 This folder is referenced from `config/configuration.yaml` via:
 - `lovelace.resource_mode: yaml`
 - `lovelace.resources: !include dashboards/resources.yaml`
-- `lovelace.dashboards: ... filename: dashboards/<dashboard>/dashboard.yaml`
+- `lovelace.dashboards: ...`
+  - Default Overview YAML dashboard: `lovelace.dashboards.lovelace.filename: ui-lovelace.yaml`
+  - Additional YAML dashboards: `filename: dashboards/<dashboard>/dashboard.yaml`
+
+Note:
+- Do not use legacy `lovelace.mode: yaml` (removed in Home Assistant 2026.8).
 
 Lovelace resources are loaded from:
 - `config/dashboards/resources.yaml` (referenced by `lovelace.resources`)
