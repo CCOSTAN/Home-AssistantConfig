@@ -1,0 +1,69 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# SleepIQ - Carlo Snore (Alexa) - Voice toggle for Sleep Number base
+#  "Alexa, turn on Carlo Snore" sets the foundation preset to Snore.
+#  Turning it off (or auto-off when out of bed) returns the base to Flat.
+# -------------------------------------------------------------------
+# Related Issue: 1568
+# Notes: If your preset labels differ, change the select option strings
+#        below ("Snore" and/or "Flat") to match your entity's options.
+######################################################################
+
+input_boolean:
+  carlo_snore:
+    name: Carlo Snore
+    icon: mdi:bed
+
+automation:
+  - alias: "SLEEPIQ - Carlo Snore On (Foundation Right)"
+    id: 7bc879bb-9cc9-4b30-8eea-4b15a9fb7b25
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: input_boolean.carlo_snore
+        from: "off"
+        to: "on"
+    action:
+      - service: select.select_option
+        continue_on_error: true
+        target:
+          entity_id: select.sleepnumber_carlo_foundation_preset_right
+        data:
+          option: "Snore"
+
+  - alias: "SLEEPIQ - Carlo Snore Off (Foundation Right Flat)"
+    id: 2f80d533-73f1-4079-9e91-4375cfabf8dc
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: input_boolean.carlo_snore
+        from: "on"
+        to: "off"
+    action:
+      - service: select.select_option
+        continue_on_error: true
+        target:
+          entity_id: select.sleepnumber_carlo_foundation_preset_right
+        data:
+          option: "Flat"
+
+  - alias: "SLEEPIQ - Auto Disable Carlo Snore When Out Of Bed 20m"
+    id: 962c51d9-3ca7-4ebb-a516-5fc650b4b1a8
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        from: "on"
+        to: "off"
+        for: "00:20:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.carlo_snore
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.carlo_snore
