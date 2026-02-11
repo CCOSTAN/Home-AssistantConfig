@@ -185,3 +185,26 @@
         variables:
           button_entity: button.qemu_docker2_101_reboot
           name: Frigate
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:mini-graph-card
+    entities:
+    - entity: sensor.proxmox_garage_average_temperature
+      name: Garage
+    - entity: sensor.pirateweather_temperature
+      name: Outside
+    name: Garage Temp
+    hours_to_show: 96
+    color_thresholds:
+    - value: 50
+      color: '#f39c12'
+    - value: 120
+      color: '#d35400'
+    - value: 145
+      color: '#c0392b'
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml

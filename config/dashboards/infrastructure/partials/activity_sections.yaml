@@ -6,26 +6,17 @@
 # Infrastructure Partial - Activity sections
 #  Activity feed wrapped in the standard Infrastructure layout.
 # -------------------------------------------------------------------
-# Notes: Uses Logbook card targeted at `sensor.activity_feed`.
+# Notes: Full-width logbook view targeted at `sensor.activity_feed`.
 ######################################################################
-
-- !include /config/dashboards/infrastructure/partials/infra_top_chips_section.yaml
 
 - type: grid
   column_span: 4
   columns: 1
   square: false
   cards:
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Activity Feed
-    - type: logbook
-      target:
-        entity_id:
-        - sensor.activity_feed
-      grid_options:
-        columns: full
+  - type: logbook
+    target:
+      entity_id:
+      - sensor.activity_feed
+    grid_options:
+      columns: full

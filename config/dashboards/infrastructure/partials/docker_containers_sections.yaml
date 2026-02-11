@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - Docker containers sections
+# Related Issue: 1560
 #  Sections layout for the Docker containers view.
 # -------------------------------------------------------------------
 # Notes: Uses Portainer entities (`binary_sensor.*_status`, `button.*_restart_container`).
@@ -13,24 +14,85 @@
 
 - type: grid
   column_span: 4
+  columns: 3
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.garage_ups_load
+    name: UPS Load
+    icon: mdi:battery-charging-60
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.carlo_nvr_volume_1_volume_used
+    name: NVR Used
+    icon: mdi:harddisk
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.carlo_nas01_volume_1_volume_used
+    name: NAS Used
+    icon: mdi:nas
+
+- type: grid
+  column_span: 4
+  columns: 3
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_apt_prune_tile
+    name: docker_10
+    entity: sensor.docker_10_apt_status
+    variables:
+      last_update_sensor: sensor.docker_10_apt_last_update
+      reboot_status_sensor: sensor.docker_10_apt_reboot_status
+      prune_button: button.carlo_hass_prune_unused_images
+      name: docker_10
+  - type: custom:button-card
+    template: bearstone_infra_apt_prune_tile
+    name: docker_69
+    entity: sensor.docker_69_apt_status
+    variables:
+      last_update_sensor: sensor.docker_69_apt_last_update
+      reboot_status_sensor: sensor.docker_69_apt_reboot_status
+      prune_button: button.docker69_prune_unused_images
+      name: docker_69
+  - type: custom:button-card
+    template: bearstone_infra_apt_prune_tile
+    name: docker_14
+    entity: sensor.docker_14_apt_status
+    variables:
+      last_update_sensor: sensor.docker_14_apt_last_update
+      reboot_status_sensor: sensor.docker_14_apt_reboot_status
+      prune_button: button.docker2_prune_unused_images
+      name: docker_14
+
+- type: grid
+  column_span: 4
   columns: 1
   square: false
   cards:
   - type: custom:vertical-stack-in-card
+    grid_options:
+      columns: full
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
     cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Docker Containers
     - type: custom:auto-entities
       show_empty: true
       grid_options:
         columns: full
       card:
-        type: grid
-        columns: 4
-        square: false
+        type: custom:layout-card
+        layout_type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(4, minmax(0, 1fr))
+          grid-auto-flow: row
+          grid-auto-rows: min-content
+          grid-gap: 12px
+          margin: 0
+          mediaquery:
+            "(max-width: 900px)":
+              grid-template-columns: repeat(2, minmax(0, 1fr))
       card_param: cards
       filter:
         include: !include /config/dashboards/infrastructure/partials/docker_container_rows_include.yaml

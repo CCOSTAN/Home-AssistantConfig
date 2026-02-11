@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Templates - custom:button-card
+# Related Issue: 1560
 #  Shared `button_card_templates` used across Infrastructure views.
 # -------------------------------------------------------------------
 # Notes: Keep templates generic; view-specific tuning stays in the view partials.
@@ -136,6 +137,41 @@ bearstone_infra_device_tile:
     state:
     - font-weight: 700
 
+bearstone_infra_prune_tile:
+  template: bearstone_infra_tile
+  show_state: true
+  icon: mdi:image-sync
+  label: >-
+    [[[
+      return variables.subtitle ? variables.subtitle : "Hold to prune unused images";
+    ]]]
+  hold_action:
+    action: call-service
+    service: button.press
+    service_data:
+      entity_id: '[[[ return variables.prune_button ]]]'
+    confirmation:
+      text: '[[[ return "Prune unused images on " + (variables.name ? variables.name : "host") + "?" ]]]'
+  styles:
+    icon:
+    - color: var(--secondary-text-color)
+    state:
+    - font-weight: 700
+
+bearstone_infra_apt_prune_tile:
+  template: bearstone_infra_prune_tile
+  show_state: true
+  icon: mdi:server
+  label: >-
+    [[[
+      const lastSensor = variables.last_update_sensor ? variables.last_update_sensor : '';
+      const rebootSensor = variables.reboot_status_sensor ? variables.reboot_status_sensor : '';
+      const lastValue = lastSensor ? (states[lastSensor]?.state ?? 'unknown') : 'unknown';
+      const rebootValue = rebootSensor ? (states[rebootSensor]?.state ?? '') : '';
+      const rebootText = rebootValue ? (" | " + rebootValue) : '';
+      return "Last update: " + lastValue + rebootText + " | Hold to prune";
+    ]]]
+
 bearstone_infra_container_row:
   template: bearstone_infra_list_row
   show_label: false
@@ -151,6 +187,17 @@ bearstone_infra_container_row:
       text: '[[[ return "Restart container " + entity.attributes.friendly_name + "?" ]]]'
   icon: mdi:docker
   custom_fields:
+    image: >
+      [[[
+        const imageEntity = variables.image_sensor
+          ? variables.image_sensor
+          : entity.entity_id.replace('binary_sensor.', 'sensor.').replace(/_status$/, '_image');
+        const imageValue = states[imageEntity]?.state;
+        if (!imageValue || ['unknown', 'unavailable', 'none', ''].includes(String(imageValue).toLowerCase())) {
+          return 'image: n/a';
+        }
+        return imageValue;
+      ]]]
     status: >
       [[[
         const s = String(entity.state || '').toLowerCase();
@@ -162,8 +209,9 @@ bearstone_infra_container_row:
       ]]]
   styles:
     grid:
-    - grid-template-areas: "\"i n status\""
+    - grid-template-areas: "\"i n status\" \"i image status\""
     - grid-template-columns: 24px 1fr auto
+    - grid-template-rows: min-content min-content
     - align-items: center
     - column-gap: 12px
     name:
@@ -172,6 +220,17 @@ bearstone_infra_container_row:
     - text-overflow: ellipsis
     - white-space: nowrap
     custom_fields:
+      image:
+      - grid-area: image
+      - justify-self: start
+      - align-self: start
+      - font-size: 11px
+      - opacity: 0.72
+      - line-height: 1.1
+      - white-space: nowrap
+      - overflow: hidden
+      - text-overflow: ellipsis
+      - max-width: 100%
       status:
       - justify-self: end
       - align-self: center

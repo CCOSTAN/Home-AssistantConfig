@@ -42,7 +42,6 @@ $targets = @(
   '/dashboard-infrastructure/home',
   '/dashboard-infrastructure/activity',
   '/dashboard-infrastructure/docker',
-  '/dashboard-infrastructure/vacuum',
   '/dashboard-kiosk'
 )
 

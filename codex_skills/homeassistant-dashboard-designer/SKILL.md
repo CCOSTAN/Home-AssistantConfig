@@ -77,6 +77,7 @@ Tier 2 (fallback, must justify in comments):
 - No `horizontal-stack` inside grid cells (prefer: more grid columns, or vertical-stack)
 - No freeform positioning
 - No layout logic embedded in `card-mod`
+- For dense tile lists in `type: sections` views, keep the outer panel full-width (`column_span: 4`) and make the inner tile grid responsive using `custom:layout-card` (`4` desktop / `2` mobile unless the user asks otherwise).
 
 Note: If the repo/view uses Home Assistant `type: sections`, treat `sections` as the top-level structure and enforce the same container rules inside each section (sections should contain only `grid`/`vertical-stack` cards and their children).
 

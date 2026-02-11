@@ -3,14 +3,18 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure Partial - vacuum badges
-#  Reusable list extracted from a view for smaller diffs and safer edits.
+# Infrastructure View - Docker containers
+# Related Issue: 1560
+#  Container status + restart controls (Portainer integration).
 # -------------------------------------------------------------------
-# Notes: Extracted from config/dashboards/infrastructure/views/03_vacuum.yaml key `badges`.
+# Notes: Uses `binary_sensor.*_status` and `button.*_restart_container` entities (Portainer integration).
 ######################################################################
 
-- type: entity
-  show_name: true
-  show_state: true
-  show_icon: true
-  entity: input_boolean.l10s_vacuum_on_demand
+title: Docker
+path: docker
+type: sections
+icon: mdi:docker
+theme: default
+badges: []
+sections: !include /config/dashboards/infrastructure/partials/docker_containers_sections.yaml
+max_columns: 4

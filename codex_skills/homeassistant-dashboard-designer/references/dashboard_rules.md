@@ -24,6 +24,7 @@ Tier 2 (fallback, only when Tier 1 cannot satisfy the requirement; justify inlin
 - No `horizontal-stack` inside grid cells
 - No freeform positioning
 - No layout logic embedded in `card-mod`
+- For dense status/container lists in `type: sections` views, keep the panel full-width (`column_span: 4`) and use a responsive inner grid (`4` desktop / `2` mobile by default).
 
 Sections-mode note:
 - If a view uses `type: sections`, treat `sections` as the top-level structure and enforce the same container rules inside each section.

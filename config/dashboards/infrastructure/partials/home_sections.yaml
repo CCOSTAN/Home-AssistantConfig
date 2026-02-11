@@ -13,7 +13,7 @@
 
 - type: grid
   column_span: 4
-  columns: 4
+  columns: 1
   square: false
   cards:
   - type: custom:button-card
@@ -21,21 +21,6 @@
     entity: sensor.total_wifi_clients
     name: Wi-Fi Clients
     icon: mdi:wifi
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.garage_ups_load
-    name: UPS Load
-    icon: mdi:battery-charging-60
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.carlo_nvr_volume_1_volume_used
-    name: NVR Used
-    icon: mdi:harddisk
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.carlo_nas01_volume_1_volume_used
-    name: NAS Used
-    icon: mdi:nas
 
 - type: grid
   column_span: 3
@@ -156,140 +141,7 @@
 
 - type: grid
   column_span: 4
-  columns: 4
-  square: false
-  cards:
-  - type: custom:mini-graph-card
-    entities:
-    - entity: sensor.proxmox_garage_average_temperature
-      name: Garage
-    - entity: sensor.pirateweather_temperature
-      name: Outside
-    name: Garage Temp
-    hours_to_show: 96
-    color_thresholds:
-    - value: 50
-      color: '#f39c12'
-    - value: 120
-      color: '#d35400'
-    - value: 145
-      color: '#c0392b'
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
-  - type: custom:mini-graph-card
-    name: Garage UPS Load
-    icon: mdi:transmission-tower
-    entities:
-    - entity: sensor.garage_ups_load
-      name: Load
-    unit: '%'
-    hours_to_show: 24
-    points_per_hour: 4
-    line_width: 2
-    animate: true
-    color_thresholds:
-    - value: 20
-      color: '#43a047'
-    - value: 50
-      color: '#ffa000'
-    - value: 80
-      color: '#e53935'
-    show:
-      fill: true
-      icon: true
-      name: true
-      state: true
-      graph: line
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
-  - type: custom:flex-horseshoe-card
-    entities:
-    - entity: sensor.carlo_nvr_volume_1_volume_used
-      name: NVR Used
-      decimals: 1
-      unit: '%'
-    - entity: sensor.carlo_nvr_volume_1_total_size
-      name: Total
-      decimals: 2
-      unit: TiB
-    layout:
-      names:
-      - entity_index: 0
-        xpos: 50
-        ypos: 22
-        styles:
-        - font-size: 0.9em;
-        - opacity: 0.75;
-      states:
-      - entity_index: 0
-        xpos: 50
-        ypos: 54
-        styles:
-        - font-size: 2.2em;
-        - font-weight: 800;
-      - entity_index: 1
-        xpos: 50
-        ypos: 76
-        styles:
-        - font-size: 0.95em;
-        - opacity: 0.75;
-    show:
-      horseshoe_style: colorstopgradient
-    horseshoe_scale:
-      min: 0
-      max: 100
-    color_stops:
-      '0': '#43a047'
-      '50': '#fbc02d'
-      '80': '#e53935'
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
-  - type: custom:flex-horseshoe-card
-    entities:
-    - entity: sensor.carlo_nas01_volume_1_volume_used
-      name: NAS Used
-      decimals: 1
-      unit: '%'
-    - entity: sensor.carlo_nas01_volume_1_total_size
-      name: Total
-      decimals: 2
-      unit: TiB
-    layout:
-      names:
-      - entity_index: 0
-        xpos: 50
-        ypos: 22
-        styles:
-        - font-size: 0.9em;
-        - opacity: 0.75;
-      states:
-      - entity_index: 0
-        xpos: 50
-        ypos: 54
-        styles:
-        - font-size: 2.2em;
-        - font-weight: 800;
-      - entity_index: 1
-        xpos: 50
-        ypos: 76
-        styles:
-        - font-size: 0.95em;
-        - opacity: 0.75;
-    show:
-      horseshoe_style: colorstopgradient
-    horseshoe_scale:
-      min: 0
-      max: 100
-    color_stops:
-      '0': '#43a047'
-      '50': '#fbc02d'
-      '80': '#e53935'
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
-
-- type: grid
-  column_span: 4
-  columns: 2
+  columns: 1
   square: false
   cards:
   - type: custom:vertical-stack-in-card
@@ -365,36 +217,3 @@
         variables:
           button_entity: button.unifi_ap_study_restart
           name: Study AP
-
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: APT Status
-    - type: grid
-      columns: 3
-      square: false
-      cards:
-      - type: custom:button-card
-        template: bearstone_infra_tile
-        name: docker_10
-        icon: mdi:server
-        entity: sensor.docker_10_apt_status
-        label: >
-          [[[ return "Last update: " + (states['sensor.docker_10_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_10_apt_reboot_status']?.state ?? ''); ]]]
-      - type: custom:button-card
-        template: bearstone_infra_tile
-        name: docker_69
-        icon: mdi:server
-        entity: sensor.docker_69_apt_status
-        label: >
-          [[[ return "Last update: " + (states['sensor.docker_69_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_69_apt_reboot_status']?.state ?? ''); ]]]
-      - type: custom:button-card
-        template: bearstone_infra_tile
-        name: docker_14
-        icon: mdi:server
-        entity: sensor.docker_14_apt_status
-        label: >
-          [[[ return "Last update: " + (states['sensor.docker_14_apt_last_update']?.state ?? 'unknown') + " | " + (states['sensor.docker_14_apt_reboot_status']?.state ?? ''); ]]]
