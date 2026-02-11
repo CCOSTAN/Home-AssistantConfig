@@ -1,0 +1,13 @@
+[Unit]
+Description=Report boot completion for APT reboot tracking
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/apt_reboot_report.sh https://HOMEASSISTANT_HOST:8123/api/webhook/REPLACE_WITH_BOOT_WEBHOOK_ID docker_10
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

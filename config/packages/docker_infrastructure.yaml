@@ -7,6 +7,8 @@
 #  APT webhook results and container down repairs.
 # -------------------------------------------------------------------
 # Notes: Hosts run weekly Wed 12:00 APT job and POST JSON to webhooks.
+# Notes: If reboot is required, hosts auto-schedule reboot after posting status.
+# Notes: Reboot staggering: docker_14 reboots first, docker_10 reboots later.
 # Notes: Container watchlist is explicit; extend entity list as needed.
 ######################################################################
 
@@ -179,17 +181,21 @@ automation:
       updated: "{{ payload.get('updated', false) | bool }}"
       packages: "{{ payload.get('packages', 0) | int(0) }}"
       reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+      auto_reboot_scheduled: "{{ payload.get('auto_reboot_scheduled', false) | bool }}"
+      reboot_delay_minutes: "{{ payload.get('reboot_delay_minutes', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
       result: >-
         {% if not success %}
           ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
+        {% elif reboot_required and not updated %}
+          REBOOT REQUIRED{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% elif updated %}
-          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}
+          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% else %}
           NO UPDATES
         {% endif %}
       log_message: >-
-        docker_10 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}.
+        docker_10 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}{% if auto_reboot_scheduled %}; auto reboot in {{ reboot_delay_minutes }} minute{% if reboot_delay_minutes != 1 %}s{% endif %}{% endif %}.
     action:
       - service: input_datetime.set_datetime
         target:
@@ -240,17 +246,21 @@ automation:
       updated: "{{ payload.get('updated', false) | bool }}"
       packages: "{{ payload.get('packages', 0) | int(0) }}"
       reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+      auto_reboot_scheduled: "{{ payload.get('auto_reboot_scheduled', false) | bool }}"
+      reboot_delay_minutes: "{{ payload.get('reboot_delay_minutes', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
       result: >-
         {% if not success %}
           ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
+        {% elif reboot_required and not updated %}
+          REBOOT REQUIRED{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% elif updated %}
-          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}
+          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% else %}
           NO UPDATES
         {% endif %}
       log_message: >-
-        docker_14 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}.
+        docker_14 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}{% if auto_reboot_scheduled %}; auto reboot in {{ reboot_delay_minutes }} minute{% if reboot_delay_minutes != 1 %}s{% endif %}{% endif %}.
     action:
       - service: input_datetime.set_datetime
         target:
@@ -301,17 +311,21 @@ automation:
       updated: "{{ payload.get('updated', false) | bool }}"
       packages: "{{ payload.get('packages', 0) | int(0) }}"
       reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+      auto_reboot_scheduled: "{{ payload.get('auto_reboot_scheduled', false) | bool }}"
+      reboot_delay_minutes: "{{ payload.get('reboot_delay_minutes', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
       result: >-
         {% if not success %}
           ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
+        {% elif reboot_required and not updated %}
+          REBOOT REQUIRED{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% elif updated %}
-          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}
+          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% else %}
           NO UPDATES
         {% endif %}
       log_message: >-
-        docker_69 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}.
+        docker_69 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}{% if auto_reboot_scheduled %}; auto reboot in {{ reboot_delay_minutes }} minute{% if reboot_delay_minutes != 1 %}s{% endif %}{% endif %}.
     action:
       - service: input_datetime.set_datetime
         target:
@@ -345,6 +359,105 @@ automation:
                 data:
                   topic: "APT"
                   message: "{{ log_message }}"
+
+  - alias: "APT Boot Report - docker_10"
+    id: apt_boot_report_docker_10
+    description: "Clear or keep reboot-required flag after docker_10 boots."
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret apt_boot_webhook_docker_10
+        allowed_methods:
+          - POST
+        local_only: true
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+    action:
+      - choose:
+          - conditions: "{{ reboot_required }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.apt_docker_10_reboot_required
+              - service: script.send_to_logbook
+                data:
+                  topic: "APT"
+                  message: "docker_10 boot report: reboot is still required."
+        default:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.apt_docker_10_reboot_required
+          - service: script.send_to_logbook
+            data:
+              topic: "APT"
+              message: "docker_10 reboot completed and reboot flag cleared."
+
+  - alias: "APT Boot Report - docker_14"
+    id: apt_boot_report_docker_14
+    description: "Clear or keep reboot-required flag after docker_14 boots."
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret apt_boot_webhook_docker_14
+        allowed_methods:
+          - POST
+        local_only: true
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+    action:
+      - choose:
+          - conditions: "{{ reboot_required }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.apt_docker_14_reboot_required
+              - service: script.send_to_logbook
+                data:
+                  topic: "APT"
+                  message: "docker_14 boot report: reboot is still required."
+        default:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.apt_docker_14_reboot_required
+          - service: script.send_to_logbook
+            data:
+              topic: "APT"
+              message: "docker_14 reboot completed and reboot flag cleared."
+
+  - alias: "APT Boot Report - docker_69"
+    id: apt_boot_report_docker_69
+    description: "Clear or keep reboot-required flag after docker_69 boots."
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret apt_boot_webhook_docker_69
+        allowed_methods:
+          - POST
+        local_only: true
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
+    action:
+      - choose:
+          - conditions: "{{ reboot_required }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.apt_docker_69_reboot_required
+              - service: script.send_to_logbook
+                data:
+                  topic: "APT"
+                  message: "docker_69 boot report: reboot is still required."
+        default:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.apt_docker_69_reboot_required
+          - service: script.send_to_logbook
+            data:
+              topic: "APT"
+              message: "docker_69 reboot completed and reboot flag cleared."
 
   - alias: "APT Reboot Repairs"
     id: apt_reboot_repairs

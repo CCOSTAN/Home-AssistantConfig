@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/apt_weekly.sh https://HOMEASSISTANT_HOST:8123/api/webhook/REPLACE_WITH_WEBHOOK_ID
+ExecStart=/usr/local/sbin/apt_weekly.sh https://HOMEASSISTANT_HOST:8123/api/webhook/REPLACE_WITH_APT_WEBHOOK_ID docker_10 20
 User=root
 Group=root
 Nice=10
