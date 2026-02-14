@@ -37,6 +37,7 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 
 ### Platform
 - Runs on Docker/compose today; this README is a browsing guide, not a how-to-install. Current HA version is tracked in `config/.HA_VERSION` (see the badge above).
+- Camera ingest path (current): `wyze-bridge` runs on `docker_10` and Frigate runs on `docker_14`, consuming Wyze RTSP via `192.168.10.10:8554` for stability.
 
 ### Featured examples to start with
 - Alarm and perimeter monitoring: [config/packages/alarm.yaml](config/packages/alarm.yaml)
