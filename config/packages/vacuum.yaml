@@ -10,15 +10,15 @@
 # Notes:
 # - `sensor.l10s_vacuum_current_room` can change during transit; require a dwell (`for:`) before dequeuing.
 # - Treat 2+ minutes in a room as "being cleaned" and dequeue immediately (queue = remaining rooms).
-# - Phase changes happen when the queue is reseeded after the queue hits zero (queue is the source of truth).
+# - Phase changes happen only after verified completion at dock (`task_status: completed`).
+# - Guarded fallback: if docked with empty queue for 10 minutes but no `completed`, advance with `fallback_advance` log.
 # - Avoid reissuing `dreame_vacuum.vacuum_clean_segment` while already cleaning; only send a new segment job when starting/resuming or switching phases.
 # - Jinja2 loop scoping: use a `namespace` when building lists (otherwise the queue can appear empty and get cleared).
-# - Docked + task complete only logs queue state; no auto-clearing.
+# - If docked+completed still has queue entries, treat queue as stale and clear it before phase advance.
 # - Mop phases use `sweeping_and_mopping` instead of mop-only.
 # - One-off room clean booleans ignore the queue; they only run when the vacuum is docked/idle.
 # - Formal Dining (room 17/dock) is excluded from phased queues; clean via one-off toggle.
-# - Confirm Room Cleaned drops room 17 from the queue at cycle start so it never runs first.
-# - Phase changes arm when the queue hits zero; reseed advances and clears the phase-ready flag.
+# - Phase advancement no longer depends on a separate "ready" latch.
 ######################################################################
 
 ## 1. Helpers
@@ -28,9 +28,6 @@ input_boolean:
   l10s_vacuum_on_demand:
     name: Dreame Clean (On-Demand)
     icon: mdi:robot-vacuum
-  l10s_vacuum_phase_ready:
-    name: L10s Vacuum Phase Ready
-    icon: mdi:progress-check
   l10s_vacuum_clean_kitchen:
     name: Kitchen Clean
     icon: mdi:robot-vacuum
@@ -95,7 +92,7 @@ input_text:
     max: 255
   l10s_vacuum_room_catalog:
     name: L10s Vacuum Room Catalog
-    initial: "17,6,7,8,9,10,12,13,14,15,2,4,1,3"
+    initial: "6,7,8,9,10,12,13,14,15,2,4,1,3"
     icon: mdi:map
     max: 255
   l10s_vacuum_rooms_cleaned_today:
@@ -116,85 +113,37 @@ script:
           catalog_raw: "{{ states('input_text.l10s_vacuum_room_catalog') | default('', true) | string | replace(' ', '') }}"
           catalog_ints: "{{ catalog_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
           bath_ids: [1, 3, 4]
-          main_ids: "{{ catalog_ints | reject('in', bath_ids) | list }}"
+          main_ids: "{{ catalog_ints | reject('in', bath_ids) | reject('equalto', 17) | list }}"
           phase_order: ['sweep_main', 'sweep_bath', 'mop_main', 'mop_bath']
           phase_state: "{{ states('input_select.l10s_vacuum_phase') }}"
           phase: "{{ phase_state if phase_state in phase_order else 'sweep_main' }}"
-          phase_index: "{{ phase_order.index(phase) if phase in phase_order else 0 }}"
-          has_next_phase: "{{ phase_index < (phase_order | length) - 1 }}"
-          next_phase: "{{ phase_order[phase_index + 1] if has_next_phase else '' }}"
           queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
           queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
           vac_state: "{{ states('vacuum.l10s_vacuum') | default('', true) | string | lower }}"
           vac_is_cleaning: "{{ vac_state == 'cleaning' }}"
-          phase_ready: "{{ is_state('input_boolean.l10s_vacuum_phase_ready', 'on') }}"
-          advance_phase: "{{ queue_ints | length == 0 and phase_ready }}"
-          reset_cycle: "{{ advance_phase and not has_next_phase }}"
-          phase_for_seed: "{{ next_phase if advance_phase and has_next_phase else phase }}"
-          cleaning_mode: "{{ 'sweeping_and_mopping' if 'mop_' in phase_for_seed else 'sweeping' }}"
+          cleaning_mode: "{{ 'sweeping_and_mopping' if 'mop_' in phase else 'sweeping' }}"
           phase_segments: >
-            {% if phase_for_seed == 'sweep_main' %}
+            {% if phase == 'sweep_main' %}
               {{ main_ids }}
-            {% elif phase_for_seed == 'sweep_bath' %}
+            {% elif phase == 'sweep_bath' %}
               {{ bath_ids }}
-            {% elif phase_for_seed == 'mop_main' %}
+            {% elif phase == 'mop_main' %}
               {{ main_ids }}
             {% else %}
               {{ bath_ids }}
             {% endif %}
           segments_to_clean: "{{ queue_ints if queue_ints | length > 0 else phase_segments }}"
 
-      # 0. Advance phase when reseeding an empty queue
+      # 0. Reseed the current phase when queue is empty.
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ advance_phase and has_next_phase }}"
-            sequence:
-              - service: input_select.select_option
-                target:
-                  entity_id: input_select.l10s_vacuum_phase
-                data:
-                  option: "{{ phase_for_seed }}"
-              - service: input_boolean.turn_off
-                target:
-                  entity_id: input_boolean.l10s_vacuum_phase_ready
-              - service: script.send_to_logbook
-                data:
-                  topic: "VACUUM"
-                  message: "Queue reseeded; advancing phase to {{ phase_for_seed }}."
-          - conditions:
-              - condition: template
-                value_template: "{{ reset_cycle }}"
-            sequence:
-              - service: input_select.select_option
-                target:
-                  entity_id: input_select.l10s_vacuum_phase
-                data:
-                  option: "sweep_main"
-              - service: input_boolean.turn_off
-                target:
-                  entity_id: input_boolean.l10s_vacuum_phase_ready
-              - service: input_boolean.turn_off
-                target:
-                  entity_id: input_boolean.l10s_vacuum_on_demand
-              - service: script.send_to_logbook
-                data:
-                  topic: "VACUUM"
-                  message: "All phases complete; resetting phase to sweep_main and disabling On-Demand."
-              - stop: "All phases complete."
-        default: []
-
-      # If the queue is empty but the phase-ready flag is not armed yet, reseed the same phase.
-      # This is the common case when we haven't positively confirmed the last room as cleaned.
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ (queue_ints | length == 0) and (not phase_ready) }}"
+                value_template: "{{ queue_ints | length == 0 }}"
             sequence:
               - service: script.send_to_logbook
                 data:
                   topic: "VACUUM"
-                  message: "Queue empty but phase_ready is off; reseeding phase {{ phase }} (no phase advance)."
+                  message: "Queue empty; reseeding phase {{ phase }}."
         default: []
 
       # 1. Seed the queue if necessary
@@ -267,9 +216,6 @@ automation:
           entity_id: input_text.l10s_vacuum_rooms_cleaned_today
         data:
           value: ""
-      - service: input_boolean.turn_off
-        target:
-          entity_id: input_boolean.l10s_vacuum_phase_ready
 
   - alias: 'Vacuum: Auto-Start if Idle 4 Days'
     id: c6b3f1e8-9a3f-4098-9b9e-1c7f2d6f1d11
@@ -468,9 +414,7 @@ automation:
       room_map: {14: Kitchen, 12: 'Dining Room', 10: 'Living Room', 7: 'Master Bedroom', 15: Foyer, 9: 'Stacey Office', 17: 'Formal Dining', 13: Hallway, 8: 'Justin Bedroom', 6: 'Paige Bedroom', 4: 'Master Bathroom', 2: Office, 1: 'Pool Bath', 3: 'Kids Bathroom'}
       queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | string | replace(' ', '') }}"
       queue_ints_raw: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list | default([], true) }}"
-      queue_has_17: "{{ 17 in queue_ints_raw }}"
-      queue_ints: "{{ queue_ints_raw | reject('equalto', 17) | list }}"
-      queue_without_17: "{{ queue_ints | join(',') }}"
+      queue_ints: "{{ queue_ints_raw | list }}"
       cleaned_room_state: "{{ trigger.to_state.state if trigger.to_state is not none else '' }}"
       cleaned_room_id: "{{ (trigger.to_state.attributes.room_id if trigger.to_state is not none else 0) | int(0) }}"
       matched_room_id: "{{ cleaned_room_id if cleaned_room_id > 0 and cleaned_room_id in (queue_ints | default([], true)) else 0 }}"
@@ -502,7 +446,7 @@ automation:
       - condition: template
         value_template: "{{ queue_ints_raw | length > 0 }}"
       - condition: template
-        value_template: "{{ matched_room_id != 0 or queue_has_17 }}"
+        value_template: "{{ matched_room_id != 0 }}"
       - condition: state
         entity_id: vacuum.l10s_vacuum
         state: 'cleaning'
@@ -518,22 +462,6 @@ automation:
         value_template: >
           {% set is_formal_dining = matched_room_id == 17 %}
           {{ not (is_formal_dining and (vac_charging or vac_status in ['charging', 'docked'])) }}
-
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ queue_has_17 }}"
-            sequence:
-              - service: input_text.set_value
-                target:
-                  entity_id: input_text.l10s_vacuum_room_queue
-                data:
-                  value: "{{ queue_without_17 }}"
-              - service: script.send_to_logbook
-                data:
-                  topic: "VACUUM"
-                  message: "Removing Formal Dining (17) from the queue at cycle start."
-        default: []
 
       - choose:
           - conditions:
@@ -569,27 +497,39 @@ automation:
                       - condition: template
                         value_template: "{{ remaining_count == 0 }}"
                     sequence:
-                      - service: input_boolean.turn_on
-                        target:
-                          entity_id: input_boolean.l10s_vacuum_phase_ready
                       - service: script.send_to_logbook
                         data:
                           topic: "VACUUM"
-                          message: "Queue empty for phase {{ phase }}; phase advance armed for next reseed."
+                          message: "Queue empty for phase {{ phase }}; waiting for completed+docked to advance."
                 default: []
         default: []
 
-  - alias: 'Away Vacuum: Clear Queue on Dock After Completion'
+  - alias: 'Away Vacuum: Advance Phase on Dock After Completion'
     id: 6a2d6d8c-3c67-4e3f-9c97-0a2560890d60
     mode: single
     trigger:
       - platform: state
         entity_id: vacuum.l10s_vacuum
         to: 'docked'
+      - platform: state
+        entity_id: sensor.l10s_vacuum_task_status
+        to: 'completed'
     variables:
       queue_raw: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | trim }}"
-      queue_empty: "{{ queue_raw == '' }}"
+      queue_ints: "{{ queue_raw | regex_findall('[0-9]+') | map('int') | select('gt', 0) | list }}"
+      phase_order: ['sweep_main', 'sweep_bath', 'mop_main', 'mop_bath']
+      phase_state: "{{ states('input_select.l10s_vacuum_phase') }}"
+      phase: "{{ phase_state if phase_state in phase_order else 'sweep_main' }}"
+      phase_index: "{{ phase_order.index(phase) if phase in phase_order else 0 }}"
+      has_next_phase: "{{ phase_index < (phase_order | length) - 1 }}"
+      next_phase: "{{ phase_order[phase_index + 1] if has_next_phase else '' }}"
     condition:
+      - condition: state
+        entity_id: input_boolean.l10s_vacuum_on_demand
+        state: 'on'
+      - condition: state
+        entity_id: vacuum.l10s_vacuum
+        state: 'docked'
       - condition: state
         entity_id: sensor.l10s_vacuum_task_status
         state: 'completed'
@@ -597,23 +537,126 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ queue_empty }}"
+                value_template: "{{ queue_ints | length > 0 }}"
             sequence:
-              - service: input_boolean.turn_on
-                target:
-                  entity_id: input_boolean.l10s_vacuum_phase_ready
               - service: script.send_to_logbook
                 data:
                   topic: "VACUUM"
-                  message: "Docked after completion; queue already empty. Phase advance armed."
+                  message: "Completed+docked but queue still had rooms ({{ queue_raw }}); clearing stale queue."
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.l10s_vacuum_room_queue
+                data:
+                  value: ""
+        default: []
+
+      - choose:
           - conditions:
               - condition: template
-                value_template: "{{ not queue_empty }}"
+                value_template: "{{ has_next_phase }}"
             sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.l10s_vacuum_phase
+                data:
+                  option: "{{ next_phase }}"
               - service: script.send_to_logbook
                 data:
                   topic: "VACUUM"
-                  message: "Docked after completion; queue still has rooms: {{ queue_raw }}."
+                  message: "Completed phase {{ phase }}; advancing to {{ next_phase }}."
+              - service: script.l10s_vacuum_start_next_room
+          - conditions:
+              - condition: template
+                value_template: "{{ not has_next_phase }}"
+            sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.l10s_vacuum_phase
+                data:
+                  option: "sweep_main"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.l10s_vacuum_on_demand
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.l10s_vacuum_room_queue
+                data:
+                  value: ""
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "All phases complete; resetting to sweep_main and disabling On-Demand."
+        default: []
+
+  - alias: 'Away Vacuum: Fallback Advance After Dock Timeout'
+    id: 0b3db0d9-8a13-4e64-9b2b-8162b64b1e6f
+    mode: single
+    trigger:
+      - platform: template
+        value_template: >
+          {{
+            is_state('input_boolean.l10s_vacuum_on_demand', 'on')
+            and is_state('vacuum.l10s_vacuum', 'docked')
+            and (states('input_text.l10s_vacuum_room_queue') | default('', true) | trim == '')
+            and not is_state('sensor.l10s_vacuum_task_status', 'completed')
+          }}
+        for: "00:10:00"
+    variables:
+      phase_order: ['sweep_main', 'sweep_bath', 'mop_main', 'mop_bath']
+      phase_state: "{{ states('input_select.l10s_vacuum_phase') }}"
+      phase: "{{ phase_state if phase_state in phase_order else 'sweep_main' }}"
+      phase_index: "{{ phase_order.index(phase) if phase in phase_order else 0 }}"
+      has_next_phase: "{{ phase_index < (phase_order | length) - 1 }}"
+      next_phase: "{{ phase_order[phase_index + 1] if has_next_phase else '' }}"
+      task_status: "{{ states('sensor.l10s_vacuum_task_status') }}"
+    condition:
+      - condition: state
+        entity_id: input_boolean.l10s_vacuum_on_demand
+        state: 'on'
+      - condition: state
+        entity_id: vacuum.l10s_vacuum
+        state: 'docked'
+      - condition: template
+        value_template: "{{ states('input_text.l10s_vacuum_room_queue') | default('', true) | trim == '' }}"
+      - condition: template
+        value_template: "{{ task_status != 'completed' }}"
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ has_next_phase }}"
+            sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.l10s_vacuum_phase
+                data:
+                  option: "{{ next_phase }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "fallback_advance: docked 10m with empty queue and task_status={{ task_status }}; advancing {{ phase }} -> {{ next_phase }}."
+              - service: script.l10s_vacuum_start_next_room
+          - conditions:
+              - condition: template
+                value_template: "{{ not has_next_phase }}"
+            sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.l10s_vacuum_phase
+                data:
+                  option: "sweep_main"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.l10s_vacuum_on_demand
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.l10s_vacuum_room_queue
+                data:
+                  value: ""
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "fallback_advance: final phase timed out docked 10m with empty queue; resetting to sweep_main and disabling On-Demand."
         default: []
 
   - alias: 'Away Vacuum: Resume From Dock When Queue Exists'

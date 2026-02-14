@@ -14,6 +14,9 @@ exclude:
     - persistent_notification
     - update
   entity_globs:
+    - binary_sensor.*_motion
+    - binary_sensor.*gate_motion
+    - camera.*
     - sensor.*_location
     - sensor.*_place
     - sensor.*_geocoded_location  
@@ -32,6 +35,7 @@ exclude:
     - sensor.*_activity
     - sensor.*_bssid
     - sensor.*_wifi_signal_strength
+    - switch.*_container
     - "*alarm_panel_1*"
     - "*alarm_panel_2*"
   entities:
