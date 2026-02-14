@@ -46,6 +46,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [logbook_activity_feed.yaml](logbook_activity_feed.yaml) | Dummy `sensor.activity_feed` + helper to write clean Activity entries (Issue #1550). | `sensor.activity_feed`, `script.send_to_logbook` |
 | [mariadb_monitoring.yaml](mariadb_monitoring.yaml) | MariaDB health sensors and Lovelace dashboard snippet for recorder stats. | `sensor.mariadb_status`, `sensor.database_size` |
 | [docker_infrastructure.yaml](docker_infrastructure.yaml) | Docker host patching + staggered auto-reboot flow + container-down Repairs alerts. | `sensor.docker_*_apt_status`, `repairs.create`, `repairs.remove` |
+| [infrastructure_observability.yaml](infrastructure_observability.yaml) | Normalized WAN/DNS/backup/domain/cert health sensors used by the Infrastructure Home + Website Health dashboards. | `binary_sensor.infra_*`, `sensor.infra_*`, `script.send_to_logbook` |
 | [mariadb.yaml](mariadb.yaml) | MariaDB recorder health and capacity SQL sensors. | `sensor.mariadb_status`, `sensor.database_size` |
 | [tugtainer_updates.yaml](tugtainer_updates.yaml) | Tugtainer container update notifications via webhook + persistent alerts. | `persistent_notification.create`, `input_datetime.tugtainer_last_update` |
 | [phynplus.yaml](phynplus.yaml) | Phyn shutoff automations with push + Activity feed + Repairs issues for leak events. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `repairs.create` |

@@ -1,0 +1,20 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure View - Website Health
+#  Website uptime + domain expiry + certificate telemetry details.
+# -------------------------------------------------------------------
+# Notes: Home view surfaces only exceptions; this view carries detail.
+######################################################################
+
+title: Website Health
+path: website-health
+type: sections
+icon: mdi:web-check
+theme: default
+badges: []
+sections: !include /config/dashboards/infrastructure/partials/website_health_sections.yaml
+max_columns: 4
+cards: []

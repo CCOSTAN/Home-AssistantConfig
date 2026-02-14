@@ -381,6 +381,46 @@ bearstone_infra_list_row:
     - padding-left: 8px
     - white-space: nowrap
 
+bearstone_infra_alert_row:
+  template: bearstone_infra_list_row
+  # Home view only. Uses JS visibility checks to keep Home "exceptions-only".
+  styles:
+    card:
+    - border-color: rgba(229,57,53,0.25)
+    - background: rgba(255,235,238,0.65)
+    - display: >
+        [[[
+          const kind = (variables && variables.alert_kind) ? String(variables.alert_kind) : '';
+          const minAge = (variables && variables.min_age_s !== undefined) ? Number(variables.min_age_s) : 0;
+          const thr = (variables && variables.threshold !== undefined) ? Number(variables.threshold) : null;
+
+          const stateStr = String(entity && entity.state !== undefined ? entity.state : '');
+          const lastChanged = entity && entity.last_changed ? new Date(entity.last_changed) : null;
+          // If we can't determine age, do not surface time-gated alerts.
+          const ageS = lastChanged ? ((Date.now() - lastChanged.getTime()) / 1000) : 0;
+
+          const num = (entId) => {
+            const v = parseFloat(states[entId] ? states[entId].state : '');
+            return Number.isFinite(v) ? v : null;
+          };
+
+          let show = false;
+          if (kind === 'binary_on') show = (stateStr === 'on');
+          else if (kind === 'binary_off') show = (stateStr === 'off');
+          else if (kind === 'ap_zero') show = (stateStr === '0' && ageS >= minAge);
+          else if (kind === 'disk_high') {
+            const v = parseFloat(stateStr);
+            show = Number.isFinite(v) && (thr !== null ? (v > thr) : (v > 80));
+          } else if (kind === 'speedtest_slow') {
+            const dl = num('sensor.speedtest_download');
+            const ul = num('sensor.speedtest_upload');
+            const t = (thr !== null) ? thr : 300;
+            show = (dl !== null && dl < t) || (ul !== null && ul < t);
+          }
+
+          return show ? 'block' : 'none';
+        ]]]
+
 bearstone_infra_list_row_running:
   template: bearstone_infra_list_row
   state:

@@ -1,0 +1,266 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Observability - Normalized infra monitoring signals
+#  WAN/DNS/backup/website/domain/cert state normalized for dashboards.
+# -------------------------------------------------------------------
+# Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
+# Notes: Domain warning threshold is <30 days; critical threshold is <14 days.
+######################################################################
+
+command_line:
+  - sensor:
+      name: Infra WAN Packet Loss
+      unique_id: infra_wan_packet_loss
+      command: >-
+        ping -q -c 10 -W 1 1.1.1.1 2>/dev/null |
+        awk -F',' '/packet loss/ {gsub(/%| /, "", $3); print $3; found=1}
+        END {if (!found) print "unknown"}'
+      scan_interval: 300
+      unit_of_measurement: "%"
+
+  - sensor:
+      name: Infra WAN Latency Ms
+      unique_id: infra_wan_latency_ms
+      command: >-
+        ping -q -c 10 -W 1 1.1.1.1 2>/dev/null |
+        awk -F'/' '/^rtt|^round-trip/ {print $5; found=1}
+        END {if (!found) print "unknown"}'
+      scan_interval: 300
+      unit_of_measurement: "ms"
+
+  - sensor:
+      name: Infra External IP Fallback
+      unique_id: infra_external_ip_fallback
+      command: "curl -fsS https://api.ipify.org || echo unknown"
+      scan_interval: 900
+
+template:
+  - sensor:
+      - name: "Infra External IP"
+        unique_id: infra_external_ip
+        state: >-
+          {% set primary = states('sensor.external_ip') | trim %}
+          {% set fallback = states('sensor.infra_external_ip_fallback') | trim %}
+          {% if primary not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ primary }}
+          {% else %}
+            {{ fallback }}
+          {% endif %}
+
+      - name: "Infra Backup Age Hours"
+        unique_id: infra_backup_age_hours
+        unit_of_measurement: "h"
+        state: >-
+          {% set stamp = states('sensor.dockerconfigs_backup_date') %}
+          {% set ts = as_datetime(stamp) %}
+          {% if ts is not none %}
+            {{ ((now() - ts).total_seconds() / 3600) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "Infra Domain Expiry Min Days"
+        unique_id: infra_domain_expiry_min_days
+        unit_of_measurement: "d"
+        state: >-
+          {% set ids = [
+            'sensor.vcloudinfo_com_days_until_expiration',
+            'sensor.ipmer_com_days_until_expiration',
+            'sensor.fordst_com_days_until_expiration',
+            'sensor.kingcrafthomes_com_days_until_expiration'
+          ] %}
+          {% set ns = namespace(min=9999, any=false) %}
+          {% for id in ids %}
+            {% if expand(id) | count > 0 %}
+              {% set raw = states(id) %}
+              {% if raw not in ['unknown', 'unavailable', 'none', ''] %}
+                {% set ns.any = true %}
+                {% set val = raw | float(9999) %}
+                {% if val < ns.min %}
+                  {% set ns.min = val %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.any %}
+            {{ ns.min | round(0) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "Infra Cert Expiry Min Days"
+        unique_id: infra_cert_expiry_min_days
+        unit_of_measurement: "d"
+        state: >-
+          {% set ns = namespace(min=9999, any=false) %}
+          {% for item in states.sensor %}
+            {% if item.entity_id is search('(vcloudinfo|ipmer|fordst|kingcrafthomes).*(cert|ssl|tls)') %}
+              {% set raw = item.state %}
+              {% if raw not in ['unknown', 'unavailable', 'none', ''] %}
+                {% set value = raw | float(9999) %}
+                {% if value != 9999 %}
+                  {% set ns.any = true %}
+                  {% if value < ns.min %}
+                    {% set ns.min = value %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.any %}
+            {{ ns.min | round(0) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "Infra Cert Telemetry Count"
+        unique_id: infra_cert_telemetry_count
+        icon: mdi:counter
+        state: >-
+          {% set ns = namespace(count=0) %}
+          {% for item in states.sensor %}
+            {% if item.entity_id is search('(vcloudinfo|ipmer|fordst|kingcrafthomes).*(cert|ssl|tls)') %}
+              {% set ns.count = ns.count + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.count }}
+
+      - name: "Infra Website Down Count"
+        unique_id: infra_website_down_count
+        icon: mdi:counter
+        state: >-
+          {% set ids = [
+            'binary_sensor.vcloudinfo_com',
+            'binary_sensor.ipmer_com',
+            'binary_sensor.fordst_com',
+            'binary_sensor.www_kingcrafthomes_com'
+          ] %}
+          {% set ns = namespace(count=0) %}
+          {% for id in ids %}
+            {% if expand(id) | count > 0 %}
+              {% set st = states(id) %}
+              {% if st in ['off', 'unknown', 'unavailable'] %}
+                {% set ns.count = ns.count + 1 %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.count }}
+
+  - binary_sensor:
+      - name: "Infra WAN Quality Degraded"
+        unique_id: infra_wan_quality_degraded
+        device_class: problem
+        state: >-
+          {% set loss_raw = states('sensor.infra_wan_packet_loss') %}
+          {% set lat_raw = states('sensor.infra_wan_latency_ms') %}
+          {% set invalid = loss_raw in ['unknown', 'unavailable', 'none', ''] or
+                           lat_raw in ['unknown', 'unavailable', 'none', ''] %}
+          {% set loss = loss_raw | float(0) %}
+          {% set lat = lat_raw | float(0) %}
+          {{ invalid or loss > 5 or lat > 80 }}
+
+      - name: "Infra Backup Stale Or Failed"
+        unique_id: infra_backup_stale_or_failed
+        device_class: problem
+        state: >-
+          {% set status = states('sensor.dockerconfigs_backup_status') | lower %}
+          {% set err = states('sensor.dockerconfigs_backup_error_message') | lower %}
+          {% set age = states('sensor.infra_backup_age_hours') | float(9999) %}
+          {% set failed = status in ['failed', 'failure', 'error', 'fatal'] or
+                          'fail' in status or
+                          'error' in status or
+                          err not in ['unknown', 'unavailable', 'none', ''] %}
+          {{ failed or age > 24 }}
+
+      - name: "Infra DNS Pihole Degraded"
+        unique_id: infra_dns_pihole_degraded
+        device_class: problem
+        state: >-
+          {% set switch_state = states('switch.pi_hole') %}
+          {% set service_state = states('binary_sensor.pihole_status') %}
+          {{ switch_state != 'on' or service_state in ['off', 'unavailable', 'unknown'] }}
+
+      - name: "Infra UPS On Battery"
+        unique_id: infra_ups_on_battery
+        device_class: problem
+        state: >-
+          {% set status = states('sensor.garage_ups_status') | upper %}
+          {{ 'OB' in status }}
+
+      - name: "Infra Website Degraded"
+        unique_id: infra_website_degraded
+        device_class: problem
+        state: >-
+          {{ states('sensor.infra_website_down_count') | int(0) > 0 }}
+
+      - name: "Infra Domain Expiry Critical"
+        unique_id: infra_domain_expiry_critical
+        device_class: problem
+        state: >-
+          {% set d = states('sensor.infra_domain_expiry_min_days') %}
+          {% if d in ['unknown', 'unavailable', 'none', ''] %}
+            false
+          {% else %}
+            {{ d | float(9999) < 14 }}
+          {% endif %}
+
+      - name: "Infra Domain Expiry Warning"
+        unique_id: infra_domain_expiry_warning
+        device_class: problem
+        state: >-
+          {% set d = states('sensor.infra_domain_expiry_min_days') %}
+          {% if d in ['unknown', 'unavailable', 'none', ''] %}
+            false
+          {% else %}
+            {% set days = d | float(9999) %}
+            {{ days < 30 and days >= 14 }}
+          {% endif %}
+
+      - name: "Infra Cert Expiry Critical"
+        unique_id: infra_cert_expiry_critical
+        device_class: problem
+        state: >-
+          {% set d = states('sensor.infra_cert_expiry_min_days') %}
+          {% if d in ['unknown', 'unavailable', 'none', ''] %}
+            false
+          {% else %}
+            {{ d | float(9999) < 14 }}
+          {% endif %}
+
+      - name: "Infra Cert Expiry Warning"
+        unique_id: infra_cert_expiry_warning
+        device_class: problem
+        state: >-
+          {% set d = states('sensor.infra_cert_expiry_min_days') %}
+          {% if d in ['unknown', 'unavailable', 'none', ''] %}
+            false
+          {% else %}
+            {% set days = d | float(9999) %}
+            {{ days < 30 and days >= 14 }}
+          {% endif %}
+
+automation:
+  - alias: "Infrastructure - External IP Change Logbook"
+    id: infra_external_ip_change_logbook
+    description: "Log external IP changes into the Activity feed."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: sensor.infra_external_ip
+    condition:
+      - condition: template
+        value_template: "{{ trigger.from_state is not none }}"
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state.state not in ['unknown', 'unavailable', 'none', ''] and
+             trigger.to_state.state not in ['unknown', 'unavailable', 'none', ''] and
+             trigger.from_state.state != trigger.to_state.state }}
+    action:
+      - service: script.send_to_logbook
+        data:
+          topic: "NETWORK"
+          message: >-
+            External IP changed from {{ trigger.from_state.state }} to {{ trigger.to_state.state }}.

@@ -4,216 +4,626 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - Home sections
-#  Rebuilt homepage layout (Stitch-inspired).
+#  Desktop-first infra overview: full-width hero, exceptions-first alerts.
 # -------------------------------------------------------------------
-# Notes: Standardized on `custom:button-card` + `custom:mini-graph-card` with `card_mod` polish.
+# Notes: Default/light theme only; no dark-mode specific styling.
+# Notes: Always keep a full-width container directly below chips.
 ######################################################################
 
-- !include /config/dashboards/infrastructure/partials/infra_top_chips_section.yaml
+- !include /config/dashboards/infrastructure/partials/infra_top_chips_home_section.yaml
 
+# -------------------------------------------------------------------
+# Home hero (mandatory full-width container under chips)
+# -------------------------------------------------------------------
 - type: grid
   column_span: 4
   columns: 1
   square: false
   cards:
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.total_wifi_clients
-    name: Wi-Fi Clients
-    icon: mdi:wifi
-
-- type: grid
-  column_span: 3
-  columns: 3
-  square: false
-  cards:
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
     cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Proxmox01
-    - type: custom:mini-graph-card
-      name: CPU / Memory
-      icon: mdi:server
-      hours_to_show: 24
-      points_per_hour: 2
-      line_width: 2
-      animate: true
-      show:
-        fill: true
-        legend: false
-        icon: true
-        name: true
-        state: true
-      entities:
-      - entity: sensor.node_proxmox1_cpu_used
-        name: CPU
-      - entity: sensor.node_proxmox1_memory_used_percentage
-        name: Memory
-    - type: grid
-      columns: 3
-      square: false
-      cards:
-      - type: custom:button-card
-        template: bearstone_infra_device_tile
-        entity: sensor.qemu_docker69_169_status
-        name: Docker69
-        icon: mdi:docker
-        label: >
-          [[[ return "Last boot: " + (states['sensor.qemu_docker69_169_last_boot']?.state ?? 'unknown'); ]]]
-        variables:
-          button_entity: button.qemu_docker69_169_reboot
-          name: Docker69
-      - type: custom:button-card
-        template: bearstone_infra_device_tile
-        entity: sensor.qemu_carlo_hass_105_status
-        name: HASS
-        icon: mdi:home-assistant
-        label: >
-          [[[ return "Last boot: " + (states['sensor.qemu_carlo_hass_105_last_boot']?.state ?? 'unknown'); ]]]
-        variables:
-          button_entity: button.qemu_carlo_hass_105_reboot
-          name: HASS
-      - type: custom:button-card
-        template: bearstone_infra_device_tile
-        entity: sensor.qemu_wireguard_104_status
-        name: WireGuard
-        icon: mdi:vpn
-        label: >
-          [[[ return "Last boot: " + (states['sensor.qemu_wireguard_104_last_boot']?.state ?? 'unknown'); ]]]
-        variables:
-          button_entity: button.qemu_wireguard_104_reboot
-          name: WireGuard
-
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Proxmox02
-    - type: custom:mini-graph-card
-      name: CPU / Memory
-      icon: mdi:server
-      hours_to_show: 24
-      points_per_hour: 2
-      line_width: 2
-      animate: true
-      show:
-        fill: true
-        legend: false
-        icon: true
-        name: true
-        state: true
-      entities:
-      - entity: sensor.node_proxmox02_cpu_used
-        name: CPU
-      - entity: sensor.node_proxmox02_memory_used_percentage
-        name: Memory
-    - type: grid
-      columns: 1
-      square: false
-      cards:
-      - type: custom:button-card
-        template: bearstone_infra_device_tile
-        entity: sensor.qemu_docker2_101_status
-        name: Frigate
-        icon: mdi:video
-        label: >
-          [[[ return "Last boot: " + (states['sensor.qemu_docker2_101_last_boot']?.state ?? 'unknown'); ]]]
-        variables:
-          button_entity: button.qemu_docker2_101_reboot
-          name: Frigate
-
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Pi-hole
-    - type: custom:pi-hole
-      device_id: d69637da16f7d7f3626070582be59808
+    - type: custom:vertical-stack-in-card
       grid_options:
         columns: full
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Alerts
 
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Network
+        icon: mdi:access-point-network
+        show_state: false
+        tap_action:
+          action: none
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.unifi_ap_office_clients
+        name: Office AP has 0 clients
+        icon: mdi:wifi-alert
+        variables:
+          alert_kind: ap_zero
+          min_age_s: 300
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.unifi_ap_study_clients
+        name: Study AP has 0 clients
+        icon: mdi:wifi-alert
+        variables:
+          alert_kind: ap_zero
+          min_age_s: 300
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.unifi_ap_garage_clients
+        name: Garage AP has 0 clients
+        icon: mdi:wifi-alert
+        variables:
+          alert_kind: ap_zero
+          min_age_s: 300
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.speedtest_download
+        name: Internet speed is slow
+        icon: mdi:speedometer-slow
+        variables:
+          alert_kind: speedtest_slow
+          threshold: 300
+        state_display: >
+          [[[ 
+            const dl = parseFloat(states['sensor.speedtest_download']?.state);
+            const ul = parseFloat(states['sensor.speedtest_upload']?.state);
+            const dlText = Number.isFinite(dl) ? (dl.toFixed(0) + ' Mbps') : 'n/a';
+            const ulText = Number.isFinite(ul) ? (ul.toFixed(0) + ' Mbps') : 'n/a';
+            return `DL ${dlText} | UL ${ulText}`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.speedtest_ping
+        name: WAN latency high
+        icon: mdi:wan
+        variables:
+          alert_kind: disk_high
+          threshold: 80
+        state_display: >
+          [[[ return `${entity.state} ms`; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: switch.pi_hole
+        name: DNS Pi-hole disabled
+        icon: mdi:dns-outline
+        variables:
+          alert_kind: binary_off
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/pihole
+        state_display: >
+          [[[ return `Switch ${entity.state}`; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.pihole_status
+        name: DNS Pi-hole service down
+        icon: mdi:dns
+        variables:
+          alert_kind: binary_off
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/pihole
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.vcloudinfo_com
+        name: vcloudinfo.com is down
+        icon: mdi:web-cancel
+        variables:
+          alert_kind: binary_off
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/website-health
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.www_kingcrafthomes_com
+        name: kingcrafthomes.com is down
+        icon: mdi:web-cancel
+        variables:
+          alert_kind: binary_off
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/website-health
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Domain expiration critical
+        icon: mdi:domain-off
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/website-health
+        state_display: >
+          [[[ 
+            const ids = [
+              'sensor.vcloudinfo_com_days_until_expiration',
+              'sensor.kingcrafthomes_com_days_until_expiration'
+            ];
+            let min = null;
+            ids.forEach((id) => {
+              const raw = states[id]?.state;
+              const n = Number(raw);
+              if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+            });
+            return (min === null) ? 'No data' : `${Math.round(min)} days remaining`;
+          ]]]
+        styles:
+          card:
+          - display: >
+              [[[ 
+                const ids = [
+                  'sensor.vcloudinfo_com_days_until_expiration',
+                  'sensor.kingcrafthomes_com_days_until_expiration'
+                ];
+                let min = null;
+                ids.forEach((id) => {
+                  const n = Number(states[id]?.state);
+                  if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+                });
+                return (min !== null && min < 14) ? 'block' : 'none';
+              ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Domain expiration warning
+        icon: mdi:domain
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/website-health
+        state_display: >
+          [[[ 
+            const ids = [
+              'sensor.vcloudinfo_com_days_until_expiration',
+              'sensor.kingcrafthomes_com_days_until_expiration'
+            ];
+            let min = null;
+            ids.forEach((id) => {
+              const raw = states[id]?.state;
+              const n = Number(raw);
+              if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+            });
+            return (min === null) ? 'No data' : `${Math.round(min)} days remaining`;
+          ]]]
+        styles:
+          card:
+          - display: >
+              [[[ 
+                const ids = [
+                  'sensor.vcloudinfo_com_days_until_expiration',
+                  'sensor.kingcrafthomes_com_days_until_expiration'
+                ];
+                let min = null;
+                ids.forEach((id) => {
+                  const n = Number(states[id]?.state);
+                  if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+                });
+                return (min !== null && min >= 14 && min < 30) ? 'block' : 'none';
+              ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Certificate expiration critical
+        icon: mdi:certificate-outline
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/website-health
+        state_display: >
+          [[[ 
+              const keys = Object.keys(states).filter((k) =>
+                k.startsWith('sensor.') &&
+                /(vcloudinfo|kingcrafthomes)/.test(k) &&
+                /(cert|ssl|tls)/.test(k)
+              );
+            let min = null;
+            keys.forEach((k) => {
+              const n = Number(states[k]?.state);
+              if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+            });
+            return (min === null) ? 'Not available' : `${Math.round(min)} days remaining`;
+          ]]]
+        styles:
+          card:
+          - display: >
+              [[[ 
+                const keys = Object.keys(states).filter((k) =>
+                  k.startsWith('sensor.') &&
+                  /(vcloudinfo|kingcrafthomes)/.test(k) &&
+                  /(cert|ssl|tls)/.test(k)
+                );
+                let min = null;
+                keys.forEach((k) => {
+                  const n = Number(states[k]?.state);
+                  if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+                });
+                return (min !== null && min < 14) ? 'block' : 'none';
+              ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Certificate expiration warning
+        icon: mdi:certificate
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/website-health
+        state_display: >
+          [[[ 
+              const keys = Object.keys(states).filter((k) =>
+                k.startsWith('sensor.') &&
+                /(vcloudinfo|kingcrafthomes)/.test(k) &&
+                /(cert|ssl|tls)/.test(k)
+              );
+            let min = null;
+            keys.forEach((k) => {
+              const n = Number(states[k]?.state);
+              if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+            });
+            return (min === null) ? 'Not available' : `${Math.round(min)} days remaining`;
+          ]]]
+        styles:
+          card:
+          - display: >
+              [[[ 
+                const keys = Object.keys(states).filter((k) =>
+                  k.startsWith('sensor.') &&
+                  /(vcloudinfo|kingcrafthomes)/.test(k) &&
+                  /(cert|ssl|tls)/.test(k)
+                );
+                let min = null;
+                keys.forEach((k) => {
+                  const n = Number(states[k]?.state);
+                  if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+                });
+                return (min !== null && min >= 14 && min < 30) ? 'block' : 'none';
+              ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: System
+        icon: mdi:alert-circle-outline
+        show_state: false
+        tap_action:
+          action: none
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.disk_use_percent
+        name: Home Assistant disk usage high
+        icon: mdi:harddisk
+        variables:
+          alert_kind: disk_high
+          threshold: 80
+        state_display: >
+          [[[ return `${entity.state}% used`; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Backup stale or failed
+        icon: mdi:backup-restore
+        state_display: >
+          [[[ 
+            const s = states['sensor.dockerconfigs_backup_status']?.state ?? 'unknown';
+            const e = states['sensor.dockerconfigs_backup_error_message']?.state ?? '';
+            const d = states['sensor.dockerconfigs_backup_date']?.state;
+            let ageText = 'n/a';
+            if (d && !['unknown','unavailable','none',''].includes(String(d).toLowerCase())) {
+              const dt = new Date(d);
+              if (!Number.isNaN(dt.getTime())) {
+                const h = (Date.now() - dt.getTime()) / 3600000;
+                ageText = `${h.toFixed(1)}h`;
+              }
+            }
+            return `Age ${ageText} | ${s}${e ? ' | error' : ''}`;
+          ]]]
+        styles:
+          card:
+          - display: >
+              [[[ 
+                const status = String(states['sensor.dockerconfigs_backup_status']?.state ?? '').toLowerCase();
+                const err = String(states['sensor.dockerconfigs_backup_error_message']?.state ?? '').toLowerCase();
+                const d = states['sensor.dockerconfigs_backup_date']?.state;
+                let stale = false;
+                if (d && !['unknown','unavailable','none',''].includes(String(d).toLowerCase())) {
+                  const dt = new Date(d);
+                  if (!Number.isNaN(dt.getTime())) stale = ((Date.now() - dt.getTime()) / 3600000) > 24;
+                }
+                const failed = status.includes('fail') || status.includes('error') || err.length > 0;
+                return (stale || failed) ? 'block' : 'none';
+              ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Services
+        icon: mdi:docker
+        show_state: false
+        tap_action:
+          action: none
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.docker_10_apt_reboot_required
+        name: docker_10 needs reboot
+        icon: mdi:restart-alert
+        variables:
+          alert_kind: binary_on
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/docker
+        state_display: >
+          [[[ return 'REBOOT REQUIRED'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.docker_14_apt_reboot_required
+        name: docker_14 needs reboot
+        icon: mdi:restart-alert
+        variables:
+          alert_kind: binary_on
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/docker
+        state_display: >
+          [[[ return 'REBOOT REQUIRED'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.docker_69_apt_reboot_required
+        name: docker_69 needs reboot
+        icon: mdi:restart-alert
+        variables:
+          alert_kind: binary_on
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/docker
+        state_display: >
+          [[[ return 'REBOOT REQUIRED'; ]]]
+
+      - type: custom:auto-entities
+        show_empty: false
+        card:
+          type: custom:layout-card
+          layout_type: custom:grid-layout
+          layout:
+            grid-template-columns: repeat(2, minmax(0, 1fr))
+            grid-auto-flow: row
+            grid-auto-rows: min-content
+            grid-gap: 12px
+            margin: 0
+            mediaquery:
+              "(max-width: 900px)":
+                grid-template-columns: repeat(1, minmax(0, 1fr))
+        card_param: cards
+        filter:
+          include: !include /config/dashboards/infrastructure/partials/docker_container_rows_include.yaml
+          exclude:
+          - state: 'on'
+
+    - type: custom:vertical-stack-in-card
+      grid_options:
+        columns: full
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Datacenter
+      - type: custom:mini-graph-card
+        name: Garage Temp
+        icon: mdi:thermometer
+        hours_to_show: 96
+        points_per_hour: 1
+        line_width: 2
+        smoothing: true
+        show:
+          legend: false
+          labels: false
+          name: true
+          icon: true
+          state: true
+        color_thresholds:
+        - value: 50
+          color: '#f39c12'
+        - value: 120
+          color: '#d35400'
+        - value: 145
+          color: '#c0392b'
+        entities:
+        - entity: sensor.proxmox_garage_average_temperature
+          name: Garage
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+      - type: custom:layout-card
+        layout_type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+          grid-auto-flow: row
+          grid-auto-rows: min-content
+          grid-gap: 12px
+          margin: 0
+          mediaquery:
+            "(max-width: 900px)":
+              grid-template-columns: repeat(1, minmax(0, 1fr))
+        cards:
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.garage_ups_status
+          name: UPS Status
+          icon: mdi:battery-heart-variant
+
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.garage_ups_battery_charge
+          name: UPS Battery
+          icon: mdi:battery-70
+          state_display: >
+            [[[ 
+              const v = Number(entity?.state);
+              return Number.isFinite(v) ? `${v.toFixed(0)}%` : (entity?.state ?? 'unknown');
+            ]]]
+
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.garage_ups_battery_runtime
+          name: Runtime Remaining
+          icon: mdi:timer-outline
+          state_display: >
+            [[[ 
+              const secs = parseInt(entity?.state, 10);
+              if (!Number.isFinite(secs)) return entity?.state ?? 'unknown';
+              const hours = Math.floor(secs / 3600);
+              const mins = Math.floor((secs % 3600) / 60);
+              return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+            ]]]
+
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.garage_ups_status
+          name: On Battery
+          icon: mdi:battery-alert-variant-outline
+          state_display: >
+            [[[ 
+              const s = String(entity?.state || '').toUpperCase();
+              return s.includes('OB') ? 'Yes' : 'No';
+            ]]]
+
+# -------------------------------------------------------------------
+# Overviews (desktop: 2 columns, mobile: stack)
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Wi-Fi Overview
+      - type: custom:mini-graph-card
+        name: Clients
+        icon: mdi:wifi
+        hours_to_show: 24
+        line_width: 2
+        points_per_hour: 1
+        smoothing: true
+        show:
+          graph: line
+          legend: false
+          labels: false
+          name: true
+          icon: true
+          state: true
+        entities:
+        - entity: sensor.total_wifi_clients
+          name: Total
+          show_state: true
+          show_graph: false
+          show_line: false
+          show_points: false
+          show_fill: false
+          show_legend: false
+        - entity: sensor.unifi_ap_office_clients
+          name: Office AP
+          show_state: true
+        - entity: sensor.unifi_ap_study_clients
+          name: Study AP
+          show_state: true
+        - entity: sensor.unifi_ap_garage_clients
+          name: Garage AP
+          show_state: true
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Internet Trend
+      - type: custom:mini-graph-card
+        name: Speedtest
+        icon: mdi:speedometer
+        hours_to_show: 24
+        points_per_hour: 1
+        line_width: 2
+        smoothing: true
+        show:
+          fill: false
+          legend: false
+          labels: false
+          name: true
+          icon: true
+          state: true
+        entities:
+        - entity: sensor.speedtest_download
+          name: Download
+        - entity: sensor.speedtest_upload
+          name: Upload
+
+# -------------------------------------------------------------------
+# Activity highlights (compact)
+# -------------------------------------------------------------------
 - type: grid
   column_span: 4
   columns: 1
   square: false
   cards:
   - type: custom:vertical-stack-in-card
+    grid_options:
+      columns: full
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
     cards:
     - type: custom:button-card
       template: bearstone_infra_panel_header
-      name: Wi-Fi Overview
-    - type: custom:mini-graph-card
-      name: Clients
-      icon: mdi:wifi
+      name: Activity Highlights
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/activity
+    - type: logbook
+      target:
+        entity_id:
+        - sensor.activity_feed
       hours_to_show: 24
-      line_width: 2
-      points_per_hour: 1
-      smoothing: true
-      show:
-        graph: line
-        legend: false
-        labels: false
-        name: true
-        icon: true
-        state: true
-      entities:
-      - entity: sensor.total_wifi_clients
-        name: Total
-        show_state: true
-        show_graph: false
-        show_line: false
-        show_points: false
-        show_fill: false
-        show_legend: false
-      - entity: sensor.unifi_ap_office_clients
-        name: Office AP
-        show_state: true
-      - entity: sensor.unifi_ap_study_clients
-        name: Study AP
-        show_state: true
-      - entity: sensor.unifi_ap_garage_clients
-        name: Garage AP
-        show_state: true
-    - type: grid
-      columns: 3
-      square: false
-      cards:
-      - type: custom:button-card
-        template: bearstone_infra_device_tile
-        name: Garage AP
-        icon: mdi:access-point
-        entity: sensor.unifi_ap_garage_clients
-        label: >
-          [[[ return "Uptime: " + (states['sensor.unifi_ap_garage_uptime']?.state ?? 'unknown'); ]]]
-        variables:
-          button_entity: button.unifi_ap_garage_restart
-          name: Garage AP
-      - type: custom:button-card
-        template: bearstone_infra_device_tile
-        name: Office AP
-        icon: mdi:access-point
-        entity: sensor.unifi_ap_office_clients
-        label: >
-          [[[ return "Uptime: " + (states['sensor.unifi_ap_office_uptime']?.state ?? 'unknown'); ]]]
-        variables:
-          button_entity: button.unifi_ap_office_restart
-          name: Office AP
-      - type: custom:button-card
-        template: bearstone_infra_device_tile
-        name: Study AP
-        icon: mdi:access-point
-        entity: sensor.unifi_ap_study_clients
-        label: >
-          [[[ return "Uptime: " + (states['sensor.unifi_ap_study_uptime']?.state ?? 'unknown'); ]]]
-        variables:
-          button_entity: button.unifi_ap_study_restart
-          name: Study AP

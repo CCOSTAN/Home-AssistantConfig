@@ -1,0 +1,236 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - Website health sections
+#  Website uptime + domain expiry + certificate telemetry detail view.
+# -------------------------------------------------------------------
+# Notes: Keep a full-width container directly below chips to avoid whitespace.
+######################################################################
+
+- !include /config/dashboards/infrastructure/partials/infra_top_chips_section.yaml
+
+# -------------------------------------------------------------------
+# Website hero (mandatory full-width container under chips)
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      grid_options:
+        columns: full
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Website Uptime
+      - type: custom:layout-card
+        layout_type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+          grid-auto-flow: row
+          grid-auto-rows: min-content
+          grid-gap: 12px
+          margin: 0
+          mediaquery:
+            "(max-width: 900px)":
+              grid-template-columns: repeat(1, minmax(0, 1fr))
+        cards:
+        - type: custom:button-card
+          template: bearstone_infra_list_row_running
+          entity: binary_sensor.vcloudinfo_com
+          name: vcloudinfo.com
+          icon: mdi:web
+          state_display: >
+            [[[ return entity.state === 'on' ? 'UP' : (entity.state || 'unknown').toUpperCase(); ]]]
+        - type: custom:button-card
+          template: bearstone_infra_list_row_running
+          entity: binary_sensor.www_kingcrafthomes_com
+          name: kingcrafthomes.com
+          icon: mdi:web
+          state_display: >
+            [[[ return entity.state === 'on' ? 'UP' : (entity.state || 'unknown').toUpperCase(); ]]]
+        - type: custom:button-card
+          template: bearstone_infra_list_row_running
+          entity: binary_sensor.bear_stone
+          name: Bear Stone
+          icon: mdi:web-check
+          state_display: >
+            [[[ return entity.state === 'on' ? 'UP' : (entity.state || 'unknown').toUpperCase(); ]]]
+
+    - type: custom:vertical-stack-in-card
+      grid_options:
+        columns: full
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Domain Expiry
+      - type: custom:layout-card
+        layout_type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+          grid-auto-flow: row
+          grid-auto-rows: min-content
+          grid-gap: 12px
+          margin: 0
+          mediaquery:
+            "(max-width: 900px)":
+              grid-template-columns: repeat(1, minmax(0, 1fr))
+        cards:
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.vcloudinfo_com_days_until_expiration
+          name: vcloudinfo.com
+          icon: mdi:calendar-clock
+          state_display: >
+            [[[ 
+              const days = states['sensor.vcloudinfo_com_days_until_expiration']?.state ?? 'n/a';
+              const expRaw = states['sensor.vcloudinfo_com_expires']?.state;
+              let exp = 'n/a';
+              const s = String(expRaw ?? '');
+              if (s && !['unknown','unavailable','none',''].includes(s.toLowerCase())) {
+                if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+                  exp = s.slice(0, 10);
+                } else {
+                  const dt = new Date(s);
+                  if (!Number.isNaN(dt.getTime())) {
+                    const y = dt.getFullYear();
+                    const m = String(dt.getMonth() + 1).padStart(2, '0');
+                    const d = String(dt.getDate()).padStart(2, '0');
+                    exp = `${y}-${m}-${d}`;
+                  }
+                }
+              }
+              return `${days}d | ${exp}`;
+            ]]]
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.kingcrafthomes_com_days_until_expiration
+          name: kingcrafthomes.com
+          icon: mdi:calendar-clock
+          state_display: >
+            [[[ 
+              const days = states['sensor.kingcrafthomes_com_days_until_expiration']?.state ?? 'n/a';
+              const expRaw = states['sensor.kingcrafthomes_com_expires']?.state;
+              let exp = 'n/a';
+              const s = String(expRaw ?? '');
+              if (s && !['unknown','unavailable','none',''].includes(s.toLowerCase())) {
+                if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+                  exp = s.slice(0, 10);
+                } else {
+                  const dt = new Date(s);
+                  if (!Number.isNaN(dt.getTime())) {
+                    const y = dt.getFullYear();
+                    const m = String(dt.getMonth() + 1).padStart(2, '0');
+                    const d = String(dt.getDate()).padStart(2, '0');
+                    exp = `${y}-${m}-${d}`;
+                  }
+                }
+              }
+              return `${days}d | ${exp}`;
+            ]]]
+
+# -------------------------------------------------------------------
+# Certificate health
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:vertical-stack-in-card
+    grid_options:
+      columns: full
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Certificate Health
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      name: Cert telemetry sensors
+      icon: mdi:certificate-outline
+      state_display: >
+        [[[ 
+          const keys = Object.keys(states).filter((k) =>
+            k.startsWith('sensor.') &&
+            /(vcloudinfo|kingcrafthomes)/.test(k) &&
+            /(cert|ssl|tls)/.test(k)
+          );
+          return keys.length === 0 ? 'Missing (domain expiry only)' : `${keys.length} sensor(s)`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      name: Minimum cert days remaining
+      icon: mdi:calendar-alert
+      state_display: >
+        [[[ 
+          const keys = Object.keys(states).filter((k) =>
+            k.startsWith('sensor.') &&
+            /(vcloudinfo|kingcrafthomes)/.test(k) &&
+            /(cert|ssl|tls)/.test(k)
+          );
+          let min = null;
+          keys.forEach((k) => {
+            const n = Number(states[k]?.state);
+            if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+          });
+          return (min === null) ? 'Not available' : `${Math.round(min)} days`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      name: Cert warning (< 30d)
+      icon: mdi:alert-outline
+      state_display: >
+        [[[ 
+          const keys = Object.keys(states).filter((k) =>
+            k.startsWith('sensor.') &&
+            /(vcloudinfo|kingcrafthomes)/.test(k) &&
+            /(cert|ssl|tls)/.test(k)
+          );
+          let min = null;
+          keys.forEach((k) => {
+            const n = Number(states[k]?.state);
+            if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+          });
+          return (min !== null && min < 30 && min >= 14) ? 'ALERT' : 'OK';
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      name: Cert critical (< 14d)
+      icon: mdi:alert-circle
+      state_display: >
+        [[[ 
+          const keys = Object.keys(states).filter((k) =>
+            k.startsWith('sensor.') &&
+            /(vcloudinfo|kingcrafthomes)/.test(k) &&
+            /(cert|ssl|tls)/.test(k)
+          );
+          let min = null;
+          keys.forEach((k) => {
+            const n = Number(states[k]?.state);
+            if (Number.isFinite(n)) min = (min === null) ? n : Math.min(min, n);
+          });
+          return (min !== null && min < 14) ? 'ALERT' : 'OK';
+        ]]]

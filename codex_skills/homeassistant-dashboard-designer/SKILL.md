@@ -78,6 +78,8 @@ Tier 2 (fallback, must justify in comments):
 - No freeform positioning
 - No layout logic embedded in `card-mod`
 - For dense tile lists in `type: sections` views, keep the outer panel full-width (`column_span: 4`) and make the inner tile grid responsive using `custom:layout-card` (`4` desktop / `2` mobile unless the user asks otherwise).
+- In `type: sections` views, the first section immediately below top chips/badges must be a full-width container (`column_span: 4`) with a single wrapper card that also sets `grid_options.columns: full` to prevent skinny-column whitespace.
+- Consolidate upward after removals/moves: do not leave dead space, empty placeholders, or intentionally sparse rows unless the user explicitly asks for whitespace.
 
 Note: If the repo/view uses Home Assistant `type: sections`, treat `sections` as the top-level structure and enforce the same container rules inside each section (sections should contain only `grid`/`vertical-stack` cards and their children).
 
@@ -138,14 +140,50 @@ Card types limited to: custom:button-card, card-mod, custom:flex-horseshoe-card,
 Max layout nesting depth: 2. No horizontal-stack inside grid cells.
 ```
 
+## Optional Stitch Handoff (Light Bridge)
+
+Use this only when the user explicitly asks for visual ideation, layout exploration, or variants.
+
+- Trigger Stitch path:
+  - User asks for redesign inspiration, variants, or multiple visual directions.
+- Skip Stitch path:
+  - User asks for direct dashboard refactor/update and no ideation is needed.
+- Preconditions:
+  - Stitch is used for hierarchy/spacing/grouping ideation only.
+  - Stitch output must never be copied as implementation code.
+  - Final implementation must still obey all allowed card/layout rules in this skill.
+
+Handoff artifact (summary only, no code export):
+
+```yaml
+stitch_intent:
+  layout_pattern: "<grid and grouping pattern to translate>"
+  section_hierarchy: "<header/panel/section ordering>"
+  density_target: "<compact|balanced|spacious>"
+  cards_to_translate:
+    - "<visual card concept mapped to allowed Lovelace card types>"
+```
+
+Translation requirement:
+- Convert `stitch_intent` into approved Lovelace structures only (`grid`, `vertical-stack`, Tier 1 cards first).
+- Re-map any unsupported Stitch concepts to compliant cards/containers and explain fallback choices inline when Tier 2 is required.
+
+Fallback behavior when Stitch is unavailable:
+- Continue with manual ideation using this skill's design system and rules.
+- State degraded mode clearly ("Stitch unavailable; proceeding with manual hierarchy/density planning").
+- Do not block dashboard work on Stitch availability.
+
 ## Workflow (Do This In Order)
 
 1. Read the target dashboard/view/partials/templates to understand existing patterns and avoid drift.
 2. Determine intent from the user's request and existing dashboard context: `infra` (NOC), `home`, `energy`, or `environment`. Keep one intent per view.
 3. Validate entities and services before editing:
    - Prefer the Home Assistant MCP for live entity/service validation (required when available).
+   - Record the MCP validation step in the work notes before writing YAML.
    - If MCP is not available, ask the user to confirm entity IDs and services (do not guess).
 4. Draft layout with constraints: a top-level `grid` and optional `vertical-stack` groups.
+   - If using Stitch, first summarize `stitch_intent` and treat it as advisory input to this step.
+   - After removals, reflow cards/sections upward to collapse gaps and reduce empty rows.
 5. Implement using Tier 1 cards first; reuse existing templates; avoid one-off styles.
 6. If fallback cards are necessary, add an inline comment explaining why Tier 1 cannot satisfy the requirement.
 7. Validate:
@@ -154,6 +192,9 @@ Max layout nesting depth: 2. No horizontal-stack inside grid cells.
 8. Failure behavior:
    - If requirements can't be met: state the violated rule and propose a compliant alternative.
    - If validation fails: stop, surface the error output, and propose corrected YAML. Do not leave invalid config applied.
+
+Example flow:
+- User asks for redesign inspiration -> Stitch ideation with required constraints -> summarize `stitch_intent` -> translate to Lovelace-safe YAML -> run validation checks.
 
 ## References
 

@@ -1,0 +1,19 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure View - Pi-hole
+#  Dedicated Pi-hole view after Docker.
+# -------------------------------------------------------------------
+# Notes: Full-width sections layout for Pi-hole telemetry/control card.
+######################################################################
+
+title: Pi-hole
+path: pihole
+type: sections
+icon: mdi:pi-hole
+theme: default
+badges: []
+sections: !include /config/dashboards/infrastructure/partials/pihole_sections.yaml
+max_columns: 4

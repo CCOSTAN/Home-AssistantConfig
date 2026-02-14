@@ -1,0 +1,28 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - Pi-hole sections
+#  Dedicated full-width Pi-hole panel.
+# -------------------------------------------------------------------
+# Notes: Uses `custom:pi-hole` with existing device_id.
+######################################################################
+
+- !include /config/dashboards/infrastructure/partials/infra_top_chips_section.yaml
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:vertical-stack-in-card
+    grid_options:
+      columns: full
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:pi-hole
+      device_id: d69637da16f7d7f3626070582be59808
+      grid_options:
+        columns: full

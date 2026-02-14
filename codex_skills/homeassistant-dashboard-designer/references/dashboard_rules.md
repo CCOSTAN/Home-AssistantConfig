@@ -25,9 +25,12 @@ Tier 2 (fallback, only when Tier 1 cannot satisfy the requirement; justify inlin
 - No freeform positioning
 - No layout logic embedded in `card-mod`
 - For dense status/container lists in `type: sections` views, keep the panel full-width (`column_span: 4`) and use a responsive inner grid (`4` desktop / `2` mobile by default).
+- In `type: sections` views, always place a full-width wrapper section directly below top chips/badges and set the wrapper card to `grid_options.columns: full`.
+- Consolidate layout vertically after any move/remove; dead space is disallowed unless explicitly requested.
 
 Sections-mode note:
 - If a view uses `type: sections`, treat `sections` as the top-level structure and enforce the same container rules inside each section.
+- Prefer reducing section count and regrouping cards into earlier rows rather than leaving sparse trailing space.
 
 ## Template Architecture (Required)
 
@@ -110,6 +113,37 @@ Grid-only layout. No absolute positioning. No JS frameworks. No custom HTML/CSS 
 Card types limited to: custom:button-card, card-mod, custom:flex-horseshoe-card, custom:mini-graph-card, and HA core fallback cards only if unavoidable.
 Max layout nesting depth: 2. No horizontal-stack inside grid cells.
 ```
+
+## Optional Stitch Handoff (Light Bridge)
+
+Decision rule:
+- Use Stitch only when the user requests visual ideation, variants, or exploration.
+- For normal refactor/update requests, skip Stitch and implement directly with this skill's rules.
+
+Handoff artifact (advisory summary, not implementation code):
+
+```yaml
+stitch_intent:
+  layout_pattern: "<grid and grouping pattern to translate>"
+  section_hierarchy: "<header/panel/section ordering>"
+  density_target: "<compact|balanced|spacious>"
+  cards_to_translate:
+    - "<visual card concept mapped to allowed Lovelace card types>"
+```
+
+Required translation back to Lovelace:
+- Treat `stitch_intent` as input to layout planning only.
+- Implement using approved containers/cards and template architecture from this document.
+- For any unsupported concept, re-map to compliant cards and justify Tier 2 fallback inline.
+
+Degraded mode:
+- If Stitch or Stitch skills are unavailable, continue with manual hierarchy/spacing ideation.
+- Do not block dashboard work on Stitch availability.
+
+Anti-drift checklist:
+- No HTML/CSS export artifacts from Stitch output.
+- No nesting-depth violations (max 2).
+- No card-type drift outside approved Tier 1/Tier 2 lists.
 
 ## Repo-Specific Dashboard YAML Rules (config/dashboards/**)
 
