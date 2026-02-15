@@ -25,7 +25,7 @@ Codex skills stored in-repo so they can be shared with the community. These are 
 ## Skills
 
 - `homeassistant-dashboard-designer/`: Constrained, button-card-first Lovelace dashboard design system + YAML lint helper.
-- `infrastructure-doc-sync/`: Session closeout workflow to update AGENTS/README/Infra Info snapshot consistently after infra changes.
+- `infrastructure-doc-sync/`: Session closeout workflow to update AGENTS/README/Dashy shortcuts/Infra Info snapshot consistently after infra changes.
 
 ### Notes
 - Codex loads skills from your local Codex home. See each skill folder for install steps.
