@@ -1,0 +1,25 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Telegram Bot Helpers - Joanna/BearClaw Telegram send wrappers
+#  Script wrappers for Telegram messaging using UI-configured integration.
+# -------------------------------------------------------------------
+# Notes: Do not add `telegram_bot:` YAML here; integration is UI-only.
+######################################################################
+
+script:
+  joanna_send_telegram:
+    alias: Joanna Send Telegram
+    description: Sends a Telegram message to Carlo's allowed chat id.
+    mode: queued
+    fields:
+      message:
+        description: Message body to send.
+        example: Joanna is online.
+    sequence:
+      - service: telegram_bot.send_message
+        data:
+          target: !secret telegram_allowed_chat_id_carlo
+          message: "{{ message }}"

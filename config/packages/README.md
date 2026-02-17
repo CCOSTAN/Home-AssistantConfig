@@ -49,6 +49,8 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [infrastructure_observability.yaml](infrastructure_observability.yaml) | Normalized WAN/DNS/backup/domain/cert health sensors used by the Infrastructure Home + Website Health dashboards. | `binary_sensor.infra_*`, `sensor.infra_*`, `script.send_to_logbook` |
 | [mariadb.yaml](mariadb.yaml) | MariaDB recorder health and capacity SQL sensors. | `sensor.mariadb_status`, `sensor.database_size` |
 | [tugtainer_updates.yaml](tugtainer_updates.yaml) | Tugtainer container update notifications via webhook + persistent alerts. | `persistent_notification.create`, `input_datetime.tugtainer_last_update` |
+| [bearclaw.yaml](bearclaw.yaml) | Joanna/BearClaw bridge automations that forward Telegram commands to codex_appliance and relay replies back. | `rest_command.bearclaw_*`, `automation.bearclaw_*`, webhook relay |
+| [telegram_bot.yaml](telegram_bot.yaml) | Telegram script wrappers used by BearClaw and other ops flows (UI integration remains the source for bot config). | `script.joanna_send_telegram`, `telegram_bot.send_message` |
 | [phynplus.yaml](phynplus.yaml) | Phyn shutoff automations with push + Activity feed + Repairs issues for leak events. | `valve.phyn_shutoff_valve`, `binary_sensor.phyn_leak_test_running`, `repairs.create` |
 | [water_delivery.yaml](water_delivery.yaml) | ReadyRefresh delivery date helper with night-before + garage door Alexa reminders. | `input_datetime.water_delivery_date`, `notify.alexa_media_garage` |
 | [powerwall.yaml](powerwall.yaml) | Track Tesla Powerwall grid status and shed loads automatically when off-grid (alerts include Activity feed + Repairs). | `binary_sensor.powerwall_grid_status`, `sensor.powerwall_*`, `repairs.create` |

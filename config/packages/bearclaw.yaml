@@ -1,0 +1,120 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# BearClaw Bridge - Telegram and webhook glue for Joanna agent
+#  Routes Telegram -> codex_appliance and codex_appliance -> Telegram/HA.
+# -------------------------------------------------------------------
+# Notes: Keep BearClaw transport + bridge logic centralized in this package.
+######################################################################
+
+rest_command:
+  bearclaw_command:
+    url: !secret bearclaw_command_url
+    method: post
+    content_type: application/json
+    headers:
+      x-codex-token: !secret bearclaw_token
+    payload: >
+      {
+        "text": {{ text | tojson }},
+        "user": {{ user | default('carlo') | tojson }},
+        "source": {{ source | default('home_assistant') | tojson }}
+      }
+
+  bearclaw_ingest:
+    url: !secret bearclaw_ingest_url
+    method: post
+    content_type: application/json
+    headers:
+      x-codex-token: !secret bearclaw_token
+    payload: >
+      {
+        "summary": {{ summary | default('event') | tojson }},
+        "wake": {{ wake | default(false) | tojson }},
+        "source": "home_assistant"
+      }
+
+automation:
+  - id: bearclaw_telegram_bear_command
+    alias: BearClaw Telegram Bear Command
+    description: Handles /bear commands and forwards text to Joanna.
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: /bear
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.user_id is defined }}"
+    action:
+      - variables:
+          command_text: "{{ (trigger.event.data.args | default([])) | join(' ') | trim }}"
+          from_user: "{{ (trigger.event.data.from_first | default('carlo')) | lower }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ command_text == '' }}"
+            sequence:
+              - service: script.joanna_send_telegram
+                data:
+                  message: "Usage: /bear <message>"
+        default:
+          - service: rest_command.bearclaw_command
+            data:
+              text: "{{ command_text }}"
+              user: "{{ from_user }}"
+              source: telegram_command
+
+  - id: bearclaw_telegram_text_no_slash_needed
+    alias: BearClaw Telegram Text No Slash Needed
+    description: Treats plain Telegram text as BearClaw command input.
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: telegram_text
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.user_id is defined }}"
+      - condition: template
+        value_template: "{{ (trigger.event.data.text | default('') | trim) != '' }}"
+      - condition: template
+        value_template: "{{ not (trigger.event.data.text | default('') | trim).startswith('/') }}"
+    action:
+      - variables:
+          plain_text: "{{ trigger.event.data.text | default('') | trim }}"
+          from_user: "{{ (trigger.event.data.from_first | default('carlo')) | lower }}"
+      - service: rest_command.bearclaw_command
+        data:
+          text: "{{ plain_text }}"
+          user: "{{ from_user }}"
+          source: telegram_text
+
+  - id: bearclaw_reply_webhook
+    alias: BearClaw Reply Webhook
+    description: Receives BearClaw replies from codex_appliance and relays to Telegram/HA push.
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret bearclaw_reply_webhook_id
+        allowed_methods:
+          - POST
+        local_only: true
+    action:
+      - variables:
+          message: "{{ trigger.json.message | default('Joanna: empty reply') }}"
+          level: "{{ trigger.json.level | default('active') | lower }}"
+      - service: script.joanna_send_telegram
+        data:
+          message: "{{ message }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ level in ['warning', 'error', 'critical'] }}"
+            sequence:
+              - service: script.notify_engine
+                data:
+                  title: Joanna Alert
+                  value1: "{{ message }}"

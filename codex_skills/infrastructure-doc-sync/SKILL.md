@@ -23,7 +23,7 @@ Keep infrastructure documentation aligned after operational changes.
    - `codex_skills/README.md` (if adding/updating skills)
 3. Dashy shortcuts (if any service URL/host changed):
    - `h:\hass\docker_files\dashy/conf.yml`
-   - Reload Dashy on docker_10 after edits: `ssh hass@192.168.10.10 "cd ~/docker_files && docker compose up -d dashy"`
+   - Reload Dashy on docker_17 after edits: `ssh hass@192.168.10.17 "cd ~/docker_files && docker compose up -d dashy"`
 4. Infra Info snapshot JSON:
    - `docker_69:/home/hass/docker_files/infra_info/data/overview.json`
 
@@ -51,7 +51,7 @@ Keep infrastructure documentation aligned after operational changes.
 - Prefer stable hostnames (ex: `docker17`) over raw IPs when available.
 - Prefer Cloudflare/public URLs for internet-facing apps where appropriate.
 - Keep "Vibe Apps" grouped under the existing Dashy section unless the user asks for taxonomy changes.
-- After edits, reload only Dashy (avoid restarting other docker_10 services).
+- After edits, reload only Dashy (avoid restarting other docker_17 services).
 
 ## Output Contract
 
