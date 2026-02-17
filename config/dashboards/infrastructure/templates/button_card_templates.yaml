@@ -165,11 +165,8 @@ bearstone_infra_apt_prune_tile:
   label: >-
     [[[
       const lastSensor = variables.last_update_sensor ? variables.last_update_sensor : '';
-      const rebootSensor = variables.reboot_status_sensor ? variables.reboot_status_sensor : '';
       const lastValue = lastSensor ? (states[lastSensor]?.state ?? 'unknown') : 'unknown';
-      const rebootValue = rebootSensor ? (states[rebootSensor]?.state ?? '') : '';
-      const rebootText = rebootValue ? (" | " + rebootValue) : '';
-      return "Last update: " + lastValue + rebootText + " | Hold to prune";
+      return "Last update: " + lastValue + " | Hold to prune";
     ]]]
 
 bearstone_infra_container_row:

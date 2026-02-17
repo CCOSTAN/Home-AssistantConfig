@@ -365,45 +365,6 @@
         tap_action:
           action: none
 
-      - type: custom:button-card
-        template: bearstone_infra_alert_row
-        entity: binary_sensor.docker_10_apt_reboot_required
-        name: docker_10 needs reboot
-        icon: mdi:restart-alert
-        variables:
-          alert_kind: binary_on
-        tap_action:
-          action: navigate
-          navigation_path: /dashboard-infrastructure/docker
-        state_display: >
-          [[[ return 'REBOOT REQUIRED'; ]]]
-
-      - type: custom:button-card
-        template: bearstone_infra_alert_row
-        entity: binary_sensor.docker_14_apt_reboot_required
-        name: docker_14 needs reboot
-        icon: mdi:restart-alert
-        variables:
-          alert_kind: binary_on
-        tap_action:
-          action: navigate
-          navigation_path: /dashboard-infrastructure/docker
-        state_display: >
-          [[[ return 'REBOOT REQUIRED'; ]]]
-
-      - type: custom:button-card
-        template: bearstone_infra_alert_row
-        entity: binary_sensor.docker_69_apt_reboot_required
-        name: docker_69 needs reboot
-        icon: mdi:restart-alert
-        variables:
-          alert_kind: binary_on
-        tap_action:
-          action: navigate
-          navigation_path: /dashboard-infrastructure/docker
-        state_display: >
-          [[[ return 'REBOOT REQUIRED'; ]]]
-
       - type: custom:auto-entities
         show_empty: false
         card:
@@ -602,28 +563,3 @@
         - entity: sensor.speedtest_upload
           name: Upload
 
-# -------------------------------------------------------------------
-# Activity highlights (compact)
-# -------------------------------------------------------------------
-- type: grid
-  column_span: 4
-  columns: 1
-  square: false
-  cards:
-  - type: custom:vertical-stack-in-card
-    grid_options:
-      columns: full
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Activity Highlights
-      tap_action:
-        action: navigate
-        navigation_path: /dashboard-infrastructure/activity
-    - type: logbook
-      target:
-        entity_id:
-        - sensor.activity_feed
-      hours_to_show: 24

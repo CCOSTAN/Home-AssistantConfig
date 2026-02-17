@@ -6,7 +6,7 @@
 # Infrastructure View - APT updates (3-column layout)
 #  Paste this view into the Infrastructure dashboard (storage mode).
 # -------------------------------------------------------------------
-# Notes: Uses `sensor.docker_*` entities from `config/packages/apt_updates.yaml`.
+# Notes: Uses `sensor.docker_*` entities from `config/packages/docker_infrastructure.yaml`.
 ######################################################################
 
 title: "Infrastructure - APT Updates"
@@ -25,7 +25,6 @@ sections:
           - entity: sensor.docker_10_apt_status
           - entity: sensor.docker_10_apt_last_check
           - entity: sensor.docker_10_apt_last_update
-          - entity: sensor.docker_10_apt_reboot_status
 
       - type: entities
         title: docker_14
@@ -34,7 +33,14 @@ sections:
           - entity: sensor.docker_14_apt_status
           - entity: sensor.docker_14_apt_last_check
           - entity: sensor.docker_14_apt_last_update
-          - entity: sensor.docker_14_apt_reboot_status
+
+      - type: entities
+        title: docker_17
+        show_header_toggle: false
+        entities:
+          - entity: sensor.docker_17_apt_status
+          - entity: sensor.docker_17_apt_last_check
+          - entity: sensor.docker_17_apt_last_update
 
       - type: entities
         title: docker_69
@@ -43,4 +49,3 @@ sections:
           - entity: sensor.docker_69_apt_status
           - entity: sensor.docker_69_apt_last_check
           - entity: sensor.docker_69_apt_last_update
-          - entity: sensor.docker_69_apt_reboot_status

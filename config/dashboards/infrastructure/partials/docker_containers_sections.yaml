@@ -35,7 +35,7 @@
 
 - type: grid
   column_span: 4
-  columns: 3
+  columns: 4
   square: false
   cards:
   - type: custom:button-card
@@ -44,16 +44,22 @@
     entity: sensor.docker_10_apt_status
     variables:
       last_update_sensor: sensor.docker_10_apt_last_update
-      reboot_status_sensor: sensor.docker_10_apt_reboot_status
       prune_button: button.carlo_hass_prune_unused_images
       name: docker_10
+  - type: custom:button-card
+    template: bearstone_infra_apt_prune_tile
+    name: docker_17
+    entity: sensor.docker_17_apt_status
+    variables:
+      last_update_sensor: sensor.docker_17_apt_last_update
+      prune_button: button.docker17_prune_unused_images
+      name: docker_17
   - type: custom:button-card
     template: bearstone_infra_apt_prune_tile
     name: docker_69
     entity: sensor.docker_69_apt_status
     variables:
       last_update_sensor: sensor.docker_69_apt_last_update
-      reboot_status_sensor: sensor.docker_69_apt_reboot_status
       prune_button: button.docker69_prune_unused_images
       name: docker_69
   - type: custom:button-card
@@ -62,7 +68,6 @@
     entity: sensor.docker_14_apt_status
     variables:
       last_update_sensor: sensor.docker_14_apt_last_update
-      reboot_status_sensor: sensor.docker_14_apt_reboot_status
       prune_button: button.docker2_prune_unused_images
       name: docker_14
 

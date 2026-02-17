@@ -90,6 +90,15 @@
     variables:
       restart_button: button.dozzle_agent_14_restart_container
       name: dozzle_agent_14
+- entity_id: binary_sensor.dozzle_agent_17_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: dozzle_agent_17
+    icon: mdi:docker
+    variables:
+      restart_button: button.dozzle_agent_17_restart_container
+      name: dozzle_agent_17
 - entity_id: binary_sensor.dozzle_status
   options:
     type: custom:button-card
@@ -117,6 +126,15 @@
     variables:
       restart_button: button.esphome_restart_container
       name: esphome
+- entity_id: binary_sensor.fed437a0f191_tugtainer_socket_proxy_status
+  options:
+    type: custom:button-card
+    template: bearstone_infra_container_row
+    name: fed437a0f191_tugtainer_socket_proxy
+    icon: mdi:docker
+    variables:
+      restart_button: button.fed437a0f191_tugtainer_socket_proxy_restart_container
+      name: fed437a0f191_tugtainer_socket_proxy
 - entity_id: binary_sensor.foodie_tracker_status
   options:
     type: custom:button-card

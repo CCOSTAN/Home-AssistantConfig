@@ -4,11 +4,11 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Docker Infrastructure - Host patching and container alerts
-#  APT webhook results and container down repairs.
+#  APT webhook results (docker_10/14/17/69) and container down repairs.
 # -------------------------------------------------------------------
 # Notes: Hosts run weekly Wed 12:00 APT job and POST JSON to webhooks.
-# Notes: If reboot is required, hosts auto-schedule reboot after posting status.
-# Notes: Reboot staggering: docker_14 reboots first, docker_10 reboots later.
+# Notes: Reboots are handled directly on each host by apt_weekly.sh.
+# Notes: Reboot staggering: docker_14 first, docker_69 second, docker_10 third.
 # Notes: Container watchlist is explicit; extend entity list as needed.
 ######################################################################
 
@@ -19,6 +19,14 @@ input_datetime:
     has_time: true
   apt_docker_10_last_update:
     name: "docker_10 APT last update"
+    has_date: true
+    has_time: true
+  apt_docker_17_last_check:
+    name: "docker_17 APT last check"
+    has_date: true
+    has_time: true
+  apt_docker_17_last_update:
+    name: "docker_17 APT last update"
     has_date: true
     has_time: true
   apt_docker_14_last_check:
@@ -42,23 +50,15 @@ input_text:
   apt_docker_10_last_result:
     name: "docker_10 APT last result"
     max: 255
+  apt_docker_17_last_result:
+    name: "docker_17 APT last result"
+    max: 255
   apt_docker_14_last_result:
     name: "docker_14 APT last result"
     max: 255
   apt_docker_69_last_result:
     name: "docker_69 APT last result"
     max: 255
-
-input_boolean:
-  apt_docker_10_reboot_required:
-    name: "docker_10 reboot required"
-    icon: mdi:restart-alert
-  apt_docker_14_reboot_required:
-    name: "docker_14 reboot required"
-    icon: mdi:restart-alert
-  apt_docker_69_reboot_required:
-    name: "docker_69 reboot required"
-    icon: mdi:restart-alert
 
 template:
   - sensor:
@@ -82,18 +82,30 @@ template:
           {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
             {{ as_local(as_datetime(stamp)) }}
           {% endif %}
-      - name: "docker_10 APT reboot status"
-        unique_id: apt_docker_10_reboot_status
-        icon: >-
-          {{ 'mdi:restart-alert' if is_state('input_boolean.apt_docker_10_reboot_required', 'on')
-             else 'mdi:check-circle' }}
-        state: >-
-          {{ 'REBOOT REQUIRED' if is_state('input_boolean.apt_docker_10_reboot_required', 'on')
-             else 'NO REBOOT NEEDED' }}
       - name: "docker_14 APT status"
         unique_id: apt_docker_14_status
         icon: mdi:package-up
         state: "{{ states('input_text.apt_docker_14_last_result') }}"
+      - name: "docker_17 APT status"
+        unique_id: apt_docker_17_status
+        icon: mdi:package-up
+        state: "{{ states('input_text.apt_docker_17_last_result') }}"
+      - name: "docker_17 APT last check"
+        unique_id: apt_docker_17_last_check
+        device_class: timestamp
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_17_last_check') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
+      - name: "docker_17 APT last update"
+        unique_id: apt_docker_17_last_update
+        device_class: timestamp
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_17_last_update') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
       - name: "docker_14 APT last check"
         unique_id: apt_docker_14_last_check
         device_class: timestamp
@@ -110,14 +122,6 @@ template:
           {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
             {{ as_local(as_datetime(stamp)) }}
           {% endif %}
-      - name: "docker_14 APT reboot status"
-        unique_id: apt_docker_14_reboot_status
-        icon: >-
-          {{ 'mdi:restart-alert' if is_state('input_boolean.apt_docker_14_reboot_required', 'on')
-             else 'mdi:check-circle' }}
-        state: >-
-          {{ 'REBOOT REQUIRED' if is_state('input_boolean.apt_docker_14_reboot_required', 'on')
-             else 'NO REBOOT NEEDED' }}
       - name: "docker_69 APT status"
         unique_id: apt_docker_69_status
         icon: mdi:package-up
@@ -138,31 +142,6 @@ template:
           {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
             {{ as_local(as_datetime(stamp)) }}
           {% endif %}
-      - name: "docker_69 APT reboot status"
-        unique_id: apt_docker_69_reboot_status
-        icon: >-
-          {{ 'mdi:restart-alert' if is_state('input_boolean.apt_docker_69_reboot_required', 'on')
-             else 'mdi:check-circle' }}
-        state: >-
-          {{ 'REBOOT REQUIRED' if is_state('input_boolean.apt_docker_69_reboot_required', 'on')
-             else 'NO REBOOT NEEDED' }}
-
-  - binary_sensor:
-      - name: "docker_10 APT reboot required"
-        unique_id: apt_docker_10_reboot_required
-        device_class: problem
-        icon: mdi:restart-alert
-        state: "{{ is_state('input_boolean.apt_docker_10_reboot_required', 'on') }}"
-      - name: "docker_14 APT reboot required"
-        unique_id: apt_docker_14_reboot_required
-        device_class: problem
-        icon: mdi:restart-alert
-        state: "{{ is_state('input_boolean.apt_docker_14_reboot_required', 'on') }}"
-      - name: "docker_69 APT reboot required"
-        unique_id: apt_docker_69_reboot_required
-        device_class: problem
-        icon: mdi:restart-alert
-        state: "{{ is_state('input_boolean.apt_docker_69_reboot_required', 'on') }}"
 
 automation:
   - alias: "APT Update Report - docker_10"
@@ -180,22 +159,17 @@ automation:
       success: "{{ payload.get('success', true) | bool }}"
       updated: "{{ payload.get('updated', false) | bool }}"
       packages: "{{ payload.get('packages', 0) | int(0) }}"
-      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
-      auto_reboot_scheduled: "{{ payload.get('auto_reboot_scheduled', false) | bool }}"
-      reboot_delay_minutes: "{{ payload.get('reboot_delay_minutes', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
       result: >-
         {% if not success %}
           ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
-        {% elif reboot_required and not updated %}
-          REBOOT REQUIRED{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% elif updated %}
-          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
+          UPDATED {{ packages }} PKGS
         {% else %}
           NO UPDATES
         {% endif %}
       log_message: >-
-        docker_10 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}{% if auto_reboot_scheduled %}; auto reboot in {{ reboot_delay_minutes }} minute{% if reboot_delay_minutes != 1 %}s{% endif %}{% endif %}.
+        docker_10 updated {{ packages }} package{% if packages != 1 %}s{% endif %}.
     action:
       - service: input_datetime.set_datetime
         target:
@@ -207,16 +181,6 @@ automation:
           entity_id: input_text.apt_docker_10_last_result
         data:
           value: "{{ result }}"
-      - choose:
-          - conditions: "{{ success and reboot_required }}"
-            sequence:
-              - service: input_boolean.turn_on
-                target:
-                  entity_id: input_boolean.apt_docker_10_reboot_required
-        default:
-          - service: input_boolean.turn_off
-            target:
-              entity_id: input_boolean.apt_docker_10_reboot_required
       - choose:
           - conditions: "{{ success and updated }}"
             sequence:
@@ -245,22 +209,17 @@ automation:
       success: "{{ payload.get('success', true) | bool }}"
       updated: "{{ payload.get('updated', false) | bool }}"
       packages: "{{ payload.get('packages', 0) | int(0) }}"
-      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
-      auto_reboot_scheduled: "{{ payload.get('auto_reboot_scheduled', false) | bool }}"
-      reboot_delay_minutes: "{{ payload.get('reboot_delay_minutes', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
       result: >-
         {% if not success %}
           ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
-        {% elif reboot_required and not updated %}
-          REBOOT REQUIRED{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% elif updated %}
-          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
+          UPDATED {{ packages }} PKGS
         {% else %}
           NO UPDATES
         {% endif %}
       log_message: >-
-        docker_14 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}{% if auto_reboot_scheduled %}; auto reboot in {{ reboot_delay_minutes }} minute{% if reboot_delay_minutes != 1 %}s{% endif %}{% endif %}.
+        docker_14 updated {{ packages }} package{% if packages != 1 %}s{% endif %}.
     action:
       - service: input_datetime.set_datetime
         target:
@@ -273,21 +232,61 @@ automation:
         data:
           value: "{{ result }}"
       - choose:
-          - conditions: "{{ success and reboot_required }}"
-            sequence:
-              - service: input_boolean.turn_on
-                target:
-                  entity_id: input_boolean.apt_docker_14_reboot_required
-        default:
-          - service: input_boolean.turn_off
-            target:
-              entity_id: input_boolean.apt_docker_14_reboot_required
-      - choose:
           - conditions: "{{ success and updated }}"
             sequence:
               - service: input_datetime.set_datetime
                 target:
                   entity_id: input_datetime.apt_docker_14_last_update
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "APT"
+                  message: "{{ log_message }}"
+
+  - alias: "APT Update Report - docker_17"
+    id: apt_update_report_docker_17
+    description: "Receive docker_17 APT results and update helpers/logbook."
+    mode: queued
+    trigger:
+      - platform: webhook
+        webhook_id: !secret apt_webhook_docker_17
+        allowed_methods:
+          - POST
+        local_only: true
+    variables:
+      payload: "{{ trigger.json | default({}) }}"
+      success: "{{ payload.get('success', true) | bool }}"
+      updated: "{{ payload.get('updated', false) | bool }}"
+      packages: "{{ payload.get('packages', 0) | int(0) }}"
+      message: "{{ payload.get('message', '') | string }}"
+      result: >-
+        {% if not success %}
+          ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
+        {% elif updated %}
+          UPDATED {{ packages }} PKGS
+        {% else %}
+          NO UPDATES
+        {% endif %}
+      log_message: >-
+        docker_17 updated {{ packages }} package{% if packages != 1 %}s{% endif %}.
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.apt_docker_17_last_check
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.apt_docker_17_last_result
+        data:
+          value: "{{ result }}"
+      - choose:
+          - conditions: "{{ success and updated }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.apt_docker_17_last_update
                 data:
                   datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
               - service: script.send_to_logbook
@@ -310,22 +309,17 @@ automation:
       success: "{{ payload.get('success', true) | bool }}"
       updated: "{{ payload.get('updated', false) | bool }}"
       packages: "{{ payload.get('packages', 0) | int(0) }}"
-      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
-      auto_reboot_scheduled: "{{ payload.get('auto_reboot_scheduled', false) | bool }}"
-      reboot_delay_minutes: "{{ payload.get('reboot_delay_minutes', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
       result: >-
         {% if not success %}
           ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
-        {% elif reboot_required and not updated %}
-          REBOOT REQUIRED{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
         {% elif updated %}
-          UPDATED {{ packages }} PKGS{% if reboot_required %}; REBOOT REQUIRED{% endif %}{% if auto_reboot_scheduled %}; AUTO REBOOT {{ reboot_delay_minutes }}M{% endif %}
+          UPDATED {{ packages }} PKGS
         {% else %}
           NO UPDATES
         {% endif %}
       log_message: >-
-        docker_69 updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %} (reboot required){% endif %}{% if auto_reboot_scheduled %}; auto reboot in {{ reboot_delay_minutes }} minute{% if reboot_delay_minutes != 1 %}s{% endif %}{% endif %}.
+        docker_69 updated {{ packages }} package{% if packages != 1 %}s{% endif %}.
     action:
       - service: input_datetime.set_datetime
         target:
@@ -338,16 +332,6 @@ automation:
         data:
           value: "{{ result }}"
       - choose:
-          - conditions: "{{ success and reboot_required }}"
-            sequence:
-              - service: input_boolean.turn_on
-                target:
-                  entity_id: input_boolean.apt_docker_69_reboot_required
-        default:
-          - service: input_boolean.turn_off
-            target:
-              entity_id: input_boolean.apt_docker_69_reboot_required
-      - choose:
           - conditions: "{{ success and updated }}"
             sequence:
               - service: input_datetime.set_datetime
@@ -359,151 +343,6 @@ automation:
                 data:
                   topic: "APT"
                   message: "{{ log_message }}"
-
-  - alias: "APT Boot Report - docker_10"
-    id: apt_boot_report_docker_10
-    description: "Clear or keep reboot-required flag after docker_10 boots."
-    mode: queued
-    trigger:
-      - platform: webhook
-        webhook_id: !secret apt_boot_webhook_docker_10
-        allowed_methods:
-          - POST
-        local_only: true
-    variables:
-      payload: "{{ trigger.json | default({}) }}"
-      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
-    action:
-      - choose:
-          - conditions: "{{ reboot_required }}"
-            sequence:
-              - service: input_boolean.turn_on
-                target:
-                  entity_id: input_boolean.apt_docker_10_reboot_required
-              - service: script.send_to_logbook
-                data:
-                  topic: "APT"
-                  message: "docker_10 boot report: reboot is still required."
-        default:
-          - service: input_boolean.turn_off
-            target:
-              entity_id: input_boolean.apt_docker_10_reboot_required
-          - service: script.send_to_logbook
-            data:
-              topic: "APT"
-              message: "docker_10 reboot completed and reboot flag cleared."
-
-  - alias: "APT Boot Report - docker_14"
-    id: apt_boot_report_docker_14
-    description: "Clear or keep reboot-required flag after docker_14 boots."
-    mode: queued
-    trigger:
-      - platform: webhook
-        webhook_id: !secret apt_boot_webhook_docker_14
-        allowed_methods:
-          - POST
-        local_only: true
-    variables:
-      payload: "{{ trigger.json | default({}) }}"
-      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
-    action:
-      - choose:
-          - conditions: "{{ reboot_required }}"
-            sequence:
-              - service: input_boolean.turn_on
-                target:
-                  entity_id: input_boolean.apt_docker_14_reboot_required
-              - service: script.send_to_logbook
-                data:
-                  topic: "APT"
-                  message: "docker_14 boot report: reboot is still required."
-        default:
-          - service: input_boolean.turn_off
-            target:
-              entity_id: input_boolean.apt_docker_14_reboot_required
-          - service: script.send_to_logbook
-            data:
-              topic: "APT"
-              message: "docker_14 reboot completed and reboot flag cleared."
-
-  - alias: "APT Boot Report - docker_69"
-    id: apt_boot_report_docker_69
-    description: "Clear or keep reboot-required flag after docker_69 boots."
-    mode: queued
-    trigger:
-      - platform: webhook
-        webhook_id: !secret apt_boot_webhook_docker_69
-        allowed_methods:
-          - POST
-        local_only: true
-    variables:
-      payload: "{{ trigger.json | default({}) }}"
-      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
-    action:
-      - choose:
-          - conditions: "{{ reboot_required }}"
-            sequence:
-              - service: input_boolean.turn_on
-                target:
-                  entity_id: input_boolean.apt_docker_69_reboot_required
-              - service: script.send_to_logbook
-                data:
-                  topic: "APT"
-                  message: "docker_69 boot report: reboot is still required."
-        default:
-          - service: input_boolean.turn_off
-            target:
-              entity_id: input_boolean.apt_docker_69_reboot_required
-          - service: script.send_to_logbook
-            data:
-              topic: "APT"
-              message: "docker_69 reboot completed and reboot flag cleared."
-
-  - alias: "APT Reboot Repairs"
-    id: apt_reboot_repairs
-    description: "Create or clear Repairs issues when Docker hosts need a reboot."
-    mode: queued
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.docker_10_apt_reboot_required
-          - binary_sensor.docker_14_apt_reboot_required
-          - binary_sensor.docker_69_apt_reboot_required
-    variables:
-      host_name: >-
-        {% if 'docker_10' in trigger.entity_id %}
-          docker_10
-        {% elif 'docker_14' in trigger.entity_id %}
-          docker_14
-        {% else %}
-          docker_69
-        {% endif %}
-      issue_id: >-
-        {% if 'docker_10' in trigger.entity_id %}
-          apt_docker_10_reboot_required
-        {% elif 'docker_14' in trigger.entity_id %}
-          apt_docker_14_reboot_required
-        {% else %}
-          apt_docker_69_reboot_required
-        {% endif %}
-    action:
-      - choose:
-          - conditions: "{{ trigger.to_state.state == 'on' }}"
-            sequence:
-              - service: repairs.create
-                data:
-                  issue_id: "{{ issue_id }}"
-                  severity: warning
-                  persistent: true
-                  title: "{{ host_name }} needs reboot"
-                  description: >-
-                    {{ host_name }} reports a reboot is required after APT updates.
-                    Status: {{ states('sensor.' ~ host_name ~ '_apt_status') }}.
-        default:
-          - continue_on_error: true
-            service: repairs.remove
-            data:
-              issue_id: "{{ issue_id }}"
 
   - alias: "Docker Container Offline - Create Repairs"
     id: docker_container_offline_repairs_create
