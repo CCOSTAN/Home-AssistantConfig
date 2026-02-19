@@ -144,191 +144,85 @@ template:
           {% endif %}
 
 automation:
-  - alias: "APT Update Report - docker_10"
-    id: apt_update_report_docker_10
-    description: "Receive docker_10 APT results and update helpers/logbook."
+  - alias: "APT Update Report - Docker Hosts"
+    id: apt_update_report_docker_hosts
+    description: "Receive docker host APT results and update helpers/logbook."
     mode: queued
     trigger:
       - platform: webhook
         webhook_id: !secret apt_webhook_docker_10
+        id: docker_10
         allowed_methods:
           - POST
         local_only: true
-    variables:
-      payload: "{{ trigger.json | default({}) }}"
-      success: "{{ payload.get('success', true) | bool }}"
-      updated: "{{ payload.get('updated', false) | bool }}"
-      packages: "{{ payload.get('packages', 0) | int(0) }}"
-      message: "{{ payload.get('message', '') | string }}"
-      result: >-
-        {% if not success %}
-          ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
-        {% elif updated %}
-          UPDATED {{ packages }} PKGS
-        {% else %}
-          NO UPDATES
-        {% endif %}
-      log_message: >-
-        docker_10 updated {{ packages }} package{% if packages != 1 %}s{% endif %}.
-    action:
-      - service: input_datetime.set_datetime
-        target:
-          entity_id: input_datetime.apt_docker_10_last_check
-        data:
-          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.apt_docker_10_last_result
-        data:
-          value: "{{ result }}"
-      - choose:
-          - conditions: "{{ success and updated }}"
-            sequence:
-              - service: input_datetime.set_datetime
-                target:
-                  entity_id: input_datetime.apt_docker_10_last_update
-                data:
-                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-              - service: script.send_to_logbook
-                data:
-                  topic: "APT"
-                  message: "{{ log_message }}"
-
-  - alias: "APT Update Report - docker_14"
-    id: apt_update_report_docker_14
-    description: "Receive docker_14 APT results and update helpers/logbook."
-    mode: queued
-    trigger:
       - platform: webhook
         webhook_id: !secret apt_webhook_docker_14
+        id: docker_14
         allowed_methods:
           - POST
         local_only: true
-    variables:
-      payload: "{{ trigger.json | default({}) }}"
-      success: "{{ payload.get('success', true) | bool }}"
-      updated: "{{ payload.get('updated', false) | bool }}"
-      packages: "{{ payload.get('packages', 0) | int(0) }}"
-      message: "{{ payload.get('message', '') | string }}"
-      result: >-
-        {% if not success %}
-          ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
-        {% elif updated %}
-          UPDATED {{ packages }} PKGS
-        {% else %}
-          NO UPDATES
-        {% endif %}
-      log_message: >-
-        docker_14 updated {{ packages }} package{% if packages != 1 %}s{% endif %}.
-    action:
-      - service: input_datetime.set_datetime
-        target:
-          entity_id: input_datetime.apt_docker_14_last_check
-        data:
-          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.apt_docker_14_last_result
-        data:
-          value: "{{ result }}"
-      - choose:
-          - conditions: "{{ success and updated }}"
-            sequence:
-              - service: input_datetime.set_datetime
-                target:
-                  entity_id: input_datetime.apt_docker_14_last_update
-                data:
-                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-              - service: script.send_to_logbook
-                data:
-                  topic: "APT"
-                  message: "{{ log_message }}"
-
-  - alias: "APT Update Report - docker_17"
-    id: apt_update_report_docker_17
-    description: "Receive docker_17 APT results and update helpers/logbook."
-    mode: queued
-    trigger:
       - platform: webhook
         webhook_id: !secret apt_webhook_docker_17
+        id: docker_17
         allowed_methods:
           - POST
         local_only: true
-    variables:
-      payload: "{{ trigger.json | default({}) }}"
-      success: "{{ payload.get('success', true) | bool }}"
-      updated: "{{ payload.get('updated', false) | bool }}"
-      packages: "{{ payload.get('packages', 0) | int(0) }}"
-      message: "{{ payload.get('message', '') | string }}"
-      result: >-
-        {% if not success %}
-          ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
-        {% elif updated %}
-          UPDATED {{ packages }} PKGS
-        {% else %}
-          NO UPDATES
-        {% endif %}
-      log_message: >-
-        docker_17 updated {{ packages }} package{% if packages != 1 %}s{% endif %}.
-    action:
-      - service: input_datetime.set_datetime
-        target:
-          entity_id: input_datetime.apt_docker_17_last_check
-        data:
-          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.apt_docker_17_last_result
-        data:
-          value: "{{ result }}"
-      - choose:
-          - conditions: "{{ success and updated }}"
-            sequence:
-              - service: input_datetime.set_datetime
-                target:
-                  entity_id: input_datetime.apt_docker_17_last_update
-                data:
-                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-              - service: script.send_to_logbook
-                data:
-                  topic: "APT"
-                  message: "{{ log_message }}"
-
-  - alias: "APT Update Report - docker_69"
-    id: apt_update_report_docker_69
-    description: "Receive docker_69 APT results and update helpers/logbook."
-    mode: queued
-    trigger:
       - platform: webhook
         webhook_id: !secret apt_webhook_docker_69
+        id: docker_69
         allowed_methods:
           - POST
         local_only: true
     variables:
+      host_id: "{{ trigger.id }}"
       payload: "{{ trigger.json | default({}) }}"
       success: "{{ payload.get('success', true) | bool }}"
       updated: "{{ payload.get('updated', false) | bool }}"
+      reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
       packages: "{{ payload.get('packages', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
+      helpers:
+        docker_10:
+          last_check: input_datetime.apt_docker_10_last_check
+          last_update: input_datetime.apt_docker_10_last_update
+          last_result: input_text.apt_docker_10_last_result
+        docker_14:
+          last_check: input_datetime.apt_docker_14_last_check
+          last_update: input_datetime.apt_docker_14_last_update
+          last_result: input_text.apt_docker_14_last_result
+        docker_17:
+          last_check: input_datetime.apt_docker_17_last_check
+          last_update: input_datetime.apt_docker_17_last_update
+          last_result: input_text.apt_docker_17_last_result
+        docker_69:
+          last_check: input_datetime.apt_docker_69_last_check
+          last_update: input_datetime.apt_docker_69_last_update
+          last_result: input_text.apt_docker_69_last_result
+      host_helpers: "{{ helpers[host_id] if host_id in helpers else none }}"
       result: >-
         {% if not success %}
           ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
         {% elif updated %}
-          UPDATED {{ packages }} PKGS
+          UPDATED {{ packages }} PKGS{% if reboot_required %} (REBOOT REQ){% endif %}
+        {% elif reboot_required %}
+          NO UPDATES (REBOOT REQ)
         {% else %}
           NO UPDATES
         {% endif %}
       log_message: >-
-        docker_69 updated {{ packages }} package{% if packages != 1 %}s{% endif %}.
+        {{ host_id }} updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %}; reboot required{% endif %}.
+    condition:
+      - condition: template
+        value_template: "{{ host_helpers is not none }}"
     action:
       - service: input_datetime.set_datetime
         target:
-          entity_id: input_datetime.apt_docker_69_last_check
+          entity_id: "{{ host_helpers.last_check }}"
         data:
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
       - service: input_text.set_value
         target:
-          entity_id: input_text.apt_docker_69_last_result
+          entity_id: "{{ host_helpers.last_result }}"
         data:
           value: "{{ result }}"
       - choose:
@@ -336,7 +230,7 @@ automation:
             sequence:
               - service: input_datetime.set_datetime
                 target:
-                  entity_id: input_datetime.apt_docker_69_last_update
+                  entity_id: "{{ host_helpers.last_update }}"
                 data:
                   datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
               - service: script.send_to_logbook

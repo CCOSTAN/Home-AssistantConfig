@@ -7,13 +7,11 @@
 #  Desktop-first infra overview: full-width hero, exceptions-first alerts.
 # -------------------------------------------------------------------
 # Notes: Default/light theme only; no dark-mode specific styling.
-# Notes: Always keep a full-width container directly below chips.
+# Notes: Keep the first section full-width to avoid whitespace on desktop.
 ######################################################################
 
-- !include /config/dashboards/infrastructure/partials/infra_top_chips_home_section.yaml
-
 # -------------------------------------------------------------------
-# Home hero (mandatory full-width container under chips)
+# Home hero (mandatory first full-width container)
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -146,6 +144,17 @@
         template: bearstone_infra_alert_row
         entity: binary_sensor.www_kingcrafthomes_com
         name: kingcrafthomes.com is down
+        icon: mdi:web-cancel
+        variables:
+          alert_kind: binary_off
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/website-health
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.bear_stone
+        name: Bear Stone is down
         icon: mdi:web-cancel
         variables:
           alert_kind: binary_off
@@ -310,6 +319,32 @@
         show_state: false
         tap_action:
           action: none
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.node_proxmox1_updates_packages
+        name: Proxmox01 updates pending
+        icon: mdi:package-up
+        variables:
+          alert_kind: binary_on
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/proxmox
+        state_display: >
+          [[[ return 'UPDATES'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.node_proxmox02_updates_packages
+        name: Proxmox02 updates pending
+        icon: mdi:package-up
+        variables:
+          alert_kind: binary_on
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/proxmox
+        state_display: >
+          [[[ return 'UPDATES'; ]]]
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
