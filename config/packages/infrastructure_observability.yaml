@@ -16,20 +16,22 @@ command_line:
       unique_id: infra_wan_packet_loss
       command: >-
         ping -q -c 10 -W 1 1.1.1.1 2>/dev/null |
-        awk -F',' '/packet loss/ {gsub(/%| /, "", $3); print $3; found=1}
+        awk -F',' '/packet loss/ {gsub(/[^0-9.]/, "", $3); print $3; found=1}
         END {if (!found) print "unknown"}'
       scan_interval: 300
       unit_of_measurement: "%"
+      value_template: "{{ (value | regex_replace('[^0-9.]', '')) or 'unknown' }}"
 
   - sensor:
       name: Infra WAN Latency Ms
       unique_id: infra_wan_latency_ms
       command: >-
         ping -q -c 10 -W 1 1.1.1.1 2>/dev/null |
-        awk -F'/' '/^rtt|^round-trip/ {print $5; found=1}
+        awk -F'/' '/^rtt|^round-trip/ {gsub(/[^0-9.]/, "", $5); print $5; found=1}
         END {if (!found) print "unknown"}'
       scan_interval: 300
       unit_of_measurement: "ms"
+      value_template: "{{ (value | regex_replace('[^0-9.]', '')) or 'unknown' }}"
 
   - sensor:
       name: Infra External IP Fallback
@@ -59,7 +61,7 @@ template:
           {% if ts is not none %}
             {{ ((now() - ts).total_seconds() / 3600) | round(1) }}
           {% else %}
-            unknown
+            {{ none }}
           {% endif %}
 
       - name: "Infra Domain Expiry Min Days"
@@ -88,7 +90,7 @@ template:
           {% if ns.any %}
             {{ ns.min | round(0) }}
           {% else %}
-            unknown
+            {{ none }}
           {% endif %}
 
       - name: "Infra Cert Expiry Min Days"
@@ -113,7 +115,7 @@ template:
           {% if ns.any %}
             {{ ns.min | round(0) }}
           {% else %}
-            unknown
+            {{ none }}
           {% endif %}
 
       - name: "Infra Cert Telemetry Count"
