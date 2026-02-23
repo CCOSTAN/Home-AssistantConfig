@@ -7,19 +7,73 @@
 #  Script wrappers for Telegram messaging using UI-configured integration.
 # -------------------------------------------------------------------
 # Notes: Do not add `telegram_bot:` YAML here; integration is UI-only.
+# Notes: Joanna transport sends as plain_text to avoid Telegram parse-entity failures.
 ######################################################################
 
 script:
   joanna_send_telegram:
     alias: Joanna Send Telegram
-    description: Sends a Telegram message to Carlo's allowed chat id.
+    description: Sends resilient plain-text Telegram messages with chunking + fallback.
     mode: queued
     fields:
       message:
         description: Message body to send.
         example: Joanna is online.
     sequence:
-      - service: telegram_bot.send_message
-        data:
-          target: !secret telegram_allowed_chat_id_carlo
-          message: "{{ message }}"
+      - variables:
+          chunk_size: 3400
+          normalized_message: >-
+            {% set raw = message | default('', true) | string %}
+            {{ raw | replace('\r\n', '\n') | replace('\r', '\n') | trim }}
+          safe_message: >-
+            {% if normalized_message | length > 0 %}
+              {{ normalized_message }}
+            {% else %}
+              Joanna: (empty message)
+            {% endif %}
+          total_chunks: >-
+            {% set size = chunk_size | int(3400) %}
+            {% set length = safe_message | length %}
+            {{ ((length + size - 1) // size) if length > 0 else 1 }}
+      - repeat:
+          count: "{{ total_chunks | int(1) }}"
+          sequence:
+            - variables:
+                start: "{{ repeat.index0 * (chunk_size | int(3400)) }}"
+                stop: "{{ start + (chunk_size | int(3400)) }}"
+                chunk_body: "{{ safe_message[start:stop] }}"
+                chunk_message: >-
+                  {% if (total_chunks | int(1)) > 1 %}
+                  [{{ repeat.index }}/{{ total_chunks }}]
+                  {{ chunk_body }}
+                  {% else %}
+                  {{ chunk_body }}
+                  {% endif %}
+                fallback_message: >-
+                  {{ chunk_message
+                    | regex_replace(find='[\x00-\x08\x0B\x0C\x0E-\x1F]', replace=' ')
+                    | trim }}
+                telegram_send_response: null
+            - action: telegram_bot.send_message
+              continue_on_error: true
+              data:
+                target: !secret telegram_allowed_chat_id_carlo
+                message: "{{ chunk_message }}"
+                parse_mode: plain_text
+                disable_web_page_preview: true
+              response_variable: telegram_send_response
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: >-
+                        {{ telegram_send_response is none
+                           or telegram_send_response.chats is not defined
+                           or (telegram_send_response.chats | count) == 0 }}
+                  sequence:
+                    - action: telegram_bot.send_message
+                      continue_on_error: true
+                      data:
+                        target: !secret telegram_allowed_chat_id_carlo
+                        message: "{{ fallback_message if fallback_message | length > 0 else 'Joanna: message delivery fallback (content omitted)' }}"
+                        parse_mode: plain_text
+                        disable_web_page_preview: true
