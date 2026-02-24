@@ -9,7 +9,7 @@
 # Notes: Hosts run weekly Wed 12:00 APT job and POST JSON to webhooks.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Reboot staggering: docker_14 first, docker_69 second, docker_10 third.
-# Notes: Container watchlist is explicit; extend entity list as needed.
+# Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
 ######################################################################
 
 input_datetime:
@@ -45,6 +45,10 @@ input_datetime:
     name: "docker_69 APT last update"
     has_date: true
     has_time: true
+  docker_container_alerts_snooze_until:
+    name: "Docker container alerts snooze until"
+    has_date: true
+    has_time: true
 
 input_text:
   apt_docker_10_last_result:
@@ -59,6 +63,58 @@ input_text:
   apt_docker_69_last_result:
     name: "docker_69 APT last result"
     max: 255
+
+group:
+  docker_monitored_containers:
+    name: Docker Monitored Containers
+    entities:
+      - switch.cloudflared_kch_container
+      - switch.cloudflared_wp_container
+      - switch.codex_appliance_container
+      - switch.college_budget_app_container
+      - switch.cruise_tracker_container
+      - switch.dashy_container
+      - switch.docker_socket_proxy_container
+      - switch.dozzle_container
+      - switch.dozzle_agent_10_container
+      - switch.dozzle_agent_14_container
+      - switch.dozzle_agent_17_container
+      - switch.dozzle_agent_69_container
+      - switch.duplicati_container
+      - switch.esphome_container
+      - switch.fed437a0f191_tugtainer_socket_proxy_container
+      - switch.foodie_tracker_container
+      - switch.frigate_container
+      - switch.games_hub_container
+      - switch.home_assistant_container
+      - switch.imposter_container
+      - switch.infra_info_container
+      - switch.kingcrafthomes_container
+      - switch.lmediaservices_container
+      - switch.mariadb_container
+      - switch.mariadb_backup_container
+      - switch.matter_server_container
+      - switch.mqtt_container
+      - switch.nebula_sync_container
+      - switch.panel_notes_container
+      - switch.pihole_container
+      - switch.pihole_secondary_container
+      - switch.poker_tracker_container
+      - switch.portainer_container
+      - switch.portainer_agent_container
+      - switch.postgres_webhooks_engine_container
+      - switch.rc_price_checker_container
+      - switch.redis_webhooks_engine_container
+      - switch.rvtools_ppt_web_container
+      - switch.tapple_container
+      - switch.tugtainer_container
+      - switch.tugtainer_agent_container
+      - switch.tugtainer_socket_proxy_container
+      - switch.unifi_container
+      - switch.webhooks_engine_container
+      - switch.wordpress_db_container
+      - switch.wordpress_wp_container
+      - switch.wyze_bridge_container
 
 template:
   - sensor:
@@ -142,6 +198,146 @@ template:
           {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
             {{ as_local(as_datetime(stamp)) }}
           {% endif %}
+
+  - sensor:
+      - name: "Docker Containers Down List"
+        unique_id: docker_containers_down_list
+        icon: mdi:docker
+        state: >-
+          {% set ns = namespace(keys=[], down=[]) %}
+          {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) %}
+          {% for switch_entity in monitored %}
+            {% set key = switch_entity | replace('switch.', '') | regex_replace('_container$', '') %}
+            {% if key not in ns.keys %}
+              {% set ns.keys = ns.keys + [key] %}
+            {% endif %}
+          {% endfor %}
+          {% for key in ns.keys | sort %}
+            {% set status_entity = 'binary_sensor.' ~ key ~ '_status' %}
+            {% set switch_entity = 'switch.' ~ key ~ '_container' %}
+            {% if expand(status_entity) | count > 0 %}
+              {% set effective_state = states(status_entity) | lower %}
+            {% elif expand(switch_entity) | count > 0 %}
+              {% set effective_state = states(switch_entity) | lower %}
+            {% else %}
+              {% set effective_state = 'unknown' %}
+            {% endif %}
+            {% if effective_state in ['off', 'unknown', 'unavailable'] %}
+              {% set ns.down = ns.down + [key] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.down | sort | join(', ') if (ns.down | count > 0) else 'none' }}
+
+      - name: "Docker Containers Down Count"
+        unique_id: docker_containers_down_count
+        icon: mdi:counter
+        state: >-
+          {% set down_list = states('sensor.docker_containers_down_list') %}
+          {% set normalized = down_list | lower %}
+          {% if normalized in ['unknown', 'unavailable', 'none', ''] %}
+            0
+          {% else %}
+            {{ down_list.split(',') | map('trim') | reject('equalto', '') | list | count }}
+          {% endif %}
+
+  - binary_sensor:
+      - name: "Docker Container Alerts Snoozed"
+        unique_id: docker_container_alerts_snoozed
+        device_class: problem
+        icon: mdi:bell-sleep
+        state: >-
+          {% set stamp = states('input_datetime.docker_container_alerts_snooze_until') %}
+          {% set until_ts = as_datetime(stamp) %}
+          {{ until_ts is not none and now() < until_ts }}
+
+script:
+  docker_container_repairs_sync:
+    alias: Docker Container Repairs Sync
+    mode: parallel
+    fields:
+      entity_id:
+        description: Changed Portainer entity (`switch.*_container` or `binary_sensor.*_status`)
+        example: "switch.rc_price_checker_container"
+      operation:
+        description: "Sync operation: create or clear"
+        example: "create"
+      delay_minutes:
+        description: "Optional delay before evaluation (used for create path)"
+        example: 5
+    sequence:
+      - variables:
+          down_states: ['off', 'unknown', 'unavailable']
+          src_entity: "{{ entity_id | default('', true) }}"
+          op: "{{ operation | default('create', true) | lower }}"
+          wait_minutes: "{{ delay_minutes | default(0) | int(0) }}"
+          container_key: >-
+            {% if src_entity.startswith('binary_sensor.') %}
+              {{ src_entity | replace('binary_sensor.', '') | regex_replace('_status$', '') }}
+            {% elif src_entity.startswith('switch.') %}
+              {{ src_entity | replace('switch.', '') | regex_replace('_container$', '') }}
+            {% else %}
+              {{ src_entity }}
+            {% endif %}
+          switch_entity: "switch.{{ container_key }}_container"
+          restart_entity: "button.{{ container_key }}_restart_container"
+          status_entity: "binary_sensor.{{ container_key }}_status"
+          monitored_switches: "{{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) }}"
+          tracked_container: "{{ switch_entity in monitored_switches }}"
+          effective_entity: >-
+            {% if expand(status_entity) | count > 0 %}
+              {{ status_entity }}
+            {% elif expand(switch_entity) | count > 0 %}
+              {{ switch_entity }}
+            {% else %}
+              {{ src_entity }}
+            {% endif %}
+          issue_id: "docker_container_{{ container_key }}_offline"
+      - condition: template
+        value_template: "{{ tracked_container and op in ['create', 'clear'] }}"
+      - choose:
+          - conditions: "{{ op == 'create' }}"
+            sequence:
+              - choose:
+                  - conditions: "{{ wait_minutes > 0 }}"
+                    sequence:
+                      - delay:
+                          minutes: "{{ wait_minutes }}"
+              - variables:
+                  effective_state: "{{ states(effective_entity) | lower }}"
+                  container_name: "{{ state_attr(effective_entity, 'friendly_name') | default(container_key, true) }}"
+              - condition: template
+                value_template: "{{ effective_state in down_states }}"
+              - condition: state
+                entity_id: binary_sensor.docker_container_alerts_snoozed
+                state: "off"
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  title: "Container offline: {{ container_name }}"
+                  description: >-
+                    {{ container_name }} has been {{ effective_state }} for over 5 minutes.
+                    Effective entity: {{ effective_entity }}.
+                  severity: warning
+                  persistent: true
+              - service: script.send_to_logbook
+                data:
+                  topic: "DOCKER"
+                  message: "{{ container_name }} is {{ effective_state }} for over 5 minutes."
+          - conditions: "{{ op == 'clear' }}"
+            sequence:
+              - variables:
+                  effective_state: "{{ states(effective_entity) | lower }}"
+                  container_name: "{{ state_attr(effective_entity, 'friendly_name') | default(container_key, true) }}"
+              - condition: template
+                value_template: "{{ effective_state not in down_states }}"
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "DOCKER"
+                  message: "{{ container_name }} recovered ({{ effective_state }})."
 
 automation:
   - alias: "APT Update Report - Docker Hosts"
@@ -238,65 +434,112 @@ automation:
                   topic: "APT"
                   message: "{{ log_message }}"
 
-  - alias: "Docker Container Offline - Create Repairs"
-    id: docker_container_offline_repairs_create
-    description: "Create a Repairs issue when a watched container is down for 5+ minutes."
+  - alias: "Docker Container State Sync - Repairs (Dynamic)"
+    id: docker_container_state_sync_repairs_dynamic
+    description: "Detect dynamic container state transitions and delegate Repairs sync to script helper."
     mode: parallel
     trigger:
-      - platform: state
-        entity_id:
-          - sensor.rc_price_checker_state
-          - switch.rc_price_checker_container
-        to: "unavailable"
-        for: "00:05:00"
-      - platform: state
-        entity_id:
-          - sensor.rc_price_checker_state
-        to: "unknown"
-        for: "00:05:00"
-      - platform: state
-        entity_id:
-          - sensor.rc_price_checker_state
-        to: "restarting"
-        for: "00:05:00"
-      - platform: state
-        entity_id:
-          - switch.rc_price_checker_container
-        to: "off"
-        for: "00:05:00"
-    variables:
-      issue_id: "docker_container_{{ trigger.entity_id | replace('.', '_') }}"
-      container_name: >-
-        {{ state_attr(trigger.entity_id, 'friendly_name') | default(trigger.entity_id) }}
-      current_state: "{{ states(trigger.entity_id) }}"
-    action:
-      - service: repairs.create
-        data:
-          issue_id: "{{ issue_id }}"
-          title: "Container offline: {{ container_name }}"
-          description: >-
-            {{ container_name }} has been {{ current_state }} for over 5 minutes.
-            Entity: {{ trigger.entity_id }}.
-          severity: warning
-          persistent: true
-
-  - alias: "Docker Container Offline - Clear Repairs"
-    id: docker_container_offline_repairs_clear
-    description: "Clear Repairs issue once the watched container is back online."
-    mode: parallel
-    trigger:
-      - platform: state
-        entity_id:
-          - sensor.rc_price_checker_state
-          - switch.rc_price_checker_container
-    variables:
-      issue_id: "docker_container_{{ trigger.entity_id | replace('.', '_') }}"
+      - platform: event
+        event_type: state_changed
     condition:
       - condition: template
         value_template: >-
-          {{ states(trigger.entity_id) not in ['unavailable', 'unknown', 'restarting', 'off'] }}
+          {% set ent = trigger.event.data.entity_id | default('') %}
+          {{ ent.startswith('switch.') and ent.endswith('_container') or
+             ent.startswith('binary_sensor.') and ent.endswith('_status') }}
+      - condition: template
+        value_template: "{{ trigger.event.data.old_state is not none and trigger.event.data.new_state is not none }}"
+      - condition: template
+        value_template: "{{ trigger.event.data.old_state.state != trigger.event.data.new_state.state }}"
     action:
-      - service: repairs.remove
-        continue_on_error: true
+      - variables:
+          down_states: ['off', 'unknown', 'unavailable']
+          entity_id: "{{ trigger.event.data.entity_id }}"
+          old_state: "{{ trigger.event.data.old_state.state | lower }}"
+          new_state: "{{ trigger.event.data.new_state.state | lower }}"
+      - choose:
+          - conditions: "{{ new_state in down_states and old_state not in down_states }}"
+            sequence:
+              - service: script.docker_container_repairs_sync
+                data:
+                  entity_id: "{{ entity_id }}"
+                  operation: "create"
+                  delay_minutes: 5
+          - conditions: "{{ old_state in down_states and new_state not in down_states }}"
+            sequence:
+              - service: script.docker_container_repairs_sync
+                data:
+                  entity_id: "{{ entity_id }}"
+                  operation: "clear"
+
+  - alias: "Docker Containers Maintenance Prompt"
+    id: docker_containers_maintenance_prompt
+    description: "Prompt Carlo to snooze container alerts for maintenance when more than 3 containers are down."
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.docker_containers_down_count
+        above: 3
+    condition:
+      - condition: state
+        entity_id: binary_sensor.docker_container_alerts_snoozed
+        state: "off"
+    action:
+      - service: script.notify_engine_two_button
         data:
-          issue_id: "{{ issue_id }}"
+          title: "Docker Maintenance Check"
+          value1: "{{ states('sensor.docker_containers_down_count') }} containers are currently down."
+          value2: "Down: {{ states('sensor.docker_containers_down_list') }}"
+          who: "carlo"
+          group: "maintenance"
+          title1: "Yes, snooze 1h"
+          action1: "DOCKER_MAINTENANCE_SNOOZE_1H"
+          icon1: "sfsymbols:clock"
+          title2: "No, investigate"
+          action2: "DOCKER_MAINTENANCE_NOT_MAINTENANCE"
+          icon2: "sfsymbols:wrench.and.screwdriver"
+      - service: script.send_to_logbook
+        data:
+          topic: "DOCKER"
+          message: >-
+            Maintenance prompt sent to Carlo ({{ states('sensor.docker_containers_down_count') }} down:
+            {{ states('sensor.docker_containers_down_list') }}).
+
+  - alias: "Docker Maintenance Snooze 1H"
+    id: docker_maintenance_snooze_1h
+    description: "Snooze dynamic container alerts for one hour from a notification action."
+    mode: single
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: DOCKER_MAINTENANCE_SNOOZE_1H
+    variables:
+      snooze_until: "{{ (now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S') }}"
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.docker_container_alerts_snooze_until
+        data:
+          datetime: "{{ snooze_until }}"
+      - service: script.send_to_logbook
+        data:
+          topic: "DOCKER"
+          message: "Container alerts snoozed for 1 hour (until {{ snooze_until }})."
+
+  - alias: "Docker Maintenance Declined"
+    id: docker_maintenance_declined
+    description: "Log when maintenance snooze is declined from the dynamic container prompt."
+    mode: single
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: DOCKER_MAINTENANCE_NOT_MAINTENANCE
+    action:
+      - service: script.send_to_logbook
+        data:
+          topic: "DOCKER"
+          message: >-
+            Maintenance snooze declined with {{ states('sensor.docker_containers_down_count') }}
+            containers down ({{ states('sensor.docker_containers_down_list') }}).

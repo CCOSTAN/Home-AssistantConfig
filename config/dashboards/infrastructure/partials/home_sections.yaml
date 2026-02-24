@@ -416,7 +416,12 @@
                 grid-template-columns: repeat(1, minmax(0, 1fr))
         card_param: cards
         filter:
-          include: !include /config/dashboards/infrastructure/partials/docker_container_rows_include.yaml
+          include:
+          - group: group.docker_monitored_containers
+            options:
+              type: custom:button-card
+              template: bearstone_infra_container_row
+              icon: mdi:docker
           exclude:
           - state: 'on'
 

@@ -179,16 +179,52 @@ bearstone_infra_container_row:
     action: call-service
     service: button.press
     service_data:
-      entity_id: '[[[ return variables.restart_button ]]]'
+      entity_id: >
+        [[[
+          if (variables && variables.restart_button) return variables.restart_button;
+          const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+          let key = '';
+          if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+            key = ent.replace('switch.', '').replace(/_container$/, '');
+          }
+          return key ? `button.${key}_restart_container` : '';
+        ]]]
     confirmation:
       text: '[[[ return "Restart container " + entity.attributes.friendly_name + "?" ]]]'
   icon: mdi:docker
+  name: >
+    [[[
+      if (variables && variables.name) return variables.name;
+      const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+      const friendly = (entity && entity.attributes && entity.attributes.friendly_name)
+        ? String(entity.attributes.friendly_name)
+        : '';
+      let key = '';
+      if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+        key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+      } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+        key = ent.replace('switch.', '').replace(/_container$/, '');
+      }
+      if (friendly && friendly !== 'Container') {
+        return friendly.replace(/\s+Container$/, '');
+      }
+      return key || friendly || ent;
+    ]]]
   custom_fields:
     image: >
       [[[
+        const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+        let key = '';
+        if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+          key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+        } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+          key = ent.replace('switch.', '').replace(/_container$/, '');
+        }
         const imageEntity = variables.image_sensor
           ? variables.image_sensor
-          : entity.entity_id.replace('binary_sensor.', 'sensor.').replace(/_status$/, '_image');
+          : (key ? `sensor.${key}_image` : '');
         const imageValue = states[imageEntity]?.state;
         if (!imageValue || ['unknown', 'unavailable', 'none', ''].includes(String(imageValue).toLowerCase())) {
           return 'image: n/a';
@@ -238,7 +274,21 @@ bearstone_infra_container_row:
       - border-radius: 999px
       - background: rgba(0,0,0,0.06)
       - color: var(--secondary-text-color)
-      - line-height: 1.1
+    card:
+    - display: >
+        [[[
+          const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+          let key = '';
+          if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+            key = ent.replace('switch.', '').replace(/_container$/, '');
+          }
+          const switchEntity = key ? `switch.${key}_container` : '';
+          const monitored = states['group.docker_monitored_containers']?.attributes?.entity_id || [];
+          const restart = key ? `button.${key}_restart_container` : '';
+          return (restart && states[restart] && monitored.includes(switchEntity)) ? 'block' : 'none';
+        ]]]
   state:
   - value: 'on'
     styles:
