@@ -8,6 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: Do not add `telegram_bot:` YAML here; integration is UI-only.
 # Notes: Joanna transport sends as plain_text to avoid Telegram parse-entity failures.
+# Notes: Keep Skills logic in docker_17/codex_appliance; this package is delivery/transport only.
 ######################################################################
 
 script:
@@ -39,7 +40,7 @@ script:
           count: "{{ total_chunks | int(1) }}"
           sequence:
             - variables:
-                start: "{{ repeat.index0 * (chunk_size | int(3400)) }}"
+                start: "{{ ((repeat.index | int(1)) - 1) * (chunk_size | int(3400)) }}"
                 stop: "{{ start + (chunk_size | int(3400)) }}"
                 chunk_body: "{{ safe_message[start:stop] }}"
                 chunk_message: >-
