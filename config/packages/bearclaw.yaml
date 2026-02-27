@@ -9,6 +9,7 @@
 # Notes: Keep BearClaw transport + bridge logic centralized in this package.
 # Notes: Most BearClaw decision logic runs in docker_17/codex_appliance (server.js).
 # Notes: GitHub capture behavior (issue creation/labels/research flow) belongs in codex_appliance, not HA YAML.
+# Notes: Telegram inline button callbacks are handled here and mapped to BearClaw commands.
 ######################################################################
 
 rest_command:
@@ -22,7 +23,8 @@ rest_command:
       {
         "text": {{ text | tojson }},
         "user": {{ user | default('carlo') | tojson }},
-        "source": {{ source | default('home_assistant') | tojson }}
+        "source": {{ source | default('home_assistant') | tojson }},
+        "callback": {{ callback | default(none) | tojson }}
       }
 
   bearclaw_ingest:
@@ -60,15 +62,123 @@ automation:
               - condition: template
                 value_template: "{{ command_text == '' }}"
             sequence:
-              - service: script.joanna_send_telegram
+              - service: telegram_bot.send_message
                 data:
-                  message: "Usage: /bear <message>"
+                  target: !secret telegram_allowed_chat_id_carlo
+                  message: "Choose a BearClaw action or send /bear <message>."
+                  parse_mode: plain_text
+                  disable_web_page_preview: true
+                  inline_keyboard:
+                    - "Status:/bear_status, Add to GitHub:/bear_github_help"
         default:
           - service: rest_command.bearclaw_command
             data:
               text: "{{ command_text }}"
               user: "{{ from_user }}"
               source: telegram_command
+
+  - id: bearclaw_telegram_callback_actions
+    alias: BearClaw Telegram Callback Actions
+    description: Handles BearClaw Telegram inline button callbacks.
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: telegram_callback
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.user_id is defined }}"
+      - condition: template
+        value_template: >-
+          {% set cb = trigger.event.data.data | default('') %}
+          {{ cb.startswith('/bear_') or cb.startswith('/bc_') }}
+    action:
+      - variables:
+          callback_id: "{{ trigger.event.data.id | default('') }}"
+          callback_data: "{{ trigger.event.data.data | default('') | trim }}"
+          from_user: "{{ (trigger.event.data.from_first | default('carlo')) | lower }}"
+          callback_payload: "{{ callback_data[6:] if callback_data.startswith('/bear_') else '' }}"
+          callback_parts: "{{ callback_payload.split('_') if callback_payload | length > 0 else [] }}"
+          action_name: "{{ callback_parts[0] if callback_parts | count > 0 else '' }}"
+          job_id: "{{ callback_parts[1:] | join('_') if callback_parts | count > 1 else '' }}"
+      - service: telegram_bot.answer_callback_query
+        continue_on_error: true
+        data:
+          callback_query_id: "{{ callback_id }}"
+          message: "Processing..."
+          show_alert: false
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ callback_data.startswith('/bc_') }}"
+            sequence:
+              - service: rest_command.bearclaw_command
+                data:
+                  text: ""
+                  user: "{{ from_user }}"
+                  source: telegram_callback
+                  callback:
+                    token: "{{ callback_data[4:] }}"
+                    raw: "{{ callback_data }}"
+                    chat_id: "{{ trigger.event.data.chat_id | default('') }}"
+                    callback_id: "{{ callback_id }}"
+                    message_id: "{{ trigger.event.data.message.message_id if trigger.event.data.message is defined and trigger.event.data.message.message_id is defined else '' }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ action_name == 'status' }}"
+            sequence:
+              - service: rest_command.bearclaw_command
+                data:
+                  text: "{{ 'status ' ~ job_id if job_id | length > 0 else 'status' }}"
+                  user: "{{ from_user }}"
+                  source: telegram_callback
+          - conditions:
+              - condition: template
+                value_template: "{{ action_name == 'cancel' and job_id | length > 0 }}"
+            sequence:
+              - service: rest_command.bearclaw_command
+                data:
+                  text: "{{ 'cancel ' ~ job_id }}"
+                  user: "{{ from_user }}"
+                  source: telegram_callback
+          - conditions:
+              - condition: template
+                value_template: "{{ action_name == 'github_help' }}"
+            sequence:
+              - service: script.joanna_send_telegram
+                data:
+                  message: >-
+                    To create a GitHub capture, send:
+                    add to github <short topic>
+                    Example: add to github Evaluate Smart Home Planner HACS app
+          - conditions:
+              - condition: template
+                value_template: "{{ action_name == 'yes' }}"
+            sequence:
+              - service: script.joanna_send_telegram
+                data:
+                  message: "Great, I received your confirmation."
+          - conditions:
+              - condition: template
+                value_template: "{{ action_name == 'no' }}"
+            sequence:
+              - service: script.joanna_send_telegram
+                data:
+                  message: "Understood. I did not get confirmation."
+        default:
+          - service: script.joanna_send_telegram
+            data:
+              message: "Unknown BearClaw button action. Try /bear to open the menu."
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.message is defined and trigger.event.data.message.message_id is defined }}"
+            sequence:
+              - service: telegram_bot.edit_replymarkup
+                continue_on_error: true
+                data:
+                  chat_id: "{{ trigger.event.data.chat_id }}"
+                  message_id: "{{ trigger.event.data.message.message_id }}"
+                  inline_keyboard: []
 
   - id: bearclaw_telegram_text_no_slash_needed
     alias: BearClaw Telegram Text No Slash Needed
@@ -108,9 +218,31 @@ automation:
       - variables:
           message: "{{ trigger.json.message | default('Joanna: empty reply') }}"
           level: "{{ trigger.json.level | default('active') | lower }}"
-      - service: script.joanna_send_telegram
-        data:
-          message: "{{ message }}"
+          inline_keyboard_payload: >-
+            {% set kb = trigger.json.inline_keyboard if trigger.json.inline_keyboard is defined else none %}
+            {% if kb is string %}
+              {{ kb | trim }}
+            {% elif kb is sequence and kb is not string and (kb | count) > 0 %}
+              {{ kb | map('string') | map('trim') | reject('equalto', '') | list | join('\n') }}
+            {% else %}
+              {{ '' }}
+            {% endif %}
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ inline_keyboard_payload | length > 0 }}"
+            sequence:
+              - service: telegram_bot.send_message
+                data:
+                  target: !secret telegram_allowed_chat_id_carlo
+                  message: "{{ message }}"
+                  parse_mode: plain_text
+                  disable_web_page_preview: true
+                  inline_keyboard: "{{ inline_keyboard_payload }}"
+        default:
+          - service: script.joanna_send_telegram
+            data:
+              message: "{{ message }}"
       - choose:
           - conditions:
               - condition: template
