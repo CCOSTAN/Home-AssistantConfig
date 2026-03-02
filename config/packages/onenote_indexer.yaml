@@ -1,0 +1,172 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# OneNote Indexer Monitoring - Status and health sensors for Joanna
+#  Polls codex_appliance OneNote status and exposes trigger-ready health entities.
+# -------------------------------------------------------------------
+# Notes: Keep onenote indexer monitoring in this package (separate from bearclaw transport).
+# Notes: last_status='never' is treated as success to avoid false alerts after restarts.
+# Notes: Creates/clears a Spook Repair issue and requests Joanna remediation on failures.
+######################################################################
+
+sensor:
+  - platform: rest
+    name: OneNote Indexer Status Payload
+    unique_id: onenote_indexer_status_payload
+    resource: !secret bearclaw_onenote_status_url
+    method: GET
+    headers:
+      x-codex-token: !secret bearclaw_token
+    scan_interval: 300
+    timeout: 20
+    value_template: >-
+      {% if value_json is mapping %}
+        {{ value_json.server_time | default(now().isoformat()) }}
+      {% else %}
+        unknown
+      {% endif %}
+    json_attributes:
+      - ok
+      - indexer
+      - embeddingWorker
+
+template:
+  - sensor:
+      - name: OneNote Indexer Last Job Status
+        unique_id: onenote_indexer_last_job_status
+        icon: mdi:notebook-check
+        state: >-
+          {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+          {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
+          {% set raw = (sync.get('last_status', '') | string | lower) %}
+          {% if raw in ['ok', 'success', 'never'] %}
+            success
+          {% elif raw == 'running' %}
+            running
+          {% elif raw == 'error' %}
+            error
+          {% else %}
+            unknown
+          {% endif %}
+        attributes:
+          running: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
+            {{ sync.get('running', false) | bool }}
+          last_run_id: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
+            {{ sync.get('last_run_id') }}
+          last_started_at: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
+            {{ sync.get('last_started_at') }}
+          last_finished_at: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
+            {{ sync.get('last_finished_at') }}
+          last_error: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
+            {{ sync.get('last_error') }}
+          pending_embeddings: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set index = payload.get('index', {}) if payload is mapping else {} %}
+            {{ index.get('pending_embeddings') }}
+          pages: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set index = payload.get('index', {}) if payload is mapping else {} %}
+            {{ index.get('pages') }}
+          chunks: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set index = payload.get('index', {}) if payload is mapping else {} %}
+            {{ index.get('chunks') }}
+          last_metrics: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
+            {{ sync.get('last_metrics', {}) }}
+
+  - binary_sensor:
+      - name: OneNote Indexer Last Job Successful
+        unique_id: onenote_indexer_last_job_successful
+        state: >-
+          {{ states('sensor.onenote_indexer_last_job_status') in ['success', 'running'] }}
+        icon: >-
+          {% if is_state('binary_sensor.onenote_indexer_last_job_successful', 'on') %}
+            mdi:check-circle
+          {% else %}
+            mdi:alert-circle
+          {% endif %}
+
+      - name: OneNote Indexer Job Failed
+        unique_id: onenote_indexer_job_failed
+        device_class: problem
+        state: >-
+          {{ not is_state('binary_sensor.onenote_indexer_last_job_successful', 'on') }}
+
+automation:
+  - id: onenote_indexer_failure_open_repair
+    alias: OneNote Indexer - Open Repair On Failure
+    description: Open a Spook Repair issue and ask Joanna to troubleshoot when indexer status is failed.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.onenote_indexer_job_failed
+        to: "on"
+        for: "00:03:00"
+    action:
+      - variables:
+          last_status: "{{ states('sensor.onenote_indexer_last_job_status') }}"
+          run_id: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_run_id') | default('n/a') }}"
+          last_error: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_error') | default('n/a') }}"
+          last_metrics: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_metrics') | default({}) }}"
+      - service: repairs.create
+        data:
+          issue_id: "onenote_indexer_job_failed"
+          title: "OneNote indexer job failed"
+          severity: "warning"
+          persistent: true
+          description: >-
+            Home Assistant detected OneNote indexer failure.
+
+            last_status: {{ last_status }}
+            last_run_id: {{ run_id }}
+            last_error: {{ last_error }}
+            last_metrics: {{ last_metrics }}
+      - service: script.send_to_logbook
+        data:
+          topic: "ONENOTE"
+          message: >-
+            OneNote indexer failed (run {{ run_id }}). Spook repair opened and Joanna remediation requested.
+      - service: rest_command.bearclaw_command
+        data:
+          text: >-
+            OneNote indexer containerhealth alert from Home Assistant.
+            Please troubleshoot and resolve if possible.
+            last_status={{ last_status }},
+            last_run_id={{ run_id }},
+            last_error={{ last_error }},
+            last_metrics={{ last_metrics }}.
+          user: "carlo"
+          source: "home_assistant_repair"
+
+  - id: onenote_indexer_failure_clear_repair
+    alias: OneNote Indexer - Clear Repair On Recovery
+    description: Clear the Spook Repair issue when OneNote indexer is healthy again.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.onenote_indexer_job_failed
+        to: "off"
+        for: "00:02:00"
+    action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "onenote_indexer_job_failed"
+      - service: script.send_to_logbook
+        data:
+          topic: "ONENOTE"
+          message: "OneNote indexer recovered. Spook repair cleared."
