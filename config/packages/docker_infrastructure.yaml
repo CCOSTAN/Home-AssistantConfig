@@ -200,12 +200,47 @@ template:
           {% endif %}
 
   - sensor:
+      - name: "Docker Monitored Container Count"
+        unique_id: docker_monitored_container_count
+        icon: mdi:format-list-numbered
+        state: >-
+          {{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | count }}
+
+      - name: "Docker Monitored Unavailable Count"
+        unique_id: docker_monitored_unavailable_count
+        icon: mdi:lan-disconnect
+        state: >-
+          {% set ns = namespace(keys=[], unavailable=0) %}
+          {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) %}
+          {% for switch_entity in monitored %}
+            {% set key = switch_entity | replace('switch.', '') | regex_replace('_container$', '') %}
+            {% if key not in ns.keys %}
+              {% set ns.keys = ns.keys + [key] %}
+            {% endif %}
+          {% endfor %}
+          {% for key in ns.keys %}
+            {% set status_entity = 'binary_sensor.' ~ key ~ '_status' %}
+            {% set switch_entity = 'switch.' ~ key ~ '_container' %}
+            {% if expand(status_entity) | count > 0 %}
+              {% set effective_state = states(status_entity) | lower %}
+            {% elif expand(switch_entity) | count > 0 %}
+              {% set effective_state = states(switch_entity) | lower %}
+            {% else %}
+              {% set effective_state = 'unknown' %}
+            {% endif %}
+            {% if effective_state == 'unavailable' %}
+              {% set ns.unavailable = ns.unavailable + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.unavailable }}
+
       - name: "Docker Containers Down List"
         unique_id: docker_containers_down_list
         icon: mdi:docker
         state: >-
           {% set ns = namespace(keys=[], down=[]) %}
           {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) %}
+          {% set telemetry_degraded = is_state('binary_sensor.docker_container_telemetry_degraded', 'on') %}
           {% for switch_entity in monitored %}
             {% set key = switch_entity | replace('switch.', '') | regex_replace('_container$', '') %}
             {% if key not in ns.keys %}
@@ -222,7 +257,9 @@ template:
             {% else %}
               {% set effective_state = 'unknown' %}
             {% endif %}
-            {% if effective_state in ['off', 'unknown', 'unavailable'] %}
+            {% if effective_state in ['off', 'stopped'] %}
+              {% set ns.down = ns.down + [key] %}
+            {% elif not telemetry_degraded and effective_state in ['unknown', 'unavailable'] %}
               {% set ns.down = ns.down + [key] %}
             {% endif %}
           {% endfor %}
@@ -241,6 +278,16 @@ template:
           {% endif %}
 
   - binary_sensor:
+      - name: "Docker Container Telemetry Degraded"
+        unique_id: docker_container_telemetry_degraded
+        device_class: problem
+        icon: mdi:lan-disconnect
+        state: >-
+          {% set total = states('sensor.docker_monitored_container_count') | int(0) %}
+          {% set unavailable = states('sensor.docker_monitored_unavailable_count') | int(0) %}
+          {% set threshold = [3, ((total * 0.6) | round(0, 'ceil') | int(0))] | max %}
+          {{ total > 0 and unavailable >= threshold }}
+
       - name: "Docker Container Alerts Snoozed"
         unique_id: docker_container_alerts_snoozed
         device_class: problem
@@ -266,7 +313,7 @@ script:
         example: 5
     sequence:
       - variables:
-          down_states: ['off', 'unknown', 'unavailable']
+          down_states: ['off', 'stopped', 'unknown', 'unavailable']
           src_entity: "{{ entity_id | default('', true) }}"
           op: "{{ operation | default('create', true) | lower }}"
           wait_minutes: "{{ delay_minutes | default(0) | int(0) }}"
@@ -304,9 +351,12 @@ script:
                           minutes: "{{ wait_minutes }}"
               - variables:
                   effective_state: "{{ states(effective_entity) | lower }}"
+                  telemetry_degraded: "{{ is_state('binary_sensor.docker_container_telemetry_degraded', 'on') }}"
                   container_name: "{{ state_attr(effective_entity, 'friendly_name') | default(container_key, true) }}"
               - condition: template
-                value_template: "{{ effective_state in down_states }}"
+                value_template: >-
+                  {{ effective_state in down_states and
+                     not (telemetry_degraded and effective_state in ['unknown', 'unavailable']) }}
               - condition: state
                 entity_id: binary_sensor.docker_container_alerts_snoozed
                 state: "off"
@@ -453,12 +503,15 @@ automation:
         value_template: "{{ trigger.event.data.old_state.state != trigger.event.data.new_state.state }}"
     action:
       - variables:
-          down_states: ['off', 'unknown', 'unavailable']
+          down_states: ['off', 'stopped', 'unknown', 'unavailable']
           entity_id: "{{ trigger.event.data.entity_id }}"
           old_state: "{{ trigger.event.data.old_state.state | lower }}"
           new_state: "{{ trigger.event.data.new_state.state | lower }}"
       - choose:
-          - conditions: "{{ new_state in down_states and old_state not in down_states }}"
+          - conditions: >-
+              {{ new_state in down_states and old_state not in down_states and
+                 not (is_state('binary_sensor.docker_container_telemetry_degraded', 'on') and
+                      new_state in ['unknown', 'unavailable']) }}
             sequence:
               - service: script.docker_container_repairs_sync
                 data:

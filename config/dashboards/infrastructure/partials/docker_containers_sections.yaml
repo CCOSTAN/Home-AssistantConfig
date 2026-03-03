@@ -8,6 +8,7 @@
 #  Sections layout for the Docker containers view.
 # -------------------------------------------------------------------
 # Notes: Auto-discovers Portainer container entities from `switch.*_container`.
+# Notes: Keeps cards visible when Portainer telemetry is unavailable (degraded mode).
 ######################################################################
 
 - type: grid
@@ -80,6 +81,20 @@
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
     cards:
+    - type: custom:button-card
+      template: bearstone_infra_alert_row
+      entity: binary_sensor.docker_container_telemetry_degraded
+      name: Docker telemetry degraded
+      icon: mdi:lan-disconnect
+      variables:
+        alert_kind: binary_on
+      state_display: >-
+        [[[
+          const unavailable = states['sensor.docker_monitored_unavailable_count']?.state ?? '0';
+          const total = states['sensor.docker_monitored_container_count']?.state ?? '0';
+          return `${unavailable}/${total} unavailable`;
+        ]]]
+
     - type: custom:auto-entities
       show_empty: true
       grid_options:
@@ -104,7 +119,5 @@
             type: custom:button-card
             template: bearstone_infra_container_row
             icon: mdi:docker
-        exclude:
-        - state: unavailable
       sort:
         method: name

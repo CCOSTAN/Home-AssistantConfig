@@ -216,6 +216,8 @@ bearstone_infra_container_row:
     image: >
       [[[
         const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+        const stateNow = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
+        const telemetryDegraded = states['binary_sensor.docker_container_telemetry_degraded']?.state === 'on';
         let key = '';
         if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
           key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
@@ -227,6 +229,9 @@ bearstone_infra_container_row:
           : (key ? `sensor.${key}_image` : '');
         const imageValue = states[imageEntity]?.state;
         if (!imageValue || ['unknown', 'unavailable', 'none', ''].includes(String(imageValue).toLowerCase())) {
+          if (telemetryDegraded && ['unknown', 'unavailable', ''].includes(stateNow)) {
+            return 'telemetry: delayed';
+          }
           return 'image: n/a';
         }
         return imageValue;
@@ -234,10 +239,11 @@ bearstone_infra_container_row:
     status: >
       [[[
         const s = String(entity.state || '').toLowerCase();
+        const telemetryDegraded = states['binary_sensor.docker_container_telemetry_degraded']?.state === 'on';
         if (s === 'on' || s === 'running') return 'RUNNING';
         if (s === 'off' || s === 'stopped') return 'STOPPED';
-        if (s === 'unavailable') return 'OFFLINE';
-        if (s === 'unknown' || s === '') return 'UNKNOWN';
+        if (s === 'unavailable') return telemetryDegraded ? 'STALE' : 'OFFLINE';
+        if (s === 'unknown' || s === '') return telemetryDegraded ? 'STALE' : 'UNKNOWN';
         return String(entity.state).toUpperCase();
       ]]]
   styles:
@@ -359,14 +365,25 @@ bearstone_infra_container_row:
   - value: unavailable
     styles:
       card:
-      - border-color: rgba(229,57,53,0.35)
-      - background: rgba(255,235,238,0.85)
+      - border-color: rgba(245,124,0,0.35)
+      - background: rgba(255,243,224,0.85)
       icon:
-      - color: rgba(198,40,40,1)
+      - color: rgba(230,81,0,1)
       custom_fields:
         status:
-        - background: rgba(198,40,40,0.10)
-        - color: rgba(198,40,40,1)
+        - background: rgba(230,81,0,0.12)
+        - color: rgba(230,81,0,1)
+  - value: unknown
+    styles:
+      card:
+      - border-color: rgba(245,124,0,0.35)
+      - background: rgba(255,243,224,0.85)
+      icon:
+      - color: rgba(230,81,0,1)
+      custom_fields:
+        status:
+        - background: rgba(230,81,0,0.12)
+        - color: rgba(230,81,0,1)
 
 bearstone_infra_panel_header:
   show_icon: false

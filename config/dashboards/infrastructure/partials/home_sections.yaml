@@ -400,6 +400,23 @@
         tap_action:
           action: none
 
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.docker_container_telemetry_degraded
+        name: Docker telemetry degraded
+        icon: mdi:lan-disconnect
+        variables:
+          alert_kind: binary_on
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/docker
+        state_display: >-
+          [[[
+            const unavailable = states['sensor.docker_monitored_unavailable_count']?.state ?? '0';
+            const total = states['sensor.docker_monitored_container_count']?.state ?? '0';
+            return `${unavailable}/${total} unavailable`;
+          ]]]
+
       - type: custom:auto-entities
         show_empty: false
         card:
@@ -424,6 +441,8 @@
               icon: mdi:docker
           exclude:
           - state: 'on'
+          - state: unavailable
+          - state: unknown
 
     - type: custom:vertical-stack-in-card
       grid_options:
