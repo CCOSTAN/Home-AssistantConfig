@@ -24,6 +24,7 @@ rest_command:
         "text": {{ text | tojson }},
         "user": {{ user | default('carlo') | tojson }},
         "source": {{ source | default('home_assistant') | tojson }},
+        "context": {{ context | default(none) | tojson }},
         "callback": {{ callback | default(none) | tojson }}
       }
 

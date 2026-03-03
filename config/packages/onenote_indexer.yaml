@@ -8,7 +8,10 @@
 # -------------------------------------------------------------------
 # Notes: Keep onenote indexer monitoring in this package (separate from bearclaw transport).
 # Notes: last_status='never' is treated as success to avoid false alerts after restarts.
+# Notes: Only explicit last_status='error' is treated as failure; unknown/unavailable are neutral.
+# Notes: HA->Joanna request includes trigger context so Telegram progress messages can identify origin.
 # Notes: Creates/clears a Spook Repair issue and requests Joanna remediation on failures.
+# Notes: Schedules daily OneNote duplicate-delete maintenance request via Joanna.
 ######################################################################
 
 sensor:
@@ -104,9 +107,37 @@ template:
         unique_id: onenote_indexer_job_failed
         device_class: problem
         state: >-
-          {{ not is_state('binary_sensor.onenote_indexer_last_job_successful', 'on') }}
+          {{ is_state('sensor.onenote_indexer_last_job_status', 'error') }}
 
 automation:
+  - id: onenote_indexer_daily_delete_maintenance
+    alias: OneNote Indexer - Daily Delete Maintenance Request
+    description: Ask Joanna daily to run duplicate cleanup and delete reconciliation for OneNote indexer.
+    mode: single
+    trigger:
+      - platform: time
+        at: "03:15:00"
+    condition:
+      - condition: template
+        value_template: "{{ not (state_attr('sensor.onenote_indexer_last_job_status', 'running') | default(false) | bool) }}"
+    action:
+      - variables:
+          trigger_context: "HA automation onenote_indexer_daily_delete_maintenance (OneNote Indexer - Daily Delete Maintenance Request)"
+      - service: script.send_to_logbook
+        data:
+          topic: "ONENOTE"
+          message: "Requesting daily duplicate cleanup + delete reconciliation run from Joanna."
+      - service: rest_command.bearclaw_command
+        data:
+          text: >-
+            Trigger: {{ trigger_context }}.
+            Run OneNote indexer duplicate cleanup and apply deletions.
+            Include delete reconciliation so removed source pages are removed from the index.
+            Report pages/chunks and delete metrics before and after completion.
+          user: "carlo"
+          source: "home_assistant_automation.onenote_indexer_daily_delete_maintenance"
+          context: "{{ trigger_context }}"
+
   - id: onenote_indexer_failure_open_repair
     alias: OneNote Indexer - Open Repair On Failure
     description: Open a Spook Repair issue and ask Joanna to troubleshoot when indexer status is failed.
@@ -122,6 +153,7 @@ automation:
           run_id: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_run_id') | default('n/a') }}"
           last_error: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_error') | default('n/a') }}"
           last_metrics: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_metrics') | default({}) }}"
+          trigger_context: "HA automation onenote_indexer_failure_open_repair (OneNote Indexer - Open Repair On Failure)"
       - service: repairs.create
         data:
           issue_id: "onenote_indexer_job_failed"
@@ -143,6 +175,7 @@ automation:
       - service: rest_command.bearclaw_command
         data:
           text: >-
+            Trigger: {{ trigger_context }}.
             OneNote indexer containerhealth alert from Home Assistant.
             Please troubleshoot and resolve if possible.
             last_status={{ last_status }},
@@ -150,7 +183,8 @@ automation:
             last_error={{ last_error }},
             last_metrics={{ last_metrics }}.
           user: "carlo"
-          source: "home_assistant_repair"
+          source: "home_assistant_automation.onenote_indexer_failure_open_repair"
+          context: "{{ trigger_context }}"
 
   - id: onenote_indexer_failure_clear_repair
     alias: OneNote Indexer - Clear Repair On Recovery
