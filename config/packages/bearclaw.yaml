@@ -155,16 +155,20 @@ automation:
               - condition: template
                 value_template: "{{ action_name == 'yes' }}"
             sequence:
-              - service: script.joanna_send_telegram
+              - service: rest_command.bearclaw_command
                 data:
-                  message: "Great, I received your confirmation."
+                  text: "{{ 'yes ' ~ job_id if job_id | length > 0 else 'Yes.' }}"
+                  user: "{{ from_user }}"
+                  source: telegram_callback
           - conditions:
               - condition: template
                 value_template: "{{ action_name == 'no' }}"
             sequence:
-              - service: script.joanna_send_telegram
+              - service: rest_command.bearclaw_command
                 data:
-                  message: "Understood. I did not get confirmation."
+                  text: "{{ 'no ' ~ job_id if job_id | length > 0 else 'No.' }}"
+                  user: "{{ from_user }}"
+                  source: telegram_callback
         default:
           - service: script.joanna_send_telegram
             data:
