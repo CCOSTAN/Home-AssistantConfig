@@ -1,0 +1,91 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# MQTT Broker Monitoring - Broker reachability + remediation handoff
+#  Probes local MQTT broker TCP health and escalates failures to Spook + Joanna.
+# -------------------------------------------------------------------
+# Notes: Probe target is pinned to docker_10 host broker endpoint 192.168.10.10:1883.
+# Notes: `binary_sensor.mqtt_status_raw` is `on` when probe returns `open`.
+# Notes: Creates/clears Spook repair issue `mqtt_broker_unreachable`.
+######################################################################
+
+command_line:
+  - binary_sensor:
+      name: MQTT Status Raw
+      unique_id: mqtt_status_raw
+      command: >-
+        /bin/bash -c "(echo > /dev/tcp/192.168.10.10/1883) > /dev/null 2>&1 && echo open || echo closed"
+      payload_on: "open"
+      payload_off: "closed"
+      scan_interval: 60
+
+template:
+  - binary_sensor:
+      - name: MQTT Broker Problem
+        unique_id: mqtt_broker_problem
+        device_class: problem
+        state: >-
+          {{ states('binary_sensor.mqtt_status_raw') | lower in ['off', 'unknown', 'unavailable'] }}
+
+automation:
+  - id: mqtt_open_repair_on_failure
+    alias: MQTT - Open Repair On Failure
+    description: Open a Spook Repair issue and dispatch Joanna when broker health is down.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.mqtt_broker_problem
+        to: "on"
+        for: "00:03:00"
+    action:
+      - variables:
+          broker_endpoint: "192.168.10.10:1883"
+          mqtt_raw_state: "{{ states('binary_sensor.mqtt_status_raw') }}"
+          trigger_context: "HA automation mqtt_open_repair_on_failure (MQTT - Open Repair On Failure)"
+      - service: repairs.create
+        data:
+          issue_id: "mqtt_broker_unreachable"
+          title: "MQTT broker unreachable"
+          severity: "warning"
+          persistent: true
+          description: >-
+            Home Assistant detected MQTT broker connectivity failure.
+
+            broker_endpoint: {{ broker_endpoint }}
+            mqtt_status_raw: {{ mqtt_raw_state }}
+      - service: script.send_to_logbook
+        data:
+          topic: "MQTT"
+          message: >-
+            MQTT broker appears down at {{ broker_endpoint }}. Spook repair opened and Joanna remediation requested.
+      - service: rest_command.bearclaw_command
+        data:
+          text: >-
+            Trigger: {{ trigger_context }}.
+            MQTT broker health probe failed for endpoint {{ broker_endpoint }}.
+            Please troubleshoot and resolve if possible.
+            Current HA raw probe state: {{ mqtt_raw_state }}.
+          user: "carlo"
+          source: "home_assistant_automation.mqtt_open_repair_on_failure"
+          context: "{{ trigger_context }}"
+
+  - id: mqtt_clear_repair_on_recovery
+    alias: MQTT - Clear Repair On Recovery
+    description: Clear the Spook Repair issue once broker health is stable again.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.mqtt_broker_problem
+        to: "off"
+        for: "00:02:00"
+    action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "mqtt_broker_unreachable"
+      - service: script.send_to_logbook
+        data:
+          topic: "MQTT"
+          message: "MQTT broker recovered at 192.168.10.10:1883. Spook repair cleared."
