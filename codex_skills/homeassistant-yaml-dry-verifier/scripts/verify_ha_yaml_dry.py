@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
@@ -80,6 +81,13 @@ class Occurrence:
 class ParseError:
     file_path: str
     error: str
+
+
+@dataclass(frozen=True)
+class CentralScriptFinding:
+    script_id: str
+    definition_files: tuple[str, ...]
+    caller_files: tuple[str, ...]
 
 
 def _discover_yaml_files(paths: Iterable[str]) -> list[Path]:
@@ -270,6 +278,41 @@ def _render_occurrences(occurrences: list[Occurrence], max_rows: int = 6) -> str
     return "\n".join(lines)
 
 
+def _normalize_path(path: str) -> str:
+    return path.replace("\\", "/").lower()
+
+
+def _infer_script_id(candidate: Candidate) -> str | None:
+    if candidate.kind != "script":
+        return None
+    marker = ".script."
+    if marker in candidate.path:
+        return candidate.path.split(marker, 1)[1]
+    if "/config/script/" in _normalize_path(candidate.file_path):
+        if candidate.path.startswith("$."):
+            return candidate.path[2:]
+        match = re.match(r"^\$doc\[\d+\]\.(.+)$", candidate.path)
+        if match:
+            return match.group(1)
+    return None
+
+
+def _collect_script_service_calls(node: Any, script_ids: set[str]) -> None:
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key in {"service", "action"} and isinstance(value, str):
+                service_name = value.strip()
+                if service_name.startswith("script."):
+                    script_id = service_name.split(".", 1)[1].strip()
+                    if script_id:
+                        script_ids.add(script_id)
+            _collect_script_service_calls(value, script_ids)
+        return
+    if isinstance(node, list):
+        for item in node:
+            _collect_script_service_calls(item, script_ids)
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description="Detect duplicated Home Assistant YAML structures.")
     ap.add_argument("paths", nargs="+", help="YAML file(s) or directory path(s) to scan")
@@ -289,6 +332,7 @@ def main(argv: list[str]) -> int:
 
     parse_errors: list[ParseError] = []
     candidates: list[Candidate] = []
+    script_calls_by_id: dict[str, set[str]] = defaultdict(set)
 
     for path in files:
         try:
@@ -297,8 +341,12 @@ def main(argv: list[str]) -> int:
             parse_errors.append(ParseError(file_path=str(path), error=str(exc)))
             continue
 
+        script_calls_in_file: set[str] = set()
         for doc_idx, doc in enumerate(docs):
             candidates.extend(_extract_candidates_from_doc(doc, str(path), doc_idx))
+            _collect_script_service_calls(doc, script_calls_in_file)
+        for script_id in script_calls_in_file:
+            script_calls_by_id[script_id].add(str(path))
 
     full_index: dict[tuple[str, str, str], list[Occurrence]] = defaultdict(list)
     entry_index: dict[tuple[str, str, str], list[Occurrence]] = defaultdict(list)
@@ -354,6 +402,32 @@ def main(argv: list[str]) -> int:
     full_groups = _filter_groups(full_index)
     entry_groups = _filter_groups(entry_index)
     intra_duplicate_notes = sorted(set(intra_duplicate_notes))
+    script_definitions_by_id: dict[str, set[str]] = defaultdict(set)
+
+    for candidate in candidates:
+        script_id = _infer_script_id(candidate)
+        if script_id:
+            script_definitions_by_id[script_id].add(candidate.file_path)
+
+    central_script_findings: list[CentralScriptFinding] = []
+    for script_id, definition_files in script_definitions_by_id.items():
+        normalized_definitions = {_normalize_path(path): path for path in definition_files}
+        if not any("/config/packages/" in n for n in normalized_definitions):
+            continue
+        if any("/config/script/" in n for n in normalized_definitions):
+            continue
+        caller_files = sorted(script_calls_by_id.get(script_id, set()))
+        if len(caller_files) < 2:
+            continue
+        central_script_findings.append(
+            CentralScriptFinding(
+                script_id=script_id,
+                definition_files=tuple(sorted(definition_files)),
+                caller_files=tuple(caller_files),
+            )
+        )
+
+    central_script_findings.sort(key=lambda item: (-len(item.caller_files), item.script_id))
 
     print(f"Scanned files: {len(files)}")
     print(f"Parsed candidates: {len(candidates)}")
@@ -361,6 +435,7 @@ def main(argv: list[str]) -> int:
     print(f"Duplicate full-block groups: {len(full_groups)}")
     print(f"Duplicate entry groups: {len(entry_groups)}")
     print(f"Intra-block duplicates: {len(intra_duplicate_notes)}")
+    print(f"Central-script findings: {len(central_script_findings)}")
 
     if parse_errors:
         print("\nParse errors:")
@@ -386,8 +461,28 @@ def main(argv: list[str]) -> int:
         for idx, note in enumerate(intra_duplicate_notes[: args.max_groups], start=1):
             print(f"{idx}. {note}")
 
-    duplicate_count = len(full_groups) + len(entry_groups) + len(intra_duplicate_notes)
-    if args.strict and duplicate_count > 0:
+    if central_script_findings:
+        print("\nCENTRAL_SCRIPT findings:")
+        for idx, finding in enumerate(central_script_findings[: args.max_groups], start=1):
+            print(
+                f"{idx}. script.{finding.script_id} is package-defined and called from "
+                f"{len(finding.caller_files)} files"
+            )
+            for definition_file in finding.definition_files:
+                print(f"    - definition: {definition_file}")
+            for caller_file in finding.caller_files[:6]:
+                print(f"    - caller: {caller_file}")
+            if len(finding.caller_files) > 6:
+                print(f"    - ... {len(finding.caller_files) - 6} more callers")
+            print(f"    suggestion: Move definition to config/script/{finding.script_id}.yaml")
+
+    finding_count = (
+        len(full_groups)
+        + len(entry_groups)
+        + len(intra_duplicate_notes)
+        + len(central_script_findings)
+    )
+    if args.strict and finding_count > 0:
         return 1
     if parse_errors:
         return 2

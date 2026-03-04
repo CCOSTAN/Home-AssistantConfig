@@ -43,10 +43,11 @@ automation:
       - variables:
           broker_endpoint: "192.168.10.10:1883"
           mqtt_raw_state: "{{ states('binary_sensor.mqtt_status_raw') }}"
+          issue_id: "mqtt_broker_unreachable"
           trigger_context: "HA automation mqtt_open_repair_on_failure (MQTT - Open Repair On Failure)"
       - service: repairs.create
         data:
-          issue_id: "mqtt_broker_unreachable"
+          issue_id: "{{ issue_id }}"
           title: "MQTT broker unreachable"
           severity: "warning"
           persistent: true
@@ -60,16 +61,19 @@ automation:
           topic: "MQTT"
           message: >-
             MQTT broker appears down at {{ broker_endpoint }}. Spook repair opened and Joanna remediation requested.
-      - service: rest_command.bearclaw_command
+      - service: script.joanna_dispatch
         data:
-          text: >-
-            Trigger: {{ trigger_context }}.
-            MQTT broker health probe failed for endpoint {{ broker_endpoint }}.
-            Please troubleshoot and resolve if possible.
-            Current HA raw probe state: {{ mqtt_raw_state }}.
-          user: "carlo"
+          trigger_context: "{{ trigger_context }}"
           source: "home_assistant_automation.mqtt_open_repair_on_failure"
-          context: "{{ trigger_context }}"
+          summary: "MQTT broker endpoint is unreachable"
+          entity_ids:
+            - "binary_sensor.mqtt_status_raw"
+            - "binary_sensor.mqtt_broker_problem"
+          diagnostics: >-
+            issue_id={{ issue_id }},
+            broker_endpoint={{ broker_endpoint }},
+            mqtt_status_raw={{ mqtt_raw_state }}
+          request: "Troubleshoot and resolve MQTT broker reachability if possible."
 
   - id: mqtt_clear_repair_on_recovery
     alias: MQTT - Clear Repair On Recovery

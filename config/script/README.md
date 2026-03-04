@@ -29,9 +29,26 @@ Reusable scripts that other automations call for notifications, lighting, and sa
 | --- | --- |
 | [notify_engine.yaml](notify_engine.yaml) | Single entrypoint for rich push notifications. |
 | [send_to_logbook.yaml](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
+| [joanna_dispatch.yaml](joanna_dispatch.yaml) | Shared BearClaw/Joanna dispatch schema for automation remediation requests. |
 | [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech. |
 | [monthly_color_scene.yaml](monthly_color_scene.yaml) | Seasonal lighting scenes used across automations. |
 | [interior_off.yaml](interior_off.yaml) | One-call �all interior lights off� helper. |
+
+### Joanna + BearClaw automated resolution flow
+`script.joanna_dispatch` is the shared handoff contract from Home Assistant automations to BearClaw/Joanna.
+
+Why we use it:
+- Keeps one message schema for remediation context (`trigger_context`, `source`, `summary`, `entity_ids`, `diagnostics`, `request`).
+- Avoids repeating direct `rest_command.bearclaw_command` payload formatting in multiple packages.
+- Makes resolution-trigger automations easier to review, update, and audit.
+
+Current automations that kick off automated resolutions (via `script.joanna_dispatch`):
+| Automation ID | Alias | File |
+| --- | --- | --- |
+| `mqtt_open_repair_on_failure` | MQTT - Open Repair On Failure | [../packages/mqtt_status.yaml](../packages/mqtt_status.yaml) |
+| `onenote_indexer_daily_delete_maintenance` | OneNote Indexer - Daily Delete Maintenance Request | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
+| `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
+| `unifi_ap_no_clients_repair_combined` | Unifi AP Create Repair Issue after 5m of 0 Clients | [../packages/wireless.yaml](../packages/wireless.yaml) |
 
 ### Tips
 - Keep scripts generic�route data via `data:`/`variables:` and reuse everywhere.

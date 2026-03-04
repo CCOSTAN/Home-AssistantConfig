@@ -1,0 +1,66 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Joanna Dispatch - Shared BearClaw dispatch helper for automations
+#  Normalizes remediation context and forwards requests via bearclaw_command.
+# -------------------------------------------------------------------
+# Notes: Keep this helper generic so package automations can reuse one schema.
+# Notes: Source defaults to home_assistant_automation.unknown when omitted.
+######################################################################
+
+joanna_dispatch:
+  alias: Joanna Dispatch
+  description: Standardized Joanna/BearClaw dispatch helper for automation-triggered requests.
+  mode: queued
+  fields:
+    trigger_context:
+      description: Automation and trigger context string.
+    source:
+      description: Source identifier sent to BearClaw.
+    summary:
+      description: Short summary of the condition requiring Joanna.
+    request:
+      description: What Joanna should do.
+    entity_ids:
+      description: Relevant entity IDs (list or comma-delimited string).
+    diagnostics:
+      description: Extra troubleshooting context.
+    user:
+      description: BearClaw user identity.
+  sequence:
+    - variables:
+        normalized_context: "{{ trigger_context | default('HA automation', true) }}"
+        normalized_source: "{{ source | default('home_assistant_automation.unknown', true) }}"
+        normalized_summary: "{{ summary | default('Home Assistant remediation request', true) }}"
+        normalized_request: >-
+          {{ request | default('Investigate and recommend remediation. Do not run automated resets or power-cycles unless explicitly requested.', true) }}
+        normalized_user: "{{ user | default('carlo', true) }}"
+        normalized_entity_ids: >-
+          {% if entity_ids is sequence and entity_ids is not string %}
+            {{ entity_ids | map('string') | join(', ') }}
+          {% elif entity_ids is string and entity_ids | trim != '' %}
+            {{ entity_ids | trim }}
+          {% else %}
+            n/a
+          {% endif %}
+        normalized_diagnostics: >-
+          {% if diagnostics is string %}
+            {{ diagnostics | trim if diagnostics | trim != '' else 'n/a' }}
+          {% elif diagnostics is mapping or (diagnostics is sequence and diagnostics is not string) %}
+            {{ diagnostics | tojson }}
+          {% else %}
+            n/a
+          {% endif %}
+    - service: rest_command.bearclaw_command
+      data:
+        text: >-
+          Trigger: {{ normalized_context }}.
+          Summary: {{ normalized_summary }}.
+          Entity IDs: {{ normalized_entity_ids }}.
+          Diagnostics: {{ normalized_diagnostics }}.
+          Request: {{ normalized_request }}
+        user: "{{ normalized_user }}"
+        source: "{{ normalized_source }}"
+        context: "{{ normalized_context }}"

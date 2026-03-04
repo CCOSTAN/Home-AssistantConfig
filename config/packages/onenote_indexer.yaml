@@ -127,16 +127,18 @@ automation:
         data:
           topic: "ONENOTE"
           message: "Requesting daily duplicate cleanup + delete reconciliation run from Joanna."
-      - service: rest_command.bearclaw_command
+      - service: script.joanna_dispatch
         data:
-          text: >-
-            Trigger: {{ trigger_context }}.
-            Run OneNote indexer duplicate cleanup and apply deletions.
-            Include delete reconciliation so removed source pages are removed from the index.
-            Report pages/chunks and delete metrics before and after completion.
-          user: "carlo"
+          trigger_context: "{{ trigger_context }}"
           source: "home_assistant_automation.onenote_indexer_daily_delete_maintenance"
-          context: "{{ trigger_context }}"
+          summary: "Run daily OneNote indexer duplicate cleanup and deletion reconciliation"
+          entity_ids:
+            - "sensor.onenote_indexer_status_payload"
+            - "sensor.onenote_indexer_last_job_status"
+          diagnostics: "scheduled_time=03:15:00"
+          request: >-
+            Run OneNote duplicate cleanup and apply deletions.
+            Include delete reconciliation and report pages/chunks and delete metrics before and after completion.
 
   - id: onenote_indexer_failure_open_repair
     alias: OneNote Indexer - Open Repair On Failure
@@ -153,10 +155,11 @@ automation:
           run_id: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_run_id') | default('n/a') }}"
           last_error: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_error') | default('n/a') }}"
           last_metrics: "{{ state_attr('sensor.onenote_indexer_last_job_status', 'last_metrics') | default({}) }}"
+          issue_id: "onenote_indexer_job_failed"
           trigger_context: "HA automation onenote_indexer_failure_open_repair (OneNote Indexer - Open Repair On Failure)"
       - service: repairs.create
         data:
-          issue_id: "onenote_indexer_job_failed"
+          issue_id: "{{ issue_id }}"
           title: "OneNote indexer job failed"
           severity: "warning"
           persistent: true
@@ -172,19 +175,21 @@ automation:
           topic: "ONENOTE"
           message: >-
             OneNote indexer failed (run {{ run_id }}). Spook repair opened and Joanna remediation requested.
-      - service: rest_command.bearclaw_command
+      - service: script.joanna_dispatch
         data:
-          text: >-
-            Trigger: {{ trigger_context }}.
-            OneNote indexer containerhealth alert from Home Assistant.
-            Please troubleshoot and resolve if possible.
+          trigger_context: "{{ trigger_context }}"
+          source: "home_assistant_automation.onenote_indexer_failure_open_repair"
+          summary: "OneNote indexer job reported failure"
+          entity_ids:
+            - "binary_sensor.onenote_indexer_job_failed"
+            - "sensor.onenote_indexer_last_job_status"
+          diagnostics: >-
+            issue_id={{ issue_id }},
             last_status={{ last_status }},
             last_run_id={{ run_id }},
             last_error={{ last_error }},
-            last_metrics={{ last_metrics }}.
-          user: "carlo"
-          source: "home_assistant_automation.onenote_indexer_failure_open_repair"
-          context: "{{ trigger_context }}"
+            last_metrics={{ last_metrics }}
+          request: "Troubleshoot and resolve the indexer failure if possible."
 
   - id: onenote_indexer_failure_clear_repair
     alias: OneNote Indexer - Clear Repair On Recovery

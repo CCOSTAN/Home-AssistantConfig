@@ -1,12 +1,15 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Wireless AP Alerts - Unifi client monitoring and repair triggers.
-#-------------------------------------------
+# -------------------------------------------------------------------
+# Wireless AP Alerts - Unifi client monitoring and repair triggers
+#  Opens/clears Spook repairs and dispatches Joanna when APs stay at 0 clients.
+# -------------------------------------------------------------------
+# Notes: Discussion context: https://github.com/CCOSTAN/Home-AssistantConfig/issues/1534
+# Notes: Joanna remediation requests default to investigate + recommend (no auto reset/power-cycle).
 ######################################################################
-##  Alert when APs have zero clients; create repair issues.
-######################################################################
-# Discussion: https://github.com/CCOSTAN/Home-AssistantConfig/issues/1534
+
 automation:
   - id: unifi_ap_no_clients_repair_combined
     alias: "Unifi AP Create Repair Issue after 5m of 0 Clients"
@@ -50,6 +53,11 @@ automation:
       issue_id: >
         {{ ap_name | lower }}_ap_no_clients
 
+      client_sensor: "{{ trigger.entity_id }}"
+      client_count: "{{ states(trigger.entity_id) }}"
+      uptime_value: "{{ states(uptime_sensor) }}"
+      trigger_context: "HA automation unifi_ap_no_clients_repair_combined (Unifi AP Create Repair Issue after 5m of 0 Clients)"
+
     action:
       - service: repairs.create
         data:
@@ -59,10 +67,33 @@ automation:
           title: "{{ ap_name }} AP has 0 Wi-Fi Clients"
           description: >
             The {{ ap_name }} Unifi AP has reported 0 connected clients for
-            at least 5 minutes.  
-            Current uptime: {{ states(uptime_sensor) }}.
+            at least 5 minutes.
+            Current uptime: {{ uptime_value }}.
             View and manage this AP here:
             https://unifi.ui.com
+      - service: script.send_to_logbook
+        data:
+          topic: "WIRELESS"
+          message: >-
+            {{ ap_name }} AP has 0 clients for 5 minutes. Repair {{ issue_id }} opened and Joanna investigation requested.
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "{{ trigger_context }}"
+          source: "home_assistant_automation.unifi_ap_no_clients_repair_combined"
+          summary: "{{ ap_name }} Unifi AP reported 0 clients for 5 minutes"
+          entity_ids:
+            - "{{ client_sensor }}"
+            - "{{ uptime_sensor }}"
+          diagnostics: >-
+            issue_id={{ issue_id }},
+            ap_name={{ ap_name }},
+            client_sensor={{ client_sensor }},
+            client_count={{ client_count }},
+            uptime_sensor={{ uptime_sensor }},
+            uptime={{ uptime_value }}
+          request: >-
+            Investigate Unifi controller and AP health, then recommend remediation.
+            Do not run automated reset or power-cycle actions unless explicitly requested.
 
   - id: unifi_ap_no_clients_repair_resolved_combined
     alias: "Unifi AP Resolve Repair Issue When Clients Return"
@@ -91,5 +122,10 @@ automation:
 
     action:
       - service: repairs.remove
+        continue_on_error: true
         data:
           issue_id: "{{ issue_id }}"
+      - service: script.send_to_logbook
+        data:
+          topic: "WIRELESS"
+          message: "{{ ap_name }} AP clients recovered above 0. Repair {{ issue_id }} cleared."

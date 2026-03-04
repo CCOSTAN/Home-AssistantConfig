@@ -9,7 +9,9 @@
 # Notes: Keep BearClaw transport + bridge logic centralized in this package.
 # Notes: Most BearClaw decision logic runs in docker_17/codex_appliance (server.js).
 # Notes: GitHub capture behavior (issue creation/labels/research flow) belongs in codex_appliance, not HA YAML.
+# Notes: Shared script helper `script.joanna_dispatch` lives in config/script/joanna_dispatch.yaml.
 # Notes: Telegram inline button callbacks are handled here and mapped to BearClaw commands.
+# Notes: Inbound Telegram handling enforces user_id + chat_id allowlists from secrets CSV values.
 ######################################################################
 
 rest_command:
@@ -40,7 +42,6 @@ rest_command:
         "wake": {{ wake | default(false) | tojson }},
         "source": "home_assistant"
       }
-
 automation:
   - id: bearclaw_telegram_bear_command
     alias: BearClaw Telegram Bear Command
@@ -51,9 +52,21 @@ automation:
         event_type: telegram_command
         event_data:
           command: /bear
+    variables:
+      allowed_user_ids_csv: !secret bearclaw_allowed_telegram_user_ids
+      allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
     condition:
       - condition: template
         value_template: "{{ trigger.event.data.user_id is defined }}"
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id is defined }}"
+      - condition: template
+        value_template: >-
+          {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
+          {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
+          {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
+          {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
+          {{ allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats }}
     action:
       - variables:
           command_text: "{{ (trigger.event.data.args | default([])) | join(' ') | trim }}"
@@ -85,9 +98,21 @@ automation:
     trigger:
       - platform: event
         event_type: telegram_callback
+    variables:
+      allowed_user_ids_csv: !secret bearclaw_allowed_telegram_user_ids
+      allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
     condition:
       - condition: template
         value_template: "{{ trigger.event.data.user_id is defined }}"
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id is defined }}"
+      - condition: template
+        value_template: >-
+          {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
+          {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
+          {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
+          {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
+          {{ allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats }}
       - condition: template
         value_template: >-
           {% set cb = trigger.event.data.data | default('') %}
@@ -192,9 +217,21 @@ automation:
     trigger:
       - platform: event
         event_type: telegram_text
+    variables:
+      allowed_user_ids_csv: !secret bearclaw_allowed_telegram_user_ids
+      allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
     condition:
       - condition: template
         value_template: "{{ trigger.event.data.user_id is defined }}"
+      - condition: template
+        value_template: "{{ trigger.event.data.chat_id is defined }}"
+      - condition: template
+        value_template: >-
+          {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
+          {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
+          {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
+          {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
+          {{ allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats }}
       - condition: template
         value_template: "{{ (trigger.event.data.text | default('') | trim) != '' }}"
       - condition: template

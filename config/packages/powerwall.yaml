@@ -41,6 +41,18 @@
 ######################################################################
 
 #-------------------------------------------
+script:
+  powerwall_turn_off_nonessential_lights:
+    alias: "Powerwall - Turn Off Non-Essential Lights"
+    sequence:
+      - service: homeassistant.turn_off
+        target:
+          entity_id:
+            - group.interior_lights
+            - group.exterior_lights
+            - switch.kitchen_accent_2
+            - switch.master_bathroom_accent_2
+
 automation:
   - alias: Notify if Grid is down
     id: 56a32121-5725-4510-a1fa-10f69a5c82ef
@@ -78,87 +90,61 @@ automation:
         to: 'off'
 
     action:
-      - service: homeassistant.turn_off
-        entity_id:
-         - group.interior_lights
-         - group.exterior_lights
-         - switch.kitchen_accent_2
-         - switch.master_bathroom_accent_2
-      - service: script.notify_engine
-        data:
-         title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
-         value1: "Taking actions to turning off the House Lights to preserve Battery Power."
-         who: 'family'
-         group: 'information'
+      - repeat:
+          count: 3
+          sequence:
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: "{{ repeat.index == 2 }}"
+                  sequence:
+                    - delay:
+                        minutes: 1
+                - conditions:
+                    - condition: template
+                      value_template: "{{ repeat.index == 3 }}"
+                  sequence:
+                    - delay:
+                        minutes: 3
+            - service: script.powerwall_turn_off_nonessential_lights
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: "{{ repeat.index == 1 }}"
+                  sequence:
+                    - service: script.notify_engine
+                      data:
+                        title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+                        value1: "Taking actions to turning off the House Lights to preserve Battery Power."
+                        who: 'family'
+                        group: 'information'
+                - conditions:
+                    - condition: template
+                      value_template: "{{ repeat.index == 2 }}"
+                  sequence:
+                    - service: script.speech_engine
+                      data:
+                        value1: "Because of the Power Outage, the Lights will be recycled for 3 minutes.  Lights may turn on and off during this time."
+                - conditions:
+                    - condition: template
+                      value_template: "{{ repeat.index == 3 }}"
+                  sequence:
+                    - service: script.speech_engine
+                      data:
+                        value1: "Automatic light recycling has been completed.  Any abnormalities will have to be addressed in the Hue App most likely. "
 
-      - delay:
-         minutes: 1
-      - service: homeassistant.turn_off
-        entity_id:
-         - group.interior_lights
-         - group.exterior_lights
-         - switch.kitchen_accent_2
-         - switch.master_bathroom_accent_2
-
-      - service: script.speech_engine
-        data:
-          value1: "Because of the Power Outage, the Lights will be recycled for 3 minutes.  Lights may turn on and off during this time."
-
-      - delay:
-          minutes: 3
-      - service: homeassistant.turn_off
-        entity_id:
-          - group.interior_lights
-          - group.exterior_lights
-          - switch.kitchen_accent_2
-          - switch.master_bathroom_accent_2
-
-      - service: script.speech_engine
-        data:
-          value1: "Automatic light recycling has been completed.  Any abnormalities will have to be addressed in the Hue App most likely. "
-
-  - alias: Powerwall Low Charge Monitoring with Grid Status
+  - alias: "Powerwall Low Charge Monitoring and Recovery"
     id: fda6116b-b2a5-4198-a1ce-4cf4bb3254b2
     mode: single
     trigger:
-      - platform: numeric_state
+      - id: low_24h
+        platform: numeric_state
         entity_id: sensor.powerwall_charge
         below: 60
         for:
           hours: 24
-    condition:
-      - condition: state
-        entity_id: binary_sensor.powerwall_grid_status
-        state: 'on'
-    action:
-      - service: script.send_to_logbook
-        data:
-          topic: "POWER"
-          message: "Powerwall charge below 60% for 24h (current: {{ states('sensor.powerwall_charge') }}%)."
-
-      - service: repairs.create
-        data:
-          issue_id: "powerwall_low_charge_60_24h"
-          title: "Powerwall charge low for 24h"
-          severity: "warning"
-          persistent: true
-          description: >-
-            Powerwall has been below 60% for 24 hours while the grid is online.
-
-            Current charge: {{ states('sensor.powerwall_charge') }}%.
-
-      - service: script.notify_engine
-        data:
-          title: "Powerwall Low Charge Alert - Current Charge: {{ states('sensor.powerwall_charge') }}"
-          value1: "The Powerwall has been below 50% charge for more than 24 hours while the grid is online. This may indicate an issue."
-          who: 'parents'
-          group: 'information'
-
-  - alias: "Powerwall Low Charge Resolved - Clear Repair Issue"
-    id: 5fd1f0b3-0e64-4a4b-bd7a-9f5d5e6b8f90
-    mode: single
-    trigger:
-      - platform: numeric_state
+      - id: recovered
+        platform: numeric_state
         entity_id: sensor.powerwall_charge
         above: 60
         for:
@@ -168,14 +154,43 @@ automation:
         entity_id: binary_sensor.powerwall_grid_status
         state: 'on'
     action:
-      - service: repairs.remove
-        continue_on_error: true
-        data:
-          issue_id: "powerwall_low_charge_60_24h"
-      - service: script.send_to_logbook
-        data:
-          topic: "POWER"
-          message: "Powerwall charge recovered above 60%. Cleared repair issue."
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: low_24h
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "POWER"
+                  message: "Powerwall charge below 60% for 24h (current: {{ states('sensor.powerwall_charge') }}%)."
+              - service: repairs.create
+                data:
+                  issue_id: "powerwall_low_charge_60_24h"
+                  title: "Powerwall charge low for 24h"
+                  severity: "warning"
+                  persistent: true
+                  description: >-
+                    Powerwall has been below 60% for 24 hours while the grid is online.
+
+                    Current charge: {{ states('sensor.powerwall_charge') }}%.
+              - service: script.notify_engine
+                data:
+                  title: "Powerwall Low Charge Alert - Current Charge: {{ states('sensor.powerwall_charge') }}"
+                  value1: "The Powerwall has been below 50% charge for more than 24 hours while the grid is online. This may indicate an issue."
+                  who: 'parents'
+                  group: 'information'
+          - conditions:
+              - condition: trigger
+                id: recovered
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "powerwall_low_charge_60_24h"
+              - service: script.send_to_logbook
+                data:
+                  topic: "POWER"
+                  message: "Powerwall charge recovered above 60%. Cleared repair issue."
 
   - alias: "Shut down Docker hosts and camera PoE at 75% Powerwall"
     id: 25b3d3d8-92fa-454a-9f1c-6d3fd0f3af58
@@ -201,48 +216,25 @@ automation:
             - switch.poe_garage_port_5_poe
             - switch.poe_garage_port_6_poe
 
-  - alias: "Powerwall outage - Rheem WH off at night"
+  - alias: "Powerwall outage - Rheem WH mode control"
     id: d686f650-65ad-4cc6-8e27-8b5ee76b5338
-    description: "During outages, turn off the water heater after sunset to protect battery"
+    description: "During outages, switch Rheem mode by time-of-day and battery reserve"
     mode: single
     trigger:
-      - platform: sun
-        event: sunset
-      - platform: state
-        entity_id: binary_sensor.powerwall_grid_status
-        to: 'off'
-        for:
-          minutes: 1
-    condition:
-      - condition: state
-        entity_id: binary_sensor.powerwall_grid_status
-        state: 'off'
-      - condition: or
-        conditions:
-          - condition: sun
-            after: sunset
-          - condition: sun
-            before: sunrise
-    action:
-      - service: water_heater.set_operation_mode
-        target:
-          entity_id: water_heater.rheem_wh
-        data:
-          state: off
-
-  - alias: "Powerwall outage - Rheem WH heat pump after sunrise and 50%"
-    id: 7b6e8bb0-7d0c-4e63-89cf-ff6e7811b579
-    description: "During outages, restore water heater to heat pump once battery is healthy during daytime"
-    mode: single
-    trigger:
-      - platform: sun
+      - id: sunrise
+        platform: sun
         event: sunrise
-      - platform: numeric_state
+      - id: charge_above_50
+        platform: numeric_state
         entity_id: sensor.powerwall_charge
         above: 50
         for:
           minutes: 5
-      - platform: state
+      - id: sunset
+        platform: sun
+        event: sunset
+      - id: grid_off_1m
+        platform: state
         entity_id: binary_sensor.powerwall_grid_status
         to: 'off'
         for:
@@ -251,22 +243,42 @@ automation:
       - condition: state
         entity_id: binary_sensor.powerwall_grid_status
         state: 'off'
-      - condition: numeric_state
-        entity_id: sensor.powerwall_charge
-        above: 50
-      - condition: sun
-        after: sunrise
-        before: sunset
     action:
-      - service: water_heater.set_operation_mode
-        target:
-          entity_id: water_heater.rheem_wh
-        data:
-          state: heat_pump
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id in ['sunset', 'grid_off_1m'] }}"
+              - condition: or
+                conditions:
+                  - condition: sun
+                    after: sunset
+                  - condition: sun
+                    before: sunrise
+            sequence:
+              - service: water_heater.set_operation_mode
+                target:
+                  entity_id: water_heater.rheem_wh
+                data:
+                  state: off
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id in ['sunrise', 'charge_above_50', 'grid_off_1m'] }}"
+              - condition: numeric_state
+                entity_id: sensor.powerwall_charge
+                above: 50
+              - condition: sun
+                after: sunrise
+                before: sunset
+            sequence:
+              - service: water_heater.set_operation_mode
+                target:
+                  entity_id: water_heater.rheem_wh
+                data:
+                  state: heat_pump
 
-  - alias: "Notify to restore PoE ports when grid returns"
+  - alias: "Restore PoE ports when grid returns"
     id: 1ae8b5c5-8627-4a44-8c8a-5bf8ca5e1bf5
-    description: "Prompt to turn PoE ports back on after outage shutdown steps"
+    description: "Turn camera PoE ports back on after grid has been stable"
     mode: single
     trigger:
       - platform: state
@@ -274,7 +286,11 @@ automation:
         from: 'off'
         to: 'on'
         for:
-          minutes: 10
+          minutes: 60
+      - platform: numeric_state
+        entity_id: sensor.powerwall_charge
+        above: 90
+
     condition:
       - condition: or
         conditions:
@@ -290,11 +306,21 @@ automation:
           - condition: state
             entity_id: switch.poe_garage_port_6_poe
             state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.powerwall_charge
+        above: 90
     action:
+      - service: switch.turn_on
+        target:
+          entity_id:
+            - switch.poe_garage_port_3_poe
+            - switch.poe_garage_port_4_poe
+            - switch.poe_garage_port_5_poe
+            - switch.poe_garage_port_6_poe
       - service: script.notify_engine
         data:
-          title: "Grid restored - turn PoE ports back on"
-          value1: "Power is back. Remember to re-enable PoE ports 3-6 if cameras stayed offline."
+          title: "Grid restored - PoE ports re-enabled"
+          value1: "Power is stable. Camera PoE ports 3-6 were turned back on automatically."
           who: 'family'
           group: 'information'
 

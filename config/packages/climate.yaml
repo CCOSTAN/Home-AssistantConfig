@@ -165,6 +165,7 @@ script:
                 data:
                   entity_id: climate.downstairs
                   temperature: 80
+
           - conditions:
               - condition: and
                 conditions:
@@ -222,6 +223,34 @@ script:
                 data:
                   entity_id: climate.downstairs
                   temperature: 80
+
+  set_downstairs_daytime_target:
+    alias: Set Downstairs Daytime Target
+    mode: single
+    sequence:
+      - service: script.set_downstairs_target_temp_based_on_conditions
+
+  set_downstairs_hvac_cool:
+    alias: Set Downstairs HVAC Cool
+    mode: single
+    sequence:
+      - service: climate.set_hvac_mode
+        data:
+          entity_id: climate.downstairs
+          hvac_mode: cool
+
+  set_upstairs_cool_82:
+    alias: Set Upstairs Cool 82
+    mode: single
+    sequence:
+      - service: climate.set_hvac_mode
+        data:
+          entity_id: climate.upstairs
+          hvac_mode: cool
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.upstairs
+          temperature: 82
 
 ##############################################################################
 ###  AUTOMATIONS - Thermostat schedules, guardrails, and presence/weather logic
@@ -299,9 +328,8 @@ automation:
         attribute: temperature
         below: 76
     condition:
-      - condition: state
-        entity_id: binary_sensor.powerwall_grid_status
-        state: 'on'
+      - condition: template
+        value_template: "{{ is_state('binary_sensor.powerwall_grid_status', 'on') }}"
     action:
       - delay: "00:03:00"
       - service: climate.set_temperature
@@ -352,9 +380,6 @@ automation:
       - platform: numeric_state
         entity_id: sensor.pirateweather_temperature
         above: 92
-      - platform: state
-        entity_id: group.family
-        to: 'home'
     condition:
       - condition: and
         conditions:
@@ -368,7 +393,7 @@ automation:
             entity_id: binary_sensor.powerwall_grid_status
             state: 'on'
     action:
-      - service: script.set_downstairs_target_temp_based_on_conditions
+      - service: script.set_downstairs_daytime_target
           
 # Set thermostats to eco mode when everyone is away
   - alias: 'Set Thermostats to Eco When Away'
@@ -401,10 +426,7 @@ automation:
                   topic: "CLIMATE"
                   message: "Skipping downstairs cool mode (outside temp <75F)."
         default:
-          - service: climate.set_hvac_mode
-            data:
-              entity_id: climate.downstairs
-              hvac_mode: cool
+          - service: script.set_downstairs_hvac_cool
       - service: climate.set_temperature
         data:
           entity_id: climate.upstairs
@@ -424,9 +446,8 @@ automation:
           - condition: state
             entity_id: group.family
             state: 'home'
-      - condition: state
-        entity_id: input_boolean.guest_mode
-        state: 'off'
+      - condition: template
+        value_template: "{{ is_state('input_boolean.guest_mode', 'off') }}"
       - condition: state
         entity_id: binary_sensor.powerwall_grid_status
         state: 'on'
@@ -452,18 +473,10 @@ automation:
       - platform: time
         at: "03:00:00"
     condition:
-      - condition: state
-        entity_id: binary_sensor.powerwall_grid_status
-        state: 'on'
+      - condition: template
+        value_template: "{{ states('binary_sensor.powerwall_grid_status') == 'on' }}"
     action:
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.upstairs
-          hvac_mode: cool
-      - service: climate.set_temperature
-        data:
-          entity_id: climate.upstairs
-          temperature: 82
+      - service: script.set_upstairs_cool_82
 
   - alias: 'Humidity Control'
     id: AC_Humidity_Control
@@ -485,9 +498,8 @@ automation:
         value_template: "{{ now().month in [10, 11, 12, 1, 2, 3] }}"  
       - condition: template # Only run if AC is idle (prevents fighting other automations)
         value_template: "{{ state_attr('climate.downstairs', 'hvac_action') == 'idle' }}"
-      - condition: state # Never run if the grid is down and running on powerwall.
-        entity_id: binary_sensor.powerwall_grid_status
-        state: 'on'
+      - condition: template # Never run if the grid is down and running on powerwall.
+        value_template: "{{ states('binary_sensor.powerwall_grid_status')|lower == 'on' }}"
     action:
       - choose:
           - conditions:

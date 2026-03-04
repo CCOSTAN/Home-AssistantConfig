@@ -7,6 +7,13 @@ description: "Verify Home Assistant YAML for DRY and efficiency issues by detect
 
 Use this skill to lint Home Assistant YAML for repeat logic before or after edits, then refactor repeated blocks into reusable helpers.
 
+## Mandatory Resolution Policy
+
+- If the verifier reports findings for files touched in the current task, do not stop at reporting.
+- Resolve the findings in the same task by refactoring YAML to remove duplication.
+- Re-run the verifier after refactoring and iterate until targeted findings are cleared.
+- If a finding cannot be safely resolved, explicitly document the blocker and the smallest safe follow-up.
+
 ## Quick Start
 
 1. Run the verifier script on the file(s) you edited.
@@ -38,6 +45,7 @@ python codex_skills/homeassistant-yaml-dry-verifier/scripts/verify_ha_yaml_dry.p
 - `FULL_BLOCK`: repeated full trigger/condition/action/sequence blocks.
 - `ENTRY`: repeated individual entries inside those blocks.
 - `INTRA`: duplicate entries inside a single block.
+- `CENTRAL_SCRIPT`: script is defined in `config/packages` but called from 2+ YAML files.
 
 4. Refactor with intent:
 - Repeated actions/sequence: move to a reusable `script.*`, pass variables.
@@ -47,6 +55,12 @@ python codex_skills/homeassistant-yaml-dry-verifier/scripts/verify_ha_yaml_dry.p
 5. Validate after edits:
 - Re-run this verifier.
 - Run Home Assistant config validation before reload/restart.
+
+6. Enforce closure:
+- Treat unresolved `FULL_BLOCK`/`ENTRY` findings in touched files as incomplete work unless a blocker is documented.
+- Prefer consolidating duplicated automation triggers/conditions/actions into shared logic or a single branching automation.
+- Treat unresolved `CENTRAL_SCRIPT` findings in touched scope as incomplete unless documented as deferred-with-blocker.
+- Move shared package scripts to `config/script/<script_id>.yaml` when they are used cross-file.
 
 ## Dashboard Designer Integration
 
@@ -58,7 +72,13 @@ Always report:
 - Total files scanned.
 - Parse errors (if any).
 - Duplicate groups by kind (`trigger`, `condition`, `action`, `sequence`).
+- Central script placement findings (`CENTRAL_SCRIPT`) with definition + caller files.
 - Concrete refactor recommendation per group.
+- Resolution status for each finding (`resolved`, `deferred-with-blocker`).
+
+Strict behavior:
+- `--strict` returns non-zero for any reported finding (`FULL_BLOCK`, `ENTRY`, `INTRA`, `CENTRAL_SCRIPT`).
+- Without `--strict`, findings are reported but exit remains zero unless parse errors occur.
 
 ## References
 
