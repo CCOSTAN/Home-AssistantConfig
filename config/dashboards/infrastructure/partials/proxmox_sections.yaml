@@ -6,12 +6,13 @@
 # Infrastructure Partial - proxmox sections
 #  Reusable list extracted from a view for smaller diffs and safer edits.
 # -------------------------------------------------------------------
+# Related Issue: 1584
 # Notes: Standardized on `custom:button-card` + `custom:mini-graph-card` with `card_mod` polish.
 ######################################################################
 
 - type: grid
   column_span: 4
-  columns: 4
+  columns: 6
   square: false
   cards:
   - type: custom:button-card
@@ -26,6 +27,11 @@
     icon: mdi:memory
   - type: custom:button-card
     template: bearstone_infra_kpi
+    entity: sensor.proxmox1_disk_used_percentage
+    name: P1 DISK
+    icon: mdi:harddisk
+  - type: custom:button-card
+    template: bearstone_infra_kpi
     entity: sensor.node_proxmox02_cpu_used
     name: P2 CPU
     icon: mdi:cpu-64-bit
@@ -34,6 +40,31 @@
     entity: sensor.node_proxmox02_memory_used_percentage
     name: P2 MEM
     icon: mdi:memory
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.proxmox02_disk_used_percentage
+    name: P2 DISK
+    icon: mdi:harddisk
+
+- type: grid
+  column_span: 4
+  columns: 2
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_list_row_running
+    entity: binary_sensor.proxmox1_runtime_healthy
+    name: Proxmox01 Runtime
+    icon: mdi:server
+    state_display: >
+      [[[ return entity.state === 'on' ? 'ONLINE' : 'OFFLINE'; ]]]
+  - type: custom:button-card
+    template: bearstone_infra_list_row_running
+    entity: binary_sensor.proxmox02_runtime_healthy
+    name: Proxmox02 Runtime
+    icon: mdi:server
+    state_display: >
+      [[[ return entity.state === 'on' ? 'ONLINE' : 'OFFLINE'; ]]]
 
 - type: grid
   column_span: 4
@@ -48,7 +79,7 @@
       template: bearstone_infra_panel_header
       name: Proxmox01
     - type: custom:mini-graph-card
-      name: Host CPU / Memory
+      name: Host CPU / Memory / Disk
       icon: mdi:server
       hours_to_show: 24
       points_per_hour: 2
@@ -65,6 +96,8 @@
         name: CPU
       - entity: sensor.node_proxmox1_memory_used_percentage
         name: Memory
+      - entity: sensor.proxmox1_disk_used_percentage
+        name: Disk
     - type: custom:mini-graph-card
       name: VMs CPU / Memory
       icon: mdi:chart-line
@@ -100,7 +133,7 @@
       template: bearstone_infra_panel_header
       name: Proxmox02
     - type: custom:mini-graph-card
-      name: Host CPU / Memory
+      name: Host CPU / Memory / Disk
       icon: mdi:server
       hours_to_show: 24
       points_per_hour: 2
@@ -117,6 +150,8 @@
         name: CPU
       - entity: sensor.node_proxmox02_memory_used_percentage
         name: Memory
+      - entity: sensor.proxmox02_disk_used_percentage
+        name: Disk
     - type: custom:mini-graph-card
       name: Frigate VM CPU / Memory
       icon: mdi:video

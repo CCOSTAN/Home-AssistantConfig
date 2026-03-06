@@ -4,9 +4,10 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - Website health sections
-#  Website uptime + domain expiry + certificate telemetry detail view.
+#  Website uptime + response windows + domain expiry telemetry view.
 # -------------------------------------------------------------------
-# Notes: Keep the first section full-width to avoid whitespace.
+# Related Issue: 1584
+# Notes: Uses direct Uptime Kuma entities (no aggregate uptime min sensors).
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -73,6 +74,94 @@
           icon: mdi:web-check
           state_display: >
             [[[ return entity.state === 'on' ? 'UP' : (entity.state || 'unknown').toUpperCase(); ]]]
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: binary_sensor.vcloudinfo_com
+          name: vcloudinfo.com uptime
+          icon: mdi:chart-line
+          state_display: >
+            [[[
+              const pick = (metric, window) => {
+                const suffix = `${metric}_${window}`;
+                const candidates = Object.keys(states).filter((k) =>
+                  k.startsWith('sensor.') &&
+                  k.includes('vcloudinfo_com') &&
+                  k.endsWith(suffix)
+                );
+                const eid = candidates[0];
+                return eid ? (states[eid]?.state ?? 'n/a') : 'n/a';
+              };
+              const uptime1d = pick('uptime', '1d');
+              const uptime30d = pick('uptime', '30d');
+              const uptime365d = pick('uptime', '365d');
+              return `1d ${uptime1d}% | 30d ${uptime30d}% | 365d ${uptime365d}%`;
+            ]]]
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: binary_sensor.vcloudinfo_com
+          name: vcloudinfo.com response
+          icon: mdi:timer-outline
+          state_display: >
+            [[[
+              const pick = (metric, window) => {
+                const suffix = `${metric}_${window}`;
+                const candidates = Object.keys(states).filter((k) =>
+                  k.startsWith('sensor.') &&
+                  k.includes('vcloudinfo_com') &&
+                  k.endsWith(suffix)
+                );
+                const eid = candidates[0];
+                return eid ? (states[eid]?.state ?? 'n/a') : 'n/a';
+              };
+              const r1d = pick('avg_response_time', '1d');
+              const r30d = pick('avg_response_time', '30d');
+              const r365d = pick('avg_response_time', '365d');
+              return `1d ${r1d}s | 30d ${r30d}s | 365d ${r365d}s`;
+            ]]]
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: binary_sensor.www_kingcrafthomes_com
+          name: kingcrafthomes.com uptime
+          icon: mdi:chart-line
+          state_display: >
+            [[[
+              const pick = (metric, window) => {
+                const suffix = `${metric}_${window}`;
+                const candidates = Object.keys(states).filter((k) =>
+                  k.startsWith('sensor.') &&
+                  (k.includes('kingcrafthomes_com') || k.includes('www_kingcrafthomes_com')) &&
+                  k.endsWith(suffix)
+                );
+                const eid = candidates[0];
+                return eid ? (states[eid]?.state ?? 'n/a') : 'n/a';
+              };
+              const uptime1d = pick('uptime', '1d');
+              const uptime30d = pick('uptime', '30d');
+              const uptime365d = pick('uptime', '365d');
+              return `1d ${uptime1d}% | 30d ${uptime30d}% | 365d ${uptime365d}%`;
+            ]]]
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: binary_sensor.www_kingcrafthomes_com
+          name: kingcrafthomes.com response
+          icon: mdi:timer-outline
+          state_display: >
+            [[[
+              const pick = (metric, window) => {
+                const suffix = `${metric}_${window}`;
+                const candidates = Object.keys(states).filter((k) =>
+                  k.startsWith('sensor.') &&
+                  (k.includes('kingcrafthomes_com') || k.includes('www_kingcrafthomes_com')) &&
+                  k.endsWith(suffix)
+                );
+                const eid = candidates[0];
+                return eid ? (states[eid]?.state ?? 'n/a') : 'n/a';
+              };
+              const r1d = pick('avg_response_time', '1d');
+              const r30d = pick('avg_response_time', '30d');
+              const r365d = pick('avg_response_time', '365d');
+              return `1d ${r1d}s | 30d ${r30d}s | 365d ${r365d}s`;
+            ]]]
 
     - type: custom:vertical-stack-in-card
       grid_options:
@@ -101,7 +190,7 @@
           name: vcloudinfo.com
           icon: mdi:calendar-clock
           state_display: >
-            [[[ 
+            [[[
               const days = states['sensor.vcloudinfo_com_days_until_expiration']?.state ?? 'n/a';
               const expRaw = states['sensor.vcloudinfo_com_expires']?.state;
               let exp = 'n/a';
@@ -127,7 +216,7 @@
           name: kingcrafthomes.com
           icon: mdi:calendar-clock
           state_display: >
-            [[[ 
+            [[[
               const days = states['sensor.kingcrafthomes_com_days_until_expiration']?.state ?? 'n/a';
               const expRaw = states['sensor.kingcrafthomes_com_expires']?.state;
               let exp = 'n/a';
@@ -148,3 +237,29 @@
               return `${days}d | ${exp}`;
             ]]]
 
+- type: grid
+  column_span: 4
+  columns: 3
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_alert_row
+    entity: binary_sensor.infra_website_degraded
+    name: Website status degraded
+    icon: mdi:web-off
+    variables:
+      alert_kind: binary_on
+  - type: custom:button-card
+    template: bearstone_infra_alert_row
+    entity: binary_sensor.infra_website_uptime_slo_breach
+    name: Uptime SLO breach
+    icon: mdi:alert-decagram
+    variables:
+      alert_kind: binary_on
+  - type: custom:button-card
+    template: bearstone_infra_alert_row
+    entity: binary_sensor.infra_website_latency_degraded
+    name: Website latency degraded
+    icon: mdi:timer-alert
+    variables:
+      alert_kind: binary_on
