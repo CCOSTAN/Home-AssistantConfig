@@ -1,0 +1,58 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Popup - docker_69 maintenance
+#  Bubble Card popup for host maintenance details and safe cleanup actions.
+# -------------------------------------------------------------------
+# Related Issue: 1560
+# Notes: Reuses existing Infrastructure button-card templates inside the popup.
+######################################################################
+
+type: vertical-stack
+cards:
+- type: custom:bubble-card
+  card_type: pop-up
+  hash: '#infra-docker-69'
+  entity: sensor.docker_69_apt_status
+  button_type: state
+  name: docker_69 maintenance
+  icon: mdi:server
+  show_header: true
+  show_state: true
+  width_desktop: 520px
+  bg_opacity: '35'
+- type: grid
+  columns: 2
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_apt_prune_tile
+    name: docker_69
+    entity: sensor.docker_69_apt_status
+    variables:
+      last_update_sensor: sensor.docker_69_apt_last_update
+      prune_button: button.docker69_prune_unused_images
+      name: docker_69
+  - type: custom:button-card
+    template: bearstone_infra_tile
+    entity: sensor.docker_69_apt_last_update
+    name: Last Update
+    icon: mdi:update
+    variables:
+      label: Most recent package update
+  - type: custom:button-card
+    template: bearstone_infra_tile
+    entity: sensor.docker_69_apt_last_check
+    name: Last Check
+    icon: mdi:calendar-check
+    variables:
+      label: Most recent apt check
+  - type: custom:button-card
+    template: bearstone_infra_tile
+    entity: sensor.docker_69_apt_status
+    name: Apt Status
+    icon: mdi:package-up
+    variables:
+      label: Pending package summary

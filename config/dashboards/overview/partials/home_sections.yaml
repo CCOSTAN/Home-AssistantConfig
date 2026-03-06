@@ -208,7 +208,11 @@
     show_last_changed: true
     tap_action:
       action: navigate
-      navigation_path: '#living_room'
+      navigation_path: '#ovw-living-room'
+    button_action:
+      tap_action:
+        action: navigate
+        navigation_path: '#ovw-living-room'
     grid_options:
       columns: 6
       rows: 1
@@ -220,11 +224,11 @@
     show_state: true
     tap_action:
       action: navigate
-      navigation_path: '#lights-popup'
+      navigation_path: '#ovw-lights'
     button_action:
       tap_action:
         action: navigate
-        navigation_path: '#lights-popup'
+        navigation_path: '#ovw-lights'
     grid_options:
       columns: 6
       rows: 1
@@ -234,79 +238,6 @@
     show_attribute: false
     attribute: icon
     entity: sensor.number_of_lights_on
-  - type: vertical-stack
-    cards:
-    - type: custom:bubble-card
-      card_type: pop-up
-      hash: '#living_room'
-      button_type: slider
-      entity: light.living_room_lights
-      name: Living Room Lights
-      icon: mdi:sofa
-      show_attribute: false
-      slide_to_close_distance: '100000'
-      trigger: []
-      bg_opacity: '35'
-      show_state: true
-      show_last_changed: true
-      tap_action:
-        action: toggle
-    - type: custom:bubble-card
-      card_type: button
-      button_type: slider
-      entity: light.m1_front_left
-      name: Front Left
-      icon: mdi:light-recessed
-      show_state: true
-      show_attribute: false
-      show_last_changed: true
-      sub_button: []
-      grid_options:
-        columns: 6
-        rows: 1
-      columns: 2
-    - type: custom:bubble-card
-      card_type: button
-      button_type: slider
-      entity: light.m1_front_right
-      name: Front Right
-      icon: mdi:light-recessed
-      show_state: true
-      show_attribute: false
-      show_last_changed: true
-      sub_button: []
-      grid_options:
-        columns: 6
-        rows: 1
-    - type: custom:bubble-card
-      card_type: button
-      button_type: slider
-      entity: light.m1_back_left
-      name: Back Left
-      icon: mdi:light-recessed
-      show_state: true
-      show_attribute: false
-      show_last_changed: true
-      sub_button: []
-      grid_options:
-        columns: 6
-        rows: 1
-    - type: custom:bubble-card
-      card_type: button
-      button_type: slider
-      entity: light.m1_back_right
-      name: Back Right
-      icon: mdi:light-recessed
-      show_state: true
-      show_attribute: false
-      show_last_changed: true
-      sub_button: []
-      grid_options:
-        columns: 6
-        rows: 1
-    grid_options:
-      columns: 12
-      rows: auto
   - type: custom:bubble-card
     card_type: button
     button_type: switch
@@ -337,36 +268,8 @@
     grid_options:
       columns: 6
       rows: 1
-  - type: vertical-stack
-    cards:
-    - type: custom:bubble-card
-      card_type: pop-up
-      hash: '#lights-popup'
-      name: Lights Control
-      icon: mdi:lightbulb-group
-      width_desktop: 500px
-      show_header: true
-      entity: sensor.number_of_lights_on
-      button_type: name
-    - type: custom:auto-entities
-      filter:
-        include:
-        - domain: light
-        exclude:
-        - state: 'off'
-        - state: unavailable
-        - hidden_by: user
-      show_empty: true
-      entity: sensor.number_of_lights_on
-      button_type: state
-      show_name: true
-      card:
-        type: custom:auto-entities
-        card:
-          type: entities
-        filter:
-          include: []
-          exclude: []
+  - !include /config/dashboards/overview/popups/living_room.yaml
+  - !include /config/dashboards/overview/popups/lights.yaml
 - cards:
   - type: custom:frigate-events-card
     frigate_client_id: frigate

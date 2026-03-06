@@ -1,0 +1,92 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Popup - Living room lights
+#  Bubble Card popup for living room lighting drill-down and scenes.
+# -------------------------------------------------------------------
+# Notes: Uses Bubble sub-buttons to reduce vertical sprawl in the popup.
+# Notes: Keeps scene actions limited to scenes already defined in `config/scene/living_room.yaml`.
+######################################################################
+
+type: vertical-stack
+cards:
+- type: custom:bubble-card
+  card_type: pop-up
+  hash: '#ovw-living-room'
+  button_type: slider
+  entity: light.living_room_lights
+  name: Living Room Lights
+  icon: mdi:sofa
+  show_attribute: false
+  slide_to_close_distance: '100000'
+  trigger: []
+  bg_opacity: '35'
+  width_desktop: 560px
+  show_header: true
+  show_state: true
+  show_last_changed: true
+  tap_action:
+    action: toggle
+- type: custom:bubble-card
+  card_type: button
+  button_type: slider
+  entity: light.living_room_lights
+  name: Main Lights
+  icon: mdi:lightbulb-group-outline
+  show_state: true
+  show_last_changed: true
+  card_layout: large-sub-buttons-grid
+  rows: 2
+  sub_button:
+  - entity: light.m1_front_left
+    name: Front Left
+    icon: mdi:light-recessed
+  - entity: light.m1_front_right
+    name: Front Right
+    icon: mdi:light-recessed
+  - entity: light.m1_back_left
+    name: Back Left
+    icon: mdi:light-recessed
+  - entity: light.m1_back_right
+    name: Back Right
+    icon: mdi:light-recessed
+- type: custom:bubble-card
+  card_type: button
+  button_type: name
+  entity: light.living_room_lights
+  name: Lighting Scenes
+  icon: mdi:palette-outline
+  show_state: false
+  card_layout: large-sub-buttons-grid
+  rows: 2
+  sub_button:
+  - name: Day
+    icon: mdi:white-balance-sunny
+    tap_action:
+      action: call-service
+      service: scene.turn_on
+      service_data:
+        entity_id: scene.living_room_daytime_cool
+  - name: Evening
+    icon: mdi:weather-sunset
+    tap_action:
+      action: call-service
+      service: scene.turn_on
+      service_data:
+        entity_id: scene.living_room_evening_amber
+  - name: TV
+    icon: mdi:television-ambient-light
+    tap_action:
+      action: call-service
+      service: scene.turn_on
+      service_data:
+        entity_id: scene.tv_time
+  - name: Red
+    icon: mdi:led-strip-variant
+    tap_action:
+      action: call-service
+      service: scene.turn_on
+      service_data:
+        entity_id: scene.red_living_room

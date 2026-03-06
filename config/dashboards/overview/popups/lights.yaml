@@ -1,0 +1,46 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Popup - Lights on
+#  Bubble Card popup for currently active lights.
+# -------------------------------------------------------------------
+# Notes: Keeps the popup hash stable with the `#ovw-*` convention.
+# Notes: Uses Bubble slider buttons for each light that is currently on.
+######################################################################
+
+type: vertical-stack
+cards:
+- type: custom:bubble-card
+  card_type: pop-up
+  hash: '#ovw-lights'
+  name: Lights Control
+  icon: mdi:lightbulb-group
+  width_desktop: 560px
+  show_header: true
+  entity: sensor.number_of_lights_on
+  button_type: name
+- type: custom:auto-entities
+  show_empty: true
+  card:
+    type: grid
+    columns: 2
+    square: false
+  card_param: cards
+  filter:
+    include:
+    - domain: light
+      options:
+        type: custom:bubble-card
+        card_type: button
+        button_type: slider
+        show_state: true
+        show_last_changed: true
+        show_attribute: false
+    exclude:
+    - state: 'off'
+    - state: unavailable
+    - hidden_by: user
+  sort:
+    method: friendly_name
