@@ -58,7 +58,7 @@ script:
             - action: telegram_bot.send_message
               continue_on_error: true
               data:
-                target: !secret telegram_allowed_chat_id_carlo
+                chat_id: !secret telegram_allowed_chat_id_carlo
                 message: "{{ chunk_message }}"
                 parse_mode: plain_text
                 disable_web_page_preview: true
@@ -74,7 +74,7 @@ script:
                     - action: telegram_bot.send_message
                       continue_on_error: true
                       data:
-                        target: !secret telegram_allowed_chat_id_carlo
+                        chat_id: !secret telegram_allowed_chat_id_carlo
                         message: "{{ fallback_message if fallback_message | length > 0 else 'Joanna: message delivery fallback (content omitted)' }}"
                         parse_mode: plain_text
                         disable_web_page_preview: true

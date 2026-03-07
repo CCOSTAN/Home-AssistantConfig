@@ -6,10 +6,12 @@
 # Docker Infrastructure - Host patching and container alerts
 #  APT webhook results (docker_10/14/17/69) and container down repairs.
 # -------------------------------------------------------------------
+# Related Issue: 1584
 # Notes: Hosts run weekly Wed 12:00 APT job and POST JSON to webhooks.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Reboot staggering: docker_14 first, docker_69 second, docker_10 third.
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
+# Notes: Includes Portainer stack status repairs and scheduled image prune.
 ######################################################################
 
 input_datetime:
@@ -277,6 +279,33 @@ template:
             {{ down_list.split(',') | map('trim') | reject('equalto', '') | list | count }}
           {% endif %}
 
+      - name: "Docker Stacks Down List"
+        unique_id: docker_stacks_down_list
+        icon: mdi:package-down
+        state: >-
+          {% set ns = namespace(down=[]) %}
+          {% for item in states.binary_sensor %}
+            {% if item.entity_id is search('^binary_sensor\\..*_stack_status$') %}
+              {% set st = item.state | lower %}
+              {% if st in ['off', 'unknown', 'unavailable'] %}
+                {% set stack = item.entity_id | replace('binary_sensor.', '') | regex_replace('_stack_status$', '') %}
+                {% set ns.down = ns.down + [stack] %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.down | sort | join(', ') if (ns.down | count > 0) else 'none' }}
+
+      - name: "Docker Stacks Down Count"
+        unique_id: docker_stacks_down_count
+        icon: mdi:counter
+        state: >-
+          {% set down_list = states('sensor.docker_stacks_down_list') %}
+          {% if down_list in ['unknown', 'unavailable', 'none', ''] %}
+            0
+          {% else %}
+            {{ down_list.split(',') | map('trim') | reject('equalto', '') | list | count }}
+          {% endif %}
+
   - binary_sensor:
       - name: "Docker Container Telemetry Degraded"
         unique_id: docker_container_telemetry_degraded
@@ -388,6 +417,75 @@ script:
                 data:
                   topic: "DOCKER"
                   message: "{{ container_name }} recovered ({{ effective_state }})."
+
+  docker_stack_repairs_sync:
+    alias: Docker Stack Repairs Sync
+    mode: parallel
+    fields:
+      entity_id:
+        description: Changed Portainer stack status entity (`binary_sensor.*_stack_status`)
+        example: "binary_sensor.vcloudinfo_stack_status"
+      operation:
+        description: "Sync operation: create or clear"
+        example: "create"
+      delay_minutes:
+        description: "Optional delay before evaluation (used for create path)"
+        example: 2
+    sequence:
+      - variables:
+          down_states: ['off', 'unknown', 'unavailable']
+          src_entity: "{{ entity_id | default('', true) }}"
+          op: "{{ operation | default('create', true) | lower }}"
+          wait_minutes: "{{ delay_minutes | default(0) | int(0) }}"
+          stack_key: "{{ src_entity | replace('binary_sensor.', '') | regex_replace('_stack_status$', '') }}"
+          stack_count_entity: "sensor.{{ stack_key }}_stack_containers_count"
+          tracked_stack: "{{ expand(stack_count_entity) | count > 0 }}"
+          issue_id: "docker_stack_{{ stack_key }}_offline"
+      - condition: template
+        value_template: "{{ src_entity.startswith('binary_sensor.') and src_entity.endswith('_stack_status') }}"
+      - condition: template
+        value_template: "{{ tracked_stack and op in ['create', 'clear'] }}"
+      - choose:
+          - conditions: "{{ op == 'create' }}"
+            sequence:
+              - choose:
+                  - conditions: "{{ wait_minutes > 0 }}"
+                    sequence:
+                      - delay:
+                          minutes: "{{ wait_minutes }}"
+              - variables:
+                  effective_state: "{{ states(src_entity) | lower }}"
+                  stack_name: "{{ state_attr(src_entity, 'friendly_name') | default(stack_key, true) }}"
+              - condition: template
+                value_template: "{{ effective_state in down_states }}"
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  title: "Stack offline: {{ stack_name }}"
+                  description: >-
+                    {{ stack_name }} has been {{ effective_state }} for over 2 minutes.
+                    Effective entity: {{ src_entity }}.
+                  severity: warning
+                  persistent: true
+              - service: script.send_to_logbook
+                data:
+                  topic: "DOCKER"
+                  message: "{{ stack_name }} stack is {{ effective_state }} for over 2 minutes."
+          - conditions: "{{ op == 'clear' }}"
+            sequence:
+              - variables:
+                  effective_state: "{{ states(src_entity) | lower }}"
+                  stack_name: "{{ state_attr(src_entity, 'friendly_name') | default(stack_key, true) }}"
+              - condition: template
+                value_template: "{{ effective_state not in down_states }}"
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "DOCKER"
+                  message: "{{ stack_name }} stack recovered ({{ effective_state }})."
 
 automation:
   - alias: "APT Update Report - Docker Hosts"
@@ -525,6 +623,47 @@ automation:
                   entity_id: "{{ entity_id }}"
                   operation: "clear"
 
+  - alias: "Docker Stack State Sync - Repairs (Dynamic)"
+    id: docker_stack_state_sync_repairs_dynamic
+    description: "Detect Portainer stack status transitions and delegate Repairs sync."
+    mode: parallel
+    trigger:
+      - platform: event
+        event_type: state_changed
+    condition:
+      - condition: template
+        value_template: >-
+          {% set ent = trigger.event.data.entity_id | default('') %}
+          {{ ent.startswith('binary_sensor.') and ent.endswith('_stack_status') }}
+      - condition: template
+        value_template: "{{ trigger.event.data.old_state is not none and trigger.event.data.new_state is not none }}"
+      - condition: template
+        value_template: "{{ trigger.event.data.old_state.state != trigger.event.data.new_state.state }}"
+      - condition: template
+        value_template: >-
+          {% set stack_key = trigger.event.data.entity_id | replace('binary_sensor.', '') | regex_replace('_stack_status$', '') %}
+          {{ expand('sensor.' ~ stack_key ~ '_stack_containers_count') | count > 0 }}
+    action:
+      - variables:
+          down_states: ['off', 'unknown', 'unavailable']
+          entity_id: "{{ trigger.event.data.entity_id }}"
+          old_state: "{{ trigger.event.data.old_state.state | lower }}"
+          new_state: "{{ trigger.event.data.new_state.state | lower }}"
+      - choose:
+          - conditions: "{{ new_state in down_states and old_state not in down_states }}"
+            sequence:
+              - service: script.docker_stack_repairs_sync
+                data:
+                  entity_id: "{{ entity_id }}"
+                  operation: "create"
+                  delay_minutes: 2
+          - conditions: "{{ old_state in down_states and new_state not in down_states }}"
+            sequence:
+              - service: script.docker_stack_repairs_sync
+                data:
+                  entity_id: "{{ entity_id }}"
+                  operation: "clear"
+
   - alias: "Docker Containers Maintenance Prompt"
     id: docker_containers_maintenance_prompt
     description: "Prompt Carlo to snooze container alerts for maintenance when more than 3 containers are down."
@@ -596,3 +735,27 @@ automation:
           message: >-
             Maintenance snooze declined with {{ states('sensor.docker_containers_down_count') }}
             containers down ({{ states('sensor.docker_containers_down_list') }}).
+
+  - alias: "Docker Weekly Prune Unused Images"
+    id: docker_weekly_prune_unused_images
+    description: "Run weekly unguarded prune actions across Docker hosts."
+    mode: single
+    trigger:
+      - platform: time
+        at: "03:15:00"
+    condition:
+      - condition: time
+        weekday:
+          - sun
+    action:
+      - service: button.press
+        target:
+          entity_id:
+            - button.carlo_hass_prune_unused_images
+            - button.docker17_prune_unused_images
+            - button.docker69_prune_unused_images
+            - button.docker2_prune_unused_images
+      - service: script.send_to_logbook
+        data:
+          topic: "DOCKER"
+          message: "Weekly scheduled prune triggered on docker_10/17/69/14."

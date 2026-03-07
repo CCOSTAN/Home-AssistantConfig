@@ -6,8 +6,73 @@
 # Proxmox Host Automations - reboots and update alerts
 #  Nightly Frigate host reboot plus update repair issues.
 # -------------------------------------------------------------------
+# Related Issue: 1584
 # Notes: Creates HA repair issues when proxmox nodes report updates.
+# Notes: Adds normalized runtime + disk health signals for dashboard/alerts.
 ######################################################################
+template:
+  - sensor:
+      - name: "Proxmox1 Disk Used Percentage"
+        unique_id: proxmox1_disk_used_percentage
+        unit_of_measurement: "%"
+        icon: mdi:harddisk
+        state: >-
+          {% set preferred = states('sensor.node_proxmox1_disk_used_percentage') %}
+          {% if preferred not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ preferred | float(0) | round(1) }}
+          {% else %}
+            {% set used = states('sensor.node_proxmox1_disk') | float(0) %}
+            {% set total = states('sensor.node_proxmox1_max_disk') | float(0) %}
+            {% if total > 0 %}
+              {{ ((used / total) * 100) | round(1) }}
+            {% else %}
+              {{ none }}
+            {% endif %}
+          {% endif %}
+
+      - name: "Proxmox02 Disk Used Percentage"
+        unique_id: proxmox02_disk_used_percentage
+        unit_of_measurement: "%"
+        icon: mdi:harddisk
+        state: >-
+          {% set preferred = states('sensor.node_proxmox02_disk_used_percentage') %}
+          {% if preferred not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ preferred | float(0) | round(1) }}
+          {% else %}
+            {% set used = states('sensor.node_proxmox02_disk') | float(0) %}
+            {% set total = states('sensor.node_proxmox02_max_disk') | float(0) %}
+            {% if total > 0 %}
+              {{ ((used / total) * 100) | round(1) }}
+            {% else %}
+              {{ none }}
+            {% endif %}
+          {% endif %}
+
+  - binary_sensor:
+      - name: "Proxmox1 Runtime Healthy"
+        unique_id: proxmox1_runtime_healthy
+        device_class: running
+        state: >-
+          {% set state_value = states('binary_sensor.node_proxmox1_status') %}
+          {% if state_value in ['on', 'off'] %}
+            {{ state_value == 'on' }}
+          {% else %}
+            {% set status = states('sensor.node_proxmox1_status') | lower %}
+            {{ status in ['online', 'running', 'on'] }}
+          {% endif %}
+
+      - name: "Proxmox02 Runtime Healthy"
+        unique_id: proxmox02_runtime_healthy
+        device_class: running
+        state: >-
+          {% set state_value = states('binary_sensor.node_proxmox02_status') %}
+          {% if state_value in ['on', 'off'] %}
+            {{ state_value == 'on' }}
+          {% else %}
+            {% set status = states('sensor.node_proxmox02_status') | lower %}
+            {{ status in ['online', 'running', 'on'] }}
+          {% endif %}
+
 automation:
   - alias: "Nightly Frigate Server Reboot"
     id: nightly_frigate_reboot
@@ -64,3 +129,114 @@ automation:
             data:
               topic: "PROXMOX"
               message: "{{ node_name }} has been Patched"
+
+  - alias: "Proxmox Runtime Repair Issues"
+    id: proxmox_runtime_repairs
+    description: "Create and clear Repairs when Proxmox node runtime becomes unhealthy."
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.proxmox1_runtime_healthy
+          - binary_sensor.proxmox02_runtime_healthy
+    variables:
+      node_name: >-
+        {% if 'proxmox1' in trigger.entity_id %}Proxmox1{% else %}Proxmox02{% endif %}
+      issue_id: >-
+        {% if 'proxmox1' in trigger.entity_id %}
+          proxmox1_runtime_unhealthy
+        {% else %}
+          proxmox02_runtime_unhealthy
+        {% endif %}
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'off' }}"
+            sequence:
+              - delay: "00:02:00"
+              - condition: template
+                value_template: "{{ is_state(trigger.entity_id, 'off') }}"
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  severity: error
+                  persistent: true
+                  title: "{{ node_name }} runtime degraded"
+                  description: >
+                    {{ node_name }} has remained offline for over 2 minutes.
+                    Check node status in Proxmox and restore runtime.
+              - service: script.send_to_logbook
+                data:
+                  topic: "PROXMOX"
+                  message: "{{ node_name }} runtime is degraded."
+        default:
+          - service: repairs.remove
+            continue_on_error: true
+            data:
+              issue_id: "{{ issue_id }}"
+          - service: script.send_to_logbook
+            data:
+              topic: "PROXMOX"
+              message: "{{ node_name }} runtime recovered."
+
+  - alias: "Proxmox Disk Pressure Repair Issues"
+    id: proxmox_disk_pressure_repairs
+    description: "Create and clear Repairs when Proxmox node disk usage stays elevated."
+    mode: restart
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.proxmox1_disk_used_percentage
+          - sensor.proxmox02_disk_used_percentage
+        above: 85
+        for: "00:15:00"
+      - platform: state
+        entity_id:
+          - sensor.proxmox1_disk_used_percentage
+          - sensor.proxmox02_disk_used_percentage
+    variables:
+      node_name: >-
+        {% if 'proxmox1' in trigger.entity_id %}Proxmox1{% else %}Proxmox02{% endif %}
+      issue_id: >-
+        {% if 'proxmox1' in trigger.entity_id %}
+          proxmox1_disk_pressure
+        {% else %}
+          proxmox02_disk_pressure
+        {% endif %}
+      disk_pct: "{{ states(trigger.entity_id) | float(0) }}"
+    action:
+      - choose:
+          - conditions: "{{ disk_pct >= 92 }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  severity: error
+                  persistent: true
+                  title: "{{ node_name }} disk pressure critical ({{ disk_pct | round(1) }}%)"
+                  description: >
+                    {{ node_name }} disk usage is critically high.
+                    Free disk space or expand storage allocation.
+              - service: script.send_to_logbook
+                data:
+                  topic: "PROXMOX"
+                  message: "{{ node_name }} disk usage is critical at {{ disk_pct | round(1) }}%."
+          - conditions: "{{ disk_pct >= 85 }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  severity: warning
+                  persistent: true
+                  title: "{{ node_name }} disk pressure warning ({{ disk_pct | round(1) }}%)"
+                  description: >
+                    {{ node_name }} disk usage has stayed above 85% for 15 minutes.
+                    Plan cleanup before capacity reaches critical levels.
+              - service: script.send_to_logbook
+                data:
+                  topic: "PROXMOX"
+                  message: "{{ node_name }} disk usage warning at {{ disk_pct | round(1) }}%."
+        default:
+          - service: repairs.remove
+            continue_on_error: true
+            data:
+              issue_id: "{{ issue_id }}"

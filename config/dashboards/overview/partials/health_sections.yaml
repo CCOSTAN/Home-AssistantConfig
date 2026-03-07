@@ -1,0 +1,325 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Partial - health sections
+#  SleepIQ score/recovery trends plus bed controls.
+# -------------------------------------------------------------------
+# Related Issue: 1584
+# Notes: Uses direct SleepIQ integration entities (no helper template sensors).
+######################################################################
+
+- type: grid
+  column_span: 4
+  columns: 2
+  square: false
+  cards:
+  - type: entities
+    title: Carlo Bed Controls
+    show_header_toggle: false
+    entities:
+    - entity: number.sleepnumber_carlo_carlo_firmness
+      name: Firmness
+    - entity: number.sleepnumber_carlo_right_head_position_2
+      name: Head Position
+    - entity: number.sleepnumber_carlo_right_foot_position_2
+      name: Foot Position
+    - entity: select.sleepnumber_carlo_foundation_preset_right
+      name: Preset
+    - entity: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      name: In Bed
+  - type: entities
+    title: Stacey Bed Controls
+    show_header_toggle: false
+    entities:
+    - entity: number.sleepnumber_carlo_stacey_firmness
+      name: Firmness
+    - entity: number.sleepnumber_carlo_left_head_position_2
+      name: Head Position
+    - entity: select.sleepnumber_carlo_foundation_preset_left
+      name: Preset
+    - entity: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      name: In Bed
+
+- type: grid
+  column_span: 4
+  columns: 2
+  square: false
+  cards:
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      content: |
+        ## Carlo Health
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_carlo_sleep_score
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_carlo_sleep_score
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_carlo_sleep_score
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Sleep Score
+        icon: mdi:sleep
+        entities:
+        - entity: sensor.sleepnumber_carlo_carlo_sleep_score
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_carlo_sleep_duration
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_carlo_sleep_duration
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_carlo_sleep_duration
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Sleep Duration
+        icon: mdi:timer-sand
+        entities:
+        - entity: sensor.sleepnumber_carlo_carlo_sleep_duration
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_average
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_average
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_average
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Heart Rate Average
+        icon: mdi:heart-pulse
+        entities:
+        - entity: sensor.sleepnumber_carlo_carlo_heart_rate_average
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_carlo_respiratory_rate_average
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_carlo_respiratory_rate_average
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_carlo_respiratory_rate_average
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Respiratory Rate Average
+        icon: mdi:lungs
+        entities:
+        - entity: sensor.sleepnumber_carlo_carlo_respiratory_rate_average
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_variability
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_variability
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_variability
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Heart Rate Variability
+        icon: mdi:chart-bell-curve-cumulative
+        entities:
+        - entity: sensor.sleepnumber_carlo_carlo_heart_rate_variability
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_carlo_pressure
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_carlo_pressure
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_carlo_pressure
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Pressure
+        icon: mdi:gauge
+        entities:
+        - entity: sensor.sleepnumber_carlo_carlo_pressure
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+
+  - type: vertical-stack
+    cards:
+    - type: markdown
+      content: |
+        ## Stacey Health
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_stacey_sleep_score
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_stacey_sleep_score
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_stacey_sleep_score
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Sleep Score
+        icon: mdi:sleep
+        entities:
+        - entity: sensor.sleepnumber_carlo_stacey_sleep_score
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Sleep Duration
+        icon: mdi:timer-sand
+        entities:
+        - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Heart Rate Average
+        icon: mdi:heart-pulse
+        entities:
+        - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Respiratory Rate Average
+        icon: mdi:lungs
+        entities:
+        - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_variability
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_variability
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_variability
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Heart Rate Variability
+        icon: mdi:chart-bell-curve-cumulative
+        entities:
+        - entity: sensor.sleepnumber_carlo_stacey_heart_rate_variability
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+    - type: conditional
+      conditions:
+      - entity: sensor.sleepnumber_carlo_stacey_pressure
+        state_not: unknown
+      - entity: sensor.sleepnumber_carlo_stacey_pressure
+        state_not: unavailable
+      - entity: sensor.sleepnumber_carlo_stacey_pressure
+        state_not: none
+      card:
+        type: custom:mini-graph-card
+        name: Pressure
+        icon: mdi:gauge
+        entities:
+        - entity: sensor.sleepnumber_carlo_stacey_pressure
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 3
+        graph: line
+        show:
+          fill: false
+          points: false
+          extrema: true
+

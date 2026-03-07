@@ -12,6 +12,7 @@
 # Notes: Shared script helper `script.joanna_dispatch` lives in config/script/joanna_dispatch.yaml.
 # Notes: Telegram inline button callbacks are handled here and mapped to BearClaw commands.
 # Notes: Inbound Telegram handling enforces user_id + chat_id allowlists from secrets CSV values.
+# Notes: Reply webhook writes JOANNA activity entries to logbook for traceability.
 ######################################################################
 
 rest_command:
@@ -57,16 +58,14 @@ automation:
       allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
     condition:
       - condition: template
-        value_template: "{{ trigger.event.data.user_id is defined }}"
-      - condition: template
-        value_template: "{{ trigger.event.data.chat_id is defined }}"
-      - condition: template
         value_template: >-
+          {% set has_user = trigger.event.data.user_id is defined %}
+          {% set has_chat = trigger.event.data.chat_id is defined %}
           {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
           {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
           {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
           {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
-          {{ allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats }}
+          {{ has_user and has_chat and allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats }}
     action:
       - variables:
           command_text: "{{ (trigger.event.data.args | default([])) | join(' ') | trim }}"
@@ -78,7 +77,7 @@ automation:
             sequence:
               - service: telegram_bot.send_message
                 data:
-                  target: !secret telegram_allowed_chat_id_carlo
+                  chat_id: !secret telegram_allowed_chat_id_carlo
                   message: "Choose a BearClaw action or send /bear <message>."
                   parse_mode: plain_text
                   disable_web_page_preview: true
@@ -103,20 +102,15 @@ automation:
       allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
     condition:
       - condition: template
-        value_template: "{{ trigger.event.data.user_id is defined }}"
-      - condition: template
-        value_template: "{{ trigger.event.data.chat_id is defined }}"
-      - condition: template
         value_template: >-
+          {% set has_user = trigger.event.data.user_id is defined %}
+          {% set has_chat = trigger.event.data.chat_id is defined %}
           {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
           {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
           {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
           {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
-          {{ allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats }}
-      - condition: template
-        value_template: >-
           {% set cb = trigger.event.data.data | default('') %}
-          {{ cb.startswith('/bear_') or cb.startswith('/bc_') }}
+          {{ has_user and has_chat and allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats and (cb.startswith('/bear_') or cb.startswith('/bc_')) }}
     action:
       - variables:
           callback_id: "{{ trigger.event.data.id | default('') }}"
@@ -222,20 +216,15 @@ automation:
       allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
     condition:
       - condition: template
-        value_template: "{{ trigger.event.data.user_id is defined }}"
-      - condition: template
-        value_template: "{{ trigger.event.data.chat_id is defined }}"
-      - condition: template
         value_template: >-
+          {% set has_user = trigger.event.data.user_id is defined %}
+          {% set has_chat = trigger.event.data.chat_id is defined %}
           {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
           {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
           {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
           {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
-          {{ allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats }}
-      - condition: template
-        value_template: "{{ (trigger.event.data.text | default('') | trim) != '' }}"
-      - condition: template
-        value_template: "{{ not (trigger.event.data.text | default('') | trim).startswith('/') }}"
+          {% set plain_text = trigger.event.data.text | default('') | trim %}
+          {{ has_user and has_chat and allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats and plain_text != '' and not plain_text.startswith('/') }}
     action:
       - variables:
           plain_text: "{{ trigger.event.data.text | default('') | trim }}"
@@ -269,6 +258,13 @@ automation:
             {% else %}
               {{ '' }}
             {% endif %}
+          logbook_message: >-
+            {% set compact = message | replace('\r', ' ') | replace('\n', ' ') | trim %}
+            {% if compact | length > 240 %}
+              {{ compact[:237] ~ '...' }}
+            {% else %}
+              {{ compact }}
+            {% endif %}
       - choose:
           - conditions:
               - condition: template
@@ -276,7 +272,7 @@ automation:
             sequence:
               - service: telegram_bot.send_message
                 data:
-                  target: !secret telegram_allowed_chat_id_carlo
+                  chat_id: !secret telegram_allowed_chat_id_carlo
                   message: "{{ message }}"
                   parse_mode: plain_text
                   disable_web_page_preview: true
@@ -285,6 +281,10 @@ automation:
           - service: script.joanna_send_telegram
             data:
               message: "{{ message }}"
+      - service: script.send_to_logbook
+        data:
+          topic: JOANNA
+          message: "{{ level | upper }}: {{ logbook_message }}"
       - choose:
           - conditions:
               - condition: template

@@ -10,6 +10,8 @@
 # Notes: Set input_datetime.water_delivery_date on /lovelace/water (date only).
 # Notes: Night-before reminder fires at 5:30 PM; garage reminders on door open.
 # Notes: Clear button sets delivery date to yesterday to disable reminders.
+# Notes: Date helper changes are logged to Activity feed with source context.
+# Notes: Active (today/future) date changes also send a Telegram confirmation.
 ######################################################################
 
 input_datetime:
@@ -146,3 +148,55 @@ automation:
           entity_id: input_datetime.water_delivery_date
           date: >-
             {{ (now() - timedelta(days=1)).date().isoformat() }}
+
+  - alias: "Water Delivery - Date Change Audit"
+    id: 6fc9705d-890b-4d35-8e11-f7d5b6ec8f31
+    mode: queued
+
+    trigger:
+      - platform: state
+        entity_id: input_datetime.water_delivery_date
+
+    condition:
+      - condition: template
+        value_template: >-
+          {% set old = trigger.from_state.state if trigger.from_state is not none else '' %}
+          {% set new = trigger.to_state.state if trigger.to_state is not none else '' %}
+          {% set user_ctx = trigger.to_state.context.user_id | default('', true) | string | trim %}
+          {% set parent_ctx = trigger.to_state.context.parent_id | default('', true) | string | trim %}
+          {% set has_context = user_ctx != '' or parent_ctx != '' %}
+          {{ new not in ['unknown', 'unavailable', 'none', ''] and old != new and has_context }}
+
+    action:
+      - variables:
+          previous_date: >-
+            {% set old = trigger.from_state.state if trigger.from_state is not none else '' %}
+            {% if old in ['unknown', 'unavailable', 'none', ''] %}
+              not set
+            {% else %}
+              {{ as_datetime(old).strftime('%a %b %d, %Y') | replace(' 0', ' ') }}
+            {% endif %}
+          updated_date: >-
+            {% set new = trigger.to_state.state if trigger.to_state is not none else '' %}
+            {{ as_datetime(new).strftime('%a %b %d, %Y') | replace(' 0', ' ') }}
+          actor_id: "{{ trigger.to_state.context.user_id | default('system', true) }}"
+          parent_context: "{{ trigger.to_state.context.parent_id | default('none', true) }}"
+
+      - service: script.send_to_logbook
+        data:
+          topic: WATER DELIVERY
+          message: >-
+            Date updated from {{ previous_date }} to {{ updated_date }}.
+            context_user={{ actor_id }}, context_parent={{ parent_context }}
+
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ as_datetime(trigger.to_state.state).date() >= now().date() }}
+            sequence:
+              - service: script.joanna_send_telegram
+                data:
+                  message: >-
+                    Home Assistant update: water delivery date is now {{ updated_date }}
+                    (was {{ previous_date }}).

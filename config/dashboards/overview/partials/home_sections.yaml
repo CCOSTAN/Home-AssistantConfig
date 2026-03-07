@@ -6,6 +6,7 @@
 # Overview Partial - home sections
 #  Reusable list extracted from a view for smaller diffs and safer edits.
 # -------------------------------------------------------------------
+# Related Issue: 1584
 # Notes: Extracted from config/dashboards/overview/views/01_home.yaml key `sections`.
 ######################################################################
 
@@ -197,6 +198,42 @@
     features_position: bottom
   - type: custom:search-card
     max_results: 10
+  - type: custom:mini-graph-card
+    name: Sleep Score Trend
+    icon: mdi:heart-pulse
+    entities:
+    - entity: sensor.sleepnumber_carlo_carlo_sleep_score
+      name: Carlo
+      show_state: true
+    - entity: sensor.sleepnumber_carlo_stacey_sleep_score
+      name: Stacey
+      show_state: true
+    hours_to_show: 168
+    points_per_hour: 1
+    line_width: 3
+    graph: line
+    smoothing: true
+    lower_bound: 0
+    upper_bound: 100
+    show:
+      graph: line
+      name: true
+      icon: true
+      state: true
+      fill: false
+      points: false
+      legend: false
+      labels: false
+    height: 90
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/health
+    hold_action:
+      action: navigate
+      navigation_path: /lovelace/health
+    grid_options:
+      columns: full
+      rows: 3
   - type: custom:bubble-card
     card_type: button
     button_type: slider

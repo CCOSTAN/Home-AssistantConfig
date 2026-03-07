@@ -6,6 +6,7 @@
 # Infrastructure Observability - Normalized infra monitoring signals
 #  WAN/DNS/backup/website/domain/cert state normalized for dashboards.
 # -------------------------------------------------------------------
+# Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
 # Notes: Domain warning threshold is <30 days; critical threshold is <14 days.
 ######################################################################
@@ -198,6 +199,40 @@ template:
         state: >-
           {{ states('sensor.infra_website_down_count') | int(0) > 0 }}
 
+      - name: "Infra Website Uptime SLO Breach"
+        unique_id: infra_website_uptime_slo_breach
+        device_class: problem
+        state: >-
+          {% set ns = namespace(seen=false, breach=false) %}
+          {% for item in states.sensor %}
+            {% if item.entity_id is search('sensor\\.(vcloudinfo_com|kingcrafthomes_com|www_kingcrafthomes_com).*uptime_1d$') %}
+              {% if item.state not in ['unknown', 'unavailable', 'none', ''] %}
+                {% set ns.seen = true %}
+                {% if (item.state | float(100)) < 99 %}
+                  {% set ns.breach = true %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.seen and ns.breach }}
+
+      - name: "Infra Website Latency Degraded"
+        unique_id: infra_website_latency_degraded
+        device_class: problem
+        state: >-
+          {% set ns = namespace(seen=false, breach=false) %}
+          {% for item in states.sensor %}
+            {% if item.entity_id is search('sensor\\.(vcloudinfo_com|kingcrafthomes_com|www_kingcrafthomes_com).*avg_response_time_1d$') %}
+              {% if item.state not in ['unknown', 'unavailable', 'none', ''] %}
+                {% set ns.seen = true %}
+                {% if (item.state | float(0)) > 1.2 %}
+                  {% set ns.breach = true %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.seen and ns.breach }}
+
       - name: "Infra Domain Expiry Critical"
         unique_id: infra_domain_expiry_critical
         device_class: problem
@@ -266,3 +301,55 @@ automation:
           topic: "NETWORK"
           message: >-
             External IP changed from {{ trigger.from_state.state }} to {{ trigger.to_state.state }}.
+
+  - alias: "Infrastructure - Website Uptime SLO Repair"
+    id: infra_website_uptime_slo_repair
+    description: "Create/clear Repairs issue when website 1-day uptime breaches SLO."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.infra_website_uptime_slo_breach
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'on' }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: infra_website_uptime_slo_breach
+                  title: "Website uptime SLO breached"
+                  description: >
+                    At least one monitored website has uptime_1d below 99%.
+                    Review Uptime Kuma entities on the Website Health dashboard.
+                  severity: warning
+                  persistent: true
+        default:
+          - service: repairs.remove
+            continue_on_error: true
+            data:
+              issue_id: infra_website_uptime_slo_breach
+
+  - alias: "Infrastructure - Website Latency Repair"
+    id: infra_website_latency_repair
+    description: "Create/clear Repairs issue when website response times degrade."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.infra_website_latency_degraded
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'on' }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: infra_website_latency_degraded
+                  title: "Website latency degraded"
+                  description: >
+                    At least one monitored website reports avg_response_time_1d above 1.2s.
+                    Review Uptime Kuma response-time entities on Website Health.
+                  severity: warning
+                  persistent: true
+        default:
+          - service: repairs.remove
+            continue_on_error: true
+            data:
+              issue_id: infra_website_latency_degraded
