@@ -1,0 +1,315 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Maintenance Logging - Joanna webhook ingest + graphable HA history
+#  Stores water softener salt maintenance events in recorder-backed helpers.
+# -------------------------------------------------------------------
+# Notes: Webhook id is bearclaw_maintenance_log_v1 (Joanna -> HA contract).
+# Notes: Duplicate event_id values are ignored to prevent double-count totals.
+# Notes: Recent event history string format is "when|amount|note||...".
+######################################################################
+
+input_number:
+  water_softener_salt_last_amount_lb:
+    name: "Softener salt last amount"
+    min: 0
+    max: 1000
+    step: 0.1
+    mode: box
+    unit_of_measurement: lb
+    icon: mdi:shaker
+
+  water_softener_salt_total_added_lb:
+    name: "Softener salt total added"
+    min: 0
+    max: 100000
+    step: 0.1
+    mode: box
+    unit_of_measurement: lb
+    icon: mdi:chart-line
+
+counter:
+  water_softener_salt_event_count:
+    name: "Softener salt event count"
+    step: 1
+    icon: mdi:counter
+
+input_datetime:
+  water_softener_salt_last_occurred_at:
+    name: "Softener salt last occurred at"
+    has_date: true
+    has_time: true
+    icon: mdi:calendar-clock
+
+input_text:
+  water_softener_salt_last_note:
+    name: "Softener salt last note"
+    max: 255
+    icon: mdi:text-box-outline
+
+  water_softener_salt_recent_event_ids:
+    name: "Softener salt recent event ids"
+    max: 255
+    icon: mdi:identifier
+
+  water_softener_salt_recent_events:
+    name: "Softener salt recent events"
+    max: 255
+    icon: mdi:history
+
+template:
+  - sensor:
+      - name: "Water Softener Salt Days Since Last Add"
+        unique_id: water_softener_salt_days_since_last_add
+        unit_of_measurement: d
+        state: >-
+          {% set raw = states('input_datetime.water_softener_salt_last_occurred_at') %}
+          {% if raw in ['unknown', 'unavailable', 'none', ''] %}
+            unknown
+          {% else %}
+            {% set event_ts = as_timestamp(as_local(as_datetime(raw)), default=none) %}
+            {% if event_ts is none %}
+              unknown
+            {% else %}
+              {{ [((as_timestamp(now()) - event_ts) / 86400), 0] | max | round(1) }}
+            {% endif %}
+          {% endif %}
+
+      - name: "Water Softener Salt Last Summary"
+        unique_id: water_softener_salt_last_summary
+        icon: mdi:clipboard-text-clock-outline
+        state: >-
+          {% set raw = states('input_datetime.water_softener_salt_last_occurred_at') %}
+          {% set amount = states('input_number.water_softener_salt_last_amount_lb') | float(0) %}
+          {% set note = states('input_text.water_softener_salt_last_note') %}
+          {% if raw in ['unknown', 'unavailable', 'none', ''] %}
+            No salt events logged yet.
+          {% else %}
+            {% set when = as_datetime(raw).astimezone().strftime('%a %b %d, %Y %I:%M %p') | replace(' 0', ' ') %}
+            {% if note in ['unknown', 'unavailable', 'none', ''] %}
+              {{ amount | round(1) }} lb on {{ when }}
+            {% else %}
+              {{ amount | round(1) }} lb on {{ when }} - {{ note }}
+            {% endif %}
+          {% endif %}
+
+      - name: "Water Softener Salt Average Days Between Refills"
+        unique_id: water_softener_salt_average_days_between_refills
+        unit_of_measurement: d
+        state: >-
+          {% set raw = states('input_text.water_softener_salt_recent_events') %}
+          {% if raw in ['unknown', 'unavailable', 'none', ''] %}
+            150
+          {% else %}
+            {% set entries = raw.split('||') %}
+            {% set ns = namespace(previous_ts=none, total_days=0, sample_count=0) %}
+            {% for entry in entries %}
+              {% set parts = entry.split('|') %}
+              {% set dt = as_datetime(parts[0] | default('', true) | trim, default=none) %}
+              {% if dt is not none %}
+                {% set ts = as_timestamp(dt, default=none) %}
+                {% if ts is not none %}
+                  {% if ns.previous_ts is not none and ns.previous_ts > ts %}
+                    {% set ns.total_days = ns.total_days + ((ns.previous_ts - ts) / 86400) %}
+                    {% set ns.sample_count = ns.sample_count + 1 %}
+                  {% endif %}
+                  {% set ns.previous_ts = ts %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.sample_count > 0 %}
+              {{ (ns.total_days / ns.sample_count) | round(1) }}
+            {% else %}
+              150
+            {% endif %}
+          {% endif %}
+
+automation:
+  - alias: "Maintenance Log - Joanna Webhook Ingest"
+    id: 1c9fba4f-fef5-4da9-82d4-4049deff17cf
+    mode: queued
+    max: 30
+
+    trigger:
+      - platform: webhook
+        webhook_id: bearclaw_maintenance_log_v1
+        allowed_methods:
+          - POST
+          - PUT
+        local_only: false
+
+    variables:
+      payload: "{{ trigger.json if trigger.json is mapping else dict() }}"
+      source_item: "{{ payload.item_key | default('', true) | string | trim | lower }}"
+      item_key: >-
+        {% set aliases = {
+          'water_softener_salt': 'water_softener_salt',
+          'softener_salt': 'water_softener_salt',
+          'water_softener': 'water_softener_salt',
+          'softener': 'water_softener_salt',
+          'water softener salt': 'water_softener_salt',
+          'salt': 'water_softener_salt',
+          'softner': 'water_softener_salt'
+        } %}
+        {{ aliases.get(source_item, source_item) }}
+      action: "{{ payload.action | default('add', true) | string | trim | lower }}"
+      source_unit: "{{ payload.amount_unit | default('lb', true) | string | trim | lower }}"
+      unit: >-
+        {% set units = {
+          'lb': 'lb',
+          'lbs': 'lb',
+          'pound': 'lb',
+          'pounds': 'lb'
+        } %}
+        {{ units.get(source_unit, source_unit) }}
+      amount_value: "{{ payload.amount_value | default(0, true) | float(0) }}"
+      amount_lb: >-
+        {% if unit == 'lb' %}
+          {{ amount_value | round(2) }}
+        {% else %}
+          0
+        {% endif %}
+      event_id: >-
+        {% set raw_id = payload.event_id | default('', true) | string | trim %}
+        {% if raw_id %}
+          {{ raw_id }}
+        {% else %}
+          maint_{{ now().timestamp() | int }}
+        {% endif %}
+      occurred_at_raw: "{{ payload.occurred_at | default(now().isoformat(), true) }}"
+      occurred_at: >-
+        {% set parsed = as_datetime(occurred_at_raw, default=none) %}
+        {% if parsed is none %}
+          {{ now().isoformat() }}
+        {% else %}
+          {{ parsed.isoformat() }}
+        {% endif %}
+      occurred_local_datetime: >-
+        {% set dt = as_local(as_datetime(occurred_at, default=now())) %}
+        {{ dt.strftime('%Y-%m-%d %H:%M:%S') }}
+      occurred_display: >-
+        {% set dt = as_datetime(occurred_local_datetime, default=now()) %}
+        {{ dt.strftime('%Y-%m-%d %I:%M %p') | replace(' 0', ' ') }}
+      actor: "{{ payload.actor | default('unknown', true) | string | trim }}"
+      raw_text: "{{ payload.raw_text | default('', true) | string | replace('|', '/') | trim }}"
+      parse_confidence: "{{ payload.parse_confidence | default('unknown', true) | string | trim }}"
+      is_duplicate: >-
+        {% set existing = (states('input_text.water_softener_salt_recent_event_ids')
+           | default('', true) | string).split('|') %}
+        {{ event_id in existing }}
+      is_supported_item: "{{ item_key == 'water_softener_salt' }}"
+      is_add_action: "{{ action in ['add', 'top_off', 'refill'] }}"
+      effective_amount_lb: >-
+        {% if item_key == 'water_softener_salt' and action in ['add', 'top_off', 'refill'] %}
+          80
+        {% else %}
+          {{ amount_lb }}
+        {% endif %}
+      note_value: >-
+        {% set text = raw_text if raw_text else 'Logged by Joanna webhook.' %}
+        {{ text | truncate(255, true, '') }}
+      recent_event_line: "{{ occurred_display }}|{{ effective_amount_lb | round(1) }} lb|{{ note_value }}"
+      next_recent_events: >-
+        {% set current = (states('input_text.water_softener_salt_recent_events')
+           | default('', true) | string).split('||') %}
+        {% set ns = namespace(items=[recent_event_line]) %}
+        {% for raw in current %}
+          {% set value = raw | trim %}
+          {% if value and value not in ['unknown', 'unavailable', 'none'] and value != recent_event_line and (ns.items | count) < 10 %}
+            {% set ns.items = ns.items + [value] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items | join('||') }}
+      next_recent_ids: >-
+        {% set current = (states('input_text.water_softener_salt_recent_event_ids')
+           | default('', true) | string).split('|') %}
+        {% set ns = namespace(items=[event_id]) %}
+        {% for raw in current %}
+          {% set value = raw | trim %}
+          {% if value and value not in ['unknown', 'unavailable', 'none'] and value != event_id and (ns.items | count) < 8 %}
+            {% set ns.items = ns.items + [value] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items | join('|') }}
+      current_total_lb: "{{ states('input_number.water_softener_salt_total_added_lb') | float(0) }}"
+      next_total_lb: >-
+        {% if is_add_action %}
+          {{ (current_total_lb + effective_amount_lb) | round(2) }}
+        {% else %}
+          {{ current_total_lb | round(2) }}
+        {% endif %}
+
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ not is_supported_item }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: MAINTENANCE
+                  message: >-
+                    Ignored unsupported maintenance item "{{ item_key }}" (event_id={{ event_id }}).
+          - conditions:
+              - condition: template
+                value_template: "{{ effective_amount_lb <= 0 }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: MAINTENANCE
+                  message: >-
+                    Ignored maintenance payload with invalid amount (event_id={{ event_id }}, raw_amount={{ amount_value }} {{ unit }}).
+          - conditions:
+              - condition: template
+                value_template: "{{ is_duplicate }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: MAINTENANCE
+                  message: >-
+                    Duplicate maintenance event ignored for softener salt (event_id={{ event_id }}).
+        default:
+          - service: input_number.set_value
+            data:
+              entity_id: input_number.water_softener_salt_last_amount_lb
+              value: "{{ effective_amount_lb }}"
+
+          - service: input_number.set_value
+            data:
+              entity_id: input_number.water_softener_salt_total_added_lb
+              value: "{{ next_total_lb }}"
+
+          - service: counter.increment
+            data:
+              entity_id: counter.water_softener_salt_event_count
+
+          - service: input_datetime.set_datetime
+            data:
+              entity_id: input_datetime.water_softener_salt_last_occurred_at
+              datetime: "{{ occurred_local_datetime }}"
+
+          - service: input_text.set_value
+            data:
+              entity_id: input_text.water_softener_salt_last_note
+              value: "{{ note_value }}"
+
+          - service: input_text.set_value
+            data:
+              entity_id: input_text.water_softener_salt_recent_event_ids
+              value: "{{ next_recent_ids | truncate(255, true, '') }}"
+
+          - service: input_text.set_value
+            data:
+              entity_id: input_text.water_softener_salt_recent_events
+              value: "{{ next_recent_events | truncate(255, true, '') }}"
+
+          - service: script.send_to_logbook
+            data:
+              topic: MAINTENANCE
+              message: >-
+                Softener salt logged: {{ effective_amount_lb | round(1) }} lb at {{ occurred_display }}.
+                total={{ next_total_lb | round(1) }} lb, count={{ states('counter.water_softener_salt_event_count') | int(0) + 1 }},
+                actor={{ actor }}, confidence={{ parse_confidence }}, event_id={{ event_id }},
+                raw="{{ raw_text | truncate(110, true, '...') }}".
