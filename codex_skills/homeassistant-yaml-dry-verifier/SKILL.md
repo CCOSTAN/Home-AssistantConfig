@@ -43,7 +43,7 @@ python codex_skills/homeassistant-yaml-dry-verifier/scripts/verify_ha_yaml_dry.p
 
 3. Prioritize findings in this order:
 - `FULL_BLOCK`: repeated full trigger/condition/action/sequence blocks.
-- `ENTRY`: repeated individual entries inside those blocks.
+- `ENTRY`: repeated individual entries inside those blocks (excluding entries already fully covered by a `FULL_BLOCK` duplicate).
 - `INTRA`: duplicate entries inside a single block.
 - `CENTRAL_SCRIPT`: script is defined in `config/packages` but called from 2+ YAML files.
 
@@ -74,6 +74,7 @@ Always report:
 - Parse errors (if any).
 - Duplicate groups by kind (`trigger`, `condition`, `action`, `sequence`).
 - Central script placement findings (`CENTRAL_SCRIPT`) with definition + caller files.
+- Script caller detection should include direct `service: script.<id>` and `script.turn_on`-style entity targeting when present.
 - Concrete refactor recommendation per group.
 - Resolution status for each finding (`resolved`, `deferred-with-blocker`).
 

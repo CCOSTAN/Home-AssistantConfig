@@ -175,21 +175,28 @@ Fallback behavior when Stitch is unavailable:
 
 ## Workflow (Do This In Order)
 
-1. Read the target dashboard/view/partials/templates to understand existing patterns and avoid drift.
-2. Determine intent from the user's request and existing dashboard context: `infra` (NOC), `home`, `energy`, or `environment`. Keep one intent per view.
-3. Validate entities and services before editing:
+1. Use direct-update mode for this repo:
+   - Edit production YAML directly (no staged dashboard copies in this skill workflow).
+   - Keep rollback safety by minimizing diffs and validating before HA restart/reload.
+2. Read the target dashboard/view/partials/templates and include targets before editing:
+   - Confirm the exact source view/partial/template files.
+   - Confirm referenced `!include` files/directories exist and are in-scope.
+3. Determine intent from the user's request and existing dashboard context: `infra` (NOC), `home`, `energy`, or `environment`. Keep one intent per view.
+4. Validate entities and services before editing:
    - Prefer the Home Assistant MCP for live entity/service validation (required when available).
    - Record the MCP validation step in the work notes before writing YAML.
    - If MCP is not available, ask the user to confirm entity IDs and services (do not guess).
-4. Draft layout with constraints: a top-level `grid` and optional `vertical-stack` groups.
+5. Draft layout with constraints: a top-level `grid` and optional `vertical-stack` groups.
    - If using Stitch, first summarize `stitch_intent` and treat it as advisory input to this step.
    - After removals, reflow cards/sections upward to collapse gaps and reduce empty rows.
-5. Implement using Tier 1 cards first; reuse existing templates; avoid one-off styles.
-6. If fallback cards are necessary, add an inline comment explaining why Tier 1 cannot satisfy the requirement.
-7. Validate:
+6. Implement using Tier 1 cards first; reuse existing templates; avoid one-off styles.
+7. If fallback cards are necessary, add an inline comment explaining why Tier 1 cannot satisfy the requirement.
+8. Validate in this order:
+   - Run `pwsh -NoProfile -File tools/validate_dashboards.ps1`.
+   - Run `pwsh -NoProfile -File tools/ha_ui_smoke.ps1`.
    - Run Home Assistant config validation (`ha core check` or `homeassistant --script check_config`) when available.
-   - Optionally run `scripts/validate_lovelace_view.py` from this skill against the changed view file to catch violations early.
-8. Failure behavior:
+   - Run `scripts/validate_lovelace_view.py` from this skill against each changed view file.
+9. Failure behavior:
    - If requirements can't be met: state the violated rule and propose a compliant alternative.
    - If validation fails: stop, surface the error output, and propose corrected YAML. Do not leave invalid config applied.
 

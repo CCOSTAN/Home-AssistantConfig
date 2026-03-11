@@ -149,6 +149,7 @@ Anti-drift checklist:
 
 If working in this repo's `config/dashboards/` tree:
 - Do not edit `config/.storage` (runtime state).
+- Use direct-update workflow for dashboard YAML in this repo (no staged dashboard promotion flow in this skill).
 - Includes must use absolute container paths starting with `/config/`.
 - Views are one file per view, and the dashboard file uses `!include_dir_list`.
 - Files under `config/dashboards/**/*.yaml` must include the standard `@CCOSTAN` header block.
@@ -160,3 +161,9 @@ When available, use the Home Assistant MCP to validate:
 - Service names and payload fields used by actions (for example, `button.press`, `script.*`, etc.).
 
 If MCP is not available, do not guess entity IDs. Ask the user to confirm them.
+
+## Validation Chain (Required Before Restart/Reload)
+
+- Run `pwsh -NoProfile -File tools/validate_dashboards.ps1`.
+- Run `pwsh -NoProfile -File tools/ha_ui_smoke.ps1`.
+- Run `scripts/validate_lovelace_view.py` for each changed view file.

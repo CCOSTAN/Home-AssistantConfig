@@ -58,6 +58,8 @@ ALLOWED_CARD_TYPES = {
     "grid",
     "vertical-stack",
     "custom:button-card",
+    "custom:layout-card",
+    "custom:vertical-stack-in-card",
     "custom:flex-horseshoe-card",
     "custom:mini-graph-card",
     # Tier-2 fallbacks (validator does not enforce justification comments).
@@ -157,6 +159,22 @@ def _walk_cards(node: Any, node_path: str, findings: list[Finding]) -> None:
                         message="Per-card styles: are not allowed; move styling into centralized templates.",
                     )
                 )
+            if "style" in node:
+                findings.append(
+                    Finding(
+                        level="ERROR",
+                        path=node_path,
+                        message="Per-card style: is not allowed; move styling into centralized templates.",
+                    )
+                )
+            if "extra_styles" in node:
+                findings.append(
+                    Finding(
+                        level="ERROR",
+                        path=node_path,
+                        message="Per-card extra_styles: is not allowed; move styling into centralized templates.",
+                    )
+                )
             if "card_mod" in node:
                 findings.append(
                     Finding(
@@ -165,6 +183,17 @@ def _walk_cards(node: Any, node_path: str, findings: list[Finding]) -> None:
                         message="Per-card card_mod: is not allowed on button-card instances; use shared snippets or templates.",
                     )
                 )
+            state_entries = node.get("state")
+            if _is_sequence(state_entries):
+                for sidx, state_entry in enumerate(state_entries):
+                    if _is_mapping(state_entry) and "styles" in state_entry:
+                        findings.append(
+                            Finding(
+                                level="ERROR",
+                                path=f"{node_path}.state[{sidx}]",
+                                message="Per-card state styles are not allowed; move styling into centralized templates.",
+                            )
+                        )
 
         cards = node.get("cards")
         if _is_sequence(cards):
@@ -179,6 +208,82 @@ def _walk_cards(node: Any, node_path: str, findings: list[Finding]) -> None:
 def _load_yaml(path: Path) -> Any:
     txt = path.read_text(encoding="utf-8")
     return yaml.load(txt, Loader=_Loader)
+
+
+def _validate_sections_wrapper(sections: list[Any], findings: list[Finding]) -> None:
+    """Validate first sections wrapper constraints from dashboard rules."""
+    if not sections:
+        findings.append(
+            Finding(
+                level="ERROR",
+                path="$.sections",
+                message="sections list cannot be empty for a sections view.",
+            )
+        )
+        return
+
+    first_section = sections[0]
+    if not _is_mapping(first_section):
+        findings.append(
+            Finding(
+                level="ERROR",
+                path="$.sections[0]",
+                message="First section must be a mapping.",
+            )
+        )
+        return
+
+    column_span = first_section.get("column_span")
+    if column_span != 4:
+        findings.append(
+            Finding(
+                level="ERROR",
+                path="$.sections[0].column_span",
+                message="First section must set column_span: 4.",
+            )
+        )
+
+    cards = first_section.get("cards")
+    if not _is_sequence(cards):
+        findings.append(
+            Finding(
+                level="ERROR",
+                path="$.sections[0].cards",
+                message="First section must define cards as a list.",
+            )
+        )
+        return
+
+    if len(cards) != 1:
+        findings.append(
+            Finding(
+                level="ERROR",
+                path="$.sections[0].cards",
+                message="First section must contain exactly one wrapper card.",
+            )
+        )
+        return
+
+    wrapper_card = cards[0]
+    if not _is_mapping(wrapper_card):
+        findings.append(
+            Finding(
+                level="ERROR",
+                path="$.sections[0].cards[0]",
+                message="Wrapper card must be a mapping.",
+            )
+        )
+        return
+
+    grid_options = wrapper_card.get("grid_options")
+    if not _is_mapping(grid_options) or grid_options.get("columns") != "full":
+        findings.append(
+            Finding(
+                level="ERROR",
+                path="$.sections[0].cards[0].grid_options.columns",
+                message='Wrapper card must set grid_options.columns: "full".',
+            )
+        )
 
 
 def main(argv: list[str]) -> int:
@@ -225,6 +330,7 @@ def main(argv: list[str]) -> int:
                     )
                 )
             elif _is_sequence(sections):
+                _validate_sections_wrapper(sections, findings)
                 for sidx, section in enumerate(sections):
                     spath = f"$.sections[{sidx}]"
                     if not _is_mapping(section):

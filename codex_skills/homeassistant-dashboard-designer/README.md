@@ -67,6 +67,13 @@ Invoke in chat:
 
 Then describe what you want in natural language (what to change + where + any constraints). The skill will infer the structured intent internally and enforce the button-card-first / layout constraints defined in `SKILL.md`.
 
+Workflow notes:
+- This skill uses direct updates for `config/dashboards/**` (no staged rollout workflow in-skill).
+- It requires post-edit validation in this order:
+- `pwsh -NoProfile -File tools/validate_dashboards.ps1`
+- `pwsh -NoProfile -File tools/ha_ui_smoke.ps1`
+- `python codex_skills/homeassistant-dashboard-designer/scripts/validate_lovelace_view.py <changed-view.yaml>`
+
 Examples:
 - "Refactor `config/dashboards/infrastructure/partials/mariadb_sections.yaml` to match the existing Infrastructure design language. Preserve existing templates and keep diffs small."
 - "Add a new Infrastructure view for Docker containers using the same layout rules as the other views (4 columns desktop / 2 columns mobile)."

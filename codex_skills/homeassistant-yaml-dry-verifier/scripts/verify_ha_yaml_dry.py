@@ -261,10 +261,19 @@ def _block_keys_for_candidate(candidate: Candidate) -> dict[str, tuple[str, ...]
 
 def _recommendation(block_label: str) -> str:
     if block_label in {"action", "sequence"}:
-        return "Move repeated logic to a shared script and call it with variables."
+        return (
+            "Move repeated logic to config/script/<script_id>.yaml and call it "
+            "via service: script.<script_id> with variables."
+        )
     if block_label == "condition":
-        return "Extract shared condition logic into helpers/template sensors or merge condition blocks."
-    return "Consolidate repeated trigger patterns where behavior is equivalent."
+        return (
+            "Extract shared condition logic into helper/template entities or "
+            "merge condition blocks when behavior is equivalent."
+        )
+    return (
+        "Consolidate equivalent trigger patterns and keep shared actions in a "
+        "single reusable script when possible."
+    )
 
 
 def _render_occurrences(occurrences: list[Occurrence], max_rows: int = 6) -> str:
@@ -280,6 +289,22 @@ def _render_occurrences(occurrences: list[Occurrence], max_rows: int = 6) -> str
 
 def _normalize_path(path: str) -> str:
     return path.replace("\\", "/").lower()
+
+
+def _entry_parent_block_path(block_path: str) -> str:
+    """Return parent block path for entry occurrences (strip trailing [idx])."""
+    return re.sub(r"\[\d+\]$", "", block_path)
+
+
+def _occurrence_key(
+    occurrence: Occurrence, *, treat_as_entry: bool = False
+) -> tuple[str, str, str]:
+    block_path = (
+        _entry_parent_block_path(occurrence.block_path)
+        if treat_as_entry
+        else occurrence.block_path
+    )
+    return (occurrence.file_path, occurrence.candidate_path, block_path)
 
 
 def _infer_script_id(candidate: Candidate) -> str | None:
@@ -298,14 +323,41 @@ def _infer_script_id(candidate: Candidate) -> str | None:
 
 
 def _collect_script_service_calls(node: Any, script_ids: set[str]) -> None:
+    """Collect called script IDs from common HA service invocation patterns."""
+    script_domain_meta_services = {"turn_on", "toggle", "reload", "stop"}
+
+    def _add_script_entity_ids(value: Any) -> None:
+        if isinstance(value, str):
+            if value.startswith("script."):
+                entity_script_id = value.split(".", 1)[1].strip()
+                if entity_script_id:
+                    script_ids.add(entity_script_id)
+            return
+        if isinstance(value, list):
+            for item in value:
+                _add_script_entity_ids(item)
+
     if isinstance(node, dict):
-        for key, value in node.items():
-            if key in {"service", "action"} and isinstance(value, str):
-                service_name = value.strip()
-                if service_name.startswith("script."):
-                    script_id = service_name.split(".", 1)[1].strip()
-                    if script_id:
-                        script_ids.add(script_id)
+        service_name_raw = node.get("service")
+        action_name_raw = node.get("action")
+        service_name = None
+        if isinstance(service_name_raw, str):
+            service_name = service_name_raw.strip()
+        elif isinstance(action_name_raw, str):
+            service_name = action_name_raw.strip()
+
+        if service_name and service_name.startswith("script."):
+            tail = service_name.split(".", 1)[1].strip()
+            if tail and tail not in script_domain_meta_services:
+                script_ids.add(tail)
+            else:
+                _add_script_entity_ids(node.get("entity_id"))
+                for key in ("target", "data", "service_data"):
+                    container = node.get(key)
+                    if isinstance(container, dict):
+                        _add_script_entity_ids(container.get("entity_id"))
+
+        for value in node.values():
             _collect_script_service_calls(value, script_ids)
         return
     if isinstance(node, list):
@@ -401,6 +453,26 @@ def main(argv: list[str]) -> int:
 
     full_groups = _filter_groups(full_index)
     entry_groups = _filter_groups(entry_index)
+
+    # Drop ENTRY groups that are fully subsumed by an identical FULL_BLOCK group.
+    full_group_member_sets: dict[tuple[str, str], list[set[tuple[str, str, str]]]] = defaultdict(list)
+    for (kind, block_label, _), occurrences in full_groups:
+        full_group_member_sets[(kind, block_label)].append(
+            {_occurrence_key(occ) for occ in occurrences}
+        )
+
+    filtered_entry_groups: list[tuple[tuple[str, str, str], list[Occurrence]]] = []
+    for entry_group_key, entry_occurrences in entry_groups:
+        kind, block_label, _ = entry_group_key
+        entry_member_set = {
+            _occurrence_key(occ, treat_as_entry=True) for occ in entry_occurrences
+        }
+        full_sets = full_group_member_sets.get((kind, block_label), [])
+        is_subsumed = any(entry_member_set.issubset(full_set) for full_set in full_sets)
+        if not is_subsumed:
+            filtered_entry_groups.append((entry_group_key, entry_occurrences))
+
+    entry_groups = filtered_entry_groups
     intra_duplicate_notes = sorted(set(intra_duplicate_notes))
     script_definitions_by_id: dict[str, set[str]] = defaultdict(set)
 
