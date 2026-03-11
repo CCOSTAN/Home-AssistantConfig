@@ -186,13 +186,32 @@ bearstone_infra_container_row:
           let key = '';
           if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
             key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+          } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
           } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
             key = ent.replace('switch.', '').replace(/_container$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+            key = ent.replace('switch.', '').replace(/_container_2$/, '');
           }
-          return key ? `button.${key}_restart_container` : '';
+          if (!key) return '';
+          const restartCandidates = [
+            `button.${key}_restart_container`,
+            `button.${key}_restart_container_2`,
+          ];
+          for (const candidate of restartCandidates) {
+            if (states[candidate]) return candidate;
+          }
+          return restartCandidates[0];
         ]]]
     confirmation:
-      text: '[[[ return "Restart container " + entity.attributes.friendly_name + "?" ]]]'
+      text: >
+        [[[
+          const friendly =
+            (entity && entity.attributes && entity.attributes.friendly_name)
+              ? String(entity.attributes.friendly_name)
+              : ((entity && entity.entity_id) ? String(entity.entity_id) : 'container');
+          return "Restart container " + friendly + "?";
+        ]]]
   icon: mdi:docker
   name: >
     [[[
@@ -204,8 +223,12 @@ bearstone_infra_container_row:
       let key = '';
       if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
         key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+      } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+        key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
       } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
         key = ent.replace('switch.', '').replace(/_container$/, '');
+      } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+        key = ent.replace('switch.', '').replace(/_container_2$/, '');
       }
       if (friendly && friendly !== 'Container') {
         return friendly.replace(/\s+Container$/, '');
@@ -216,20 +239,65 @@ bearstone_infra_container_row:
     image: >
       [[[
         const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
-        const stateNow = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
         const telemetryDegraded = states['binary_sensor.docker_container_telemetry_degraded']?.state === 'on';
         let key = '';
         if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
           key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+        } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+          key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
         } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
           key = ent.replace('switch.', '').replace(/_container$/, '');
+        } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+          key = ent.replace('switch.', '').replace(/_container_2$/, '');
         }
-        const imageEntity = variables.image_sensor
-          ? variables.image_sensor
-          : (key ? `sensor.${key}_image` : '');
-        const imageValue = states[imageEntity]?.state;
-        if (!imageValue || ['unknown', 'unavailable', 'none', ''].includes(String(imageValue).toLowerCase())) {
-          if (telemetryDegraded && ['unknown', 'unavailable', ''].includes(stateNow)) {
+        const stateCandidates = key ? [
+          `binary_sensor.${key}_status`,
+          `binary_sensor.${key}_status_2`,
+          `sensor.${key}_state`,
+          `sensor.${key}_state_2`,
+          `switch.${key}_container`,
+          `switch.${key}_container_2`,
+        ] : [];
+        const isUnknownLike = (v) => !v || ['unknown', 'unavailable', 'none', ''].includes(String(v).toLowerCase());
+        let resolvedState = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
+        for (const candidate of stateCandidates) {
+          const candidateState = states[candidate]?.state;
+          if (!isUnknownLike(candidateState)) {
+            resolvedState = String(candidateState).toLowerCase();
+            break;
+          }
+        }
+        if (isUnknownLike(resolvedState)) {
+          for (const candidate of stateCandidates) {
+            const candidateState = states[candidate]?.state;
+            if (candidateState !== undefined) {
+              resolvedState = String(candidateState).toLowerCase();
+              break;
+            }
+          }
+        }
+        const imageCandidates = variables.image_sensor
+          ? [variables.image_sensor]
+          : (key ? [`sensor.${key}_image`, `sensor.${key}_image_2`] : []);
+        let imageValue;
+        for (const candidate of imageCandidates) {
+          const candidateState = states[candidate]?.state;
+          if (!isUnknownLike(candidateState)) {
+            imageValue = candidateState;
+            break;
+          }
+        }
+        if (imageValue === undefined) {
+          for (const candidate of imageCandidates) {
+            const candidateState = states[candidate]?.state;
+            if (candidateState !== undefined) {
+              imageValue = candidateState;
+              break;
+            }
+          }
+        }
+        if (isUnknownLike(imageValue)) {
+          if (telemetryDegraded && ['unknown', 'unavailable', ''].includes(resolvedState)) {
             return 'telemetry: delayed';
           }
           return 'image: n/a';
@@ -238,13 +306,49 @@ bearstone_infra_container_row:
       ]]]
     status: >
       [[[
-        const s = String(entity.state || '').toLowerCase();
+        const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+        let key = '';
+        if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+          key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+        } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+          key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
+        } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+          key = ent.replace('switch.', '').replace(/_container$/, '');
+        } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+          key = ent.replace('switch.', '').replace(/_container_2$/, '');
+        }
+        const candidates = key ? [
+          `binary_sensor.${key}_status`,
+          `binary_sensor.${key}_status_2`,
+          `sensor.${key}_state`,
+          `sensor.${key}_state_2`,
+          `switch.${key}_container`,
+          `switch.${key}_container_2`,
+        ] : [];
+        const isUnknownLike = (v) => !v || ['unknown', 'unavailable', ''].includes(String(v).toLowerCase());
+        let s = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
+        for (const candidate of candidates) {
+          const candidateState = states[candidate]?.state;
+          if (!isUnknownLike(candidateState)) {
+            s = String(candidateState).toLowerCase();
+            break;
+          }
+        }
+        if (isUnknownLike(s)) {
+          for (const candidate of candidates) {
+            const candidateState = states[candidate]?.state;
+            if (candidateState !== undefined) {
+              s = String(candidateState).toLowerCase();
+              break;
+            }
+          }
+        }
         const telemetryDegraded = states['binary_sensor.docker_container_telemetry_degraded']?.state === 'on';
         if (s === 'on' || s === 'running') return 'RUNNING';
-        if (s === 'off' || s === 'stopped') return 'STOPPED';
+        if (s === 'off' || s === 'stopped' || s === 'exited' || s === 'dead') return 'STOPPED';
         if (s === 'unavailable') return telemetryDegraded ? 'STALE' : 'OFFLINE';
         if (s === 'unknown' || s === '') return telemetryDegraded ? 'STALE' : 'UNKNOWN';
-        return String(entity.state).toUpperCase();
+        return String(s).toUpperCase();
       ]]]
   styles:
     grid:
@@ -258,6 +362,50 @@ bearstone_infra_container_row:
     - overflow: hidden
     - text-overflow: ellipsis
     - white-space: nowrap
+    icon:
+    - color: >
+        [[[
+          const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+          let key = '';
+          if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+          } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+            key = ent.replace('switch.', '').replace(/_container$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+            key = ent.replace('switch.', '').replace(/_container_2$/, '');
+          }
+          const candidates = key ? [
+            `binary_sensor.${key}_status`,
+            `binary_sensor.${key}_status_2`,
+            `sensor.${key}_state`,
+            `sensor.${key}_state_2`,
+            `switch.${key}_container`,
+            `switch.${key}_container_2`,
+          ] : [];
+          const isUnknownLike = (v) => !v || ['unknown', 'unavailable', ''].includes(String(v).toLowerCase());
+          let s = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
+          for (const candidate of candidates) {
+            const candidateState = states[candidate]?.state;
+            if (!isUnknownLike(candidateState)) {
+              s = String(candidateState).toLowerCase();
+              break;
+            }
+          }
+          if (isUnknownLike(s)) {
+            for (const candidate of candidates) {
+              const candidateState = states[candidate]?.state;
+              if (candidateState !== undefined) {
+                s = String(candidateState).toLowerCase();
+                break;
+              }
+            }
+          }
+          if (s === 'on' || s === 'running') return 'rgba(46,125,50,1)';
+          if (s === 'off' || s === 'stopped' || s === 'exited' || s === 'dead') return 'rgba(198,40,40,1)';
+          return 'rgba(230,81,0,1)';
+        ]]]
     custom_fields:
       image:
       - grid-area: image
@@ -278,112 +426,203 @@ bearstone_infra_container_row:
       - letter-spacing: 0.04em
       - padding: 4px 10px
       - border-radius: 999px
-      - background: rgba(0,0,0,0.06)
-      - color: var(--secondary-text-color)
+      - background: >
+          [[[
+            const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+            let key = '';
+            if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+              key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+            } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+              key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
+            } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+              key = ent.replace('switch.', '').replace(/_container$/, '');
+            } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+              key = ent.replace('switch.', '').replace(/_container_2$/, '');
+            }
+            const candidates = key ? [
+              `binary_sensor.${key}_status`,
+              `binary_sensor.${key}_status_2`,
+              `sensor.${key}_state`,
+              `sensor.${key}_state_2`,
+              `switch.${key}_container`,
+              `switch.${key}_container_2`,
+            ] : [];
+            const isUnknownLike = (v) => !v || ['unknown', 'unavailable', ''].includes(String(v).toLowerCase());
+            let s = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
+            for (const candidate of candidates) {
+              const candidateState = states[candidate]?.state;
+              if (!isUnknownLike(candidateState)) {
+                s = String(candidateState).toLowerCase();
+                break;
+              }
+            }
+            if (isUnknownLike(s)) {
+              for (const candidate of candidates) {
+                const candidateState = states[candidate]?.state;
+                if (candidateState !== undefined) {
+                  s = String(candidateState).toLowerCase();
+                  break;
+                }
+              }
+            }
+            if (s === 'on' || s === 'running') return 'rgba(46,125,50,0.12)';
+            if (s === 'off' || s === 'stopped' || s === 'exited' || s === 'dead') return 'rgba(198,40,40,0.10)';
+            return 'rgba(230,81,0,0.12)';
+          ]]]
+      - color: >
+          [[[
+            const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+            let key = '';
+            if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+              key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+            } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+              key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
+            } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+              key = ent.replace('switch.', '').replace(/_container$/, '');
+            } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+              key = ent.replace('switch.', '').replace(/_container_2$/, '');
+            }
+            const candidates = key ? [
+              `binary_sensor.${key}_status`,
+              `binary_sensor.${key}_status_2`,
+              `sensor.${key}_state`,
+              `sensor.${key}_state_2`,
+              `switch.${key}_container`,
+              `switch.${key}_container_2`,
+            ] : [];
+            const isUnknownLike = (v) => !v || ['unknown', 'unavailable', ''].includes(String(v).toLowerCase());
+            let s = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
+            for (const candidate of candidates) {
+              const candidateState = states[candidate]?.state;
+              if (!isUnknownLike(candidateState)) {
+                s = String(candidateState).toLowerCase();
+                break;
+              }
+            }
+            if (isUnknownLike(s)) {
+              for (const candidate of candidates) {
+                const candidateState = states[candidate]?.state;
+                if (candidateState !== undefined) {
+                  s = String(candidateState).toLowerCase();
+                  break;
+                }
+              }
+            }
+            if (s === 'on' || s === 'running') return 'rgba(46,125,50,1)';
+            if (s === 'off' || s === 'stopped' || s === 'exited' || s === 'dead') return 'rgba(198,40,40,1)';
+            return 'rgba(230,81,0,1)';
+          ]]]
     card:
+    - border-color: >
+        [[[
+          const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+          let key = '';
+          if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+          } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+            key = ent.replace('switch.', '').replace(/_container$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+            key = ent.replace('switch.', '').replace(/_container_2$/, '');
+          }
+          const candidates = key ? [
+            `binary_sensor.${key}_status`,
+            `binary_sensor.${key}_status_2`,
+            `sensor.${key}_state`,
+            `sensor.${key}_state_2`,
+            `switch.${key}_container`,
+            `switch.${key}_container_2`,
+          ] : [];
+          const isUnknownLike = (v) => !v || ['unknown', 'unavailable', ''].includes(String(v).toLowerCase());
+          let s = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
+          for (const candidate of candidates) {
+            const candidateState = states[candidate]?.state;
+            if (!isUnknownLike(candidateState)) {
+              s = String(candidateState).toLowerCase();
+              break;
+            }
+          }
+          if (isUnknownLike(s)) {
+            for (const candidate of candidates) {
+              const candidateState = states[candidate]?.state;
+              if (candidateState !== undefined) {
+                s = String(candidateState).toLowerCase();
+                break;
+              }
+            }
+          }
+          if (s === 'on' || s === 'running') return 'rgba(67,160,71,0.45)';
+          if (s === 'off' || s === 'stopped' || s === 'exited' || s === 'dead') return 'rgba(229,57,53,0.35)';
+          return 'rgba(245,124,0,0.35)';
+        ]]]
+    - background: >
+        [[[
+          const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
+          let key = '';
+          if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+          } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
+            key = ent.replace('switch.', '').replace(/_container$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+            key = ent.replace('switch.', '').replace(/_container_2$/, '');
+          }
+          const candidates = key ? [
+            `binary_sensor.${key}_status`,
+            `binary_sensor.${key}_status_2`,
+            `sensor.${key}_state`,
+            `sensor.${key}_state_2`,
+            `switch.${key}_container`,
+            `switch.${key}_container_2`,
+          ] : [];
+          const isUnknownLike = (v) => !v || ['unknown', 'unavailable', ''].includes(String(v).toLowerCase());
+          let s = String(entity && entity.state !== undefined ? entity.state : '').toLowerCase();
+          for (const candidate of candidates) {
+            const candidateState = states[candidate]?.state;
+            if (!isUnknownLike(candidateState)) {
+              s = String(candidateState).toLowerCase();
+              break;
+            }
+          }
+          if (isUnknownLike(s)) {
+            for (const candidate of candidates) {
+              const candidateState = states[candidate]?.state;
+              if (candidateState !== undefined) {
+                s = String(candidateState).toLowerCase();
+                break;
+              }
+            }
+          }
+          if (s === 'on' || s === 'running') return 'rgba(232,245,233,0.85)';
+          if (s === 'off' || s === 'stopped' || s === 'exited' || s === 'dead') return 'rgba(255,235,238,0.85)';
+          return 'rgba(255,243,224,0.85)';
+        ]]]
     - display: >
         [[[
           const ent = (entity && entity.entity_id) ? String(entity.entity_id) : '';
           let key = '';
           if (ent.startsWith('binary_sensor.') && ent.endsWith('_status')) {
             key = ent.replace('binary_sensor.', '').replace(/_status$/, '');
+          } else if (ent.startsWith('binary_sensor.') && ent.endsWith('_status_2')) {
+            key = ent.replace('binary_sensor.', '').replace(/_status_2$/, '');
           } else if (ent.startsWith('switch.') && ent.endsWith('_container')) {
             key = ent.replace('switch.', '').replace(/_container$/, '');
+          } else if (ent.startsWith('switch.') && ent.endsWith('_container_2')) {
+            key = ent.replace('switch.', '').replace(/_container_2$/, '');
           }
           const switchEntity = key ? `switch.${key}_container` : '';
+          const switchEntityAlt = key ? `switch.${key}_container_2` : '';
           const monitored = states['group.docker_monitored_containers']?.attributes?.entity_id || [];
-          const restart = key ? `button.${key}_restart_container` : '';
-          return (restart && states[restart] && monitored.includes(switchEntity)) ? 'block' : 'none';
+          const restartCandidates = key ? [
+            `button.${key}_restart_container`,
+            `button.${key}_restart_container_2`,
+          ] : [];
+          const hasRestart = restartCandidates.some((candidate) => states[candidate]);
+          const isMonitored = monitored.includes(switchEntity) || monitored.includes(switchEntityAlt);
+          return (hasRestart && isMonitored) ? 'block' : 'none';
         ]]]
-  state:
-  - value: 'on'
-    styles:
-      card:
-      - border-color: rgba(67,160,71,0.45)
-      - background: rgba(232,245,233,0.85)
-      icon:
-      - color: rgba(46,125,50,1)
-      custom_fields:
-        status:
-        - background: rgba(46,125,50,0.12)
-        - color: rgba(46,125,50,1)
-  - value: 'off'
-    styles:
-      card:
-      - border-color: rgba(229,57,53,0.35)
-      - background: rgba(255,235,238,0.85)
-      icon:
-      - color: rgba(198,40,40,1)
-      custom_fields:
-        status:
-        - background: rgba(198,40,40,0.10)
-        - color: rgba(198,40,40,1)
-  - value: Running
-    styles:
-      card:
-      - border-color: rgba(67,160,71,0.45)
-      - background: rgba(232,245,233,0.85)
-      icon:
-      - color: rgba(46,125,50,1)
-      custom_fields:
-        status:
-        - background: rgba(46,125,50,0.12)
-        - color: rgba(46,125,50,1)
-  - value: running
-    styles:
-      card:
-      - border-color: rgba(67,160,71,0.45)
-      - background: rgba(232,245,233,0.85)
-      icon:
-      - color: rgba(46,125,50,1)
-      custom_fields:
-        status:
-        - background: rgba(46,125,50,0.12)
-        - color: rgba(46,125,50,1)
-  - value: Stopped
-    styles:
-      card:
-      - border-color: rgba(229,57,53,0.35)
-      - background: rgba(255,235,238,0.85)
-      icon:
-      - color: rgba(198,40,40,1)
-      custom_fields:
-        status:
-        - background: rgba(198,40,40,0.10)
-        - color: rgba(198,40,40,1)
-  - value: stopped
-    styles:
-      card:
-      - border-color: rgba(229,57,53,0.35)
-      - background: rgba(255,235,238,0.85)
-      icon:
-      - color: rgba(198,40,40,1)
-      custom_fields:
-        status:
-        - background: rgba(198,40,40,0.10)
-        - color: rgba(198,40,40,1)
-  - value: unavailable
-    styles:
-      card:
-      - border-color: rgba(245,124,0,0.35)
-      - background: rgba(255,243,224,0.85)
-      icon:
-      - color: rgba(230,81,0,1)
-      custom_fields:
-        status:
-        - background: rgba(230,81,0,0.12)
-        - color: rgba(230,81,0,1)
-  - value: unknown
-    styles:
-      card:
-      - border-color: rgba(245,124,0,0.35)
-      - background: rgba(255,243,224,0.85)
-      icon:
-      - color: rgba(230,81,0,1)
-      custom_fields:
-        status:
-        - background: rgba(230,81,0,0.12)
-        - color: rgba(230,81,0,1)
 
 bearstone_infra_panel_header:
   show_icon: false

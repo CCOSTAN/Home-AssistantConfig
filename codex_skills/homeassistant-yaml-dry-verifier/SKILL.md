@@ -51,6 +51,7 @@ python codex_skills/homeassistant-yaml-dry-verifier/scripts/verify_ha_yaml_dry.p
 - Repeated actions/sequence: move to a reusable `script.*`, pass variables.
 - Repeated conditions: extract to template binary sensors or helper entities.
 - Repeated triggers: consolidate where behavior is equivalent, or split by intent if readability improves.
+- For cooldown/throttle behavior, prefer automation-local `this.attributes.last_triggered` with custom event handoff before adding new helper entities, unless shared persistent state is required across automations.
 
 5. Validate after edits:
 - Re-run this verifier.

@@ -105,44 +105,6 @@
 
 - type: grid
   column_span: 4
-  columns: 4
-  square: false
-  cards:
-  - type: custom:button-card
-    template: bearstone_infra_apt_prune_tile
-    name: docker_10
-    entity: sensor.docker_10_apt_status
-    variables:
-      last_update_sensor: sensor.docker_10_apt_last_update
-      prune_button: button.carlo_hass_prune_unused_images
-      name: docker_10
-  - type: custom:button-card
-    template: bearstone_infra_apt_prune_tile
-    name: docker_17
-    entity: sensor.docker_17_apt_status
-    variables:
-      last_update_sensor: sensor.docker_17_apt_last_update
-      prune_button: button.docker17_prune_unused_images
-      name: docker_17
-  - type: custom:button-card
-    template: bearstone_infra_apt_prune_tile
-    name: docker_69
-    entity: sensor.docker_69_apt_status
-    variables:
-      last_update_sensor: sensor.docker_69_apt_last_update
-      prune_button: button.docker69_prune_unused_images
-      name: docker_69
-  - type: custom:button-card
-    template: bearstone_infra_apt_prune_tile
-    name: docker_14
-    entity: sensor.docker_14_apt_status
-    variables:
-      last_update_sensor: sensor.docker_14_apt_last_update
-      prune_button: button.docker2_prune_unused_images
-      name: docker_14
-
-- type: grid
-  column_span: 4
   columns: 1
   square: false
   cards:
@@ -240,7 +202,3 @@
       sort:
         method: name
 
-- !include /config/dashboards/infrastructure/popups/docker_10_maintenance.yaml
-- !include /config/dashboards/infrastructure/popups/docker_17_maintenance.yaml
-- !include /config/dashboards/infrastructure/popups/docker_69_maintenance.yaml
-- !include /config/dashboards/infrastructure/popups/docker_14_maintenance.yaml

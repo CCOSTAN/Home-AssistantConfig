@@ -9,6 +9,8 @@
 # -------------------------------------------------------------------
 # Notes: Expects JSON with title/message/type from the Tugtainer template.
 # Notes: Creates persistent notifications and stamps last-update time.
+# Notes: Fires `tugtainer_available_detected` when report contains `### Available:`.
+# Notes: Joanna dispatch cooldown is automation-local (24h) using last_triggered.
 # Notes: Blog post https://www.vcloudinfo.com/2026/02/tugtainer-docker-updates-home-assistant-notifications.html
 ######################################################################
 
@@ -34,6 +36,7 @@ automation:
       title: "{{ payload.title | default('Tugtainer update') }}"
       message: "{{ payload.message | default('Update event received') }}"
       event_type: "{{ payload.type | default('info') }}"
+      has_available_section: "{{ '### available:' in (message | lower) }}"
       full_message: >-
         {{ message }}{% if event_type %} ({{ event_type | upper }}){% endif %}
     action:
@@ -46,3 +49,68 @@ automation:
         data:
           title: "{{ title }}"
           message: "{{ full_message }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ has_available_section }}"
+            sequence:
+              - event: tugtainer_available_detected
+                event_data:
+                  title: "{{ title }}"
+                  event_type: "{{ event_type }}"
+                  message: "{{ message }}"
+
+  - alias: "Tugtainer - Dispatch Joanna For Available Updates"
+    id: tugtainer_dispatch_joanna_for_available_updates
+    description: "Dispatch Joanna on Available updates with a 24-hour cooldown and no helper entities."
+    mode: single
+    trigger:
+      - platform: event
+        event_type: tugtainer_available_detected
+    variables:
+      title: "{{ trigger.event.data.title | default('Tugtainer update') }}"
+      message: "{{ trigger.event.data.message | default('Update event received') }}"
+      event_type: "{{ trigger.event.data.event_type | default('info') }}"
+      trigger_context: "HA automation tugtainer_dispatch_joanna_for_available_updates (Tugtainer - Dispatch Joanna For Available Updates)"
+      now_ts: "{{ as_timestamp(now()) | int(0) }}"
+      last_triggered_ts: >-
+        {% if this.attributes.last_triggered %}
+          {{ as_timestamp(this.attributes.last_triggered) | int(0) }}
+        {% else %}
+          0
+        {% endif %}
+      elapsed_seconds: "{{ (now_ts - last_triggered_ts) | int(0) if last_triggered_ts > 0 else 999999 }}"
+      cooldown_ok: "{{ last_triggered_ts == 0 or elapsed_seconds >= 86400 }}"
+      remaining_seconds: "{{ [86400 - elapsed_seconds, 0] | max }}"
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ cooldown_ok }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "DOCKER"
+                  message: >-
+                    Tugtainer reported Available container updates. Joanna dispatch requested.
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "{{ trigger_context }}"
+                  source: "home_assistant_automation.tugtainer_dispatch_joanna_for_available_updates"
+                  summary: "Tugtainer reported Available container updates requiring manual action"
+                  entity_ids:
+                    - "input_datetime.tugtainer_last_update"
+                  diagnostics: >-
+                    title={{ title }},
+                    event_type={{ event_type }},
+                    message={{ message }}
+                  request: >-
+                    Review the Tugtainer report and update all containers listed under the
+                    Available section. Report what was updated and any failures.
+        default:
+          - service: script.send_to_logbook
+            data:
+              topic: "DOCKER"
+              message: >-
+                Tugtainer Available update dispatch suppressed (24h cooldown active;
+                {{ remaining_seconds }} seconds remaining).
