@@ -13,6 +13,8 @@
 # Notes: Telegram inline button callbacks are handled here and mapped to BearClaw commands.
 # Notes: Inbound Telegram handling enforces user_id + chat_id allowlists from secrets CSV values.
 # Notes: Reply webhook writes JOANNA activity entries to logbook for traceability.
+# Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
+# Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
 
 rest_command:
@@ -43,6 +45,139 @@ rest_command:
         "wake": {{ wake | default(false) | tojson }},
         "source": "home_assistant"
       }
+sensor:
+  - platform: rest
+    name: BearClaw Status Telemetry
+    unique_id: bearclaw_status_telemetry
+    resource: !secret bearclaw_status_url
+    method: GET
+    scan_interval: 60
+    timeout: 30
+    headers:
+      x-codex-token: !secret bearclaw_token
+    value_template: "{{ 'ok' if value_json.ok | default(false) else 'error' }}"
+    json_attributes:
+      - dispatchStats
+      - queue
+      - active
+
+template:
+  - sensor:
+      - name: Joanna HA Dispatches 24h
+        unique_id: joanna_ha_dispatches_24h
+        icon: mdi:calendar-clock
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {{ stats.get('windows', {}).get('h24', {}).get('haAutomation', {}).get('dispatched', 0) | int(0) }}
+
+      - name: Joanna HA Dispatches 7d
+        unique_id: joanna_ha_dispatches_7d
+        icon: mdi:calendar-range
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {{ stats.get('windows', {}).get('d7', {}).get('haAutomation', {}).get('dispatched', 0) | int(0) }}
+
+      - name: Joanna HA Dispatches 30d
+        unique_id: joanna_ha_dispatches_30d
+        icon: mdi:calendar-month
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {{ stats.get('windows', {}).get('d30', {}).get('haAutomation', {}).get('dispatched', 0) | int(0) }}
+
+      - name: Joanna HA Completed 24h
+        unique_id: joanna_ha_completed_24h
+        icon: mdi:check-decagram
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {{ stats.get('windows', {}).get('h24', {}).get('haAutomation', {}).get('completed', 0) | int(0) }}
+
+      - name: Joanna HA Success Rate 24h
+        unique_id: joanna_ha_success_rate_24h
+        icon: mdi:percent-circle
+        unit_of_measurement: '%'
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {{ stats.get('windows', {}).get('h24', {}).get('haAutomation', {}).get('successRatePct', 0) | float(0) }}
+
+      - name: Joanna HA Errors 24h
+        unique_id: joanna_ha_errors_24h
+        icon: mdi:alert-circle-outline
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {% set outcomes = stats.get('windows', {}).get('h24', {}).get('haAutomation', {}).get('outcomes', {}) %}
+          {{ (outcomes.get('error', 0) | int(0)) + (outcomes.get('notify_error', 0) | int(0)) }}
+
+      - name: Joanna All Dispatches 24h
+        unique_id: joanna_all_dispatches_24h
+        icon: mdi:calendar-clock
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {{ stats.get('windows', {}).get('h24', {}).get('all', {}).get('dispatched', 0) | int(0) }}
+
+      - name: Joanna All Dispatches 7d
+        unique_id: joanna_all_dispatches_7d
+        icon: mdi:calendar-range
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {{ stats.get('windows', {}).get('d7', {}).get('all', {}).get('dispatched', 0) | int(0) }}
+
+      - name: Joanna All Dispatches 30d
+        unique_id: joanna_all_dispatches_30d
+        icon: mdi:calendar-month
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {{ stats.get('windows', {}).get('d30', {}).get('all', {}).get('dispatched', 0) | int(0) }}
+
+      - name: Joanna Queue Pending
+        unique_id: joanna_queue_pending
+        icon: mdi:playlist-clock
+        unit_of_measurement: jobs
+        state_class: measurement
+        state: >-
+          {% set queue = state_attr('sensor.bearclaw_status_telemetry', 'queue') | default({}, true) %}
+          {{ queue.get('pending', 0) | int(0) }}
+
+      - name: Joanna Active Job Minutes
+        unique_id: joanna_active_job_minutes
+        icon: mdi:timer-outline
+        unit_of_measurement: min
+        state_class: measurement
+        state: >-
+          {% set active = state_attr('sensor.bearclaw_status_telemetry', 'active') | default({}, true) %}
+          {% set elapsed_ms = active.get('elapsedMs', 0) | int(0) %}
+          {{ (elapsed_ms / 60000) | round(1) }}
+
+      - name: Joanna Minutes Since HA Dispatch
+        unique_id: joanna_minutes_since_ha_dispatch
+        icon: mdi:clock-fast
+        unit_of_measurement: min
+        state_class: measurement
+        state: >-
+          {% set stats = state_attr('sensor.bearclaw_status_telemetry', 'dispatchStats') | default({}, true) %}
+          {% set dispatched_at = stats.get('latest', {}).get('haAutomation', {}).get('dispatchedAt') %}
+          {% set dispatched_ts = as_timestamp(dispatched_at, 0) %}
+          {% if dispatched_ts > 0 %}
+            {{ ((as_timestamp(now()) - dispatched_ts) / 60) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
 automation:
   - id: bearclaw_telegram_bear_command
     alias: BearClaw Telegram Bear Command

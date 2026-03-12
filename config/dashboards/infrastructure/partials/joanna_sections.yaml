@@ -1,0 +1,172 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - Joanna sections
+#  Joanna/BearClaw dispatch KPI, trend, latest-state, and filtered activity panels.
+# -------------------------------------------------------------------
+# Notes: Reuses shared bearstone_infra_* templates and standard infra card_mod snippets.
+######################################################################
+
+- type: grid
+  column_span: 4
+  columns: 6
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.joanna_ha_dispatches_24h
+    name: HA 24H
+    icon: mdi:calendar-clock
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.joanna_ha_dispatches_7d
+    name: HA 7D
+    icon: mdi:calendar-range
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.joanna_ha_dispatches_30d
+    name: HA 30D
+    icon: mdi:calendar-month
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.joanna_ha_errors_24h
+    name: HA Errors 24H
+    icon: mdi:alert-circle-outline
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.joanna_all_dispatches_24h
+    name: All 24H
+    icon: mdi:calendar-clock
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.joanna_all_dispatches_7d
+    name: All 7D
+    icon: mdi:calendar-range
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.joanna_all_dispatches_30d
+    name: All 30D
+    icon: mdi:calendar-month
+
+- type: grid
+  column_span: 4
+  columns: 2
+  square: false
+  cards:
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: HA Dispatch Trend
+    - type: custom:mini-graph-card
+      name: HA Dispatches (24h Window)
+      icon: mdi:chart-timeline-variant
+      hours_to_show: 168
+      points_per_hour: 1
+      line_width: 2
+      smoothing: true
+      show:
+        legend: false
+        labels: false
+        name: true
+        icon: true
+        state: true
+      entities:
+      - entity: sensor.joanna_ha_dispatches_24h
+        name: HA 24h
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Latest Snapshot
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.bearclaw_status_telemetry
+      name: Latest HA Dispatch
+      icon: mdi:robot
+      state_display: >
+        [[[
+          const stats = states['sensor.bearclaw_status_telemetry']?.attributes?.dispatchStats || {};
+          const latest = stats?.latest?.haAutomation || {};
+          const source = latest?.source || 'none';
+          const when = latest?.dispatchedAt || 'n/a';
+          return `${source} | ${when}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.bearclaw_status_telemetry
+      name: Latest HA Completion
+      icon: mdi:check-circle-outline
+      state_display: >
+        [[[
+          const stats = states['sensor.bearclaw_status_telemetry']?.attributes?.dispatchStats || {};
+          const latest = stats?.latest?.haAutomation || {};
+          const state = latest?.state || 'none';
+          const when = latest?.completedAt || 'n/a';
+          return `${state} | ${when}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.bearclaw_status_telemetry
+      name: Latest Any Dispatch
+      icon: mdi:robot-excited
+      state_display: >
+        [[[
+          const stats = states['sensor.bearclaw_status_telemetry']?.attributes?.dispatchStats || {};
+          const latest = stats?.latest?.all || {};
+          const source = latest?.source || 'none';
+          const when = latest?.dispatchedAt || 'n/a';
+          return `${source} | ${when}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.bearclaw_status_telemetry
+      name: HA Success (24h)
+      icon: mdi:percent-circle
+      state_display: >
+        [[[
+          const v = states['sensor.joanna_ha_success_rate_24h']?.state ?? '0';
+          return `${v}%`;
+        ]]]
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(1, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+    cards:
+    - type: custom:vertical-stack-in-card
+      grid_options:
+        columns: full
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Joanna Activity
+      # Fallback card: Lovelace logbook card is required to show filtered activity history.
+      - type: logbook
+        hours_to_show: 72
+        entities:
+        - automation.bearclaw_reply_webhook
+        - automation.tugtainer_dispatch_joanna_for_available_updates
+        - script.joanna_dispatch

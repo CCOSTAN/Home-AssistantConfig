@@ -40,6 +40,7 @@ $targets = @(
   '/profile',
   '/dashboard-infrastructure',
   '/dashboard-infrastructure/home',
+  '/dashboard-infrastructure/joanna',
   '/dashboard-infrastructure/docker',
   '/dashboard-kiosk'
 )

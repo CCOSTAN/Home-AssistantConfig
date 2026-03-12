@@ -15,12 +15,15 @@ homeassistant:
       initial_state: 'on'
   packages: !include_dir_named packages
   auth_providers:
-   - type: homeassistant
    - type: trusted_networks
      trusted_networks:
        - 192.168.10.0/24
 #      - !secret external_ip
+     trusted_users:
+       192.168.10.17: be280a93c9d7416e98d25d0470f414be
+       192.168.10.88: be280a93c9d7416e98d25d0470f414be
      allow_bypass_login: true
+   - type: homeassistant
 
 default_config:
 

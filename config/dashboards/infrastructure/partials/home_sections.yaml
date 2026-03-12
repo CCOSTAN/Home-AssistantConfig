@@ -40,7 +40,22 @@
       cards:
       - type: custom:button-card
         template: bearstone_infra_panel_header
-        name: Alerts
+        name: Infrastructure Status
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.joanna_ha_dispatches_24h
+        name: Joanna Dispatch
+        icon: mdi:robot
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/joanna
+        state_display: >
+          [[[
+            const ha24 = states['sensor.joanna_ha_dispatches_24h']?.state ?? '0';
+            const all24 = states['sensor.joanna_all_dispatches_24h']?.state ?? '0';
+            const queue = states['sensor.joanna_queue_pending']?.state ?? '0';
+            return `HA ${ha24} | All ${all24} | Q ${queue}`;
+          ]]]
 
       - type: custom:button-card
         template: bearstone_infra_list_row
@@ -503,7 +518,7 @@
           name: UPS Battery
           icon: mdi:battery-70
           state_display: >
-            [[[ 
+            [[[
               const v = Number(entity?.state);
               return Number.isFinite(v) ? `${v.toFixed(0)}%` : (entity?.state ?? 'unknown');
             ]]]
@@ -514,7 +529,7 @@
           name: Runtime Remaining
           icon: mdi:timer-outline
           state_display: >
-            [[[ 
+            [[[
               const secs = parseInt(entity?.state, 10);
               if (!Number.isFinite(secs)) return entity?.state ?? 'unknown';
               const hours = Math.floor(secs / 3600);
@@ -528,7 +543,7 @@
           name: On Battery
           icon: mdi:battery-alert-variant-outline
           state_display: >
-            [[[ 
+            [[[
               const s = String(entity?.state || '').toUpperCase();
               return s.includes('OB') ? 'Yes' : 'No';
             ]]]
