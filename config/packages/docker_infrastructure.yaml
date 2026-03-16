@@ -891,6 +891,8 @@ automation:
     id: docker_telemetry_template_refresh
     description: "Refresh dynamic docker telemetry templates that derive entity IDs at runtime."
     mode: single
+    trace:
+      stored_traces: 0
     trigger:
       - platform: time_pattern
         minutes: "/1"
