@@ -11,7 +11,7 @@
 # Notes: Only explicit last_status='error' is treated as failure; unknown/unavailable are neutral.
 # Notes: HA->Joanna request includes trigger context so Telegram progress messages can identify origin.
 # Notes: Creates/clears a Spook Repair issue and requests Joanna remediation on failures.
-# Notes: Schedules daily OneNote duplicate-delete maintenance request via Joanna.
+# Notes: Daily Joanna recap should be plain-English; only surface detailed index metrics when something materially changes or fails.
 ######################################################################
 
 sensor:
@@ -138,7 +138,9 @@ automation:
           diagnostics: "scheduled_time=03:15:00"
           request: >-
             Run OneNote duplicate cleanup and apply deletions.
-            Include delete reconciliation and report pages/chunks and delete metrics before and after completion.
+            Include delete reconciliation, then send a brief conversational morning summary.
+            Tell me whether cleanup finished and whether anything actually changed.
+            Only include detailed counts or backend metrics if pages were removed, something failed, or you need my attention.
 
   - id: onenote_indexer_failure_open_repair
     alias: OneNote Indexer - Open Repair On Failure

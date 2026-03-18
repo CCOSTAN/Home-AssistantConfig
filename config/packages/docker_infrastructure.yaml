@@ -11,7 +11,7 @@
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Reboot staggering: docker_14 first, docker_69 second, docker_10 third.
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
-# Notes: Includes Portainer stack status repairs and scheduled image prune.
+# Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
 ######################################################################
 
 input_datetime:
@@ -257,7 +257,7 @@ template:
         icon: mdi:docker
         state: >-
           {% set ns = namespace(keys=[], down=[]) %}
-          {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) %}
+          {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | list %}
           {% set telemetry_degraded = is_state('binary_sensor.docker_container_telemetry_degraded', 'on') %}
           {% for switch_entity in monitored %}
             {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
@@ -297,19 +297,58 @@ template:
               {% set ns.down = ns.down + [key] %}
             {% endif %}
           {% endfor %}
-          {{ ns.down | sort | join(', ') if (ns.down | count > 0) else 'none' }}
+          {{ 'ok' if (ns.down | count == 0) else 'down' }}
+        attributes:
+          down_containers: >-
+            {% set ns = namespace(keys=[], down=[]) %}
+            {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | list %}
+            {% set telemetry_degraded = is_state('binary_sensor.docker_container_telemetry_degraded', 'on') %}
+            {% for switch_entity in monitored %}
+              {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
+              {% if key not in ns.keys %}
+                {% set ns.keys = ns.keys + [key] %}
+              {% endif %}
+            {% endfor %}
+            {% for key in ns.keys | sort %}
+              {% set status_entity = 'binary_sensor.' ~ key ~ '_status' %}
+              {% set status_entity_alt = status_entity ~ '_2' %}
+              {% set state_entity = 'sensor.' ~ key ~ '_state' %}
+              {% set state_entity_alt = state_entity ~ '_2' %}
+              {% set switch_entity = 'switch.' ~ key ~ '_container' %}
+              {% set switch_entity_alt = switch_entity ~ '_2' %}
+              {% set resolver = namespace(state='unknown', chosen=false) %}
+              {% for candidate in [status_entity, status_entity_alt, state_entity, state_entity_alt, switch_entity, switch_entity_alt] %}
+                {% if not resolver.chosen and expand(candidate) | count > 0 %}
+                  {% set candidate_state = states(candidate) | lower %}
+                  {% if candidate_state not in ['unknown', 'unavailable', ''] %}
+                    {% set resolver.state = candidate_state %}
+                    {% set resolver.chosen = true %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              {% if not resolver.chosen %}
+                {% for candidate in [status_entity, status_entity_alt, state_entity, state_entity_alt, switch_entity, switch_entity_alt] %}
+                  {% if not resolver.chosen and expand(candidate) | count > 0 %}
+                    {% set resolver.state = states(candidate) | lower %}
+                    {% set resolver.chosen = true %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              {% set effective_state = resolver.state %}
+              {% if effective_state in ['off', 'stopped'] %}
+                {% set ns.down = ns.down + [key] %}
+              {% elif not telemetry_degraded and effective_state in ['unknown', 'unavailable'] %}
+                {% set ns.down = ns.down + [key] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.down | sort }}
 
       - name: "Docker Containers Down Count"
         unique_id: docker_containers_down_count
         icon: mdi:counter
         state: >-
-          {% set down_list = states('sensor.docker_containers_down_list') %}
-          {% set normalized = down_list | lower %}
-          {% if normalized in ['unknown', 'unavailable', 'none', ''] %}
-            0
-          {% else %}
-            {{ down_list.split(',') | map('trim') | reject('equalto', '') | list | count }}
-          {% endif %}
+          {% set down_items = state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list %}
+          {{ down_items | count }}
 
       - name: "Docker Stacks Down List"
         unique_id: docker_stacks_down_list
@@ -475,6 +514,60 @@ script:
                         data:
                           topic: "DOCKER"
                           message: "{{ container_name }} is {{ effective_state }} for over 5 minutes."
+              - delay:
+                  minutes: 15
+              - variables:
+                  persistent_effective_state: >-
+                    {% set candidates = [status_entity, status_entity_alt, state_entity, state_entity_alt, switch_entity, switch_entity_alt] %}
+                    {% set resolver = namespace(state='unknown', chosen=false) %}
+                    {% for candidate in candidates %}
+                      {% if not resolver.chosen and expand(candidate) | count > 0 %}
+                        {% set candidate_state = states(candidate) | lower %}
+                        {% if candidate_state not in ['unknown', 'unavailable', ''] %}
+                          {% set resolver.state = candidate_state %}
+                          {% set resolver.chosen = true %}
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                    {% if not resolver.chosen %}
+                      {% for candidate in candidates %}
+                        {% if not resolver.chosen and expand(candidate) | count > 0 %}
+                          {% set resolver.state = states(candidate) | lower %}
+                          {% set resolver.chosen = true %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endif %}
+                    {{ resolver.state }}
+                  container_name: "{{ state_attr(effective_entity, 'friendly_name') | default(container_key, true) }}"
+              - condition: template
+                value_template: >-
+                  {{ persistent_effective_state in down_states and
+                     not (is_state('binary_sensor.docker_container_telemetry_degraded', 'on') and
+                          persistent_effective_state in ['unknown', 'unavailable']) }}
+              - condition: state
+                entity_id: binary_sensor.docker_container_alerts_snoozed
+                state: "off"
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: >-
+                    HA automation docker_state_sync_repairs_dynamic
+                    (Docker State Sync - Repairs (Dynamic))
+                  source: "home_assistant_automation.docker_state_sync_repairs_dynamic"
+                  summary: "{{ container_name }} container has remained {{ persistent_effective_state }} for 20 minutes"
+                  entity_ids:
+                    - "{{ effective_entity }}"
+                    - "{{ switch_entity }}"
+                  diagnostics: >-
+                    issue_id={{ issue_id }},
+                    spook_issue_id={{ spook_issue_id }},
+                    container_key={{ container_key }},
+                    effective_entity={{ effective_entity }},
+                    switch_entity={{ switch_entity }},
+                    effective_state_initial={{ effective_state }},
+                    effective_state_20m={{ persistent_effective_state }}
+                  request: >-
+                    Troubleshoot and resolve the persistent Docker container outage if possible.
+                    Use Duplicati and the related host/container telemetry to verify recovery.
           - conditions: "{{ op == 'clear' }}"
             sequence:
               - variables:
@@ -695,37 +788,54 @@ automation:
   - alias: "Docker State Sync - Repairs (Dynamic)"
     id: docker_state_sync_repairs_dynamic
     description: "Detect Docker container/stack state transitions and delegate Repairs sync."
-    mode: parallel
+    mode: queued
+    max: 50
+    max_exceeded: silent
     trigger:
       - platform: event
         event_type: state_changed
+    variables:
+      entity_id: "{{ trigger.event.data.entity_id | default('') }}"
+      old_state: "{{ (trigger.event.data.old_state.state if trigger.event.data.old_state is not none else '') | lower }}"
+      new_state: "{{ (trigger.event.data.new_state.state if trigger.event.data.new_state is not none else '') | lower }}"
+      monitored_switches: "{{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
+      is_monitored_container_event: >-
+        {% set ent = entity_id %}
+        {% if ent.startswith('switch.') and (ent.endswith('_container') or ent.endswith('_container_2')) %}
+          {{ ent in monitored_switches }}
+        {% elif ent.startswith('binary_sensor.') and (ent.endswith('_status') or ent.endswith('_status_2')) %}
+          {% set key = ent | replace('binary_sensor.', '') | regex_replace('_status(?:_2)?$', '') %}
+          {{ ('switch.' ~ key ~ '_container') in monitored_switches or ('switch.' ~ key ~ '_container_2') in monitored_switches }}
+        {% elif ent.startswith('sensor.') and (ent.endswith('_state') or ent.endswith('_state_2')) %}
+          {% set key = ent | replace('sensor.', '') | regex_replace('_state(?:_2)?$', '') %}
+          {{ ('switch.' ~ key ~ '_container') in monitored_switches or ('switch.' ~ key ~ '_container_2') in monitored_switches }}
+        {% else %}
+          false
+        {% endif %}
+      is_monitored_stack_event: >-
+        {% set ent = entity_id %}
+        {% if ent.startswith('binary_sensor.') and ent.endswith('_stack_status') %}
+          {% set stack_key = ent | replace('binary_sensor.', '') | regex_replace('_stack_status$', '') %}
+          {{ expand('sensor.' ~ stack_key ~ '_stack_containers_count') | count > 0 }}
+        {% else %}
+          false
+        {% endif %}
     condition:
       - condition: template
         value_template: "{{ trigger.event.data.old_state is not none and trigger.event.data.new_state is not none }}"
       - condition: template
-        value_template: "{{ trigger.event.data.old_state.state != trigger.event.data.new_state.state }}"
+        value_template: "{{ old_state != new_state }}"
+      - condition: template
+        value_template: "{{ is_monitored_container_event or is_monitored_stack_event }}"
     action:
-      - variables:
-          entity_id: "{{ trigger.event.data.entity_id | default('') }}"
-          old_state: "{{ trigger.event.data.old_state.state | lower }}"
-          new_state: "{{ trigger.event.data.new_state.state | lower }}"
-          monitored: "{{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) }}"
+      - delay:
+          seconds: 2
+      - condition: template
+        value_template: "{{ states(entity_id) | lower == new_state }}"
       - choose:
           - conditions:
               - condition: template
-                value_template: >-
-                  {% set ent = entity_id %}
-                  {% if ent.startswith('switch.') and (ent.endswith('_container') or ent.endswith('_container_2')) %}
-                    {{ ent in monitored }}
-                  {% elif ent.startswith('binary_sensor.') and (ent.endswith('_status') or ent.endswith('_status_2')) %}
-                    {% set key = ent | replace('binary_sensor.', '') | regex_replace('_status(?:_2)?$', '') %}
-                    {{ ('switch.' ~ key ~ '_container') in monitored or ('switch.' ~ key ~ '_container_2') in monitored }}
-                  {% elif ent.startswith('sensor.') and (ent.endswith('_state') or ent.endswith('_state_2')) %}
-                    {% set key = ent | replace('sensor.', '') | regex_replace('_state(?:_2)?$', '') %}
-                    {{ ('switch.' ~ key ~ '_container') in monitored or ('switch.' ~ key ~ '_container_2') in monitored }}
-                  {% else %}
-                    false
-                  {% endif %}
+                value_template: "{{ is_monitored_container_event }}"
             sequence:
               - variables:
                   down_states: ['off', 'stopped', 'exited', 'dead', 'unknown', 'unavailable']
@@ -748,14 +858,7 @@ automation:
                           operation: "clear"
           - conditions:
               - condition: template
-                value_template: >-
-                  {% set ent = entity_id %}
-                  {% if ent.startswith('binary_sensor.') and ent.endswith('_stack_status') %}
-                    {% set stack_key = ent | replace('binary_sensor.', '') | regex_replace('_stack_status$', '') %}
-                    {{ expand('sensor.' ~ stack_key ~ '_stack_containers_count') | count > 0 }}
-                  {% else %}
-                    false
-                  {% endif %}
+                value_template: "{{ is_monitored_stack_event }}"
             sequence:
               - variables:
                   down_states: ['off', 'unknown', 'unavailable']
@@ -785,7 +888,7 @@ automation:
         minutes: "/55"
     action:
       - variables:
-          monitored_switches: "{{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) }}"
+          monitored_switches: "{{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
       - repeat:
           for_each: "{{ monitored_switches }}"
           sequence:
@@ -805,7 +908,7 @@ automation:
                 {% endif %}
               {% endif %}
             {% endfor %}
-            {{ ns.items }}
+            {{ ns.items | list }}
       - repeat:
           for_each: "{{ stack_status_entities }}"
           sequence:
@@ -832,7 +935,9 @@ automation:
         data:
           title: "Docker Maintenance Check"
           value1: "{{ states('sensor.docker_containers_down_count') }} containers are currently down."
-          value2: "Down: {{ states('sensor.docker_containers_down_list') }}"
+          value2: >-
+            {% set down_items = state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list %}
+            Down: {{ down_items | join(', ') if (down_items | count > 0) else 'none' }}
           who: "carlo"
           group: "maintenance"
           title1: "Yes, snooze 1h"
@@ -846,7 +951,8 @@ automation:
           topic: "DOCKER"
           message: >-
             Maintenance prompt sent to Carlo ({{ states('sensor.docker_containers_down_count') }} down:
-            {{ states('sensor.docker_containers_down_list') }}).
+            {% set down_items = state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list %}
+            {{ down_items | join(', ') if (down_items | count > 0) else 'none' }}).
 
   - alias: "Docker Maintenance Snooze 1H"
     id: docker_maintenance_snooze_1h
@@ -885,7 +991,9 @@ automation:
           topic: "DOCKER"
           message: >-
             Maintenance snooze declined with {{ states('sensor.docker_containers_down_count') }}
-            containers down ({{ states('sensor.docker_containers_down_list') }}).
+            containers down (
+            {% set down_items = state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list %}
+            {{ down_items | join(', ') if (down_items | count > 0) else 'none' }}).
 
   - alias: "Docker Telemetry Template Refresh"
     id: docker_telemetry_template_refresh

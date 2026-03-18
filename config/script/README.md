@@ -48,6 +48,7 @@ Current automations that kick off automated resolutions (via `script.joanna_disp
 | `mqtt_open_repair_on_failure` | MQTT - Open Repair On Failure | [../packages/mqtt_status.yaml](../packages/mqtt_status.yaml) |
 | `onenote_indexer_daily_delete_maintenance` | OneNote Indexer - Daily Delete Maintenance Request | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
 | `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
+| `docker_state_sync_repairs_dynamic` | Docker State Sync - Repairs (Dynamic) | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `unifi_ap_no_clients_repair_combined` | Unifi AP Create Repair Issue after 5m of 0 Clients | [../packages/wireless.yaml](../packages/wireless.yaml) |
 
 ### Tips

@@ -14,7 +14,8 @@ command_line:
   - sensor:
       name: 'Lines of Code'
       unique_id: lines_of_code
-      command: "find /config -name '*.yaml' | xargs cat | wc -l"
+      command: "find /config -type f -name '*.yaml' -exec wc -l {} + | awk 'END {print $1}'"
+      command_timeout: 60
       scan_interval: 20000
       value_template: "{{ value | int }}"
       unit_of_measurement: "count"

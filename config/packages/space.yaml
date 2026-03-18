@@ -1,10 +1,12 @@
-#-------------------------------------------
-# @CCOSTAN
-# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Space - ISS and space-related sensors.
-#-------------------------------------------
 ######################################################################
-##  Track space events and ISS passes.
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Space - ISS and launch-related telemetry
+#  Tracks SpaceX timing and announces an upcoming launch window.
+# -------------------------------------------------------------------
+# Notes: Guard template triggers against unavailable startup sensor state.
 ######################################################################
 sensor:
 
@@ -32,11 +34,16 @@ automation:
     id: 1d42fc4f-a37d-4283-b64b-09242a145598
     trigger:
       - platform: template
-        value_template: '{{ (now().strftime("%s") | int + 600) == (states.sensor.spacex.state | int) }}'
+        value_template: >-
+          {% set launch_ts = states('sensor.spacex') | int(0) %}
+          {% set seconds_until = launch_ts - (now().timestamp() | int) %}
+          {{ launch_ts > 0 and seconds_until > 0 and seconds_until <= 600 }}
 
     action:
       - service: script.notify_engine
         data:
-          value1: 'Go Outside!  There is a Rocket Launch very soon! {{states.sensor.next_launch.attributes.stream }}'
+          value1: >-
+            {% set mission = state_attr('sensor.spacex', 'mission_name') | default('A SpaceX launch', true) %}
+            Go outside. {{ mission }} is scheduled to launch in about 10 minutes.
           group: 'information'
 

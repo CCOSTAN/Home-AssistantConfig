@@ -1,5 +1,13 @@
 ######################################################################
-##  Dark House Little extra light - DARK and Cloudy or just rainy.
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Dark House Little Extra Light - Daytime rain/lightning lighting helper
+#  Turns on living-room lights and announces weather-related reasons.
+# -------------------------------------------------------------------
+# Notes:
+#  Avoid trigger entity string-splitting; map trigger IDs safely.
 ######################################################################
 
 - alias: 'Dark House Little extra light'
@@ -60,7 +68,16 @@
 
     - service: script.speech_engine
       data:
-        value1: "Because of the {{trigger.entity_id.split('_')[2]|replace('precip','rain')|replace('counter','lightning')|replace('carlo','rain') }} {{trigger.entity_id.split('_')[3]|replace('intensity',' ')| replace('carlo','and clouds')}} outside.  I will turn on some extra lights in the living room."
+        value1: >-
+          {% set reason_map = {
+            'sensor.pirateweather_precip': 'rain',
+            'sensor.pirateweather_precip_intensity': 'heavy rain',
+            'sensor.blitzortung_lightning_counter': 'lightning',
+            'group.family': 'rain and clouds',
+            'binary_sensor.sleepnumber_carlo_carlo_is_in_bed': 'rain and clouds'
+          } %}
+          {% set reason = reason_map.get(trigger.entity_id | default(''), 'weather changes') %}
+          Because of the {{ reason }} outside. I will turn on some extra lights in the living room.
         call_outside_weather: 1
         call_window_check: 1
         call_garage_check: 1
