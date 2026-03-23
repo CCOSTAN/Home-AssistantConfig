@@ -1,0 +1,682 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Vacation Mode - house-sitter arrival, analytics, and security checks.
+#  Detects long absences, tracks sitter visits, and delivers vacation-specific reminders.
+# -------------------------------------------------------------------
+# Related Issue: 793
+# Notes: Vacation mode auto-enables after 24 hours of family absence or 24 hours without bed use while the family is away.
+# Notes: General vacation speech uses Chromecast only; the garage Alexa welcome is the one local-device exception.
+# Notes: Visit analytics come from native entity attributes plus recorder-backed sensors instead of extra helper entities.
+######################################################################
+
+input_boolean:
+  vacation_mode:
+    name: Vacation Mode
+    icon: mdi:palm-tree
+    initial: off
+  house_sitter_present:
+    name: House Sitter Present
+    icon: mdi:account-key
+    initial: off
+
+sensor:
+  - platform: history_stats
+    name: Vacation House Sitter Visit Count
+    entity_id: input_boolean.house_sitter_present
+    state: 'on'
+    type: count
+    start: >-
+      {% if is_state('input_boolean.vacation_mode', 'on') %}
+        {{ states.input_boolean.vacation_mode.last_changed }}
+      {% else %}
+        {{ now() }}
+      {% endif %}
+    end: "{{ now() }}"
+
+template:
+  - sensor:
+      - name: "Vacation House Sitter Analytics"
+        unique_id: vacation_house_sitter_analytics
+        icon: mdi:clipboard-text-clock-outline
+        state: "{{ states('sensor.vacation_house_sitter_visit_count') | int(0) }}"
+        attributes:
+          vacation_started_at: >-
+            {% if is_state('input_boolean.vacation_mode', 'on') %}
+              {{ as_local(states.input_boolean.vacation_mode.last_changed).isoformat() }}
+            {% else %}
+              none
+            {% endif %}
+          last_arrival_at: >-
+            {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
+            {% set raw = state_attr('automation.vacation_mode_house_sitter_arrival', 'last_triggered') %}
+            {% set ts = as_timestamp(raw, 0) %}
+            {% if ts >= vacation_start and ts > 0 %}
+              {{ as_local(raw).isoformat() }}
+            {% else %}
+              none
+            {% endif %}
+          last_departure_at: >-
+            {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
+            {% set raw = state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered') %}
+            {% set ts = as_timestamp(raw, 0) %}
+            {% if ts >= vacation_start and ts > 0 %}
+              {{ as_local(raw).isoformat() }}
+            {% else %}
+              none
+            {% endif %}
+          last_visit_minutes: >-
+            {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
+            {% set arrival = state_attr('automation.vacation_mode_house_sitter_arrival', 'last_triggered') %}
+            {% set departure = state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered') %}
+            {% set arrival_ts = as_timestamp(arrival, 0) %}
+            {% set departure_ts = as_timestamp(departure, 0) %}
+            {% if arrival_ts >= vacation_start and departure_ts >= arrival_ts %}
+              {{ ((departure_ts - arrival_ts) / 60) | round(1) }}
+            {% else %}
+              0
+            {% endif %}
+          hours_since_last_visit: >-
+            {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
+            {% set departure = state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered') %}
+            {% set departure_ts = as_timestamp(departure, 0) %}
+            {% if departure_ts >= vacation_start %}
+              {{ ((as_timestamp(now()) - departure_ts) / 3600) | round(1) }}
+            {% else %}
+              0
+            {% endif %}
+          active_visit_minutes: >-
+            {% if is_state('input_boolean.house_sitter_present', 'on') %}
+              {{ ((as_timestamp(now()) - as_timestamp(states.input_boolean.house_sitter_present.last_changed, 0)) / 60) | round(1) }}
+            {% else %}
+              0
+            {% endif %}
+
+automation:
+  - alias: 'Vacation Mode Enable'
+    id: 163f4434-2a2f-4528-a53c-8fc6e1fd8e14
+    mode: single
+
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: 'not_home'
+        for: "24:00:00"
+      - platform: state
+        entity_id: group.bed
+        to: 'off'
+        for: "24:00:00"
+      - platform: homeassistant
+        event: start
+      - platform: time_pattern
+        hours: "/1"
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.vacation_mode
+        state: 'off'
+      - condition: template
+        value_template: >-
+          {% set family_away = is_state('group.family', 'not_home') %}
+          {% set family_away_seconds = as_timestamp(now()) - as_timestamp(states.group.family.last_changed, 0) %}
+          {% set bed_unused_seconds = as_timestamp(now()) - as_timestamp(states.group.bed.last_changed, 0) %}
+          {{ (family_away and family_away_seconds >= 86400)
+             or (family_away and is_state('group.bed', 'off') and bed_unused_seconds >= 86400) }}
+
+    action:
+      - variables:
+          vacation_reason: >-
+            {% set family_away_seconds = as_timestamp(now()) - as_timestamp(states.group.family.last_changed, 0) %}
+            {% set bed_unused_seconds = as_timestamp(now()) - as_timestamp(states.group.bed.last_changed, 0) %}
+            {% if is_state('group.bed', 'off') and bed_unused_seconds >= 86400 and family_away_seconds < 86400 %}
+              Bed inactivity while the family remained away
+            {% elif is_state('group.bed', 'off') and bed_unused_seconds >= 86400 %}
+              Family absence and no bed use
+            {% else %}
+              Family absence
+            {% endif %}
+
+      - service: input_boolean.turn_on
+        entity_id:
+          - input_boolean.vacation_mode
+
+      - service: input_boolean.turn_off
+        entity_id:
+          - input_boolean.house_sitter_present
+
+      - service: script.send_to_logbook
+        data:
+          topic: VACATION MODE
+          message: >-
+            Vacation mode enabled after 24 hours based on {{ vacation_reason | lower }}.
+
+  - alias: 'Vacation Mode Reset'
+    id: d7d33f43-22f6-4db4-8a7d-c38f3c6d0c65
+    mode: single
+
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: 'home'
+
+    condition:
+      - condition: template
+        value_template: >-
+          {{ is_state('input_boolean.vacation_mode', 'on')
+             and trigger.from_state is not none
+             and trigger.from_state.state == 'not_home' }}
+
+    action:
+      - service: input_boolean.turn_off
+        entity_id:
+          - input_boolean.vacation_mode
+          - input_boolean.house_sitter_present
+
+      - service: script.speech_engine
+        data:
+          value1: >-
+            Vacation Mode has been disabled and normal automations will continue.
+          call_no_announcement: 1
+
+  - alias: 'Vacation Mode Garage Welcome'
+    id: 63ac9268-c895-4a1b-b0df-92b5bb8e9d01
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: state
+        entity_id: group.garage_doors
+        to: 'open'
+        for: "00:00:15"
+
+    condition:
+      - condition: template
+        value_template: >-
+          {{ is_state('group.family', 'not_home')
+             and is_state('input_boolean.vacation_mode', 'on')
+             and is_state('input_boolean.house_sitter_present', 'off')
+             and trigger.to_state is not none }}
+
+    action:
+      - delay: "00:00:30"
+
+      - condition: state
+        entity_id: group.family
+        state: 'not_home'
+      - condition: state
+        entity_id: input_boolean.vacation_mode
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.house_sitter_present
+        state: 'off'
+
+      - service: notify.alexa_media_garage
+        data:
+          message: >-
+            Welcome back to Bear Stone. Please check whether any packages are waiting at the front door.
+          data:
+            type: announce
+
+  - alias: 'Vacation Mode House Sitter Arrival'
+    id: 8058a1e1-8517-4a07-839b-ef8f30ec24e4
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: state
+        entity_id: group.garage_doors
+        to: 'open'
+        for: "00:00:15"
+        id: garage
+      - platform: state
+        entity_id: binary_sensor.mcu1_gpio5
+        to: 'on'
+        for: "00:00:02"
+        id: front_door_sensor
+      - platform: state
+        entity_id: lock.front_door
+        to: 'unlocked'
+        for: "00:02:00"
+        id: front_door_unlock
+
+    condition:
+      - condition: template
+        value_template: >-
+          {{ is_state('group.family', 'not_home')
+             and is_state('input_boolean.vacation_mode', 'on')
+             and is_state('input_boolean.house_sitter_present', 'off') }}
+
+    action:
+      - variables:
+          entry_label: >-
+            {{ 'garage door' if trigger.id == 'garage' else 'front door' }}
+          entry_delay: >-
+            {{ '00:05:00' if trigger.id == 'garage' else '00:02:00' }}
+          vacation_start_ts: "{{ as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) }}"
+          last_departure_raw: "{{ state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered') }}"
+          last_departure_ts: "{{ as_timestamp(last_departure_raw, 0) }}"
+          visit_number: "{{ (states('sensor.vacation_house_sitter_visit_count') | int(0)) + 1 }}"
+          away_duration: >-
+            {% set seconds = (as_timestamp(now()) - as_timestamp(states.group.family.last_changed, 0)) | int(0) %}
+            {% set days = (seconds // 86400) | int(0) %}
+            {% set hours = ((seconds % 86400) // 3600) | int(0) %}
+            {% set minutes = ((seconds % 3600) // 60) | int(0) %}
+            {% if days > 0 %}
+              {{ days }} day{{ 's' if days != 1 else '' }}{% if hours > 0 %} and {{ hours }} hour{{ 's' if hours != 1 else '' }}{% endif %}
+            {% elif hours > 0 %}
+              {{ hours }} hour{{ 's' if hours != 1 else '' }}{% if minutes > 0 %} and {{ minutes }} minute{{ 's' if minutes != 1 else '' }}{% endif %}
+            {% else %}
+              {{ minutes }} minute{{ 's' if minutes != 1 else '' }}
+            {% endif %}
+          last_visit_gap: >-
+            {% set gap_seconds = (as_timestamp(now()) - (last_departure_ts | float(0))) | int(0) %}
+            {% set hours = (gap_seconds // 3600) | int(0) %}
+            {% set minutes = ((gap_seconds % 3600) // 60) | int(0) %}
+            {% if hours > 0 %}
+              {{ hours }} hour{{ 's' if hours != 1 else '' }}{% if minutes > 0 %} and {{ minutes }} minute{{ 's' if minutes != 1 else '' }}{% endif %}
+            {% else %}
+              {{ minutes }} minute{{ 's' if minutes != 1 else '' }}
+            {% endif %}
+          visit_context: >-
+            {% if (last_departure_ts | float(0)) >= (vacation_start_ts | float(0)) %}
+              This is visit number {{ visit_number }} for this vacation. The last visit ended about {{ last_visit_gap }} ago.
+            {% else %}
+              This is the first house-sitter visit for this vacation.
+            {% endif %}
+          carlo_location: >-
+            {% set place = states('sensor.carlo_place') %}
+            {{ place if place not in ['unknown', 'unavailable', 'none', ''] else states('person.carlo') }}
+          stacey_location: >-
+            {% set place = states('sensor.stacey_place') %}
+            {{ place if place not in ['unknown', 'unavailable', 'none', ''] else states('person.stacey') }}
+          justin_location: >-
+            {% set place = states('sensor.justin_place') %}
+            {{ place if place not in ['unknown', 'unavailable', 'none', ''] else states('person.justin') }}
+          paige_location: >-
+            {% set place = states('sensor.paige_place') %}
+            {{ place if place not in ['unknown', 'unavailable', 'none', ''] else states('person.paige') }}
+          garbage_message: >-
+            {% set day = now().strftime('%a') %}
+            {% if day in ['Tue', 'Sat'] %}
+              If you have a chance, please take the garbage cans out tonight.
+            {% elif day in ['Wed', 'Sun'] %}
+              If the garbage cans are still outside today, please bring them back in.
+            {% else %}
+
+            {% endif %}
+          package_message: >-
+            {% if trigger.id == 'garage' and is_state('binary_sensor.front_door_packages_present', 'on') %}
+              Please also check whether any packages are waiting at the front door.
+            {% else %}
+
+            {% endif %}
+          arrival_message: >-
+            House sitter arrival detected through the {{ entry_label }}.
+            The family was last home {{ away_duration }} ago.
+            {{ visit_context }}
+            Carlo is at {{ carlo_location }}. Stacey is at {{ stacey_location }}.
+            Justin is at {{ justin_location }}. Paige is at {{ paige_location }}.
+            Please check Molly's food, water, and litter box.
+            {{ package_message }}
+            {{ garbage_message }}
+          push_message: >-
+            House sitter arrival detected via the {{ entry_label }} after {{ away_duration }} away.
+            {{ visit_context }}
+            Carlo={{ carlo_location }}, Stacey={{ stacey_location }}, Justin={{ justin_location }}, Paige={{ paige_location }}.
+            Molly reminder is included.
+            {{ package_message }}
+            {{ garbage_message }}
+
+      - delay: "{{ entry_delay }}"
+
+      - condition: template
+        value_template: >-
+          {{ is_state('group.family', 'not_home')
+             and is_state('input_boolean.vacation_mode', 'on')
+             and is_state('input_boolean.house_sitter_present', 'off') }}
+
+      - service: input_boolean.turn_on
+        entity_id:
+          - input_boolean.house_sitter_present
+
+      - service: automation.trigger
+        target:
+          entity_id: automation.late_night_helper
+        data:
+          skip_condition: false
+
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'front_door_unlock' }}"
+            sequence:
+              - service: automation.trigger
+                target:
+                  entity_id: automation.late_night_helper_outside
+                data:
+                  skip_condition: false
+
+      - service: script.send_to_logbook
+        data:
+          topic: HOUSE SITTER
+          message: >-
+            House sitter arrival inferred from the {{ entry_label }} after {{ away_duration }} of family absence.
+            {{ visit_context }}
+
+      - service: script.notify_engine
+        data:
+          title: House sitter arrival
+          value1: "{{ push_message }}"
+          who: carlo
+          group: information
+          level: active
+
+      - service: script.speech_processing
+        data:
+          media_player: media_player.livingroomcc
+          speech_message: "{{ arrival_message }}"
+
+  - alias: 'Vacation Mode Sitter Checklist Follow-Up'
+    id: 4bd37a05-e6b6-493f-9ddb-fc8d9781c4df
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: state
+        entity_id: input_boolean.house_sitter_present
+        to: 'on'
+        for: "00:10:00"
+
+    condition:
+      - condition: template
+        value_template: >-
+          {{ is_state('input_boolean.vacation_mode', 'on')
+             and is_state('input_boolean.house_sitter_present', 'on') }}
+
+    action:
+      - variables:
+          garage_status: >-
+            {% if is_state('group.garage_doors', 'open') %}
+              If the garage door is still open, please close it before you leave.
+            {% else %}
+              The garage doors already look closed.
+            {% endif %}
+          checklist_message: >-
+            Quick reminder. Please check Molly's food, water, and litter box.
+            {{ garage_status }}
+            The front door should auto-lock when you leave.
+
+      - service: script.speech_processing
+        data:
+          media_player: media_player.livingroomcc
+          speech_message: "{{ checklist_message }}"
+
+  - alias: 'Vacation Mode House Sitter Departure'
+    id: 04f5ab9e-65a8-4cd5-a8e9-0f40c82a2f62
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: state
+        entity_id: group.garage_doors
+        to: 'closed'
+        for: "00:00:15"
+        id: garage
+      - platform: state
+        entity_id: binary_sensor.mcu1_gpio5
+        to: 'off'
+        for: "00:00:02"
+        id: front_door
+
+    condition:
+      - condition: template
+        value_template: >-
+          {% set seconds = as_timestamp(now()) - as_timestamp(states.input_boolean.house_sitter_present.last_changed, 0) %}
+          {{ is_state('input_boolean.house_sitter_present', 'on')
+             and seconds >= 60 }}
+
+    action:
+      - variables:
+          exit_label: >-
+            {{ 'garage door' if trigger.id == 'garage' else 'front door' }}
+          visit_count: "{{ states('sensor.vacation_house_sitter_visit_count') | int(0) }}"
+          visit_duration: >-
+            {% set seconds = (as_timestamp(now()) - as_timestamp(states.input_boolean.house_sitter_present.last_changed, 0)) | int(0) %}
+            {% set minutes = (seconds // 60) | int(0) %}
+            {% set remainder = (seconds % 60) | int(0) %}
+            {{ minutes }} minute{{ 's' if minutes != 1 else '' }}{% if remainder > 0 %} and {{ remainder }} second{{ 's' if remainder != 1 else '' }}{% endif %}
+
+      - service: homeassistant.turn_off
+        target:
+          entity_id: input_boolean.house_sitter_present
+
+      - service: script.send_to_logbook
+        data:
+          topic: HOUSE SITTER
+          message: >-
+            House sitter departure inferred when the {{ exit_label }} closed after {{ visit_duration }}.
+            Visit count this vacation is now {{ visit_count }}.
+
+      - service: script.notify_engine
+        data:
+          title: House sitter left
+          value1: >-
+            House sitter presence was cleared after the {{ exit_label }} closed about {{ visit_duration }} into visit number {{ visit_count }}.
+          who: carlo
+          group: information
+          level: active
+
+  - alias: 'Vacation Mode Secure House Check'
+    id: 5c4f6a2d-d976-4f9f-b204-ab444b24d76f
+    mode: restart
+    max_exceeded: silent
+
+    trigger:
+      - platform: state
+        entity_id: input_boolean.house_sitter_present
+        from: 'on'
+        to: 'off'
+        for: "00:25:00"
+
+    condition:
+      - condition: template
+        value_template: >-
+          {{ is_state('input_boolean.vacation_mode', 'on')
+             and is_state('input_boolean.house_sitter_present', 'off') }}
+
+    action:
+      - variables:
+          visit_count: "{{ states('sensor.vacation_house_sitter_visit_count') | int(0) }}"
+          visit_minutes: "{{ state_attr('sensor.vacation_house_sitter_analytics', 'last_visit_minutes') | float(0) }}"
+          front_door_issue: "{{ '' if is_state('lock.front_door', 'locked') else 'front door is ' ~ states('lock.front_door') }}"
+          garage_issue: "{{ 'a garage door is open' if is_state('group.garage_doors', 'open') else '' }}"
+          entry_issue: "{{ 'an entry point is still open' if is_state('group.entry_points', 'on') else '' }}"
+          issue_count: >-
+            {{ [front_door_issue, garage_issue, entry_issue] | reject('equalto', '') | list | count }}
+          unsecured_message: >-
+            {% set items = [front_door_issue, garage_issue, entry_issue] | reject('equalto', '') | list %}
+            {% if items | count > 0 %}
+              {{ items | join(', ') }}
+            {% else %}
+              all entry points are secure
+            {% endif %}
+          joanna_message: >-
+            Vacation house check after a sitter visit found: {{ unsecured_message }}.
+            Visit count this vacation: {{ visit_count }}.
+            Last visit duration: {{ visit_minutes | round(1) }} minutes.
+            Front door state: {{ states('lock.front_door') }}.
+            Garage state: {{ states('group.garage_doors') }}.
+            Entry points state: {{ states('group.entry_points') }}.
+
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ issue_count | int(0) > 0 }}"
+            sequence:
+              - service: script.notify_engine
+                data:
+                  title: Vacation secure-house alert
+                  value1: >-
+                    After the sitter left, {{ unsecured_message }}. Last visit was {{ visit_minutes | round(1) }} minutes.
+                  who: carlo
+                  group: information
+                  level: critical
+
+              - service: script.joanna_send_telegram
+                data:
+                  message: "{{ joanna_message }}"
+
+              - service: script.send_to_logbook
+                data:
+                  topic: VACATION MODE
+                  message: >-
+                    Secure-house check failed after sitter departure because {{ unsecured_message }}.
+        default:
+          - service: script.send_to_logbook
+            data:
+              topic: VACATION MODE
+              message: >-
+                Secure-house check passed 25 minutes after the sitter left.
+
+  - alias: 'Vacation Mode Missed Visit Alert'
+    id: 9f83b8cf-57ef-45b3-b72b-ea6f6c8446ec
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: time_pattern
+        minutes: "30"
+
+    condition:
+      - condition: template
+        value_template: >-
+          {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
+          {% set last_departure = as_timestamp(state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered'), 0) %}
+          {% set baseline = last_departure if last_departure >= vacation_start else vacation_start %}
+          {{ is_state('input_boolean.vacation_mode', 'on')
+             and is_state('input_boolean.house_sitter_present', 'off')
+             and (as_timestamp(now()) - baseline) >= 172800 }}
+      - condition: template
+        value_template: >-
+          {% set last_alert = as_timestamp(state_attr('automation.vacation_mode_missed_visit_alert', 'last_triggered'), 0) %}
+          {{ last_alert == 0 or (as_timestamp(now()) - last_alert) >= 86400 }}
+
+    action:
+      - variables:
+          visit_count: "{{ states('sensor.vacation_house_sitter_visit_count') | int(0) }}"
+          vacation_start: "{{ as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) }}"
+          last_departure: "{{ as_timestamp(state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered'), 0) }}"
+          baseline: >-
+            {{ last_departure if (last_departure | float(0)) >= (vacation_start | float(0)) else vacation_start }}
+          hours_since: "{{ ((as_timestamp(now()) - (baseline | float(0))) / 3600) | round(1) }}"
+          baseline_label: >-
+            {% if (last_departure | float(0)) >= (vacation_start | float(0)) %}
+              the last sitter departure
+            {% else %}
+              vacation mode started
+            {% endif %}
+          alert_message: >-
+            No sitter visit has been detected for {{ hours_since }} hours since {{ baseline_label }}.
+            Visit count this vacation is {{ visit_count }}.
+
+      - service: script.notify_engine
+        data:
+          title: Vacation missed visit alert
+          value1: "{{ alert_message }}"
+          who: carlo
+          group: information
+          level: active
+
+      - service: script.joanna_send_telegram
+        data:
+          message: "{{ alert_message }}"
+
+      - service: script.send_to_logbook
+        data:
+          topic: VACATION MODE
+          message: "{{ alert_message }}"
+
+  - alias: 'Vacation Mode Room Hints'
+    id: e0d4e35c-2bf4-435d-adff-52d836812999
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: state
+        entity_id: light.kitchen_lights
+        from: 'off'
+        to: 'on'
+        for: "00:00:05"
+        id: kitchen
+      - platform: state
+        entity_id: light.living_room_lights
+        from: 'off'
+        to: 'on'
+        for: "00:00:05"
+        id: living_room
+      - platform: state
+        entity_id: light.living_room_accents
+        from: 'off'
+        to: 'on'
+        for: "00:00:05"
+        id: living_room
+      - platform: state
+        entity_id: light.office_lights
+        from: 'off'
+        to: 'on'
+        for: "00:00:05"
+        id: office
+      - platform: state
+        entity_id: light.garage_lights
+        from: 'off'
+        to: 'on'
+        for: "00:00:05"
+        id: garage
+      - platform: state
+        entity_id: light.upstairs_lights
+        from: 'off'
+        to: 'on'
+        for: "00:00:05"
+        id: upstairs
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.vacation_mode
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.house_sitter_present
+        state: 'on'
+      - condition: or
+        conditions:
+          - condition: and
+            conditions:
+              - condition: state
+                entity_id: group.bed
+                state: 'off'
+              - condition: time
+                after: '08:00:00'
+                before: '22:00:00'
+          - condition: state
+            entity_id: input_boolean.alert_mode
+            state: 'on'
+
+    action:
+      - variables:
+          hint_message: >-
+            {% set hints = {
+              'kitchen': 'House tip. The kitchen lights are on. You can also say, Alexa, turn on the sink light or turn off the kitchen accents.',
+              'living_room': 'House tip. The living room lights are on. You can also say, Alexa, turn on the TV stand light or turn on the living room accents.',
+              'office': 'House tip. The office lights are on. You can also say, Alexa, turn on the office accent or turn off the office lamp switch.',
+              'garage': 'House tip. The garage lights are on. You can also say, Alexa, turn on the garage hallway or open the large garage door.',
+              'upstairs': 'House tip. The upstairs lights are on. You can also say, Alexa, turn on the upstairs lamp or turn off the upstairs lights.'
+            } %}
+            {{ hints.get(trigger.id, 'House tip. Alexa can help with the lights in this room.') }}
+
+      - service: script.speech_processing
+        data:
+          media_player: media_player.livingroomcc
+          speech_message: "{{ hint_message }}"
+
+      - delay: "00:20:00"

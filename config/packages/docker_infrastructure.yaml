@@ -930,14 +930,19 @@ automation:
       - condition: state
         entity_id: binary_sensor.docker_container_alerts_snoozed
         state: "off"
+      - condition: template
+        value_template: >-
+          {% set down_items = state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list %}
+          {{ down_items | count > 3 }}
     action:
+      - variables:
+          down_items: "{{ state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list }}"
+          down_count: "{{ down_items | count }}"
       - service: script.notify_engine_two_button
         data:
           title: "Docker Maintenance Check"
-          value1: "{{ states('sensor.docker_containers_down_count') }} containers are currently down."
-          value2: >-
-            {% set down_items = state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list %}
-            Down: {{ down_items | join(', ') if (down_items | count > 0) else 'none' }}
+          value1: "{{ down_count }} containers are currently down."
+          value2: "Down: {{ down_items | join(', ') if (down_count | int(0) > 0) else 'none' }}"
           who: "carlo"
           group: "maintenance"
           title1: "Yes, snooze 1h"
@@ -949,10 +954,7 @@ automation:
       - service: script.send_to_logbook
         data:
           topic: "DOCKER"
-          message: >-
-            Maintenance prompt sent to Carlo ({{ states('sensor.docker_containers_down_count') }} down:
-            {% set down_items = state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list %}
-            {{ down_items | join(', ') if (down_items | count > 0) else 'none' }}).
+          message: "Maintenance prompt sent to Carlo ({{ down_count }} down: {{ down_items | join(', ') if (down_count | int(0) > 0) else 'none' }})."
 
   - alias: "Docker Maintenance Snooze 1H"
     id: docker_maintenance_snooze_1h
@@ -986,14 +988,13 @@ automation:
         event_data:
           action: DOCKER_MAINTENANCE_NOT_MAINTENANCE
     action:
+      - variables:
+          down_items: "{{ state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list }}"
+          down_count: "{{ down_items | count }}"
       - service: script.send_to_logbook
         data:
           topic: "DOCKER"
-          message: >-
-            Maintenance snooze declined with {{ states('sensor.docker_containers_down_count') }}
-            containers down (
-            {% set down_items = state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list %}
-            {{ down_items | join(', ') if (down_items | count > 0) else 'none' }}).
+          message: "Maintenance snooze declined with {{ down_count }} containers down ({{ down_items | join(', ') if (down_count | int(0) > 0) else 'none' }})."
 
   - alias: "Docker Telemetry Template Refresh"
     id: docker_telemetry_template_refresh

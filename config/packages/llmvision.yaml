@@ -3,10 +3,11 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# LLM Vision - Garage Cans X Check - detects reflective X on right wall
-#  Trigger with input_button.llmvision_garbage_check to update garbage_cans_out.
+# LLM Vision - garage cans and front-door package checks
+#  Trigger with input_button.llmvision_garbage_check, input_button.llmvision_front_door_package_check, or front door person activity to update vision-backed package sensors.
 # -------------------------------------------------------------------
 # Notes: LLMVision analyzes camera.garagecam; expects strict "on"/"off" output.
+# Notes: Front-door package detection runs 3 minutes after `sensor.frontdoorbell_person_active_count_2` goes above 0.
 # Docs: https://llmvision.gitbook.io/getting-started/usage/image-analyzer
 ######################################################################
 
@@ -14,11 +15,17 @@ input_button:
   llmvision_garbage_check:
     name: "LLM Vision: Garage cans check"
     icon: mdi:delete-variant
+  llmvision_front_door_package_check:
+    name: "LLM Vision: Front door package check"
+    icon: mdi:package-variant-closed-check
 
 input_boolean:
   garbage_cans_out:
     name: "Garbage Cans Out"
     icon: mdi:trash-can
+  front_door_packages_present:
+    name: "Front Door Packages Present"
+    icon: mdi:package-variant-closed
 
 input_text:
   llmvision_garbage_last_response:
@@ -27,10 +34,20 @@ input_text:
   llmvision_garbage_last_keyframe:
     name: "LLM Vision garage key frame"
     max: 255
+  llmvision_front_door_last_response:
+    name: "LLM Vision front door response"
+    max: 255
+  llmvision_front_door_last_keyframe:
+    name: "LLM Vision front door key frame"
+    max: 255
 
 input_datetime:
   llmvision_garbage_last_run:
     name: "LLM Vision garage last run"
+    has_date: true
+    has_time: true
+  llmvision_front_door_last_run:
+    name: "LLM Vision front door last run"
     has_date: true
     has_time: true
 
@@ -45,6 +62,16 @@ template:
           last_response: "{{ states('input_text.llmvision_garbage_last_response') }}"
           last_key_frame: "{{ states('input_text.llmvision_garbage_last_keyframe') }}"
           source_camera: camera.garagecam
+
+      - name: "Front Door Packages Present"
+        unique_id: llmvision_front_door_packages_present
+        device_class: presence
+        state: "{{ is_state('input_boolean.front_door_packages_present', 'on') }}"
+        attributes:
+          last_run: "{{ states('input_datetime.llmvision_front_door_last_run') }}"
+          last_response: "{{ states('input_text.llmvision_front_door_last_response') }}"
+          last_key_frame: "{{ states('input_text.llmvision_front_door_last_keyframe') }}"
+          source_camera: camera.frontdoorbell
 
 automation:
   - alias: LLM Vision - Garbage cans out
@@ -94,3 +121,111 @@ automation:
           entity_id: input_datetime.llmvision_garbage_last_run
         data:
           datetime: "{{ now() }}"
+
+  - alias: LLM Vision - Front door packages
+    id: 8647b555-7ba0-41d5-98de-cfd3094e5b4f
+    mode: restart
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.frontdoorbell_person_active_count_2
+        above: 0
+        for: "00:03:00"
+        id: person_count
+      - platform: state
+        entity_id: input_button.llmvision_front_door_package_check
+        id: manual_check
+    variables:
+      prompt_text: >-
+        Examine the front door camera image for delivery packages. Focus only on boxes, padded envelopes,
+        or shopping bags left on the porch or by the front door. If one or more packages are clearly visible,
+        respond exactly: on. If no packages are clearly visible, respond exactly: off. No other words.
+    action:
+      - service: llmvision.data_analyzer
+        response_variable: llmvision_result
+        data:
+          provider: !secret llmvision_provider_entry
+          model: gpt-4.1-nano
+          message: "{{ prompt_text }}"
+          sensor_entity: input_boolean.front_door_packages_present
+          image_entity:
+            - camera.frontdoorbell
+          include_filename: false
+          target_width: 1280
+          max_tokens: 16
+          expose_images: true
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.llmvision_front_door_last_response
+        data:
+          value: "{{ (llmvision_result.response_text | default('unknown'))[:250] }}"
+      - choose:
+          - conditions: "{{ llmvision_result is defined and llmvision_result.key_frame is defined }}"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.llmvision_front_door_last_keyframe
+                data:
+                  value: "{{ llmvision_result.key_frame }}"
+        default:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.llmvision_front_door_last_keyframe
+            data:
+              value: ""
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.llmvision_front_door_last_run
+        data:
+          datetime: "{{ now() }}"
+      - service: script.send_to_logbook
+        data:
+          topic: PACKAGES
+          message: >-
+            Front door package vision check ran via {{ 'manual button' if trigger.id == 'manual_check' else 'front door person activity' }}
+            and returned {{ llmvision_result.response_text | default(states('input_boolean.front_door_packages_present')) | lower }}.
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'manual_check' }}"
+            sequence:
+              - service: script.notify_engine
+                data:
+                  title: Front door package test
+                  value1: >-
+                    LLM Vision returned {{ llmvision_result.response_text | default(states('input_boolean.front_door_packages_present')) | lower }}
+                    for the front door package check.
+                  who: carlo
+                  group: information
+                  level: active
+                  camera_entity: camera.frontdoorbell
+
+  - alias: LLM Vision - Front door package notify
+    id: 0ddf0fb5-4600-4eff-9236-95b2af3739a6
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.front_door_packages_present
+        to: 'on'
+        for: "00:01:00"
+    action:
+      - variables:
+          package_message: >-
+            Front door camera thinks a package may be waiting at the door.
+          notify_target: >-
+            {% if is_state('group.family', 'home') %}
+              family
+            {% else %}
+              carlo
+            {% endif %}
+      - service: script.notify_engine
+        data:
+          title: Package check
+          value1: "{{ package_message }}"
+          who: "{{ notify_target }}"
+          group: information
+          level: active
+          camera_entity: camera.frontdoorbell
+      - service: script.send_to_logbook
+        data:
+          topic: PACKAGES
+          message: "{{ package_message }}"

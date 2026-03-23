@@ -4,7 +4,7 @@
 #
 # Features:
 # - Operates during specified hours
-# - Only activates when family is home or guest mode is on
+# - Activates when family is home or guest/vacation mode is on
 # - Adjustable volume based on time of day
 #
 # Usage:
@@ -35,6 +35,9 @@ speech_processing:
               state: 'home'
             - condition: state
               entity_id: input_boolean.guest_mode
+              state: 'on'
+            - condition: state
+              entity_id: input_boolean.vacation_mode
               state: 'on'
         - condition: or
           conditions:

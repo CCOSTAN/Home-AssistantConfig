@@ -32,6 +32,14 @@
       - condition: and
         conditions:
           - condition: state
+            entity_id: input_boolean.vacation_mode
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.house_sitter_present
+            state: 'off'
+      - condition: and
+        conditions:
+          - condition: state
             entity_id: input_boolean.guest_mode
             state: 'off'
           - condition: state

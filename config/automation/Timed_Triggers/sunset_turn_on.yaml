@@ -22,10 +22,32 @@
 
   action:
     - delay: '00:{{ (range(1, 20)|random|int) }}:00'
-    - service: script.speech_engine
-      data:
-        call_dark_outside: 1
-        call_window_check: 1
+    - variables:
+        vacation_presence_delay_minutes: "{{ 90 + (range(15, 31) | random | int) }}"
+        vacation_presence_runtime_minutes: "{{ 240 + (range(15, 31) | random | int) }}"
+        vacation_presence_delay: >-
+          {{ '%02d:%02d:00' | format((vacation_presence_delay_minutes | int) // 60, (vacation_presence_delay_minutes | int) % 60) }}
+        vacation_presence_runtime: >-
+          {{ '%02d:%02d:00' | format((vacation_presence_runtime_minutes | int) // 60, (vacation_presence_runtime_minutes | int) % 60) }}
+        vacation_presence_switch: >-
+          {{ 'switch.office_accent' if (range(0, 2) | random | int) == 0 else 'switch.front_office_lamp' }}
+        vacation_presence_light: >-
+          {{ 'light.upstairs_lamp' if (range(0, 2) | random | int) == 0 else 'light.ikea_1' }}
+    - choose:
+        - conditions:
+            - condition: or
+              conditions:
+                - condition: state
+                  entity_id: group.family
+                  state: 'home'
+                - condition: state
+                  entity_id: input_boolean.house_sitter_present
+                  state: 'on'
+          sequence:
+            - service: script.speech_engine
+              data:
+                call_dark_outside: 1
+                call_window_check: 1
     - service: homeassistant.turn_on
       entity_id:
         - switch.front_landscaping
@@ -40,25 +62,143 @@
         brightness: >
           {% if states.group.family.state == 'home' -%}
           10
+          {% elif is_state('input_boolean.vacation_mode', 'on') and is_state('input_boolean.house_sitter_present', 'off') -%}
+          35
           {% else %}
           150
           {% endif %}
-    - wait_template: >-
-       {{ states.group.family.state == 'home' }}
-    - service: homeassistant.turn_on
-      entity_id:
-       - group.master_bathroom_accents
-       - switch.back_landscaping
-       - switch.front_door_outlet
-       - switch.foyer_outlet
-       - switch.den_outlet
-       - switch.front_office_lamp
-       - switch.office_accent
-       - switch.living_room_outlet
-       - switch.living_room_tv_outlet
-    - service: light.turn_on
-      entity_id:
-       - light.living_room_accents
-       - light.upstairs_lamp
-       - light.ikea_1 #Upstairs Hallyway switchoutlet.
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.vacation_mode
+              state: 'off'
+          sequence:
+            - wait_template: >-
+                {{ states.group.family.state == 'home' }}
+            - service: homeassistant.turn_on
+              entity_id:
+               - group.master_bathroom_accents
+               - switch.back_landscaping
+               - switch.front_door_outlet
+               - switch.foyer_outlet
+               - switch.den_outlet
+               - switch.front_office_lamp
+               - switch.office_accent
+               - switch.living_room_outlet
+               - switch.living_room_tv_outlet
+            - service: light.turn_on
+              entity_id:
+               - light.living_room_accents
+               - light.upstairs_lamp
+               - light.ikea_1 #Upstairs Hallyway switchoutlet.
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.vacation_mode
+              state: 'on'
+            - condition: state
+              entity_id: input_boolean.house_sitter_present
+              state: 'on'
+          sequence:
+            - service: homeassistant.turn_on
+              entity_id:
+               - group.master_bathroom_accents
+               - switch.back_landscaping
+               - switch.front_door_outlet
+               - switch.foyer_outlet
+               - switch.den_outlet
+               - switch.front_office_lamp
+               - switch.office_accent
+               - switch.living_room_outlet
+               - switch.living_room_tv_outlet
+            - service: light.turn_on
+              entity_id:
+               - light.living_room_accents
+               - light.upstairs_lamp
+               - light.ikea_1 #Upstairs Hallyway switchoutlet.
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.vacation_mode
+              state: 'on'
+            - condition: state
+              entity_id: input_boolean.house_sitter_present
+              state: 'off'
+          sequence:
+            - delay: "{{ vacation_presence_delay }}"
+            - condition: state
+              entity_id: input_boolean.vacation_mode
+              state: 'on'
+            - condition: state
+              entity_id: input_boolean.house_sitter_present
+              state: 'off'
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: "{{ vacation_presence_switch == 'switch.office_accent' }}"
+                  sequence:
+                    - service: homeassistant.turn_on
+                      entity_id:
+                        - switch.front_door_outlet
+                        - switch.foyer_outlet
+                        - switch.living_room_outlet
+                        - switch.office_accent
+              default:
+                - service: homeassistant.turn_on
+                  entity_id:
+                    - switch.front_door_outlet
+                    - switch.foyer_outlet
+                    - switch.living_room_outlet
+                    - switch.front_office_lamp
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: "{{ vacation_presence_light == 'light.upstairs_lamp' }}"
+                  sequence:
+                    - service: light.turn_on
+                      entity_id:
+                        - light.living_room_accents
+                        - light.upstairs_lamp
+              default:
+                - service: light.turn_on
+                  entity_id:
+                    - light.living_room_accents
+                    - light.ikea_1
+            - delay: "{{ vacation_presence_runtime }}"
+            - condition: state
+              entity_id: input_boolean.vacation_mode
+              state: 'on'
+            - condition: state
+              entity_id: input_boolean.house_sitter_present
+              state: 'off'
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: "{{ vacation_presence_switch == 'switch.office_accent' }}"
+                  sequence:
+                    - service: homeassistant.turn_off
+                      entity_id:
+                        - switch.front_door_outlet
+                        - switch.foyer_outlet
+                        - switch.living_room_outlet
+                        - switch.office_accent
+              default:
+                - service: homeassistant.turn_off
+                  entity_id:
+                    - switch.front_door_outlet
+                    - switch.foyer_outlet
+                    - switch.living_room_outlet
+                    - switch.front_office_lamp
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: "{{ vacation_presence_light == 'light.upstairs_lamp' }}"
+                  sequence:
+                    - service: light.turn_off
+                      entity_id:
+                        - light.living_room_accents
+                        - light.upstairs_lamp
+              default:
+                - service: light.turn_off
+                  entity_id:
+                    - light.living_room_accents
+                    - light.ikea_1
 

@@ -374,9 +374,10 @@ automation:
         data:
           title: 'Check Garage Doors:'
           value1: >
-            {% set open = [] %}
-            {% if is_state('cover.small_garage_door','open') %}{% set _ = open.append('Small garage door') %}{% endif %}
-            {% if is_state('cover.large_garage_door','open') %}{% set _ = open.append('Large garage door') %}{% endif %}
+            {% set open = [
+              'Small garage door' if is_state('cover.small_garage_door', 'open') else '',
+              'Large garage door' if is_state('cover.large_garage_door', 'open') else ''
+            ] | reject('eq', '') | list %}
             {% if open|length == 0 %}
               All garage doors are closed.
             {% elif open|length == 1 %}

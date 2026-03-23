@@ -4,9 +4,10 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Speech Engine Script - queued announcements to Chromecast targets
-#  Sends templated speech briefings to media players when family/guests are home.
+#  Sends templated speech briefings to media players when family, guests, or vacation sitters are active.
 # -------------------------------------------------------------------
 # Notes: Optional call_* flags control sections (dark_outside, window/garage checks, garbage day, inside/outside weather). Defaults to living room Chromecast if no media_player is provided.
+# Notes: Allows announcements while `input_boolean.vacation_mode` is on for house-sitter flows.
 ######################################################################
 # Usage example:
 #   service: script.speech_engine
@@ -25,7 +26,7 @@ speech_engine:
   mode: queued
   # Define the sequence of actions to be performed
   sequence:
-    # If the state of the "group.family" entity is "home" or the state of the "input_boolean.guest_mode" entity is "on", proceed with the script
+    # If family is home or a guest/vacation mode is active, proceed with the script
     - condition: or
       conditions:
         - condition: state
@@ -33,6 +34,9 @@ speech_engine:
           state: 'home'
         - condition: state
           entity_id: input_boolean.guest_mode
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.vacation_mode
           state: 'on'
 
     # Run the "script.speech_processing" service with the specified media player and speech message

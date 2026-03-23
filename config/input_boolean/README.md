@@ -26,7 +26,7 @@ Mode and trigger toggles that drive automations (guest mode, parties, presence o
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [home_modes.yaml](home_modes.yaml) | Guest, vacation, and quiet-mode toggles. |
+| [home_modes.yaml](home_modes.yaml) | Guest, alert, and notification toggles used across automations. |
 | [trigger_booleans.yaml](trigger_booleans.yaml) | One-off toggles used as automation guards. |
 | [hidden_booleans.yaml](hidden_booleans.yaml) | Back-end toggles tucked away from the UI. |
 

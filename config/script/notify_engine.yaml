@@ -87,11 +87,11 @@ notify_engine_two_button:
         data:
           actions:
             - title: "{{ title1|default('', true) }}"
-              action: "{{ action1 }}"
+              action: "{{ action1|default('', true) }}"
               icon: "{{ icon1|default ('sfsymbols:house.circle', true) }}"
               destructive: "{{ destructive1|default('false', true) }}"
             - title: "{{ title2|default('', true) }}"
-              action: "{{ action2 }}"
+              action: "{{ action2|default('', true) }}"
               icon: "{{ icon2|default ('sfsymbols:house.circle', true) }}"
               destructive: "{{ destructive2|default('false', true) }}"         
-          group: "{{ group|default('information'),true }}"
+          group: "{{ group|default('information', true) }}"
