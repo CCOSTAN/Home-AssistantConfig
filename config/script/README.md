@@ -28,6 +28,7 @@ Reusable scripts that other automations call for notifications, lighting, and sa
 | File | Why it matters |
 | --- | --- |
 | [notify_engine.yaml](notify_engine.yaml) | Single entrypoint for rich push notifications. |
+| [notify_live_activity.yaml](notify_live_activity.yaml) | Shared helper for tagged live activity/live update pushes and clear commands. |
 | [send_to_logbook.yaml](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
 | [joanna_dispatch.yaml](joanna_dispatch.yaml) | Shared BearClaw/Joanna dispatch schema for automation remediation requests. |
 | [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech. |
