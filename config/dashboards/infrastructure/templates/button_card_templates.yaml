@@ -614,7 +614,7 @@ bearstone_infra_container_row:
           }
           const switchEntity = key ? `switch.${key}_container` : '';
           const switchEntityAlt = key ? `switch.${key}_container_2` : '';
-          const monitored = states['switch.docker_monitored_containers']?.attributes?.entity_id;
+          const monitored = states['sensor.docker_monitored_switch_inventory']?.attributes?.entity_id;
           const restartCandidates = key ? [
             `button.${key}_restart_container`,
             `button.${key}_restart_container_2`,

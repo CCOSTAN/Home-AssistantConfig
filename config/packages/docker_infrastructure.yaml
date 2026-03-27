@@ -11,6 +11,7 @@
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Reboot staggering: docker_14 first, docker_69 second, docker_10 third.
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
+# Notes: Weekly Joanna reconcile checks discovered container switches vs configured group members.
 # Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
 ######################################################################
 
@@ -203,18 +204,117 @@ template:
           {% endif %}
 
   - sensor:
+      - name: "Docker Monitored Switch Inventory"
+        unique_id: docker_monitored_switch_inventory
+        icon: mdi:docker
+        state: >-
+          {% set ns = namespace(items=[]) %}
+          {% for item in states.switch %}
+            {% set ent = item.entity_id %}
+            {% if ent is search('^switch\\..*_container(?:_2)?$') %}
+              {% set key = ent | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
+              {% set has_companion = expand('binary_sensor.' ~ key ~ '_status') | count > 0
+                or expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
+                or expand('sensor.' ~ key ~ '_state') | count > 0
+                or expand('sensor.' ~ key ~ '_state_2') | count > 0 %}
+              {% set switch_state = states(ent) | lower %}
+              {% if has_companion or switch_state not in ['unknown', 'unavailable', ''] %}
+                {% if ent not in ns.items %}
+                  {% set ns.items = ns.items + [ent] %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.items | sort | count }}
+        attributes:
+          entity_id: >-
+            {% set ns = namespace(items=[]) %}
+            {% for item in states.switch %}
+              {% set ent = item.entity_id %}
+              {% if ent is search('^switch\\..*_container(?:_2)?$') %}
+                {% set key = ent | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
+                {% set has_companion = expand('binary_sensor.' ~ key ~ '_status') | count > 0
+                  or expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
+                  or expand('sensor.' ~ key ~ '_state') | count > 0
+                  or expand('sensor.' ~ key ~ '_state_2') | count > 0 %}
+                {% set switch_state = states(ent) | lower %}
+                {% if has_companion or switch_state not in ['unknown', 'unavailable', ''] %}
+                  {% if ent not in ns.items %}
+                    {% set ns.items = ns.items + [ent] %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.items | sort }}
+          configured_group_members: >-
+            {{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list | sort }}
+          missing_from_group: >-
+            {% set discovered_ns = namespace(items=[]) %}
+            {% for item in states.switch %}
+              {% set ent = item.entity_id %}
+              {% if ent is search('^switch\\..*_container(?:_2)?$') %}
+                {% set key = ent | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
+                {% set has_companion = expand('binary_sensor.' ~ key ~ '_status') | count > 0
+                  or expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
+                  or expand('sensor.' ~ key ~ '_state') | count > 0
+                  or expand('sensor.' ~ key ~ '_state_2') | count > 0 %}
+                {% set switch_state = states(ent) | lower %}
+                {% if has_companion or switch_state not in ['unknown', 'unavailable', ''] %}
+                  {% if ent not in discovered_ns.items %}
+                    {% set discovered_ns.items = discovered_ns.items + [ent] %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% set discovered = discovered_ns.items | list %}
+            {% set configured = state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list %}
+            {% set ns = namespace(items=[]) %}
+            {% for ent in discovered %}
+              {% if ent not in configured %}
+                {% set ns.items = ns.items + [ent] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.items | sort }}
+          stale_group_members: >-
+            {% set discovered_ns = namespace(items=[]) %}
+            {% for item in states.switch %}
+              {% set ent = item.entity_id %}
+              {% if ent is search('^switch\\..*_container(?:_2)?$') %}
+                {% set key = ent | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
+                {% set has_companion = expand('binary_sensor.' ~ key ~ '_status') | count > 0
+                  or expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
+                  or expand('sensor.' ~ key ~ '_state') | count > 0
+                  or expand('sensor.' ~ key ~ '_state_2') | count > 0 %}
+                {% set switch_state = states(ent) | lower %}
+                {% if has_companion or switch_state not in ['unknown', 'unavailable', ''] %}
+                  {% if ent not in discovered_ns.items %}
+                    {% set discovered_ns.items = discovered_ns.items + [ent] %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% set discovered = discovered_ns.items | list %}
+            {% set configured = state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list %}
+            {% set ns = namespace(items=[]) %}
+            {% for ent in configured %}
+              {% if ent not in discovered %}
+                {% set ns.items = ns.items + [ent] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.items | sort }}
+
       - name: "Docker Monitored Container Count"
         unique_id: docker_monitored_container_count
         icon: mdi:format-list-numbered
         state: >-
-          {{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | count }}
+          {{ state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) | count }}
 
       - name: "Docker Monitored Unavailable Count"
         unique_id: docker_monitored_unavailable_count
         icon: mdi:lan-disconnect
         state: >-
           {% set ns = namespace(keys=[], unavailable=0) %}
-          {% set monitored = state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) %}
+          {% set monitored = state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) %}
           {% for switch_entity in monitored %}
             {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
             {% if key not in ns.keys %}
@@ -258,7 +358,7 @@ template:
         icon: mdi:docker
         state: >-
           {% set ns = namespace(keys=[], down=[]) %}
-          {% set monitored = state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list %}
+          {% set monitored = state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) | list %}
           {% set telemetry_degraded = is_state('binary_sensor.docker_container_telemetry_degraded', 'on') %}
           {% for switch_entity in monitored %}
             {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
@@ -302,7 +402,7 @@ template:
         attributes:
           down_containers: >-
             {% set ns = namespace(keys=[], down=[]) %}
-            {% set monitored = state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list %}
+            {% set monitored = state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) | list %}
             {% set telemetry_degraded = is_state('binary_sensor.docker_container_telemetry_degraded', 'on') %}
             {% for switch_entity in monitored %}
               {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
@@ -438,7 +538,7 @@ script:
           status_entity_alt: "binary_sensor.{{ container_key }}_status_2"
           state_entity: "sensor.{{ container_key }}_state"
           state_entity_alt: "sensor.{{ container_key }}_state_2"
-          monitored_switches: "{{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) }}"
+          monitored_switches: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) }}"
           tracked_container: "{{ switch_entity in monitored_switches or switch_entity_alt in monitored_switches }}"
           effective_entity: >-
             {% if expand(status_entity) | count > 0 %}
@@ -799,7 +899,7 @@ automation:
       entity_id: "{{ trigger.event.data.entity_id | default('') }}"
       old_state: "{{ (trigger.event.data.old_state.state if trigger.event.data.old_state is not none else '') | lower }}"
       new_state: "{{ (trigger.event.data.new_state.state if trigger.event.data.new_state is not none else '') | lower }}"
-      monitored_switches: "{{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
+      monitored_switches: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) | list }}"
       is_monitored_container_event: >-
         {% set ent = entity_id %}
         {% if ent.startswith('switch.') and (ent.endswith('_container') or ent.endswith('_container_2')) %}
@@ -889,7 +989,7 @@ automation:
         minutes: "/55"
     action:
       - variables:
-          monitored_switches: "{{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
+          monitored_switches: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) | list }}"
       - repeat:
           for_each: "{{ monitored_switches }}"
           sequence:
@@ -1010,10 +1110,63 @@ automation:
       - service: homeassistant.update_entity
         target:
           entity_id:
+            - sensor.docker_monitored_switch_inventory
             - sensor.docker_monitored_unavailable_count
             - sensor.docker_containers_down_list
             - sensor.docker_containers_down_count
             - binary_sensor.docker_container_telemetry_degraded
+
+  - alias: "Docker Group Reconcile - Weekly Joanna Review"
+    id: docker_group_reconcile_weekly_joanna_review
+    description: "Weekly reconciliation of discovered Docker container entities vs configured group members."
+    mode: single
+    trigger:
+      - platform: time
+        at: "08:45:00"
+    condition:
+      - condition: time
+        weekday:
+          - sun
+    action:
+      - variables:
+          discovered_members: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) | list }}"
+          configured_members: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'configured_group_members') | default([], true) | list }}"
+          missing_members: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'missing_from_group') | default([], true) | list }}"
+          stale_members: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'stale_group_members') | default([], true) | list }}"
+      - service: script.send_to_logbook
+        data:
+          topic: "DOCKER"
+          message: >-
+            Weekly reconcile check: discovered={{ discovered_members | count }},
+            configured={{ configured_members | count }},
+            missing={{ missing_members | count }},
+            stale={{ stale_members | count }}.
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ (missing_members | count > 0) or (stale_members | count > 0) }}"
+            sequence:
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: >-
+                    HA automation docker_group_reconcile_weekly_joanna_review
+                    (Docker Group Reconcile - Weekly Joanna Review)
+                  source: "home_assistant_automation.docker_group_reconcile_weekly_joanna_review"
+                  summary: >-
+                    Docker group membership drift detected (missing={{ missing_members | count }},
+                    stale={{ stale_members | count }}).
+                  entity_ids:
+                    - sensor.docker_monitored_switch_inventory
+                    - switch.docker_monitored_containers
+                  diagnostics: >-
+                    discovered={{ discovered_members | join(', ') if (discovered_members | count > 0) else 'none' }};
+                    configured={{ configured_members | join(', ') if (configured_members | count > 0) else 'none' }};
+                    missing={{ missing_members | join(', ') if (missing_members | count > 0) else 'none' }};
+                    stale={{ stale_members | join(', ') if (stale_members | count > 0) else 'none' }}.
+                  request: >-
+                    Reconcile Docker monitored group members in
+                    config/packages/docker_infrastructure.yaml so configured monitoring
+                    matches currently discovered container entities.
 
   - alias: "Docker Weekly Prune Unused Images"
     id: docker_weekly_prune_unused_images
