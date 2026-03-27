@@ -194,7 +194,7 @@
       card_param: cards
       filter:
         include:
-        - group: switch.docker_monitored_containers
+        - entity_id: "/^switch\\..*_container(_2)?$/"
           options:
             type: custom:button-card
             template: bearstone_infra_container_row

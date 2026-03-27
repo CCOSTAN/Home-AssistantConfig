@@ -614,13 +614,15 @@ bearstone_infra_container_row:
           }
           const switchEntity = key ? `switch.${key}_container` : '';
           const switchEntityAlt = key ? `switch.${key}_container_2` : '';
-          const monitored = states['switch.docker_monitored_containers']?.attributes?.entity_id || [];
+          const monitored = states['switch.docker_monitored_containers']?.attributes?.entity_id;
           const restartCandidates = key ? [
             `button.${key}_restart_container`,
             `button.${key}_restart_container_2`,
           ] : [];
           const hasRestart = restartCandidates.some((candidate) => states[candidate]);
-          const isMonitored = monitored.includes(switchEntity) || monitored.includes(switchEntityAlt);
+          const isMonitored = Array.isArray(monitored)
+            ? monitored.includes(switchEntity) || monitored.includes(switchEntityAlt)
+            : (ent.startsWith('switch.') && (ent.endsWith('_container') || ent.endsWith('_container_2')));
           return (hasRestart && isMonitored) ? 'block' : 'none';
         ]]]
 
