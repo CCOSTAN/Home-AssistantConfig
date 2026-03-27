@@ -131,6 +131,12 @@
   {%- endif -%}
   {%- endmacro -%}
 
+  {%- macro front_door_packages() -%}
+  {% if is_state('binary_sensor.front_door_packages_present', 'on') -%}
+      There appears to be a package waiting at the front door.
+  {%- endif -%}
+  {%- endmacro -%}
+
   {%- macro medicine() -%}
   {% if is_state('input_boolean.medicine', 'off') -%}
       It looks like Carlo has not taken his medicine yet. Please make sure Carlo takes his medicine now.
@@ -292,6 +298,8 @@
     {% if (call_window_check == 1 or is_state('sun.sun', 'below_horizon')) or is_state('group.entry_points', 'on') %}
     {{ window_check() }}
     {% endif %}
+
+    {{ front_door_packages() }}
 
     {{ NewDevice | default }}
 

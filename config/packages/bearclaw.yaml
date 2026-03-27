@@ -383,6 +383,15 @@ automation:
     action:
       - variables:
           message: "{{ trigger.json.message | default('Joanna: empty reply') }}"
+          telegram_message: "{{ trigger.json.telegram_message | default(message, true) }}"
+          telegram_parse_mode: >-
+            {% set raw = trigger.json.telegram_parse_mode | default('plain_text', true) | string | lower | trim %}
+            {% if raw in ['html', 'plain_text'] %}
+              {{ raw }}
+            {% else %}
+              plain_text
+            {% endif %}
+          telegram_disable_preview: "{{ trigger.json.disable_web_page_preview | default(true, true) }}"
           level: "{{ trigger.json.level | default('active') | lower }}"
           inline_keyboard_payload: >-
             {% set kb = trigger.json.inline_keyboard if trigger.json.inline_keyboard is defined else none %}
@@ -408,14 +417,16 @@ automation:
               - service: telegram_bot.send_message
                 data:
                   chat_id: !secret telegram_allowed_chat_id_carlo
-                  message: "{{ message }}"
-                  parse_mode: plain_text
-                  disable_web_page_preview: true
+                  message: "{{ telegram_message }}"
+                  parse_mode: "{{ telegram_parse_mode }}"
+                  disable_web_page_preview: "{{ telegram_disable_preview }}"
                   inline_keyboard: "{{ inline_keyboard_payload }}"
         default:
           - service: script.joanna_send_telegram
             data:
-              message: "{{ message }}"
+              message: "{{ telegram_message }}"
+              parse_mode: "{{ telegram_parse_mode }}"
+              disable_web_page_preview: "{{ telegram_disable_preview }}"
       - service: script.send_to_logbook
         data:
           topic: JOANNA

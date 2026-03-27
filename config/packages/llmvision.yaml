@@ -7,7 +7,7 @@
 #  Trigger with input_button.llmvision_garbage_check, input_button.llmvision_front_door_package_check, or front door person activity to update vision-backed package sensors.
 # -------------------------------------------------------------------
 # Notes: LLMVision analyzes camera.garagecam; expects strict "on"/"off" output.
-# Notes: Front-door package detection runs 3 minutes after `sensor.frontdoorbell_person_active_count_2` goes above 0.
+# Notes: Front-door package detection waits 3 minutes after person activity or 20 seconds after the front door relocks, then analyzes a short live stream for better package accuracy.
 # Docs: https://llmvision.gitbook.io/getting-started/usage/image-analyzer
 ######################################################################
 
@@ -129,30 +129,79 @@ automation:
       - platform: numeric_state
         entity_id: sensor.frontdoorbell_person_active_count_2
         above: 0
-        for: "00:03:00"
         id: person_count
+      - platform: state
+        entity_id: lock.front_door
+        from: unlocked
+        to: locked
+        id: front_door_locked
       - platform: state
         entity_id: input_button.llmvision_front_door_package_check
         id: manual_check
     variables:
+      trigger_source: >-
+        {% if trigger.id == 'manual_check' %}
+          manual button
+        {% elif trigger.id == 'front_door_locked' %}
+          front door relock
+        {% else %}
+          front door person activity
+        {% endif %}
       prompt_text: >-
-        Examine the front door camera image for delivery packages. Focus only on boxes, padded envelopes,
-        or shopping bags left on the porch or by the front door. If one or more packages are clearly visible,
-        respond exactly: on. If no packages are clearly visible, respond exactly: off. No other words.
+        Examine these front door camera frames for delivery packages. Focus on the porch and doorstep area
+        near the wall and doormat in the lower-right part of the image. Treat cardboard boxes, padded mailers,
+        poly bags, and shopping bags as packages. Ignore the street, cars, landscaping, and anything not resting
+        on the porch or doorstep. If any package is clearly visible, respond exactly: on. If no package is
+        clearly visible, respond exactly: off. No other words.
     action:
-      - service: llmvision.data_analyzer
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'person_count' }}"
+            sequence:
+              - delay: "00:03:00"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'front_door_locked' }}"
+            sequence:
+              - delay: "00:00:20"
+      - service: llmvision.stream_analyzer
         response_variable: llmvision_result
         data:
           provider: !secret llmvision_provider_entry
-          model: gpt-4.1-nano
+          model: gpt-4.1-mini
           message: "{{ prompt_text }}"
-          sensor_entity: input_boolean.front_door_packages_present
           image_entity:
             - camera.frontdoorbell
+          duration: 6
+          max_frames: 5
           include_filename: false
-          target_width: 1280
+          target_width: 1920
           max_tokens: 16
           expose_images: true
+      - variables:
+          normalized_response: "{{ llmvision_result.response_text | default('') | trim | lower }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ normalized_response in ['on', 'yes', 'true']
+                     or normalized_response.startswith('on')
+                     or normalized_response.startswith('yes') }}
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.front_door_packages_present
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ normalized_response in ['off', 'no', 'false']
+                     or normalized_response.startswith('off')
+                     or normalized_response.startswith('no') }}
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.front_door_packages_present
       - service: input_text.set_value
         target:
           entity_id: input_text.llmvision_front_door_last_response
@@ -181,7 +230,7 @@ automation:
         data:
           topic: PACKAGES
           message: >-
-            Front door package vision check ran via {{ 'manual button' if trigger.id == 'manual_check' else 'front door person activity' }}
+            Front door package vision check ran via {{ trigger_source }}
             and returned {{ llmvision_result.response_text | default(states('input_boolean.front_door_packages_present')) | lower }}.
       - choose:
           - conditions:
