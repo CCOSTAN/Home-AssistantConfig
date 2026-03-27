@@ -194,11 +194,10 @@
       card_param: cards
       filter:
         include:
-        - group: group.docker_monitored_containers
+        - group: switch.docker_monitored_containers
           options:
             type: custom:button-card
             template: bearstone_infra_container_row
             icon: mdi:docker
       sort:
         method: name
-

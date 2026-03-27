@@ -4,9 +4,9 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Docker Infrastructure - Host patching and container alerts
+# Related Issue: 1632, 1584
 #  APT webhook results (docker_10/14/17/69) and container down repairs.
 # -------------------------------------------------------------------
-# Related Issue: 1584
 # Notes: Hosts run weekly Wed 12:00 APT job and POST JSON to webhooks.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Reboot staggering: docker_14 first, docker_69 second, docker_10 third.
@@ -66,9 +66,10 @@ input_text:
     name: "docker_69 APT last result"
     max: 255
 
-group:
-  docker_monitored_containers:
+switch:
+  - platform: group
     name: Docker Monitored Containers
+    unique_id: docker_monitored_containers
     entities:
       - switch.cloudflared_kch_container
       - switch.cloudflared_wp_container
@@ -206,14 +207,14 @@ template:
         unique_id: docker_monitored_container_count
         icon: mdi:format-list-numbered
         state: >-
-          {{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | count }}
+          {{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | count }}
 
       - name: "Docker Monitored Unavailable Count"
         unique_id: docker_monitored_unavailable_count
         icon: mdi:lan-disconnect
         state: >-
           {% set ns = namespace(keys=[], unavailable=0) %}
-          {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) %}
+          {% set monitored = state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) %}
           {% for switch_entity in monitored %}
             {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
             {% if key not in ns.keys %}
@@ -257,7 +258,7 @@ template:
         icon: mdi:docker
         state: >-
           {% set ns = namespace(keys=[], down=[]) %}
-          {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | list %}
+          {% set monitored = state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list %}
           {% set telemetry_degraded = is_state('binary_sensor.docker_container_telemetry_degraded', 'on') %}
           {% for switch_entity in monitored %}
             {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
@@ -301,7 +302,7 @@ template:
         attributes:
           down_containers: >-
             {% set ns = namespace(keys=[], down=[]) %}
-            {% set monitored = state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | list %}
+            {% set monitored = state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list %}
             {% set telemetry_degraded = is_state('binary_sensor.docker_container_telemetry_degraded', 'on') %}
             {% for switch_entity in monitored %}
               {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
@@ -437,7 +438,7 @@ script:
           status_entity_alt: "binary_sensor.{{ container_key }}_status_2"
           state_entity: "sensor.{{ container_key }}_state"
           state_entity_alt: "sensor.{{ container_key }}_state_2"
-          monitored_switches: "{{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) }}"
+          monitored_switches: "{{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) }}"
           tracked_container: "{{ switch_entity in monitored_switches or switch_entity_alt in monitored_switches }}"
           effective_entity: >-
             {% if expand(status_entity) | count > 0 %}
@@ -798,7 +799,7 @@ automation:
       entity_id: "{{ trigger.event.data.entity_id | default('') }}"
       old_state: "{{ (trigger.event.data.old_state.state if trigger.event.data.old_state is not none else '') | lower }}"
       new_state: "{{ (trigger.event.data.new_state.state if trigger.event.data.new_state is not none else '') | lower }}"
-      monitored_switches: "{{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
+      monitored_switches: "{{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
       is_monitored_container_event: >-
         {% set ent = entity_id %}
         {% if ent.startswith('switch.') and (ent.endswith('_container') or ent.endswith('_container_2')) %}
@@ -888,7 +889,7 @@ automation:
         minutes: "/55"
     action:
       - variables:
-          monitored_switches: "{{ state_attr('group.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
+          monitored_switches: "{{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
       - repeat:
           for_each: "{{ monitored_switches }}"
           sequence:
