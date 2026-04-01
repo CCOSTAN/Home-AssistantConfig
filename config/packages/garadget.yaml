@@ -241,43 +241,6 @@ automation:
           topic: "garadget/GLarge/command"
           payload: "get-status"
 
-  - alias: 'Garage Door State Change'
-    id: afec0987-edb1-4341-a524-a00ae4df9fb7
-    mode: restart
-    trigger:
-      - platform: state
-        entity_id:
-          - cover.large_garage_door
-          - cover.small_garage_door
-        from: 'open'
-        to: 'closed'
-        for: '00:02:00'
-
-      - platform: state
-        entity_id:
-          - cover.large_garage_door
-          - cover.small_garage_door
-        from: 'closed'
-        to: 'open'
-        for: '00:10:00'
-
-    action:
-      - choose:
-          - conditions: "{{ is_state('cover.large_garage_door','closed') }}"
-            sequence:
-              - service: script.speech_engine
-                data:
-                  DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
-                  call_garage_check: 1
-              - delay: "00:10:00"
-
-        default:
-          - service: script.speech_engine
-            data:
-              DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
-              call_garage_check: 1
-
-
   ###################################
   ## Garadget Wind Door Checks -  [Garadget](https://amzn.to/2jQLpVQ)
   ###################################

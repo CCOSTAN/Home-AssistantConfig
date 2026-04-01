@@ -14,6 +14,7 @@
 # Notes: Inbound Telegram handling enforces user_id + chat_id allowlists from secrets CSV values.
 # Notes: Reply webhook writes JOANNA activity entries to logbook for traceability.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
+# Notes: Telegram freeform input now includes LLM-first routing context to improve intent understanding before entity lookups.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
 
@@ -341,7 +342,7 @@ automation:
 
   - id: bearclaw_telegram_text_no_slash_needed
     alias: BearClaw Telegram Text No Slash Needed
-    description: Treats plain Telegram text as BearClaw command input.
+    description: Treats plain Telegram text as BearClaw command input and forwards LLM-first routing context.
     mode: queued
     trigger:
       - platform: event
@@ -363,12 +364,36 @@ automation:
     action:
       - variables:
           plain_text: "{{ trigger.event.data.text | default('') | trim }}"
+          plain_text_lower: "{{ plain_text | lower }}"
           from_user: "{{ (trigger.event.data.from_first | default('carlo')) | lower }}"
+          command_like_request: >-
+            {% set action_verbs = ['disable', 'enable', 'turn off', 'turn on', 'stop', 'start', 'restart', 'review', 'fix', 'change', 'update', 'set', 'open', 'close'] %}
+            {{ action_verbs | select('in', plain_text_lower) | list | count > 0 }}
+          status_like_request: >-
+            {{ (plain_text_lower.startswith('is ')
+                or plain_text_lower.startswith('are ')
+                or plain_text_lower.startswith('what is ')
+                or plain_text_lower.startswith("what's ")
+                or ' status' in plain_text_lower
+                or plain_text_lower.startswith('status '))
+                and not command_like_request }}
+          llm_route_hint: >-
+            {% if command_like_request %}
+              llm_first_action
+            {% elif status_like_request %}
+              llm_first_status
+            {% else %}
+              llm_first_general
+            {% endif %}
+          llm_context: >-
+            telegram_freeform route={{ llm_route_hint | trim }}.
+            Prefer LLM intent interpretation and clarification for action or automation requests before returning entity status.
       - service: rest_command.bearclaw_command
         data:
           text: "{{ plain_text }}"
           user: "{{ from_user }}"
           source: telegram_text
+          context: "{{ llm_context | trim }}"
 
   - id: bearclaw_reply_webhook
     alias: BearClaw Reply Webhook
