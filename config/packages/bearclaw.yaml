@@ -15,6 +15,7 @@
 # Notes: Reply webhook writes JOANNA activity entries to logbook for traceability.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
 # Notes: Telegram freeform input now includes LLM-first routing context to improve intent understanding before entity lookups.
+# Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
 
@@ -22,6 +23,7 @@ rest_command:
   bearclaw_command:
     url: !secret bearclaw_command_url
     method: post
+    timeout: 30
     content_type: application/json
     headers:
       x-codex-token: !secret bearclaw_token
@@ -31,7 +33,8 @@ rest_command:
         "user": {{ user | default('carlo') | tojson }},
         "source": {{ source | default('home_assistant') | tojson }},
         "context": {{ context | default(none) | tojson }},
-        "callback": {{ callback | default(none) | tojson }}
+        "callback": {{ callback | default(none) | tojson }},
+        "async_only": {{ async_only | default(false) | tojson }}
       }
 
   bearclaw_ingest:

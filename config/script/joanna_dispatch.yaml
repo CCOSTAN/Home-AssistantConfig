@@ -8,6 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: Keep this helper generic so package automations can reuse one schema.
 # Notes: Source defaults to home_assistant_automation.unknown when omitted.
+# Notes: Automation dispatches are async_only by default so HA calls return quickly while BearClaw works in queue.
 ######################################################################
 
 joanna_dispatch:
@@ -64,3 +65,4 @@ joanna_dispatch:
         user: "{{ normalized_user }}"
         source: "{{ normalized_source }}"
         context: "{{ normalized_context }}"
+        async_only: true

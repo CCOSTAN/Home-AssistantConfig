@@ -275,10 +275,14 @@ template:
             {% set ent = item.entity_id %}
             {% if ent is search('^switch\\..*_container(?:_2)?$') %}
               {% set key = ent | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
-              {% set has_companion = expand('binary_sensor.' ~ key ~ '_status') | count > 0
-                or expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
-                or expand('sensor.' ~ key ~ '_state') | count > 0
-                or expand('sensor.' ~ key ~ '_state_2') | count > 0 %}
+              {% set has_companion = (expand('binary_sensor.' ~ key ~ '_status') | count > 0
+                  and states('binary_sensor.' ~ key ~ '_status') | lower not in ['unknown', 'unavailable', ''])
+                or (expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
+                  and states('binary_sensor.' ~ key ~ '_status_2') | lower not in ['unknown', 'unavailable', ''])
+                or (expand('sensor.' ~ key ~ '_state') | count > 0
+                  and states('sensor.' ~ key ~ '_state') | lower not in ['unknown', 'unavailable', ''])
+                or (expand('sensor.' ~ key ~ '_state_2') | count > 0
+                  and states('sensor.' ~ key ~ '_state_2') | lower not in ['unknown', 'unavailable', '']) %}
               {% set switch_state = states(ent) | lower %}
               {% if has_companion or switch_state not in ['unknown', 'unavailable', ''] %}
                 {% if ent not in ns.items %}
@@ -295,10 +299,14 @@ template:
               {% set ent = item.entity_id %}
               {% if ent is search('^switch\\..*_container(?:_2)?$') %}
                 {% set key = ent | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
-                {% set has_companion = expand('binary_sensor.' ~ key ~ '_status') | count > 0
-                  or expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
-                  or expand('sensor.' ~ key ~ '_state') | count > 0
-                  or expand('sensor.' ~ key ~ '_state_2') | count > 0 %}
+                {% set has_companion = (expand('binary_sensor.' ~ key ~ '_status') | count > 0
+                    and states('binary_sensor.' ~ key ~ '_status') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
+                    and states('binary_sensor.' ~ key ~ '_status_2') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('sensor.' ~ key ~ '_state') | count > 0
+                    and states('sensor.' ~ key ~ '_state') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('sensor.' ~ key ~ '_state_2') | count > 0
+                    and states('sensor.' ~ key ~ '_state_2') | lower not in ['unknown', 'unavailable', '']) %}
                 {% set switch_state = states(ent) | lower %}
                 {% if has_companion or switch_state not in ['unknown', 'unavailable', ''] %}
                   {% if ent not in ns.items %}
@@ -316,10 +324,14 @@ template:
               {% set ent = item.entity_id %}
               {% if ent is search('^switch\\..*_container(?:_2)?$') %}
                 {% set key = ent | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
-                {% set has_companion = expand('binary_sensor.' ~ key ~ '_status') | count > 0
-                  or expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
-                  or expand('sensor.' ~ key ~ '_state') | count > 0
-                  or expand('sensor.' ~ key ~ '_state_2') | count > 0 %}
+                {% set has_companion = (expand('binary_sensor.' ~ key ~ '_status') | count > 0
+                    and states('binary_sensor.' ~ key ~ '_status') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
+                    and states('binary_sensor.' ~ key ~ '_status_2') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('sensor.' ~ key ~ '_state') | count > 0
+                    and states('sensor.' ~ key ~ '_state') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('sensor.' ~ key ~ '_state_2') | count > 0
+                    and states('sensor.' ~ key ~ '_state_2') | lower not in ['unknown', 'unavailable', '']) %}
                 {% set switch_state = states(ent) | lower %}
                 {% if has_companion or switch_state not in ['unknown', 'unavailable', ''] %}
                   {% if ent not in discovered_ns.items %}
@@ -343,10 +355,14 @@ template:
               {% set ent = item.entity_id %}
               {% if ent is search('^switch\\..*_container(?:_2)?$') %}
                 {% set key = ent | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
-                {% set has_companion = expand('binary_sensor.' ~ key ~ '_status') | count > 0
-                  or expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
-                  or expand('sensor.' ~ key ~ '_state') | count > 0
-                  or expand('sensor.' ~ key ~ '_state_2') | count > 0 %}
+                {% set has_companion = (expand('binary_sensor.' ~ key ~ '_status') | count > 0
+                    and states('binary_sensor.' ~ key ~ '_status') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('binary_sensor.' ~ key ~ '_status_2') | count > 0
+                    and states('binary_sensor.' ~ key ~ '_status_2') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('sensor.' ~ key ~ '_state') | count > 0
+                    and states('sensor.' ~ key ~ '_state') | lower not in ['unknown', 'unavailable', ''])
+                  or (expand('sensor.' ~ key ~ '_state_2') | count > 0
+                    and states('sensor.' ~ key ~ '_state_2') | lower not in ['unknown', 'unavailable', '']) %}
                 {% set switch_state = states(ent) | lower %}
                 {% if has_companion or switch_state not in ['unknown', 'unavailable', ''] %}
                   {% if ent not in discovered_ns.items %}
@@ -730,7 +746,13 @@ script:
                     effective_state_20m={{ persistent_effective_state }}
                   request: >-
                     Troubleshoot and resolve the persistent Docker container outage if possible.
-                    Use Duplicati and the related host/container telemetry to verify recovery.
+                    Reply with explicit status fields:
+                    resolved=true/false,
+                    root_cause,
+                    action_taken,
+                    verification (entity plus observed state),
+                    next_action_required=true/false.
+                    Use Duplicati and related host/container telemetry to verify recovery.
           - conditions: "{{ op == 'clear' }}"
             sequence:
               - variables:
