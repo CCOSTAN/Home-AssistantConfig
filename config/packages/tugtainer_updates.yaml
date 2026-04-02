@@ -10,8 +10,11 @@
 # Notes: Expects JSON with title/message/type from the Tugtainer template.
 # Notes: Creates persistent notifications and stamps last-update time.
 # Notes: Fires `tugtainer_available_detected` when report contains `### Available:`.
+# Notes: Fires `tugtainer_home_assistant_core_updated` when `### Updated:` includes Home Assistant.
+# Notes: Home Assistant changelog dispatch uses core-YYYY.M URL format from parsed/fallback version.
 # Notes: Joanna dispatch cooldown uses mode=single with a 24-hour delay lockout.
-# Notes: Blog post https://www.vcloudinfo.com/2026/02/tugtainer-docker-updates-home-assistant-notifications.html
+# - Blog: https://www.vcloudinfo.com/2026/04/joanna-home-assistant-changelog-digest-tugtainer.html
+# Notes: Prior background post https://www.vcloudinfo.com/2026/02/tugtainer-docker-updates-home-assistant-notifications.html
 ######################################################################
 
 input_datetime:
@@ -37,6 +40,43 @@ automation:
       message: "{{ payload.message | default('Update event received') }}"
       event_type: "{{ payload.type | default('info') }}"
       has_available_section: "{{ '### available:' in (message | lower) }}"
+      updated_section: >-
+        {% set sections = message | regex_findall('(?is)###\\s*updated:\\s*(.*?)(?:\\n###\\s|$)') %}
+        {{ sections[0] if sections | count > 0 else '' }}
+      has_updated_section: "{{ updated_section | trim != '' }}"
+      ha_updated_line: >-
+        {% set matches = updated_section | regex_findall('(?im)^.*(?:home-assistant|ghcr\\.io/home-assistant/home-assistant).*$') %}
+        {{ matches[0] if matches | count > 0 else '' }}
+      ha_core_update_detected: "{{ has_updated_section and (ha_updated_line | trim != '') }}"
+      ha_version_from_updated_line: >-
+        {% set arrow_match = ha_updated_line | regex_findall('(?i)(?:->|→|to)\\s*v?([0-9]{4}\\.[0-9]+(?:\\.[0-9]+)?)') %}
+        {% if arrow_match | count > 0 %}
+          {{ arrow_match[-1] }}
+        {% else %}
+          {% set any_match = ha_updated_line | regex_findall('(?i)v?([0-9]{4}\\.[0-9]+(?:\\.[0-9]+)?)') %}
+          {{ any_match[-1] if any_match | count > 0 else '' }}
+        {% endif %}
+      ha_sensor_version: "{{ states('sensor.ha_installed_version') | string | trim }}"
+      ha_core_version_full: >-
+        {% set parsed = ha_version_from_updated_line | trim %}
+        {% if parsed != '' %}
+          {{ parsed }}
+        {% else %}
+          {% set sensor_matches = ha_sensor_version | regex_findall('([0-9]{4}\\.[0-9]+(?:\\.[0-9]+)?)') %}
+          {{ sensor_matches[0] if sensor_matches | count > 0 else '' }}
+        {% endif %}
+      ha_core_version_minor: >-
+        {% set minor = ha_core_version_full | trim | regex_findall('^([0-9]{4}\\.[0-9]+)') %}
+        {{ minor[0] if minor | count > 0 else '' }}
+      ha_core_changelog_url: >-
+        {% if ha_core_version_minor | trim != '' %}
+          https://www.home-assistant.io/changelogs/core-{{ ha_core_version_minor | trim }}
+        {% else %}
+          
+        {% endif %}
+      ha_report_excerpt: >-
+        {% set excerpt = ha_updated_line | trim %}
+        {{ excerpt if excerpt != '' else (message | truncate(280, true)) }}
       full_message: >-
         {{ message }}{% if event_type %} ({{ event_type | upper }}){% endif %}
     action:
@@ -59,6 +99,19 @@ automation:
                   title: "{{ title }}"
                   event_type: "{{ event_type }}"
                   message: "{{ message }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ ha_core_update_detected and (ha_core_version_minor | trim != '') }}"
+            sequence:
+              - event: tugtainer_home_assistant_core_updated
+                event_data:
+                  title: "{{ title }}"
+                  event_type: "{{ event_type }}"
+                  message: "{{ message }}"
+                  core_version_full: "{{ ha_core_version_full | trim }}"
+                  core_version_minor: "{{ ha_core_version_minor | trim }}"
+                  changelog_url: "{{ ha_core_changelog_url | trim }}"
+                  report_excerpt: "{{ ha_report_excerpt | trim }}"
 
   - alias: "Tugtainer - Dispatch Joanna For Available Updates"
     id: tugtainer_dispatch_joanna_for_available_updates
@@ -93,3 +146,54 @@ automation:
             Review the Tugtainer report and update all containers listed under the
             Available section. Report what was updated and any failures.
       - delay: "24:00:00"
+
+  - alias: "Tugtainer - Dispatch Joanna For Home Assistant Core Digest"
+    id: tugtainer_dispatch_joanna_for_home_assistant_core_digest
+    description: "Dispatch Joanna after Home Assistant core is updated so changelog actions are captured in a GitHub digest issue."
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: tugtainer_home_assistant_core_updated
+    variables:
+      report_title: "{{ trigger.event.data.title | default('Tugtainer update') }}"
+      report_message: "{{ trigger.event.data.message | default('Update event received') }}"
+      report_event_type: "{{ trigger.event.data.event_type | default('info') }}"
+      core_version_full: "{{ trigger.event.data.core_version_full | default('', true) | string | trim }}"
+      core_version_minor: "{{ trigger.event.data.core_version_minor | default('', true) | string | trim }}"
+      changelog_url: "{{ trigger.event.data.changelog_url | default('', true) | string | trim }}"
+      report_excerpt: "{{ trigger.event.data.report_excerpt | default('', true) | string | replace('\n', ' ') | replace('\r', ' ') | trim }}"
+      trigger_context: "HA automation tugtainer_dispatch_joanna_for_home_assistant_core_digest (Tugtainer - Dispatch Joanna For Home Assistant Core Digest)"
+      structured_request: |-
+        HA_CORE_UPDATE_DIGEST_REQUEST
+        core_version_full={{ core_version_full }}
+        core_version_minor={{ core_version_minor }}
+        changelog_url={{ changelog_url }}
+        report_title={{ report_title | string | replace('\n', ' ') | trim }}
+        report_event_type={{ report_event_type }}
+        report_excerpt={{ report_excerpt }}
+    condition:
+      - condition: template
+        value_template: "{{ core_version_minor != '' and changelog_url != '' }}"
+    action:
+      - service: script.send_to_logbook
+        data:
+          topic: "DOCKER"
+          message: >-
+            Home Assistant core update detected via Tugtainer ({{ core_version_full }}).
+            Joanna digest dispatch requested.
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "{{ trigger_context }}"
+          source: "home_assistant_automation.tugtainer_home_assistant_core_digest"
+          summary: >-
+            Home Assistant core updated to {{ core_version_full }} via Tugtainer.
+            Build changelog digest and open/refresh the GitHub Update Digest issue.
+          entity_ids:
+            - "input_datetime.tugtainer_last_update"
+          diagnostics: >-
+            report_title={{ report_title }},
+            report_event_type={{ report_event_type }},
+            core_version_full={{ core_version_full }},
+            core_version_minor={{ core_version_minor }},
+            changelog_url={{ changelog_url }}
+          request: "{{ structured_request }}"
