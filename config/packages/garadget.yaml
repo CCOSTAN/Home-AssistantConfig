@@ -16,6 +16,7 @@
 mqtt:
   cover:
     - name: "Large Garage Door"
+      unique_id: garadget_large_garage_door_cover
       device_class: 'garage'
       command_topic: "garadget/GLarge/command"
       state_topic: "garadget/GLarge/status"
@@ -30,6 +31,7 @@ mqtt:
       payload_stop: "stop"
 
     - name: "Small Garage Door"
+      unique_id: garadget_small_garage_door_cover
       device_class: 'garage'
       command_topic: "garadget/GSmall/command"
       state_topic: "garadget/GSmall/status"
@@ -45,19 +47,23 @@ mqtt:
 
   sensor:
     - name: "Large Garage Door Since"
+      unique_id: garadget_large_garage_door_since
       state_topic: "garadget/GLarge/status"
       value_template: '{{ value_json.time }}'
 
     - name: "Large Garage Door Brightness"
+      unique_id: garadget_large_garage_door_brightness
       state_topic: "garadget/GLarge/status"
       unit_of_measurement: '%'
       value_template: '{{ value_json.bright }}'
 
     - name: "Small Garage Door Since"
+      unique_id: garadget_small_garage_door_since
       state_topic: "garadget/GSmall/status"
       value_template: '{{ value_json.time }}'
 
     - name: "Small Garage Door Brightness"
+      unique_id: garadget_small_garage_door_brightness
       state_topic: "garadget/GSmall/status"
       unit_of_measurement: '%'
       value_template: '{{ value_json.bright }}'
