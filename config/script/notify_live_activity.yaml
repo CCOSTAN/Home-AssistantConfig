@@ -1,0 +1,109 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Notify Live Activity - Shared helper for tagged live mobile updates
+# Related Issue: 1598
+#  Sends or clears tagged live activity/live update notifications.
+# -------------------------------------------------------------------
+# Notes: Resolves notify target from `who` similar to notify_engine.
+# Notes: Uses `clear_notification` plus `tag` to end a live activity.
+# Notes: Defaults are tuned for Powerwall outage tracking on iOS parents.
+######################################################################
+
+notify_live_activity:
+  alias: Notify Live Activity
+  description: Send or clear a tagged live-tracking notification for supported mobile targets.
+  mode: queued
+  fields:
+    who:
+      description: Notification audience key (carlo, stacey, family, parents).
+      example: parents
+    tag:
+      description: Stable notification tag used to replace or clear the live activity.
+      example: powerwall_grid_outage
+    title:
+      description: Notification title.
+      example: Power outage
+    message:
+      description: Notification message body.
+      example: Grid outage in progress. Powerwall charge at 82%.
+    icon:
+      description: Material Design icon for the live activity.
+      example: mdi:transmission-tower-off
+    color:
+      description: Hex color for the live activity icon.
+      example: "#E65100"
+    progress:
+      description: Progress value for the live activity.
+      example: 82
+    progress_max:
+      description: Maximum progress value.
+      example: 100
+    chronometer:
+      description: Enable the live chronometer.
+      example: true
+    when:
+      description: Unix timestamp in seconds for the chronometer anchor.
+      example: 1742846400
+    when_relative:
+      description: Treat the `when` value as relative seconds instead of an absolute timestamp.
+      example: false
+    clear:
+      description: Set true to clear the existing live activity for the tag.
+      example: false
+  sequence:
+    - variables:
+        normalized_who: "{{ who | default('parents', true) | string | lower | trim }}"
+        notify_service: >-
+          {% if normalized_who == 'stacey' %}
+            notify.mobile_app_stacey_iphone11
+          {% elif normalized_who == 'carlo' %}
+            notify.mobile_app_carlo_maxpro
+          {% elif normalized_who == 'family' %}
+            notify.ios_family
+          {% else %}
+            notify.ios_parents
+          {% endif %}
+        notification_tag: "{{ tag | default('live_activity', true) | string | trim }}"
+        clear_flag: "{{ clear | default(false, true) | bool }}"
+        live_title: "{{ title | default('Live update', true) | string | trim }}"
+        live_message: "{{ message | default('Live update in progress.', true) | string | trim }}"
+        live_icon: "{{ icon | default('mdi:progress-helper', true) | string | trim }}"
+        live_color: "{{ color | default('#2196F3', true) | string | trim }}"
+        live_progress: "{{ progress | default(-1, true) | int(-1) }}"
+        live_progress_max: "{{ progress_max | default(100, true) | int(100) }}"
+        live_chronometer: "{{ chronometer | default(false, true) | bool }}"
+        live_when: "{{ when | default(0, true) | int(0) }}"
+        live_when_relative: "{{ when_relative | default(false, true) | bool }}"
+    - condition: template
+      value_template: "{{ notification_tag != '' }}"
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ clear_flag }}"
+          sequence:
+            - service: "{{ notify_service }}"
+              data:
+                message: clear_notification
+                data:
+                  tag: "{{ notification_tag }}"
+      default:
+        - service: "{{ notify_service }}"
+          data:
+            title: "{{ live_title }}"
+            message: "{{ live_message }}"
+            data:
+              tag: "{{ notification_tag }}"
+              group: "{{ notification_tag }}"
+              alert_once: true
+              live_activity: true
+              live_update: true
+              notification_icon: "{{ live_icon }}"
+              notification_icon_color: "{{ live_color }}"
+              progress: "{{ live_progress }}"
+              progress_max: "{{ live_progress_max }}"
+              chronometer: "{{ live_chronometer }}"
+              when: "{{ live_when }}"
+              when_relative: "{{ live_when_relative }}"

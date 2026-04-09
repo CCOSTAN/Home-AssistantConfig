@@ -6,10 +6,12 @@
 # Tesla Powerwall - Monitoring and outage automations
 # Related Issue: 1550
 # Related Issue: 1571
+# Related Issue: 1598
 #  Powerwall status sensors, outage alerting, and load-shedding helpers.
 # -------------------------------------------------------------------
 # Notes: Read more https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html | Existing Issue #272
 # Tesla Powerwall added via UI Integration
+# Notes: Live outage tracking derives its chronometer anchor from binary_sensor.powerwall_grid_status.last_changed.
 ######################################################################
 # Binary Sensors:
 #  - binary_sensor.powerwall_charging ............. battery_charging (on=charging)
@@ -53,7 +55,102 @@ script:
             - switch.kitchen_accent_2
             - switch.master_bathroom_accent_2
 
+  powerwall_outage_live_activity_update:
+    alias: "Powerwall - Outage Live Activity Update"
+    description: Refresh the tagged outage live activity using native grid-status state metadata.
+    mode: queued
+    sequence:
+      - variables:
+          grid_entity: "{{ states.binary_sensor.powerwall_grid_status if states.binary_sensor.powerwall_grid_status is defined else none }}"
+          outage_started_ts: >-
+            {% if grid_entity is not none and grid_entity.state == 'off' %}
+              {{ as_timestamp(grid_entity.last_changed, 0) | int(0) }}
+            {% else %}
+              0
+            {% endif %}
+          charge_pct: >-
+            {% set charge = states('sensor.powerwall_charge') %}
+            {% if charge not in ['unknown', 'unavailable', 'none', ''] %}
+              {{ charge | float(0) | round(0) | int(0) }}
+            {% else %}
+              0
+            {% endif %}
+          outage_started_label: >-
+            {% if outage_started_ts > 0 %}
+              {{ as_datetime(outage_started_ts) | as_local | strftime('%I:%M %p') }}
+            {% else %}
+              unknown
+            {% endif %}
+      - condition: template
+        value_template: "{{ outage_started_ts > 0 }}"
+      - service: script.notify_live_activity
+        data:
+          who: parents
+          tag: powerwall_grid_outage
+          title: "Power outage"
+          message: "Grid outage since {{ outage_started_label }}. Powerwall charge at {{ charge_pct }}%."
+          icon: mdi:transmission-tower-off
+          color: "#E65100"
+          progress: "{{ charge_pct }}"
+          progress_max: 100
+          chronometer: true
+          when: "{{ outage_started_ts }}"
+          when_relative: false
+
 automation:
+  - alias: "Powerwall outage - Refresh live activity"
+    id: 5b5fb370-c6cb-4c74-95d4-264737e4456f
+    description: Start the tagged outage live activity when the grid drops and refresh it when charge changes.
+    mode: restart
+    trigger:
+      - id: grid_off
+        platform: state
+        entity_id: binary_sensor.powerwall_grid_status
+        to: 'off'
+      - id: charge_change
+        platform: state
+        entity_id: sensor.powerwall_charge
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: grid_off
+              - condition: template
+                value_template: >-
+                  {{ trigger.to_state is not none and trigger.from_state is not none and
+                     trigger.to_state.state not in ['unknown', 'unavailable', 'null'] and
+                     trigger.from_state.state not in ['unknown', 'unavailable', 'null'] }}
+            sequence:
+              - service: script.powerwall_outage_live_activity_update
+          - conditions:
+              - condition: trigger
+                id: charge_change
+              - condition: state
+                entity_id: binary_sensor.powerwall_grid_status
+                state: 'off'
+              - condition: template
+                value_template: "{{ trigger.to_state is not none and trigger.to_state.state not in ['unknown', 'unavailable', 'none', ''] }}"
+            sequence:
+              - service: script.powerwall_outage_live_activity_update
+
+  - alias: "Powerwall outage - Clear live activity"
+    id: 1d998f72-50df-46eb-b335-7f0d9974f89a
+    description: Clear the tagged outage live activity after the grid is stable again.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.powerwall_grid_status
+        from: 'off'
+        to: 'on'
+        for:
+          minutes: 2
+    action:
+      - service: script.notify_live_activity
+        data:
+          who: parents
+          tag: powerwall_grid_outage
+          clear: true
+
   - alias: Notify if Grid is down
     id: 56a32121-5725-4510-a1fa-10f69a5c82ef
     trigger:
