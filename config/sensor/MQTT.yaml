@@ -1,15 +1,16 @@
-#-------------------------------------------
-# MQTT Sensor Configuration
-# Description: Various MQTT sensors for Home Assistant
-#
-# For more information and updates, visit:
-# https://www.vcloudinfo.com/click-here
-#
-# Original Repository: https://github.com/CCOSTAN/Home-AssistantConfig
-#-------------------------------------------
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# MQTT Sensors - Medication reminder timestamp feed
+#  MQTT-backed timestamp sensor used by medicine reminder workflows.
+# -------------------------------------------------------------------
+######################################################################
 
 mqtt: 
   sensor:
     - state_topic:  "dash/medicine/medicine_time"
       name: "Medicine time"
+      unique_id: medicine_time_timestamp
       device_class: "timestamp"

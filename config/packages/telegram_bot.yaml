@@ -7,8 +7,9 @@
 #  Script wrappers for Telegram messaging using UI-configured integration.
 # -------------------------------------------------------------------
 # Notes: Do not add `telegram_bot:` YAML here; integration is UI-only.
-# Notes: Joanna transport sends as plain_text to avoid Telegram parse-entity failures.
+# Notes: Joanna transport defaults to plain_text, but can opt into HTML when the appliance provides a vetted rich message.
 # Notes: Keep Skills logic in docker_17/codex_appliance; this package is delivery/transport only.
+# Notes: HA Core 2026.4 webhook support is optional; service-call wrappers remain compatible with polling or webhook transport.
 ######################################################################
 
 script:
@@ -20,9 +21,23 @@ script:
       message:
         description: Message body to send.
         example: Joanna is online.
+      parse_mode:
+        description: Telegram parse mode (`plain_text` or `html`).
+        example: html
+      disable_web_page_preview:
+        description: Whether Telegram should suppress web page previews.
+        example: true
     sequence:
       - variables:
           chunk_size: 3400
+          requested_parse_mode: >-
+            {% set raw = parse_mode | default('plain_text', true) | string | lower | trim %}
+            {% if raw in ['html', 'plain_text'] %}
+              {{ raw }}
+            {% else %}
+              plain_text
+            {% endif %}
+          preview_disabled: "{{ disable_web_page_preview | default(true, true) }}"
           normalized_message: >-
             {% set raw = message | default('', true) | string %}
             {{ raw | replace('\r\n', '\n') | replace('\r', '\n') | trim }}
@@ -60,8 +75,8 @@ script:
               data:
                 chat_id: !secret telegram_allowed_chat_id_carlo
                 message: "{{ chunk_message }}"
-                parse_mode: plain_text
-                disable_web_page_preview: true
+                parse_mode: "{{ requested_parse_mode }}"
+                disable_web_page_preview: "{{ preview_disabled }}"
               response_variable: telegram_send_response
             - choose:
                 - conditions:
@@ -77,4 +92,4 @@ script:
                         chat_id: !secret telegram_allowed_chat_id_carlo
                         message: "{{ fallback_message if fallback_message | length > 0 else 'Joanna: message delivery fallback (content omitted)' }}"
                         parse_mode: plain_text
-                        disable_web_page_preview: true
+                        disable_web_page_preview: "{{ preview_disabled }}"

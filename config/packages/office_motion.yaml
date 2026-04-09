@@ -1,12 +1,13 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Office Motion - Motion/illuminance triggers for office lighting.
-#-------------------------------------------
+# -------------------------------------------------------------------
+# Office Motion - MQTT motion sensor and office lighting automations
+#  Office occupancy trigger that drives office light on/off routines.
+# -------------------------------------------------------------------
+# Notes: Light sensor node hardware reference https://amzn.to/2oUgj5i
 ######################################################################
-##  Office motion sensors and automations.
-######################################################################
-# Light sensor node: https://amzn.to/2oUgj5i
 homeassistant:
   customize:
     binary_sensor.office_motion:
@@ -18,6 +19,7 @@ mqtt:
   binary_sensor:
       - state_topic: "NodeMCU4/Motion/Motion"
         name: "Office_Motion"
+        unique_id: office_motion_sensor
         payload_on: 1
         payload_off: 0
         device_class: motion

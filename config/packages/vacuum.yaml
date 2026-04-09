@@ -12,7 +12,7 @@
 # - Treat 2+ minutes in a room as "being cleaned" and dequeue immediately (queue = remaining rooms).
 # - Phase changes happen only after verified completion at dock (`task_status: completed`).
 # - Guarded fallback: if docked with empty queue for 10 minutes but no `completed`, advance with `fallback_advance` log.
-# - Avoid reissuing `dreame_vacuum.vacuum_clean_segment` while already cleaning; only send a new segment job when starting/resuming or switching phases.
+# - Use `vacuum.clean_area` (HA 2026.3+) and keep room->area mappings aligned with Home Assistant Areas.
 # - Jinja2 loop scoping: use a `namespace` when building lists (otherwise the queue can appear empty and get cleared).
 # - If docked+completed still has queue entries, treat queue as stale and clear it before phase advance.
 # - Mop phases use `sweeping_and_mopping` instead of mop-only.
@@ -133,6 +133,30 @@ script:
               {{ bath_ids }}
             {% endif %}
           segments_to_clean: "{{ queue_ints if queue_ints | length > 0 else phase_segments }}"
+          segment_area_name_map:
+            14: Kitchen
+            12: "Dining Room"
+            10: "Living Room"
+            7: "Master Bedroom"
+            15: Foyer
+            9: "Stacey Office"
+            13: Hallway
+            8: "Justin Bedroom"
+            6: "Paige Bedroom"
+            4: "Master Bathroom"
+            2: Office
+            1: "Pool Bath"
+            3: "Kids Bathroom"
+          cleaning_area_ids: >
+            {% set ns = namespace(ids=[]) %}
+            {% for seg in segments_to_clean %}
+              {% set area_name = segment_area_name_map.get(seg) %}
+              {% set aid = area_id(area_name) if area_name else none %}
+              {% if aid %}
+                {% set ns.ids = ns.ids + [aid] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.ids }}
 
       # 0. Reseed the current phase when queue is empty.
       - choose:
@@ -168,6 +192,19 @@ script:
               - stop: 'No rooms left to clean today.'
         default: []
 
+      # 2b. Clean-area needs a mapped Home Assistant area ID for every segment
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ cleaning_area_ids | length != segments_to_clean | length }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "Missing area mappings for one or more segments {{ segments_to_clean }}; skipping clean_area."
+              - stop: "Incomplete Home Assistant area mappings."
+        default: []
+
       # 3. Start cleaning (but don't clobber an active job)
       - choose:
           - conditions:
@@ -177,7 +214,7 @@ script:
               - service: script.send_to_logbook
                 data:
                   topic: "VACUUM"
-                  message: "Vacuum is already cleaning; queue/phase updated but not issuing a new segment job."
+                  message: "Vacuum is already cleaning; queue/phase updated but not issuing a new clean_area action."
               - stop: "Already cleaning."
         default: []
 
@@ -192,12 +229,12 @@ script:
           entity_id: vacuum.l10s_vacuum
         data:
           fan_speed: Standard
-      - service: dreame_vacuum.vacuum_clean_segment
+      - service: vacuum.clean_area
         target:
           entity_id: vacuum.l10s_vacuum
         data:
-          # Clean the non-bathrooms if any, otherwise clean the bathrooms
-          segments: "{{ segments_to_clean }}"
+          # Clean mapped Home Assistant areas for this phase queue.
+          cleaning_area_id: "{{ cleaning_area_ids }}"
 
 
 ## 3. Automations
@@ -294,22 +331,24 @@ automation:
         id: kids_bathroom
     variables:
       room_map:
-        kitchen: {segment: 14, name: Kitchen}
-        dining_room: {segment: 12, name: 'Dining Room'}
-        living_room: {segment: 10, name: 'Living Room'}
-        master_bedroom: {segment: 7, name: 'Master Bedroom'}
-        foyer: {segment: 15, name: Foyer}
-        stacey_office: {segment: 9, name: 'Stacey Office'}
-        formal_dining: {segment: 17, name: 'Formal Dining'}
-        hallway: {segment: 13, name: Hallway}
-        justin_bedroom: {segment: 8, name: 'Justin Bedroom'}
-        paige_bedroom: {segment: 6, name: 'Paige Bedroom'}
-        master_bathroom: {segment: 4, name: 'Master Bathroom'}
-        office: {segment: 2, name: Office}
-        pool_bath: {segment: 1, name: 'Pool Bath'}
-        kids_bathroom: {segment: 3, name: 'Kids Bathroom'}
+        kitchen: {segment: 14, name: Kitchen, area: Kitchen}
+        dining_room: {segment: 12, name: 'Dining Room', area: 'Dining Room'}
+        living_room: {segment: 10, name: 'Living Room', area: 'Living Room'}
+        master_bedroom: {segment: 7, name: 'Master Bedroom', area: 'Master Bedroom'}
+        foyer: {segment: 15, name: Foyer, area: Foyer}
+        stacey_office: {segment: 9, name: 'Stacey Office', area: 'Stacey Office'}
+        formal_dining: {segment: 17, name: 'Formal Dining', area: 'Formal Dining'}
+        hallway: {segment: 13, name: Hallway, area: Hallway}
+        justin_bedroom: {segment: 8, name: 'Justin Bedroom', area: 'Justin Bedroom'}
+        paige_bedroom: {segment: 6, name: 'Paige Bedroom', area: 'Paige Bedroom'}
+        master_bathroom: {segment: 4, name: 'Master Bathroom', area: 'Master Bathroom'}
+        office: {segment: 2, name: Office, area: Office}
+        pool_bath: {segment: 1, name: 'Pool Bath', area: 'Pool Bath'}
+        kids_bathroom: {segment: 3, name: 'Kids Bathroom', area: 'Kids Bathroom'}
       room_key: "{{ trigger.id }}"
       room_name: "{{ room_map[room_key].name }}"
+      area_name: "{{ room_map[room_key].area }}"
+      area_id_value: "{{ area_id(area_name) if area_name else none }}"
       segment_id: "{{ room_map[room_key].segment | int }}"
       vac_state: "{{ states('vacuum.l10s_vacuum') }}"
       on_demand: "{{ is_state('input_boolean.l10s_vacuum_on_demand', 'on') }}"
@@ -319,7 +358,7 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ can_start }}"
+                value_template: "{{ can_start and area_id_value is not none }}"
             sequence:
               - service: script.send_to_logbook
                 data:
@@ -338,17 +377,17 @@ automation:
                 data:
                   fan_speed: Standard
               - continue_on_error: true
-                service: dreame_vacuum.vacuum_clean_segment
+                service: vacuum.clean_area
                 target:
                   entity_id: vacuum.l10s_vacuum
                 data:
-                  segments: "{{ [segment_id] }}"
+                  cleaning_area_id: "{{ [area_id_value] }}"
               - delay: "00:00:02"
         default:
           - service: script.send_to_logbook
             data:
               topic: "VACUUM"
-              message: "One-off clean blocked: {{ room_name }} (vac={{ vac_state }}, on_demand={{ on_demand }}, queue='{{ queue_raw }}')."
+              message: "One-off clean blocked: {{ room_name }} (area={{ area_name }}, area_id={{ area_id_value }}, vac={{ vac_state }}, on_demand={{ on_demand }}, queue='{{ queue_raw }}')."
       - service: input_boolean.turn_off
         data:
           entity_id: "{{ trigger.entity_id }}"

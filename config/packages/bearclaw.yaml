@@ -14,6 +14,8 @@
 # Notes: Inbound Telegram handling enforces user_id + chat_id allowlists from secrets CSV values.
 # Notes: Reply webhook writes JOANNA activity entries to logbook for traceability.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
+# Notes: Telegram freeform input now includes LLM-first routing context to improve intent understanding before entity lookups.
+# Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
 
@@ -21,6 +23,7 @@ rest_command:
   bearclaw_command:
     url: !secret bearclaw_command_url
     method: post
+    timeout: 30
     content_type: application/json
     headers:
       x-codex-token: !secret bearclaw_token
@@ -30,7 +33,8 @@ rest_command:
         "user": {{ user | default('carlo') | tojson }},
         "source": {{ source | default('home_assistant') | tojson }},
         "context": {{ context | default(none) | tojson }},
-        "callback": {{ callback | default(none) | tojson }}
+        "callback": {{ callback | default(none) | tojson }},
+        "async_only": {{ async_only | default(false) | tojson }}
       }
 
   bearclaw_ingest:
@@ -341,7 +345,7 @@ automation:
 
   - id: bearclaw_telegram_text_no_slash_needed
     alias: BearClaw Telegram Text No Slash Needed
-    description: Treats plain Telegram text as BearClaw command input.
+    description: Treats plain Telegram text as BearClaw command input and forwards LLM-first routing context.
     mode: queued
     trigger:
       - platform: event
@@ -363,12 +367,36 @@ automation:
     action:
       - variables:
           plain_text: "{{ trigger.event.data.text | default('') | trim }}"
+          plain_text_lower: "{{ plain_text | lower }}"
           from_user: "{{ (trigger.event.data.from_first | default('carlo')) | lower }}"
+          command_like_request: >-
+            {% set action_verbs = ['disable', 'enable', 'turn off', 'turn on', 'stop', 'start', 'restart', 'review', 'fix', 'change', 'update', 'set', 'open', 'close'] %}
+            {{ action_verbs | select('in', plain_text_lower) | list | count > 0 }}
+          status_like_request: >-
+            {{ (plain_text_lower.startswith('is ')
+                or plain_text_lower.startswith('are ')
+                or plain_text_lower.startswith('what is ')
+                or plain_text_lower.startswith("what's ")
+                or ' status' in plain_text_lower
+                or plain_text_lower.startswith('status '))
+                and not command_like_request }}
+          llm_route_hint: >-
+            {% if command_like_request %}
+              llm_first_action
+            {% elif status_like_request %}
+              llm_first_status
+            {% else %}
+              llm_first_general
+            {% endif %}
+          llm_context: >-
+            telegram_freeform route={{ llm_route_hint | trim }}.
+            Prefer LLM intent interpretation and clarification for action or automation requests before returning entity status.
       - service: rest_command.bearclaw_command
         data:
           text: "{{ plain_text }}"
           user: "{{ from_user }}"
           source: telegram_text
+          context: "{{ llm_context | trim }}"
 
   - id: bearclaw_reply_webhook
     alias: BearClaw Reply Webhook
@@ -383,6 +411,15 @@ automation:
     action:
       - variables:
           message: "{{ trigger.json.message | default('Joanna: empty reply') }}"
+          telegram_message: "{{ trigger.json.telegram_message | default(message, true) }}"
+          telegram_parse_mode: >-
+            {% set raw = trigger.json.telegram_parse_mode | default('plain_text', true) | string | lower | trim %}
+            {% if raw in ['html', 'plain_text'] %}
+              {{ raw }}
+            {% else %}
+              plain_text
+            {% endif %}
+          telegram_disable_preview: "{{ trigger.json.disable_web_page_preview | default(true, true) }}"
           level: "{{ trigger.json.level | default('active') | lower }}"
           inline_keyboard_payload: >-
             {% set kb = trigger.json.inline_keyboard if trigger.json.inline_keyboard is defined else none %}
@@ -408,14 +445,16 @@ automation:
               - service: telegram_bot.send_message
                 data:
                   chat_id: !secret telegram_allowed_chat_id_carlo
-                  message: "{{ message }}"
-                  parse_mode: plain_text
-                  disable_web_page_preview: true
+                  message: "{{ telegram_message }}"
+                  parse_mode: "{{ telegram_parse_mode }}"
+                  disable_web_page_preview: "{{ telegram_disable_preview }}"
                   inline_keyboard: "{{ inline_keyboard_payload }}"
         default:
           - service: script.joanna_send_telegram
             data:
-              message: "{{ message }}"
+              message: "{{ telegram_message }}"
+              parse_mode: "{{ telegram_parse_mode }}"
+              disable_web_page_preview: "{{ telegram_disable_preview }}"
       - service: script.send_to_logbook
         data:
           topic: JOANNA

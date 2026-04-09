@@ -16,6 +16,7 @@
 mqtt:
   cover:
     - name: "Large Garage Door"
+      unique_id: garadget_large_garage_door_cover
       device_class: 'garage'
       command_topic: "garadget/GLarge/command"
       state_topic: "garadget/GLarge/status"
@@ -30,6 +31,7 @@ mqtt:
       payload_stop: "stop"
 
     - name: "Small Garage Door"
+      unique_id: garadget_small_garage_door_cover
       device_class: 'garage'
       command_topic: "garadget/GSmall/command"
       state_topic: "garadget/GSmall/status"
@@ -45,19 +47,23 @@ mqtt:
 
   sensor:
     - name: "Large Garage Door Since"
+      unique_id: garadget_large_garage_door_since
       state_topic: "garadget/GLarge/status"
       value_template: '{{ value_json.time }}'
 
     - name: "Large Garage Door Brightness"
+      unique_id: garadget_large_garage_door_brightness
       state_topic: "garadget/GLarge/status"
       unit_of_measurement: '%'
       value_template: '{{ value_json.bright }}'
 
     - name: "Small Garage Door Since"
+      unique_id: garadget_small_garage_door_since
       state_topic: "garadget/GSmall/status"
       value_template: '{{ value_json.time }}'
 
     - name: "Small Garage Door Brightness"
+      unique_id: garadget_small_garage_door_brightness
       state_topic: "garadget/GSmall/status"
       unit_of_measurement: '%'
       value_template: '{{ value_json.bright }}'
@@ -241,43 +247,6 @@ automation:
           topic: "garadget/GLarge/command"
           payload: "get-status"
 
-  - alias: 'Garage Door State Change'
-    id: afec0987-edb1-4341-a524-a00ae4df9fb7
-    mode: restart
-    trigger:
-      - platform: state
-        entity_id:
-          - cover.large_garage_door
-          - cover.small_garage_door
-        from: 'open'
-        to: 'closed'
-        for: '00:02:00'
-
-      - platform: state
-        entity_id:
-          - cover.large_garage_door
-          - cover.small_garage_door
-        from: 'closed'
-        to: 'open'
-        for: '00:10:00'
-
-    action:
-      - choose:
-          - conditions: "{{ is_state('cover.large_garage_door','closed') }}"
-            sequence:
-              - service: script.speech_engine
-                data:
-                  DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
-                  call_garage_check: 1
-              - delay: "00:10:00"
-
-        default:
-          - service: script.speech_engine
-            data:
-              DoorClosed: "The {{ trigger.entity_id.split('.')[1]|replace('_', ' ') }} is now {{ (trigger.to_state.state)|replace('_', ' ') }}."
-              call_garage_check: 1
-
-
   ###################################
   ## Garadget Wind Door Checks -  [Garadget](https://amzn.to/2jQLpVQ)
   ###################################
@@ -330,13 +299,8 @@ automation:
 
     trigger:
       - platform: time_pattern
-        minutes: '/45'
-      - platform: state
-        entity_id:
-          - cover.large_garage_door
-          - cover.small_garage_door
-        to: 'open'
-        for: "00:01:00"
+        minutes: '/30'
+
       - platform: state
         entity_id: group.family
         to: not_home
@@ -392,46 +356,3 @@ automation:
       - service: script.speech_engine
         data:
           value1: "Check the garage doors. The Small garage is {{ states('cover.small_garage_door')}} and the large garage is {{ states('cover.large_garage_door')}} [Always mention the specific garage door that is currently open and remind us to close it for the night]"
-
-  # - alias: 'Garage Camera on Alexa Shows'
-  #   id: 4373df2a-77f2-4e19-be7c-46c7b27ca583
-  #   mode: single
-  #   trigger:
-  #     - platform: state
-  #       entity_id:
-  #         - cover.large_garage_door
-  #         - cover.small_garage_door
-  #       from: 'closed'
-  #       to: 'open'
-  #       for: "00:00:15"
-
-  #     - platform: state
-  #       entity_id: binary_sensor.mcu1_gpio12 #interior Garage Doors
-  #       from: 'off'
-  #       to: 'on' 
-  #       for: "00:00:05"
-
-  #     - platform: state
-  #       entity_id:
-  #         - person.carlo
-  #         - person.stacey
-  #         - person.paige
-  #         - person.justin
-  #       to: 'not_home'
-  #       from: 'home'    
-
-  #   action:
-  #     - service: media_player.play_media
-  #       target:
-  #         entity_id: media_player.kitchen
-  #       data:
-  #         media_content_id: 'show garage camera from home assistant'
-  #         media_content_type: custom
-  #     - delay: '00:20:00'
-  #     - service: media_player.play_media
-  #       target:
-  #         entity_id: media_player.kitchen
-  #       data:
-  #         media_content_id: 'hide garage camera'
-  #         media_content_type: custom
-
