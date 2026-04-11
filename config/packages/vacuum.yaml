@@ -702,12 +702,22 @@ automation:
     id: 6548de52-a4a4-4df2-9d66-9c2c15577a7e
     trigger:
       - platform: state
+        entity_id: vacuum.l10s_vacuum
+        to: 'error'
+        id: vacuum_state_error
+      - platform: state
         entity_id: sensor.l10s_vacuum_error
+        id: vacuum_error_state
       - platform: event
         event_type: event_did_someone_help_vacuum_loop
+        id: vacuum_error_loop
     condition:
       - condition: template
-        value_template: "{{ states('sensor.l10s_vacuum_error') not in ['no_error', 'unavailable'] }}"
+        value_template: >-
+          {{
+            is_state('vacuum.l10s_vacuum', 'error')
+            or states('sensor.l10s_vacuum_error') not in ['no_error', 'unavailable']
+          }}
     action:
       - service: script.send_to_logbook
         data:
@@ -726,15 +736,33 @@ automation:
             Error: {{ states('sensor.l10s_vacuum_error') }}
             Room: {{ states('sensor.l10s_vacuum_current_room') }}
 
-      - service: script.notify_engine
-        data:
-          title: 'Help vacuum'
-          value1: "{{ states('sensor.l10s_vacuum_error') }} - {{states('sensor.l10s_vacuum_current_room')}}"
-          who: 'family'
-          ios_category: 'camera'
-          camera_entity: 'camera.l10s_vacuum_map'
-          content_type: 'jpeg'
-          group: 'information'
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id in ['vacuum_state_error', 'vacuum_error_state'] }}"
+            sequence:
+              - wait_template: >-
+                  {{
+                    is_state('group.family', 'home')
+                    or is_state('input_boolean.guest_mode', 'on')
+                    or is_state('input_boolean.vacation_mode', 'on')
+                  }}
+              - service: script.notify_engine
+                data:
+                  title: 'Help vacuum'
+                  value1: "{{ states('sensor.l10s_vacuum_error') }} - {{ states('sensor.l10s_vacuum_current_room') }}"
+                  who: 'parents'
+                  ios_category: 'camera'
+                  camera_entity: 'camera.l10s_vacuum_map'
+                  content_type: 'jpeg'
+                  group: 'information'
+              - service: vacuum.locate
+                entity_id: vacuum.l10s_vacuum
+              - service: script.speech_engine
+                data:
+                  value1: >
+                    {{ "Vacuum error: " ~ states('sensor.l10s_vacuum_error') ~ ". Please help the robot." }}
+                    Currently in {{ states('sensor.l10s_vacuum_current_room') }}
       - wait_template: "{{ is_state('group.bed', 'off') }}"
       - wait_template: "{{ is_state('group.family', 'home') }}"
       - delay: 00:03:00

@@ -23,6 +23,51 @@ function Quote-BashArg {
 $containerNameQ = Quote-BashArg -Value $ContainerName
 $configPathQ = Quote-BashArg -Value $ConfigPath
 
+$containerCheckScript = @'
+import asyncio
+import os
+
+from homeassistant import bootstrap, core, loader
+from homeassistant.config_entries import ConfigEntries
+from homeassistant.helpers.check_config import async_check_ha_config_file
+
+CONFIG_DIR = os.environ.get("CONFIG_DIR", "/config")
+
+
+async def main() -> int:
+    hass = core.HomeAssistant(CONFIG_DIR)
+    loader.async_setup(hass)
+    hass.config_entries = ConfigEntries(hass, {})
+
+    ok = await bootstrap.async_load_base_functionality(hass)
+    if not ok:
+        print(f"Failed to initialize base functionality for {CONFIG_DIR}")
+        await hass.async_stop(force=True)
+        return 1
+
+    res = await async_check_ha_config_file(hass)
+    await hass.async_stop(force=True)
+
+    print(f"Testing configuration at {CONFIG_DIR}")
+    if res.errors:
+        print("Failed config")
+        for err in res.errors:
+            print(f"  {err.domain or 'error'}: {err.message}")
+        return 1
+
+    print("Configuration valid")
+    if res.warnings:
+        print("Warnings:")
+        for warn in res.warnings:
+            print(f"  {warn.domain or 'warning'}: {warn.message}")
+    return 0
+
+
+raise SystemExit(asyncio.run(main()))
+'@
+
+$containerCheckScript = ($containerCheckScript -replace "`r`n", "`n").Trim()
+
 $containerCheck = @"
 if ! command -v docker >/dev/null 2>&1; then
   echo Docker CLI not found on host. >&2
@@ -33,7 +78,7 @@ if ! docker ps --format '{{.Names}}' | grep -Fx $containerNameQ >/dev/null 2>&1;
   exit 1
 fi
 echo Running Home Assistant config check in container $containerNameQ...
-docker exec $containerNameQ python -m homeassistant --script check_config --config $configPathQ
+docker exec -i -e CONFIG_DIR=$configPathQ $containerNameQ python -
 "@
 
 $supervisedCheck = @'
@@ -76,5 +121,11 @@ $sshArgs = @(
   (Quote-BashArg -Value $remoteCommand)
 )
 
-& $ssh.Source @sshArgs
+$stdinPayload = if ($Mode -eq 'container' -or $Mode -eq 'auto') { $containerCheckScript } else { '' }
+
+if ([string]::IsNullOrEmpty($stdinPayload)) {
+  & $ssh.Source @sshArgs
+} else {
+  $stdinPayload | & $ssh.Source @sshArgs
+}
 exit $LASTEXITCODE
