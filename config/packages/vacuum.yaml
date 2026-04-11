@@ -12,7 +12,7 @@
 # - Treat 2+ minutes in a room as "being cleaned" and dequeue immediately (queue = remaining rooms).
 # - Phase changes happen only after verified completion at dock (`task_status: completed`).
 # - Guarded fallback: if docked with empty queue for 10 minutes but no `completed`, advance with `fallback_advance` log.
-# - Use `dreame_vacuum.vacuum_clean_segment` with the integration's segment ids.
+# - This installed Dreame build still needs native `dreame_vacuum.vacuum_clean_segment`; do not rely on HA `vacuum.clean_area`.
 # - Jinja2 loop scoping: use a `namespace` when building lists (otherwise the queue can appear empty and get cleared).
 # - If docked+completed still has queue entries, treat queue as stale and clear it before phase advance.
 # - Mop phases use `sweeping_and_mopping` instead of mop-only.
@@ -133,8 +133,6 @@ script:
               {{ bath_ids }}
             {% endif %}
           segments_to_clean: "{{ queue_ints if queue_ints | length > 0 else phase_segments }}"
-          segment_ids: "{{ segments_to_clean | list }}"
-
       # 0. Reseed the current phase when queue is empty.
       - choose:
           - conditions:
@@ -178,11 +176,11 @@ script:
               - service: script.send_to_logbook
                 data:
                   topic: "VACUUM"
-                  message: "Vacuum is already cleaning; queue/phase updated but not issuing a new segment clean action."
+                  message: "Vacuum is already cleaning; queue/phase updated but not issuing a new segment-clean action."
               - stop: "Already cleaning."
         default: []
 
-      # 4. Start cleaning
+      # 4. Start cleaning with the native Dreame segment service.
       - service: select.select_option
         target:
           entity_id: select.l10s_vacuum_cleaning_mode
@@ -197,8 +195,7 @@ script:
         target:
           entity_id: vacuum.l10s_vacuum
         data:
-          # Clean the queued room segments directly.
-          segments: "{{ segment_ids }}"
+          segments: "{{ segments_to_clean }}"
 
 
 ## 3. Automations
