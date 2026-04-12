@@ -1,12 +1,17 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# HASS.Agent Home PC - Office lamp follows CARLO-HOMEPC session state.
-#-------------------------------------------
+# -------------------------------------------------------------------
+# HASS.Agent Home PC - Session-aware lamp cues and workday wake-up
+#  HASS.Agent session automations plus Wake on LAN for CARLO-HOMEPC.
+# -------------------------------------------------------------------
+# Related Issue: 24
+# Notes: Sleep Number nighttime lock/monitor-sleep logic lives in
+#        config/packages/sleepiq.yaml.
+# Notes: Wake on LAN button entity is managed through the HA UI
+#        integration and is pressed here from YAML automation.
 ######################################################################
-##  Locks/monitors PC activity via HASS.Agent; Sleep Number triggers live in config/packages/sleepiq.yaml.
-######################################################################
-# Docs: https://hassagent.readthedocs.io/en/latest/
 automation:
   - alias: "Office Lamp - Follow CARLO-HOMEPC Session"
     id: 7b3f9e14-55b1-44aa-a6eb-2e0873a4c2bb
@@ -36,3 +41,37 @@ automation:
               - service: switch.turn_on
                 target:
                   entity_id: switch.office_lamp_switch
+
+  - alias: "CARLO-HOMEPC - Wake on Workday Morning Bed Exit"
+    id: 6d40b8b2-8fa9-4250-84bd-cb1c3fc9e7c9
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        from: "on"
+        to: "off"
+        for: "00:02:00"
+    condition:
+      - condition: state
+        entity_id: person.carlo
+        state: "home"
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: "off"
+      - condition: time
+        after: "05:00:00"
+        before: "09:00:00"
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      - service: button.press
+        target:
+          entity_id: button.carlo_home
+      - service: script.send_to_logbook
+        data:
+          topic: "HOMEPC"
+          message: "Triggered Wake on LAN for CARLO-HOMEPC after Carlo's workday bed exit."

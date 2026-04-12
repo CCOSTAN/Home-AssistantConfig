@@ -44,7 +44,7 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 - Garage routines and entry lighting: [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml)
 - Holiday/front-of-house color scenes: [config/scene/monthly_colors.yaml](config/scene/monthly_colors.yaml), [config/script/monthly_color_scene.yaml](config/script/monthly_color_scene.yaml)
 - Dash-button triggers for quick actions: [config/automation/dash_buttons.yaml](config/automation/dash_buttons.yaml)
-- PC lock/unlock-driven lighting via HASS.Agent: [config/packages/hass_agent_homepc.yaml](config/packages/hass_agent_homepc.yaml)
+- PC lock/unlock-driven lighting plus workday wake-up via HASS.Agent + Wake on LAN: [config/packages/hass_agent_homepc.yaml](config/packages/hass_agent_homepc.yaml)
 - Seasonal cuckoo clock with October and Christmas sound packs: [config/automation/System/CucKoo_Clock.yaml](config/automation/System/CucKoo_Clock.yaml)
 - Garage arrival and entry helpers: [config/packages/garadget.yaml](config/packages/garadget.yaml)
 - Battery and solar awareness: [config/packages/powerwall.yaml](config/packages/powerwall.yaml)
