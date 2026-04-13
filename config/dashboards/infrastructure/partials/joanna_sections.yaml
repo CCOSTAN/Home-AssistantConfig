@@ -137,6 +137,42 @@
           const v = states['sensor.joanna_ha_success_rate_24h']?.state ?? '0';
           return `${v}%`;
         ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: binary_sensor.joanna_qmd_healthy
+      name: QMD Health
+      icon: mdi:heart-pulse
+      state_display: >
+        [[[
+          const qmd = states['sensor.bearclaw_status_telemetry']?.attributes?.qmdHealth || {};
+          const healthy = states['binary_sensor.joanna_qmd_healthy']?.state === 'on';
+          const status = qmd?.status || (healthy ? 'healthy' : 'unknown');
+          const failures = states['sensor.joanna_qmd_consecutive_failures']?.state ?? '0';
+          return `${status} | fail ${failures}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.joanna_memory_docs
+      name: Memory Index
+      icon: mdi:database-search
+      state_display: >
+        [[[
+          const docs = states['sensor.joanna_memory_docs']?.state ?? '0';
+          const chunks = states['sensor.joanna_memory_chunks']?.state ?? '0';
+          const stale = states['binary_sensor.joanna_memory_index_stale']?.state === 'on';
+          return `${docs} docs | ${chunks} chunks${stale ? ' | stale' : ''}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: binary_sensor.joanna_session_source_indexed
+      name: Session Transcript Indexing
+      icon: mdi:message-text-clock-outline
+      state_display: >
+        [[[
+          const enabled = states['binary_sensor.joanna_session_source_indexed']?.state === 'on';
+          const age = states['sensor.joanna_minutes_since_memory_index']?.state ?? '0';
+          return `${enabled ? 'enabled' : 'disabled'} | ${age} min ago`;
+        ]]]
 
 - type: grid
   column_span: 4

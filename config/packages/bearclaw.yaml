@@ -64,6 +64,8 @@ sensor:
       - dispatchStats
       - queue
       - active
+      - qmdHealth
+      - memoryIndex
 
 template:
   - sensor:
@@ -182,6 +184,71 @@ template:
           {% else %}
             0
           {% endif %}
+
+      - name: Joanna QMD Consecutive Failures
+        unique_id: joanna_qmd_consecutive_failures
+        icon: mdi:heart-pulse
+        unit_of_measurement: checks
+        state_class: measurement
+        state: >-
+          {% set qmd = state_attr('sensor.bearclaw_status_telemetry', 'qmdHealth') | default({}, true) %}
+          {{ qmd.get('consecutiveFailures', 0) | int(0) }}
+
+      - name: Joanna Memory Docs
+        unique_id: joanna_memory_docs
+        icon: mdi:file-document-multiple-outline
+        unit_of_measurement: docs
+        state_class: measurement
+        state: >-
+          {% set memory = state_attr('sensor.bearclaw_status_telemetry', 'memoryIndex') | default({}, true) %}
+          {{ memory.get('docs', 0) | int(0) }}
+
+      - name: Joanna Memory Chunks
+        unique_id: joanna_memory_chunks
+        icon: mdi:text-box-search-outline
+        unit_of_measurement: chunks
+        state_class: measurement
+        state: >-
+          {% set memory = state_attr('sensor.bearclaw_status_telemetry', 'memoryIndex') | default({}, true) %}
+          {{ memory.get('chunks', 0) | int(0) }}
+
+      - name: Joanna Minutes Since Memory Index
+        unique_id: joanna_minutes_since_memory_index
+        icon: mdi:database-clock-outline
+        unit_of_measurement: min
+        state_class: measurement
+        state: >-
+          {% set memory = state_attr('sensor.bearclaw_status_telemetry', 'memoryIndex') | default({}, true) %}
+          {% set indexed_at = memory.get('indexedAt') %}
+          {% set indexed_ts = as_timestamp(indexed_at, 0) %}
+          {% if indexed_ts > 0 %}
+            {{ ((as_timestamp(now()) - indexed_ts) / 60) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
+  - binary_sensor:
+      - name: Joanna QMD Healthy
+        unique_id: joanna_qmd_healthy
+        icon: mdi:heart-pulse
+        state: >-
+          {% set qmd = state_attr('sensor.bearclaw_status_telemetry', 'qmdHealth') | default({}, true) %}
+          {{ qmd.get('healthy', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
+
+      - name: Joanna Session Source Indexed
+        unique_id: joanna_session_source_indexed
+        icon: mdi:message-text-clock-outline
+        state: >-
+          {% set memory = state_attr('sensor.bearclaw_status_telemetry', 'memoryIndex') | default({}, true) %}
+          {% set options = memory.get('options', {}) if memory is mapping else {} %}
+          {{ options.get('includeSessionSource', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
+
+      - name: Joanna Memory Index Stale
+        unique_id: joanna_memory_index_stale
+        icon: mdi:database-alert-outline
+        state: >-
+          {% set memory = state_attr('sensor.bearclaw_status_telemetry', 'memoryIndex') | default({}, true) %}
+          {{ memory.get('stale', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
 automation:
   - id: bearclaw_telegram_bear_command
     alias: BearClaw Telegram Bear Command

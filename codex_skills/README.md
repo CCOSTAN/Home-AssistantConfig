@@ -27,6 +27,7 @@ Codex skills stored in-repo so they can be shared with the community. These are 
 - `homeassistant-dashboard-designer/`: Constrained, button-card-first Lovelace dashboard design system + YAML lint helper.
 - `homeassistant-yaml-dry-verifier/`: Home Assistant YAML DRY verifier to detect redundant triggers/conditions/actions/sequence blocks and suggest refactors.
 - `infrastructure-doc-sync/`: Session closeout workflow to update AGENTS/README/Dashy shortcuts/Infra Info snapshot consistently after infra changes.
+- `network-architecture-diagrammer/`: Mermaid-first homelab/network architecture diagram workflow for Excalidraw-friendly topology and service maps.
 
 ### Notes
 - Codex loads skills from your local Codex home. See each skill folder for install steps.

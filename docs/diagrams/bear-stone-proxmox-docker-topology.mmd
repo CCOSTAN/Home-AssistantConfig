@@ -1,0 +1,78 @@
+flowchart TD
+    subgraph PX[Bear Stone Proxmox cluster]
+        P1[ProxMox1]
+        P2[ProxMox2]
+        NFS[Prox-NFS01 shared storage]
+        FLOAT[Cluster-managed Docker VMs]
+    end
+
+    P1 --> D10VM[docker10 VM]
+    P1 --> FLOAT
+    P2 --> FLOAT
+    NFS --> D10VM
+    NFS --> D14VM[docker14 VM]
+    NFS --> D17VM[docker17 VM]
+    NFS --> D69VM[docker69 VM]
+    FLOAT --> D14VM
+    FLOAT --> D17VM
+    FLOAT --> D69VM
+
+    subgraph D10[docker10 - primary home stack]
+        D10_HA[home-assistant]
+        D10_PI[pihole]
+        D10_MQTT[mqtt]
+        D10_DB[mariadb]
+        D10_BK[mariadb-backup]
+        D10_UNIFI[unifi]
+        D10_WYZE[wyze-bridge]
+        D10_PORT[portainer]
+        D10_ESP[esphome]
+        D10_MATTER[matter-server]
+        D10_DOZZLE[dozzle_agent]
+        D10_TUG[tugtainer-agent]
+        D10_PROXY[tugtainer_socket_proxy]
+    end
+
+    subgraph D14[docker14 - camera and DNS standby]
+        D14_FRIGATE[frigate]
+        D14_PI[pihole_secondary]
+        D14_NEBULA[nebula_sync]
+        D14_PORT[portainer_agent]
+        D14_DOZZLE[dozzle_agent]
+        D14_TUG[tugtainer-agent]
+        D14_PROXY[tugtainer_socket_proxy]
+    end
+
+    subgraph D17[docker17 - internal apps and tooling]
+        D17_CODEX[codex_appliance]
+        D17_DASHY[dashy]
+        D17_DOZZLE[dozzle]
+        D17_TUG_UI[tugtainer]
+        D17_DUP[duplicati]
+        D17_PANEL[panel_notes]
+        D17_CRUISE[cruise_tracker]
+        D17_POKER[poker_tracker]
+        D17_RV[rvtools_ppt_web]
+        D17_AGENT[docker_socket_proxy]
+        D17_DOZZLE_AGENT[dozzle_agent]
+        D17_TUG_AGENT[tugtainer-agent]
+        D17_TUG_PROXY[tugtainer_socket_proxy]
+    end
+
+    subgraph D69[docker69 - public edge and utility apps]
+        D69_INFO[infra_info]
+        D69_CF_WP[cloudflared_wp]
+        D69_CF_KCH[cloudflared_kch]
+        D69_WP_DB[wordpress_db]
+        D69_WP[wordpress_wp]
+        D69_FOODIE[foodie_tracker]
+        D69_IMPOSTER[imposter]
+        D69_BUDGET[college_budget_app]
+        D69_TAPPLE[tapple]
+        D69_GAMES[games_hub]
+        D69_KCH[kingcrafthomes]
+        D69_LMEDIA[lmediaservices]
+        D69_PORT[portainer_agent]
+        D69_DOZZLE[dozzle_agent]
+        D69_TUG[tugtainer-agent]
+    end
