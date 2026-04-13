@@ -53,6 +53,8 @@ Live, personal Home Assistant configuration shared for **browsing and inspiratio
 
 ### Network diagram
 ![Smart Home Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg)
+<img width="925" height="609" alt="Network" src="https://github.com/user-attachments/assets/df3b7eb5-cfcb-4650-8a41-996054cc70d2" />
+
 
 **Docker add-ons & utilities**
 | Container | Repo/Docs | Purpose |
