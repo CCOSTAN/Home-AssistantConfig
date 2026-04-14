@@ -13,6 +13,7 @@
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
 # Notes: Weekly Joanna reconcile checks discovered container switches vs configured group members.
 # Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
+# Notes: Outage escalation keys off the configured monitored group so host-wide telemetry drops do not fall out of scope before the delayed Joanna dispatch runs.
 ######################################################################
 
 input_datetime:
@@ -616,7 +617,7 @@ script:
           status_entity_alt: "binary_sensor.{{ container_key }}_status_2"
           state_entity: "sensor.{{ container_key }}_state"
           state_entity_alt: "sensor.{{ container_key }}_state_2"
-          monitored_switches: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) }}"
+          monitored_switches: "{{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) }}"
           tracked_container: "{{ switch_entity in monitored_switches or switch_entity_alt in monitored_switches }}"
           effective_entity: >-
             {% if expand(status_entity) | count > 0 %}
@@ -983,7 +984,7 @@ automation:
       entity_id: "{{ trigger.event.data.entity_id | default('') }}"
       old_state: "{{ (trigger.event.data.old_state.state if trigger.event.data.old_state is not none else '') | lower }}"
       new_state: "{{ (trigger.event.data.new_state.state if trigger.event.data.new_state is not none else '') | lower }}"
-      monitored_switches: "{{ state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) | list }}"
+      monitored_switches: "{{ state_attr('switch.docker_monitored_containers', 'entity_id') | default([], true) | list }}"
       is_monitored_container_event: >-
         {% set ent = entity_id %}
         {% if ent.startswith('switch.') and (ent.endswith('_container') or ent.endswith('_container_2')) %}

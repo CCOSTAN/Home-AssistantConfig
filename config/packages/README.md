@@ -45,7 +45,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [lightning.yaml](lightning.yaml) | Blitzortung lightning counter monitoring with snoozeable push actions. | `sensor.blitzortung_lightning_counter`, `input_boolean.snooze_lightning`, notify engine actions |
 | [logbook_activity_feed.yaml](logbook_activity_feed.yaml) | Dummy `sensor.activity_feed` + helper to write clean Activity entries (Issue #1550). | `sensor.activity_feed`, `script.send_to_logbook` |
 | [mariadb_monitoring.yaml](mariadb_monitoring.yaml) | MariaDB health sensors and Lovelace dashboard snippet for recorder stats. | `sensor.mariadb_status`, `sensor.database_size` |
-| [docker_infrastructure.yaml](docker_infrastructure.yaml) | Docker host patching telemetry + container/stack Repairs automation, 20-minute Joanna escalation for persistent container outages, and weekly scheduled prune actions across docker_10/14/17/69. | `sensor.docker_*_apt_status`, `binary_sensor.*_stack_status`, `sensor.docker_stacks_down_count`, `repairs.create`, `script.joanna_dispatch` |
+| [docker_infrastructure.yaml](docker_infrastructure.yaml) | Docker host patching telemetry + container/stack Repairs automation, 20-minute Joanna escalation for persistent container outages using stable configured monitor membership, and weekly scheduled prune actions across docker_10/14/17/69. | `sensor.docker_*_apt_status`, `binary_sensor.*_stack_status`, `sensor.docker_stacks_down_count`, `repairs.create`, `script.joanna_dispatch` |
 | [github_watched_repo_scout.yaml](github_watched_repo_scout.yaml) | Nightly Joanna dispatch that reviews unread notifications from watched GitHub repos, recommends HA-config ideas, refreshes strong-candidate issues, and marks processed watched-repo notifications read. | `automation.github_watched_repo_scout_nightly`, `script.joanna_dispatch`, `script.send_to_logbook` |
 | [proxmox.yaml](proxmox.yaml) | Proxmox runtime and disk pressure monitoring with Repairs for node degradations plus nightly Frigate reboot. | `binary_sensor.proxmox*_runtime_healthy`, `sensor.proxmox*_disk_used_percentage`, `repairs.create`, `button.qemu_docker2_101_reboot` |
 | [infrastructure_observability.yaml](infrastructure_observability.yaml) | Normalized WAN/DNS/backup/domain/cert health + website uptime/latency SLO signals for Infrastructure dashboards. | `binary_sensor.infra_website_uptime_slo_breach`, `binary_sensor.infra_website_latency_degraded`, `binary_sensor.infra_*` |
@@ -73,7 +73,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 
 ### Nest climate control
 - Logic lives in [climate.yaml](climate.yaml) and centralizes downstairs/upstairs Nest schedules, grid-aware guardrails, humidity pulses, and presence/weather-based targets.
-- Shared script keeps targets consistent: away → eco, home + >92°F → 78°F, home default → 80°F. Grid-down conditions pause non-essential cool-downs.
+- Shared script keeps daytime targets consistent: away → eco, home + >92°F → 78°F, home default → 80°F. Downstairs bedtime cooling now stays dynamic: outside >80°F → 77°F, 76-79°F → 79°F, below 76°F → leave the current target alone. Grid-down conditions pause non-essential cool-downs.
 ![Nest Climate Control](../www/custom_ui/floorplan/images/branding/Nest_Climate_Control.png)
 
 ### Dreame vacuum automations

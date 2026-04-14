@@ -341,7 +341,7 @@ automation:
           topic: "CLIMATE"
           message: "Upstairs target temp corrected to 78F (guardrail)."
 
-  - alias: Set Downstairs to 77 When Both in Bed
+  - alias: Set Downstairs Bedtime Target When Both in Bed
     id: set_downstairs_nest_77_both_in_bed
     trigger:
       - platform: state
@@ -363,10 +363,26 @@ automation:
         entity_id: sun.sun
         state: 'below_horizon'
     action:
-      - service: climate.set_temperature
-        data:
-          entity_id: climate.downstairs
-          temperature: 77
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                above: 80
+            sequence:
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 77
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.pirateweather_temperature
+                above: 75
+                below: 80
+            sequence:
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 79
   
   - alias: 'Set Downstairs Thermostat Daytime Target'
     id: set_downstairs_thermostat_daytime_target
