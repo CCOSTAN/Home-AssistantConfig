@@ -14,6 +14,7 @@
 # Notes: Inbound Telegram handling enforces user_id + chat_id allowlists from secrets CSV values.
 # Notes: Reply webhook writes JOANNA activity entries to logbook for traceability.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
+# Notes: Nightly Duplicati verification calls a codex_appliance admin endpoint and returns structured health to HA via response_variable.
 # Notes: Telegram freeform input now includes LLM-first routing context to improve intent understanding before entity lookups.
 # Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
@@ -48,6 +49,18 @@ rest_command:
         "summary": {{ summary | default('event') | tojson }},
         "wake": {{ wake | default(false) | tojson }},
         "source": "home_assistant"
+      }
+
+  bearclaw_duplicati_verify:
+    url: !secret bearclaw_duplicati_verify_url
+    method: post
+    timeout: 60
+    content_type: application/json
+    headers:
+      x-codex-token: !secret bearclaw_token
+    payload: >
+      {
+        "reason": {{ reason | default('home_assistant') | tojson }}
       }
 sensor:
   - platform: rest

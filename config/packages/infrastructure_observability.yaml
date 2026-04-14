@@ -4,11 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Observability - Normalized infra monitoring signals
-#  WAN/DNS/backup/website/domain/cert state normalized for dashboards.
+#  WAN/DNS/website/domain/cert state normalized for dashboards.
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
 # Notes: Domain warning threshold is <30 days; critical threshold is <14 days.
+# Notes: Nightly Duplicati verification is performed by codex_appliance against the Duplicati API because HA backup entities are not available.
 ######################################################################
 
 command_line:
@@ -51,18 +52,6 @@ template:
             {{ primary }}
           {% else %}
             {{ fallback }}
-          {% endif %}
-
-      - name: "Infra Backup Age Hours"
-        unique_id: infra_backup_age_hours
-        unit_of_measurement: "h"
-        state: >-
-          {% set stamp = states('sensor.dockerconfigs_backup_date') %}
-          {% set ts = as_datetime(stamp) %}
-          {% if ts is not none %}
-            {{ ((now() - ts).total_seconds() / 3600) | round(1) }}
-          {% else %}
-            {{ none }}
           {% endif %}
 
       - name: "Infra Domain Expiry Min Days"
@@ -164,19 +153,6 @@ template:
           {% set loss = loss_raw | float(0) %}
           {% set lat = lat_raw | float(0) %}
           {{ invalid or loss > 5 or lat > 80 }}
-
-      - name: "Infra Backup Stale Or Failed"
-        unique_id: infra_backup_stale_or_failed
-        device_class: problem
-        state: >-
-          {% set status = states('sensor.dockerconfigs_backup_status') | lower %}
-          {% set err = states('sensor.dockerconfigs_backup_error_message') | lower %}
-          {% set age = states('sensor.infra_backup_age_hours') | float(9999) %}
-          {% set failed = status in ['failed', 'failure', 'error', 'fatal'] or
-                          'fail' in status or
-                          'error' in status or
-                          err not in ['unknown', 'unavailable', 'none', ''] %}
-          {{ failed or age > 24 }}
 
       - name: "Infra DNS Pihole Degraded"
         unique_id: infra_dns_pihole_degraded
@@ -353,3 +329,85 @@ automation:
             continue_on_error: true
             data:
               issue_id: infra_website_latency_degraded
+
+  - alias: "Infrastructure - Backup Nightly Verification"
+    id: infra_backup_nightly_verification
+    description: "Use codex_appliance to verify the latest Duplicati run and dispatch Joanna only on failure."
+    mode: single
+    trigger:
+      - platform: time
+        at: "06:15:00"
+    action:
+      - variables:
+          trigger_context: "HA automation infra_backup_nightly_verification (Infrastructure - Backup Nightly Verification)"
+          duplicati_state: "{{ states('switch.duplicati_container') }}"
+      - action: rest_command.bearclaw_duplicati_verify
+        data:
+          reason: "ha_nightly"
+        response_variable: duplicati_verify
+      - service: script.send_to_logbook
+        data:
+          topic: "BACKUP"
+          message: >-
+            {% set payload = duplicati_verify['content'] if duplicati_verify is mapping and duplicati_verify['content'] is mapping else {} %}
+            {% set detail = payload['detail'] if payload is mapping and payload['detail'] is mapping else {} %}
+            {{ detail.get('summary', 'Nightly Duplicati verification completed.') }}
+      - variables:
+          verify_payload: "{{ duplicati_verify['content'] if duplicati_verify is mapping and duplicati_verify['content'] is mapping else {} }}"
+          verify_detail: "{{ verify_payload['detail'] if verify_payload is mapping and verify_payload['detail'] is mapping else {} }}"
+          verify_http_status: "{{ duplicati_verify['status'] | int(0) if duplicati_verify is mapping else 0 }}"
+          verify_healthy: "{{ verify_payload.get('ok', false) and verify_detail.get('healthy', false) }}"
+          verify_status: "{{ verify_detail.get('status', 'unknown') }}"
+          verify_summary: "{{ verify_detail.get('summary', 'Duplicati verification did not return a summary.') }}"
+          verify_issue: "{{ verify_detail.get('issue', verify_payload.get('error', 'duplicati_verify_failed')) }}"
+          verify_backup_name: "{{ verify_detail.get('backupName', 'Docker_Configs') }}"
+          verify_latest_result: "{{ verify_detail.get('latestResult', {}) if verify_detail is mapping else {} }}"
+          verify_last_success: "{{ verify_detail.get('lastSuccessfulRun', {}) if verify_detail is mapping else {} }}"
+      - choose:
+          - conditions: "{{ verify_healthy }}"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: infra_duplicati_backup_failure
+        default:
+          - service: repairs.create
+            data:
+              issue_id: infra_duplicati_backup_failure
+              title: "Duplicati nightly backup verification failed"
+              description: >-
+                {{ verify_summary }}
+                Backup={{ verify_backup_name }};
+                status={{ verify_status }};
+                last_result={{ verify_latest_result.get('endedAt', 'n/a') }};
+                last_success={{ verify_last_success.get('endedAt', 'n/a') }}.
+              severity: error
+              persistent: true
+          - service: script.joanna_dispatch
+            data:
+              trigger_context: "{{ trigger_context }}"
+              source: "home_assistant_automation.infra_backup_nightly_verification"
+              summary: "Nightly Duplicati backup verification failed"
+              entity_ids:
+                - "switch.duplicati_container"
+              diagnostics: >-
+                scheduled_time=06:15:00,
+                duplicati_container={{ duplicati_state }},
+                verifier_http_status={{ verify_http_status }},
+                verifier_status={{ verify_status }},
+                verifier_issue={{ verify_issue }},
+                backup_name={{ verify_backup_name }},
+                latest_result={{ verify_latest_result.get('endedAt', 'n/a') }},
+                last_success={{ verify_last_success.get('endedAt', 'n/a') }}
+              request: >-
+                Investigate the Duplicati backup job {{ verify_backup_name }}.
+                The codex_appliance verifier reported status {{ verify_status }} with issue {{ verify_issue }}.
+                Use the Duplicati API or UI directly, resolve the failure if possible, and verify a successful run before closing out.
+                Reply with explicit status fields:
+                resolved=true/false,
+                backup_status,
+                last_success_time,
+                root_cause,
+                action_taken,
+                verification,
+                next_action_required=true/false.

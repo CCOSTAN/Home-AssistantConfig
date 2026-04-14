@@ -374,41 +374,6 @@
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        name: Backup stale or failed
-        icon: mdi:backup-restore
-        state_display: >
-          [[[ 
-            const s = states['sensor.dockerconfigs_backup_status']?.state ?? 'unknown';
-            const e = states['sensor.dockerconfigs_backup_error_message']?.state ?? '';
-            const d = states['sensor.dockerconfigs_backup_date']?.state;
-            let ageText = 'n/a';
-            if (d && !['unknown','unavailable','none',''].includes(String(d).toLowerCase())) {
-              const dt = new Date(d);
-              if (!Number.isNaN(dt.getTime())) {
-                const h = (Date.now() - dt.getTime()) / 3600000;
-                ageText = `${h.toFixed(1)}h`;
-              }
-            }
-            return `Age ${ageText} | ${s}${e ? ' | error' : ''}`;
-          ]]]
-        styles:
-          card:
-          - display: >
-              [[[ 
-                const status = String(states['sensor.dockerconfigs_backup_status']?.state ?? '').toLowerCase();
-                const err = String(states['sensor.dockerconfigs_backup_error_message']?.state ?? '').toLowerCase();
-                const d = states['sensor.dockerconfigs_backup_date']?.state;
-                let stale = false;
-                if (d && !['unknown','unavailable','none',''].includes(String(d).toLowerCase())) {
-                  const dt = new Date(d);
-                  if (!Number.isNaN(dt.getTime())) stale = ((Date.now() - dt.getTime()) / 3600000) > 24;
-                }
-                const failed = status.includes('fail') || status.includes('error') || err.length > 0;
-                return (stale || failed) ? 'block' : 'none';
-              ]]]
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
         name: Services
         icon: mdi:docker
         show_state: false
