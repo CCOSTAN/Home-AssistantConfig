@@ -1,0 +1,92 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Joanna Send Telegram - Shared Telegram delivery helper
+#  Chunks long messages, sends Telegram replies, and falls back to plain text when needed.
+# -------------------------------------------------------------------
+# Notes: Shared helper moved out of packages so cross-file callers resolve from config/script.
+# Notes: Keep Joanna/BearClaw decision logic in docker_17/codex_appliance; this script only delivers messages.
+######################################################################
+
+joanna_send_telegram:
+  alias: Joanna Send Telegram
+  description: Sends resilient Telegram messages with chunking and plain-text fallback.
+  mode: queued
+  fields:
+    message:
+      description: Message body to send.
+      example: Joanna is online.
+    parse_mode:
+      description: Telegram parse mode (`plain_text` or `html`).
+      example: html
+    disable_web_page_preview:
+      description: Whether Telegram should suppress web page previews.
+      example: true
+  sequence:
+    - variables:
+        chunk_size: 3400
+        requested_parse_mode: >-
+          {% set raw = parse_mode | default('plain_text', true) | string | lower | trim %}
+          {% if raw in ['html', 'plain_text'] %}
+            {{ raw }}
+          {% else %}
+            plain_text
+          {% endif %}
+        preview_disabled: "{{ disable_web_page_preview | default(true, true) }}"
+        normalized_message: >-
+          {% set raw = message | default('', true) | string %}
+          {{ raw | replace('\r\n', '\n') | replace('\r', '\n') | trim }}
+        safe_message: >-
+          {% if normalized_message | length > 0 %}
+            {{ normalized_message }}
+          {% else %}
+            Joanna: (empty message)
+          {% endif %}
+        total_chunks: >-
+          {% set size = chunk_size | int(3400) %}
+          {% set length = safe_message | length %}
+          {{ ((length + size - 1) // size) if length > 0 else 1 }}
+    - repeat:
+        count: "{{ total_chunks | int(1) }}"
+        sequence:
+          - variables:
+              start: "{{ ((repeat.index | int(1)) - 1) * (chunk_size | int(3400)) }}"
+              stop: "{{ start + (chunk_size | int(3400)) }}"
+              chunk_body: "{{ safe_message[start:stop] }}"
+              chunk_message: >-
+                {% if (total_chunks | int(1)) > 1 %}
+                [{{ repeat.index }}/{{ total_chunks }}]
+                {{ chunk_body }}
+                {% else %}
+                {{ chunk_body }}
+                {% endif %}
+              fallback_message: >-
+                {{ chunk_message
+                  | regex_replace(find='[\x00-\x08\x0B\x0C\x0E-\x1F]', replace=' ')
+                  | trim }}
+              telegram_send_response: null
+          - service: telegram_bot.send_message
+            continue_on_error: true
+            data:
+              chat_id: !secret telegram_allowed_chat_id_carlo
+              message: "{{ chunk_message }}"
+              parse_mode: "{{ requested_parse_mode }}"
+              disable_web_page_preview: "{{ preview_disabled }}"
+            response_variable: telegram_send_response
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >-
+                      {{ telegram_send_response is none
+                         or telegram_send_response.chats is not defined
+                         or (telegram_send_response.chats | count) == 0 }}
+                sequence:
+                  - service: telegram_bot.send_message
+                    continue_on_error: true
+                    data:
+                      chat_id: !secret telegram_allowed_chat_id_carlo
+                      message: "{{ fallback_message if fallback_message | length > 0 else 'Joanna: message delivery fallback (content omitted)' }}"
+                      parse_mode: plain_text
+                      disable_web_page_preview: "{{ preview_disabled }}"
