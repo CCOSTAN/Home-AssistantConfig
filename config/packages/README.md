@@ -39,6 +39,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | Package | What it unlocks | Notable entities / services |
 | --- | --- | --- |
 | [alarm.yaml](alarm.yaml) | NodeMCU-powered perimeter monitoring with arm/disarm helpers and rich notifications. | `binary_sensor.mcu*_gpio*`, `group.family`, notify + siren scripts |
+| [alexa_media_player.yaml](alexa_media_player.yaml) | Alexa Media helper sensors including stable bedroom wake-alarm wrappers for Carlo and Stacey plus a combined next-wake view. | `sensor.last_alexa`, `sensor.bedroom_next_wake_alarm`, `sensor.bedroom_next_wake_alarm_source`, `binary_sensor.bedroom_next_wake_alarm_active` |
 | [garadget.yaml](garadget.yaml) | MQTT-based control + status for both garage doors, feeding entry/exit lighting routines. | `cover.large_garage_door`, `cover.small_garage_door`, `sensor.garadget_reflection` |
 | [august.yaml](august.yaml) | Front-door August smart lock with Alexa Show camera pop-up when unlocked. | `lock.front_door`, media_player actions for front doorbell camera |
 | [holiday.yaml](holiday.yaml) | REST-driven US holiday + flag sensors that color scenes and exterior lighting. | `sensor.holiday`, `sensor.flag`, JSON feed at `config/json_data/holidays.json` |
