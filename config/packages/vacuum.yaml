@@ -17,6 +17,7 @@
 # - If docked+completed still has queue entries, treat queue as stale and clear it before phase advance.
 # - Mop phases use `sweeping_and_mopping` instead of mop-only.
 # - One-off room clean booleans ignore the queue; they only run when the vacuum is docked/idle.
+# - Family-return docking ignores away windows under 20 minutes to avoid short-walk false stops, but docks after 10 minutes home if the family stays put.
 # - Formal Dining (room 17/dock) is excluded from phased queues; clean via one-off toggle.
 # - Phase advancement no longer depends on a separate "ready" latch.
 ######################################################################
@@ -378,28 +379,79 @@ automation:
       - platform: state
         entity_id: group.family
         to: 'home'
+        id: family_home
+      - platform: state
+        entity_id: group.family
+        to: 'home'
+        for: '00:10:00'
+        id: family_home_stable
       - platform: state
         entity_id: input_boolean.l10s_vacuum_on_demand
         to: 'off'
+        id: on_demand_off
+    variables:
+      family_away_seconds: >
+        {% if trigger.id == 'family_home'
+              and trigger.from_state is not none
+              and trigger.from_state.state == 'not_home'
+              and trigger.from_state.last_changed is not none %}
+          {{ (as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed)) | int(0) }}
+        {% else %}
+          999999
+        {% endif %}
     condition:
       - condition: template
         value_template: >
           {{ is_state('vacuum.l10s_vacuum', 'cleaning') or is_state('vacuum.l10s_vacuum', 'returning') or is_state('vacuum.l10s_vacuum', 'paused') }}
     action:
-      - service: vacuum.pause
-        target:
-          entity_id: vacuum.l10s_vacuum
-      - delay: 00:00:10
-      - service: vacuum.return_to_base
-        target:
-          entity_id: vacuum.l10s_vacuum
-      - service: input_boolean.turn_off
-        target:
-          entity_id: input_boolean.l10s_vacuum_on_demand
-      - service: script.send_to_logbook
-        data:
-          topic: "VACUUM"
-          message: "Family home; docking vacuum and disabling On-Demand."
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'family_home' and family_away_seconds < 1200 }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: >
+                    Family returned after {{ ((family_away_seconds | int(0)) / 60) | round(1) }}
+                    minutes; leaving vacuum running unless we stay home for 10 minutes.
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ trigger.id == 'family_home_stable' and is_state('input_boolean.l10s_vacuum_on_demand', 'on') }}
+            sequence:
+              - service: vacuum.pause
+                target:
+                  entity_id: vacuum.l10s_vacuum
+              - delay: 00:00:10
+              - service: vacuum.return_to_base
+                target:
+                  entity_id: vacuum.l10s_vacuum
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.l10s_vacuum_on_demand
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "Family stayed home for 10 minutes; docking vacuum and disabling On-Demand."
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id in ['family_home', 'on_demand_off'] }}"
+            sequence:
+              - service: vacuum.pause
+                target:
+                  entity_id: vacuum.l10s_vacuum
+              - delay: 00:00:10
+              - service: vacuum.return_to_base
+                target:
+                  entity_id: vacuum.l10s_vacuum
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.l10s_vacuum_on_demand
+              - service: script.send_to_logbook
+                data:
+                  topic: "VACUUM"
+                  message: "Family home; docking vacuum and disabling On-Demand."
 
   - alias: 'Away Vacuum: Confirm Room Cleaned'
     id: c581c570-55b0-4acd-8b5d-53cfb486cc2a
