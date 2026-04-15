@@ -138,7 +138,11 @@ automation:
           diagnostics: "scheduled_time=03:15:00"
           request: >-
             Run OneNote duplicate cleanup and apply deletions.
-            Include delete reconciliation, then send a brief conversational morning summary.
+            Start with any dependency check needed before cleanup or delete reconciliation.
+            If cleanup does not finish cleanly or index health is not confirmed, report back with:
+            Headline: Cleanup did not finish cleanly; index health is not confirmed.
+            Action: Retry cleanup after dependency check.
+            Otherwise include delete reconciliation, then send a brief conversational morning summary.
             Tell me whether cleanup finished and whether anything actually changed.
             Only include detailed counts or backend metrics if pages were removed, something failed, or you need my attention.
 
