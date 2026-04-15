@@ -6,6 +6,9 @@
 # Alexa Media Player - Sensors and notifications via Alexa Media integration.
 #  Track Alexa media state and expose routine/command triggers.
 # -------------------------------------------------------------------
+# Related Issue: 858
+# Notes: Wrapper wake-alarm sensors normalize Alexa Media `next_alarm` IDs.
+# Notes: Current wake-alarm scope is limited to Carlo Bedroom + Stacey Bedroom.
 ######################################################################
 
 template:
@@ -14,3 +17,132 @@ template:
         unique_id: last_alexa
         state: >
           {{ states.media_player | selectattr('attributes.last_called','eq',True) | map(attribute='entity_id') | first | default('none') }}
+      - name: "Carlo Bedroom Wake Alarm"
+        unique_id: carlo_bedroom_wake_alarm
+        device_class: timestamp
+        icon: mdi:alarm
+        state: >
+          {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+          {% set primary = states('sensor.carlo_bedroom_next_alarm') %}
+          {% set secondary = states('sensor.carlo_bedroom_next_alarm_2') %}
+          {% set value = primary if primary not in invalid else secondary %}
+          {% set ts = as_timestamp(value, none) %}
+          {{ ts | timestamp_local if ts is not none else none }}
+      - name: "Stacey Bedroom Wake Alarm"
+        unique_id: stacey_bedroom_wake_alarm
+        device_class: timestamp
+        icon: mdi:alarm
+        state: >
+          {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+          {% set primary = states('sensor.stacey_bedroom_next_alarm') %}
+          {% set secondary = states('sensor.stacey_bedroom_next_alarm_2') %}
+          {% set value = primary if primary not in invalid else secondary %}
+          {% set ts = as_timestamp(value, none) %}
+          {{ ts | timestamp_local if ts is not none else none }}
+      - name: "Bedroom Next Wake Alarm"
+        unique_id: bedroom_next_wake_alarm
+        device_class: timestamp
+        icon: mdi:alarm
+        state: >
+          {% set now_ts = as_timestamp(now()) %}
+          {% set max_ts = now_ts + 172800 %}
+          {% set carlo_raw = states('sensor.carlo_bedroom_next_alarm') %}
+          {% set carlo_fallback = states('sensor.carlo_bedroom_next_alarm_2') %}
+          {% set stacey_raw = states('sensor.stacey_bedroom_next_alarm') %}
+          {% set stacey_fallback = states('sensor.stacey_bedroom_next_alarm_2') %}
+          {% set carlo_ts = as_timestamp(carlo_raw, none) if carlo_raw not in ['unknown', 'unavailable', 'none', ''] else as_timestamp(carlo_fallback, none) %}
+          {% set stacey_ts = as_timestamp(stacey_raw, none) if stacey_raw not in ['unknown', 'unavailable', 'none', ''] else as_timestamp(stacey_fallback, none) %}
+          {% set carlo_ok = carlo_ts is not none and carlo_ts >= (now_ts - 900) and carlo_ts <= max_ts %}
+          {% set stacey_ok = stacey_ts is not none and stacey_ts >= (now_ts - 900) and stacey_ts <= max_ts %}
+          {% if carlo_ok and stacey_ok %}
+            {{ [carlo_ts, stacey_ts] | min | timestamp_local }}
+          {% elif carlo_ok %}
+            {{ carlo_ts | timestamp_local }}
+          {% elif stacey_ok %}
+            {{ stacey_ts | timestamp_local }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+      - name: "Bedroom Next Wake Alarm Source"
+        unique_id: bedroom_next_wake_alarm_source
+        icon: mdi:account-voice
+        state: >
+          {% set now_ts = as_timestamp(now()) %}
+          {% set max_ts = now_ts + 172800 %}
+          {% set carlo_raw = states('sensor.carlo_bedroom_next_alarm') %}
+          {% set carlo_fallback = states('sensor.carlo_bedroom_next_alarm_2') %}
+          {% set stacey_raw = states('sensor.stacey_bedroom_next_alarm') %}
+          {% set stacey_fallback = states('sensor.stacey_bedroom_next_alarm_2') %}
+          {% set carlo_ts = as_timestamp(carlo_raw, none) if carlo_raw not in ['unknown', 'unavailable', 'none', ''] else as_timestamp(carlo_fallback, none) %}
+          {% set stacey_ts = as_timestamp(stacey_raw, none) if stacey_raw not in ['unknown', 'unavailable', 'none', ''] else as_timestamp(stacey_fallback, none) %}
+          {% set carlo_ok = carlo_ts is not none and carlo_ts >= (now_ts - 900) and carlo_ts <= max_ts %}
+          {% set stacey_ok = stacey_ts is not none and stacey_ts >= (now_ts - 900) and stacey_ts <= max_ts %}
+          {% if carlo_ok and stacey_ok %}
+            {{ 'Carlo Bedroom' if carlo_ts <= stacey_ts else 'Stacey Bedroom' }}
+          {% elif carlo_ok %}
+            Carlo Bedroom
+          {% elif stacey_ok %}
+            Stacey Bedroom
+          {% else %}
+            none
+          {% endif %}
+      - name: "Bedroom Next Wake Alarm Minutes"
+        unique_id: bedroom_next_wake_alarm_minutes
+        unit_of_measurement: min
+        state_class: measurement
+        icon: mdi:timer-outline
+        state: >
+          {% set now_ts = as_timestamp(now()) %}
+          {% set max_ts = now_ts + 172800 %}
+          {% set carlo_raw = states('sensor.carlo_bedroom_next_alarm') %}
+          {% set carlo_fallback = states('sensor.carlo_bedroom_next_alarm_2') %}
+          {% set stacey_raw = states('sensor.stacey_bedroom_next_alarm') %}
+          {% set stacey_fallback = states('sensor.stacey_bedroom_next_alarm_2') %}
+          {% set carlo_ts = as_timestamp(carlo_raw, none) if carlo_raw not in ['unknown', 'unavailable', 'none', ''] else as_timestamp(carlo_fallback, none) %}
+          {% set stacey_ts = as_timestamp(stacey_raw, none) if stacey_raw not in ['unknown', 'unavailable', 'none', ''] else as_timestamp(stacey_fallback, none) %}
+          {% set carlo_ok = carlo_ts is not none and carlo_ts >= (now_ts - 900) and carlo_ts <= max_ts %}
+          {% set stacey_ok = stacey_ts is not none and stacey_ts >= (now_ts - 900) and stacey_ts <= max_ts %}
+          {% if carlo_ok and stacey_ok %}
+            {{ ((([carlo_ts, stacey_ts] | min) - now_ts) / 60) | round(0) }}
+          {% elif carlo_ok %}
+            {{ ((carlo_ts - now_ts) / 60) | round(0) }}
+          {% elif stacey_ok %}
+            {{ ((stacey_ts - now_ts) / 60) | round(0) }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+  - binary_sensor:
+      - name: "Carlo Bedroom Wake Alarm Armed"
+        unique_id: carlo_bedroom_wake_alarm_armed
+        icon: mdi:alarm-check
+        state: >
+          {% set now_ts = as_timestamp(now()) %}
+          {% set max_ts = now_ts + 172800 %}
+          {% set primary = states('sensor.carlo_bedroom_next_alarm') %}
+          {% set secondary = states('sensor.carlo_bedroom_next_alarm_2') %}
+          {% set value = primary if primary not in ['unknown', 'unavailable', 'none', ''] else secondary %}
+          {% set ts = as_timestamp(value, none) %}
+          {{ ts is not none and ts >= now_ts and ts <= max_ts }}
+      - name: "Stacey Bedroom Wake Alarm Armed"
+        unique_id: stacey_bedroom_wake_alarm_armed
+        icon: mdi:alarm-check
+        state: >
+          {% set now_ts = as_timestamp(now()) %}
+          {% set max_ts = now_ts + 172800 %}
+          {% set primary = states('sensor.stacey_bedroom_next_alarm') %}
+          {% set secondary = states('sensor.stacey_bedroom_next_alarm_2') %}
+          {% set value = primary if primary not in ['unknown', 'unavailable', 'none', ''] else secondary %}
+          {% set ts = as_timestamp(value, none) %}
+          {{ ts is not none and ts >= now_ts and ts <= max_ts }}
+      - name: "Bedroom Next Wake Alarm Armed"
+        unique_id: bedroom_next_wake_alarm_armed
+        icon: mdi:alarm-check
+        state: >
+          {{ states('sensor.bedroom_next_wake_alarm') not in ['unknown', 'unavailable', 'none', ''] }}
+      - name: "Bedroom Next Wake Alarm Active"
+        unique_id: bedroom_next_wake_alarm_active
+        icon: mdi:alarm-light
+        state: >
+          {% set next_alarm = as_timestamp(states('sensor.bedroom_next_wake_alarm'), none) %}
+          {% set now_ts = as_timestamp(now()) %}
+          {{ next_alarm is not none and now_ts >= next_alarm and now_ts <= (next_alarm + 900) }}
