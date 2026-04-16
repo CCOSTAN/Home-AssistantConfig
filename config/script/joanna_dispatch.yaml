@@ -4,11 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Joanna Dispatch - Shared BearClaw dispatch helper for automations
-#  Normalizes remediation context and forwards requests via bearclaw_command.
+#  Normalizes remediation context and forwards requests via BearClaw v2 intake.
 # -------------------------------------------------------------------
 # Notes: Keep this helper generic so package automations can reuse one schema.
 # Notes: Source defaults to home_assistant_automation.unknown when omitted.
 # Notes: Automation dispatches are async_only by default so HA calls return quickly while BearClaw works in queue.
+# Notes: HA is a dispatcher/integration here; Telegram transport ownership lives in docker_17/codex_appliance.
 ######################################################################
 
 joanna_dispatch:

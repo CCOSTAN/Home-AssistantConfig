@@ -3,20 +3,17 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# BearClaw Bridge - Telegram and webhook glue for Joanna agent
-#  Routes Telegram -> codex_appliance and codex_appliance -> Telegram/HA.
+# BearClaw Integration - Home Assistant dispatch + lifecycle callbacks
+#  Home Assistant dispatches jobs to codex_appliance and receives structured lifecycle callbacks.
 # -------------------------------------------------------------------
-# Notes: Keep BearClaw transport + bridge logic centralized in this package.
+# Notes: Telegram ingress now lives directly in docker_17/codex_appliance.
 # Notes: Most BearClaw decision logic runs in docker_17/codex_appliance (server.js).
 # Notes: GitHub capture behavior (issue creation/labels/research flow) belongs in codex_appliance, not HA YAML.
 # Notes: Shared script helper `script.joanna_dispatch` lives in config/script/joanna_dispatch.yaml.
-# Notes: Telegram inline button callbacks are handled here and mapped to BearClaw commands.
-# Notes: Inbound Telegram handling enforces user_id + chat_id allowlists from secrets CSV values.
-# Notes: Reply webhook writes JOANNA activity entries to logbook for traceability.
-# Notes: Non-urgent autonomous Joanna Telegram replies are suppressed during quiet hours (23:00-08:00) unless the appliance marks `quiet_hours_bypass`; urgent levels and Telegram-initiated conversations still deliver immediately.
+# Notes: The callback webhook writes JOANNA activity entries to logbook for traceability and optional HA alerts.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
 # Notes: Nightly Duplicati verification calls a codex_appliance admin endpoint and returns structured health to HA via response_variable.
-# Notes: Telegram freeform input now includes LLM-first routing context to improve intent understanding before entity lookups.
+# Notes: v2 intake is the primary HA contract; legacy command/ingest routes remain appliance-side shims.
 # Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
@@ -31,11 +28,28 @@ rest_command:
       x-codex-token: !secret bearclaw_token
     payload: >
       {
-        "text": {{ text | tojson }},
-        "user": {{ user | default('carlo') | tojson }},
+        "kind": "command",
+        "transport": "ha",
         "source": {{ source | default('home_assistant') | tojson }},
-        "context": {{ context | default(none) | tojson }},
-        "callback": {{ callback | default(none) | tojson }},
+        "actor": {
+          "id": {{ user | default('carlo') | tojson }}
+        },
+        "conversation": {
+          "id": {{ source | default('home_assistant') | tojson }},
+          "type": "automation"
+        },
+        "input": {
+          "text": {{ text | tojson }},
+          "context": {{ context | default(none) | tojson }},
+          "callback": {{ callback | default(none) | tojson }}
+        },
+        "replyTargets": [
+          {
+            "type": "ha",
+            "callbackEventType": "lifecycle"
+          }
+        ],
+        "priority": {{ priority | default(none) | tojson }},
         "async_only": {{ async_only | default(false) | tojson }}
       }
 
@@ -47,9 +61,26 @@ rest_command:
       x-codex-token: !secret bearclaw_token
     payload: >
       {
-        "summary": {{ summary | default('event') | tojson }},
-        "wake": {{ wake | default(false) | tojson }},
-        "source": "home_assistant"
+        "kind": "event",
+        "transport": "ha",
+        "source": "homeassistant",
+        "actor": {
+          "id": "system"
+        },
+        "conversation": {
+          "id": "homeassistant",
+          "type": "automation"
+        },
+        "input": {
+          "text": {{ summary | default('event') | tojson }},
+          "event": {
+            "summary": {{ summary | default('event') | tojson }},
+            "wake": {{ wake | default(false) | tojson }},
+            "priority": {{ priority | default(none) | tojson }},
+            "source": "homeassistant"
+          }
+        },
+        "replyTargets": []
       }
 
   bearclaw_duplicati_verify:
@@ -62,6 +93,22 @@ rest_command:
     payload: >
       {
         "reason": {{ reason | default('home_assistant') | tojson }}
+      }
+
+  bearclaw_telegram_send:
+    url: !secret bearclaw_telegram_send_url
+    method: post
+    timeout: 30
+    content_type: application/json
+    headers:
+      x-codex-token: !secret bearclaw_token
+    payload: >
+      {
+        "message": {{ message | tojson }},
+        "parse_mode": {{ parse_mode | default('plain_text') | tojson }},
+        "disable_web_page_preview": {{ disable_web_page_preview | default(true) | tojson }},
+        "chat_id": {{ chat_id | default(none) | tojson }},
+        "user": {{ user | default('carlo') | tojson }}
       }
 sensor:
   - platform: rest
@@ -78,6 +125,8 @@ sensor:
       - dispatchStats
       - queue
       - active
+      - platform
+      - transports
       - qmdHealth
       - memoryIndex
 
@@ -264,224 +313,9 @@ template:
           {% set memory = state_attr('sensor.bearclaw_status_telemetry', 'memoryIndex') | default({}, true) %}
           {{ memory.get('stale', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
 automation:
-  - id: bearclaw_telegram_bear_command
-    alias: BearClaw Telegram Bear Command
-    description: Handles /bear commands and forwards text to Joanna.
-    mode: queued
-    trigger:
-      - platform: event
-        event_type: telegram_command
-        event_data:
-          command: /bear
-    variables:
-      allowed_user_ids_csv: !secret bearclaw_allowed_telegram_user_ids
-      allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
-    condition:
-      - condition: template
-        value_template: >-
-          {% set has_user = trigger.event.data.user_id is defined %}
-          {% set has_chat = trigger.event.data.chat_id is defined %}
-          {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
-          {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
-          {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
-          {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
-          {{ has_user and has_chat and allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats }}
-    action:
-      - variables:
-          command_text: "{{ (trigger.event.data.args | default([])) | join(' ') | trim }}"
-          from_user: "{{ (trigger.event.data.from_first | default('carlo')) | lower }}"
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ command_text == '' }}"
-            sequence:
-              - service: telegram_bot.send_message
-                data:
-                  chat_id: !secret telegram_allowed_chat_id_carlo
-                  message: "Choose a BearClaw action or send /bear <message>."
-                  parse_mode: plain_text
-                  disable_web_page_preview: true
-                  inline_keyboard:
-                    - "Status:/bear_status, Add to GitHub:/bear_github_help"
-        default:
-          - service: rest_command.bearclaw_command
-            data:
-              text: "{{ command_text }}"
-              user: "{{ from_user }}"
-              source: telegram_command
-
-  - id: bearclaw_telegram_callback_actions
-    alias: BearClaw Telegram Callback Actions
-    description: Handles BearClaw Telegram inline button callbacks.
-    mode: queued
-    trigger:
-      - platform: event
-        event_type: telegram_callback
-    variables:
-      allowed_user_ids_csv: !secret bearclaw_allowed_telegram_user_ids
-      allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
-    condition:
-      - condition: template
-        value_template: >-
-          {% set has_user = trigger.event.data.user_id is defined %}
-          {% set has_chat = trigger.event.data.chat_id is defined %}
-          {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
-          {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
-          {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
-          {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
-          {% set cb = trigger.event.data.data | default('') %}
-          {{ has_user and has_chat and allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats and (cb.startswith('/bear_') or cb.startswith('/bc_')) }}
-    action:
-      - variables:
-          callback_id: "{{ trigger.event.data.id | default('') }}"
-          callback_data: "{{ trigger.event.data.data | default('') | trim }}"
-          from_user: "{{ (trigger.event.data.from_first | default('carlo')) | lower }}"
-          callback_payload: "{{ callback_data[6:] if callback_data.startswith('/bear_') else '' }}"
-          callback_parts: "{{ callback_payload.split('_') if callback_payload | length > 0 else [] }}"
-          action_name: "{{ callback_parts[0] if callback_parts | count > 0 else '' }}"
-          job_id: "{{ callback_parts[1:] | join('_') if callback_parts | count > 1 else '' }}"
-      - service: telegram_bot.answer_callback_query
-        continue_on_error: true
-        data:
-          callback_query_id: "{{ callback_id }}"
-          message: "Processing..."
-          show_alert: false
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ callback_data.startswith('/bc_') }}"
-            sequence:
-              - service: rest_command.bearclaw_command
-                data:
-                  text: ""
-                  user: "{{ from_user }}"
-                  source: telegram_callback
-                  callback:
-                    token: "{{ callback_data[4:] }}"
-                    raw: "{{ callback_data }}"
-                    chat_id: "{{ trigger.event.data.chat_id | default('') }}"
-                    callback_id: "{{ callback_id }}"
-                    message_id: "{{ trigger.event.data.message.message_id if trigger.event.data.message is defined and trigger.event.data.message.message_id is defined else '' }}"
-          - conditions:
-              - condition: template
-                value_template: "{{ action_name == 'status' }}"
-            sequence:
-              - service: rest_command.bearclaw_command
-                data:
-                  text: "{{ 'status ' ~ job_id if job_id | length > 0 else 'status' }}"
-                  user: "{{ from_user }}"
-                  source: telegram_callback
-          - conditions:
-              - condition: template
-                value_template: "{{ action_name == 'cancel' and job_id | length > 0 }}"
-            sequence:
-              - service: rest_command.bearclaw_command
-                data:
-                  text: "{{ 'cancel ' ~ job_id }}"
-                  user: "{{ from_user }}"
-                  source: telegram_callback
-          - conditions:
-              - condition: template
-                value_template: "{{ action_name == 'github_help' }}"
-            sequence:
-              - service: script.joanna_send_telegram
-                data:
-                  message: >-
-                    To create a GitHub capture, send:
-                    add to github <short topic>
-                    Example: add to github Evaluate Smart Home Planner HACS app
-          - conditions:
-              - condition: template
-                value_template: "{{ action_name == 'yes' }}"
-            sequence:
-              - service: rest_command.bearclaw_command
-                data:
-                  text: "{{ 'yes ' ~ job_id if job_id | length > 0 else 'Yes.' }}"
-                  user: "{{ from_user }}"
-                  source: telegram_callback
-          - conditions:
-              - condition: template
-                value_template: "{{ action_name == 'no' }}"
-            sequence:
-              - service: rest_command.bearclaw_command
-                data:
-                  text: "{{ 'no ' ~ job_id if job_id | length > 0 else 'No.' }}"
-                  user: "{{ from_user }}"
-                  source: telegram_callback
-        default:
-          - service: script.joanna_send_telegram
-            data:
-              message: "Unknown BearClaw button action. Try /bear to open the menu."
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.message is defined and trigger.event.data.message.message_id is defined }}"
-            sequence:
-              - service: telegram_bot.edit_replymarkup
-                continue_on_error: true
-                data:
-                  chat_id: "{{ trigger.event.data.chat_id }}"
-                  message_id: "{{ trigger.event.data.message.message_id }}"
-                  inline_keyboard: []
-
-  - id: bearclaw_telegram_text_no_slash_needed
-    alias: BearClaw Telegram Text No Slash Needed
-    description: Treats plain Telegram text as BearClaw command input and forwards LLM-first routing context.
-    mode: queued
-    trigger:
-      - platform: event
-        event_type: telegram_text
-    variables:
-      allowed_user_ids_csv: !secret bearclaw_allowed_telegram_user_ids
-      allowed_chat_ids_csv: !secret bearclaw_allowed_telegram_chat_ids
-    condition:
-      - condition: template
-        value_template: >-
-          {% set has_user = trigger.event.data.user_id is defined %}
-          {% set has_chat = trigger.event.data.chat_id is defined %}
-          {% set allowed_users = (allowed_user_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
-          {% set allowed_chats = (allowed_chat_ids_csv | default('', true) | string).split(',') | map('trim') | reject('equalto', '') | list %}
-          {% set incoming_user = trigger.event.data.user_id | default('') | string | trim %}
-          {% set incoming_chat = trigger.event.data.chat_id | default('') | string | trim %}
-          {% set plain_text = trigger.event.data.text | default('') | trim %}
-          {{ has_user and has_chat and allowed_users | count > 0 and allowed_chats | count > 0 and incoming_user in allowed_users and incoming_chat in allowed_chats and plain_text != '' and not plain_text.startswith('/') }}
-    action:
-      - variables:
-          plain_text: "{{ trigger.event.data.text | default('') | trim }}"
-          plain_text_lower: "{{ plain_text | lower }}"
-          from_user: "{{ (trigger.event.data.from_first | default('carlo')) | lower }}"
-          command_like_request: >-
-            {% set action_verbs = ['disable', 'enable', 'turn off', 'turn on', 'stop', 'start', 'restart', 'review', 'fix', 'change', 'update', 'set', 'open', 'close'] %}
-            {{ action_verbs | select('in', plain_text_lower) | list | count > 0 }}
-          status_like_request: >-
-            {{ (plain_text_lower.startswith('is ')
-                or plain_text_lower.startswith('are ')
-                or plain_text_lower.startswith('what is ')
-                or plain_text_lower.startswith("what's ")
-                or ' status' in plain_text_lower
-                or plain_text_lower.startswith('status '))
-                and not command_like_request }}
-          llm_route_hint: >-
-            {% if command_like_request %}
-              llm_first_action
-            {% elif status_like_request %}
-              llm_first_status
-            {% else %}
-              llm_first_general
-            {% endif %}
-          llm_context: >-
-            telegram_freeform route={{ llm_route_hint | trim }}.
-            Prefer LLM intent interpretation and clarification for action or automation requests before returning entity status.
-      - service: rest_command.bearclaw_command
-        data:
-          text: "{{ plain_text }}"
-          user: "{{ from_user }}"
-          source: telegram_text
-          context: "{{ llm_context | trim }}"
-
-  - id: bearclaw_reply_webhook
-    alias: BearClaw Reply Webhook
-    description: Receives BearClaw replies from codex_appliance and relays to Telegram/HA push.
+  - id: bearclaw_lifecycle_webhook
+    alias: BearClaw Lifecycle Webhook
+    description: Receives structured BearClaw lifecycle callbacks for HA-triggered work.
     mode: queued
     trigger:
       - platform: webhook
@@ -491,77 +325,39 @@ automation:
         local_only: true
     action:
       - variables:
-          message: "{{ trigger.json.message | default('Joanna: empty reply') }}"
-          telegram_message: "{{ trigger.json.telegram_message | default(message, true) }}"
-          telegram_parse_mode: >-
-            {% set raw = trigger.json.telegram_parse_mode | default('plain_text', true) | string | lower | trim %}
-            {% if raw in ['html', 'plain_text'] %}
-              {{ raw }}
-            {% else %}
-              plain_text
-            {% endif %}
-          telegram_disable_preview: "{{ trigger.json.disable_web_page_preview | default(true, true) }}"
-          level: "{{ trigger.json.level | default('active') | lower }}"
-          reply_source: "{{ trigger.json.source | default('', true) | string | lower | trim }}"
-          quiet_hours_bypass: >-
-            {{ trigger.json.quiet_hours_bypass | default(false, true) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
-          quiet_hours_active: >-
-            {% set now_time = now().strftime('%H:%M:%S') %}
-            {{ now_time >= '23:00:00' or now_time < '08:00:00' }}
-          should_send_telegram: >-
-            {% set user_initiated = reply_source in ['telegram_command', 'telegram_callback', 'telegram_text'] %}
-            {% set urgent = level in ['warning', 'error', 'critical'] %}
-            {% set quiet = quiet_hours_active in [true, 'true', 'True', 'on', 'yes', 1, '1'] %}
-            {{ quiet_hours_bypass or user_initiated or urgent or not quiet }}
-          inline_keyboard_payload: >-
-            {% set kb = trigger.json.inline_keyboard if trigger.json.inline_keyboard is defined else none %}
-            {% if kb is string %}
-              {{ kb | trim }}
-            {% elif kb is sequence and kb is not string and (kb | count) > 0 %}
-              {{ kb | map('string') | map('trim') | reject('equalto', '') | list | join('\n') }}
-            {% else %}
-              {{ '' }}
-            {% endif %}
+          event_type: "{{ trigger.json.event_type | default('progress') | lower }}"
+          status: "{{ trigger.json.status | default(event_type, true) | lower }}"
+          source: "{{ trigger.json.source | default('homeassistant', true) | string | lower | trim }}"
+          severity: "{{ trigger.json.severity | default('active', true) | string | lower | trim }}"
+          summary: "{{ trigger.json.summary | default('Joanna lifecycle callback', true) }}"
+          message: "{{ trigger.json.message | default(summary, true) }}"
+          job_id: "{{ trigger.json.job_id | default('', true) }}"
+          run_id: "{{ trigger.json.run_id | default('', true) }}"
           logbook_message: >-
-            {% set compact = message | replace('\r', ' ') | replace('\n', ' ') | trim %}
+            {% set compact = (event_type ~ ' | ' ~ summary ~ ' | ' ~ message) | replace('\r', ' ') | replace('\n', ' ') | trim %}
             {% if compact | length > 240 %}
               {{ compact[:237] ~ '...' }}
             {% else %}
               {{ compact }}
             {% endif %}
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ should_send_telegram }}"
-              - condition: template
-                value_template: "{{ inline_keyboard_payload | length > 0 }}"
-            sequence:
-              - service: telegram_bot.send_message
-                data:
-                  chat_id: !secret telegram_allowed_chat_id_carlo
-                  message: "{{ telegram_message }}"
-                  parse_mode: "{{ telegram_parse_mode }}"
-                  disable_web_page_preview: "{{ telegram_disable_preview }}"
-                  inline_keyboard: "{{ inline_keyboard_payload }}"
-          - conditions:
-              - condition: template
-                value_template: "{{ should_send_telegram }}"
-            sequence:
-              - service: script.joanna_send_telegram
-                data:
-                  message: "{{ telegram_message }}"
-                  parse_mode: "{{ telegram_parse_mode }}"
-                  disable_web_page_preview: "{{ telegram_disable_preview }}"
       - service: script.send_to_logbook
         data:
           topic: JOANNA
-          message: "{{ level | upper }}: {{ logbook_message }}"
+          message: "{{ status | upper }}: {{ logbook_message }}"
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ level in ['warning', 'error', 'critical'] }}"
+                value_template: "{{ severity in ['warning', 'error', 'critical'] or status in ['failed', 'canceled'] }}"
             sequence:
               - service: script.notify_engine
                 data:
                   title: Joanna Alert
-                  value1: "{{ message }}"
+                  value1: >-
+                    {{ summary }}
+                    {% if job_id | trim != '' %}
+                      (job={{ job_id }})
+                    {% endif %}
+                    {% if run_id | trim != '' %}
+                      run={{ run_id }}
+                    {% endif %}
+                    {{ '\n' ~ message if message | trim != '' else '' }}
