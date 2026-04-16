@@ -13,6 +13,7 @@
 # Notes: Telegram inline button callbacks are handled here and mapped to BearClaw commands.
 # Notes: Inbound Telegram handling enforces user_id + chat_id allowlists from secrets CSV values.
 # Notes: Reply webhook writes JOANNA activity entries to logbook for traceability.
+# Notes: Non-urgent autonomous Joanna Telegram replies are suppressed during quiet hours (23:00-08:00) unless the appliance marks `quiet_hours_bypass`; urgent levels and Telegram-initiated conversations still deliver immediately.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
 # Notes: Nightly Duplicati verification calls a codex_appliance admin endpoint and returns structured health to HA via response_variable.
 # Notes: Telegram freeform input now includes LLM-first routing context to improve intent understanding before entity lookups.
@@ -501,6 +502,17 @@ automation:
             {% endif %}
           telegram_disable_preview: "{{ trigger.json.disable_web_page_preview | default(true, true) }}"
           level: "{{ trigger.json.level | default('active') | lower }}"
+          reply_source: "{{ trigger.json.source | default('', true) | string | lower | trim }}"
+          quiet_hours_bypass: >-
+            {{ trigger.json.quiet_hours_bypass | default(false, true) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
+          quiet_hours_active: >-
+            {% set now_time = now().strftime('%H:%M:%S') %}
+            {{ now_time >= '23:00:00' or now_time < '08:00:00' }}
+          should_send_telegram: >-
+            {% set user_initiated = reply_source in ['telegram_command', 'telegram_callback', 'telegram_text'] %}
+            {% set urgent = level in ['warning', 'error', 'critical'] %}
+            {% set quiet = quiet_hours_active in [true, 'true', 'True', 'on', 'yes', 1, '1'] %}
+            {{ quiet_hours_bypass or user_initiated or urgent or not quiet }}
           inline_keyboard_payload: >-
             {% set kb = trigger.json.inline_keyboard if trigger.json.inline_keyboard is defined else none %}
             {% if kb is string %}
@@ -520,6 +532,8 @@ automation:
       - choose:
           - conditions:
               - condition: template
+                value_template: "{{ should_send_telegram }}"
+              - condition: template
                 value_template: "{{ inline_keyboard_payload | length > 0 }}"
             sequence:
               - service: telegram_bot.send_message
@@ -529,12 +543,15 @@ automation:
                   parse_mode: "{{ telegram_parse_mode }}"
                   disable_web_page_preview: "{{ telegram_disable_preview }}"
                   inline_keyboard: "{{ inline_keyboard_payload }}"
-        default:
-          - service: script.joanna_send_telegram
-            data:
-              message: "{{ telegram_message }}"
-              parse_mode: "{{ telegram_parse_mode }}"
-              disable_web_page_preview: "{{ telegram_disable_preview }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ should_send_telegram }}"
+            sequence:
+              - service: script.joanna_send_telegram
+                data:
+                  message: "{{ telegram_message }}"
+                  parse_mode: "{{ telegram_parse_mode }}"
+                  disable_web_page_preview: "{{ telegram_disable_preview }}"
       - service: script.send_to_logbook
         data:
           topic: JOANNA
