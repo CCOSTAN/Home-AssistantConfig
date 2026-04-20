@@ -14,6 +14,7 @@
 # Notes: Weekly Joanna reconcile checks discovered container switches vs configured group members.
 # Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
 # Notes: Outage escalation keys off the configured monitored group so host-wide telemetry drops do not fall out of scope before the delayed Joanna dispatch runs.
+# Notes: Weekly reconcile should replace retired container-name switches with the current container-ID-prefixed discovery set.
 ######################################################################
 
 input_datetime:
@@ -73,10 +74,6 @@ switch:
     name: Docker Monitored Containers
     unique_id: docker_monitored_containers
     entities:
-      - switch.3a446393a8c5_dozzle_container
-      - switch.5b3503372936_wordpress_db_container
-      - switch.7a83770eb321_rc_price_checker_container
-      - switch.91aca40203c0_portainer_agent_container
       - switch.cloudflared_kch_container
       - switch.cloudflared_kch_container_2
       - switch.cloudflared_wp_container
@@ -95,17 +92,14 @@ switch:
       - switch.dozzle_agent_10_container_2
       - switch.dozzle_agent_14_container
       - switch.dozzle_agent_14_container_2
-      - switch.dozzle_agent_17_container
-      - switch.dozzle_agent_17_container_2
+      - switch.39394ec38d4c_dozzle_container
+      - switch.7cf71db3325d_dozzle_agent_17_container
       - switch.dozzle_agent_69_container
       - switch.dozzle_agent_69_container_2
-      - switch.dozzle_container
-      - switch.dozzle_container_2
       - switch.duplicati_container
       - switch.duplicati_container_2
       - switch.esphome_container
       - switch.esphome_container_2
-      - switch.fed437a0f191_tugtainer_socket_proxy_container
       - switch.foodie_tracker_container
       - switch.foodie_tracker_container_2
       - switch.frigate_container
@@ -134,7 +128,6 @@ switch:
       - switch.nebula_sync_container_2
       - switch.onenote_indexer_container
       - switch.onenote_indexer_container_2
-      - switch.optimistic_mclaren_container
       - switch.panel_notes_container
       - switch.panel_notes_container_2
       - switch.pihole_container
@@ -143,32 +136,20 @@ switch:
       - switch.pihole_secondary_container_2
       - switch.poker_tracker_container
       - switch.poker_tracker_container_2
-      - switch.portainer_agent_69_container
-      - switch.portainer_agent_container
-      - switch.portainer_agent_container_2
       - switch.portainer_container
       - switch.portainer_container_2
       - switch.postgres_webhooks_engine_container
       - switch.postgres_webhooks_engine_container_2
-      - switch.rc_price_checker_container
-      - switch.rc_price_checker_container_2
       - switch.redis_webhooks_engine_container
       - switch.redis_webhooks_engine_container_2
       - switch.rvtools_ppt_web_container
       - switch.rvtools_ppt_web_container_2
-      - switch.steelesharing_home_container
       - switch.tapple_container
       - switch.tapple_container_2
-      - switch.tugtainer_agent_14_container
-      - switch.tugtainer_agent_17_container
-      - switch.tugtainer_agent_69_container
       - switch.tugtainer_agent_container
       - switch.tugtainer_agent_container_2
       - switch.tugtainer_container
       - switch.tugtainer_container_2
-      - switch.tugtainer_socket_proxy_14_container
-      - switch.tugtainer_socket_proxy_17_container
-      - switch.tugtainer_socket_proxy_69_container
       - switch.tugtainer_socket_proxy_container
       - switch.tugtainer_socket_proxy_container_2
       - switch.unifi_container
