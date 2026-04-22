@@ -34,7 +34,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 - **Packages (`packages/`)** – complete subsystems that bundle sensors, switches, automations, scripts, and lovelace assets for a single feature (alarm, garage, water shutoff, etc.).
 - **Container updates** – `packages/tugtainer_updates.yaml` logs container updates from Tugtainer into Home Assistant persistent notifications.
 - **Automations (`automation/`)** – event-driven YAML broken out by area or device; the legacy `automations.yaml` remains for UI-created flows.
-- **Scripts & scenes (`script/`, `scene/`)** – curated lighting and ambiance logic used by presence, holiday, and seasonal routines.
+- **Scripts & scenes (`script/`, `scene/`)** – curated lighting, notification, and AGENT engineer handoff helpers used by presence, holiday, seasonal, and infrastructure routines.
 - **Templates (`templates/`)** – Jinja helpers and speech templates reused by the notify/speech engines.
 - **Dashboards (`dashboards/`)** – YAML-managed Lovelace dashboards and UI resources (generated from storage, then maintained as code).
 - **www/ + custom components** – branding assets, floorplans, and any custom components the core install depends on.
@@ -44,7 +44,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 | --- | --- | --- |
 | Packages | Self-contained subsystems that highlight patterns like combined alerts + actions. | [packages/alarm.yaml](packages/alarm.yaml), [packages/garadget.yaml](packages/garadget.yaml), [packages/powerwall.yaml](packages/powerwall.yaml) |
 | Automations | Real-world triggers that tie Zwave, MQTT, and REST sensors into the rest of the house. | [automation/garage_entry_light.yaml](automation/garage_entry_light.yaml), [automation/dark_rainy_day.yaml](automation/dark_rainy_day.yaml), [automation/dash_buttons.yaml](automation/dash_buttons.yaml) |
-| Scripts | Reusable building blocks for lighting, notifications, and safety responses. | [script/monthly_color_scene.yaml](script/monthly_color_scene.yaml), [script/notify_engine.yaml](script/notify_engine.yaml), [script/speech_engine.yaml](script/speech_engine.yaml) |
+| Scripts | Reusable building blocks for lighting, notifications, safety responses, and Joanna/BearClaw remediation dispatch. | [script/joanna_dispatch.yaml](script/joanna_dispatch.yaml), [script/notify_engine.yaml](script/notify_engine.yaml), [script/speech_engine.yaml](script/speech_engine.yaml) |
 | Scenes | Seasonal and ambiance presets that the scripts and automations call into. | [scene/monthly_colors.yaml](scene/monthly_colors.yaml), [scene/living_room.yaml](scene/living_room.yaml) |
 | Templates & Speech | Human-friendly voice briefings and templated responses. | [templates/speech/briefing.yaml](templates/speech/briefing.yaml) |
 | Dashboards & Media | UI chrome, floorplans, sound bites, and automation assets. | [www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg](www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg), [media/](media) |

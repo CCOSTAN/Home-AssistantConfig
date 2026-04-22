@@ -16,7 +16,7 @@
 
 </div>
 
-Reusable scripts that other automations call for notifications, lighting, and safety responses. Pass variables in; let the script do the heavy lifting.
+Reusable scripts that other automations call for notifications, lighting, safety responses, and Joanna/BearClaw AGENT engineer handoffs. Pass variables in; let the script do the heavy lifting.
 
 ### Quick navigation
 - You are here: `config/script/` (scripts library)
@@ -30,30 +30,43 @@ Reusable scripts that other automations call for notifications, lighting, and sa
 | [notify_engine.yaml](notify_engine.yaml) | Single entrypoint for rich push notifications. |
 | [notify_live_activity.yaml](notify_live_activity.yaml) | Shared helper for tagged live activity/live update pushes and clear commands. |
 | [send_to_logbook.yaml](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
-| [joanna_dispatch.yaml](joanna_dispatch.yaml) | Shared BearClaw/Joanna dispatch schema for automation remediation requests. |
+| [joanna_dispatch.yaml](joanna_dispatch.yaml) | Shared AGENT engineer dispatch contract that routes HA-detected issues into Joanna/BearClaw remediation. |
 | [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech. |
 | [monthly_color_scene.yaml](monthly_color_scene.yaml) | Seasonal lighting scenes used across automations. |
-| [interior_off.yaml](interior_off.yaml) | One-call �all interior lights off� helper. |
+| [interior_off.yaml](interior_off.yaml) | One-call "all interior lights off" helper. |
 
-### Joanna + BearClaw automated resolution flow
-`script.joanna_dispatch` is the shared handoff contract from Home Assistant automations to BearClaw/Joanna.
+### Joanna + BearClaw AGENT engineer handoff
+`script.joanna_dispatch` is the shared handoff contract from Home Assistant automations into Joanna/BearClaw when Home Assistant detects something worth investigating or fixing.
 
 Why we use it:
 - Keeps one message schema for remediation context (`trigger_context`, `source`, `summary`, `entity_ids`, `diagnostics`, `request`).
 - Avoids repeating direct `rest_command.bearclaw_command` payload formatting in multiple packages.
+- Lets Home Assistant stay focused on detection, timing, and routing while Joanna acts as the AGENT engineer for infrastructure triage and recommended remediation.
 - Makes resolution-trigger automations easier to review, update, and audit.
+
+What the helper normalizes before the BearClaw intake call:
+- `trigger_context`, `source`, and `summary` so every dispatch has traceable origin details.
+- `entity_ids` from either a YAML list or a comma-delimited string.
+- `diagnostics` from either free text or structured mappings/sequences.
+- `request` guardrails so Joanna defaults to investigation/recommendation, not blind resets or power-cycles.
 
 Current automations that kick off automated resolutions (via `script.joanna_dispatch`):
 | Automation ID | Alias | File |
 | --- | --- | --- |
+| `github_watched_repo_scout_nightly` | GitHub Watched Repo Scout - Nightly Joanna Review | [../packages/github_watched_repo_scout.yaml](../packages/github_watched_repo_scout.yaml) |
 | `mqtt_open_repair_on_failure` | MQTT - Open Repair On Failure | [../packages/mqtt_status.yaml](../packages/mqtt_status.yaml) |
 | `onenote_indexer_daily_delete_maintenance` | OneNote Indexer - Daily Delete Maintenance Request | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
 | `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
+| `infra_backup_nightly_verification` | Infrastructure - Backup Nightly Verification | [../packages/infrastructure_observability.yaml](../packages/infrastructure_observability.yaml) |
 | `docker_state_sync_repairs_dynamic` | Docker State Sync - Repairs (Dynamic) | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
+| `docker_group_reconcile_weekly_joanna_review` | Docker Group Reconcile - Weekly Joanna Review | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `unifi_ap_no_clients_repair_combined` | Unifi AP Create Repair Issue after 5m of 0 Clients | [../packages/wireless.yaml](../packages/wireless.yaml) |
+| `synology_dsm_open_repair_and_dispatch` | Synology DSM - Open Repair And Dispatch | [../packages/synology_dsm.yaml](../packages/synology_dsm.yaml) |
+| `b16f2155-4688-4c0f-9cf8-b382e294a029` | Self Heal Disk Use Alarm | [../packages/processmonitor.yaml](../packages/processmonitor.yaml) |
+| `1ce3cb43-0e27-4c53-acdd-d672396f3559` | Disk Use Alarm | [../packages/processmonitor.yaml](../packages/processmonitor.yaml) |
 
 ### Tips
-- Keep scripts generic�route data via `data:`/`variables:` and reuse everywhere.
+- Keep scripts generic, route data via `data:`/`variables:`, and reuse everywhere.
 - If you copy a script, rename any `alias` and `id` fields to avoid duplicates.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**

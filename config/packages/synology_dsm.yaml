@@ -1,0 +1,486 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Synology DSM Monitoring - NAS health normalization + Joanna dispatch
+#  Reviews Synology DSM integration health and escalates sustained NAS problems.
+# -------------------------------------------------------------------
+# Notes: Uses native `synology_dsm` entities for Carlo-NAS01 and Carlo-NVR.
+# Notes: Joanna dispatches are reserved for integration/security/storage problems, not routine reboot/shutdown controls.
+# Notes: DSM update availability stays diagnostic context only; it does not trigger remediation by itself.
+######################################################################
+
+template:
+  - binary_sensor:
+      - name: "Carlo-NAS01 Synology Integration Problem"
+        unique_id: carlo_nas01_synology_integration_problem
+        device_class: problem
+        state: >-
+          {% set ids = [
+            'binary_sensor.carlo_nas01_security_status',
+            'sensor.carlo_nas01_volume_1_status',
+            'sensor.carlo_nas01_volume_1_volume_used',
+            'sensor.carlo_nas01_drive_1_status',
+            'sensor.carlo_nas01_drive_2_status',
+            'sensor.carlo_nas01_drive_3_status',
+            'binary_sensor.carlo_nas01_drive_1_below_min_remaining_life',
+            'binary_sensor.carlo_nas01_drive_2_below_min_remaining_life',
+            'binary_sensor.carlo_nas01_drive_3_below_min_remaining_life',
+            'binary_sensor.carlo_nas01_drive_1_exceeded_max_bad_sectors',
+            'binary_sensor.carlo_nas01_drive_2_exceeded_max_bad_sectors',
+            'binary_sensor.carlo_nas01_drive_3_exceeded_max_bad_sectors',
+            'update.carlo_nas01_dsm_update'
+          ] %}
+          {% set ns = namespace(problem=false) %}
+          {% for id in ids %}
+            {% if states(id) in ['unknown', 'unavailable'] %}
+              {% set ns.problem = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.problem }}
+
+      - name: "Carlo-NAS01 Synology Security Problem"
+        unique_id: carlo_nas01_synology_security_problem
+        device_class: problem
+        state: >-
+          {{ is_state('binary_sensor.carlo_nas01_security_status', 'on') }}
+
+      - name: "Carlo-NAS01 Synology Storage Problem"
+        unique_id: carlo_nas01_synology_storage_problem
+        device_class: problem
+        state: >-
+          {% set volume_status = states('sensor.carlo_nas01_volume_1_status') | lower %}
+          {% set volume_used_raw = states('sensor.carlo_nas01_volume_1_volume_used') %}
+          {% set volume_used = volume_used_raw | float(0) if volume_used_raw not in ['unknown', 'unavailable', 'none', ''] else 0 %}
+          {{ volume_status not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             volume_used >= 85 or
+             states('sensor.carlo_nas01_drive_1_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             states('sensor.carlo_nas01_drive_2_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             states('sensor.carlo_nas01_drive_3_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             is_state('binary_sensor.carlo_nas01_drive_1_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_2_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_3_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_1_exceeded_max_bad_sectors', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_2_exceeded_max_bad_sectors', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_3_exceeded_max_bad_sectors', 'on') }}
+
+      - name: "Carlo-NAS01 Synology Problem"
+        unique_id: carlo_nas01_synology_problem
+        device_class: problem
+        state: >-
+          {{ is_state('binary_sensor.carlo_nas01_synology_integration_problem', 'on') or
+             is_state('binary_sensor.carlo_nas01_synology_security_problem', 'on') or
+             is_state('binary_sensor.carlo_nas01_synology_storage_problem', 'on') }}
+
+      - name: "Carlo-NVR Synology Integration Problem"
+        unique_id: carlo_nvr_synology_integration_problem
+        device_class: problem
+        state: >-
+          {% set ids = [
+            'binary_sensor.carlo_nvr_security_status',
+            'sensor.carlo_nvr_volume_1_status',
+            'sensor.carlo_nvr_volume_1_volume_used',
+            'sensor.carlo_nvr_drive_1_status',
+            'sensor.carlo_nvr_drive_2_status',
+            'binary_sensor.carlo_nvr_drive_1_below_min_remaining_life',
+            'binary_sensor.carlo_nvr_drive_2_below_min_remaining_life',
+            'binary_sensor.carlo_nvr_drive_1_exceeded_max_bad_sectors',
+            'binary_sensor.carlo_nvr_drive_2_exceeded_max_bad_sectors',
+            'update.carlo_nvr_dsm_update'
+          ] %}
+          {% set ns = namespace(problem=false) %}
+          {% for id in ids %}
+            {% if states(id) in ['unknown', 'unavailable'] %}
+              {% set ns.problem = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.problem }}
+
+      - name: "Carlo-NVR Synology Security Problem"
+        unique_id: carlo_nvr_synology_security_problem
+        device_class: problem
+        state: >-
+          {{ is_state('binary_sensor.carlo_nvr_security_status', 'on') }}
+
+      - name: "Carlo-NVR Synology Storage Problem"
+        unique_id: carlo_nvr_synology_storage_problem
+        device_class: problem
+        state: >-
+          {% set volume_status = states('sensor.carlo_nvr_volume_1_status') | lower %}
+          {% set volume_used_raw = states('sensor.carlo_nvr_volume_1_volume_used') %}
+          {% set volume_used = volume_used_raw | float(0) if volume_used_raw not in ['unknown', 'unavailable', 'none', ''] else 0 %}
+          {{ volume_status not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             volume_used >= 85 or
+             states('sensor.carlo_nvr_drive_1_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             states('sensor.carlo_nvr_drive_2_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             is_state('binary_sensor.carlo_nvr_drive_1_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nvr_drive_2_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nvr_drive_1_exceeded_max_bad_sectors', 'on') or
+             is_state('binary_sensor.carlo_nvr_drive_2_exceeded_max_bad_sectors', 'on') }}
+
+      - name: "Carlo-NVR Synology Problem"
+        unique_id: carlo_nvr_synology_problem
+        device_class: problem
+        state: >-
+          {{ is_state('binary_sensor.carlo_nvr_synology_integration_problem', 'on') or
+             is_state('binary_sensor.carlo_nvr_synology_security_problem', 'on') or
+             is_state('binary_sensor.carlo_nvr_synology_storage_problem', 'on') }}
+
+  - sensor:
+      - name: "Carlo-NAS01 Synology Problem Severity"
+        unique_id: carlo_nas01_synology_problem_severity
+        state: >-
+          {% set volume_status = states('sensor.carlo_nas01_volume_1_status') | lower %}
+          {% set volume_used_raw = states('sensor.carlo_nas01_volume_1_volume_used') %}
+          {% set volume_used = volume_used_raw | float(0) if volume_used_raw not in ['unknown', 'unavailable', 'none', ''] else 0 %}
+          {% set hard_storage = volume_status not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             states('sensor.carlo_nas01_drive_1_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             states('sensor.carlo_nas01_drive_2_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             states('sensor.carlo_nas01_drive_3_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             is_state('binary_sensor.carlo_nas01_drive_1_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_2_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_3_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_1_exceeded_max_bad_sectors', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_2_exceeded_max_bad_sectors', 'on') or
+             is_state('binary_sensor.carlo_nas01_drive_3_exceeded_max_bad_sectors', 'on') or
+             volume_used >= 92 %}
+          {% if is_state('binary_sensor.carlo_nas01_synology_integration_problem', 'on') or
+                is_state('binary_sensor.carlo_nas01_synology_security_problem', 'on') or
+                hard_storage %}
+            error
+          {% elif is_state('binary_sensor.carlo_nas01_synology_storage_problem', 'on') %}
+            warning
+          {% else %}
+            none
+          {% endif %}
+
+      - name: "Carlo-NAS01 Synology Problem Summary"
+        unique_id: carlo_nas01_synology_problem_summary
+        state: >-
+          {% set ns = namespace(items=[]) %}
+          {% if states('binary_sensor.carlo_nas01_security_status') in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['security sensor unavailable'] %}
+          {% elif is_state('binary_sensor.carlo_nas01_security_status', 'on') %}
+            {% set ns.items = ns.items + ['security advisor reported an unsafe state'] %}
+          {% endif %}
+          {% set volume_status = states('sensor.carlo_nas01_volume_1_status') | lower %}
+          {% if volume_status in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['volume status unavailable'] %}
+          {% elif volume_status not in ['normal', 'none', ''] %}
+            {% set ns.items = ns.items + ['volume status=' ~ volume_status] %}
+          {% endif %}
+          {% set volume_used = states('sensor.carlo_nas01_volume_1_volume_used') %}
+          {% if volume_used in ['unknown', 'unavailable', 'none', ''] %}
+            {% set ns.items = ns.items + ['volume used unavailable'] %}
+          {% elif volume_used | float(0) >= 85 %}
+            {% set ns.items = ns.items + ['volume used=' ~ (volume_used | float(0) | round(1)) ~ '%'] %}
+          {% endif %}
+          {% if states('sensor.carlo_nas01_drive_1_status') in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['drive 1 status unavailable'] %}
+          {% elif states('sensor.carlo_nas01_drive_1_status') | lower not in ['normal', 'none', ''] %}
+            {% set ns.items = ns.items + ['drive 1 status=' ~ (states('sensor.carlo_nas01_drive_1_status') | lower)] %}
+          {% endif %}
+          {% if states('sensor.carlo_nas01_drive_2_status') in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['drive 2 status unavailable'] %}
+          {% elif states('sensor.carlo_nas01_drive_2_status') | lower not in ['normal', 'none', ''] %}
+            {% set ns.items = ns.items + ['drive 2 status=' ~ (states('sensor.carlo_nas01_drive_2_status') | lower)] %}
+          {% endif %}
+          {% if states('sensor.carlo_nas01_drive_3_status') in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['drive 3 status unavailable'] %}
+          {% elif states('sensor.carlo_nas01_drive_3_status') | lower not in ['normal', 'none', ''] %}
+            {% set ns.items = ns.items + ['drive 3 status=' ~ (states('sensor.carlo_nas01_drive_3_status') | lower)] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nas01_drive_1_below_min_remaining_life', 'on') %}
+            {% set ns.items = ns.items + ['drive 1 below remaining life threshold'] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nas01_drive_2_below_min_remaining_life', 'on') %}
+            {% set ns.items = ns.items + ['drive 2 below remaining life threshold'] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nas01_drive_3_below_min_remaining_life', 'on') %}
+            {% set ns.items = ns.items + ['drive 3 below remaining life threshold'] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nas01_drive_1_exceeded_max_bad_sectors', 'on') %}
+            {% set ns.items = ns.items + ['drive 1 exceeded max bad sectors'] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nas01_drive_2_exceeded_max_bad_sectors', 'on') %}
+            {% set ns.items = ns.items + ['drive 2 exceeded max bad sectors'] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nas01_drive_3_exceeded_max_bad_sectors', 'on') %}
+            {% set ns.items = ns.items + ['drive 3 exceeded max bad sectors'] %}
+          {% endif %}
+          {{ ns.items | join('; ') if ns.items else 'ok' }}
+
+      - name: "Carlo-NVR Synology Problem Severity"
+        unique_id: carlo_nvr_synology_problem_severity
+        state: >-
+          {% set volume_status = states('sensor.carlo_nvr_volume_1_status') | lower %}
+          {% set volume_used_raw = states('sensor.carlo_nvr_volume_1_volume_used') %}
+          {% set volume_used = volume_used_raw | float(0) if volume_used_raw not in ['unknown', 'unavailable', 'none', ''] else 0 %}
+          {% set hard_storage = volume_status not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             states('sensor.carlo_nvr_drive_1_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             states('sensor.carlo_nvr_drive_2_status') | lower not in ['normal', 'unknown', 'unavailable', 'none', ''] or
+             is_state('binary_sensor.carlo_nvr_drive_1_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nvr_drive_2_below_min_remaining_life', 'on') or
+             is_state('binary_sensor.carlo_nvr_drive_1_exceeded_max_bad_sectors', 'on') or
+             is_state('binary_sensor.carlo_nvr_drive_2_exceeded_max_bad_sectors', 'on') or
+             volume_used >= 92 %}
+          {% if is_state('binary_sensor.carlo_nvr_synology_integration_problem', 'on') or
+                is_state('binary_sensor.carlo_nvr_synology_security_problem', 'on') or
+                hard_storage %}
+            error
+          {% elif is_state('binary_sensor.carlo_nvr_synology_storage_problem', 'on') %}
+            warning
+          {% else %}
+            none
+          {% endif %}
+
+      - name: "Carlo-NVR Synology Problem Summary"
+        unique_id: carlo_nvr_synology_problem_summary
+        state: >-
+          {% set ns = namespace(items=[]) %}
+          {% if states('binary_sensor.carlo_nvr_security_status') in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['security sensor unavailable'] %}
+          {% elif is_state('binary_sensor.carlo_nvr_security_status', 'on') %}
+            {% set ns.items = ns.items + ['security advisor reported an unsafe state'] %}
+          {% endif %}
+          {% set volume_status = states('sensor.carlo_nvr_volume_1_status') | lower %}
+          {% if volume_status in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['volume status unavailable'] %}
+          {% elif volume_status not in ['normal', 'none', ''] %}
+            {% set ns.items = ns.items + ['volume status=' ~ volume_status] %}
+          {% endif %}
+          {% set volume_used = states('sensor.carlo_nvr_volume_1_volume_used') %}
+          {% if volume_used in ['unknown', 'unavailable', 'none', ''] %}
+            {% set ns.items = ns.items + ['volume used unavailable'] %}
+          {% elif volume_used | float(0) >= 85 %}
+            {% set ns.items = ns.items + ['volume used=' ~ (volume_used | float(0) | round(1)) ~ '%'] %}
+          {% endif %}
+          {% if states('sensor.carlo_nvr_drive_1_status') in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['drive 1 status unavailable'] %}
+          {% elif states('sensor.carlo_nvr_drive_1_status') | lower not in ['normal', 'none', ''] %}
+            {% set ns.items = ns.items + ['drive 1 status=' ~ (states('sensor.carlo_nvr_drive_1_status') | lower)] %}
+          {% endif %}
+          {% if states('sensor.carlo_nvr_drive_2_status') in ['unknown', 'unavailable'] %}
+            {% set ns.items = ns.items + ['drive 2 status unavailable'] %}
+          {% elif states('sensor.carlo_nvr_drive_2_status') | lower not in ['normal', 'none', ''] %}
+            {% set ns.items = ns.items + ['drive 2 status=' ~ (states('sensor.carlo_nvr_drive_2_status') | lower)] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nvr_drive_1_below_min_remaining_life', 'on') %}
+            {% set ns.items = ns.items + ['drive 1 below remaining life threshold'] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nvr_drive_2_below_min_remaining_life', 'on') %}
+            {% set ns.items = ns.items + ['drive 2 below remaining life threshold'] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nvr_drive_1_exceeded_max_bad_sectors', 'on') %}
+            {% set ns.items = ns.items + ['drive 1 exceeded max bad sectors'] %}
+          {% endif %}
+          {% if is_state('binary_sensor.carlo_nvr_drive_2_exceeded_max_bad_sectors', 'on') %}
+            {% set ns.items = ns.items + ['drive 2 exceeded max bad sectors'] %}
+          {% endif %}
+          {{ ns.items | join('; ') if ns.items else 'ok' }}
+
+automation:
+  - id: synology_dsm_open_repair_and_dispatch
+    alias: "Synology DSM - Open Repair And Dispatch"
+    description: "Open a Repairs issue and dispatch Joanna when a Synology problem stays active."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.carlo_nas01_synology_problem
+          - binary_sensor.carlo_nvr_synology_problem
+        to: "on"
+        for: "00:10:00"
+    variables:
+      host_name: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          Carlo-NAS01
+        {% else %}
+          Carlo-NVR
+        {% endif %}
+      issue_id: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          synology_carlo_nas01_problem
+        {% else %}
+          synology_carlo_nvr_problem
+        {% endif %}
+      source: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          home_assistant_automation.synology_dsm_open_repair_and_dispatch.carlo_nas01
+        {% else %}
+          home_assistant_automation.synology_dsm_open_repair_and_dispatch.carlo_nvr
+        {% endif %}
+      ssh_alias: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          nas11
+        {% else %}
+          nas12
+        {% endif %}
+      dsm_url: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          http://192.168.10.11:5000
+        {% else %}
+          https://192.168.10.12:5001
+        {% endif %}
+      severity_sensor: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          sensor.carlo_nas01_synology_problem_severity
+        {% else %}
+          sensor.carlo_nvr_synology_problem_severity
+        {% endif %}
+      summary_sensor: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          sensor.carlo_nas01_synology_problem_summary
+        {% else %}
+          sensor.carlo_nvr_synology_problem_summary
+        {% endif %}
+      security_entity: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          binary_sensor.carlo_nas01_security_status
+        {% else %}
+          binary_sensor.carlo_nvr_security_status
+        {% endif %}
+      volume_status_entity: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          sensor.carlo_nas01_volume_1_status
+        {% else %}
+          sensor.carlo_nvr_volume_1_status
+        {% endif %}
+      volume_used_entity: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          sensor.carlo_nas01_volume_1_volume_used
+        {% else %}
+          sensor.carlo_nvr_volume_1_volume_used
+        {% endif %}
+      update_entity: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          update.carlo_nas01_dsm_update
+        {% else %}
+          update.carlo_nvr_dsm_update
+        {% endif %}
+      entity_ids: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          binary_sensor.carlo_nas01_synology_problem,
+          binary_sensor.carlo_nas01_synology_integration_problem,
+          binary_sensor.carlo_nas01_synology_security_problem,
+          binary_sensor.carlo_nas01_synology_storage_problem,
+          sensor.carlo_nas01_synology_problem_severity,
+          sensor.carlo_nas01_synology_problem_summary,
+          binary_sensor.carlo_nas01_security_status,
+          sensor.carlo_nas01_volume_1_status,
+          sensor.carlo_nas01_volume_1_volume_used,
+          sensor.carlo_nas01_drive_1_status,
+          sensor.carlo_nas01_drive_2_status,
+          sensor.carlo_nas01_drive_3_status,
+          binary_sensor.carlo_nas01_drive_1_below_min_remaining_life,
+          binary_sensor.carlo_nas01_drive_2_below_min_remaining_life,
+          binary_sensor.carlo_nas01_drive_3_below_min_remaining_life,
+          binary_sensor.carlo_nas01_drive_1_exceeded_max_bad_sectors,
+          binary_sensor.carlo_nas01_drive_2_exceeded_max_bad_sectors,
+          binary_sensor.carlo_nas01_drive_3_exceeded_max_bad_sectors,
+          update.carlo_nas01_dsm_update
+        {% else %}
+          binary_sensor.carlo_nvr_synology_problem,
+          binary_sensor.carlo_nvr_synology_integration_problem,
+          binary_sensor.carlo_nvr_synology_security_problem,
+          binary_sensor.carlo_nvr_synology_storage_problem,
+          sensor.carlo_nvr_synology_problem_severity,
+          sensor.carlo_nvr_synology_problem_summary,
+          binary_sensor.carlo_nvr_security_status,
+          sensor.carlo_nvr_volume_1_status,
+          sensor.carlo_nvr_volume_1_volume_used,
+          sensor.carlo_nvr_drive_1_status,
+          sensor.carlo_nvr_drive_2_status,
+          binary_sensor.carlo_nvr_drive_1_below_min_remaining_life,
+          binary_sensor.carlo_nvr_drive_2_below_min_remaining_life,
+          binary_sensor.carlo_nvr_drive_1_exceeded_max_bad_sectors,
+          binary_sensor.carlo_nvr_drive_2_exceeded_max_bad_sectors,
+          update.carlo_nvr_dsm_update
+        {% endif %}
+      problem_severity: "{{ states(severity_sensor) }}"
+      problem_summary: "{{ states(summary_sensor) }}"
+      security_state: "{{ states(security_entity) }}"
+      volume_status: "{{ states(volume_status_entity) }}"
+      volume_used: "{{ states(volume_used_entity) }}"
+      dsm_update_state: "{{ states(update_entity) }}"
+      trigger_context: "HA automation synology_dsm_open_repair_and_dispatch (Synology DSM - Open Repair And Dispatch)"
+    action:
+      - service: repairs.create
+        data:
+          issue_id: "{{ issue_id }}"
+          title: "{{ host_name }} Synology health issue"
+          severity: "{{ 'error' if problem_severity == 'error' else 'warning' }}"
+          persistent: true
+          description: >-
+            Home Assistant detected a sustained Synology DSM issue for {{ host_name }}.
+
+            summary: {{ problem_summary }}
+            security_state: {{ security_state }}
+            volume_status: {{ volume_status }}
+            volume_used: {{ volume_used }}
+            dsm_update: {{ dsm_update_state }}
+            ssh_alias: {{ ssh_alias }}
+            dsm_url: {{ dsm_url }}
+      - service: script.send_to_logbook
+        data:
+          topic: "SYNOLOGY"
+          message: >-
+            {{ host_name }} reported a Synology DSM problem for 10 minutes.
+            Repair {{ issue_id }} opened and Joanna investigation requested.
+            Summary: {{ problem_summary }}.
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "{{ trigger_context }}"
+          source: "{{ source }}"
+          summary: "{{ host_name }} Synology DSM problem detected"
+          entity_ids: "{{ entity_ids }}"
+          diagnostics: >-
+            issue_id={{ issue_id }},
+            severity={{ problem_severity }},
+            problem_sensor={{ trigger.entity_id }},
+            problem_summary={{ problem_summary }},
+            security_state={{ security_state }},
+            volume_status={{ volume_status }},
+            volume_used={{ volume_used }},
+            dsm_update={{ dsm_update_state }},
+            ssh_alias={{ ssh_alias }},
+            dsm_url={{ dsm_url }}
+          request: >-
+            Investigate {{ host_name }} using the Home Assistant Synology DSM entities first, then DSM or SSH if needed.
+            Review security status, drive health, volume health, and integration availability.
+            Do not reboot or shut down the NAS unless explicitly requested.
+
+  - id: synology_dsm_clear_repair_on_recovery
+    alias: "Synology DSM - Clear Repair On Recovery"
+    description: "Clear the Synology Repairs issue once the monitored problem has recovered."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.carlo_nas01_synology_problem
+          - binary_sensor.carlo_nvr_synology_problem
+        to: "off"
+        for: "00:05:00"
+    variables:
+      host_name: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          Carlo-NAS01
+        {% else %}
+          Carlo-NVR
+        {% endif %}
+      issue_id: >-
+        {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
+          synology_carlo_nas01_problem
+        {% else %}
+          synology_carlo_nvr_problem
+        {% endif %}
+    action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "{{ issue_id }}"
+      - service: script.send_to_logbook
+        data:
+          topic: "SYNOLOGY"
+          message: "{{ host_name }} Synology DSM health recovered. Repair {{ issue_id }} cleared."

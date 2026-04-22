@@ -1,59 +1,129 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Process Monitor - Track HA-related services and processes.
-#-------------------------------------------
+# -------------------------------------------------------------------
+# Process Monitor - Disk pressure alerting + Joanna dispatch
+#  Tracks Home Assistant root filesystem usage from the System Monitor integration.
+# -------------------------------------------------------------------
+# - Blog: https://www.vcloudinfo.com/2026/04/joanna-agent-engineer-home-assistant-infrastructure-dispatch.html
+# Notes: Uses `sensor.disk_use_percent` for the root (`/`) filesystem.
+# Notes: 80% usage triggers cleanup-oriented notification + Joanna review.
+# Notes: 90% usage opens a Repairs issue and dispatches Joanna for urgent triage.
 ######################################################################
-##  Process status sensors and notifications.
-######################################################################
-# homeassistant:
-#   customize:
-#     sensor.process_mosquitto:
-#       friendly_name: 'Mosquitto'
-#
-#  Uses SYSTEMMONITOR integration
-#-------------------------------------------
-
-
-#-------------------------------------------
-##############################################################################
-###  Automations - Detect when things are not right. Like any Good Watchdog.
-##############################################################################
 
 automation:
-
   - alias: "Self Heal Disk Use Alarm"
     id: b16f2155-4688-4c0f-9cf8-b382e294a029
+    description: "Warn on elevated root disk usage and request Joanna review before it becomes critical."
+    mode: single
     trigger:
       - platform: numeric_state
         entity_id: sensor.disk_use_percent
         above: 80
+    variables:
+      mount_path: "/"
+      disk_use: "{{ states('sensor.disk_use_percent') | float(0) | round(1) }}"
+      trigger_context: "HA automation b16f2155-4688-4c0f-9cf8-b382e294a029 (Self Heal Disk Use Alarm)"
     action:
       - service: script.notify_engine
         data:
-          value1: 'Hard Drive Monitor:'
-          value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
-          value3: 'Attempting to clean'
-          who: 'carlo'
+          value1: "Hard Drive Monitor:"
+          value2: "Your harddrive is running out of Space! {{ mount_path }}:{{ disk_use }}%!"
+          value3: "Attempting to clean"
+          who: "carlo"
       - service: script.send_to_logbook
         data:
           topic: "SYSTEM"
-          message: "Disk usage exceeded 80% (/dev/root: {{ states.sensor.disk_use_percent.state }}%). Attempting to clean."
+          message: "Disk usage exceeded 80% ({{ mount_path }}: {{ disk_use }}%). Attempting to clean."
       - service: tts.clear_cache
+      - condition: template
+        value_template: "{{ disk_use | float(0) < 90 }}"
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "{{ trigger_context }}"
+          source: "home_assistant_automation.self_heal_disk_use_alarm"
+          summary: "Home Assistant root disk usage exceeded 80%"
+          entity_ids:
+            - "sensor.disk_use_percent"
+          diagnostics: >-
+            mount_path={{ mount_path }},
+            disk_use={{ disk_use }},
+            threshold=80
+          request: >-
+            Review Home Assistant disk growth and recommend safe cleanup actions.
+            Check recorder/database size, logs, cache, backups, and temporary files.
+            Do not restart Home Assistant or remove data unless explicitly requested.
 
   - alias: "Disk Use Alarm"
     id: 1ce3cb43-0e27-4c53-acdd-d672396f3559
+    description: "Open a Repairs issue and dispatch Joanna when root disk usage becomes critical."
+    mode: single
     trigger:
       - platform: numeric_state
         entity_id: sensor.disk_use_percent
         above: 90
+    variables:
+      issue_id: "processmonitor_disk_use_critical"
+      mount_path: "/"
+      disk_use: "{{ states('sensor.disk_use_percent') | float(0) | round(1) }}"
+      trigger_context: "HA automation 1ce3cb43-0e27-4c53-acdd-d672396f3559 (Disk Use Alarm)"
     action:
       - service: script.notify_engine
         data:
-          value1: 'Hard Drive Monitor:'
-          value2: "Your harddrive is running out of Space! /dev/root:{{ states.sensor.disk_use_percent.state }}%!"
-          who: 'carlo'
+          value1: "Hard Drive Monitor:"
+          value2: "Your harddrive is running out of Space! {{ mount_path }}:{{ disk_use }}%!"
+          who: "carlo"
       - service: script.send_to_logbook
         data:
           topic: "SYSTEM"
-          message: "Disk usage exceeded 90% (/dev/root: {{ states.sensor.disk_use_percent.state }}%)."
+          message: >-
+            Disk usage exceeded 90% ({{ mount_path }}: {{ disk_use }}%).
+            Repair {{ issue_id }} opened and Joanna investigation requested.
+      - service: repairs.create
+        data:
+          issue_id: "{{ issue_id }}"
+          title: "Home Assistant disk usage critical"
+          severity: "error"
+          persistent: true
+          description: >-
+            Home Assistant detected critical disk pressure on {{ mount_path }}.
+
+            disk_use: {{ disk_use }}%
+            entity_id: sensor.disk_use_percent
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "{{ trigger_context }}"
+          source: "home_assistant_automation.disk_use_alarm"
+          summary: "Home Assistant root disk usage exceeded 90%"
+          entity_ids:
+            - "sensor.disk_use_percent"
+          diagnostics: >-
+            issue_id={{ issue_id }},
+            mount_path={{ mount_path }},
+            disk_use={{ disk_use }},
+            threshold=90
+          request: >-
+            Investigate critical Home Assistant disk usage and recommend or perform safe remediation if available.
+            Check recorder/database size, logs, cache, backups, and temporary files first.
+            Do not restart Home Assistant or prune/delete data unless explicitly requested.
+
+  - alias: "Disk Use Alarm Recovery"
+    id: processmonitor_disk_use_alarm_recovery
+    description: "Clear the disk pressure repair once root filesystem usage has recovered."
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.disk_use_percent
+        below: 85
+        for:
+          minutes: 10
+    action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "processmonitor_disk_use_critical"
+      - service: script.send_to_logbook
+        data:
+          topic: "SYSTEM"
+          message: "Disk usage recovered below 85% on /. Repair processmonitor_disk_use_critical cleared."
