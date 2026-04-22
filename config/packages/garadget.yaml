@@ -55,6 +55,7 @@ mqtt:
       unique_id: garadget_large_garage_door_brightness
       state_topic: "garadget/GLarge/status"
       unit_of_measurement: '%'
+      state_class: measurement
       value_template: '{{ value_json.bright }}'
 
     - name: "Small Garage Door Since"
@@ -66,6 +67,7 @@ mqtt:
       unique_id: garadget_small_garage_door_brightness
       state_topic: "garadget/GSmall/status"
       unit_of_measurement: '%'
+      state_class: measurement
       value_template: '{{ value_json.bright }}'
 
 input_text:

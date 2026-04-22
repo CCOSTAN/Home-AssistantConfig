@@ -7,6 +7,7 @@
 #  Build historical stats for AI/alerting.
 # -------------------------------------------------------------------
 # Contact: @CCOSTAN
+# Notes: Numeric repo and home counters expose state_class for long-term trend rollups.
 ######################################################################
 
 ### Building out some Historical stats for AI. #####################
@@ -19,6 +20,7 @@ command_line:
       scan_interval: 20000
       value_template: "{{ value | int }}"
       unit_of_measurement: "count"
+      state_class: measurement
   - sensor:
       name: 'GitHub Open Issues'
       unique_id: github_open_issues
@@ -26,6 +28,7 @@ command_line:
       scan_interval: 20000
       value_template: '{{ value_json.open_issues }}'
       unit_of_measurement: 'count'
+      state_class: measurement
 
   - sensor:
       name: 'GitHub Stargazers'
@@ -34,6 +37,7 @@ command_line:
       scan_interval: 20000
       value_template: '{{ value_json.stargazers_count }}'
       unit_of_measurement: 'count'
+      state_class: measurement
 
 sensor:
   - platform: history_stats
@@ -79,6 +83,7 @@ template:
       - name: "Number of Sensors"
         unique_id: stats_number_of_sensors
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:counter
         state: >-
           {{ states.sensor | list | count }}
@@ -86,6 +91,7 @@ template:
       - name: "Number of Automations"
         unique_id: stats_number_of_automations
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:robot
         state: >-
           {{ states.automation | list | count }}
@@ -93,6 +99,7 @@ template:
       - name: "Number of Scripts"
         unique_id: stats_number_of_scripts
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:script-text
         state: >-
           {{ states.script | list | count }}
@@ -100,6 +107,7 @@ template:
       - name: "Number of Binary Sensors"
         unique_id: stats_number_of_binary_sensors
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:binary-sensor
         state: >-
           {{ states.binary_sensor | list | count }}
@@ -107,6 +115,7 @@ template:
       - name: "Number of Devices"
         unique_id: stats_number_of_devices
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:account-group
         state: >-
           {{ states.device_tracker | list | count }}
@@ -114,6 +123,7 @@ template:
       - name: "Number of Lights"
         unique_id: stats_number_of_lights
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:lightbulb
         state: >
           {{ states.light | list | count }}
@@ -121,12 +131,14 @@ template:
       - name: "Number of lights on"
         unique_id: stats_number_of_lights_on
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:binary-sensor
         state: >-
           {{ states.light | selectattr('state', 'eq', 'on') | list | count }}
 
       - name: "Number of Smoke Detectors"
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:smoke-detector
         state: >
           {% if states('group.protects') == 'on' %}
@@ -142,6 +154,7 @@ template:
       - name: "Number of online Cameras"
         unique_id: stats_number_of_online_cameras
         unit_of_measurement: "count"
+        state_class: measurement
         icon: mdi:camera
         state: >
           {{ states.camera | list | count }}
@@ -149,6 +162,7 @@ template:
       - name: "Total WiFi Clients"
         unique_id: total_wifi_clients
         unit_of_measurement: "clients"
+        state_class: measurement
         icon: mdi:wifi
         state: >
           {% set g = states('sensor.unifi_ap_garage_clients') | int(0) %}

@@ -10,13 +10,23 @@
 # Notes: Creates HA repair issues when proxmox nodes report updates.
 # Notes: Adds normalized runtime + disk health signals for dashboard/alerts.
 # Notes: Joanna dispatch is reserved for sustained runtime and disk-pressure degradations.
+# Notes: Normalized disk usage sensors expose state_class for long-term trend rollups.
 ######################################################################
 template:
   - sensor:
       - name: "Proxmox1 Disk Used Percentage"
         unique_id: proxmox1_disk_used_percentage
         unit_of_measurement: "%"
+        state_class: measurement
         icon: mdi:harddisk
+        availability: >-
+          {% set preferred = states('sensor.node_proxmox1_disk_used_percentage') %}
+          {% set used = states('sensor.node_proxmox1_disk') %}
+          {% set total = states('sensor.node_proxmox1_max_disk') %}
+          {{ preferred not in ['unknown', 'unavailable', 'none', ''] or
+             (used not in ['unknown', 'unavailable', 'none', ''] and
+              total not in ['unknown', 'unavailable', 'none', ''] and
+              (total | float(0)) > 0) }}
         state: >-
           {% set preferred = states('sensor.node_proxmox1_disk_used_percentage') %}
           {% if preferred not in ['unknown', 'unavailable', 'none', ''] %}
@@ -27,14 +37,23 @@ template:
             {% if total > 0 %}
               {{ ((used / total) * 100) | round(1) }}
             {% else %}
-              {{ none }}
+              0
             {% endif %}
           {% endif %}
 
       - name: "Proxmox02 Disk Used Percentage"
         unique_id: proxmox02_disk_used_percentage
         unit_of_measurement: "%"
+        state_class: measurement
         icon: mdi:harddisk
+        availability: >-
+          {% set preferred = states('sensor.node_proxmox02_disk_used_percentage') %}
+          {% set used = states('sensor.node_proxmox02_disk') %}
+          {% set total = states('sensor.node_proxmox02_max_disk') %}
+          {{ preferred not in ['unknown', 'unavailable', 'none', ''] or
+             (used not in ['unknown', 'unavailable', 'none', ''] and
+              total not in ['unknown', 'unavailable', 'none', ''] and
+              (total | float(0)) > 0) }}
         state: >-
           {% set preferred = states('sensor.node_proxmox02_disk_used_percentage') %}
           {% if preferred not in ['unknown', 'unavailable', 'none', ''] %}
@@ -45,7 +64,7 @@ template:
             {% if total > 0 %}
               {{ ((used / total) * 100) | round(1) }}
             {% else %}
-              {{ none }}
+              0
             {% endif %}
           {% endif %}
 

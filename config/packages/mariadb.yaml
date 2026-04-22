@@ -3,168 +3,224 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# MariaDB Monitoring - SQL sensor bundle for DB health
-#  Recorder-backed metrics for MariaDB performance and capacity checks.
+# MariaDB Monitoring - Snapshot-driven DB health sensors
+#  Recorder-backed metrics for MariaDB health, capacity, and tuning.
 # -------------------------------------------------------------------
-# Notes: Uses SQL integration against recorder_db_url.
-# Notes: COUNT(*) queries run every 6h; increase scan_interval or disable if slow.
+# Notes: Uses command_line snapshot helpers so expensive MariaDB queries are not forced to run every 30 seconds by the SQL integration.
+# Notes: Live metrics poll hourly; recorder/admin snapshots poll weekly.
+# Notes: Numeric template sensors expose state_class where useful so HA can keep long-term statistics efficiently.
 ######################################################################
 
-sql:
-  - name: "MariaDB Status"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT 'running' as status
-      FROM information_schema.GLOBAL_STATUS
-      WHERE VARIABLE_NAME = 'Uptime'
-        AND CAST(VARIABLE_VALUE AS UNSIGNED) > 0;
-    column: "status"
-    value_template: "{{ value if value else 'stopped' }}"
+command_line:
+  - sensor:
+      name: MariaDB Live Snapshot
+      unique_id: mariadb_live_snapshot
+      command: "python3 /config/shell_scripts/mariadb_snapshot.py live"
+      scan_interval: 3600
+      command_timeout: 30
+      json_attributes:
+        - performance
+        - connections
+        - questions
+        - uptime_seconds
+      value_template: "{{ value_json.status | default('unknown') }}"
 
-  - name: "MariaDB Version"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT @@version as version;
-    column: "version"
+  - sensor:
+      name: MariaDB Recorder Snapshot
+      unique_id: mariadb_recorder_snapshot
+      command: "python3 /config/shell_scripts/mariadb_snapshot.py recorder"
+      scan_interval: 604800
+      command_timeout: 180
+      json_attributes:
+        - database_tables_count
+        - database_oldest_record
+        - database_total_records
+        - database_records_per_day
+      value_template: "{{ value_json.database_size_mib | default('unknown') }}"
 
-  - name: "MariaDB Performance"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT ROUND(
-        (SELECT VARIABLE_VALUE
-         FROM information_schema.GLOBAL_STATUS
-         WHERE VARIABLE_NAME = 'Queries') /
-        (SELECT VARIABLE_VALUE
-         FROM information_schema.GLOBAL_STATUS
-         WHERE VARIABLE_NAME = 'Uptime')
-      ) as performance;
-    column: "performance"
-    unit_of_measurement: "q/s"
+  - sensor:
+      name: MariaDB Admin Snapshot
+      unique_id: mariadb_admin_snapshot
+      command: "python3 /config/shell_scripts/mariadb_snapshot.py admin"
+      scan_interval: 604800
+      command_timeout: 30
+      json_attributes:
+        - version
+        - max_connections
+        - log_file_size_mib
+        - tmp_table_size_mib
+        - io_capacity
+        - io_threads_read
+        - io_threads_write
+        - table_cache
+        - sort_buffer_mib
+        - read_buffer_mib
+        - join_buffer_mib
+      value_template: "{{ value_json.buffer_pool_gib | default('unknown') }}"
 
-  - name: "Database Size"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size
-      FROM information_schema.tables
-      WHERE table_schema = 'homeassistant';
-    column: "size"
-    unit_of_measurement: "MB"
-    value_template: "{{ value | float(0) }}"
+template:
+  - sensor:
+      - name: "MariaDB Status"
+        unique_id: mariadb_status
+        state: >-
+          {% set value = states('sensor.mariadb_live_snapshot') %}
+          {{ value if value not in ['unknown', 'unavailable', 'none', ''] else 'unknown' }}
 
-  - name: "Database Tables Count"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT COUNT(*) as count
-      FROM information_schema.tables
-      WHERE table_schema = 'homeassistant';
-    column: "count"
-    unit_of_measurement: "tables"
+      - name: "MariaDB Version"
+        unique_id: mariadb_version
+        state: >-
+          {% set value = state_attr('sensor.mariadb_admin_snapshot', 'version') %}
+          {{ value if value is not none else 'unknown' }}
 
-  - name: "Database Oldest Record"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT DATE_FORMAT(FROM_UNIXTIME(MIN(last_updated_ts)), '%Y-%m-%d') as oldest
-      FROM states;
-    column: "oldest"
+      - name: "MariaDB Performance"
+        unique_id: mariadb_performance
+        unit_of_measurement: "q/s"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_live_snapshot', 'performance') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_live_snapshot', 'performance') | float(0) }}
 
-  - name: "Database Total Records"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT COUNT(*) as count
-      FROM states;
-    column: "count"
-    unit_of_measurement: "records"
+      - name: "Database Size"
+        unique_id: database_size
+        unit_of_measurement: "MiB"
+        state_class: measurement
+        availability: >-
+          {{ states('sensor.mariadb_recorder_snapshot') not in ['unknown', 'unavailable', 'none', ''] }}
+        state: >-
+          {{ states('sensor.mariadb_recorder_snapshot') | float(0) }}
 
-  - name: "Database Records Per Day"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT ROUND(
-        COUNT(*) /
-        GREATEST(DATEDIFF(NOW(), FROM_UNIXTIME(MIN(last_updated_ts))), 1),
-        0
-      ) as avg
-      FROM states;
-    column: "avg"
-    unit_of_measurement: "records/day"
+      - name: "Database Tables Count"
+        unique_id: database_tables_count
+        unit_of_measurement: "tables"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_recorder_snapshot', 'database_tables_count') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_recorder_snapshot', 'database_tables_count') | int(0) }}
 
-  - name: "MariaDB Uptime"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT VARIABLE_VALUE as value
-      FROM information_schema.GLOBAL_STATUS
-      WHERE VARIABLE_NAME = 'Uptime';
-    column: "value"
-    unit_of_measurement: "seconds"
+      - name: "Database Oldest Record"
+        unique_id: database_oldest_record
+        state: >-
+          {% set value = state_attr('sensor.mariadb_recorder_snapshot', 'database_oldest_record') %}
+          {{ value if value is not none else 'unknown' }}
 
-  - name: "MariaDB Connections"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT VARIABLE_VALUE as value
-      FROM information_schema.GLOBAL_STATUS
-      WHERE VARIABLE_NAME = 'Threads_connected';
-    column: "value"
-    unit_of_measurement: "connections"
+      - name: "Database Total Records"
+        unique_id: database_total_records
+        unit_of_measurement: "records"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_recorder_snapshot', 'database_total_records') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_recorder_snapshot', 'database_total_records') | int(0) }}
 
-  - name: "MariaDB Questions"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT VARIABLE_VALUE as value
-      FROM information_schema.GLOBAL_STATUS
-      WHERE VARIABLE_NAME = 'Questions';
-    column: "value"
-    unit_of_measurement: "queries"
+      - name: "Database Records Per Day"
+        unique_id: database_records_per_day
+        unit_of_measurement: "records/day"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_recorder_snapshot', 'database_records_per_day') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_recorder_snapshot', 'database_records_per_day') | float(0) }}
 
-  - name: "MariaDB Buffer Pool Size"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT CONCAT(ROUND(@@innodb_buffer_pool_size / 1024 / 1024 / 1024, 1), ' GB') as value;
-    column: "value"
+      - name: "MariaDB Uptime"
+        unique_id: mariadb_uptime
+        unit_of_measurement: "s"
+        availability: >-
+          {{ state_attr('sensor.mariadb_live_snapshot', 'uptime_seconds') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_live_snapshot', 'uptime_seconds') | int(0) }}
 
-  - name: "MariaDB Max Connections"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT @@max_connections as value;
-    column: "value"
+      - name: "MariaDB Connections"
+        unique_id: mariadb_connections
+        unit_of_measurement: "connections"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_live_snapshot', 'connections') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_live_snapshot', 'connections') | int(0) }}
 
-  - name: "MariaDB Log File Size"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT CONCAT(ROUND(@@innodb_log_file_size / 1024 / 1024, 0), ' MB') as value;
-    column: "value"
+      - name: "MariaDB Questions"
+        unique_id: mariadb_questions
+        unit_of_measurement: "queries"
+        state_class: total_increasing
+        availability: >-
+          {{ state_attr('sensor.mariadb_live_snapshot', 'questions') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_live_snapshot', 'questions') | int(0) }}
 
-  - name: "MariaDB Tmp Table Size"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT CONCAT(ROUND(@@tmp_table_size / 1024 / 1024, 0), ' MB') as value;
-    column: "value"
+      - name: "MariaDB Buffer Pool Size"
+        unique_id: mariadb_buffer_pool_size
+        unit_of_measurement: "GiB"
+        state_class: measurement
+        availability: >-
+          {{ states('sensor.mariadb_admin_snapshot') not in ['unknown', 'unavailable', 'none', ''] }}
+        state: >-
+          {{ states('sensor.mariadb_admin_snapshot') | float(0) }}
 
-  - name: "MariaDB IO Capacity"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT @@innodb_io_capacity as value;
-    column: "value"
+      - name: "MariaDB Max Connections"
+        unique_id: mariadb_max_connections
+        unit_of_measurement: "connections"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'max_connections') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'max_connections') | int(0) }}
 
-  - name: "MariaDB IO Threads"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT CONCAT(
-        'Read: ', @@innodb_read_io_threads,
-        ', Write: ', @@innodb_write_io_threads
-      ) as value;
-    column: "value"
+      - name: "MariaDB Log File Size"
+        unique_id: mariadb_log_file_size
+        unit_of_measurement: "MiB"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'log_file_size_mib') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'log_file_size_mib') | float(0) }}
 
-  - name: "MariaDB Table Cache"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT @@table_open_cache as value;
-    column: "value"
+      - name: "MariaDB Tmp Table Size"
+        unique_id: mariadb_tmp_table_size
+        unit_of_measurement: "MiB"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'tmp_table_size_mib') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'tmp_table_size_mib') | float(0) }}
 
-  - name: "MariaDB Buffer Sizes"
-    db_url: !secret recorder_db_url
-    query: >-
-      SELECT CONCAT(
-        'Sort: ', ROUND(@@sort_buffer_size / 1024 / 1024, 0), 'M, ',
-        'Read: ', ROUND(@@read_buffer_size / 1024 / 1024, 0), 'M, ',
-        'Join: ', ROUND(@@join_buffer_size / 1024 / 1024, 0), 'M'
-      ) as value;
-    column: "value"
+      - name: "MariaDB IO Capacity"
+        unique_id: mariadb_io_capacity
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'io_capacity') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'io_capacity') | int(0) }}
+
+      - name: "MariaDB IO Threads"
+        unique_id: mariadb_io_threads
+        state: >-
+          {% set read = state_attr('sensor.mariadb_admin_snapshot', 'io_threads_read') %}
+          {% set write = state_attr('sensor.mariadb_admin_snapshot', 'io_threads_write') %}
+          {% if read is not none and write is not none %}
+            Read: {{ read }}, Write: {{ write }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "MariaDB Table Cache"
+        unique_id: mariadb_table_cache
+        unit_of_measurement: "tables"
+        state_class: measurement
+        availability: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'table_cache') is not none }}
+        state: >-
+          {{ state_attr('sensor.mariadb_admin_snapshot', 'table_cache') | int(0) }}
+
+      - name: "MariaDB Buffer Sizes"
+        unique_id: mariadb_buffer_sizes
+        state: >-
+          {% set sort = state_attr('sensor.mariadb_admin_snapshot', 'sort_buffer_mib') %}
+          {% set read = state_attr('sensor.mariadb_admin_snapshot', 'read_buffer_mib') %}
+          {% set join = state_attr('sensor.mariadb_admin_snapshot', 'join_buffer_mib') %}
+          {% if sort is not none and read is not none and join is not none %}
+            Sort: {{ sort }}M, Read: {{ read }}M, Join: {{ join }}M
+          {% else %}
+            unknown
+          {% endif %}

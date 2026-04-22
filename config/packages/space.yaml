@@ -17,6 +17,7 @@ sensor:
       - earth_distance_mi
     value_template: '{{ value_json["speed_mph"] }}'
     unit_of_measurement: "mph"
+    state_class: measurement
     resource: 'https://api.spacexdata.com/v2/info/roadster'
 
   - platform: rest

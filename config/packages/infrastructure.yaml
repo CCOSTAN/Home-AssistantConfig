@@ -3,13 +3,15 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure Observability - Normalized infra monitoring signals
-#  WAN/DNS/website/domain/cert state normalized for dashboards.
+# Infrastructure - Observability and Joanna review workflows
+#  WAN/DNS/website/domain/cert state normalized for dashboards, plus scheduled infrastructure reviews.
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
 # Notes: Domain warning threshold is <30 days; critical threshold is <14 days.
 # Notes: Nightly Duplicati verification is performed by codex_appliance against the Duplicati API because HA backup entities are not available.
+# Notes: Monthly HA log hygiene review requests Telegram + GitHub issue follow-up only; Joanna must wait for approval before any changes.
+# Notes: Numeric WAN telemetry exposes state_class so recorder can keep long-term statistics.
 ######################################################################
 
 command_line:
@@ -22,6 +24,7 @@ command_line:
         END {if (!found) print "unknown"}'
       scan_interval: 300
       unit_of_measurement: "%"
+      state_class: measurement
       value_template: "{{ (value | regex_replace('[^0-9.]', '')) or 'unknown' }}"
 
   - sensor:
@@ -33,6 +36,7 @@ command_line:
         END {if (!found) print "unknown"}'
       scan_interval: 300
       unit_of_measurement: "ms"
+      state_class: measurement
       value_template: "{{ (value | regex_replace('[^0-9.]', '')) or 'unknown' }}"
 
   - sensor:
@@ -411,3 +415,42 @@ automation:
                 action_taken,
                 verification,
                 next_action_required=true/false.
+
+  - alias: "Infrastructure - Monthly HA Log Hygiene Review"
+    id: infra_monthly_log_hygiene_review
+    description: "Ask Joanna monthly to review Home Assistant logs, create a GitHub issue with noisy entries, and send Telegram recommendations only."
+    mode: single
+    trigger:
+      - platform: time
+        at: "03:20:00"
+    condition:
+      - condition: template
+        value_template: "{{ now().day == 1 }}"
+    variables:
+      trigger_context: "HA automation infra_monthly_log_hygiene_review (Infrastructure - Monthly HA Log Hygiene Review)"
+    action:
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "{{ trigger_context }}"
+          source: "home_assistant_automation.infra_monthly_log_hygiene_review"
+          summary: "Monthly Home Assistant log hygiene review with GitHub issue and Telegram follow-up"
+          diagnostics: >-
+            schedule=day_1@03:20:00,
+            review_scope=available_home_assistant_logs,
+            desired_outputs=telegram_follow_up+github_issue,
+            github_repo=CCOSTAN/Home-AssistantConfig,
+            approval_required_before_changes=true
+          request: >-
+            Review the available Home Assistant log files from the last month and identify noisy,
+            low-value entries that could be safely suppressed, filtered, slowed, deduplicated, or
+            retired. Focus on practical Home Assistant-side changes such as recorder exclusions,
+            logger filtering, scan-interval reductions, entity retirement, or automation de-noising.
+            Create or refresh a GitHub issue in CCOSTAN/Home-AssistantConfig that captures the noisy
+            entries, estimated frequency, why each candidate is low-value, and the exact repo files
+            or integrations likely to change. Then send Carlo a concise Telegram summary with the top
+            recommendations and the GitHub issue number or link. Do not make any changes from this
+            review. Wait for explicit follow-up approval first.
+      - service: script.send_to_logbook
+        data:
+          topic: "HOME ASSISTANT"
+          message: "Joanna monthly Home Assistant log hygiene review dispatched; Telegram summary and GitHub issue requested."

@@ -9,6 +9,7 @@
 # Notes: Webhook id is bearclaw_maintenance_log_v1 (Joanna -> HA contract).
 # Notes: Duplicate event_id values are ignored to prevent double-count totals.
 # Notes: Recent event history string format is "when|amount|note||...".
+# Notes: Numeric refill interval sensors expose state_class for long-term trend rollups.
 ######################################################################
 
 input_number:
@@ -64,17 +65,21 @@ template:
       - name: "Water Softener Salt Days Since Last Add"
         unique_id: water_softener_salt_days_since_last_add
         unit_of_measurement: d
-        state: >-
+        state_class: measurement
+        availability: >-
           {% set raw = states('input_datetime.water_softener_salt_last_occurred_at') %}
           {% if raw in ['unknown', 'unavailable', 'none', ''] %}
-            unknown
+            false
           {% else %}
-            {% set event_ts = as_timestamp(as_local(as_datetime(raw)), default=none) %}
-            {% if event_ts is none %}
-              unknown
-            {% else %}
-              {{ [((as_timestamp(now()) - event_ts) / 86400), 0] | max | round(1) }}
-            {% endif %}
+            {{ as_timestamp(as_local(as_datetime(raw)), default=none) is not none }}
+          {% endif %}
+        state: >-
+          {% set raw = states('input_datetime.water_softener_salt_last_occurred_at') %}
+          {% set event_ts = as_timestamp(as_local(as_datetime(raw)), default=none) %}
+          {% if event_ts is not none %}
+            {{ [((as_timestamp(now()) - event_ts) / 86400), 0] | max | round(1) }}
+          {% else %}
+            0
           {% endif %}
 
       - name: "Water Softener Salt Last Summary"
@@ -98,6 +103,7 @@ template:
       - name: "Water Softener Salt Average Days Between Refills"
         unique_id: water_softener_salt_average_days_between_refills
         unit_of_measurement: d
+        state_class: measurement
         state: >-
           {% set raw = states('input_text.water_softener_salt_recent_events') %}
           {% if raw in ['unknown', 'unavailable', 'none', ''] %}

@@ -6,7 +6,7 @@
 # Recorder Configuration - database retention and exclusions
 #  Stores HA history while purging noise and controlling DB size.
 # -------------------------------------------------------------------
-# Notes: Keeps 180 days (1/2 year); excludes vcloudinfo pings, noisy connectivity telemetry, countdown-style alarm helpers, and other high-churn entities; MariaDB via recorder_db_url.
+# Notes: Keeps 180 days (1/2 year); excludes vcloudinfo pings, noisy connectivity telemetry, countdown-style alarm helpers, MariaDB snapshot helpers, and other high-churn entities; MariaDB via recorder_db_url.
 ######################################################################
 db_url: !secret recorder_db_url
 purge_keep_days: 180
@@ -100,6 +100,9 @@ exclude:
     - sensor.last_alexa
     - sensor.lights_on_count
     - sensor.low_battery
+    - sensor.mariadb_admin_snapshot
+    - sensor.mariadb_live_snapshot
+    - sensor.mariadb_recorder_snapshot
     - sensor.network
     - sensor.network_detail
     - sensor.pi_hole_ads_blocked_today
