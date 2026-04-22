@@ -60,9 +60,13 @@ Current automations that kick off automated resolutions (via `script.joanna_disp
 | `infra_backup_nightly_verification` | Infrastructure - Backup Nightly Verification | [../packages/infrastructure_observability.yaml](../packages/infrastructure_observability.yaml) |
 | `docker_state_sync_repairs_dynamic` | Docker State Sync - Repairs (Dynamic) | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `docker_group_reconcile_weekly_joanna_review` | Docker Group Reconcile - Weekly Joanna Review | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
+| `tugtainer_dispatch_joanna_for_available_updates` | Tugtainer - Dispatch Joanna For Available Updates | [../packages/tugtainer_updates.yaml](../packages/tugtainer_updates.yaml) |
+| `tugtainer_dispatch_joanna_for_home_assistant_core_digest` | Tugtainer - Dispatch Joanna For Home Assistant Core Digest | [../packages/tugtainer_updates.yaml](../packages/tugtainer_updates.yaml) |
 | `unifi_ap_no_clients_repair_combined` | Unifi AP Create Repair Issue after 5m of 0 Clients | [../packages/wireless.yaml](../packages/wireless.yaml) |
+| `proxmox_runtime_repairs` | Proxmox Runtime Repair Issues | [../packages/proxmox.yaml](../packages/proxmox.yaml) |
+| `proxmox_disk_pressure_repairs` | Proxmox Disk Pressure Repair Issues | [../packages/proxmox.yaml](../packages/proxmox.yaml) |
 | `synology_dsm_open_repair_and_dispatch` | Synology DSM - Open Repair And Dispatch | [../packages/synology_dsm.yaml](../packages/synology_dsm.yaml) |
-| `b16f2155-4688-4c0f-9cf8-b382e294a029` | Self Heal Disk Use Alarm | [../packages/processmonitor.yaml](../packages/processmonitor.yaml) |
+| `processmonitor_disk_use_joanna_review` | Self Heal Disk Use Joanna Review | [../packages/processmonitor.yaml](../packages/processmonitor.yaml) |
 | `1ce3cb43-0e27-4c53-acdd-d672396f3559` | Disk Use Alarm | [../packages/processmonitor.yaml](../packages/processmonitor.yaml) |
 
 ### Tips

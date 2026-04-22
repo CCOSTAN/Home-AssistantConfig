@@ -3,12 +3,13 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Proxmox Host Automations - reboots and update alerts
-#  Nightly Frigate host reboot plus update repair issues.
+# Proxmox Host Automations - reboots, repairs, and Joanna dispatch
+#  Nightly Frigate host reboot plus update/runtime/disk health automations.
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Notes: Creates HA repair issues when proxmox nodes report updates.
 # Notes: Adds normalized runtime + disk health signals for dashboard/alerts.
+# Notes: Joanna dispatch is reserved for sustained runtime and disk-pressure degradations.
 ######################################################################
 template:
   - sensor:
@@ -148,6 +149,28 @@ automation:
         {% else %}
           proxmox02_runtime_unhealthy
         {% endif %}
+      runtime_entity: >-
+        {% if 'proxmox1' in trigger.entity_id %}
+          binary_sensor.proxmox1_runtime_healthy
+        {% else %}
+          binary_sensor.proxmox02_runtime_healthy
+        {% endif %}
+      status_entity: >-
+        {% if 'proxmox1' in trigger.entity_id %}
+          {% if states('binary_sensor.node_proxmox1_status') not in ['unknown', 'unavailable', 'none', ''] %}
+            binary_sensor.node_proxmox1_status
+          {% else %}
+            sensor.node_proxmox1_status
+          {% endif %}
+        {% else %}
+          {% if states('binary_sensor.node_proxmox02_status') not in ['unknown', 'unavailable', 'none', ''] %}
+            binary_sensor.node_proxmox02_status
+          {% else %}
+            sensor.node_proxmox02_status
+          {% endif %}
+        {% endif %}
+      status_value: "{{ states(status_entity) }}"
+      trigger_context: "HA automation proxmox_runtime_repairs (Proxmox Runtime Repair Issues)"
     action:
       - choose:
           - conditions: "{{ trigger.to_state.state == 'off' }}"
@@ -164,10 +187,30 @@ automation:
                   description: >
                     {{ node_name }} has remained offline for over 2 minutes.
                     Check node status in Proxmox and restore runtime.
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "{{ trigger_context }}"
+                  source: "home_assistant_automation.proxmox_runtime_repairs"
+                  summary: "{{ node_name }} runtime has remained degraded for over 2 minutes"
+                  entity_ids:
+                    - "{{ runtime_entity }}"
+                    - "{{ status_entity }}"
+                  diagnostics: >-
+                    issue_id={{ issue_id }},
+                    node_name={{ node_name }},
+                    runtime_entity={{ runtime_entity }},
+                    status_entity={{ status_entity }},
+                    status_value={{ status_value }},
+                    unhealthy_for=2m
+                  request: >-
+                    Investigate {{ node_name }} runtime degradation and restore node availability if possible.
+                    Check host status, cluster connectivity, storage reachability, and recent update activity first.
+                    Do not reboot the host unless explicitly requested.
               - service: script.send_to_logbook
                 data:
                   topic: "PROXMOX"
-                  message: "{{ node_name }} runtime is degraded."
+                  message: >-
+                    {{ node_name }} runtime is degraded. Repair {{ issue_id }} opened and Joanna investigation requested.
         default:
           - service: repairs.remove
             continue_on_error: true
@@ -188,11 +231,26 @@ automation:
           - sensor.proxmox1_disk_used_percentage
           - sensor.proxmox02_disk_used_percentage
         above: 85
+        below: 92
         for: "00:15:00"
+        id: warning
+      - platform: numeric_state
+        entity_id:
+          - sensor.proxmox1_disk_used_percentage
+          - sensor.proxmox02_disk_used_percentage
+        above: 92
+        id: critical
       - platform: state
         entity_id:
           - sensor.proxmox1_disk_used_percentage
           - sensor.proxmox02_disk_used_percentage
+        id: band_change
+      - platform: numeric_state
+        entity_id:
+          - sensor.proxmox1_disk_used_percentage
+          - sensor.proxmox02_disk_used_percentage
+        below: 85
+        id: recovered
     variables:
       node_name: >-
         {% if 'proxmox1' in trigger.entity_id %}Proxmox1{% else %}Proxmox02{% endif %}
@@ -202,10 +260,33 @@ automation:
         {% else %}
           proxmox02_disk_pressure
         {% endif %}
-      disk_pct: "{{ states(trigger.entity_id) | float(0) }}"
+      disk_entity: "{{ trigger.entity_id }}"
+      raw_disk_entity: >-
+        {% if 'proxmox1' in trigger.entity_id %}
+          sensor.node_proxmox1_disk_used_percentage
+        {% else %}
+          sensor.node_proxmox02_disk_used_percentage
+        {% endif %}
+      disk_pct: "{{ states(disk_entity) | float(0) }}"
+      previous_disk_pct: >-
+        {% if trigger.from_state is not none and trigger.from_state.state not in ['unknown', 'unavailable', 'none', ''] %}
+          {{ trigger.from_state.state | float(0) }}
+        {% else %}
+          0
+        {% endif %}
+      previous_band: >-
+        {% if previous_disk_pct >= 92 %}
+          critical
+        {% elif previous_disk_pct >= 85 %}
+          warning
+        {% else %}
+          normal
+        {% endif %}
     action:
       - choose:
-          - conditions: "{{ disk_pct >= 92 }}"
+          - conditions:
+              - condition: trigger
+                id: critical
             sequence:
               - service: repairs.create
                 data:
@@ -216,11 +297,36 @@ automation:
                   description: >
                     {{ node_name }} disk usage is critically high.
                     Free disk space or expand storage allocation.
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "HA automation proxmox_disk_pressure_repairs (Proxmox Disk Pressure Repair Issues - Critical)"
+                  source: "home_assistant_automation.proxmox_disk_pressure_repairs.critical"
+                  summary: "{{ node_name }} disk pressure is critical at {{ disk_pct | round(1) }}%"
+                  entity_ids:
+                    - "{{ disk_entity }}"
+                    - "{{ raw_disk_entity }}"
+                  diagnostics: >-
+                    issue_id={{ issue_id }},
+                    node_name={{ node_name }},
+                    disk_entity={{ disk_entity }},
+                    raw_disk_entity={{ raw_disk_entity }},
+                    disk_pct={{ disk_pct | round(1) }},
+                    threshold=92
+                  request: >-
+                    Investigate critical disk pressure on {{ node_name }} and recommend safe remediation.
+                    Check local storage usage, backups, logs, snapshots, and VM or container disk consumers first.
+                    Do not delete VM disks or reboot the host unless explicitly requested.
               - service: script.send_to_logbook
                 data:
                   topic: "PROXMOX"
-                  message: "{{ node_name }} disk usage is critical at {{ disk_pct | round(1) }}%."
-          - conditions: "{{ disk_pct >= 85 }}"
+                  message: >-
+                    {{ node_name }} disk usage is critical at {{ disk_pct | round(1) }}%.
+                    Repair {{ issue_id }} opened and Joanna investigation requested.
+          - conditions:
+              - condition: trigger
+                id: warning
+              - condition: template
+                value_template: "{{ previous_band != 'critical' }}"
             sequence:
               - service: repairs.create
                 data:
@@ -231,12 +337,52 @@ automation:
                   description: >
                     {{ node_name }} disk usage has stayed above 85% for 15 minutes.
                     Plan cleanup before capacity reaches critical levels.
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "HA automation proxmox_disk_pressure_repairs (Proxmox Disk Pressure Repair Issues - Warning)"
+                  source: "home_assistant_automation.proxmox_disk_pressure_repairs.warning"
+                  summary: "{{ node_name }} disk pressure warning at {{ disk_pct | round(1) }}%"
+                  entity_ids:
+                    - "{{ disk_entity }}"
+                    - "{{ raw_disk_entity }}"
+                  diagnostics: >-
+                    issue_id={{ issue_id }},
+                    node_name={{ node_name }},
+                    disk_entity={{ disk_entity }},
+                    raw_disk_entity={{ raw_disk_entity }},
+                    disk_pct={{ disk_pct | round(1) }},
+                    threshold=85,
+                    sustained_for=15m
+                  request: >-
+                    Investigate elevated disk usage on {{ node_name }} and recommend safe cleanup actions before it becomes critical.
+                    Check local storage usage, backups, logs, snapshots, and VM or container disk consumers first.
+                    Do not delete VM disks or reboot the host unless explicitly requested.
               - service: script.send_to_logbook
                 data:
                   topic: "PROXMOX"
-                  message: "{{ node_name }} disk usage warning at {{ disk_pct | round(1) }}%."
-        default:
-          - service: repairs.remove
-            continue_on_error: true
-            data:
-              issue_id: "{{ issue_id }}"
+                  message: >-
+                    {{ node_name }} disk usage warning at {{ disk_pct | round(1) }}%.
+                    Repair {{ issue_id }} opened and Joanna investigation requested.
+          - conditions:
+              - condition: trigger
+                id: band_change
+              - condition: template
+                value_template: "{{ previous_band == 'critical' and disk_pct >= 85 and disk_pct < 92 }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  severity: warning
+                  persistent: true
+                  title: "{{ node_name }} disk pressure warning ({{ disk_pct | round(1) }}%)"
+                  description: >
+                    {{ node_name }} disk usage is elevated but no longer critical.
+                    Plan cleanup before capacity reaches critical levels again.
+          - conditions:
+              - condition: trigger
+                id: recovered
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"

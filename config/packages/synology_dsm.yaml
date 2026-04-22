@@ -29,8 +29,7 @@ template:
             'binary_sensor.carlo_nas01_drive_3_below_min_remaining_life',
             'binary_sensor.carlo_nas01_drive_1_exceeded_max_bad_sectors',
             'binary_sensor.carlo_nas01_drive_2_exceeded_max_bad_sectors',
-            'binary_sensor.carlo_nas01_drive_3_exceeded_max_bad_sectors',
-            'update.carlo_nas01_dsm_update'
+            'binary_sensor.carlo_nas01_drive_3_exceeded_max_bad_sectors'
           ] %}
           {% set ns = namespace(problem=false) %}
           {% for id in ids %}
@@ -86,8 +85,7 @@ template:
             'binary_sensor.carlo_nvr_drive_1_below_min_remaining_life',
             'binary_sensor.carlo_nvr_drive_2_below_min_remaining_life',
             'binary_sensor.carlo_nvr_drive_1_exceeded_max_bad_sectors',
-            'binary_sensor.carlo_nvr_drive_2_exceeded_max_bad_sectors',
-            'update.carlo_nvr_dsm_update'
+            'binary_sensor.carlo_nvr_drive_2_exceeded_max_bad_sectors'
           ] %}
           {% set ns = namespace(problem=false) %}
           {% for id in ids %}
@@ -422,13 +420,6 @@ automation:
             dsm_update: {{ dsm_update_state }}
             ssh_alias: {{ ssh_alias }}
             dsm_url: {{ dsm_url }}
-      - service: script.send_to_logbook
-        data:
-          topic: "SYNOLOGY"
-          message: >-
-            {{ host_name }} reported a Synology DSM problem for 10 minutes.
-            Repair {{ issue_id }} opened and Joanna investigation requested.
-            Summary: {{ problem_summary }}.
       - service: script.joanna_dispatch
         data:
           trigger_context: "{{ trigger_context }}"
@@ -450,6 +441,13 @@ automation:
             Investigate {{ host_name }} using the Home Assistant Synology DSM entities first, then DSM or SSH if needed.
             Review security status, drive health, volume health, and integration availability.
             Do not reboot or shut down the NAS unless explicitly requested.
+      - service: script.send_to_logbook
+        data:
+          topic: "SYNOLOGY"
+          message: >-
+            {{ host_name }} reported a Synology DSM problem for 10 minutes.
+            Repair {{ issue_id }} opened and Joanna investigation requested.
+            Summary: {{ problem_summary }}.
 
   - id: synology_dsm_clear_repair_on_recovery
     alias: "Synology DSM - Clear Repair On Recovery"
