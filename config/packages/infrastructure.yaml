@@ -3,8 +3,8 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure - Observability and Joanna review workflows
-#  WAN/DNS/website/domain/cert state normalized for dashboards, plus scheduled infrastructure reviews.
+# Infrastructure - Observability, disk pressure, and Joanna review workflows
+#  WAN/DNS/website/domain/cert/Docker host state normalized for dashboards, plus scheduled infrastructure reviews.
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
@@ -12,7 +12,19 @@
 # Notes: Nightly Duplicati verification is performed by codex_appliance against the Duplicati API because HA backup entities are not available.
 # Notes: Monthly HA log hygiene review requests Telegram + GitHub issue follow-up only; Joanna must wait for approval before any changes.
 # Notes: Numeric WAN telemetry exposes state_class so recorder can keep long-term statistics.
+# Notes: Docker host root disk usage uses Glances-backed normalized sensors; raw Glances sensors are recorder/logbook-filtered.
 ######################################################################
+
+input_text:
+  docker_17_disk_pressure_band:
+    name: "docker_17 disk pressure band"
+    max: 20
+  docker_14_disk_pressure_band:
+    name: "docker_14 disk pressure band"
+    max: 20
+  docker_69_disk_pressure_band:
+    name: "docker_69 disk pressure band"
+    max: 20
 
 command_line:
   - sensor:
@@ -57,6 +69,30 @@ template:
           {% else %}
             {{ fallback }}
           {% endif %}
+
+      - name: "docker_17 Disk Used Percentage"
+        unique_id: docker_17_disk_used_percentage
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:harddisk
+        availability: "{{ states('sensor.192_168_10_17_disk_usage') not in ['unknown', 'unavailable', 'none', ''] }}"
+        state: "{{ states('sensor.192_168_10_17_disk_usage') | float(0) | round(1) }}"
+
+      - name: "docker_14 Disk Used Percentage"
+        unique_id: docker_14_disk_used_percentage
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:harddisk
+        availability: "{{ states('sensor.docker14_disk_usage') not in ['unknown', 'unavailable', 'none', ''] }}"
+        state: "{{ states('sensor.docker14_disk_usage') | float(0) | round(1) }}"
+
+      - name: "docker_69 Disk Used Percentage"
+        unique_id: docker_69_disk_used_percentage
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:harddisk
+        availability: "{{ states('sensor.docker69_disk_usage') not in ['unknown', 'unavailable', 'none', ''] }}"
+        state: "{{ states('sensor.docker69_disk_usage') | float(0) | round(1) }}"
 
       - name: "Infra Domain Expiry Min Days"
         unique_id: infra_domain_expiry_min_days
@@ -333,6 +369,199 @@ automation:
             continue_on_error: true
             data:
               issue_id: infra_website_latency_degraded
+
+  - alias: "Docker Host Disk Pressure Monitor"
+    id: docker_host_disk_pressure_monitor
+    description: "Track Docker host root disk pressure from normalized Glances sensors and dispatch Joanna on band changes."
+    mode: queued
+    trigger:
+      - platform: time_pattern
+        minutes: "/15"
+      - platform: state
+        entity_id:
+          - sensor.docker_17_disk_used_percentage
+          - sensor.docker_14_disk_used_percentage
+          - sensor.docker_69_disk_used_percentage
+    variables:
+      host_configs:
+        - host_id: docker_17
+          host_name: docker_17
+          disk_entity: sensor.docker_17_disk_used_percentage
+          raw_entity: sensor.192_168_10_17_disk_usage
+          free_entity: sensor.192_168_10_17_disk_free
+          used_entity: sensor.192_168_10_17_disk_used
+          band_entity: input_text.docker_17_disk_pressure_band
+          issue_id: docker_host_docker_17_disk_pressure
+        - host_id: docker_14
+          host_name: docker_14
+          disk_entity: sensor.docker_14_disk_used_percentage
+          raw_entity: sensor.docker14_disk_usage
+          free_entity: sensor.docker14_disk_free
+          used_entity: sensor.docker14_disk_used
+          band_entity: input_text.docker_14_disk_pressure_band
+          issue_id: docker_host_docker_14_disk_pressure
+        - host_id: docker_69
+          host_name: docker_69
+          disk_entity: sensor.docker_69_disk_used_percentage
+          raw_entity: sensor.docker69_disk_usage
+          free_entity: sensor.docker69_disk_free
+          used_entity: sensor.docker69_disk_used
+          band_entity: input_text.docker_69_disk_pressure_band
+          issue_id: docker_host_docker_69_disk_pressure
+    action:
+      - repeat:
+          for_each: "{{ host_configs }}"
+          sequence:
+            - variables:
+                host_id: "{{ repeat.item.host_id }}"
+                host_name: "{{ repeat.item.host_name }}"
+                disk_entity: "{{ repeat.item.disk_entity }}"
+                raw_entity: "{{ repeat.item.raw_entity }}"
+                free_entity: "{{ repeat.item.free_entity }}"
+                used_entity: "{{ repeat.item.used_entity }}"
+                band_entity: "{{ repeat.item.band_entity }}"
+                issue_id: "{{ repeat.item.issue_id }}"
+                disk_state: "{{ states(disk_entity) }}"
+                disk_pct: "{{ disk_state | float(0) }}"
+                previous_band: "{{ states(band_entity) | lower }}"
+                current_band: >-
+                  {{ 'unavailable' if disk_state in ['unknown', 'unavailable', 'none', '']
+                     else 'critical' if disk_pct >= 90
+                     else 'warning' if disk_pct >= 80
+                     else 'normal' }}
+            - choose:
+                - conditions: "{{ current_band == 'critical' and previous_band != 'critical' }}"
+                  sequence:
+                    - service: repairs.create
+                      data:
+                        issue_id: "{{ issue_id }}"
+                        severity: error
+                        persistent: true
+                        title: "{{ host_name }} disk pressure critical ({{ disk_pct | round(1) }}%)"
+                        description: >-
+                          {{ host_name }} root disk usage is critically high.
+                          Free space or expand the host filesystem before Docker workloads fail.
+                    - service: script.joanna_dispatch
+                      data:
+                        trigger_context: "HA automation docker_host_disk_pressure_monitor (Docker Host Disk Pressure Monitor - Critical)"
+                        source: "home_assistant_automation.docker_host_disk_pressure_monitor.critical"
+                        summary: "{{ host_name }} root disk pressure is critical at {{ disk_pct | round(1) }}%"
+                        entity_ids:
+                          - "{{ disk_entity }}"
+                          - "{{ raw_entity }}"
+                          - "{{ free_entity }}"
+                          - "{{ used_entity }}"
+                        diagnostics: >-
+                          issue_id={{ issue_id }},
+                          host_id={{ host_id }},
+                          disk_entity={{ disk_entity }},
+                          raw_entity={{ raw_entity }},
+                          disk_pct={{ disk_pct | round(1) }},
+                          disk_free={{ states(free_entity) }},
+                          disk_used={{ states(used_entity) }},
+                          threshold=90
+                        request: >-
+                          Investigate critical disk pressure on {{ host_name }} and recommend safe remediation.
+                          Check Docker build cache, image/container volumes, logs, backups, and large files first.
+                          Do not delete data, prune containers, or reboot the host unless explicitly requested.
+                    - service: script.send_to_logbook
+                      data:
+                        topic: "DOCKER"
+                        message: >-
+                          {{ host_name }} disk usage is critical at {{ disk_pct | round(1) }}%.
+                          Repair {{ issue_id }} opened and Joanna investigation requested.
+                    - service: input_text.set_value
+                      target:
+                        entity_id: "{{ band_entity }}"
+                      data:
+                        value: "critical"
+                - conditions: "{{ current_band == 'warning' and previous_band not in ['warning', 'critical'] }}"
+                  sequence:
+                    - service: repairs.create
+                      data:
+                        issue_id: "{{ issue_id }}"
+                        severity: warning
+                        persistent: true
+                        title: "{{ host_name }} disk pressure warning ({{ disk_pct | round(1) }}%)"
+                        description: >-
+                          {{ host_name }} root disk usage is elevated.
+                          Plan cleanup before capacity reaches critical levels.
+                    - service: script.joanna_dispatch
+                      data:
+                        trigger_context: "HA automation docker_host_disk_pressure_monitor (Docker Host Disk Pressure Monitor - Warning)"
+                        source: "home_assistant_automation.docker_host_disk_pressure_monitor.warning"
+                        summary: "{{ host_name }} root disk pressure warning at {{ disk_pct | round(1) }}%"
+                        entity_ids:
+                          - "{{ disk_entity }}"
+                          - "{{ raw_entity }}"
+                          - "{{ free_entity }}"
+                          - "{{ used_entity }}"
+                        diagnostics: >-
+                          issue_id={{ issue_id }},
+                          host_id={{ host_id }},
+                          disk_entity={{ disk_entity }},
+                          raw_entity={{ raw_entity }},
+                          disk_pct={{ disk_pct | round(1) }},
+                          disk_free={{ states(free_entity) }},
+                          disk_used={{ states(used_entity) }},
+                          threshold=80
+                        request: >-
+                          Investigate elevated disk usage on {{ host_name }} and recommend safe cleanup before it becomes critical.
+                          Check Docker build cache, image/container volumes, logs, backups, and large files first.
+                          Do not delete data, prune containers, or reboot the host unless explicitly requested.
+                    - service: script.send_to_logbook
+                      data:
+                        topic: "DOCKER"
+                        message: >-
+                          {{ host_name }} disk usage warning at {{ disk_pct | round(1) }}%.
+                          Repair {{ issue_id }} opened and Joanna investigation requested.
+                    - service: input_text.set_value
+                      target:
+                        entity_id: "{{ band_entity }}"
+                      data:
+                        value: "warning"
+                - conditions: "{{ current_band == 'warning' and previous_band == 'critical' }}"
+                  sequence:
+                    - service: repairs.create
+                      data:
+                        issue_id: "{{ issue_id }}"
+                        severity: warning
+                        persistent: true
+                        title: "{{ host_name }} disk pressure warning ({{ disk_pct | round(1) }}%)"
+                        description: >-
+                          {{ host_name }} root disk usage is elevated but no longer critical.
+                          Continue cleanup before capacity reaches critical levels again.
+                    - service: script.send_to_logbook
+                      data:
+                        topic: "DOCKER"
+                        message: "{{ host_name }} disk usage dropped from critical to warning at {{ disk_pct | round(1) }}%."
+                    - service: input_text.set_value
+                      target:
+                        entity_id: "{{ band_entity }}"
+                      data:
+                        value: "warning"
+                - conditions: "{{ current_band == 'normal' and previous_band in ['warning', 'critical'] }}"
+                  sequence:
+                    - service: repairs.remove
+                      continue_on_error: true
+                      data:
+                        issue_id: "{{ issue_id }}"
+                    - service: script.send_to_logbook
+                      data:
+                        topic: "DOCKER"
+                        message: "{{ host_name }} disk usage recovered to {{ disk_pct | round(1) }}%. Repair {{ issue_id }} cleared."
+                    - service: input_text.set_value
+                      target:
+                        entity_id: "{{ band_entity }}"
+                      data:
+                        value: "normal"
+                - conditions: "{{ current_band == 'normal' and previous_band not in ['normal', 'warning', 'critical'] }}"
+                  sequence:
+                    - service: input_text.set_value
+                      target:
+                        entity_id: "{{ band_entity }}"
+                      data:
+                        value: "normal"
 
   - alias: "Infrastructure - Backup Nightly Verification"
     id: infra_backup_nightly_verification

@@ -5,7 +5,7 @@
 # -------------------------------------------------------------------
 # Docker Infrastructure - Host patching and container alerts
 # Related Issue: 1632, 1584
-#  APT webhook results (docker_10/14/17/69) and container down repairs.
+#  APT results and container down repairs.
 # -------------------------------------------------------------------
 # Notes: Hosts run weekly Wed 12:00 APT job and POST JSON to webhooks.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
@@ -1157,7 +1157,7 @@ automation:
     action:
       - variables:
           down_items: "{{ state_attr('sensor.docker_containers_down_list', 'down_containers') | default([], true) | list }}"
-          down_count: "{{ down_items | count }}"
+          down_count: "{{ states('sensor.docker_containers_down_count') | int(0) }}"
       - service: script.send_to_logbook
         data:
           topic: "DOCKER"
@@ -1242,9 +1242,8 @@ automation:
       - platform: time
         at: "03:15:00"
     condition:
-      - condition: time
-        weekday:
-          - sun
+      - condition: template
+        value_template: "{{ now().weekday() == 6 }}"
     action:
       - service: button.press
         target:

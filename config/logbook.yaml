@@ -6,7 +6,7 @@
 # Logbook Configuration - Activity/Logbook display controls
 #  Defines what is hidden from the Activity/logbook view to keep noise down.
 # -------------------------------------------------------------------
-# Notes: Filters vcloudinfo availability chatter plus location/weather noise.
+# Notes: Filters vcloudinfo availability chatter plus location/weather noise and raw Glances host telemetry.
 ######################################################################
 
 exclude:
@@ -35,6 +35,11 @@ exclude:
     - sensor.*_activity
     - sensor.*_bssid
     - sensor.*_wifi_signal_strength
+    - sensor.192_168_10_17_*
+    - sensor.docker14_*
+    - sensor.docker69_*
+    - sensor.docker_*_disk_used_percentage
+    - input_text.docker_*_disk_pressure_band
     - switch.*_container
     - "*alarm_panel_1*"
     - "*alarm_panel_2*"
