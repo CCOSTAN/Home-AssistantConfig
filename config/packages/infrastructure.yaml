@@ -13,6 +13,7 @@
 # Notes: Monthly HA log hygiene review requests Telegram + GitHub issue follow-up only; Joanna must wait for approval before any changes.
 # Notes: Numeric WAN telemetry exposes state_class so recorder can keep long-term statistics.
 # Notes: Docker host root disk usage uses Glances-backed normalized sensors; raw Glances sensors are recorder/logbook-filtered.
+# Notes: Disk-pressure dispatch allows bounded safe cleanup of disposable caches and old generated backup artifacts, but not live data or restarts.
 ######################################################################
 
 input_text:
@@ -461,9 +462,11 @@ automation:
                           disk_used={{ states(used_entity) }},
                           threshold=90
                         request: >-
-                          Investigate critical disk pressure on {{ host_name }} and recommend safe remediation.
+                          Investigate critical disk pressure on {{ host_name }} and perform safe remediation when confidence is high.
                           Check Docker build cache, image/container volumes, logs, backups, and large files first.
-                          Do not delete data, prune containers, or reboot the host unless explicitly requested.
+                          Allowed without confirmation: clear disposable caches, remove unused build cache, and rotate or delete old generated backup artifacts when newer retained copies exist.
+                          Do not delete live application data, remove the only copy of a backup, prune active or in-use Docker resources, stop critical services, or reboot the host without explicit approval.
+                          Reply with resolved=true/false, action_taken, verification, and next_action_required=true/false.
                     - service: script.send_to_logbook
                       data:
                         topic: "DOCKER"
@@ -506,9 +509,11 @@ automation:
                           disk_used={{ states(used_entity) }},
                           threshold=80
                         request: >-
-                          Investigate elevated disk usage on {{ host_name }} and recommend safe cleanup before it becomes critical.
+                          Investigate elevated disk usage on {{ host_name }} and perform safe low-risk cleanup before it becomes critical when confidence is high.
                           Check Docker build cache, image/container volumes, logs, backups, and large files first.
-                          Do not delete data, prune containers, or reboot the host unless explicitly requested.
+                          Allowed without confirmation: clear disposable caches, remove unused build cache, and rotate or delete old generated backup artifacts when newer retained copies exist.
+                          Do not delete live application data, remove the only copy of a backup, prune active or in-use Docker resources, stop critical services, or reboot the host without explicit approval.
+                          Reply with resolved=true/false, action_taken, verification, and next_action_required=true/false.
                     - service: script.send_to_logbook
                       data:
                         topic: "DOCKER"
@@ -557,6 +562,10 @@ automation:
                         value: "normal"
                 - conditions: "{{ current_band == 'normal' and previous_band not in ['normal', 'warning', 'critical'] }}"
                   sequence:
+                    - service: repairs.remove
+                      continue_on_error: true
+                      data:
+                        issue_id: "{{ issue_id }}"
                     - service: input_text.set_value
                       target:
                         entity_id: "{{ band_entity }}"
