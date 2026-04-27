@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------
 # Notes: Expects JSON with title/message/type from the Tugtainer template.
 # Notes: Creates persistent notifications and stamps last-update time.
-# Notes: Fires `tugtainer_available_detected` when report contains `### Available:`.
+# Notes: Fires update events independently when a report has both Available and Updated sections.
 # Notes: Fires `tugtainer_home_assistant_core_updated` when `### Updated:` includes Home Assistant.
 # Notes: Home Assistant changelog dispatch uses core-YYYY.M URL format from parsed/fallback version.
 # Notes: Joanna dispatch cooldown uses mode=single with a 24-hour delay lockout.
@@ -89,29 +89,28 @@ automation:
         data:
           title: "{{ title }}"
           message: "{{ full_message }}"
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ has_available_section }}"
-            sequence:
-              - event: tugtainer_available_detected
-                event_data:
-                  title: "{{ title }}"
-                  event_type: "{{ event_type }}"
-                  message: "{{ message }}"
-          - conditions:
-              - condition: template
-                value_template: "{{ ha_core_update_detected and (ha_core_version_minor | trim != '') }}"
-            sequence:
-              - event: tugtainer_home_assistant_core_updated
-                event_data:
-                  title: "{{ title }}"
-                  event_type: "{{ event_type }}"
-                  message: "{{ message }}"
-                  core_version_full: "{{ ha_core_version_full | trim }}"
-                  core_version_minor: "{{ ha_core_version_minor | trim }}"
-                  changelog_url: "{{ ha_core_changelog_url | trim }}"
-                  report_excerpt: "{{ ha_report_excerpt | trim }}"
+      - if:
+          - condition: template
+            value_template: "{{ has_available_section }}"
+        then:
+          - event: tugtainer_available_detected
+            event_data:
+              title: "{{ title }}"
+              event_type: "{{ event_type }}"
+              message: "{{ message }}"
+      - if:
+          - condition: template
+            value_template: "{{ ha_core_update_detected and (ha_core_version_minor | trim != '') }}"
+        then:
+          - event: tugtainer_home_assistant_core_updated
+            event_data:
+              title: "{{ title }}"
+              event_type: "{{ event_type }}"
+              message: "{{ message }}"
+              core_version_full: "{{ ha_core_version_full | trim }}"
+              core_version_minor: "{{ ha_core_version_minor | trim }}"
+              changelog_url: "{{ ha_core_changelog_url | trim }}"
+              report_excerpt: "{{ ha_report_excerpt | trim }}"
 
   - alias: "Tugtainer - Dispatch Joanna For Available Updates"
     id: tugtainer_dispatch_joanna_for_available_updates
@@ -149,7 +148,7 @@ automation:
 
   - alias: "Tugtainer - Dispatch Joanna For Home Assistant Core Digest"
     id: tugtainer_dispatch_joanna_for_home_assistant_core_digest
-    description: "Dispatch Joanna after Home Assistant core is updated so changelog actions are captured in a GitHub digest issue."
+    description: "Dispatch Joanna after Home Assistant core is updated so relevant changelog notes reach the morning digest."
     mode: queued
     trigger:
       - platform: event
@@ -187,7 +186,7 @@ automation:
           source: "home_assistant_automation.tugtainer_home_assistant_core_digest"
           summary: >-
             Home Assistant core updated to {{ core_version_full }} via Tugtainer.
-            Build changelog digest and open/refresh the GitHub Update Digest issue.
+            Queue a concise changelog note for the morning digest.
           entity_ids:
             - "input_datetime.tugtainer_last_update"
           diagnostics: >-

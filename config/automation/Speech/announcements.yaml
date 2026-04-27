@@ -1,17 +1,14 @@
-#-------------------------------------------
-# People Greeting Announcement
-# Description: Announces when family members arrive home
-#
-# Features:
-# - Triggers when a person's state changes from 'not_home' to 'home'
-# - Waits for specific sensors to confirm entry
-# - Uses speech_engine script for personalized welcome messages
-# - Includes responsibility reminders and home status checks
-#
-# Integration: Uses ChromeCast for audio output
-# Follow me https://www.vcloudinfo.com/click-here
-# More Blog Posts: https://www.vcloudinfo.com
-#-------------------------------------------
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# People Greeting Announcement - family and Life360 arrival greetings
+#  Announces covered home arrivals after entry sensor confirmation.
+# -------------------------------------------------------------------
+# Notes: `group.arriving` batches simultaneous arrivals; Life360 triggers
+# only include tracked people not already covered by `group.family`.
+######################################################################
 - alias: 'People Greeting'
   id: 29c5c9dd-550a-4761-a224-78cdc3dd9f43
   mode: restart
@@ -24,6 +21,24 @@
         - person.justin
       from: 'not_home'
       to: 'home'
+    - platform: state
+      entity_id:
+        - device_tracker.life360_adriano_costanzo
+        - device_tracker.life360_amanda_desantis
+        - device_tracker.life360_gabriella_desantis
+        - device_tracker.life360_jessica_desantis
+        - device_tracker.life360_joseph_desantis
+        - device_tracker.life360_joyce_ruskin
+        - device_tracker.life360_yolanda_costanzo
+      to: 'home'
+
+  condition:
+    - condition: template
+      value_template: >-
+        {{
+          trigger.from_state is not none
+          and trigger.from_state.state not in ['home', 'unknown', 'unavailable']
+        }}
 
   action:
     # This Group is defined in the groups directory.
@@ -44,7 +59,12 @@
     - service: script.speech_engine
       data:
         personarriving: >
-          {% set person = expand('group.arriving')|map(attribute='name')|join(' and ') %}
+          {% set ns = namespace(names=[]) %}
+          {% for arrival in expand('group.arriving') %}
+            {% set clean_name = arrival.name | replace('Life360 ', '') | trim %}
+            {% set ns.names = ns.names + [clean_name.split(' ')[0]] %}
+          {% endfor %}
+          {% set person = ns.names | join(' and ') if ns.names else 'someone' %}
           {%- macro greeting_sentence(person) -%}
             {{"[Welcome " + person + " home]" }}
           {%- endmacro -%}

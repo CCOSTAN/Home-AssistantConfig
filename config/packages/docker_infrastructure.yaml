@@ -15,6 +15,7 @@
 # Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
 # Notes: Outage escalation keys off the configured monitored group so host-wide telemetry drops do not fall out of scope before the delayed Joanna dispatch runs.
 # Notes: Weekly reconcile should replace retired container-name switches with the current container-ID-prefixed discovery set.
+# Notes: Tapple is now served by `games_hub` on `/tapple/`; do not keep a standalone `tapple` container switch in the monitored group.
 ######################################################################
 
 input_datetime:
@@ -144,8 +145,6 @@ switch:
       - switch.redis_webhooks_engine_container_2
       - switch.rvtools_ppt_web_container
       - switch.rvtools_ppt_web_container_2
-      - switch.tapple_container
-      - switch.tapple_container_2
       - switch.tugtainer_agent_container
       - switch.tugtainer_agent_container_2
       - switch.tugtainer_container
