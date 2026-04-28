@@ -15,6 +15,7 @@
 # Notes: Nightly Duplicati verification calls a codex_appliance admin endpoint and returns structured health to HA via response_variable.
 # Notes: v2 intake is the primary HA contract; legacy command/ingest routes remain appliance-side shims.
 # Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
+# Notes: Command payload supports optional metadata for HA dispatch context snapshots.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
 
@@ -49,6 +50,7 @@ rest_command:
             "callbackEventType": "lifecycle"
           }
         ],
+        "metadata": {{ metadata | default({}, true) | tojson }},
         "priority": {{ priority | default(none) | tojson }},
         "async_only": {{ async_only | default(false) | tojson }}
       }
@@ -127,6 +129,7 @@ sensor:
       - active
       - platform
       - transports
+      - followups
       - qmdHealth
       - memoryIndex
 
