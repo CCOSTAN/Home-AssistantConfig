@@ -53,7 +53,6 @@ What the helper normalizes before the BearClaw intake call:
 Current automations that kick off automated resolutions (via `script.joanna_dispatch`):
 | Automation ID | Alias | File |
 | --- | --- | --- |
-| `github_watched_repo_scout_nightly` | GitHub Watched Repo Scout - Nightly Joanna Review | [../packages/github_watched_repo_scout.yaml](../packages/github_watched_repo_scout.yaml) |
 | `mqtt_open_repair_on_failure` | MQTT - Open Repair On Failure | [../packages/mqtt_status.yaml](../packages/mqtt_status.yaml) |
 | `onenote_indexer_daily_delete_maintenance` | OneNote Indexer - Daily Delete Maintenance Request | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
 | `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |

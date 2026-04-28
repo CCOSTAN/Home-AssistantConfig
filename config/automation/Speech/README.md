@@ -26,7 +26,7 @@ Speech-first automations: contextual announcements, stats briefings, guest mode 
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [announcements.yaml](announcements.yaml) | Daily/occasional broadcast messages with quiet hours. |
+| [announcements.yaml](announcements.yaml) | Family and tracked Life360 arrival greetings plus daily/occasional broadcast messages. |
 | [home_stats.yaml](home_stats.yaml) | Voice summary of house status and interesting stats. |
 | [guest_mode.yaml](guest_mode.yaml) | Adjust announcements and behaviors while guests are over. |
 | [High_Wind_Speed_Check.yaml](High_Wind_Speed_Check.yaml) | Warn about severe wind before it causes issues. |

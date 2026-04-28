@@ -38,6 +38,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 - **Templates (`templates/`)** – Jinja helpers and speech templates reused by the notify/speech engines.
 - **Dashboards (`dashboards/`)** – YAML-managed Lovelace dashboards and UI resources (generated from storage, then maintained as code).
 - **www/ + custom components** – branding assets, floorplans, and any custom components the core install depends on.
+- **Custom Sidebar (`www/custom-sidebar-config.yaml`)** – restores the Developer Tools shortcut in the bottom sidebar through the HACS-managed Custom Sidebar plugin.
 
 ### Featured automations by section
 | Section | Why start here | Featured automation(s) |
