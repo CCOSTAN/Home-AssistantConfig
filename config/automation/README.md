@@ -28,6 +28,7 @@ Event-driven automations that sit outside the self-contained packages. These tie
 | File | Why it matters |
 | --- | --- |
 | [garage_entry_light.yaml](garage_entry_light.yaml) | Z-Wave door sensor + motion-controlled garage entry lighting. |
+| [kitchen_sink_circadian.yaml](kitchen_sink_circadian.yaml) | Sink light follows a soft morning, warm daytime, and sunset color-temperature schedule. |
 | [dark_rainy_day.yaml](dark_rainy_day.yaml) | Weather-aware lighting helper for gloomy days. |
 | [dash_buttons.yaml](dash_buttons.yaml) | Amazon Dash buttons repurposed as quick triggers. |
 | [good_night.yaml](good_night.yaml) | Whole-house shutdown and lock-up routine. |
