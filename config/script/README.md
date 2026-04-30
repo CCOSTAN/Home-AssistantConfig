@@ -31,7 +31,7 @@ Reusable scripts that other automations call for notifications, lighting, safety
 | [notify_live_activity.yaml](notify_live_activity.yaml) | Shared helper for tagged live activity/live update pushes and clear commands. |
 | [send_to_logbook.yaml](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
 | [joanna_dispatch.yaml](joanna_dispatch.yaml) | Shared AGENT engineer dispatch contract that routes HA-detected issues into Joanna/BearClaw remediation. |
-| [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech. |
+| [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech; speech processing also routes garage Echo announcements and office Echo announcements when the office lamp switch indicates active PC work. |
 | [monthly_color_scene.yaml](monthly_color_scene.yaml) | Seasonal lighting scenes used across automations. |
 | [interior_off.yaml](interior_off.yaml) | One-call "all interior lights off" helper. |
 

@@ -6,7 +6,9 @@
 # Kitchen Sink Circadian Light - all-day white tuning
 #  Turns on after morning bed exits, follows the sun, and shuts down at bedtime.
 # -------------------------------------------------------------------
+# Related Issue: n/a
 # Notes: Uses color temperature only to avoid inherited color scenes.
+#  TV playback keeps the sink off so media time does not re-light it.
 ######################################################################
 
 - alias: "Kitchen Sink Circadian Daylight"
@@ -29,6 +31,10 @@
       to: "on"
       for: "00:05:00"
       id: bed_in
+    - platform: state
+      entity_id: media_player.living_room_ultra
+      to: "playing"
+      id: tv_playing
     - platform: sun
       event: sunrise
       offset: "-00:30:00"
@@ -61,6 +67,8 @@
              or is_state('person.stacey', 'not_home') %}
           {% set evening = is_state('sun.sun', 'below_horizon') or now().hour >= 20 or now().hour < 4 %}
           {{ evening and carlo_done and stacey_done }}
+        tv_active: >-
+          {{ is_state('media_player.living_room_ultra', 'playing') }}
         awake_home: >-
           {% set carlo_awake = is_state('person.carlo', 'home')
              and is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off') %}
@@ -93,9 +101,19 @@
         manage_sink: >-
           {{ is_state('group.family', 'home')
              and is_state('input_boolean.guest_mode', 'off')
+             and not (tv_active | bool)
              and ((awake_home | bool) or is_state('light.sink', 'on'))
              and (is_state('light.sink', 'on') or now().hour >= 4) }}
     - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ tv_active | bool }}"
+          sequence:
+            - service: light.turn_off
+              target:
+                entity_id: light.sink
+              data:
+                transition: 60
         - conditions:
             - condition: template
               value_template: "{{ bedtime_active | bool }}"

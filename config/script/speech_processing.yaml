@@ -1,22 +1,17 @@
-#-------------------------------------------
-# Speech Processing Script
-# Description: Sends notifications to ChromeCast Audio devices
-#
-# Features:
-# - Operates during specified hours
-# - Activates when family is home or guest/vacation mode is on
-# - Adjustable volume based on time of day
-#
-# Usage:
-#   action: 
-#     service: script.speech_engine
-#     data:
-#       media_player: [target_media_player]
-#       speech_message: [message_to_speak]
-#
-# Original Repo: https://github.com/CCOSTAN/Home-AssistantConfig
-# Follow me on https://www.vcloudinfo.com/click-here
-#-------------------------------------------
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Speech Processing Script - shared spoken announcement delivery
+#  Sends OpenAI-polished speech to Chromecast targets and routed Echo announcements.
+# -------------------------------------------------------------------
+# Related Issue: 798
+# Notes: Operates only when family/guest/vacation and speech notification
+#  guards allow it, with time-aware volume.
+# Notes: Garage Echo is an always-on announcement target. Office Echo is
+#  added when switch.office_lamp_switch is on, which tracks active PC work.
+######################################################################
 
 speech_processing:
   mode: queued
@@ -79,18 +74,50 @@ speech_processing:
           {{ speech_message }}
       response_variable: agent
 
+    - variables:
+        speech_response: "{{ agent.response.speech.plain.speech }}"
+        routed_media_players: "{{ media_player | string | lower }}"
+
     - service: tts.cloud_say
       data:
-        entity_id: media_player.livingroomCC
+        entity_id: >
+          {{ media_player }}
         options: 
           voice: JennyNeural
         message: >-
-              {{ agent.response.speech.plain.speech }}
+          {{ speech_response }}
         cache: false
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ 'media_player.garage' not in routed_media_players }}"
+          sequence:
+            - service: notify.alexa_media_garage
+              continue_on_error: true
+              data:
+                message: "{{ speech_response }}"
+                data:
+                  type: announce
+
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: switch.office_lamp_switch
+              state: 'on'
+            - condition: template
+              value_template: "{{ 'media_player.office' not in routed_media_players }}"
+          sequence:
+            - service: notify.alexa_media_office
+              continue_on_error: true
+              data:
+                message: "{{ speech_response }}"
+                data:
+                  type: announce
 
     - event: openai_response
       event_data:
-        response: "{{ now().strftime('%B %d,%Y %-I:%M %p') }} {{ agent.response.speech.plain.speech }}"
+        response: "{{ now().strftime('%B %d,%Y %-I:%M %p') }} {{ speech_response }}"
 
     - service: input_boolean.turn_off
       data:
