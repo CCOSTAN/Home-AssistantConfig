@@ -9,6 +9,7 @@
 # Related Issue: n/a
 # Notes: Uses color temperature only to avoid inherited color scenes.
 #  TV playback keeps the sink off so media time does not re-light it.
+# Notes: Office lamp switch off-gates the sink while active PC work is in progress.
 ######################################################################
 
 - alias: "Kitchen Sink Circadian Daylight"
@@ -35,6 +36,10 @@
       entity_id: media_player.living_room_ultra
       to: "playing"
       id: tv_playing
+    - platform: state
+      entity_id: switch.office_lamp_switch
+      to: "on"
+      id: working
     - platform: sun
       event: sunrise
       offset: "-00:30:00"
@@ -75,6 +80,8 @@
           {% set stacey_awake = is_state('person.stacey', 'home')
              and is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off') %}
           {{ carlo_awake or stacey_awake }}
+        working_active: >-
+          {{ is_state('switch.office_lamp_switch', 'on') }}
         target_kelvin: >-
           {% set elevation = state_attr('sun.sun', 'elevation') | float(-90) %}
           {% if elevation <= -2 %}
@@ -102,12 +109,13 @@
           {{ is_state('group.family', 'home')
              and is_state('input_boolean.guest_mode', 'off')
              and not (tv_active | bool)
+             and not (working_active | bool)
              and ((awake_home | bool) or is_state('light.sink', 'on'))
              and (is_state('light.sink', 'on') or now().hour >= 4) }}
     - choose:
         - conditions:
             - condition: template
-              value_template: "{{ tv_active | bool }}"
+              value_template: "{{ tv_active | bool or working_active | bool }}"
           sequence:
             - service: light.turn_off
               target:
