@@ -9,7 +9,7 @@
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
 # Notes: Domain warning threshold is <30 days; critical threshold is <14 days.
-# Notes: Nightly Duplicati verification is performed by codex_appliance after the Duplicati retry window because HA backup entities are not available.
+# Notes: Nightly Duplicati verification runs at 08:00 after the 05:30 Duplicati job and docker_14 reboot window.
 # Notes: Monthly HA log hygiene review requests Telegram + GitHub issue follow-up only; Joanna must wait for approval before any changes.
 # Notes: Numeric WAN telemetry exposes state_class so recorder can keep long-term statistics.
 # Notes: Docker host root disk usage uses Glances-backed normalized sensors; raw Glances sensors are recorder/logbook-filtered.
@@ -578,7 +578,7 @@ automation:
     mode: single
     trigger:
       - platform: time
-        at: "06:45:00"
+        at: "08:00:00"
     action:
       - variables:
           trigger_context: "HA automation infra_backup_nightly_verification (Infrastructure - Backup Nightly Verification)"
@@ -612,6 +612,10 @@ automation:
                 continue_on_error: true
                 data:
                   issue_id: infra_duplicati_backup_failure
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: user_infra_duplicati_backup_failure
         default:
           - service: repairs.create
             data:
@@ -633,7 +637,7 @@ automation:
               entity_ids:
                 - "switch.duplicati_container"
               diagnostics: >-
-                scheduled_time=06:45:00,
+                scheduled_time=08:00:00,
                 duplicati_container={{ duplicati_state }},
                 verifier_http_status={{ verify_http_status }},
                 verifier_status={{ verify_status }},

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Weekly APT maintenance for docker hosts (runs Wednesdays at 12:00 local via systemd timer)
+# Twice-weekly APT maintenance for Docker hosts (Mon/Thu 12:00 via systemd timer).
 # Posts results to Home Assistant webhook and optionally schedules reboot when required.
 
 WEBHOOK_URL="$1"
@@ -25,21 +25,28 @@ fi
 
 log() { echo "[$(date --iso-8601=seconds)] $*"; }
 
+APT_OPTS=(-o Acquire::ForceIPv4=true)
 UPDATED=false
 REBOOT=false
 MESSAGE=""
 log "Updating package lists"
-if ! apt-get update -qq; then
+if ! apt-get "${APT_OPTS[@]}" update -qq; then
   MESSAGE="apt-get update failed"
   curl -sS -X POST -H 'Content-Type: application/json' -d "{\"success\":false,\"updated\":false,\"packages\":0,\"reboot_required\":false,\"message\":\"$MESSAGE\"}" "$WEBHOOK_URL"
   exit 0
 fi
 
-PACKAGES=$(apt list --upgradable 2>/dev/null | tail -n +2 | wc -l)
+UPGRADABLE="$(apt list --upgradable 2>/dev/null | tail -n +2 || true)"
+PACKAGES=0
+SECURITY_PACKAGES=0
+if [[ -n "$UPGRADABLE" ]]; then
+  PACKAGES="$(printf '%s\n' "$UPGRADABLE" | sed '/^[[:space:]]*$/d' | wc -l)"
+  SECURITY_PACKAGES="$(printf '%s\n' "$UPGRADABLE" | grep -Ec '(^|,|-)(security|esm-apps-security|esm-infra-security)(,|/|[[:space:]]|$)' || true)"
+fi
 
 if [[ "$PACKAGES" -gt 0 ]]; then
   log "Applying upgrades ($PACKAGES pending)"
-  if apt-get -y upgrade --with-new-pkgs; then
+  if apt-get "${APT_OPTS[@]}" -y upgrade --with-new-pkgs; then
     UPDATED=true
   else
     MESSAGE="apt-get upgrade failed"
@@ -61,6 +68,7 @@ payload=$(cat <<JSON
   "success": $( [[ "$MESSAGE" == "" ]] && echo true || echo false ),
   "updated": $( $UPDATED && echo true || echo false ),
   "packages": $PACKAGES,
+  "security_packages": $SECURITY_PACKAGES,
   "reboot_required": $( $REBOOT && echo true || echo false ),
   "auto_reboot_scheduled": $( [[ "$REBOOT" == true && "$AUTO_REBOOT" == true && "$MESSAGE" == "" ]] && echo true || echo false ),
   "reboot_delay_minutes": ${REBOOT_DELAY_MINUTES:-0},
@@ -76,9 +84,9 @@ if [[ "$REBOOT" == true && "$AUTO_REBOOT" == true && "$MESSAGE" == "" ]]; then
   shutdown -c >/dev/null 2>&1 || true
   if [[ "$REBOOT_DELAY_MINUTES" -eq 0 ]]; then
     log "Reboot required; rebooting immediately."
-    shutdown -r now "APT weekly maintenance reboot"
+    shutdown -r now "APT maintenance reboot"
   else
     log "Reboot required; scheduling reboot in ${REBOOT_DELAY_MINUTES} minute(s)."
-    shutdown -r +"$REBOOT_DELAY_MINUTES" "APT weekly maintenance reboot"
+    shutdown -r +"$REBOOT_DELAY_MINUTES" "APT maintenance reboot"
   fi
 fi

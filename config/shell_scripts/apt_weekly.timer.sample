@@ -1,0 +1,10 @@
+[Unit]
+Description=Run APT maintenance twice weekly
+
+[Timer]
+OnCalendar=Mon,Thu *-*-* 12:00:00
+Persistent=true
+Unit=apt_weekly.service
+
+[Install]
+WantedBy=timers.target

@@ -31,6 +31,7 @@ This directory contains the `homeassistant-yaml-dry-verifier` skill and the CLI 
 - Detects duplicate entries within a single block (`INTRA`).
 - Detects package-defined scripts called from multiple files (`CENTRAL_SCRIPT`).
 - Collapses noisy ENTRY reports when they are already fully explained by an identical `FULL_BLOCK` finding.
+- Adds workflow guardrails for automation refactors that rename/remove entity references or introduce cleanup behavior: stale-reference checks, dry-run/preview expectations, explicit confirmation, and audit/backup output.
 
 ## CLI Usage
 
@@ -70,6 +71,8 @@ Exit codes:
 
 - This verifier intentionally keeps text output and a small CLI surface.
 - It does not implement suppression files, severity scoring, JSON output, or diff-only mode.
+- It is not an orphan entity cleaner and should not delete Home Assistant registry entries during normal DRY runs.
+- Treat generic `unavailable`, disabled, or no-`config_entry_id` entities as audit signals only; YAML, helper, REST, command-line, MQTT, finance, YouTube, and local infrastructure telemetry can be intentional.
 - Use it as a fast pre-refactor signal and pair with Home Assistant config validation before restart/reload.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**

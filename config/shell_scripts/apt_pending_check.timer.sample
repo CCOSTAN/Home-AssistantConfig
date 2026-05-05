@@ -1,0 +1,11 @@
+[Unit]
+Description=Run APT pending check daily
+
+[Timer]
+OnCalendar=*-*-* 07:30:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=apt_pending_check.service
+
+[Install]
+WantedBy=timers.target
