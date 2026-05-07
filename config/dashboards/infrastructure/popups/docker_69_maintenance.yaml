@@ -6,8 +6,9 @@
 # Infrastructure Popup - docker_69 maintenance
 #  Bubble Card popup for host maintenance details and safe cleanup actions.
 # -------------------------------------------------------------------
-# Related Issue: 1560
+# Related Issue: 1560, 1725
 # Notes: Reuses existing Infrastructure button-card templates inside the popup.
+# Notes: Volume prune is destructive; keep it hold-to-act with an explicit confirmation.
 ######################################################################
 
 type: vertical-stack
@@ -34,6 +35,13 @@ cards:
     variables:
       last_update_sensor: sensor.docker_69_apt_last_update
       prune_button: button.docker69_prune_unused_images
+      name: docker_69
+  - type: custom:button-card
+    template: bearstone_infra_volume_prune_tile
+    name: docker_69 volumes
+    entity: button.docker69_prune_unused_volumes
+    variables:
+      prune_button: button.docker69_prune_unused_volumes
       name: docker_69
   - type: custom:button-card
     template: bearstone_infra_tile
