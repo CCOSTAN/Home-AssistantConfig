@@ -16,6 +16,7 @@
 # Notes: v2 intake is the primary HA contract; legacy command/ingest routes remain appliance-side shims.
 # Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
 # Notes: Command payload supports optional metadata for HA dispatch context snapshots.
+# Notes: HA automation dispatches default to BearClaw's ops domain so wording like NAS "health" cannot route to the health coach.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
 
@@ -43,6 +44,10 @@ rest_command:
           "text": {{ text | tojson }},
           "context": {{ context | default(none) | tojson }},
           "callback": {{ callback | default(none) | tojson }}
+        },
+        "routing": {
+          "domainHint": {{ domain_hint | default('ops', true) | tojson }},
+          "laneHint": {{ lane_hint | default('joanna.ops', true) | tojson }}
         },
         "replyTargets": [
           {

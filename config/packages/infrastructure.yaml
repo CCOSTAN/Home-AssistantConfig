@@ -11,10 +11,12 @@
 # Notes: Domain warning threshold is <30 days; critical threshold is <14 days.
 # Notes: Nightly Duplicati verification runs at 08:00 after the 05:30 Duplicati job and docker_14 reboot window.
 # Notes: Duplicati transport/API errors are logged only; repairs are reserved for proven failed or stale backups.
+# Notes: Duplicati failure Repairs enable a recovery poll that clears the Repair after a later successful run.
 # Notes: Monthly HA log hygiene review requests Telegram + GitHub issue follow-up only; Joanna must wait for approval before any changes.
 # Notes: Numeric WAN telemetry exposes state_class so recorder can keep long-term statistics.
 # Notes: Docker host root disk usage uses Glances-backed normalized sensors; raw Glances sensors are recorder/logbook-filtered.
 # Notes: Disk-pressure dispatch allows bounded safe cleanup of disposable caches and old generated backup artifacts, but not live data or restarts.
+# Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
 ######################################################################
 
 input_text:
@@ -27,6 +29,10 @@ input_text:
   docker_69_disk_pressure_band:
     name: "docker_69 disk pressure band"
     max: 20
+
+input_boolean:
+  infra_duplicati_backup_repair_active:
+    name: "Duplicati backup repair active"
 
 command_line:
   - sensor:
@@ -481,15 +487,10 @@ automation:
                         value: "critical"
                 - conditions: "{{ current_band == 'warning' and previous_band not in ['warning', 'critical'] }}"
                   sequence:
-                    - service: repairs.create
+                    - service: repairs.remove
+                      continue_on_error: true
                       data:
                         issue_id: "{{ issue_id }}"
-                        severity: warning
-                        persistent: true
-                        title: "{{ host_name }} disk pressure warning ({{ disk_pct | round(1) }}%)"
-                        description: >-
-                          {{ host_name }} root disk usage is elevated.
-                          Plan cleanup before capacity reaches critical levels.
                     - service: script.joanna_dispatch
                       data:
                         trigger_context: "HA automation docker_host_disk_pressure_monitor (Docker Host Disk Pressure Monitor - Warning)"
@@ -520,7 +521,7 @@ automation:
                         topic: "DOCKER"
                         message: >-
                           {{ host_name }} disk usage warning at {{ disk_pct | round(1) }}%.
-                          Repair {{ issue_id }} opened and Joanna investigation requested.
+                          Joanna investigation requested without opening a warning Repair.
                     - service: input_text.set_value
                       target:
                         entity_id: "{{ band_entity }}"
@@ -528,19 +529,14 @@ automation:
                         value: "warning"
                 - conditions: "{{ current_band == 'warning' and previous_band == 'critical' }}"
                   sequence:
-                    - service: repairs.create
+                    - service: repairs.remove
+                      continue_on_error: true
                       data:
                         issue_id: "{{ issue_id }}"
-                        severity: warning
-                        persistent: true
-                        title: "{{ host_name }} disk pressure warning ({{ disk_pct | round(1) }}%)"
-                        description: >-
-                          {{ host_name }} root disk usage is elevated but no longer critical.
-                          Continue cleanup before capacity reaches critical levels again.
                     - service: script.send_to_logbook
                       data:
                         topic: "DOCKER"
-                        message: "{{ host_name }} disk usage dropped from critical to warning at {{ disk_pct | round(1) }}%."
+                        message: "{{ host_name }} disk usage dropped from critical to warning at {{ disk_pct | round(1) }}%. Critical Repair cleared; Joanna continues handling warning-level cleanup."
                     - service: input_text.set_value
                       target:
                         entity_id: "{{ band_entity }}"
@@ -580,13 +576,27 @@ automation:
     trigger:
       - platform: time
         at: "08:00:00"
+        id: nightly
+      - platform: time_pattern
+        minutes: "15"
+        id: recovery_poll
+      - platform: time_pattern
+        minutes: "45"
+        id: recovery_poll
+    condition:
+      - condition: template
+        value_template: >-
+          {{ trigger is not defined or trigger.id != 'recovery_poll'
+             or is_state('input_boolean.infra_duplicati_backup_repair_active', 'on') }}
     action:
       - variables:
+          trigger_source: "{{ trigger.id if trigger is defined and trigger.id is defined else 'manual' }}"
+          verifier_reason: "{{ 'ha_failure_followup' if trigger_source == 'recovery_poll' else 'ha_nightly' }}"
           trigger_context: "HA automation infra_backup_nightly_verification (Infrastructure - Backup Nightly Verification)"
           duplicati_state: "{{ states('switch.duplicati_container') }}"
       - action: rest_command.bearclaw_duplicati_verify
         data:
-          reason: "ha_nightly"
+          reason: "{{ verifier_reason }}"
         response_variable: duplicati_verify
       - service: script.send_to_logbook
         data:
@@ -618,6 +628,9 @@ automation:
                 continue_on_error: true
                 data:
                   issue_id: user_infra_duplicati_backup_failure
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.infra_duplicati_backup_repair_active
           - conditions: "{{ verify_transport_issue }}"
             sequence:
               - service: script.send_to_logbook
@@ -628,46 +641,60 @@ automation:
                     status {{ verify_status }} with issue {{ verify_issue }}. No repair card was opened because
                     this is verifier transport state, not a confirmed backup failure.
         default:
-          - service: repairs.create
-            data:
-              issue_id: infra_duplicati_backup_failure
-              title: "Duplicati nightly backup verification failed"
-              description: >-
-                {{ verify_summary }}
-                Backup={{ verify_backup_name }};
-                status={{ verify_status }};
-                last_result={{ verify_latest_result.get('endedAt', 'n/a') }};
-                last_success={{ verify_last_success.get('endedAt', 'n/a') }}.
-              severity: error
-              persistent: true
-          - service: script.joanna_dispatch
-            data:
-              trigger_context: "{{ trigger_context }}"
-              source: "home_assistant_automation.infra_backup_nightly_verification"
-              summary: "Nightly Duplicati backup verification failed"
-              entity_ids:
-                - "switch.duplicati_container"
-              diagnostics: >-
-                scheduled_time=08:00:00,
-                duplicati_container={{ duplicati_state }},
-                verifier_http_status={{ verify_http_status }},
-                verifier_status={{ verify_status }},
-                verifier_issue={{ verify_issue }},
-                backup_name={{ verify_backup_name }},
-                latest_result={{ verify_latest_result.get('endedAt', 'n/a') }},
-                last_success={{ verify_last_success.get('endedAt', 'n/a') }}
-              request: >-
-                Investigate the Duplicati backup job {{ verify_backup_name }}.
-                The codex_appliance verifier reported status {{ verify_status }} with issue {{ verify_issue }}.
-                Use the Duplicati API or UI directly, resolve the failure if possible, and verify a successful run before closing out.
-                Reply with explicit status fields:
-                resolved=true/false,
-                backup_status,
-                last_success_time,
-                root_cause,
-                action_taken,
-                verification,
-                next_action_required=true/false.
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.infra_duplicati_backup_repair_active
+          - choose:
+              - conditions: "{{ trigger_source != 'recovery_poll' }}"
+                sequence:
+                  - service: repairs.create
+                    data:
+                      issue_id: infra_duplicati_backup_failure
+                      title: "Duplicati nightly backup verification failed"
+                      description: >-
+                        {{ verify_summary }}
+                        Backup={{ verify_backup_name }};
+                        status={{ verify_status }};
+                        last_result={{ verify_latest_result.get('endedAt', 'n/a') }};
+                        last_success={{ verify_last_success.get('endedAt', 'n/a') }}.
+                      severity: error
+                      persistent: true
+                  - service: script.joanna_dispatch
+                    data:
+                      trigger_context: "{{ trigger_context }}"
+                      source: "home_assistant_automation.infra_backup_nightly_verification"
+                      summary: "Nightly Duplicati backup verification failed"
+                      entity_ids:
+                        - "switch.duplicati_container"
+                      diagnostics: >-
+                        scheduled_time=08:00:00,
+                        duplicati_container={{ duplicati_state }},
+                        verifier_http_status={{ verify_http_status }},
+                        verifier_status={{ verify_status }},
+                        verifier_issue={{ verify_issue }},
+                        backup_name={{ verify_backup_name }},
+                        latest_result={{ verify_latest_result.get('endedAt', 'n/a') }},
+                        last_success={{ verify_last_success.get('endedAt', 'n/a') }}
+                      request: >-
+                        Investigate the Duplicati backup job {{ verify_backup_name }}.
+                        The codex_appliance verifier reported status {{ verify_status }} with issue {{ verify_issue }}.
+                        Use the Duplicati API or UI directly, resolve the failure if possible, and verify a successful run before closing out.
+                        Home Assistant will re-check this verifier every 30 minutes after dispatch and clear the Repair automatically once the backup is healthy.
+                        Reply with explicit status fields:
+                        resolved=true/false,
+                        backup_status,
+                        last_success_time,
+                        root_cause,
+                        action_taken,
+                        verification,
+                        next_action_required=true/false.
+            default:
+              - service: script.send_to_logbook
+                data:
+                  topic: "BACKUP"
+                  message: >-
+                    Duplicati recovery follow-up still reports {{ verify_status }} for {{ verify_backup_name }}:
+                    {{ verify_issue }}. Existing Repair remains open; Joanna was not dispatched again.
 
   - alias: "Infrastructure - Monthly HA Log Hygiene Review"
     id: infra_monthly_log_hygiene_review

@@ -7,10 +7,12 @@
 #  Polls codex_appliance OneNote status and exposes trigger-ready health entities.
 # -------------------------------------------------------------------
 # Notes: Keep onenote indexer monitoring in this package (separate from bearclaw transport).
-# Notes: last_status='never' is treated as success to avoid false alerts after restarts.
+# Notes: last_status='never' is treated as success only when index health is confirmed.
 # Notes: Only explicit last_status='error' is treated as failure; unknown/unavailable are neutral.
 # Notes: HA->Joanna request includes trigger context so Telegram progress messages can identify origin.
 # Notes: Creates/clears a Spook Repair issue and requests Joanna remediation on failures.
+# Notes: Index health requires pages, chunks, no pending embeddings, and a healthy embedding worker.
+# Notes: Recovery clear is polled so stale Repairs do not linger after the indexer recovers.
 # Notes: Daily Joanna recap should be plain-English; only surface detailed index metrics when something materially changes or fails.
 ######################################################################
 
@@ -43,13 +45,23 @@ template:
         state: >-
           {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
           {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
+          {% set index = payload.get('index', {}) if payload is mapping else {} %}
+          {% set worker = state_attr('sensor.onenote_indexer_status_payload', 'embeddingWorker') or {} %}
           {% set raw = (sync.get('last_status', '') | string | lower) %}
-          {% if raw in ['ok', 'success', 'never'] %}
+          {% set pages = index.get('pages') | int(0) %}
+          {% set chunks = index.get('chunks') | int(0) %}
+          {% set pending = index.get('pending_embeddings') | int(999999) %}
+          {% set worker_status = worker.get('lastStatus', '') | string | lower %}
+          {% set worker_running = worker.get('running', false) | bool %}
+          {% set index_healthy = pages > 0 and chunks > 0 and pending == 0 and worker_status == 'ok' and not worker_running %}
+          {% if raw in ['ok', 'success'] or (raw == 'never' and index_healthy) %}
             success
           {% elif raw == 'running' %}
             running
           {% elif raw == 'error' %}
             error
+          {% elif raw == 'never' %}
+            unknown
           {% else %}
             unknown
           {% endif %}
@@ -86,6 +98,12 @@ template:
             {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
             {% set index = payload.get('index', {}) if payload is mapping else {} %}
             {{ index.get('chunks') }}
+          embedding_worker_status: >-
+            {% set worker = state_attr('sensor.onenote_indexer_status_payload', 'embeddingWorker') or {} %}
+            {{ worker.get('lastStatus') }}
+          embedding_worker_last_run_at: >-
+            {% set worker = state_attr('sensor.onenote_indexer_status_payload', 'embeddingWorker') or {} %}
+            {{ worker.get('lastRunAt') }}
           last_metrics: >-
             {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
             {% set sync = payload.get('sync', {}) if payload is mapping else {} %}
@@ -102,6 +120,44 @@ template:
           {% else %}
             mdi:alert-circle
           {% endif %}
+
+      - name: OneNote Indexer Index Healthy
+        unique_id: onenote_indexer_index_healthy
+        state: >-
+          {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+          {% set index = payload.get('index', {}) if payload is mapping else {} %}
+          {% set worker = state_attr('sensor.onenote_indexer_status_payload', 'embeddingWorker') or {} %}
+          {% set pages = index.get('pages') | int(0) %}
+          {% set chunks = index.get('chunks') | int(0) %}
+          {% set pending = index.get('pending_embeddings') | int(999999) %}
+          {% set worker_status = worker.get('lastStatus', '') | string | lower %}
+          {% set worker_running = worker.get('running', false) | bool %}
+          {{ pages > 0 and chunks > 0 and pending == 0 and worker_status == 'ok' and not worker_running }}
+        icon: >-
+          {% if is_state('binary_sensor.onenote_indexer_index_healthy', 'on') %}
+            mdi:notebook-check
+          {% else %}
+            mdi:notebook-remove
+          {% endif %}
+        attributes:
+          pages: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set index = payload.get('index', {}) if payload is mapping else {} %}
+            {{ index.get('pages') }}
+          chunks: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set index = payload.get('index', {}) if payload is mapping else {} %}
+            {{ index.get('chunks') }}
+          pending_embeddings: >-
+            {% set payload = state_attr('sensor.onenote_indexer_status_payload', 'indexer') or {} %}
+            {% set index = payload.get('index', {}) if payload is mapping else {} %}
+            {{ index.get('pending_embeddings') }}
+          embedding_worker_status: >-
+            {% set worker = state_attr('sensor.onenote_indexer_status_payload', 'embeddingWorker') or {} %}
+            {{ worker.get('lastStatus') }}
+          embedding_worker_last_run_at: >-
+            {% set worker = state_attr('sensor.onenote_indexer_status_payload', 'embeddingWorker') or {} %}
+            {{ worker.get('lastRunAt') }}
 
       - name: OneNote Indexer Job Failed
         unique_id: onenote_indexer_job_failed
@@ -199,13 +255,28 @@ automation:
 
   - id: onenote_indexer_failure_clear_repair
     alias: OneNote Indexer - Clear Repair On Recovery
-    description: Clear the Spook Repair issue when OneNote indexer is healthy again.
+    description: Clear the Spook Repair issue when OneNote indexer and index health are confirmed healthy again.
     mode: single
     trigger:
       - platform: state
         entity_id: binary_sensor.onenote_indexer_job_failed
         to: "off"
         for: "00:02:00"
+      - platform: state
+        entity_id: binary_sensor.onenote_indexer_index_healthy
+        to: "on"
+        for: "00:02:00"
+      - platform: time_pattern
+        minutes: "20"
+      - platform: time_pattern
+        minutes: "50"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.onenote_indexer_job_failed
+        state: "off"
+      - condition: state
+        entity_id: binary_sensor.onenote_indexer_index_healthy
+        state: "on"
     action:
       - service: repairs.remove
         continue_on_error: true
@@ -214,4 +285,4 @@ automation:
       - service: script.send_to_logbook
         data:
           topic: "ONENOTE"
-          message: "OneNote indexer recovered. Spook repair cleared."
+          message: "OneNote indexer and index health are confirmed healthy. Spook repair cleared."

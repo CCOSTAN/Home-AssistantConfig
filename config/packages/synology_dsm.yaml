@@ -9,6 +9,7 @@
 # Notes: Uses native `synology_dsm` entities for Carlo-NAS01 and Carlo-NVR.
 # Notes: Joanna dispatches are reserved for integration/security/storage problems, not routine reboot/shutdown controls.
 # Notes: DSM update availability stays diagnostic context only; it does not trigger remediation by itself.
+# Notes: Recent Powerwall outages route lone volume warnings to Joanna first; Repairs open after the recovery grace window if still active.
 ######################################################################
 
 template:
@@ -281,16 +282,47 @@ template:
 automation:
   - id: synology_dsm_open_repair_and_dispatch
     alias: "Synology DSM - Open Repair And Dispatch"
-    description: "Open a Repairs issue and dispatch Joanna when a Synology problem stays active."
+    description: "Dispatch Joanna when a Synology problem stays active, and open Repairs after outage-aware grace checks."
     mode: queued
     trigger:
-      - platform: state
+      - id: initial_dispatch
+        platform: state
         entity_id:
           - binary_sensor.carlo_nas01_synology_problem
           - binary_sensor.carlo_nvr_synology_problem
         to: "on"
         for: "00:10:00"
+      - id: repair_escalation
+        platform: state
+        entity_id:
+          - binary_sensor.carlo_nas01_synology_problem
+          - binary_sensor.carlo_nvr_synology_problem
+        to: "on"
+        for: "01:00:00"
     variables:
+      outage_grace_minutes: 60
+      trigger_phase: "{{ trigger.id | default('initial_dispatch', true) }}"
+      is_repair_escalation: "{{ trigger_phase == 'repair_escalation' }}"
+      grid_state: "{{ states('binary_sensor.powerwall_grid_status') }}"
+      grid_changed_minutes: >-
+        {% if states.binary_sensor.powerwall_grid_status is defined %}
+          {{ ((as_timestamp(now(), 0) - as_timestamp(states.binary_sensor.powerwall_grid_status.last_changed, 0)) / 60) | round(1) }}
+        {% else %}
+          9999
+        {% endif %}
+      outage_grace_active: >-
+        {{ grid_state == 'off' or
+           (grid_state == 'on' and (grid_changed_minutes | float(9999)) <= outage_grace_minutes) }}
+      outage_context: >-
+        {% if states.binary_sensor.powerwall_grid_status is not defined %}
+          Powerwall grid status entity is unavailable to this automation.
+        {% elif grid_state == 'off' %}
+          Powerwall grid is currently down; outage began {{ states.binary_sensor.powerwall_grid_status.last_changed }}.
+        {% elif (grid_changed_minutes | float(9999)) <= outage_grace_minutes %}
+          Powerwall grid recovered {{ grid_changed_minutes }} minutes ago.
+        {% else %}
+          No recent Powerwall outage recovery within {{ outage_grace_minutes }} minutes.
+        {% endif %}
       host_name: >-
         {% if trigger.entity_id == 'binary_sensor.carlo_nas01_synology_problem' %}
           Carlo-NAS01
@@ -402,32 +434,49 @@ automation:
       volume_status: "{{ states(volume_status_entity) }}"
       volume_used: "{{ states(volume_used_entity) }}"
       dsm_update_state: "{{ states(update_entity) }}"
+      lone_volume_warning: >-
+        {{ problem_summary | lower | trim == 'volume status=warning' and
+           volume_status | lower | trim == 'warning' and
+           security_state == 'off' }}
+      joanna_only_outage_grace: >-
+        {{ not (is_repair_escalation | bool(false)) and
+           (outage_grace_active | bool(false)) and
+           (lone_volume_warning | bool(false)) }}
+      should_create_repair: "{{ not (joanna_only_outage_grace | bool(false)) }}"
       trigger_context: "HA automation synology_dsm_open_repair_and_dispatch (Synology DSM - Open Repair And Dispatch)"
     action:
-      - service: repairs.create
-        data:
-          issue_id: "{{ issue_id }}"
-          title: "{{ host_name }} Synology health issue"
-          severity: "{{ 'error' if problem_severity == 'error' else 'warning' }}"
-          persistent: true
-          description: >-
-            Home Assistant detected a sustained Synology DSM issue for {{ host_name }}.
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ should_create_repair | bool(false) }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: "{{ issue_id }}"
+                  title: "{{ host_name }} Synology health issue"
+                  severity: "{{ 'error' if problem_severity == 'error' else 'warning' }}"
+                  persistent: true
+                  description: >-
+                    Home Assistant detected a sustained Synology DSM issue for {{ host_name }}.
 
-            summary: {{ problem_summary }}
-            security_state: {{ security_state }}
-            volume_status: {{ volume_status }}
-            volume_used: {{ volume_used }}
-            dsm_update: {{ dsm_update_state }}
-            ssh_alias: {{ ssh_alias }}
-            dsm_url: {{ dsm_url }}
+                    summary: {{ problem_summary }}
+                    security_state: {{ security_state }}
+                    volume_status: {{ volume_status }}
+                    volume_used: {{ volume_used }}
+                    dsm_update: {{ dsm_update_state }}
+                    outage_context: {{ outage_context }}
+                    ssh_alias: {{ ssh_alias }}
+                    dsm_url: {{ dsm_url }}
       - service: script.joanna_dispatch
         data:
           trigger_context: "{{ trigger_context }}"
           source: "{{ source }}"
-          summary: "{{ host_name }} Synology DSM problem detected"
+          summary: >-
+            {{ host_name }} Synology DSM problem detected{{ ' after recent Powerwall outage' if joanna_only_outage_grace | bool(false) else '' }}
           entity_ids: "{{ entity_ids }}"
           diagnostics: >-
             issue_id={{ issue_id }},
+            trigger_phase={{ trigger_phase }},
             severity={{ problem_severity }},
             problem_sensor={{ trigger.entity_id }},
             problem_summary={{ problem_summary }},
@@ -435,18 +484,27 @@ automation:
             volume_status={{ volume_status }},
             volume_used={{ volume_used }},
             dsm_update={{ dsm_update_state }},
+            outage_grace_active={{ outage_grace_active }},
+            outage_context={{ outage_context }},
+            joanna_only_outage_grace={{ joanna_only_outage_grace }},
+            repair_created={{ should_create_repair }},
             ssh_alias={{ ssh_alias }},
             dsm_url={{ dsm_url }}
           request: >-
             Investigate {{ host_name }} using the Home Assistant Synology DSM entities first, then DSM or SSH if needed.
-            Review security status, drive health, volume health, and integration availability.
+            Review security state, drive condition, volume condition, and integration availability.
+            If this is a recent Powerwall outage and the only symptom is a volume warning, treat it as post-outage recovery first and monitor before escalating.
             Do not reboot or shut down the NAS unless explicitly requested.
       - service: script.send_to_logbook
         data:
           topic: "SYNOLOGY"
           message: >-
             {{ host_name }} reported a Synology DSM problem for 10 minutes.
-            Repair {{ issue_id }} opened and Joanna investigation requested.
+            {% if should_create_repair | bool(false) %}
+              Repair {{ issue_id }} opened and Joanna investigation requested.
+            {% else %}
+              Joanna investigation requested without opening a Repair during the post-outage recovery grace window.
+            {% endif %}
             Summary: {{ problem_summary }}.
 
   - id: synology_dsm_clear_repair_on_recovery

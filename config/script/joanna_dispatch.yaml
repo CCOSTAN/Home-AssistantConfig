@@ -9,6 +9,7 @@
 # Notes: Keep this helper generic so package automations can reuse one schema.
 # Notes: Source defaults to home_assistant_automation.unknown when omitted.
 # Notes: Automation dispatches are async_only by default so HA calls return quickly while BearClaw works in queue.
+# Notes: Automation dispatches default to domain_hint=ops and lane_hint=joanna.ops.
 # Notes: HA is a dispatcher/integration here; Telegram transport ownership lives in docker_17/codex_appliance.
 ######################################################################
 
@@ -31,6 +32,10 @@ joanna_dispatch:
       description: Extra troubleshooting context.
     user:
       description: BearClaw user identity.
+    domain_hint:
+      description: BearClaw domain hint.
+    lane_hint:
+      description: BearClaw lane hint.
   sequence:
     - variables:
         normalized_context: "{{ trigger_context | default('HA automation', true) }}"
@@ -39,6 +44,8 @@ joanna_dispatch:
         normalized_request: >-
           {{ request | default('Investigate and recommend remediation. Do not run automated resets or power-cycles unless explicitly requested.', true) }}
         normalized_user: "{{ user | default('carlo', true) }}"
+        normalized_domain_hint: "{{ domain_hint | default('ops', true) }}"
+        normalized_lane_hint: "{{ lane_hint | default('joanna.ops', true) }}"
         normalized_entity_ids: >-
           {% if entity_ids is sequence and entity_ids is not string %}
             {{ entity_ids | map('string') | join(', ') }}
@@ -66,4 +73,6 @@ joanna_dispatch:
         user: "{{ normalized_user }}"
         source: "{{ normalized_source }}"
         context: "{{ normalized_context }}"
+        domain_hint: "{{ normalized_domain_hint }}"
+        lane_hint: "{{ normalized_lane_hint }}"
         async_only: true

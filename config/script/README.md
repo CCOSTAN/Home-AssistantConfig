@@ -39,7 +39,7 @@ Reusable scripts that other automations call for notifications, lighting, safety
 `script.joanna_dispatch` is the shared handoff contract from Home Assistant automations into Joanna/BearClaw when Home Assistant detects something worth investigating or fixing.
 
 Why we use it:
-- Keeps one message schema for remediation context (`trigger_context`, `source`, `summary`, `entity_ids`, `diagnostics`, `request`).
+- Keeps one message schema for remediation context (`trigger_context`, `source`, `summary`, `entity_ids`, `diagnostics`, `request`, plus optional routing hints).
 - Avoids repeating direct `rest_command.bearclaw_command` payload formatting in multiple packages.
 - Lets Home Assistant stay focused on detection, timing, and routing while Joanna acts as the AGENT engineer for infrastructure triage and recommended remediation.
 - Makes resolution-trigger automations easier to review, update, and audit.
@@ -49,6 +49,7 @@ What the helper normalizes before the BearClaw intake call:
 - `entity_ids` from either a YAML list or a comma-delimited string.
 - `diagnostics` from either free text or structured mappings/sequences.
 - `request` guardrails so Joanna defaults to investigation/recommendation, not blind resets or power-cycles.
+- `domain_hint`/`lane_hint` default to BearClaw ops routing so HA infrastructure text does not drift into another domain parser.
 
 Current automations that kick off automated resolutions (via `script.joanna_dispatch`):
 | Automation ID | Alias | File |
