@@ -22,6 +22,10 @@
 
 This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resources.
 
+### Walkthrough
+- Video: [Build Clean Home Assistant Dashboards with YAML Partials and Templates](https://youtu.be/aFis2YPeSuY)
+- Companion post: [Home Assistant Dashboard Design System (Button-Card First)](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html)
+
 ### Why this exists
 - Home Assistant stores dashboards and resources in `config/.storage/` by default (runtime state).
 - YAML dashboards make the UI version-controllable and editable by automation tools (including Codex).

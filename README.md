@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Weekly Digest is back
-[![Digest is Back - Smart Home Automation Ideas from My Home Assistant Config](https://img.youtube.com/vi/VgJ1t-VCreY/maxresdefault.jpg)](https://youtu.be/VgJ1t-VCreY)
+### Latest video: Clean Home Assistant dashboards
+[![Build Clean Home Assistant Dashboards with YAML Partials and Templates](https://img.youtube.com/vi/aFis2YPeSuY/maxresdefault.jpg)](https://youtu.be/aFis2YPeSuY)
 
-The weekly digest is back for this repo: one GitHub issue each week that highlights new automations, resolved issues, commit activity, and smart home ideas you can adapt for your own setup. [Watch the announcement](https://youtu.be/VgJ1t-VCreY) and star the repo to follow along.
+This walkthrough shows how the Infrastructure dashboard is organized with a boring `dashboard.yaml`, thin view files, focused partials, and shared button-card templates. [Watch the video](https://youtu.be/aFis2YPeSuY), read the [companion post](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html), and browse the YAML under [config/dashboards/infrastructure](config/dashboards/infrastructure).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)

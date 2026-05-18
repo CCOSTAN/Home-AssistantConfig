@@ -18,6 +18,10 @@
 
 Codex skills stored in-repo so they can be shared with the community. These are documentation + helper scripts only (no secrets).
 
+### Walkthroughs
+- Dashboard design skill: [Build Clean Home Assistant Dashboards with YAML Partials and Templates](https://youtu.be/aFis2YPeSuY)
+- Companion post: [Home Assistant Dashboard Design System (Button-Card First)](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html)
+
 ### Quick navigation
 - You are here: `codex_skills/`
 - [Repo overview](../README.md) | [Dashboards](../config/dashboards/README.md) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
