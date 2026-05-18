@@ -59,6 +59,7 @@ Current automations that kick off automated resolutions (via `script.joanna_disp
 | `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
 | `infra_backup_nightly_verification` | Infrastructure - Backup Nightly Verification | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |
 | `infra_monthly_log_hygiene_review` | Infrastructure - Monthly HA Log Hygiene Review | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |
+| `infra_nebula_sync_health_dispatch` | Infrastructure - Nebula Sync Health Dispatch | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |
 | `docker_state_sync_repairs_dynamic` | Docker State Sync - Repairs (Dynamic) | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `docker_group_reconcile_weekly_joanna_review` | Docker Group Reconcile - Weekly Joanna Review | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `docker_host_disk_pressure_monitor` | Docker Host Disk Pressure Monitor | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |

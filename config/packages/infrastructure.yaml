@@ -17,6 +17,7 @@
 # Notes: Docker host root disk usage uses Glances-backed normalized sensors; raw Glances sensors are recorder/logbook-filtered.
 # Notes: Disk-pressure dispatch allows bounded safe cleanup of disposable caches and old generated backup artifacts, but not live data or restarts.
 # Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
+# Notes: Nebula Sync DNS consistency compares primary/backup Pi-hole answers and dispatches Joanna on sustained drift or container loss.
 ######################################################################
 
 input_text:
@@ -28,6 +29,9 @@ input_text:
     max: 20
   docker_69_disk_pressure_band:
     name: "docker_69 disk pressure band"
+    max: 20
+  infra_nebula_sync_health_band:
+    name: "Nebula Sync health band"
     max: 20
 
 input_boolean:
@@ -64,6 +68,23 @@ command_line:
       unique_id: infra_external_ip_fallback
       command: "curl -fsS https://api.ipify.org || echo unknown"
       scan_interval: 900
+
+  - sensor:
+      name: Infra Nebula Sync DNS Consistency
+      unique_id: infra_nebula_sync_dns_consistency
+      command: >-
+        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.14; host=GTG-PF45FK6F; fqdn=GTG-PF45FK6F.fordst.com; ip=192.168.10.117; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; r(){ dig +time=2 +tries=1 +short @"$1" -x "$2" 2>/dev/null | tr -d "\r" | sed "s/\.$//" | sort | tr "\n" "," | sed "s/,$//"; }; p_short=$(q "$primary" "$host"); s_short=$(q "$secondary" "$host"); p_fqdn=$(q "$primary" "$fqdn"); s_fqdn=$(q "$secondary" "$fqdn"); p_rev=$(r "$primary" "$ip"); s_rev=$(r "$secondary" "$ip"); status=mismatch; if [ "$p_short" = "$ip" ] && [ "$s_short" = "$ip" ] && [ "$p_fqdn" = "$ip" ] && [ "$s_fqdn" = "$ip" ] && [ -n "$p_rev" ] && [ "$p_rev" = "$s_rev" ]; then status=ok; fi; printf "{\"status\":\"%s\",\"host\":\"%s\",\"expected_ip\":\"%s\",\"primary_short\":\"%s\",\"secondary_short\":\"%s\",\"primary_fqdn\":\"%s\",\"secondary_fqdn\":\"%s\",\"primary_reverse\":\"%s\",\"secondary_reverse\":\"%s\"}\n" "$status" "$host" "$ip" "$p_short" "$s_short" "$p_fqdn" "$s_fqdn" "$p_rev" "$s_rev"'
+      scan_interval: 300
+      value_template: "{{ value_json.status | default('unknown') }}"
+      json_attributes:
+        - host
+        - expected_ip
+        - primary_short
+        - secondary_short
+        - primary_fqdn
+        - secondary_fqdn
+        - primary_reverse
+        - secondary_reverse
 
 template:
   - sensor:
@@ -209,6 +230,45 @@ template:
           {% set switch_state = states('switch.pi_hole') %}
           {% set service_state = states('binary_sensor.pihole_status') %}
           {{ switch_state != 'on' or service_state in ['off', 'unavailable', 'unknown'] }}
+
+      - name: "Infra Nebula Sync Degraded"
+        unique_id: infra_nebula_sync_degraded
+        device_class: problem
+        state: >-
+          {% set dns_state = states('sensor.infra_nebula_sync_dns_consistency') | lower %}
+          {% set portainer_known = [
+            expand('binary_sensor.nebula_sync_status') | count > 0,
+            expand('binary_sensor.nebula_sync_status_2') | count > 0,
+            expand('sensor.nebula_sync_state') | count > 0,
+            expand('sensor.nebula_sync_state_2') | count > 0,
+            expand('switch.nebula_sync_container') | count > 0,
+            expand('switch.nebula_sync_container_2') | count > 0
+          ] | select('equalto', true) | list | count > 0 %}
+          {% set portainer_ok = [
+            is_state('binary_sensor.nebula_sync_status', 'on'),
+            is_state('binary_sensor.nebula_sync_status_2', 'on'),
+            (states('sensor.nebula_sync_state') | lower) == 'running',
+            (states('sensor.nebula_sync_state_2') | lower) == 'running',
+            is_state('switch.nebula_sync_container', 'on'),
+            is_state('switch.nebula_sync_container_2', 'on')
+          ] | select('equalto', true) | list | count > 0 %}
+          {{ dns_state != 'ok' or (portainer_known and not portainer_ok) }}
+        attributes:
+          dns_consistency: "{{ states('sensor.infra_nebula_sync_dns_consistency') }}"
+          host: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'host') }}"
+          expected_ip: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'expected_ip') }}"
+          primary_short: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_short') }}"
+          secondary_short: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_short') }}"
+          primary_fqdn: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_fqdn') }}"
+          secondary_fqdn: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_fqdn') }}"
+          primary_reverse: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_reverse') }}"
+          secondary_reverse: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_reverse') }}"
+          nebula_status: "{{ states('binary_sensor.nebula_sync_status') }}"
+          nebula_status_2: "{{ states('binary_sensor.nebula_sync_status_2') }}"
+          nebula_state: "{{ states('sensor.nebula_sync_state') }}"
+          nebula_state_2: "{{ states('sensor.nebula_sync_state_2') }}"
+          pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status') }}"
+          pihole_secondary_status_2: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
 
       - name: "Infra UPS On Battery"
         unique_id: infra_ups_on_battery
@@ -377,6 +437,121 @@ automation:
             continue_on_error: true
             data:
               issue_id: infra_website_latency_degraded
+
+  - alias: "Infrastructure - Nebula Sync Health Dispatch"
+    id: infra_nebula_sync_health_dispatch
+    description: "Dispatch Joanna when Nebula Sync DNS consistency or container telemetry stays degraded."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.infra_nebula_sync_degraded
+        to: "on"
+        for: "00:10:00"
+        id: degraded
+      - platform: state
+        entity_id: binary_sensor.infra_nebula_sync_degraded
+        to: "off"
+        for: "00:02:00"
+        id: recovered
+      - platform: homeassistant
+        event: start
+        id: reconcile
+      - platform: time_pattern
+        minutes: "/30"
+        id: reconcile
+    variables:
+      issue_id: infra_nebula_sync_degraded
+      dns_state: "{{ states('sensor.infra_nebula_sync_dns_consistency') }}"
+      previous_band: "{{ states('input_text.infra_nebula_sync_health_band') | lower }}"
+      degraded: "{{ is_state('binary_sensor.infra_nebula_sync_degraded', 'on') }}"
+      nebula_status: "{{ states('binary_sensor.nebula_sync_status') }}"
+      nebula_status_alt: "{{ states('binary_sensor.nebula_sync_status_2') }}"
+      nebula_state: "{{ states('sensor.nebula_sync_state') }}"
+      nebula_state_alt: "{{ states('sensor.nebula_sync_state_2') }}"
+      pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status') }}"
+      pihole_secondary_status_alt: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
+    action:
+      - choose:
+          - conditions: "{{ degraded and previous_band != 'warning' }}"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "HA automation infra_nebula_sync_health_dispatch (Infrastructure - Nebula Sync Health Dispatch)"
+                  source: "home_assistant_automation.infra_nebula_sync_health_dispatch.warning"
+                  summary: "Nebula Sync DNS consistency or container health is degraded"
+                  entity_ids:
+                    - sensor.infra_nebula_sync_dns_consistency
+                    - binary_sensor.infra_nebula_sync_degraded
+                    - binary_sensor.nebula_sync_status
+                    - binary_sensor.nebula_sync_status_2
+                    - sensor.nebula_sync_state
+                    - sensor.nebula_sync_state_2
+                    - binary_sensor.pihole_secondary_status
+                    - binary_sensor.pihole_secondary_status_2
+                  diagnostics: >-
+                    issue_id={{ issue_id }},
+                    dns_consistency={{ dns_state }},
+                    host={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'host') }},
+                    expected_ip={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'expected_ip') }},
+                    primary_short={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_short') }},
+                    secondary_short={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_short') }},
+                    primary_fqdn={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_fqdn') }},
+                    secondary_fqdn={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_fqdn') }},
+                    primary_reverse={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_reverse') }},
+                    secondary_reverse={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_reverse') }},
+                    nebula_status={{ nebula_status }},
+                    nebula_status_2={{ nebula_status_alt }},
+                    nebula_state={{ nebula_state }},
+                    nebula_state_2={{ nebula_state_alt }},
+                    pihole_secondary_status={{ pihole_secondary_status }},
+                    pihole_secondary_status_2={{ pihole_secondary_status_alt }},
+                    primary_dns=192.168.10.10,
+                    backup_dns=192.168.10.14
+                  request: >-
+                    Investigate Nebula Sync on docker_14 and the backup Pi-hole sync path.
+                    Verify both Pi-holes answer the GTG-PF45FK6F short name, FQDN, and reverse lookup consistently.
+                    Check nebula_sync container status, Docker health, recent sync logs, and primary/replica Pi-hole API reachability.
+                    If confidence is high, perform safe remediation such as a one-time Nebula Sync run or restarting only the nebula_sync container.
+                    Do not restart Pi-hole or change DHCP/custom DNS records unless diagnostics prove data drift and the action is safe.
+                    Reply with resolved=true/false, root_cause, action_taken, verification, and next_action_required=true/false.
+                  domain_hint: ops
+                  lane_hint: joanna.ops
+              - service: script.send_to_logbook
+                data:
+                  topic: "DNS"
+                  message: >-
+                    Nebula Sync DNS consistency is degraded ({{ dns_state }}); Joanna investigation requested without opening a Repair.
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_nebula_sync_health_band
+                data:
+                  value: warning
+          - conditions: "{{ not degraded and previous_band in ['warning', 'unavailable'] }}"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "DNS"
+                  message: "Nebula Sync DNS consistency recovered; Joanna-only warning state cleared."
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_nebula_sync_health_band
+                data:
+                  value: normal
+          - conditions: "{{ not degraded and previous_band not in ['normal', 'warning', 'unavailable'] }}"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_nebula_sync_health_band
+                data:
+                  value: normal
 
   - alias: "Docker Host Disk Pressure Monitor"
     id: docker_host_disk_pressure_monitor
