@@ -5,12 +5,35 @@
 # -------------------------------------------------------------------
 # Phyn Plus Water Shutoff - Leak detection and auto shutoff
 # Related Issue: 1550
-#  Push + Activity feed + Repairs issue while valve is closed.
+#  Push action buttons + Activity feed + Repairs issue while valve is closed.
 # -------------------------------------------------------------------
 # Info: https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html
 # HACS: https://github.com/MizterB/homeassistant-phyn
 # Product: https://amzn.to/2Zy3sbJ
 ######################################################################
+
+script:
+  phyn_send_actionable_leak_notification:
+    alias: "Phyn Send Actionable Leak Notification"
+    mode: parallel
+    fields:
+      source:
+        description: "Caller context for trace/debug visibility."
+        example: "initial"
+    sequence:
+      - service: script.notify_engine_two_button
+        data:
+          title: "Phyn Leak Detection"
+          value1: "Phyn is sensing a leak and turned off the water. Please verify."
+          who: "parents"
+          group: "Phyn"
+          title1: "Turn Water On"
+          action1: "PHYN_WATER_ON"
+          title2: "Snooze 30m"
+          action2: "SNOOZE_PHYN_NOTIFICATION"
+          icon1: "sfsymbols:arrow.up.circle"
+          icon2: "sfsymbols:clock"
+          level: "critical"
 
 automation:
   - alias: 'Phyn ShutOff Notification'
@@ -44,18 +67,10 @@ automation:
 
             Verify there are no active leaks before restoring water service.
 
-      - service: script.notify_engine_two_button
+      - service: script.phyn_send_actionable_leak_notification
         data:
-          title: 'Phyn Leak Detection'
-          value1: 'Phyn is sensing a leak and turned off the water.  Please verify.'
-          who: 'parents'
-          group: 'Phyn'
-          action1: 'PHYN_WATER_ON'
-          action2: 'SNOOZE_PHYN_NOTIFICATION'
-          icon1: 'sfsymbols:arrow.up.circle'
-          icon2: 'sfsymbols:clock'
-          level: 'critical'
-      
+          source: "initial"
+
       - service: persistent_notification.create
         data:
           title: '🚨 Phyn Leak Detection Alert'
@@ -75,12 +90,9 @@ automation:
       event_data:
         action: PHYN_WATER_ON
     action:
-      - service: homeassistant.turn_on
-        entity_id: valve.phyn_shutoff_valve
-
-      - service: persistent_notification.dismiss
-        data:
-          notification_id: 'phyn_leak_detection'
+      - service: valve.open_valve
+        target:
+          entity_id: valve.phyn_shutoff_valve
 
       - service: script.notify_engine
         data:
@@ -105,17 +117,9 @@ automation:
         action: SNOOZE_PHYN_NOTIFICATION
     action:
       - delay: '00:30:00'
-      - service: script.notify_engine_two_button
+      - service: script.phyn_send_actionable_leak_notification
         data:
-          title: 'Phyn Leak Detection'
-          value1: 'Phyn is sensing a leak and turned off the water.  Please verify.'
-          who: 'parents'
-          group: 'Phyn'
-          action1: 'PHYN_WATER_ON'
-          action2: 'SNOOZE_PHYN_NOTIFICATION'
-          icon1: 'sfsymbols:arrow.up.circle'
-          icon2: 'sfsymbols:clock'
-          level: 'critical'
+          source: "snooze"
 
   - alias: Dismiss Phyn Notification When Valve Opens
     id: 3f295bb8-8925-4b22-PHYN-9fe079b295a8
