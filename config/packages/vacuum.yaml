@@ -770,6 +770,9 @@ automation:
             is_state('vacuum.l10s_vacuum', 'error')
             or states('sensor.l10s_vacuum_error') not in ['no_error', 'unavailable']
           }}
+      - condition: state
+        entity_id: group.bed
+        state: 'off'
     action:
       - service: script.send_to_logbook
         data:
