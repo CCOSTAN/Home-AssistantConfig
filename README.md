@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Clean Home Assistant dashboards
-[![Build Clean Home Assistant Dashboards with YAML Partials and Templates](https://img.youtube.com/vi/aFis2YPeSuY/maxresdefault.jpg)](https://youtu.be/aFis2YPeSuY)
+### Latest video: Home Assistant Vacation Mode
+[![My Home Assistant Vacation Mode Runs the House While We're Away](https://img.youtube.com/vi/15kRcFaVV2Y/maxresdefault.jpg)](https://youtu.be/15kRcFaVV2Y)
 
-This walkthrough shows how the Infrastructure dashboard is organized with a boring `dashboard.yaml`, thin view files, focused partials, and shared button-card templates. [Watch the video](https://youtu.be/aFis2YPeSuY), read the [companion post](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html), and browse the YAML under [config/dashboards/infrastructure](config/dashboards/infrastructure).
+This walkthrough shows how Vacation Mode becomes a real Home Assistant state machine: sustained-away detection, house-sitter arrival/departure tracking, useful visit reminders, missed-visit alerts, and secure-house checks after the sitter leaves. [Watch the video](https://youtu.be/15kRcFaVV2Y), read the [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-vacation-mode-house-sitter-automation.html), and browse the YAML in [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
@@ -52,6 +52,7 @@ This walkthrough shows how the Infrastructure dashboard is organized with a bori
 - PC lock/unlock-driven lighting plus workday wake-up via HASS.Agent + Wake on LAN: [config/packages/hass_agent_homepc.yaml](config/packages/hass_agent_homepc.yaml)
 - Seasonal cuckoo clock with October and Christmas sound packs: [config/automation/System/CucKoo_Clock.yaml](config/automation/System/CucKoo_Clock.yaml)
 - Garage arrival and entry helpers: [config/packages/garadget.yaml](config/packages/garadget.yaml)
+- Vacation Mode and house-sitter checks: [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml)
 - Battery and solar awareness: [config/packages/powerwall.yaml](config/packages/powerwall.yaml)
 - Presence-aware office comfort: [config/packages/office_motion.yaml](config/packages/office_motion.yaml)
 - Weather-aware lighting: [config/automation/dark_rainy_day.yaml](config/automation/dark_rainy_day.yaml)

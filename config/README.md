@@ -43,7 +43,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 ### Featured automations by section
 | Section | Why start here | Featured automation(s) |
 | --- | --- | --- |
-| Packages | Self-contained subsystems that highlight patterns like combined alerts + actions. | [packages/alarm.yaml](packages/alarm.yaml), [packages/garadget.yaml](packages/garadget.yaml), [packages/powerwall.yaml](packages/powerwall.yaml) |
+| Packages | Self-contained subsystems that highlight patterns like combined alerts + actions. | [packages/alarm.yaml](packages/alarm.yaml), [packages/garadget.yaml](packages/garadget.yaml), [packages/vacation_mode.yaml](packages/vacation_mode.yaml), [packages/powerwall.yaml](packages/powerwall.yaml) |
 | Automations | Real-world triggers that tie Zwave, MQTT, and REST sensors into the rest of the house. | [automation/garage_entry_light.yaml](automation/garage_entry_light.yaml), [automation/dark_rainy_day.yaml](automation/dark_rainy_day.yaml), [automation/dash_buttons.yaml](automation/dash_buttons.yaml) |
 | Scripts | Reusable building blocks for lighting, notifications, safety responses, and Joanna/BearClaw remediation dispatch. | [script/joanna_dispatch.yaml](script/joanna_dispatch.yaml), [script/notify_engine.yaml](script/notify_engine.yaml), [script/speech_engine.yaml](script/speech_engine.yaml) |
 | Scenes | Seasonal and ambiance presets that the scripts and automations call into. | [scene/monthly_colors.yaml](scene/monthly_colors.yaml), [scene/living_room.yaml](scene/living_room.yaml) |
