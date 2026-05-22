@@ -1,10 +1,14 @@
-######################################################################################################
-###Script to turn on Front light FULL bright for 15m when motion is detected and then return to the normal colors.
-#  action:
-#   - service: script.flash_notify
-#
-######################################################################################################
-
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Flash Notify Script - Example action call was documented in the legacy header.
+#  Defines the Flash Notify Script sequence for reuse by automations and dashboards.
+# -------------------------------------------------------------------
+# Notes: Script to turn on Front light FULL bright for 15m when motion is detected and then return to the normal colors
+# Notes: - service: script.flash_notify
+######################################################################
 flash_notify:
   sequence:
     - service: light.turn_on

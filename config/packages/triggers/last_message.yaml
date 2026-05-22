@@ -1,7 +1,12 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-#-------------------------------------------
+# -------------------------------------------------------------------
+# Last Message Package - Home Assistant package configuration.
+#  Centralizes the Last Message package configuration and helpers.
+# -------------------------------------------------------------------
+######################################################################
 homeassistant:
   customize:
     input_boolean.lastmsg:
@@ -66,4 +71,3 @@ automation:
       - service: input_boolean.turn_off
         entity_id:
           - input_boolean.lastmsg
-

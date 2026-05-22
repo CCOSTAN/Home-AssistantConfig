@@ -1,7 +1,12 @@
 ######################################################################
-##  Stuff that needs to happen when we are both out of bed.
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Stuff that needs to happen when we are both out of bed - Home Assistant automation behavior.
+#  Defines the Stuff that needs to happen when we are both out of bed triggers, conditions, and actions.
+# -------------------------------------------------------------------
 ######################################################################
-
 - alias: 'Time to wake up!'
   id: 16a3b9c5-1faa-410e-a7e1-249a9f861e07
   trigger:
@@ -31,4 +36,3 @@
         entity_id: number.alarm_panel_1_screen_brightness
       data:
         value: 100
-    

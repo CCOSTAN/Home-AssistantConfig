@@ -1,12 +1,16 @@
-######################################################################################################
-###Script to send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
-  # action:
-    # service: script.dog_bark
-    # data:
-      # value1: 'Startup: Home Assistant is Up and Running!'
-
-######################################################################################################
-
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Dog Bark Script - Example action call was documented in the legacy header.
+#  Defines the Dog Bark Script sequence for reuse by automations and dashboards.
+# -------------------------------------------------------------------
+# Notes: Script to send notifications to the ChromeCast Audios during normal hours and only when we are home! Call like this:
+# Notes: service: script.dog_bark
+# Notes: data:
+# Notes: value1: 'Startup: Home Assistant is Up and Running!'
+######################################################################
 dog_bark:
   sequence:
     - wait_template: >-

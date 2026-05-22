@@ -1,10 +1,14 @@
-######################################################################################################
-###Script to shut switches with a 30 second delay to not trample codes
-###  Sample Call
-#  action:
-#   - service: script.interior_off
-######################################################################################################
-
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Script to shut switches with a 30 second delay to not trample codes - Sample Call.
+#  Defines the Script to shut switches with a 30 second delay to not trample codes sequence for reuse by automations and dashboards.
+# -------------------------------------------------------------------
+# Notes: Example action call was documented in the legacy header
+# Notes: - service: script.interior_off
+######################################################################
 interior_off:
   sequence:
     - service: homeassistant.turn_off

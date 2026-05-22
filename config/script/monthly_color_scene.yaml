@@ -1,19 +1,19 @@
-#-------------------------------------------
-# @CCOSTAN
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
-# Youtube Video description of how I use this script
-# https://www.vcloudinfo.com/2018/10/easy-smart-home-gadgets-i-use-for-my.html
-# https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html
-# https://www.vcloudinfo.com/2019/02/breaking-down-the-flag-sensor-in-home-assistant.html
-######################################################################################################
-###Script to turn on scene for the appropriate month for the front of the house but only when the sun is down.
-#  action:
-#   - service: script.monthly_color_scene
-#
-#   scenes should be named month_[01-12]_colors (month_06_colors)
-# Color help - http://www.esbnyc.com/explore/tower-lights/calendar
-######################################################################################################
-
+# -------------------------------------------------------------------
+# Youtube Video description of how I use this script - Example action call was documented in the legacy header.
+#  Defines the Youtube Video description of how I use this script sequence for reuse by automations and dashboards.
+# -------------------------------------------------------------------
+# Notes: https://www.vcloudinfo.com/2018/10/easy-smart-home-gadgets-i-use-for-my.html
+# Notes: https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html
+# Notes: https://www.vcloudinfo.com/2019/02/breaking-down-the-flag-sensor-in-home-assistant.html
+# Notes: Script to turn on scene for the appropriate month for the front of the house but only when the sun is down
+# Notes: - service: script.monthly_color_scene
+# Notes: scenes should be named month_[01-12]_colors (month_06_colors)
+# Notes: Color help - http://www.esbnyc.com/explore/tower-lights/calendar
+######################################################################
 monthly_color_scene:
   sequence:
     - condition: state
