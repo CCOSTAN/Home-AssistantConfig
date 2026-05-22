@@ -41,7 +41,7 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
   - `dashboard.yaml` is the dashboard entrypoint.
   - `views/` contains one YAML file per view.
   - `partials/` is reusable card lists included into views.
-  - `popups/` is reusable popup stacks (typically `bubble-card`) included into views.
+  - `popups/` is reusable standalone popup cards (typically `bubble-card`) included into views.
   - `card_mod/` is CSS overrides (use only when card-native options are insufficient).
 - `shared/`
   - Cross-dashboard reuse only. If something is only used by one dashboard, keep it in that dashboard folder.

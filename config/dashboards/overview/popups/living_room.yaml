@@ -10,25 +10,24 @@
 # Notes: Keeps scene actions limited to scenes already defined in `config/scene/living_room.yaml`.
 ######################################################################
 
-type: vertical-stack
+type: custom:bubble-card
+card_type: pop-up
+hash: '#ovw-living-room'
+button_type: slider
+entity: light.living_room_lights
+name: Living Room Lights
+icon: mdi:sofa
+show_attribute: false
+slide_to_close_distance: '100000'
+trigger: []
+bg_opacity: '35'
+width_desktop: 560px
+show_header: true
+show_state: true
+show_last_changed: true
+tap_action:
+  action: toggle
 cards:
-- type: custom:bubble-card
-  card_type: pop-up
-  hash: '#ovw-living-room'
-  button_type: slider
-  entity: light.living_room_lights
-  name: Living Room Lights
-  icon: mdi:sofa
-  show_attribute: false
-  slide_to_close_distance: '100000'
-  trigger: []
-  bg_opacity: '35'
-  width_desktop: 560px
-  show_header: true
-  show_state: true
-  show_last_changed: true
-  tap_action:
-    action: toggle
 - type: custom:bubble-card
   card_type: button
   button_type: slider

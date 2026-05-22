@@ -10,17 +10,16 @@
 # Notes: Uses Bubble slider buttons for each light that is currently on.
 ######################################################################
 
-type: vertical-stack
+type: custom:bubble-card
+card_type: pop-up
+hash: '#ovw-lights'
+name: Lights Control
+icon: mdi:lightbulb-group
+width_desktop: 560px
+show_header: true
+entity: sensor.number_of_lights_on
+button_type: name
 cards:
-- type: custom:bubble-card
-  card_type: pop-up
-  hash: '#ovw-lights'
-  name: Lights Control
-  icon: mdi:lightbulb-group
-  width_desktop: 560px
-  show_header: true
-  entity: sensor.number_of_lights_on
-  button_type: name
 - type: custom:auto-entities
   show_empty: true
   card:

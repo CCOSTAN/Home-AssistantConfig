@@ -11,19 +11,18 @@
 # Notes: Volume prune is destructive; keep it hold-to-act with an explicit confirmation.
 ######################################################################
 
-type: vertical-stack
+type: custom:bubble-card
+card_type: pop-up
+hash: '#infra-docker-17'
+entity: sensor.docker_17_apt_status
+button_type: state
+name: docker_17 maintenance
+icon: mdi:server
+show_header: true
+show_state: true
+width_desktop: 520px
+bg_opacity: '35'
 cards:
-- type: custom:bubble-card
-  card_type: pop-up
-  hash: '#infra-docker-17'
-  entity: sensor.docker_17_apt_status
-  button_type: state
-  name: docker_17 maintenance
-  icon: mdi:server
-  show_header: true
-  show_state: true
-  width_desktop: 520px
-  bg_opacity: '35'
 - type: grid
   columns: 2
   square: false
