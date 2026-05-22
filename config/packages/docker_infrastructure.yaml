@@ -4,18 +4,20 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Docker Infrastructure - Host patching and container alerts
-# Related Issue: 1632, 1584
+# Related Issue: 1632, 1584, 1739
 #  APT results and container down repairs.
 # -------------------------------------------------------------------
-# Notes: Hosts run weekly Wed 12:00 APT job and POST JSON to webhooks.
+# Notes: Hosts run daily read-only APT pending checks plus Mon/Thu 12:00 APT jobs.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
-# Notes: Reboot staggering: docker_14 first, docker_69 second, docker_10 third.
+# Notes: Reboot staggering: docker_14, docker_69, docker_17, docker_10.
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
 # Notes: Weekly Joanna reconcile checks discovered container switches vs configured group members.
 # Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
 # Notes: Outage escalation keys off the configured monitored group so host-wide telemetry drops do not fall out of scope before the delayed Joanna dispatch runs.
 # Notes: Weekly reconcile should replace retired container-name switches with the current container-ID-prefixed discovery set.
 # Notes: Tapple is now served by `games_hub` on `/tapple/`; do not keep a standalone `tapple` container switch in the monitored group.
+# Notes: Teslamate and crystalsoftwashsolutions are live services and should remain in the monitored group when their discovery switches are present.
+# Notes: Infra Info was removed; BearClaw Admin is the planning snapshot surface.
 ######################################################################
 
 input_datetime:
@@ -85,6 +87,7 @@ switch:
       - switch.college_budget_app_container_2
       - switch.cruise_tracker_container
       - switch.cruise_tracker_container_2
+      - switch.crystalsoftwashsolutions_container
       - switch.dashy_container
       - switch.dashy_container_2
       - switch.docker_socket_proxy_container
@@ -111,8 +114,6 @@ switch:
       - switch.home_assistant_container_2
       - switch.imposter_container
       - switch.imposter_container_2
-      - switch.infra_info_container
-      - switch.infra_info_container_2
       - switch.kingcrafthomes_container
       - switch.kingcrafthomes_container_2
       - switch.lmediaservices_container
@@ -137,14 +138,23 @@ switch:
       - switch.pihole_secondary_container_2
       - switch.poker_tracker_container
       - switch.poker_tracker_container_2
+      - switch.portainer_agent_container
+      - switch.portainer_agent_container_2
       - switch.portainer_container
       - switch.portainer_container_2
+      - switch.postgres_webhooks_backup_container
       - switch.postgres_webhooks_engine_container
       - switch.postgres_webhooks_engine_container_2
+      - switch.rc_price_checker_container
+      - switch.rc_price_checker_container_2
       - switch.redis_webhooks_engine_container
       - switch.redis_webhooks_engine_container_2
       - switch.rvtools_ppt_web_container
       - switch.rvtools_ppt_web_container_2
+      - switch.teslamate_backup_container
+      - switch.teslamate_container
+      - switch.teslamate_database_container
+      - switch.teslamate_grafana_container
       - switch.tugtainer_agent_container
       - switch.tugtainer_agent_container_2
       - switch.tugtainer_container
@@ -155,6 +165,7 @@ switch:
       - switch.unifi_container_2
       - switch.webhooks_engine_container
       - switch.webhooks_engine_container_2
+      - switch.wordpress_db_backup_container
       - switch.wordpress_db_container
       - switch.wordpress_db_container_2
       - switch.wordpress_wp_container
@@ -893,6 +904,7 @@ automation:
       updated: "{{ payload.get('updated', false) | bool }}"
       reboot_required: "{{ payload.get('reboot_required', false) | bool }}"
       packages: "{{ payload.get('packages', 0) | int(0) }}"
+      security_packages: "{{ payload.get('security_packages', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
       helpers:
         docker_10:
@@ -913,17 +925,20 @@ automation:
           last_result: input_text.apt_docker_69_last_result
       host_helpers: "{{ helpers[host_id] if host_id in helpers else none }}"
       result: >-
+        {% set security = ' (' ~ security_packages ~ ' SEC)' if security_packages > 0 else '' %}
         {% if not success %}
           ERROR{% if (message | trim) != '' %}: {{ message | trim }}{% endif %}
         {% elif updated %}
-          UPDATED {{ packages }} PKGS{% if reboot_required %} (REBOOT REQ){% endif %}
+          UPDATED {{ packages }} PKGS{{ security }}{% if reboot_required %} (REBOOT REQ){% endif %}
+        {% elif packages > 0 %}
+          PENDING {{ packages }} PKGS{{ security }}{% if reboot_required %} (REBOOT REQ){% endif %}
         {% elif reboot_required %}
           NO UPDATES (REBOOT REQ)
         {% else %}
           NO UPDATES
         {% endif %}
       log_message: >-
-        {{ host_id }} updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if reboot_required %}; reboot required{% endif %}.
+        {{ host_id }} updated {{ packages }} package{% if packages != 1 %}s{% endif %}{% if security_packages > 0 %} ({{ security_packages }} security){% endif %}{% if reboot_required %}; reboot required{% endif %}.
     condition:
       - condition: template
         value_template: "{{ host_helpers is not none }}"

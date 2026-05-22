@@ -31,7 +31,7 @@ Reusable scripts that other automations call for notifications, lighting, safety
 | [notify_live_activity.yaml](notify_live_activity.yaml) | Shared helper for tagged live activity/live update pushes and clear commands. |
 | [send_to_logbook.yaml](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
 | [joanna_dispatch.yaml](joanna_dispatch.yaml) | Shared AGENT engineer dispatch contract that routes HA-detected issues into Joanna/BearClaw remediation. |
-| [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech; speech processing also routes garage Echo announcements and office Echo announcements when the office lamp switch indicates active PC work. |
+| [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech; speech processing can bypass LLM rewriting for exact messages and also routes garage/office Echo announcements. |
 | [monthly_color_scene.yaml](monthly_color_scene.yaml) | Seasonal lighting scenes used across automations. |
 | [interior_off.yaml](interior_off.yaml) | One-call "all interior lights off" helper. |
 
@@ -39,7 +39,7 @@ Reusable scripts that other automations call for notifications, lighting, safety
 `script.joanna_dispatch` is the shared handoff contract from Home Assistant automations into Joanna/BearClaw when Home Assistant detects something worth investigating or fixing.
 
 Why we use it:
-- Keeps one message schema for remediation context (`trigger_context`, `source`, `summary`, `entity_ids`, `diagnostics`, `request`).
+- Keeps one message schema for remediation context (`trigger_context`, `source`, `summary`, `entity_ids`, `diagnostics`, `request`, plus optional routing hints).
 - Avoids repeating direct `rest_command.bearclaw_command` payload formatting in multiple packages.
 - Lets Home Assistant stay focused on detection, timing, and routing while Joanna acts as the AGENT engineer for infrastructure triage and recommended remediation.
 - Makes resolution-trigger automations easier to review, update, and audit.
@@ -49,6 +49,7 @@ What the helper normalizes before the BearClaw intake call:
 - `entity_ids` from either a YAML list or a comma-delimited string.
 - `diagnostics` from either free text or structured mappings/sequences.
 - `request` guardrails so Joanna defaults to investigation/recommendation, not blind resets or power-cycles.
+- `domain_hint`/`lane_hint` default to BearClaw ops routing so HA infrastructure text does not drift into another domain parser.
 
 Current automations that kick off automated resolutions (via `script.joanna_dispatch`):
 | Automation ID | Alias | File |
@@ -58,6 +59,7 @@ Current automations that kick off automated resolutions (via `script.joanna_disp
 | `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [../packages/onenote_indexer.yaml](../packages/onenote_indexer.yaml) |
 | `infra_backup_nightly_verification` | Infrastructure - Backup Nightly Verification | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |
 | `infra_monthly_log_hygiene_review` | Infrastructure - Monthly HA Log Hygiene Review | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |
+| `infra_nebula_sync_health_dispatch` | Infrastructure - Nebula Sync Health Dispatch | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |
 | `docker_state_sync_repairs_dynamic` | Docker State Sync - Repairs (Dynamic) | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `docker_group_reconcile_weekly_joanna_review` | Docker Group Reconcile - Weekly Joanna Review | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `docker_host_disk_pressure_monitor` | Docker Host Disk Pressure Monitor | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |

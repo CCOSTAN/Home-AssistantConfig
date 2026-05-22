@@ -50,11 +50,11 @@ flowchart TD
     end
     subgraph docker69[docker69]
         Tunnel[Cloudflared]
-        Info[Infra Info]
+        PublicApps[Public Apps]
     end
 
     Tunnel --> Appliance
-    Tunnel --> Info
+    Tunnel --> PublicApps
     HA --> MQTT
     Frigate --> HA
 ```

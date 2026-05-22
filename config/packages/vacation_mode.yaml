@@ -9,7 +9,8 @@
 # Related Issue: 793
 # Notes: Vacation mode auto-enables after 24 hours of family absence or 24 hours without bed use while the family is away.
 # Notes: General vacation speech uses Chromecast only; the garage Alexa welcome is the one local-device exception.
-# Notes: Visit analytics come from native entity attributes plus recorder-backed sensors instead of extra helper entities.
+# Notes: Visit analytics use recorder-backed visit counts plus arrival/departure helpers for accurate durations.
+# Notes: Dorm zones are reported as away locations, not Bear Stone home.
 ######################################################################
 
 input_boolean:
@@ -21,6 +22,25 @@ input_boolean:
     name: House Sitter Present
     icon: mdi:account-key
     initial: off
+
+input_datetime:
+  vacation_house_sitter_last_arrival:
+    name: Vacation House Sitter Last Arrival
+    has_date: true
+    has_time: true
+  vacation_house_sitter_last_departure:
+    name: Vacation House Sitter Last Departure
+    has_date: true
+    has_time: true
+
+input_number:
+  vacation_house_sitter_last_visit_minutes:
+    name: Vacation House Sitter Last Visit Minutes
+    min: 0
+    max: 1440
+    step: 0.1
+    mode: box
+    unit_of_measurement: min
 
 sensor:
   - platform: history_stats
@@ -51,38 +71,35 @@ template:
             {% endif %}
           last_arrival_at: >-
             {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
-            {% set raw = state_attr('automation.vacation_mode_house_sitter_arrival', 'last_triggered') %}
+            {% set raw = states('input_datetime.vacation_house_sitter_last_arrival') %}
             {% set ts = as_timestamp(raw, 0) %}
-            {% if ts >= vacation_start and ts > 0 %}
-              {{ as_local(raw).isoformat() }}
+            {% if is_state('input_boolean.vacation_mode', 'on') and ts >= vacation_start and ts > 0 %}
+              {{ as_local(as_datetime(raw)).isoformat() }}
             {% else %}
               none
             {% endif %}
           last_departure_at: >-
             {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
-            {% set raw = state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered') %}
+            {% set raw = states('input_datetime.vacation_house_sitter_last_departure') %}
             {% set ts = as_timestamp(raw, 0) %}
-            {% if ts >= vacation_start and ts > 0 %}
-              {{ as_local(raw).isoformat() }}
+            {% if is_state('input_boolean.vacation_mode', 'on') and ts >= vacation_start and ts > 0 %}
+              {{ as_local(as_datetime(raw)).isoformat() }}
             {% else %}
               none
             {% endif %}
           last_visit_minutes: >-
             {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
-            {% set arrival = state_attr('automation.vacation_mode_house_sitter_arrival', 'last_triggered') %}
-            {% set departure = state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered') %}
-            {% set arrival_ts = as_timestamp(arrival, 0) %}
-            {% set departure_ts = as_timestamp(departure, 0) %}
-            {% if arrival_ts >= vacation_start and departure_ts >= arrival_ts %}
-              {{ ((departure_ts - arrival_ts) / 60) | round(1) }}
+            {% set departure_ts = as_timestamp(states('input_datetime.vacation_house_sitter_last_departure'), 0) %}
+            {% if is_state('input_boolean.vacation_mode', 'on') and departure_ts >= vacation_start %}
+              {{ states('input_number.vacation_house_sitter_last_visit_minutes') | float(0) }}
             {% else %}
               0
             {% endif %}
           hours_since_last_visit: >-
             {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
-            {% set departure = state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered') %}
+            {% set departure = states('input_datetime.vacation_house_sitter_last_departure') %}
             {% set departure_ts = as_timestamp(departure, 0) %}
-            {% if departure_ts >= vacation_start %}
+            {% if is_state('input_boolean.vacation_mode', 'on') and departure_ts >= vacation_start %}
               {{ ((as_timestamp(now()) - departure_ts) / 3600) | round(1) }}
             {% else %}
               0
@@ -160,6 +177,7 @@ automation:
       - platform: state
         entity_id: group.family
         to: 'home'
+        for: "00:02:00"
 
     condition:
       - condition: template
@@ -255,7 +273,7 @@ automation:
           entry_delay: >-
             {{ '00:05:00' if trigger.id == 'garage' else '00:02:00' }}
           vacation_start_ts: "{{ as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) }}"
-          last_departure_raw: "{{ state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered') }}"
+          last_departure_raw: "{{ states('input_datetime.vacation_house_sitter_last_departure') }}"
           last_departure_ts: "{{ as_timestamp(last_departure_raw, 0) }}"
           visit_number: "{{ (states('sensor.vacation_house_sitter_visit_count') | int(0)) + 1 }}"
           away_duration: >-
@@ -286,17 +304,57 @@ automation:
               This is the first house-sitter visit for this vacation.
             {% endif %}
           carlo_location: >-
+            {% set person_state = states('person.carlo') %}
             {% set place = states('sensor.carlo_place') %}
-            {{ place if place not in ['unknown', 'unavailable', 'none', ''] else states('person.carlo') }}
+            {% set label = place if place not in ['unknown', 'unavailable', 'none', ''] else person_state %}
+            {% if person_state == 'driving' or label.startswith('Driving') %}
+              driving near {{ label | replace('Driving near ', '') | replace('Driving', '') | trim }}
+            {% elif person_state == 'home' %}
+              at Bear Stone home
+            {% elif 'Dorm' in label %}
+              away at {{ label }}
+            {% else %}
+              at {{ label }}
+            {% endif %}
           stacey_location: >-
+            {% set person_state = states('person.stacey') %}
             {% set place = states('sensor.stacey_place') %}
-            {{ place if place not in ['unknown', 'unavailable', 'none', ''] else states('person.stacey') }}
+            {% set label = place if place not in ['unknown', 'unavailable', 'none', ''] else person_state %}
+            {% if person_state == 'driving' or label.startswith('Driving') %}
+              driving near {{ label | replace('Driving near ', '') | replace('Driving', '') | trim }}
+            {% elif person_state == 'home' %}
+              at Bear Stone home
+            {% elif 'Dorm' in label %}
+              away at {{ label }}
+            {% else %}
+              at {{ label }}
+            {% endif %}
           justin_location: >-
+            {% set person_state = states('person.justin') %}
             {% set place = states('sensor.justin_place') %}
-            {{ place if place not in ['unknown', 'unavailable', 'none', ''] else states('person.justin') }}
+            {% set label = place if place not in ['unknown', 'unavailable', 'none', ''] else person_state %}
+            {% if person_state == 'driving' or label.startswith('Driving') %}
+              driving near {{ label | replace('Driving near ', '') | replace('Driving', '') | trim }}
+            {% elif person_state == 'home' %}
+              at Bear Stone home
+            {% elif 'Dorm' in label %}
+              away at {{ label }}
+            {% else %}
+              at {{ label }}
+            {% endif %}
           paige_location: >-
+            {% set person_state = states('person.paige') %}
             {% set place = states('sensor.paige_place') %}
-            {{ place if place not in ['unknown', 'unavailable', 'none', ''] else states('person.paige') }}
+            {% set label = place if place not in ['unknown', 'unavailable', 'none', ''] else person_state %}
+            {% if person_state == 'driving' or label.startswith('Driving') %}
+              driving near {{ label | replace('Driving near ', '') | replace('Driving', '') | trim }}
+            {% elif person_state == 'home' %}
+              at Bear Stone home
+            {% elif 'Dorm' in label %}
+              away at {{ label }}
+            {% else %}
+              at {{ label }}
+            {% endif %}
           garbage_message: >-
             {% set day = now().strftime('%a') %}
             {% if day in ['Tue', 'Sat'] %}
@@ -316,8 +374,8 @@ automation:
             House sitter arrival detected through the {{ entry_label }}.
             The family was last home {{ away_duration }} ago.
             {{ visit_context }}
-            Carlo is at {{ carlo_location }}. Stacey is at {{ stacey_location }}.
-            Justin is at {{ justin_location }}. Paige is at {{ paige_location }}.
+            Carlo is {{ carlo_location }}. Stacey is {{ stacey_location }}.
+            Justin is {{ justin_location }}. Paige is {{ paige_location }}.
             Please check Molly's food, water, and litter box.
             {{ package_message }}
             {{ garbage_message }}
@@ -340,6 +398,12 @@ automation:
       - service: input_boolean.turn_on
         entity_id:
           - input_boolean.house_sitter_present
+
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.vacation_house_sitter_last_arrival
+        data:
+          timestamp: "{{ now().timestamp() }}"
 
       - service: automation.trigger
         target:
@@ -376,6 +440,7 @@ automation:
       - service: script.speech_processing
         data:
           media_player: media_player.livingroomcc
+          speech_direct: true
           speech_message: "{{ arrival_message }}"
 
   - alias: 'Vacation Mode Sitter Checklist Follow-Up'
@@ -411,6 +476,7 @@ automation:
       - service: script.speech_processing
         data:
           media_player: media_player.livingroomcc
+          speech_direct: true
           speech_message: "{{ checklist_message }}"
 
   - alias: 'Vacation Mode House Sitter Departure'
@@ -442,11 +508,26 @@ automation:
           exit_label: >-
             {{ 'garage door' if trigger.id == 'garage' else 'front door' }}
           visit_count: "{{ states('sensor.vacation_house_sitter_visit_count') | int(0) }}"
+          visit_minutes_numeric: >-
+            {% set seconds = (as_timestamp(now()) - as_timestamp(states.input_boolean.house_sitter_present.last_changed, 0)) | int(0) %}
+            {{ (seconds / 60) | round(1) }}
           visit_duration: >-
             {% set seconds = (as_timestamp(now()) - as_timestamp(states.input_boolean.house_sitter_present.last_changed, 0)) | int(0) %}
             {% set minutes = (seconds // 60) | int(0) %}
             {% set remainder = (seconds % 60) | int(0) %}
             {{ minutes }} minute{{ 's' if minutes != 1 else '' }}{% if remainder > 0 %} and {{ remainder }} second{{ 's' if remainder != 1 else '' }}{% endif %}
+
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.vacation_house_sitter_last_visit_minutes
+        data:
+          value: "{{ visit_minutes_numeric }}"
+
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.vacation_house_sitter_last_departure
+        data:
+          timestamp: "{{ now().timestamp() }}"
 
       - service: homeassistant.turn_off
         target:
@@ -553,7 +634,7 @@ automation:
       - condition: template
         value_template: >-
           {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
-          {% set last_departure = as_timestamp(state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered'), 0) %}
+          {% set last_departure = as_timestamp(states('input_datetime.vacation_house_sitter_last_departure'), 0) %}
           {% set baseline = last_departure if last_departure >= vacation_start else vacation_start %}
           {{ is_state('input_boolean.vacation_mode', 'on')
              and is_state('input_boolean.house_sitter_present', 'off')
@@ -567,7 +648,7 @@ automation:
       - variables:
           visit_count: "{{ states('sensor.vacation_house_sitter_visit_count') | int(0) }}"
           vacation_start: "{{ as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) }}"
-          last_departure: "{{ as_timestamp(state_attr('automation.vacation_mode_house_sitter_departure', 'last_triggered'), 0) }}"
+          last_departure: "{{ as_timestamp(states('input_datetime.vacation_house_sitter_last_departure'), 0) }}"
           baseline: >-
             {{ last_departure if (last_departure | float(0)) >= (vacation_start | float(0)) else vacation_start }}
           hours_since: "{{ ((as_timestamp(now()) - (baseline | float(0))) / 3600) | round(1) }}"
@@ -677,6 +758,7 @@ automation:
       - service: script.speech_processing
         data:
           media_player: media_player.livingroomcc
+          speech_direct: true
           speech_message: "{{ hint_message }}"
 
       - delay: "00:20:00"

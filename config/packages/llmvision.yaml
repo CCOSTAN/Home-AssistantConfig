@@ -7,7 +7,9 @@
 #  Trigger with input_button.llmvision_garbage_check, input_button.llmvision_front_door_package_check, or front door person activity to update vision-backed package sensors.
 # -------------------------------------------------------------------
 # Notes: LLMVision analyzes camera.garagecam; expects strict "on"/"off" output.
-# Notes: Front-door package detection waits 3 minutes after person activity or 20 seconds after the front door relocks, then analyzes a short live stream for better package accuracy.
+# Notes: Front-door package detection waits 3 minutes after person
+#  activity, skips routine relocks unless a package is already present,
+#  and rate-limits/downscales OpenAI vision calls for cost control.
 # Docs: https://llmvision.gitbook.io/getting-started/usage/image-analyzer
 ######################################################################
 
@@ -148,11 +150,12 @@ automation:
           front door person activity
         {% endif %}
       prompt_text: >-
-        Examine these front door camera frames for delivery packages. Focus on the porch and doorstep area
-        near the wall and doormat in the lower-right part of the image. Treat cardboard boxes, padded mailers,
-        poly bags, and shopping bags as packages. Ignore the street, cars, landscaping, and anything not resting
-        on the porch or doorstep. If any package is clearly visible, respond exactly: on. If no package is
-        clearly visible, respond exactly: off. No other words.
+        Examine these front door camera frames for delivery packages. Focus on the porch and doorstep area,
+        especially the lower-right and bottom-right edge near the door. Treat cardboard boxes, padded mailers,
+        poly bags, shopping bags, and white shipping bags as packages. A package can be partially cut off by
+        the edge of the image or timestamp overlay and should still count as visible if part of the bag, box,
+        label, or mailer is visible on the porch. Ignore the street, cars, landscaping, and anything not
+        resting on the porch or doorstep. Respond exactly: on or off. No other words.
     action:
       - choose:
           - conditions:
@@ -165,6 +168,15 @@ automation:
                 value_template: "{{ trigger.id == 'front_door_locked' }}"
             sequence:
               - delay: "00:00:20"
+      - condition: template
+        value_template: >-
+          {% set last = states('input_datetime.llmvision_front_door_last_run') %}
+          {% set minutes_since_last = 999 if last in ['unknown', 'unavailable', 'none', ''] else ((as_timestamp(now()) - as_timestamp(last)) / 60) | int(999) %}
+          {{ trigger.id == 'manual_check'
+             or (trigger.id == 'person_count' and minutes_since_last >= 15)
+             or (trigger.id == 'front_door_locked'
+                 and is_state('input_boolean.front_door_packages_present', 'on')
+                 and minutes_since_last >= 5) }}
       - service: llmvision.stream_analyzer
         response_variable: llmvision_result
         data:
@@ -173,11 +185,11 @@ automation:
           message: "{{ prompt_text }}"
           image_entity:
             - camera.frontdoorbell
-          duration: 6
-          max_frames: 5
+          duration: 4
+          max_frames: 3
           include_filename: false
-          target_width: 1920
-          max_tokens: 16
+          target_width: 1280
+          max_tokens: 32
           expose_images: true
       - variables:
           normalized_response: "{{ llmvision_result.response_text | default('') | trim | lower }}"

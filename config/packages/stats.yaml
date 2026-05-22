@@ -4,10 +4,11 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Stats - Historical metrics and AI notifications.
+# Related Issue: 1279
 #  Build historical stats for AI/alerting.
 # -------------------------------------------------------------------
-# Contact: @CCOSTAN
 # Notes: Numeric repo and home counters expose state_class for long-term trend rollups.
+# Notes: Tesla charging time now normalizes Tesla Fleet charging state instead of the retired JuiceBox API.
 ######################################################################
 
 ### Building out some Historical stats for AI. #####################
@@ -69,8 +70,8 @@ sensor:
 
   - platform: history_stats
     name: Tesla Charging time
-    entity_id: sensor.carlojuice_charging_status
-    state: 'charging'
+    entity_id: binary_sensor.tesla_charging_active
+    state: 'on'
     type: time
     end: '{{ now() }}'
     duration:
@@ -79,6 +80,17 @@ sensor:
 ### Building some interesting stats for tweeting. ###
 
 template:
+  - binary_sensor:
+      - name: "Tesla Charging Active"
+        unique_id: stats_tesla_charging_active
+        icon: mdi:ev-station
+        availability: >-
+          {{ states('sensor.spaceship_charging') not in ['unknown', 'unavailable', 'none', ''] or
+             states('switch.spaceship_charge') not in ['unknown', 'unavailable', 'none', ''] }}
+        state: >-
+          {{ states('sensor.spaceship_charging') | lower == 'charging' or
+             is_state('switch.spaceship_charge', 'on') }}
+
   - sensor:
       - name: "Number of Sensors"
         unique_id: stats_number_of_sensors

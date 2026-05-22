@@ -9,11 +9,15 @@
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
 # Notes: Domain warning threshold is <30 days; critical threshold is <14 days.
-# Notes: Nightly Duplicati verification is performed by codex_appliance after the Duplicati retry window because HA backup entities are not available.
+# Notes: Nightly Duplicati verification runs at 08:00 after the 05:30 Duplicati job and docker_14 reboot window.
+# Notes: Duplicati transport/API errors are logged only; repairs are reserved for proven failed or stale backups.
+# Notes: Duplicati failure Repairs enable a recovery poll that clears the Repair after a later successful run.
 # Notes: Monthly HA log hygiene review requests Telegram + GitHub issue follow-up only; Joanna must wait for approval before any changes.
 # Notes: Numeric WAN telemetry exposes state_class so recorder can keep long-term statistics.
 # Notes: Docker host root disk usage uses Glances-backed normalized sensors; raw Glances sensors are recorder/logbook-filtered.
 # Notes: Disk-pressure dispatch allows bounded safe cleanup of disposable caches and old generated backup artifacts, but not live data or restarts.
+# Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
+# Notes: Nebula Sync DNS consistency compares primary/backup Pi-hole answers and dispatches Joanna on sustained drift or container loss.
 ######################################################################
 
 input_text:
@@ -26,6 +30,13 @@ input_text:
   docker_69_disk_pressure_band:
     name: "docker_69 disk pressure band"
     max: 20
+  infra_nebula_sync_health_band:
+    name: "Nebula Sync health band"
+    max: 20
+
+input_boolean:
+  infra_duplicati_backup_repair_active:
+    name: "Duplicati backup repair active"
 
 command_line:
   - sensor:
@@ -57,6 +68,23 @@ command_line:
       unique_id: infra_external_ip_fallback
       command: "curl -fsS https://api.ipify.org || echo unknown"
       scan_interval: 900
+
+  - sensor:
+      name: Infra Nebula Sync DNS Consistency
+      unique_id: infra_nebula_sync_dns_consistency
+      command: >-
+        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.14; host=GTG-PF45FK6F; fqdn=GTG-PF45FK6F.fordst.com; ip=192.168.10.117; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; r(){ dig +time=2 +tries=1 +short @"$1" -x "$2" 2>/dev/null | tr -d "\r" | sed "s/\.$//" | sort | tr "\n" "," | sed "s/,$//"; }; p_short=$(q "$primary" "$host"); s_short=$(q "$secondary" "$host"); p_fqdn=$(q "$primary" "$fqdn"); s_fqdn=$(q "$secondary" "$fqdn"); p_rev=$(r "$primary" "$ip"); s_rev=$(r "$secondary" "$ip"); status=mismatch; if [ "$p_short" = "$ip" ] && [ "$s_short" = "$ip" ] && [ "$p_fqdn" = "$ip" ] && [ "$s_fqdn" = "$ip" ] && [ -n "$p_rev" ] && [ "$p_rev" = "$s_rev" ]; then status=ok; fi; printf "{\"status\":\"%s\",\"host\":\"%s\",\"expected_ip\":\"%s\",\"primary_short\":\"%s\",\"secondary_short\":\"%s\",\"primary_fqdn\":\"%s\",\"secondary_fqdn\":\"%s\",\"primary_reverse\":\"%s\",\"secondary_reverse\":\"%s\"}\n" "$status" "$host" "$ip" "$p_short" "$s_short" "$p_fqdn" "$s_fqdn" "$p_rev" "$s_rev"'
+      scan_interval: 300
+      value_template: "{{ value_json.status | default('unknown') }}"
+      json_attributes:
+        - host
+        - expected_ip
+        - primary_short
+        - secondary_short
+        - primary_fqdn
+        - secondary_fqdn
+        - primary_reverse
+        - secondary_reverse
 
 template:
   - sensor:
@@ -202,6 +230,45 @@ template:
           {% set switch_state = states('switch.pi_hole') %}
           {% set service_state = states('binary_sensor.pihole_status') %}
           {{ switch_state != 'on' or service_state in ['off', 'unavailable', 'unknown'] }}
+
+      - name: "Infra Nebula Sync Degraded"
+        unique_id: infra_nebula_sync_degraded
+        device_class: problem
+        state: >-
+          {% set dns_state = states('sensor.infra_nebula_sync_dns_consistency') | lower %}
+          {% set portainer_known = [
+            expand('binary_sensor.nebula_sync_status') | count > 0,
+            expand('binary_sensor.nebula_sync_status_2') | count > 0,
+            expand('sensor.nebula_sync_state') | count > 0,
+            expand('sensor.nebula_sync_state_2') | count > 0,
+            expand('switch.nebula_sync_container') | count > 0,
+            expand('switch.nebula_sync_container_2') | count > 0
+          ] | select('equalto', true) | list | count > 0 %}
+          {% set portainer_ok = [
+            is_state('binary_sensor.nebula_sync_status', 'on'),
+            is_state('binary_sensor.nebula_sync_status_2', 'on'),
+            (states('sensor.nebula_sync_state') | lower) == 'running',
+            (states('sensor.nebula_sync_state_2') | lower) == 'running',
+            is_state('switch.nebula_sync_container', 'on'),
+            is_state('switch.nebula_sync_container_2', 'on')
+          ] | select('equalto', true) | list | count > 0 %}
+          {{ dns_state != 'ok' or (portainer_known and not portainer_ok) }}
+        attributes:
+          dns_consistency: "{{ states('sensor.infra_nebula_sync_dns_consistency') }}"
+          host: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'host') }}"
+          expected_ip: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'expected_ip') }}"
+          primary_short: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_short') }}"
+          secondary_short: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_short') }}"
+          primary_fqdn: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_fqdn') }}"
+          secondary_fqdn: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_fqdn') }}"
+          primary_reverse: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_reverse') }}"
+          secondary_reverse: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_reverse') }}"
+          nebula_status: "{{ states('binary_sensor.nebula_sync_status') }}"
+          nebula_status_2: "{{ states('binary_sensor.nebula_sync_status_2') }}"
+          nebula_state: "{{ states('sensor.nebula_sync_state') }}"
+          nebula_state_2: "{{ states('sensor.nebula_sync_state_2') }}"
+          pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status') }}"
+          pihole_secondary_status_2: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
 
       - name: "Infra UPS On Battery"
         unique_id: infra_ups_on_battery
@@ -371,6 +438,121 @@ automation:
             data:
               issue_id: infra_website_latency_degraded
 
+  - alias: "Infrastructure - Nebula Sync Health Dispatch"
+    id: infra_nebula_sync_health_dispatch
+    description: "Dispatch Joanna when Nebula Sync DNS consistency or container telemetry stays degraded."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.infra_nebula_sync_degraded
+        to: "on"
+        for: "00:10:00"
+        id: degraded
+      - platform: state
+        entity_id: binary_sensor.infra_nebula_sync_degraded
+        to: "off"
+        for: "00:02:00"
+        id: recovered
+      - platform: homeassistant
+        event: start
+        id: reconcile
+      - platform: time_pattern
+        minutes: "/30"
+        id: reconcile
+    variables:
+      issue_id: infra_nebula_sync_degraded
+      dns_state: "{{ states('sensor.infra_nebula_sync_dns_consistency') }}"
+      previous_band: "{{ states('input_text.infra_nebula_sync_health_band') | lower }}"
+      degraded: "{{ is_state('binary_sensor.infra_nebula_sync_degraded', 'on') }}"
+      nebula_status: "{{ states('binary_sensor.nebula_sync_status') }}"
+      nebula_status_alt: "{{ states('binary_sensor.nebula_sync_status_2') }}"
+      nebula_state: "{{ states('sensor.nebula_sync_state') }}"
+      nebula_state_alt: "{{ states('sensor.nebula_sync_state_2') }}"
+      pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status') }}"
+      pihole_secondary_status_alt: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
+    action:
+      - choose:
+          - conditions: "{{ degraded and previous_band != 'warning' }}"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "HA automation infra_nebula_sync_health_dispatch (Infrastructure - Nebula Sync Health Dispatch)"
+                  source: "home_assistant_automation.infra_nebula_sync_health_dispatch.warning"
+                  summary: "Nebula Sync DNS consistency or container health is degraded"
+                  entity_ids:
+                    - sensor.infra_nebula_sync_dns_consistency
+                    - binary_sensor.infra_nebula_sync_degraded
+                    - binary_sensor.nebula_sync_status
+                    - binary_sensor.nebula_sync_status_2
+                    - sensor.nebula_sync_state
+                    - sensor.nebula_sync_state_2
+                    - binary_sensor.pihole_secondary_status
+                    - binary_sensor.pihole_secondary_status_2
+                  diagnostics: >-
+                    issue_id={{ issue_id }},
+                    dns_consistency={{ dns_state }},
+                    host={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'host') }},
+                    expected_ip={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'expected_ip') }},
+                    primary_short={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_short') }},
+                    secondary_short={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_short') }},
+                    primary_fqdn={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_fqdn') }},
+                    secondary_fqdn={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_fqdn') }},
+                    primary_reverse={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_reverse') }},
+                    secondary_reverse={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_reverse') }},
+                    nebula_status={{ nebula_status }},
+                    nebula_status_2={{ nebula_status_alt }},
+                    nebula_state={{ nebula_state }},
+                    nebula_state_2={{ nebula_state_alt }},
+                    pihole_secondary_status={{ pihole_secondary_status }},
+                    pihole_secondary_status_2={{ pihole_secondary_status_alt }},
+                    primary_dns=192.168.10.10,
+                    backup_dns=192.168.10.14
+                  request: >-
+                    Investigate Nebula Sync on docker_14 and the backup Pi-hole sync path.
+                    Verify both Pi-holes answer the GTG-PF45FK6F short name, FQDN, and reverse lookup consistently.
+                    Check nebula_sync container status, Docker health, recent sync logs, and primary/replica Pi-hole API reachability.
+                    If confidence is high, perform safe remediation such as a one-time Nebula Sync run or restarting only the nebula_sync container.
+                    Do not restart Pi-hole or change DHCP/custom DNS records unless diagnostics prove data drift and the action is safe.
+                    Reply with resolved=true/false, root_cause, action_taken, verification, and next_action_required=true/false.
+                  domain_hint: ops
+                  lane_hint: joanna.ops
+              - service: script.send_to_logbook
+                data:
+                  topic: "DNS"
+                  message: >-
+                    Nebula Sync DNS consistency is degraded ({{ dns_state }}); Joanna investigation requested without opening a Repair.
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_nebula_sync_health_band
+                data:
+                  value: warning
+          - conditions: "{{ not degraded and previous_band in ['warning', 'unavailable'] }}"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "DNS"
+                  message: "Nebula Sync DNS consistency recovered; Joanna-only warning state cleared."
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_nebula_sync_health_band
+                data:
+                  value: normal
+          - conditions: "{{ not degraded and previous_band not in ['normal', 'warning', 'unavailable'] }}"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_nebula_sync_health_band
+                data:
+                  value: normal
+
   - alias: "Docker Host Disk Pressure Monitor"
     id: docker_host_disk_pressure_monitor
     description: "Track Docker host root disk pressure from normalized Glances sensors and dispatch Joanna on band changes."
@@ -480,15 +662,10 @@ automation:
                         value: "critical"
                 - conditions: "{{ current_band == 'warning' and previous_band not in ['warning', 'critical'] }}"
                   sequence:
-                    - service: repairs.create
+                    - service: repairs.remove
+                      continue_on_error: true
                       data:
                         issue_id: "{{ issue_id }}"
-                        severity: warning
-                        persistent: true
-                        title: "{{ host_name }} disk pressure warning ({{ disk_pct | round(1) }}%)"
-                        description: >-
-                          {{ host_name }} root disk usage is elevated.
-                          Plan cleanup before capacity reaches critical levels.
                     - service: script.joanna_dispatch
                       data:
                         trigger_context: "HA automation docker_host_disk_pressure_monitor (Docker Host Disk Pressure Monitor - Warning)"
@@ -519,7 +696,7 @@ automation:
                         topic: "DOCKER"
                         message: >-
                           {{ host_name }} disk usage warning at {{ disk_pct | round(1) }}%.
-                          Repair {{ issue_id }} opened and Joanna investigation requested.
+                          Joanna investigation requested without opening a warning Repair.
                     - service: input_text.set_value
                       target:
                         entity_id: "{{ band_entity }}"
@@ -527,19 +704,14 @@ automation:
                         value: "warning"
                 - conditions: "{{ current_band == 'warning' and previous_band == 'critical' }}"
                   sequence:
-                    - service: repairs.create
+                    - service: repairs.remove
+                      continue_on_error: true
                       data:
                         issue_id: "{{ issue_id }}"
-                        severity: warning
-                        persistent: true
-                        title: "{{ host_name }} disk pressure warning ({{ disk_pct | round(1) }}%)"
-                        description: >-
-                          {{ host_name }} root disk usage is elevated but no longer critical.
-                          Continue cleanup before capacity reaches critical levels again.
                     - service: script.send_to_logbook
                       data:
                         topic: "DOCKER"
-                        message: "{{ host_name }} disk usage dropped from critical to warning at {{ disk_pct | round(1) }}%."
+                        message: "{{ host_name }} disk usage dropped from critical to warning at {{ disk_pct | round(1) }}%. Critical Repair cleared; Joanna continues handling warning-level cleanup."
                     - service: input_text.set_value
                       target:
                         entity_id: "{{ band_entity }}"
@@ -578,14 +750,28 @@ automation:
     mode: single
     trigger:
       - platform: time
-        at: "06:45:00"
+        at: "08:00:00"
+        id: nightly
+      - platform: time_pattern
+        minutes: "15"
+        id: recovery_poll
+      - platform: time_pattern
+        minutes: "45"
+        id: recovery_poll
+    condition:
+      - condition: template
+        value_template: >-
+          {{ trigger is not defined or trigger.id != 'recovery_poll'
+             or is_state('input_boolean.infra_duplicati_backup_repair_active', 'on') }}
     action:
       - variables:
+          trigger_source: "{{ trigger.id if trigger is defined and trigger.id is defined else 'manual' }}"
+          verifier_reason: "{{ 'ha_failure_followup' if trigger_source == 'recovery_poll' else 'ha_nightly' }}"
           trigger_context: "HA automation infra_backup_nightly_verification (Infrastructure - Backup Nightly Verification)"
           duplicati_state: "{{ states('switch.duplicati_container') }}"
       - action: rest_command.bearclaw_duplicati_verify
         data:
-          reason: "ha_nightly"
+          reason: "{{ verifier_reason }}"
         response_variable: duplicati_verify
       - service: script.send_to_logbook
         data:
@@ -605,6 +791,7 @@ automation:
           verify_backup_name: "{{ verify_detail.get('backupName', 'Docker_Configs') }}"
           verify_latest_result: "{{ verify_detail.get('latestResult', {}) if verify_detail is mapping else {} }}"
           verify_last_success: "{{ verify_detail.get('lastSuccessfulRun', {}) if verify_detail is mapping else {} }}"
+          verify_transport_issue: "{{ verify_status in ['api_error', 'unknown'] }}"
       - choose:
           - conditions: "{{ verify_healthy }}"
             sequence:
@@ -612,47 +799,77 @@ automation:
                 continue_on_error: true
                 data:
                   issue_id: infra_duplicati_backup_failure
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: user_infra_duplicati_backup_failure
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.infra_duplicati_backup_repair_active
+          - conditions: "{{ verify_transport_issue }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "BACKUP"
+                  message: >-
+                    Duplicati verifier could not prove backup health because the verification service returned
+                    status {{ verify_status }} with issue {{ verify_issue }}. No repair card was opened because
+                    this is verifier transport state, not a confirmed backup failure.
         default:
-          - service: repairs.create
-            data:
-              issue_id: infra_duplicati_backup_failure
-              title: "Duplicati nightly backup verification failed"
-              description: >-
-                {{ verify_summary }}
-                Backup={{ verify_backup_name }};
-                status={{ verify_status }};
-                last_result={{ verify_latest_result.get('endedAt', 'n/a') }};
-                last_success={{ verify_last_success.get('endedAt', 'n/a') }}.
-              severity: error
-              persistent: true
-          - service: script.joanna_dispatch
-            data:
-              trigger_context: "{{ trigger_context }}"
-              source: "home_assistant_automation.infra_backup_nightly_verification"
-              summary: "Nightly Duplicati backup verification failed"
-              entity_ids:
-                - "switch.duplicati_container"
-              diagnostics: >-
-                scheduled_time=06:45:00,
-                duplicati_container={{ duplicati_state }},
-                verifier_http_status={{ verify_http_status }},
-                verifier_status={{ verify_status }},
-                verifier_issue={{ verify_issue }},
-                backup_name={{ verify_backup_name }},
-                latest_result={{ verify_latest_result.get('endedAt', 'n/a') }},
-                last_success={{ verify_last_success.get('endedAt', 'n/a') }}
-              request: >-
-                Investigate the Duplicati backup job {{ verify_backup_name }}.
-                The codex_appliance verifier reported status {{ verify_status }} with issue {{ verify_issue }}.
-                Use the Duplicati API or UI directly, resolve the failure if possible, and verify a successful run before closing out.
-                Reply with explicit status fields:
-                resolved=true/false,
-                backup_status,
-                last_success_time,
-                root_cause,
-                action_taken,
-                verification,
-                next_action_required=true/false.
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.infra_duplicati_backup_repair_active
+          - choose:
+              - conditions: "{{ trigger_source != 'recovery_poll' }}"
+                sequence:
+                  - service: repairs.create
+                    data:
+                      issue_id: infra_duplicati_backup_failure
+                      title: "Duplicati nightly backup verification failed"
+                      description: >-
+                        {{ verify_summary }}
+                        Backup={{ verify_backup_name }};
+                        status={{ verify_status }};
+                        last_result={{ verify_latest_result.get('endedAt', 'n/a') }};
+                        last_success={{ verify_last_success.get('endedAt', 'n/a') }}.
+                      severity: error
+                      persistent: true
+                  - service: script.joanna_dispatch
+                    data:
+                      trigger_context: "{{ trigger_context }}"
+                      source: "home_assistant_automation.infra_backup_nightly_verification"
+                      summary: "Nightly Duplicati backup verification failed"
+                      entity_ids:
+                        - "switch.duplicati_container"
+                      diagnostics: >-
+                        scheduled_time=08:00:00,
+                        duplicati_container={{ duplicati_state }},
+                        verifier_http_status={{ verify_http_status }},
+                        verifier_status={{ verify_status }},
+                        verifier_issue={{ verify_issue }},
+                        backup_name={{ verify_backup_name }},
+                        latest_result={{ verify_latest_result.get('endedAt', 'n/a') }},
+                        last_success={{ verify_last_success.get('endedAt', 'n/a') }}
+                      request: >-
+                        Investigate the Duplicati backup job {{ verify_backup_name }}.
+                        The codex_appliance verifier reported status {{ verify_status }} with issue {{ verify_issue }}.
+                        Use the Duplicati API or UI directly, resolve the failure if possible, and verify a successful run before closing out.
+                        Home Assistant will re-check this verifier every 30 minutes after dispatch and clear the Repair automatically once the backup is healthy.
+                        Reply with explicit status fields:
+                        resolved=true/false,
+                        backup_status,
+                        last_success_time,
+                        root_cause,
+                        action_taken,
+                        verification,
+                        next_action_required=true/false.
+            default:
+              - service: script.send_to_logbook
+                data:
+                  topic: "BACKUP"
+                  message: >-
+                    Duplicati recovery follow-up still reports {{ verify_status }} for {{ verify_backup_name }}:
+                    {{ verify_issue }}. Existing Repair remains open; Joanna was not dispatched again.
 
   - alias: "Infrastructure - Monthly HA Log Hygiene Review"
     id: infra_monthly_log_hygiene_review

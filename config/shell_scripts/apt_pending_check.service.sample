@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily APT pending check (Home Assistant webhook)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/apt_pending_check.sh "http://YOUR_HOME_ASSISTANT:8123/api/webhook/YOUR_APT_WEBHOOK" "docker_10"

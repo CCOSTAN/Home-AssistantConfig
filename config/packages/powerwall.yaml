@@ -12,6 +12,7 @@
 # Notes: Read more https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html | Existing Issue #272
 # Tesla Powerwall added via UI Integration
 # Notes: Live outage tracking derives its chronometer anchor from binary_sensor.powerwall_grid_status.last_changed.
+# Notes: Camera PoE restore requires grid online and Powerwall charge at least 50%.
 ######################################################################
 # Binary Sensors:
 #  - binary_sensor.powerwall_charging ............. battery_charging (on=charging)
@@ -375,7 +376,7 @@ automation:
 
   - alias: "Restore PoE ports when grid returns"
     id: 1ae8b5c5-8627-4a44-8c8a-5bf8ca5e1bf5
-    description: "Turn camera PoE ports back on after grid has been stable"
+    description: "Turn camera PoE ports back on after grid has returned and battery is at least 50%"
     mode: single
     trigger:
       - platform: state
@@ -386,7 +387,7 @@ automation:
           minutes: 60
       - platform: numeric_state
         entity_id: sensor.powerwall_charge
-        above: 90
+        above: 49.9
 
     condition:
       - condition: or
@@ -403,9 +404,12 @@ automation:
           - condition: state
             entity_id: switch.poe_garage_port_6_poe
             state: 'off'
+      - condition: state
+        entity_id: binary_sensor.powerwall_grid_status
+        state: 'on'
       - condition: numeric_state
         entity_id: sensor.powerwall_charge
-        above: 90
+        above: 49.9
     action:
       - service: switch.turn_on
         target:
@@ -417,7 +421,7 @@ automation:
       - service: script.notify_engine
         data:
           title: "Grid restored - PoE ports re-enabled"
-          value1: "Power is stable. Camera PoE ports 3-6 were turned back on automatically."
+          value1: "Grid is online and Powerwall charge is at least 50%. Camera PoE ports 3-6 were turned back on automatically."
           who: 'family'
           group: 'information'
 

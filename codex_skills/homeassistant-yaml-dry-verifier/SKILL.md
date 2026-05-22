@@ -1,6 +1,6 @@
 ---
 name: homeassistant-yaml-dry-verifier
-description: "Verify Home Assistant YAML for DRY and efficiency issues by detecting redundant trigger/condition/action/sequence structures and repeated blocks across automations, scripts, and packages. Use when creating, reviewing, or refactoring YAML in config/packages, config/automations, config/scripts, or dashboard-related YAML where duplication risk is high."
+description: "Verify Home Assistant YAML for DRY and efficiency issues by detecting redundant trigger/condition/action/sequence structures and repeated blocks across automations, scripts, and packages. Use when creating, reviewing, or refactoring YAML in config/packages, config/automations, config/scripts, or dashboard-related YAML where duplication risk is high. Include a read-only entity/reference safety pass when automation changes rename/remove entities or introduce maintenance cleanup behavior."
 ---
 
 # Home Assistant YAML DRY Verifier
@@ -13,13 +13,15 @@ Use this skill to lint Home Assistant YAML for repeat logic before or after edit
 - Resolve the findings in the same task by refactoring YAML to remove duplication.
 - Re-run the verifier after refactoring and iterate until targeted findings are cleared.
 - If a finding cannot be safely resolved, explicitly document the blocker and the smallest safe follow-up.
+- If touched YAML performs cleanup, registry hygiene, purge, deletion, or other destructive maintenance, require preview/dry-run behavior, explicit confirmation, and audit/backup output before any destructive action is considered complete.
 
 ## Quick Start
 
 1. Run the verifier script on the file(s) you edited.
 2. Review repeated block findings first (highest confidence).
 3. Refactor into shared scripts/helpers/templates where appropriate.
-4. Re-run the verifier and then run your normal Home Assistant config check.
+4. If the change renames/removes entity references or adds maintenance cleanup behavior, perform the read-only entity/reference safety pass.
+5. Re-run the verifier and then run your normal Home Assistant config check.
 
 ```bash
 python codex_skills/homeassistant-yaml-dry-verifier/scripts/verify_ha_yaml_dry.py config/packages/life360.yaml --strict
@@ -53,15 +55,25 @@ python codex_skills/homeassistant-yaml-dry-verifier/scripts/verify_ha_yaml_dry.p
 - Repeated triggers: consolidate where behavior is equivalent, or split by intent if readability improves.
 - For cooldown/throttle behavior, prefer automation-local `this.attributes.last_triggered` with custom event handoff before adding new helper entities, unless shared persistent state is required across automations.
 
-5. Validate after edits:
+5. Entity/Registry Safety Pass:
+- Keep this pass read-only during normal DRY work. Report possible stale references or risky cleanup behavior; do not delete Home Assistant registry entries as part of this skill.
+- When refactors rename, remove, or consolidate automations, scripts, helpers, entities, service calls, or dashboard targets, search touched and adjacent YAML for stale references before closing the task.
+- Use live Home Assistant context or registry/state evidence when available and in scope, especially before changing entity IDs or automations that depend on device/integration state.
+- Do not treat generic `unavailable`, disabled, or no-`config_entry_id` entities as safe deletion candidates. In YAML-heavy setups these are often intentional.
+- Treat these platforms as common false-positive sources unless stronger evidence proves otherwise: `automation`, `script`, `scene`, `template`, helpers (`input_*`, `group`, `timer`, `counter`, `schedule`, `zone`, `person`, `tag`), `command_line`, `rest`, `mqtt`, `yahoofinance`, `youtube`, and local infrastructure telemetry.
+- For cleanup or maintenance automations, prefer a preview/report action first, persistent ignore rules where repeated noise is expected, and an audit artifact that records what would change or did change.
+- Destructive cleanup must be gated by explicit operator confirmation and should have backup/audit output. A dry-run-only recommendation is acceptable when the evidence is not strong enough.
+
+6. Validate after edits:
 - Re-run this verifier.
 - Run Home Assistant config validation before reload/restart.
 
-6. Enforce closure:
+7. Enforce closure:
 - Treat unresolved `FULL_BLOCK`/`ENTRY` findings in touched files as incomplete work unless a blocker is documented.
 - Prefer consolidating duplicated automation triggers/conditions/actions into shared logic or a single branching automation.
 - Treat unresolved `CENTRAL_SCRIPT` findings in touched scope as incomplete unless documented as deferred-with-blocker.
 - Move shared package scripts to `config/script/<script_id>.yaml` when they are used cross-file.
+- Treat unresolved stale-reference or cleanup-safety concerns in touched scope as incomplete unless documented as `deferred-with-blocker`.
 
 ## Dashboard Designer Integration
 
@@ -77,6 +89,8 @@ Always report:
 - Script caller detection should include direct `service: script.<id>` and `script.turn_on`-style entity targeting when present.
 - Concrete refactor recommendation per group.
 - Resolution status for each finding (`resolved`, `deferred-with-blocker`).
+- Entity/reference hygiene status when this pass is in scope (`checked`, `not-in-scope`, or `deferred-with-blocker`).
+- For cleanup or destructive maintenance YAML, preview/dry-run, confirmation, and audit/backup status.
 
 Strict behavior:
 - `--strict` returns non-zero for any reported finding (`FULL_BLOCK`, `ENTRY`, `INTRA`, `CENTRAL_SCRIPT`).

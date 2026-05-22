@@ -158,6 +158,27 @@ bearstone_infra_prune_tile:
     state:
     - font-weight: 700
 
+bearstone_infra_volume_prune_tile:
+  template: bearstone_infra_tile
+  show_state: true
+  icon: mdi:database-remove
+  label: >-
+    [[[
+      return variables.subtitle ? variables.subtitle : "Hold to prune unused volumes";
+    ]]]
+  hold_action:
+    action: call-service
+    service: button.press
+    service_data:
+      entity_id: '[[[ return variables.prune_button ]]]'
+    confirmation:
+      text: '[[[ return "Prune unused volumes on " + (variables.name ? variables.name : "host") + "?" ]]]'
+  styles:
+    icon:
+    - color: var(--secondary-text-color)
+    state:
+    - font-weight: 700
+
 bearstone_infra_apt_prune_tile:
   template: bearstone_infra_prune_tile
   show_state: true

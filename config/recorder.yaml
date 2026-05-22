@@ -6,7 +6,7 @@
 # Recorder Configuration - database retention and exclusions
 #  Stores HA history while purging noise and controlling DB size.
 # -------------------------------------------------------------------
-# Notes: Keeps 180 days (1/2 year); excludes vcloudinfo pings, noisy connectivity telemetry, countdown-style alarm helpers, MariaDB snapshot helpers, raw Glances host telemetry, and other high-churn entities; MariaDB via recorder_db_url.
+# Notes: Keeps 180 days (1/2 year); excludes vcloudinfo pings, noisy connectivity telemetry, countdown-style alarm helpers, low-value script/button/scene history, MariaDB snapshot helpers, raw Docker/Proxmox/Glances host telemetry, PoE live power, and other high-churn entities; MariaDB via recorder_db_url.
 ######################################################################
 db_url: !secret recorder_db_url
 purge_keep_days: 180
@@ -14,6 +14,7 @@ auto_purge: true
 commit_interval: 30
 exclude:
   domains:
+    - button
     - camera
     - device_tracker
     - event
@@ -21,6 +22,8 @@ exclude:
     - image
     - media_player
     - persistent_notification
+    - scene
+    - script
     - sun
     - update
     - zone
@@ -46,7 +49,6 @@ exclude:
     - sensor.*_since
     - sensor.*uptime*
     - sensor.sun_next_*
-    - sensor.vpn_client_*
     - sensor.*_linkquality
     - sensor.*_link_quality
     - sensor.*_lqi
@@ -57,12 +59,68 @@ exclude:
     - sensor.*_wifi_signal
     - sensor.*_wifi_signal_strength
     - sensor.*_wake_alarm_minutes
+    - sensor.*_cpu_usage_total*
+    - sensor.*_memory_usage*
     - sensor.*_temperature_state
     - sensor.*_humidity_state
     - sensor.*_last_seen*
     - sensor.192_168_10_17_*
     - sensor.docker14_*
     - sensor.docker69_*
+    - sensor.alarm_panel_*_free_memory
+    - sensor.alarm_panel_*_internal_storage_free_space
+    - sensor.joanna_minutes_since_*
+    - sensor.node_proxmox*_containers_running
+    - sensor.node_proxmox*_cpu_used
+    - sensor.node_proxmox*_disk_used_percentage
+    - sensor.node_proxmox*_memory_free
+    - sensor.node_proxmox*_memory_used
+    - sensor.node_proxmox*_memory_used_percentage
+    - sensor.node_proxmox*_total_updates
+    - sensor.node_proxmox*_virtual_machines_running
+    - sensor.poe_*_poe_power
+    - sensor.proxmox1_cpu_load
+    - sensor.proxmox1_cpu_usage
+    - sensor.proxmox1_disk_free
+    - sensor.proxmox1_disk_usage
+    - sensor.proxmox1_disk_used
+    - sensor.proxmox1_*_disk_read
+    - sensor.proxmox1_*_disk_write
+    - sensor.proxmox1_*_rx
+    - sensor.proxmox1_*_tx
+    - sensor.proxmox1_memory_free
+    - sensor.proxmox1_memory_usage
+    - sensor.proxmox1_memory_use
+    - sensor.proxmox1_processor_fan_*
+    - sensor.proxmox1_running
+    - sensor.proxmox1_sleeping
+    - sensor.proxmox1_swap_*
+    - sensor.proxmox1_threads
+    - sensor.proxmox1_total
+    - sensor.proxmox2_cpu_load
+    - sensor.proxmox2_cpu_usage
+    - sensor.proxmox2_disk_free
+    - sensor.proxmox2_disk_usage
+    - sensor.proxmox2_disk_used
+    - sensor.proxmox2_*_disk_read
+    - sensor.proxmox2_*_disk_write
+    - sensor.proxmox2_*_rx
+    - sensor.proxmox2_*_tx
+    - sensor.proxmox2_memory_free
+    - sensor.proxmox2_memory_usage
+    - sensor.proxmox2_memory_use
+    - sensor.proxmox2_processor_fan_*
+    - sensor.proxmox2_running
+    - sensor.proxmox2_sleeping
+    - sensor.proxmox2_swap_*
+    - sensor.proxmox2_threads
+    - sensor.proxmox2_total
+    - sensor.qemu_*_cpu_used
+    - sensor.qemu_*_disk_used_percentage
+    - sensor.qemu_*_memory_free
+    - sensor.qemu_*_memory_used
+    - sensor.qemu_*_memory_used_percentage
+    - sensor.storage_proxmox*_*_disk_used_percentage
     - switch.*_do_not_disturb_*
     - switch.*_repeat_switch
     - input_text.l10s_vacuum_*

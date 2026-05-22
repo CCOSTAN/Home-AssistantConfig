@@ -4,12 +4,13 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - Docker containers sections
-# Related Issue: 1560, 1584
+# Related Issue: 1560, 1584, 1725
 #  Sections layout for the Docker containers view.
 # -------------------------------------------------------------------
 # Notes: Auto-discovers Portainer container entities from `switch.*_container`.
 # Notes: Keeps cards visible when Portainer telemetry is unavailable (degraded mode).
 # Notes: Includes stack-level status tiles from Portainer `*_stack_status` entities.
+# Notes: Portainer volume usage is visible; volume prune is confined to host maintenance popups with hold-confirm actions.
 ######################################################################
 
 - type: grid
@@ -116,6 +117,65 @@
     cards:
     - type: custom:button-card
       template: bearstone_infra_panel_header
+      name: Docker Volumes
+    - type: custom:auto-entities
+      show_empty: false
+      grid_options:
+        columns: full
+      card:
+        type: custom:layout-card
+        layout_type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(4, minmax(0, 1fr))
+          grid-auto-flow: row
+          grid-auto-rows: min-content
+          grid-gap: 12px
+          margin: 0
+          mediaquery:
+            "(max-width: 900px)":
+              grid-template-columns: repeat(2, minmax(0, 1fr))
+      card_param: cards
+      filter:
+        include:
+        - entity_id: "/^sensor\\..*_volume_disk_usage_total_size$/"
+          options:
+            type: custom:button-card
+            template: bearstone_infra_list_row
+            icon: mdi:database
+            name: >
+              [[[
+                const friendly = entity?.attributes?.friendly_name
+                  ? String(entity.attributes.friendly_name)
+                  : String(entity?.entity_id ?? 'Volume usage');
+                return friendly.replace(/\s+Volume disk usage total size$/, '');
+              ]]]
+            state_display: >
+              [[[
+                const value = Number(entity?.state);
+                const unit = entity?.attributes?.unit_of_measurement ?? '';
+                if (!Number.isFinite(value)) return entity?.state ?? 'unknown';
+                if (unit === 'MiB' && value > 0 && value < 1) {
+                  return `${(value * 1024).toFixed(1)} KiB`;
+                }
+                const precision = value >= 10 ? 1 : 2;
+                return `${value.toFixed(precision)} ${unit}`.trim();
+              ]]]
+      sort:
+        method: name
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:vertical-stack-in-card
+    grid_options:
+      columns: full
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
       name: Docker Stacks
     - type: custom:auto-entities
       show_empty: true
@@ -149,6 +209,16 @@
               ]]]
       sort:
         method: name
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - !include /config/dashboards/infrastructure/popups/docker_10_maintenance.yaml
+  - !include /config/dashboards/infrastructure/popups/docker_17_maintenance.yaml
+  - !include /config/dashboards/infrastructure/popups/docker_69_maintenance.yaml
+  - !include /config/dashboards/infrastructure/popups/docker_14_maintenance.yaml
 
 - type: grid
   column_span: 4

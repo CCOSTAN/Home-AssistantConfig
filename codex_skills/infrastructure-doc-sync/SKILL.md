@@ -1,6 +1,6 @@
 ---
 name: infrastructure-doc-sync
-description: "Use when infra/container placement changes require synchronized AGENTS, docs, and Infra Info updates while keeping AGENTS concise, scoped, and non-runbook."
+description: "Use when infra/container placement changes require synchronized AGENTS, docs, Dashy, and BearClaw infrastructure snapshot updates while keeping AGENTS concise, scoped, and non-runbook."
 ---
 
 # Infrastructure Doc Sync
@@ -31,8 +31,8 @@ Keep `AGENTS.md` short and task-scoped; move long runbooks to dedicated docs.
 5. Dashy shortcuts (if any service URL/host changed):
    - `h:\hass\docker_files\dashy/conf.yml`
    - Reload Dashy on docker_17 after edits: `ssh hass@192.168.10.17 "cd ~/docker_files && docker compose up -d dashy"`
-6. Infra Info snapshot JSON:
-   - `docker_69:/home/hass/docker_files/infra_info/data/overview.json`
+6. BearClaw infrastructure snapshot:
+   - `docker_17/codex_appliance` environment map and `/api/admin/infrastructure`
 
 ## Workflow
 
@@ -42,12 +42,13 @@ Keep `AGENTS.md` short and task-scoped; move long runbooks to dedicated docs.
 4. Move long operational/runbook details out of `AGENTS.md` into a dedicated doc when needed.
 5. If end-user entry points changed, update Dashy shortcuts (`dashy/conf.yml`) to match reality.
 6. Update README/skill docs impacted by the change (short, factual, no drift).
-7. Update `overview.json` to mirror the same outcome at a high level.
+7. Refresh/check BearClaw infrastructure context so it mirrors the same outcome at a high level.
 8. Validate:
    - JSON is valid (`python -m json.tool` equivalent).
    - Dashy `conf.yml` references the intended hostname(s)/ports (no stale LAN IPs unless intentionally required).
    - AGENTS and README statements do not conflict with runtime.
    - Repo-level AGENTS do not contain long runbooks duplicated from dedicated docs.
+   - BearClaw `/api/admin/infrastructure` returns the intended topology/context.
 
 ## AGENTS Quality Rules
 
@@ -57,9 +58,9 @@ Keep `AGENTS.md` short and task-scoped; move long runbooks to dedicated docs.
 - Keep specialized/deeper-scoped AGENTS concise and task-specific.
 - De-duplicate repeated policy lines across global/workspace/repo scopes.
 
-## Infra Info Content Rules
+## BearClaw Snapshot Content Rules
 
-- Keep `overview.json` high-level and planning-focused.
+- Keep infrastructure snapshot content high-level and planning-focused.
 - Do not include secrets, tokens, passwords, or internal file paths.
 - Avoid step-by-step runbooks.
 - Prefer host IDs and roles over low-level implementation detail.
@@ -79,5 +80,6 @@ Always report:
 - Final intended topology/placement.
 - Any Dashy shortcuts touched (or explicitly state "no Dashy updates needed").
 - Whether runbook content was moved from AGENTS into a dedicated ops doc.
+- BearClaw infrastructure snapshot validation result.
 - Any unresolved follow-up items.
 

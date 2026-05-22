@@ -53,35 +53,28 @@
       - entity: person.carlo
         state_not: home
       row:
-        type: attribute
-        entity: sensor.carlo_place
+        entity: sensor.carlo_location_display
         name: Carlo Location
     - type: conditional
       conditions:
       - entity: person.stacey
         state_not: home
       row:
-        type: attribute
-        entity: sensor.stacey_place
-        attribute: place_name
+        entity: sensor.stacey_location_display
         name: Stacey Location
     - type: conditional
       conditions:
       - entity: person.justin
         state_not: home
       row:
-        type: attribute
-        entity: sensor.justin_place
-        attribute: place_name
+        entity: sensor.justin_location_display
         name: Justin Location
     - type: conditional
       conditions:
       - entity: person.paige
         state_not: home
       row:
-        type: attribute
-        entity: sensor.paige_place
-        attribute: place_name
+        entity: sensor.paige_location_display
         name: Paige Location
   - show_state: true
     show_name: true
