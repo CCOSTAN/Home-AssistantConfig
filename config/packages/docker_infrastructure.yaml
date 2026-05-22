@@ -17,6 +17,7 @@
 # Notes: Weekly reconcile should replace retired container-name switches with the current container-ID-prefixed discovery set.
 # Notes: Tapple is now served by `games_hub` on `/tapple/`; do not keep a standalone `tapple` container switch in the monitored group.
 # Notes: Teslamate and crystalsoftwashsolutions are live services and should remain in the monitored group when their discovery switches are present.
+# Notes: Treat telemetry reconnects from unavailable/unknown to a concrete stopped state as actionable outages.
 # Notes: Infra Info was removed; BearClaw Admin is the planning snapshot surface.
 ######################################################################
 
@@ -1022,7 +1023,10 @@ automation:
                   down_states: ['off', 'stopped', 'exited', 'dead', 'unknown', 'unavailable']
               - choose:
                   - conditions: >-
-                      {{ new_state in down_states and old_state not in down_states and
+                      {{ new_state in down_states and
+                         (old_state not in down_states or
+                          (old_state in ['unknown', 'unavailable'] and
+                           new_state in ['off', 'stopped', 'exited', 'dead'])) and
                          not (is_state('binary_sensor.docker_container_telemetry_degraded', 'on') and
                               new_state in ['unknown', 'unavailable']) }}
                     sequence:
