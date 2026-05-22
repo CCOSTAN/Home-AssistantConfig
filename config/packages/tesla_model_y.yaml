@@ -9,11 +9,18 @@
 # Related Issue: 1279
 # Notes: Expects Tesla Fleet UI entities `sensor.spaceship_battery_level`
 #  and `switch.spaceship_charge`.
-# Notes: Uses `device_tracker.spaceship_location` for arrival/home state.
-# Notes: The nightly parents reminder starts at 8 PM, waits until the
-#  car is home, then loops every 30 minutes via a custom event until it
-#  is charging or no longer home.
+# Notes: Uses `cover.large_garage_door` closing as the arrival proxy so
+#  Tesla location drift does not suppress reminders.
+# Notes: The nightly parents reminder starts at 8 PM or after a post-8 PM
+#  garage close, then loops every 30 minutes via a custom event while the
+#  latest garage-arrival signal is recent and the car still is not charging.
 ######################################################################
+
+input_datetime:
+  tesla_model_y_last_garage_close:
+    name: Tesla Model Y Last Garage Close
+    has_date: true
+    has_time: true
 
 automation:
   - alias: "Tesla Model Y - Garage Plug In Reminder"
@@ -21,28 +28,16 @@ automation:
     mode: restart
     trigger:
       - platform: state
-        entity_id: device_tracker.spaceship_location
-        to: 'home'
-    condition:
-      - condition: template
-        value_template: >-
-          {{ trigger.from_state is not none and
-             trigger.from_state.state not in ['home', 'unknown', 'unavailable'] }}
-      - condition: template
-        value_template: >-
-          {% set battery = states('sensor.spaceship_battery_level') %}
-          {{ battery not in ['unknown', 'unavailable', 'none', ''] and
-             (battery | float(100)) < 50 and
-             is_state('switch.spaceship_charge', 'off') }}
+        entity_id: cover.large_garage_door
+        from: 'open'
+        to: 'closed'
+        for: '00:03:20'
     action:
-      - wait_for_trigger:
-          - platform: state
-            entity_id: cover.large_garage_door
-            from: 'closed'
-            to: 'open'
-            for: '00:03:20'
-        timeout: '00:10:00'
-        continue_on_timeout: false
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.tesla_model_y_last_garage_close
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
       - condition: template
         value_template: >-
           {% set battery = states('sensor.spaceship_battery_level') %}
@@ -70,14 +65,27 @@ automation:
     trigger:
       - platform: time
         at: '20:00:00'
+        id: nightly
       - platform: event
         event_type: event_tesla_model_y_nightly_loop
+        id: loop
+      - platform: state
+        entity_id: cover.large_garage_door
+        from: 'open'
+        to: 'closed'
+        for: '00:03:20'
+        id: garage_closed
     action:
-      - wait_template: "{{ is_state('device_tracker.spaceship_location', 'home') }}"
       - condition: template
         value_template: >-
+          {% set last_close = states('input_datetime.tesla_model_y_last_garage_close') %}
+          {% set last_close_ts = as_timestamp(last_close, 0) %}
+          {% set recent_garage_close = trigger.id == 'garage_closed' or
+             (last_close_ts > 0 and (as_timestamp(now()) - last_close_ts) < 43200) %}
+          {% set after_8_pm = now().hour >= 20 or now().hour < 5 %}
           {% set battery = states('sensor.spaceship_battery_level') %}
-          {{ is_state('device_tracker.spaceship_location', 'home') and
+          {{ recent_garage_close and
+             (trigger.id != 'garage_closed' or after_8_pm) and
              battery not in ['unknown', 'unavailable', 'none', ''] and
              (battery | float(100)) < 50 and
              is_state('switch.spaceship_charge', 'off') }}
@@ -85,7 +93,8 @@ automation:
         data:
           title: "Tesla Plug In Reminder"
           value1: >-
-            The Model Y is home, below 50 percent, and not plugged in.
+            The Model Y recently came in through the garage, is below 50 percent,
+            and is not plugged in.
             Current battery:
             {{ states('sensor.spaceship_battery_level') | float(0) | round(0) }} percent.
           who: 'parents'
@@ -94,6 +103,6 @@ automation:
         data:
           topic: "TESLA"
           message: >-
-            Nightly plug-in reminder sent because the Model Y is home below 50 percent and not charging.
+            Nightly plug-in reminder sent because the Model Y recently came in through the garage below 50 percent and is not charging.
       - delay: '00:30:00'
       - event: event_tesla_model_y_nightly_loop
