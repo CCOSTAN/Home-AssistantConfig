@@ -43,7 +43,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 ### Featured automations by section
 | Section | Why start here | Featured automation(s) |
 | --- | --- | --- |
-| Packages | Self-contained subsystems that highlight patterns like combined alerts + actions. | [packages/alarm.yaml](packages/alarm.yaml), [packages/garadget.yaml](packages/garadget.yaml), [packages/vacation_mode.yaml](packages/vacation_mode.yaml), [packages/powerwall.yaml](packages/powerwall.yaml) |
+| Packages | Self-contained subsystems that highlight patterns like combined alerts + actions. | [packages/alarm.yaml](packages/alarm.yaml), [packages/garadget.yaml](packages/garadget.yaml), [packages/vacation_mode.yaml](packages/vacation_mode.yaml), [packages/vacuum.yaml](packages/vacuum.yaml), [packages/powerwall.yaml](packages/powerwall.yaml) |
 | Automations | Real-world triggers that tie Zwave, MQTT, and REST sensors into the rest of the house. | [automation/garage_entry_light.yaml](automation/garage_entry_light.yaml), [automation/dark_rainy_day.yaml](automation/dark_rainy_day.yaml), [automation/dash_buttons.yaml](automation/dash_buttons.yaml) |
 | Scripts | Reusable building blocks for lighting, notifications, safety responses, and Joanna/BearClaw remediation dispatch. | [script/joanna_dispatch.yaml](script/joanna_dispatch.yaml), [script/notify_engine.yaml](script/notify_engine.yaml), [script/speech_engine.yaml](script/speech_engine.yaml) |
 | Scenes | Seasonal and ambiance presets that the scripts and automations call into. | [scene/monthly_colors.yaml](scene/monthly_colors.yaml), [scene/living_room.yaml](scene/living_room.yaml) |
@@ -66,7 +66,7 @@ Only including devices that have active references in the files above.
 | Raspberry Pi 3 + Aeon Z-Wave stick | Z-Wave backbone for door/hall sensors – [garage entry helper](automation/garage_entry_light.yaml) | [![Pi](https://img.shields.io/badge/Buy-Pi%203-orange?logo=raspberrypi)](https://amzn.to/2e3DOBY) [![Z-Wave](https://img.shields.io/badge/Buy-Z--Wave%20Stick-orange?logo=zwave)](https://amzn.to/2eAiAP0) |
 | Roku streaming device | TV presence -> scenes/lighting – [roku package](packages/roku.yaml) | [![Buy](https://img.shields.io/badge/Buy-Roku-orange?logo=roku)](https://amzn.to/2Ctp8cr) |
 | Amazon Dash Button | Quick actions (office lamp toggle) – [dash buttons automation](automation/dash_buttons.yaml) | [![Buy](https://img.shields.io/badge/Buy-Dash%20Button-orange?logo=amazon)](https://amzn.to/2dPKZhM) |
-| Dreame/Neato vacuum | Cleaning schedules + notifications – [vacuum package](packages/vacuum.yaml) | [![Buy](https://img.shields.io/badge/Buy-Vacuum-orange?logo=amazon)](https://amzn.to/4f7NpFP) |
+| Dreame/Neato vacuum | Cleaning schedules, room queues, Alexa room cleans, and rescue notifications - [vacuum package](packages/vacuum.yaml), [video walkthrough](https://youtu.be/KKOWSKuF5jA), [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html) | [![Buy](https://img.shields.io/badge/Buy-Vacuum-orange?logo=amazon)](https://amzn.to/4f7NpFP) |
 | Flux/LED strip controller | Monthly color scenes for exterior – [monthly color scene script](script/monthly_color_scene.yaml) | [![Buy](https://img.shields.io/badge/Buy-LED%20Controller-orange?logo=amazon)](https://amzn.to/2jUBSBE) |
 | Etekcity/433MHz outlet | Accent lighting relays – [garage entry helper](automation/garage_entry_light.yaml) | [![Buy](https://img.shields.io/badge/Buy-433MHz%20Outlet-orange?logo=amazon)](https://amzn.to/2efNoBP) |
 

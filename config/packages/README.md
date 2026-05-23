@@ -86,6 +86,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 - Room queue advances on a 2-minute dwell in `sensor.l10s_vacuum_current_room` (queue = remaining rooms); phase changes happen when an empty queue is reseeded and the vacuum is not actively cleaning.
 - One-off room cleaning for Alexa uses `input_boolean.l10s_vacuum_clean_*` (example: "Kitchen Clean") and runs a segment job without touching or checking the phased queue.
 - Formal Dining (room 17/dock) is excluded from phased queues; clean it via the one-off toggle.
+- Video companion: [2026 vacuum automations walkthrough](https://youtu.be/KKOWSKuF5jA) and [companion blog post](https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html).
 ![Dreame Automations](../www/custom_ui/floorplan/images/branding/Dreame%20Automations.png)
 
 ### Blog & video deep dives
@@ -100,7 +101,7 @@ When a package has a dedicated blog post or video, I link it right inside the YA
 | [phynplus.yaml](phynplus.yaml) | Installing Phyn Plus and wiring its leak events into HA automations. | [Blog](https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html) |
 | [powerwall.yaml](powerwall.yaml) | Monitoring Tesla Powerwall health + what to automate when the grid drops. | [Blog](https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html) |
 | [vacation_mode.yaml](vacation_mode.yaml) | Sustained-away Vacation Mode, house-sitter visit tracking, reminders, missed-visit alerts, and secure-house checks. | [Video walkthrough](https://youtu.be/15kRcFaVV2Y) · [Blog](https://www.vcloudinfo.com/2026/05/home-assistant-vacation-mode-house-sitter-automation.html) |
-| [vacuum.yaml](vacuum.yaml) | Keeping Neato/Dreame bots smart with HA scenes and maintenance timers. | [Blog](https://www.vcloudinfo.com/2020/05/home-assistant-neato-vacuum-automation.html) |
+| [vacuum.yaml](vacuum.yaml) | Dreame away-only cleaning, room queues, sweep/mop phases, Alexa one-off room commands, and rescue notifications. | [Video walkthrough](https://youtu.be/KKOWSKuF5jA) · [Companion post](https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html) · [Older Neato post](https://www.vcloudinfo.com/2020/05/home-assistant-neato-vacuum-automation.html) |
 | [pihole_ha.yaml](pihole_ha.yaml) | Sync Pi-hole blocking state across HA DNS nodes. | |
 | [grafana.yaml.disabled](grafana.yaml.disabled) | Rendering Grafana dashboards to images for Lovelace and social posts. | [Blog](https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html) · [Blog](https://www.vcloudinfo.com/2018/09/re-installing-tesla-solar-panels-again.html) · [Video](https://youtu.be/BartadUzGOA) |
 | [august.yaml](august.yaml) | Smart lock control and status from HA. | [YouTube short](https://youtu.be/UdcCeAyo9Ak?si=O-f607NHbRLKZxao) |
@@ -117,7 +118,7 @@ These are the devices that power the packages above. Affiliate links never chang
 | Rachio sprinkler controller | [rachio.yaml](rachio.yaml) | Rain skips and seasonal watering adjustments happen automatically. | [![Buy](https://img.shields.io/badge/Buy-Rachio-orange?logo=amazon)](https://amzn.to/2eoPKBW) |
 | Tesla Powerwall 2 | [powerwall.yaml](powerwall.yaml) | Grid outages kick off load-shed scripts and status pings. | [![Buy](https://img.shields.io/badge/Buy-Powerwall-orange?logo=tesla)](https://amzn.to/3UM4BZ5) |
 | Google Nest thermostat | [climate.yaml](climate.yaml) | Presence/weather/grid-aware cooling targets, humidity pulses, and eco recovery. | [![Buy](https://img.shields.io/badge/Buy-Nest%20Thermostat-orange?logo=google)](https://amzn.to/4olpINw) |
-| Dreame/Neato vacuum | [vacuum.yaml](vacuum.yaml) | Scheduled cleaning, maintenance reminders, and voice callouts. | [![Buy](https://img.shields.io/badge/Buy-Vacuum-orange?logo=amazon)](https://amzn.to/4f7NpFP) |
+| Dreame/Neato vacuum | [vacuum.yaml](vacuum.yaml) | Away-only room queues, sweep/mop phases, Alexa room cleans, rescue notifications, and voice callouts. [Video walkthrough](https://youtu.be/KKOWSKuF5jA) and [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html). | [![Buy](https://img.shields.io/badge/Buy-Vacuum-orange?logo=amazon)](https://amzn.to/4f7NpFP) |
 | NodeMCU motion/contact sensor | [alarm.yaml](alarm.yaml), [office_motion.yaml](office_motion.yaml) | ESP8266 nodes feed the alarm matrix and room-aware lighting. | [![Buy](https://img.shields.io/badge/Buy-Motion%20Node-orange?logo=amazon)](https://amzn.to/2oUgj5i) |
 | Roku streaming device | [roku.yaml](roku.yaml) | Media presence drives lighting, announcements, and scenes. | [![Buy](https://img.shields.io/badge/Buy-Roku-orange?logo=roku)](https://amzn.to/2Ctp8cr) |
 

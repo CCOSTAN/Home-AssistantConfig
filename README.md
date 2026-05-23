@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Home Assistant Vacation Mode
-[![My Home Assistant Vacation Mode Runs the House While We're Away](https://img.youtube.com/vi/15kRcFaVV2Y/maxresdefault.jpg)](https://youtu.be/15kRcFaVV2Y)
+### Latest video: Home Assistant Vacuum Automations
+[![All the Home Assistant Vacuum Automations We Use in Our Smart Home](https://img.youtube.com/vi/KKOWSKuF5jA/maxresdefault.jpg)](https://youtu.be/KKOWSKuF5jA)
 
-This walkthrough shows how Vacation Mode becomes a real Home Assistant state machine: sustained-away detection, house-sitter arrival/departure tracking, useful visit reminders, missed-visit alerts, and secure-house checks after the sitter leaves. [Watch the video](https://youtu.be/15kRcFaVV2Y), read the [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-vacation-mode-house-sitter-automation.html), and browse the YAML in [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml).
+This walkthrough shows how the Dreame vacuum package became a real Home Assistant workflow: away-only cleaning, room queues, sweep/mop phases, Alexa one-off room commands, map-backed rescue notifications, and follow-up when the robot gets stuck. [Watch the video](https://youtu.be/KKOWSKuF5jA), read the [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html), and browse the YAML in [config/packages/vacuum.yaml](config/packages/vacuum.yaml).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
@@ -65,7 +65,6 @@ This walkthrough shows how Vacation Mode becomes a real Home Assistant state mac
 **Docker add-ons & utilities**
 | Container | Repo/Docs | Purpose |
 | --- | --- | --- |
-| Home Assistant Time Machine | [saihgupr/HomeAssistantTimeMachine](https://github.com/saihgupr/HomeAssistantTimeMachine) | Browse/diff/restore HA YAML (Lovelace, automations, scripts, ESPHome, packages) against existing backups. Blog walkthrough: [Time Machine for dashboards](https://www.vcloudinfo.com/2025/12/home-assistant-time-machine-dashboards.html). |
 | Duplicati | [duplicati/duplicati](https://github.com/duplicati/duplicati) | Off-box, versioned backups for HA config and media; docker config backups land in OneDrive. |
 | Dozzle | [amir20/dozzle](https://github.com/amir20/dozzle) | Lightweight Docker log viewer (useful for quick tailing across the homelab stacks). |
 | Cloudflared | [cloudflare/cloudflared](https://hub.docker.com/r/cloudflare/cloudflared) | Secure tunnel/edge access to Home Assistant without opening inbound ports. |
@@ -86,7 +85,7 @@ https://amzn.to/48jVzZ3
 | Roku streaming device | TV presence -> scenes/lighting - [roku package](config/packages/roku.yaml) | [![Buy](https://img.shields.io/badge/Buy-Roku-orange?logo=roku)](https://amzn.to/2Ctp8cr) |
 | Amazon Dash Button | Quick actions (office lamp toggle) - [dash buttons automation](config/automation/dash_buttons.yaml) | [![Buy](https://img.shields.io/badge/Buy-Dash%20Button-orange?logo=amazon)](https://amzn.to/2dPKZhM) |
 | Amazon Echo Show | Front door camera pop-up when the August lock unlocks - [august package](config/packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-Echo%20Show-orange?logo=amazon)](https://amzn.to/4ptA3YO) |
-| Dreame/Neato vacuum | Cleaning schedules + notifications - [vacuum package](config/packages/vacuum.yaml) | [![Buy](https://img.shields.io/badge/Buy-Vacuum-orange?logo=amazon)](https://amzn.to/4f7NpFP) |
+| Dreame/Neato vacuum | Cleaning schedules, room queues, Alexa room cleans, and rescue notifications - [vacuum package](config/packages/vacuum.yaml), [video walkthrough](https://youtu.be/KKOWSKuF5jA), [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html) | [![Buy](https://img.shields.io/badge/Buy-Vacuum-orange?logo=amazon)](https://amzn.to/4f7NpFP) |
 | Flux/LED strip controller | Monthly color scenes for exterior - [monthly color scene](config/script/monthly_color_scene.yaml) | [![Buy](https://img.shields.io/badge/Buy-LED%20Controller-orange?logo=amazon)](https://amzn.to/2jUBSBE) |
 | Etekcity/433MHz outlet | Accent lighting relays - [garage entry helper](config/automation/garage_entry_light.yaml) | [![Buy](https://img.shields.io/badge/Buy-433MHz%20Outlet-orange?logo=amazon)](https://amzn.to/2efNoBP) |
 
