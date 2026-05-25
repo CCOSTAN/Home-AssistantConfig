@@ -14,6 +14,8 @@
 # Notes: The nightly parents reminder starts at 8 PM or after a post-8 PM
 #  garage close, then loops every 30 minutes via a custom event while the
 #  latest garage-arrival signal is recent and the car still is not charging.
+# Notes: Plug-in reminders only fire when both `person.carlo` and
+#  `person.stacey` are home.
 ######################################################################
 
 input_datetime:
@@ -23,45 +25,9 @@ input_datetime:
     has_time: true
 
 automation:
-  - alias: "Tesla Model Y - Garage Plug In Reminder"
+  - alias: "Tesla Model Y - Plug In Reminder"
     id: 6a873341-c823-4d5d-9d42-fc2df52b93db
     mode: restart
-    trigger:
-      - platform: state
-        entity_id: cover.large_garage_door
-        from: 'open'
-        to: 'closed'
-        for: '00:03:20'
-    action:
-      - service: input_datetime.set_datetime
-        target:
-          entity_id: input_datetime.tesla_model_y_last_garage_close
-        data:
-          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-      - condition: template
-        value_template: >-
-          {% set battery = states('sensor.spaceship_battery_level') %}
-          {{ battery not in ['unknown', 'unavailable', 'none', ''] and
-             (battery | float(100)) < 50 and
-             is_state('switch.spaceship_charge', 'off') }}
-      - service: notify.alexa_media_garage
-        data:
-          message: >-
-            Reminder: the Tesla battery is at
-            {{ states('sensor.spaceship_battery_level') | float(0) | round(0) }} percent.
-            Please plug in the Model Y.
-          data:
-            type: announce
-      - service: script.send_to_logbook
-        data:
-          topic: "TESLA"
-          message: >-
-            Garage reminder announced to plug in the Model Y at
-            {{ states('sensor.spaceship_battery_level') | float(0) | round(0) }} percent.
-
-  - alias: "Tesla Model Y - Nightly Plug In Reminder"
-    id: 8b243b63-f5c3-4436-b596-0ec00a2108ab
-    mode: single
     trigger:
       - platform: time
         at: '20:00:00'
@@ -76,19 +42,64 @@ automation:
         for: '00:03:20'
         id: garage_closed
     action:
-      - condition: template
-        value_template: >-
-          {% set last_close = states('input_datetime.tesla_model_y_last_garage_close') %}
-          {% set last_close_ts = as_timestamp(last_close, 0) %}
-          {% set recent_garage_close = trigger.id == 'garage_closed' or
-             (last_close_ts > 0 and (as_timestamp(now()) - last_close_ts) < 43200) %}
-          {% set after_8_pm = now().hour >= 20 or now().hour < 5 %}
-          {% set battery = states('sensor.spaceship_battery_level') %}
-          {{ recent_garage_close and
-             (trigger.id != 'garage_closed' or after_8_pm) and
-             battery not in ['unknown', 'unavailable', 'none', ''] and
-             (battery | float(100)) < 50 and
-             is_state('switch.spaceship_charge', 'off') }}
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: garage_closed
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.tesla_model_y_last_garage_close
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - condition: or
+        conditions:
+          - condition: trigger
+            id: garage_closed
+          - condition: template
+            value_template: >-
+              {% set last_close_ts = as_timestamp(states('input_datetime.tesla_model_y_last_garage_close'), 0) %}
+              {{ last_close_ts > 0 and (as_timestamp(now()) - last_close_ts) < 43200 }}
+      - condition: numeric_state
+        entity_id: sensor.spaceship_battery_level
+        below: 50
+      - condition: state
+        entity_id: person.carlo
+        state: 'home'
+      - condition: state
+        entity_id: person.stacey
+        state: 'home'
+      - condition: state
+        entity_id: switch.spaceship_charge
+        state: 'off'
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: garage_closed
+            sequence:
+              - service: notify.alexa_media_garage
+                data:
+                  message: >-
+                    Reminder: the Tesla battery is at
+                    {{ states('sensor.spaceship_battery_level') | float(0) | round(0) }} percent.
+                    Please plug in the Model Y.
+                  data:
+                    type: announce
+              - service: script.send_to_logbook
+                data:
+                  topic: "TESLA"
+                  message: >-
+                    Garage reminder announced to plug in the Model Y at
+                    {{ states('sensor.spaceship_battery_level') | float(0) | round(0) }} percent.
+      - condition: or
+        conditions:
+          - condition: not
+            conditions:
+              - condition: trigger
+                id: garage_closed
+          - condition: time
+            after: '20:00:00'
+            before: '05:00:00'
       - service: script.notify_engine
         data:
           title: "Tesla Plug In Reminder"
