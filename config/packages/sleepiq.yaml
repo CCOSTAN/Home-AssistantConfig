@@ -13,6 +13,8 @@
 #        below if needed to match your select entity's options.
 # Notes: Single-package preference: keep all SleepIQ device-specific YAML
 #        (helpers/automations) centralized in this file.
+# Notes: `group.bed` is occupancy-only so dependent automations get a clean
+#        on/off state from the two in-bed binary sensors.
 ######################################################################
 homeassistant:
   customize_glob:
@@ -60,10 +62,8 @@ group:
   bed:
     entities:
       - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-      - sensor.sleepnumber_carlo_carlo_sleepnumber
 #      - sensor.Carlo_sleep_hours
       - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-      - sensor.sleepnumber_carlo_stacey_sleepnumber
 #      - sensor.Stacey_sleep_hours
 
 automation:

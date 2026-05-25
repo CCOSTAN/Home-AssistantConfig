@@ -1,0 +1,104 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Bedroom Kiosk Tablet - Fully Kiosk page recovery
+#  Keeps the Master Bedroom Fire tablet pinned to the kiosk dashboard.
+# -------------------------------------------------------------------
+# Notes: Baseline view path is the real typo-like `kiosk_oveview` slug.
+# Notes: Uses Fully controls only; does not enable Fully Kiosk lockout mode.
+# Notes: Startup reload waits for HA's initial websocket state burst to settle.
+# Notes: Brightness recovery only runs when both SleepIQ in-bed sensors are off.
+######################################################################
+
+automation:
+  - alias: "Bedroom Kiosk Tablet - Return to Kiosk View"
+    id: 11e50d2e-f66f-4fd0-86f4-bdca075c3a1c
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: state
+        entity_id: switch.alarm_panel_1_screen
+        to: "on"
+        for: "00:00:03"
+        id: wake
+      - platform: state
+        entity_id: switch.alarm_panel_1_screensaver
+        to: "off"
+        for: "00:00:03"
+        id: wake
+      - platform: state
+        entity_id:
+          - sensor.alarm_panel_1_current_page
+          - sensor.alarm_panel_1_foreground_app
+          - number.alarm_panel_1_screen_brightness
+        for: "00:00:10"
+        id: drift
+      - platform: time_pattern
+        minutes: "/1"
+        id: periodic
+      - platform: homeassistant
+        event: start
+        id: startup
+
+    condition:
+      - condition: state
+        entity_id: switch.alarm_panel_1_screen
+        state: "on"
+      - condition: state
+        entity_id: switch.alarm_panel_1_screensaver
+        state: "off"
+      - condition: template
+        value_template: >-
+          {% set current_page = states('sensor.alarm_panel_1_current_page') %}
+          {% set foreground_app = states('sensor.alarm_panel_1_foreground_app') %}
+          {% set brightness = states('number.alarm_panel_1_screen_brightness') %}
+          {% set bed_clear = is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off')
+             and is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off') %}
+          {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+          {{ trigger.id == 'wake'
+             or trigger.id == 'startup'
+             or (current_page not in invalid and '/dashboard-kiosk/kiosk_oveview' not in current_page)
+             or (foreground_app not in invalid and foreground_app != 'de.ozerov.fully')
+             or (bed_clear and brightness not in invalid and brightness | float(100) < 40) }}
+
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: startup
+            sequence:
+              - delay: "00:02:00"
+      - variables:
+          previous_page: "{{ states('sensor.alarm_panel_1_current_page') }}"
+          previous_app: "{{ states('sensor.alarm_panel_1_foreground_app') }}"
+          previous_brightness: "{{ states('number.alarm_panel_1_screen_brightness') }}"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+                state: "off"
+              - condition: state
+                entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+                state: "off"
+            sequence:
+              - service: number.set_value
+                target:
+                  entity_id: number.alarm_panel_1_screen_brightness
+                data:
+                  value: 100
+      - service: button.press
+        target:
+          entity_id: button.alarm_panel_1_bring_to_foreground
+      - delay: "00:00:02"
+      - service: button.press
+        target:
+          entity_id: button.alarm_panel_1_load_start_url
+      - service: script.send_to_logbook
+        data:
+          topic: "KIOSK"
+          message: >-
+            Bedroom tablet returned to the kiosk dashboard from
+            {{ previous_page }} (foreground app: {{ previous_app }};
+            brightness: {{ previous_brightness }}).
