@@ -7,6 +7,7 @@
 #  Thermostat helpers for upstairs/downstairs comfort.
 # -------------------------------------------------------------------
 # Related Issue: 1571
+# Notes: Filter due alerts include 3-day snooze and Filter Changed push actions.
 ######################################################################
 # Contact: @CCOSTAN | Entity reference details below
 # Entity reference and attribute summaries:
@@ -69,8 +70,16 @@ input_datetime:
     name: Downstairs Last Filter Change
     has_date: true
     has_time: true
+  downstairs_filter_snooze_until:
+    name: Downstairs Filter Snooze Until
+    has_date: true
+    has_time: true
   upstairs_last_filter_change:
     name: Upstairs Last Filter Change
+    has_date: true
+    has_time: true
+  upstairs_filter_snooze_until:
+    name: Upstairs Filter Snooze Until
     has_date: true
     has_time: true
 
@@ -109,6 +118,10 @@ script:
         data:
           entity_id: input_datetime.downstairs_last_filter_change
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: input_datetime.set_datetime
+        data:
+          entity_id: input_datetime.downstairs_filter_snooze_until
+          datetime: "{{ (now() - timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S') }}"
       - service: utility_meter.reset
         target:
           entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
@@ -121,6 +134,10 @@ script:
         data:
           entity_id: input_datetime.upstairs_last_filter_change
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: input_datetime.set_datetime
+        data:
+          entity_id: input_datetime.upstairs_filter_snooze_until
+          datetime: "{{ (now() - timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S') }}"
       - service: utility_meter.reset
         target:
           entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
@@ -264,19 +281,35 @@ automation:
       - platform: numeric_state
         entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
         above: 800      # hours
+      - platform: time
+        at: "09:00:00"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
+        above: 800
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states('input_datetime.downstairs_filter_snooze_until'), 0) %}
+          {{ snooze_until <= as_timestamp(now()) }}
     action:
       - service: script.send_to_logbook
         data:
           topic: "MAINTENANCE"
           message: >-
             Downstairs AC filter due (runtime >800h). Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
-      - service: script.notify_engine        # <-- keep your existing notify helper
+      - service: script.notify_engine_two_button
         data:
           title: "Home Maintenance Reminder"
           value1: "It's time to change your Downstairs AC filter."
           value2: >
-            Runtime has exceeded 800 h. Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
-          who: "Carlo"
+            Runtime has exceeded 800h. Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
+          title1: "Snooze 3d"
+          action1: "SNOOZE_DOWNSTAIRS_FILTER_3D"
+          icon1: "sfsymbols:clock"
+          title2: "Filter Changed"
+          action2: "RESET_DOWNSTAIRS_FILTER"
+          icon2: "sfsymbols:checkmark.circle"
+          who: "carlo"
           group: "maintenance"
           level: "active"
 
@@ -286,20 +319,103 @@ automation:
       - platform: numeric_state
         entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
         above: 450      # hours
+      - platform: time
+        at: "09:10:00"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
+        above: 450
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states('input_datetime.upstairs_filter_snooze_until'), 0) %}
+          {{ snooze_until <= as_timestamp(now()) }}
     action:
       - service: script.send_to_logbook
         data:
           topic: "MAINTENANCE"
           message: >-
             Upstairs AC filter due (runtime >450h). Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
-      - service: script.notify_engine
+      - service: script.notify_engine_two_button
         data:
           title: "Home Maintenance Reminder"
           value1: "It's time to change your Upstairs AC filter."
           value2: >
-            Runtime has exceeded 450 h. Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
-          who: "Carlo"
+            Runtime has exceeded 450h. Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
+          title1: "Snooze 3d"
+          action1: "SNOOZE_UPSTAIRS_FILTER_3D"
+          icon1: "sfsymbols:clock"
+          title2: "Filter Changed"
+          action2: "RESET_UPSTAIRS_FILTER"
+          icon2: "sfsymbols:checkmark.circle"
+          who: "carlo"
           group: "maintenance"
+
+  - alias: Climate Filter Reminder Actions
+    id: 6d7056d0-90ce-4c4f-b8b1-fd32a7e58311
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_DOWNSTAIRS_FILTER_3D
+        id: downstairs_snooze
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_UPSTAIRS_FILTER_3D
+        id: upstairs_snooze
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: RESET_DOWNSTAIRS_FILTER
+        id: downstairs_reset
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: RESET_UPSTAIRS_FILTER
+        id: upstairs_reset
+    action:
+      - choose:
+          - conditions: "{{ trigger.id == 'downstairs_snooze' }}"
+            sequence:
+              - variables:
+                  snooze_until: "{{ (now() + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S') }}"
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.downstairs_filter_snooze_until
+                data:
+                  datetime: "{{ snooze_until }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "MAINTENANCE"
+                  message: "Downstairs AC filter reminder snoozed until {{ snooze_until }}."
+          - conditions: "{{ trigger.id == 'upstairs_snooze' }}"
+            sequence:
+              - variables:
+                  snooze_until: "{{ (now() + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S') }}"
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.upstairs_filter_snooze_until
+                data:
+                  datetime: "{{ snooze_until }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "MAINTENANCE"
+                  message: "Upstairs AC filter reminder snoozed until {{ snooze_until }}."
+          - conditions: "{{ trigger.id == 'downstairs_reset' }}"
+            sequence:
+              - service: script.reset_downstairs_filter
+              - service: script.send_to_logbook
+                data:
+                  topic: "MAINTENANCE"
+                  message: "Downstairs AC filter reset from notification action."
+          - conditions: "{{ trigger.id == 'upstairs_reset' }}"
+            sequence:
+              - service: script.reset_upstairs_filter
+              - service: script.send_to_logbook
+                data:
+                  topic: "MAINTENANCE"
+                  message: "Upstairs AC filter reset from notification action."
 
   - alias: 'AC Status Announcement'
     id: 7812fdaf-a3f8-498b-8f07-28e977e528fe

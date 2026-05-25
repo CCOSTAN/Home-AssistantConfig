@@ -8,7 +8,14 @@
 # -------------------------------------------------------------------
 # Notes: Inspired by https://community.home-assistant.io/t/epson-wf-3540-ink-level-monitoring/21813
 # Notes: Automations - Detect when things are not right. Like any Good Watchdog
+# Notes: Ink alerts include 1-day and 1-week snooze actions.
 ######################################################################
+input_datetime:
+  printer_ink_snooze_until:
+    name: Printer Ink Snooze Until
+    has_date: true
+    has_time: true
+
 automation:
   - alias: 'Printer Ink Alert'
     id: 6ef2a695-0b76-4eb5-b67c-2ff6f74f40b8
@@ -19,16 +26,75 @@ automation:
           - sensor.canon_ts300_series_black
           - sensor.canon_ts300_series_color
         below: 15
+      - platform: time
+        at: "10:00:00"
+    variables:
+      low_cartridges: >-
+        {% set ns = namespace(items=[]) %}
+        {% for entity_id in ['sensor.canon_ts300_series_black', 'sensor.canon_ts300_series_color'] %}
+          {% set ink_level = states(entity_id) %}
+          {% set cartridge_name = state_attr(entity_id, 'friendly_name') | default(entity_id, true) %}
+          {% if ink_level not in ['unknown', 'unavailable', 'none', ''] and (ink_level | float(100)) < 15 %}
+            {% set ns.items = ns.items + [cartridge_name ~ ' is at ' ~ ink_level ~ '%'] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items | join('; ') }}
     condition:
-      condition: time
-      weekday:
-        - wed
+      - condition: time
+        weekday:
+          - wed
+      - condition: template
+        value_template: "{{ low_cartridges | trim != '' }}"
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states('input_datetime.printer_ink_snooze_until'), 0) %}
+          {{ snooze_until <= as_timestamp(now()) }}
     action:
-      - service: script.notify_engine
+      - service: script.notify_engine_two_button
         data:
-          value1: "{{ trigger.to_state.attributes.friendly_name }} is at {{ trigger.to_state.state }} "
+          title: "Printer Ink Alert"
+          value1: "{{ low_cartridges }}"
           who: 'carlo'
-          apns_id: 'information'
+          group: 'Printer'
+          title1: "Snooze 1d"
+          action1: "SNOOZE_PRINTER_INK_1D"
+          icon1: "sfsymbols:clock"
+          title2: "Snooze 1w"
+          action2: "SNOOZE_PRINTER_INK_1W"
+          icon2: "sfsymbols:calendar"
+
+  - alias: 'Printer Ink Snooze'
+    id: 77a5cb04-64e6-465e-a3d4-1f75882bbbd4
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_PRINTER_INK_1D
+        id: one_day
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_PRINTER_INK_1W
+        id: one_week
+    variables:
+      snooze_until: >-
+        {% if trigger.id == 'one_day' %}
+          {{ (now() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S') }}
+        {% else %}
+          {{ (now() + timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S') }}
+        {% endif %}
+      snooze_label: "{{ '1 day' if trigger.id == 'one_day' else '1 week' }}"
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.printer_ink_snooze_until
+        data:
+          datetime: "{{ snooze_until }}"
+      - service: script.send_to_logbook
+        data:
+          topic: "PRINTER"
+          message: "Printer ink alert snoozed for {{ snooze_label }} (until {{ snooze_until }})."
 
   - alias: 'Printer Status Notifications'
     id: 6ef2a695-0b76-4eb5-b67c-2ff6f74f40b9

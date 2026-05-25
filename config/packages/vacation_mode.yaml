@@ -11,6 +11,7 @@
 # Notes: General vacation speech uses Chromecast only; the garage Alexa welcome is the one local-device exception.
 # Notes: Visit analytics use recorder-backed visit counts plus arrival/departure helpers for accurate durations.
 # Notes: Dorm zones are reported as away locations, not Bear Stone home.
+# Notes: Missed sitter alerts include 2-day and 3-day snooze actions that clear after a visit.
 # Video: https://youtu.be/15kRcFaVV2Y
 # Blog: https://www.vcloudinfo.com/2026/05/home-assistant-vacation-mode-house-sitter-automation.html
 ######################################################################
@@ -32,6 +33,10 @@ input_datetime:
     has_time: true
   vacation_house_sitter_last_departure:
     name: Vacation House Sitter Last Departure
+    has_date: true
+    has_time: true
+  vacation_house_sitter_missed_visit_snooze_until:
+    name: Vacation House Sitter Missed Visit Snooze Until
     has_date: true
     has_time: true
 
@@ -199,6 +204,27 @@ automation:
           value1: >-
             Vacation Mode has been disabled and normal automations will continue.
           call_no_announcement: 1
+
+  - alias: 'Vacation Mode Clear Missed Visit Snooze'
+    id: 88b7ce4b-b7f9-4770-8b1c-2c42b7a98e32
+    mode: queued
+
+    trigger:
+      - platform: state
+        entity_id: input_boolean.vacation_mode
+        to:
+          - 'on'
+          - 'off'
+      - platform: state
+        entity_id: input_boolean.house_sitter_present
+        to: 'on'
+
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.vacation_house_sitter_missed_visit_snooze_until
+        data:
+          datetime: "{{ (now() - timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S') }}"
 
   - alias: 'Vacation Mode Garage Welcome'
     id: 63ac9268-c895-4a1b-b0df-92b5bb8e9d01
@@ -645,6 +671,10 @@ automation:
         value_template: >-
           {% set last_alert = as_timestamp(state_attr('automation.vacation_mode_missed_visit_alert', 'last_triggered'), 0) %}
           {{ last_alert == 0 or (as_timestamp(now()) - last_alert) >= 86400 }}
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states('input_datetime.vacation_house_sitter_missed_visit_snooze_until'), 0) %}
+          {{ snooze_until <= as_timestamp(now()) }}
 
     action:
       - variables:
@@ -664,13 +694,19 @@ automation:
             No sitter visit has been detected for {{ hours_since }} hours since {{ baseline_label }}.
             Visit count this vacation is {{ visit_count }}.
 
-      - service: script.notify_engine
+      - service: script.notify_engine_two_button
         data:
           title: Vacation missed visit alert
           value1: "{{ alert_message }}"
           who: carlo
           group: information
           level: active
+          title1: "Snooze 2d"
+          action1: "SNOOZE_SITTER_MISSED_VISIT_2D"
+          icon1: "sfsymbols:clock"
+          title2: "Snooze 3d"
+          action2: "SNOOZE_SITTER_MISSED_VISIT_3D"
+          icon2: "sfsymbols:calendar"
 
       - service: script.joanna_send_telegram
         data:
@@ -680,6 +716,39 @@ automation:
         data:
           topic: VACATION MODE
           message: "{{ alert_message }}"
+
+  - alias: 'Vacation Mode Missed Visit Snooze'
+    id: b5a2e44a-1a42-4a2f-992c-18d8dd8d71d9
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_SITTER_MISSED_VISIT_2D
+        id: two_days
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_SITTER_MISSED_VISIT_3D
+        id: three_days
+    variables:
+      snooze_until: >-
+        {% if trigger.id == 'two_days' %}
+          {{ (now() + timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S') }}
+        {% else %}
+          {{ (now() + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S') }}
+        {% endif %}
+      snooze_label: "{{ '2 days' if trigger.id == 'two_days' else '3 days' }}"
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.vacation_house_sitter_missed_visit_snooze_until
+        data:
+          datetime: "{{ snooze_until }}"
+      - service: script.send_to_logbook
+        data:
+          topic: VACATION MODE
+          message: "Vacation missed sitter visit alert snoozed for {{ snooze_label }} (until {{ snooze_until }})."
 
   - alias: 'Vacation Mode Room Hints'
     id: e0d4e35c-2bf4-435d-adff-52d836812999
