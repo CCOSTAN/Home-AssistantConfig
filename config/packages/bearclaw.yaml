@@ -6,8 +6,8 @@
 # BearClaw Integration - Home Assistant dispatch + lifecycle callbacks
 #  Home Assistant dispatches jobs to codex_appliance and receives structured lifecycle callbacks.
 # -------------------------------------------------------------------
-# Notes: Telegram ingress now lives directly in docker_17/codex_appliance.
-# Notes: Most BearClaw decision logic runs in docker_17/codex_appliance (server.js).
+# Notes: Telegram ingress now lives directly in the dedicated codex_appliance VM.
+# Notes: Most BearClaw decision logic runs in codex_appliance/server.js.
 # Notes: GitHub capture behavior (issue creation/labels/research flow) belongs in codex_appliance, not HA YAML.
 # Notes: Shared script helper `script.joanna_dispatch` lives in config/script/joanna_dispatch.yaml.
 # Notes: The callback webhook writes JOANNA activity entries to logbook for traceability and optional HA alerts.

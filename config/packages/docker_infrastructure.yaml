@@ -19,6 +19,7 @@
 # Notes: Teslamate and crystalsoftwashsolutions are live services and should remain in the monitored group when their discovery switches are present.
 # Notes: Treat telemetry reconnects from unavailable/unknown to a concrete stopped state as actionable outages.
 # Notes: Infra Info was removed; BearClaw Admin is the planning snapshot surface.
+# Notes: codex_appliance moved to a dedicated VM; monitor it through BearClaw status telemetry instead of old docker_17 container switches.
 ######################################################################
 
 input_datetime:
@@ -82,8 +83,6 @@ switch:
       - switch.cloudflared_kch_container_2
       - switch.cloudflared_wp_container
       - switch.cloudflared_wp_container_2
-      - switch.codex_appliance_container
-      - switch.codex_appliance_container_2
       - switch.college_budget_app_container
       - switch.college_budget_app_container_2
       - switch.cruise_tracker_container
@@ -97,7 +96,6 @@ switch:
       - switch.dozzle_agent_10_container_2
       - switch.dozzle_agent_14_container
       - switch.dozzle_agent_14_container_2
-      - switch.39394ec38d4c_dozzle_container
       - switch.7cf71db3325d_dozzle_agent_17_container
       - switch.dozzle_agent_69_container
       - switch.dozzle_agent_69_container_2

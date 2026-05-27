@@ -7,8 +7,8 @@
 #  Chunks long messages and sends them through BearClaw's direct Telegram transport.
 # -------------------------------------------------------------------
 # Notes: Shared helper moved out of packages so cross-file callers resolve from config/script.
-# Notes: Primary BearClaw Telegram ingress/delivery now lives directly in docker_17/codex_appliance.
-# Notes: Keep Joanna/BearClaw decision logic in docker_17/codex_appliance; this script is HA-side delivery fallback only.
+# Notes: Primary BearClaw Telegram ingress/delivery now lives directly in the dedicated codex_appliance VM.
+# Notes: Keep Joanna/BearClaw decision logic in codex_appliance/server.js; this script is HA-side delivery fallback only.
 ######################################################################
 
 joanna_send_telegram:
