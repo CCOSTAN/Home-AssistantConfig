@@ -65,7 +65,7 @@ This walkthrough shows how the Dreame vacuum package became a real Home Assistan
 **Docker add-ons & utilities**
 | Container | Repo/Docs | Purpose |
 | --- | --- | --- |
-| Duplicati | [duplicati/duplicati](https://github.com/duplicati/duplicati) | Off-box, versioned backups for HA config and media; docker config backups land in OneDrive. |
+| Duplicati | [duplicati/duplicati](https://github.com/duplicati/duplicati) | Off-box, versioned backups for HA config, media, and infrastructure compose/config trees. |
 | Dozzle | [amir20/dozzle](https://github.com/amir20/dozzle) | Lightweight Docker log viewer (useful for quick tailing across the homelab stacks). |
 | Cloudflared | [cloudflare/cloudflared](https://hub.docker.com/r/cloudflare/cloudflared) | Secure tunnel/edge access to Home Assistant without opening inbound ports. |
 | WordPress | [wordpress](https://hub.docker.com/_/wordpress) | Hosts [vCloudInfo.com](https://www.vcloudinfo.com) for docs, how-tos, videos, and long-form writeups that accompany this config. |

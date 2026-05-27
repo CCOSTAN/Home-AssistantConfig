@@ -2,6 +2,7 @@
 
 - This is a deployment inventory diagram for blog and documentation use.
 - `docker10` is pinned to ProxMox1 (`qemu/105`) based on the current workspace inventory.
+- `codex-appliance` is pinned to ProxMox1 (`qemu/113`) and owns the BearClaw/Codex runtime, OneNote indexer, MCP stdio wrappers, Portainer agent, and Dozzle agent.
 - `docker14`, `docker17`, and `docker69` are shown as cluster-managed Docker VMs on shared storage because the current AGENTS inventory does not pin them to a single Proxmox node.
 - The diagram is intentionally hierarchy-first. It shows hosts and containers, not every runtime network edge between services.
 - Infra Info is omitted because it was removed; BearClaw Admin owns the replacement infrastructure planning view.

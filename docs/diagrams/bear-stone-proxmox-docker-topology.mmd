@@ -7,6 +7,7 @@ flowchart TD
     end
 
     P1 --> D10VM[docker10 VM]
+    P1 --> CODEXVM[codex-appliance VM]
     P1 --> FLOAT
     P2 --> FLOAT
     NFS --> D10VM
@@ -16,6 +17,14 @@ flowchart TD
     FLOAT --> D14VM
     FLOAT --> D17VM
     FLOAT --> D69VM
+
+    subgraph CODEX[codex-appliance - BearClaw and MCP runtime]
+        CX_CODEX[codex_appliance]
+        CX_ONENOTE[onenote-indexer]
+        CX_MCP[MCP stdio wrappers]
+        CX_PORT[portainer_agent]
+        CX_DOZZLE[dozzle_agent_13]
+    end
 
     subgraph D10[docker10 - primary home stack]
         D10_HA[home-assistant]
@@ -44,7 +53,6 @@ flowchart TD
     end
 
     subgraph D17[docker17 - internal apps and tooling]
-        D17_CODEX[codex_appliance]
         D17_DASHY[dashy]
         D17_DOZZLE[dozzle]
         D17_TUG_UI[tugtainer]
