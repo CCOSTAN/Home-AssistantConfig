@@ -20,6 +20,7 @@
 # Notes: Treat telemetry reconnects from unavailable/unknown to a concrete stopped state as actionable outages.
 # Notes: Infra Info was removed; BearClaw Admin is the planning snapshot surface.
 # Notes: codex_appliance moved to a dedicated VM; monitor it through BearClaw status telemetry instead of old docker_17 container switches.
+# Notes: Retired repair cleanup clears old codex_appliance and hashed dozzle Portainer repair IDs.
 ######################################################################
 
 input_datetime:
@@ -661,7 +662,13 @@ script:
                     {% endif %}
                     {{ resolver.state }}
                   telemetry_degraded: "{{ is_state('binary_sensor.docker_container_telemetry_degraded', 'on') }}"
-                  container_name: "{{ state_attr(effective_entity, 'friendly_name') | default(container_key, true) }}"
+                  container_name: >-
+                    {% set switch_name = state_attr(switch_entity, 'friendly_name') | default('', true) %}
+                    {% set switch_alt_name = state_attr(switch_entity_alt, 'friendly_name') | default('', true) %}
+                    {% set effective_name = state_attr(effective_entity, 'friendly_name') | default('', true) %}
+                    {% set raw_name = switch_name if switch_name | trim != '' else (switch_alt_name if switch_alt_name | trim != '' else effective_name) %}
+                    {% set normalized = raw_name | regex_replace('(?i)\\s+container$', '') | trim %}
+                    {{ container_key if normalized | lower in ['', 'status', 'state'] else normalized }}
               - condition: template
                 value_template: >-
                   {{ effective_state in down_states and
@@ -709,7 +716,13 @@ script:
                       {% endfor %}
                     {% endif %}
                     {{ resolver.state }}
-                  container_name: "{{ state_attr(effective_entity, 'friendly_name') | default(container_key, true) }}"
+                  container_name: >-
+                    {% set switch_name = state_attr(switch_entity, 'friendly_name') | default('', true) %}
+                    {% set switch_alt_name = state_attr(switch_entity_alt, 'friendly_name') | default('', true) %}
+                    {% set effective_name = state_attr(effective_entity, 'friendly_name') | default('', true) %}
+                    {% set raw_name = switch_name if switch_name | trim != '' else (switch_alt_name if switch_alt_name | trim != '' else effective_name) %}
+                    {% set normalized = raw_name | regex_replace('(?i)\\s+container$', '') | trim %}
+                    {{ container_key if normalized | lower in ['', 'status', 'state'] else normalized }}
               - condition: template
                 value_template: >-
                   {{ persistent_effective_state in down_states and
@@ -769,7 +782,13 @@ script:
                       {% endfor %}
                     {% endif %}
                     {{ resolver.state }}
-                  container_name: "{{ state_attr(effective_entity, 'friendly_name') | default(container_key, true) }}"
+                  container_name: >-
+                    {% set switch_name = state_attr(switch_entity, 'friendly_name') | default('', true) %}
+                    {% set switch_alt_name = state_attr(switch_entity_alt, 'friendly_name') | default('', true) %}
+                    {% set effective_name = state_attr(effective_entity, 'friendly_name') | default('', true) %}
+                    {% set raw_name = switch_name if switch_name | trim != '' else (switch_alt_name if switch_alt_name | trim != '' else effective_name) %}
+                    {% set normalized = raw_name | regex_replace('(?i)\\s+container$', '') | trim %}
+                    {{ container_key if normalized | lower in ['', 'status', 'state'] else normalized }}
               - condition: template
                 value_template: "{{ effective_state not in down_states }}"
               - service: repairs.remove
@@ -1063,7 +1082,7 @@ automation:
 
   - alias: "Docker Repairs Reconcile"
     id: docker_repairs_reconcile
-    description: "Reconcile stale container and stack Repairs issues on startup and every 55 minutes."
+    description: "Reconcile stale container, stack, and retired Portainer Repairs issues on startup and every 55 minutes."
     mode: queued
     trigger:
       - platform: homeassistant
@@ -1101,6 +1120,17 @@ automation:
                 entity_id: "{{ repeat.item }}"
                 operation: "clear"
                 log_result: false
+      - repeat:
+          for_each:
+            - docker_container_codex_appliance_offline
+            - user_docker_container_codex_appliance_offline
+            - docker_container_39394ec38d4c_dozzle_offline
+            - user_docker_container_39394ec38d4c_dozzle_offline
+          sequence:
+            - service: repairs.remove
+              continue_on_error: true
+              data:
+                issue_id: "{{ repeat.item }}"
 
   - alias: "Docker Containers Maintenance Prompt"
     id: docker_containers_maintenance_prompt

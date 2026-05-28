@@ -18,6 +18,7 @@
 # Notes: Disk-pressure dispatch allows bounded safe cleanup of disposable caches and old generated backup artifacts, but not live data or restarts.
 # Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
 # Notes: Nebula Sync DNS consistency compares primary/backup Pi-hole answers and dispatches Joanna on sustained drift or container loss.
+# Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
 ######################################################################
 
 input_text:
@@ -32,6 +33,9 @@ input_text:
     max: 20
   infra_nebula_sync_health_band:
     name: "Nebula Sync health band"
+    max: 20
+  infra_pihole_iot_dns_health_band:
+    name: "Pi-hole IoT DNS health band"
     max: 20
 
 input_boolean:
@@ -85,6 +89,20 @@ command_line:
         - secondary_fqdn
         - primary_reverse
         - secondary_reverse
+
+  - sensor:
+      name: Infra Pihole IoT DNS Consistency
+      unique_id: infra_pihole_iot_dns_consistency
+      command: >-
+        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.14; records="rachio.fordst.com=192.168.10.73 econet.fordst.com=192.168.10.92 dreame-vacuum.fordst.com=192.168.10.93 carlo-bed.fordst.com=192.168.10.95 lg-smart-fridge.fordst.com=192.168.10.96 tesla-blackbox-gw.fordst.com=192.168.10.97 bgw210.fordst.com=192.168.10.98"; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; status=ok; checked=0; mismatch_count=0; mismatches=""; for record in $records; do host=${record%%=*}; ip=${record#*=}; p=$(q "$primary" "$host"); s=$(q "$secondary" "$host"); checked=$((checked+1)); if [ "$p" != "$ip" ] || [ "$s" != "$ip" ]; then status=mismatch; mismatch_count=$((mismatch_count+1)); mismatches="${mismatches}${host}:expected=${ip},primary=${p:-none},secondary=${s:-none};"; fi; done; if [ -z "$mismatches" ]; then mismatches=none; fi; printf "{\"status\":\"%s\",\"checked_records\":%s,\"mismatch_count\":%s,\"mismatches\":\"%s\",\"primary_dns\":\"%s\",\"backup_dns\":\"%s\"}\n" "$status" "$checked" "$mismatch_count" "$mismatches" "$primary" "$secondary"'
+      scan_interval: 300
+      value_template: "{{ value_json.status | default('unknown') }}"
+      json_attributes:
+        - checked_records
+        - mismatch_count
+        - mismatches
+        - primary_dns
+        - backup_dns
 
 template:
   - sensor:
@@ -269,6 +287,19 @@ template:
           nebula_state_2: "{{ states('sensor.nebula_sync_state_2') }}"
           pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status') }}"
           pihole_secondary_status_2: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
+
+      - name: "Infra Pihole IoT DNS Degraded"
+        unique_id: infra_pihole_iot_dns_degraded
+        device_class: problem
+        state: >-
+          {{ states('sensor.infra_pihole_iot_dns_consistency') | lower != 'ok' }}
+        attributes:
+          dns_consistency: "{{ states('sensor.infra_pihole_iot_dns_consistency') }}"
+          checked_records: "{{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'checked_records') }}"
+          mismatch_count: "{{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'mismatch_count') }}"
+          mismatches: "{{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'mismatches') }}"
+          primary_dns: "{{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'primary_dns') }}"
+          backup_dns: "{{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'backup_dns') }}"
 
       - name: "Infra UPS On Battery"
         unique_id: infra_ups_on_battery
@@ -550,6 +581,97 @@ automation:
               - service: input_text.set_value
                 target:
                   entity_id: input_text.infra_nebula_sync_health_band
+                data:
+                  value: normal
+
+  - alias: "Infrastructure - Pi-hole IoT DNS Drift Dispatch"
+    id: infra_pihole_iot_dns_drift_dispatch
+    description: "Dispatch Joanna when promoted IoT Pi-hole DNS records drift across primary and backup resolvers."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.infra_pihole_iot_dns_degraded
+        to: "on"
+        for: "00:10:00"
+        id: degraded
+      - platform: state
+        entity_id: binary_sensor.infra_pihole_iot_dns_degraded
+        to: "off"
+        for: "00:02:00"
+        id: recovered
+      - platform: event
+        event_type: homeassistant_started
+        id: reconcile
+      - platform: time_pattern
+        minutes: "7"
+        id: reconcile
+    variables:
+      issue_id: infra_pihole_iot_dns_degraded
+      dns_state: "{{ states('sensor.infra_pihole_iot_dns_consistency') }}"
+      previous_band: "{{ states('input_text.infra_pihole_iot_dns_health_band') | lower }}"
+      degraded: "{{ is_state('binary_sensor.infra_pihole_iot_dns_degraded', 'on') }}"
+    action:
+      - choose:
+          - conditions: "{{ degraded and previous_band != 'warning' }}"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "HA automation infra_pihole_iot_dns_drift_dispatch (Infrastructure - Pi-hole IoT DNS Drift Dispatch)"
+                  source: "home_assistant_automation.infra_pihole_iot_dns_drift_dispatch.warning"
+                  summary: "Promoted IoT Pi-hole DNS records drifted across primary and backup resolvers"
+                  entity_ids:
+                    - sensor.infra_pihole_iot_dns_consistency
+                    - binary_sensor.infra_pihole_iot_dns_degraded
+                  diagnostics: >-
+                    issue_id={{ issue_id }},
+                    dns_consistency={{ dns_state }},
+                    checked_records={{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'checked_records') }},
+                    mismatch_count={{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'mismatch_count') }},
+                    mismatches={{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'mismatches') }},
+                    primary_dns={{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'primary_dns') }},
+                    backup_dns={{ state_attr('sensor.infra_pihole_iot_dns_consistency', 'backup_dns') }}
+                  request: >-
+                    Investigate primary/backup Pi-hole DNS drift for promoted IoT reservations.
+                    Verify both Pi-holes answer rachio, econet, dreame-vacuum, carlo-bed, lg-smart-fridge, tesla-blackbox-gw, and bgw210 FQDNs with the expected reserved IPs.
+                    Check primary and backup pihole.toml local DNS host records, Nebula Sync behavior, and generated custom.list files.
+                    Do not change DHCP/custom DNS records unless diagnostics prove drift and the action is safe.
+                    Reply with resolved=true/false, root_cause, action_taken, verification, and next_action_required=true/false.
+                  domain_hint: ops
+                  lane_hint: joanna.ops
+              - service: script.send_to_logbook
+                data:
+                  topic: "DNS"
+                  message: >-
+                    Promoted IoT Pi-hole DNS consistency is degraded ({{ dns_state }}); Joanna investigation requested without opening a Repair.
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_pihole_iot_dns_health_band
+                data:
+                  value: warning
+          - conditions: "{{ not degraded and previous_band in ['warning', 'unavailable'] }}"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: "{{ issue_id }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "DNS"
+                  message: "Promoted IoT Pi-hole DNS consistency recovered; Joanna-only warning state cleared."
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_pihole_iot_dns_health_band
+                data:
+                  value: normal
+          - conditions: "{{ not degraded and previous_band not in ['normal', 'warning', 'unavailable'] }}"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_pihole_iot_dns_health_band
                 data:
                   value: normal
 
