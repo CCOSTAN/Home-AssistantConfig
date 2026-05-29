@@ -88,11 +88,14 @@
   {%- macro fridge() -%}
     {% set freezer = states('sensor.refrigerator_freezer_temp') %}
     {% set fridge = states('sensor.refrigerator_fridge_temp') %}
-    The internal temperature of the refrigerator is currently {{ states('sensor.blink_blink1_temperature') }} degrees.
+    {% set blink_temp = states('sensor.blink_blink1_temperature') %}
+    {% if blink_temp not in ['unknown', 'unavailable', 'none', ''] %}
+    The internal temperature of the refrigerator is currently {{ blink_temp }} degrees.
+    {% endif %}
     {% if freezer not in ['unknown', 'unavailable', 'none', ''] and fridge not in ['unknown', 'unavailable', 'none', ''] %}
     The freezer temperature is {{ freezer }} degrees and the fridge temperature is {{ fridge }} degrees.
     {% endif %}
-    {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}The fridge door is currently open.{% endif %}
+    {% if is_state('binary_sensor.refrigerator_door_confirmed_open', 'on') %}The fridge door is confirmed open.{% endif %}
   {%- endmacro -%}
 
   {%- macro window_check() -%}
@@ -291,7 +294,10 @@
     {{ lightning() }}
     {% endif %}
 
-    {% if (states('sensor.blink_blink1_temperature')|int(0) > 55 or states('sensor.refrigerator_freezer_temp')|float > 5 or states('sensor.refrigerator_fridge_temp')|float > 50 or is_state('binary_sensor.refrigerator_door_open', 'on')) and no_fridge != 1 %}
+    {% set blink_temp = states('sensor.blink_blink1_temperature') | float(none) %}
+    {% set freezer_temp = states('sensor.refrigerator_freezer_temp') | float(none) %}
+    {% set fridge_temp = states('sensor.refrigerator_fridge_temp') | float(none) %}
+    {% if ((blink_temp is not none and blink_temp > 55) or (freezer_temp is not none and freezer_temp > 5) or (fridge_temp is not none and fridge_temp > 50) or is_state('binary_sensor.refrigerator_door_confirmed_open', 'on')) and no_fridge != 1 %}
     {{ fridge() }}
     {% endif %}
 
