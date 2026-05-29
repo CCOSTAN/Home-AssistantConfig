@@ -41,7 +41,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [alarm.yaml](alarm.yaml) | NodeMCU-powered perimeter monitoring with arm/disarm helpers and rich notifications. | `binary_sensor.mcu*_gpio*`, `group.family`, notify + siren scripts |
 | [alexa_media_player.yaml](alexa_media_player.yaml) | Alexa Media helper sensors including stable bedroom wake-alarm wrappers for Carlo and Stacey plus a combined next-wake view. | `sensor.last_alexa`, `sensor.bedroom_next_wake_alarm`, `sensor.bedroom_next_wake_alarm_source`, `binary_sensor.bedroom_next_wake_alarm_active` |
 | [fridge.yaml](fridge.yaml) | SmartThinQ fridge monitoring with a confirmed-open door helper so short status-refresh pulses do not trigger alerts or speech. | `binary_sensor.refrigerator_door_open`, `binary_sensor.refrigerator_door_confirmed_open`, `script.notify_engine`, `script.speech_engine` |
-| [garadget.yaml](garadget.yaml) | MQTT-based control + status for both garage doors, feeding entry/exit lighting routines. | `cover.large_garage_door`, `cover.small_garage_door`, `sensor.garadget_reflection` |
+| [garadget.yaml](garadget.yaml) | MQTT-based garage door control plus arrival helpers, entry prompts, wind checks, nighttime reminders, and camera context. | `cover.large_garage_door`, `cover.small_garage_door`, `group.garage_doors`, `sensor.garadget_reflection` |
 | [august.yaml](august.yaml) | Front-door August smart lock with Alexa Show camera pop-up when unlocked. | `lock.front_door`, media_player actions for front doorbell camera |
 | [holiday.yaml](holiday.yaml) | REST-driven US holiday + flag sensors that color scenes and exterior lighting. | `sensor.holiday`, `sensor.flag`, JSON feed at `config/json_data/holidays.json` |
 | [lightning.yaml](lightning.yaml) | Blitzortung lightning counter monitoring with snoozeable push actions. | `sensor.blitzortung_lightning_counter`, `input_boolean.snooze_lightning`, notify engine actions |
@@ -72,8 +72,9 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [finance.yaml](finance.yaml) | Yahoo Finance sensor bundle for portfolio glances and Lovelace cards. | `sensor.tsla`, `sensor.aapl`, `sensor.amzn`, `sensor.msft` |
 
 ### Garadget automations
-- Logic lives in [garadget.yaml](garadget.yaml): auto-open on arrival, entry helper prompt (unlock front door or open garage), auto-unlock for Paige/Justin, wind checks, nightly open-door reminders, and camera pop-ups.
+- Logic lives in [garadget.yaml](garadget.yaml): auto-open on arrival, entry helper prompt (unlock front door or open garage), kid-specific trusted shortcuts, wind checks, nightly open-door reminders, and camera pop-ups.
 - MQTT-based covers for large/small doors; notifications and speech wired to the house notify/speech engines.
+- Video companion: [Garage automation walkthrough](https://youtu.be/wFO0H5zgnzk) and [companion blog post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html).
 ![Garadget Automation](../www/custom_ui/floorplan/images/branding/Garadget%20Automation.png)
 
 ### Nest climate control
@@ -97,7 +98,9 @@ When a package has a dedicated blog post or video, I link it right inside the YA
 | Package | Why read/watch | Deep dive links |
 | --- | --- | --- |
 | [finance.yaml](finance.yaml) | Custom Yahoo Finance integration overview and setup notes. | [Blog](https://www.vcloudinfo.com/2020/10/how-to-track-stocks-in-home-assistant-using-a-custom-component.html) |
-| [garadget.yaml](garadget.yaml) | MQTT garage door setup plus the follow-up on the access token change. | [Blog: Integration guide](https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html) · [Blog: Token fix](https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html) |
+| [garadget.yaml](garadget.yaml) | Garage arrival hub with auto-open guardrails, entry prompts, wind alerts, nighttime reminders, camera context, and the older MQTT/token setup notes. | [Video walkthrough](https://youtu.be/wFO0H5zgnzk) · [Companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html) · [Blog: Integration guide](https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html) · [Blog: Token fix](https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html) |
+| [garage_entry_light.yaml](../automation/garage_entry_light.yaml) | Simple door-open and door-closed hallway lighting pattern from the garage walkthrough. | [Video walkthrough](https://youtu.be/wFO0H5zgnzk) · [Companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html) |
+| [tesla_model_y.yaml](tesla_model_y.yaml) | Garage-close timestamp used as a physical arrival signal for low-battery plug-in reminders. | [Video walkthrough](https://youtu.be/wFO0H5zgnzk) · [Companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html) |
 | [holiday.yaml](holiday.yaml) | How the holiday/flag sensor works and drives lighting playlists. | [Blog + video breakdown](https://www.vcloudinfo.com/2019/02/breaking-down-the-flag-sensor-in-home-assistant.html) |
 | [lightning.yaml](lightning.yaml) | Blitzortung detector wiring, strike alerts, and snooze workflow. | [Blog](https://www.vcloudinfo.com/2020/08/adding-a-lightning-sensor-to-home-assistant.html) |
 | [phynplus.yaml](phynplus.yaml) | Installing Phyn Plus and wiring its leak events into HA automations. | [Blog](https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html) |
@@ -113,7 +116,7 @@ These are the devices that power the packages above. Affiliate links never chang
 
 | Device | Package(s) | Automation tie-in | Buy |
 | --- | --- | --- | --- |
-| Garadget garage door controller | [garadget.yaml](garadget.yaml) | MQTT covers feed entry lighting, notifications, and security checks. | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
+| Garadget garage door controller | [garadget.yaml](garadget.yaml) | MQTT covers feed arrival helpers, entry lighting, wind alerts, nighttime reminders, and security checks. [Video walkthrough](https://youtu.be/wFO0H5zgnzk) and [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html). | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
 | August smart lock | [august.yaml](august.yaml) | Front-door lock/unlock + status for routines and alerts. | [![Buy](https://img.shields.io/badge/Buy-August%20Lock-orange?logo=amazon)](https://amzn.to/48jVzZ3) |
 | Amazon Echo Show | Pops up the front doorbell camera when the August lock unlocks. | [august.yaml](august.yaml) | [![Buy](https://img.shields.io/badge/Buy-Echo%20Show-orange?logo=amazon)](https://amzn.to/4ptA3YO) |
 | Phyn Plus water shutoff | [phynplus.yaml](phynplus.yaml) | Leak events trigger valve closes + critical push notifications. | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |

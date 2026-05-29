@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Home Assistant Vacuum Automations
-[![All the Home Assistant Vacuum Automations We Use in Our Smart Home](https://img.youtube.com/vi/KKOWSKuF5jA/maxresdefault.jpg)](https://youtu.be/KKOWSKuF5jA)
+### Latest video: Home Assistant Garage Automations
+[![All the Home Assistant Garage Automations We Actually Use](https://www.vcloudinfo.com/wp-content/uploads/2026/05/garage-arrival-smart-garage-thumbnail.png)](https://youtu.be/wFO0H5zgnzk)
 
-This walkthrough shows how the Dreame vacuum package became a real Home Assistant workflow: away-only cleaning, room queues, sweep/mop phases, Alexa one-off room commands, map-backed rescue notifications, and follow-up when the robot gets stuck. [Watch the video](https://youtu.be/KKOWSKuF5jA), read the [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html), and browse the YAML in [config/packages/vacuum.yaml](config/packages/vacuum.yaml).
+This walkthrough shows how the garage became a reliable Home Assistant arrival and safety hub: guarded auto-open, actionable entry prompts, hallway lighting, wind alerts, nighttime camera reminders, and a Tesla plug-in reminder based on the garage door closing. [Watch the video](https://youtu.be/wFO0H5zgnzk), read the [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html), and browse the YAML in [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml), and [config/packages/tesla_model_y.yaml](config/packages/tesla_model_y.yaml).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
@@ -46,7 +46,7 @@ This walkthrough shows how the Dreame vacuum package became a real Home Assistan
 
 ### Featured examples to start with
 - Alarm and perimeter monitoring: [config/packages/alarm.yaml](config/packages/alarm.yaml)
-- Garage routines and entry lighting: [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml)
+- Garage routines and entry lighting: [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml), [video walkthrough](https://youtu.be/wFO0H5zgnzk)
 - Holiday/front-of-house color scenes: [config/scene/monthly_colors.yaml](config/scene/monthly_colors.yaml), [config/script/monthly_color_scene.yaml](config/script/monthly_color_scene.yaml)
 - Dash-button triggers for quick actions: [config/automation/dash_buttons.yaml](config/automation/dash_buttons.yaml)
 - PC lock/unlock-driven lighting plus workday wake-up via HASS.Agent + Wake on LAN: [config/packages/hass_agent_homepc.yaml](config/packages/hass_agent_homepc.yaml)
@@ -75,13 +75,13 @@ Only listing hardware that appears in active packages/automations here.
 https://amzn.to/48jVzZ3
 | Device | What it drives (friendly name -> file) | Buy |
 | --- | --- | --- |
-| Garadget garage door controller | Garage doors: open/close, reflection alerts - [garadget package](config/packages/garadget.yaml) | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
+| Garadget garage door controller | Garage doors: open/close, arrival helpers, wind alerts, and nighttime reminders - [garadget package](config/packages/garadget.yaml), [video walkthrough](https://youtu.be/wFO0H5zgnzk), [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html) | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
 | August smart lock | Front-door lock control + status - [august package](config/packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-August%20Lock-orange?logo=amazon)](https://amzn.to/48jVzZ3) |
 | Phyn Plus water shutoff | Leak detection + auto shutoff - [phynplus package](config/packages/phynplus.yaml) | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
 | Rachio sprinkler controller | Rain-skips and seasonal watering - [rachio package](config/packages/rachio.yaml) | [![Buy](https://img.shields.io/badge/Buy-Rachio-orange?logo=amazon)](https://amzn.to/2eoPKBW) |
 | Tesla Powerwall 2 | Grid-outage alerts + load-shed automations - [powerwall package](config/packages/powerwall.yaml) | [![Buy](https://img.shields.io/badge/Buy-Powerwall-orange?logo=tesla)](https://amzn.to/3UM4BZ5) |
 | NodeMCU motion sensor | Office motion lighting - [office_motion package](config/packages/office_motion.yaml) | [![Buy](https://img.shields.io/badge/Buy-Motion%20Node-orange?logo=amazon)](https://amzn.to/2oUgj5i) |
-| Raspberry Pi 3 + Aeon Z-Wave stick | Z-Wave backbone for door/hall sensors - [garage entry helper](config/automation/garage_entry_light.yaml) | [![Pi](https://img.shields.io/badge/Buy-Pi%203-orange?logo=raspberrypi)](https://amzn.to/2e3DOBY) [![Z-Wave](https://img.shields.io/badge/Buy-Z--Wave%20Stick-orange?logo=zwave)](https://amzn.to/2eAiAP0) |
+| Raspberry Pi 3 + Aeon Z-Wave stick | Z-Wave backbone for door/hall sensors - [garage entry helper](config/automation/garage_entry_light.yaml), [garage automation video](https://youtu.be/wFO0H5zgnzk) | [![Pi](https://img.shields.io/badge/Buy-Pi%203-orange?logo=raspberrypi)](https://amzn.to/2e3DOBY) [![Z-Wave](https://img.shields.io/badge/Buy-Z--Wave%20Stick-orange?logo=zwave)](https://amzn.to/2eAiAP0) |
 | Roku streaming device | TV presence -> scenes/lighting - [roku package](config/packages/roku.yaml) | [![Buy](https://img.shields.io/badge/Buy-Roku-orange?logo=roku)](https://amzn.to/2Ctp8cr) |
 | Amazon Dash Button | Quick actions (office lamp toggle) - [dash buttons automation](config/automation/dash_buttons.yaml) | [![Buy](https://img.shields.io/badge/Buy-Dash%20Button-orange?logo=amazon)](https://amzn.to/2dPKZhM) |
 | Amazon Echo Show | Front door camera pop-up when the August lock unlocks - [august package](config/packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-Echo%20Show-orange?logo=amazon)](https://amzn.to/4ptA3YO) |
