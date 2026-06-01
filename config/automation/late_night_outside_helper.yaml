@@ -11,6 +11,8 @@
 ######################################################################
 - alias: 'Late Night Helper outside'
   id: 14115d72-6bea-41c1-8411-1eaf41b4ef2b
+  mode: single
+  max_exceeded: silent
   trigger:
     - platform: state
       entity_id: group.garage_doors
