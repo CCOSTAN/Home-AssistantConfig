@@ -29,7 +29,7 @@ automation:
           above: 60
 
         - condition: state
-          entity_id: binary_sensor.refrigerator_door_confirmed_open
+          entity_id: binary_sensor.refrigerator_door_open
           state: 'on'
 
     action:
@@ -39,8 +39,8 @@ automation:
           value1: >
             {% if trigger.platform == 'numeric_state' %}
               The Blink camera temperature sensor has detected {{ states('sensor.blink_blink1_temperature') }} degrees for over 20 minutes.
-            {% elif is_state('binary_sensor.refrigerator_door_confirmed_open', 'on') %}
-              The SmartThinQ fridge door sensor is still confirmed open, and the Blink camera temperature is {{ states('sensor.blink_blink1_temperature') }} degrees.
+            {% elif is_state('binary_sensor.refrigerator_door_open', 'on') %}
+              The SmartThinQ fridge door sensor is still open, and the Blink camera temperature is {{ states('sensor.blink_blink1_temperature') }} degrees.
             {% else %}
               The fridge is still hot after the previous alert. The fridge temperature is {{ states('sensor.blink_blink1_temperature') }} degrees.
             {% endif %}
@@ -49,7 +49,7 @@ automation:
 
       - service: script.speech_engine
         data:
-          value1: "Please check the fridge. The Blink camera temperature is {{ states('sensor.blink_blink1_temperature') }} degrees. {% if is_state('binary_sensor.refrigerator_door_confirmed_open', 'on') %}The SmartThinQ fridge door sensor is confirmed open.{% endif %}"
+          value1: "Please check the fridge. The Blink camera temperature is {{ states('sensor.blink_blink1_temperature') }} degrees. {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}The SmartThinQ fridge door sensor is open.{% endif %}"
           no_fridge: 1
 
       - delay: 00:30:00

@@ -14,6 +14,7 @@
 # Notes: The nightly parents reminder starts at 8 PM or after a post-8 PM
 #  garage close, then loops every 30 minutes via a custom event while the
 #  latest garage-arrival signal is recent and the car still is not charging.
+# Notes: Parents push reminders include a 24-hour snooze action.
 # Notes: Plug-in reminders only fire when both `person.carlo` and
 #  `person.stacey` are home.
 # Video: https://youtu.be/wFO0H5zgnzk
@@ -23,6 +24,10 @@
 input_datetime:
   tesla_model_y_last_garage_close:
     name: Tesla Model Y Last Garage Close
+    has_date: true
+    has_time: true
+  tesla_model_y_plug_in_snooze_until:
+    name: Tesla Model Y Plug In Snooze Until
     has_date: true
     has_time: true
 
@@ -37,6 +42,9 @@ automation:
       - platform: event
         event_type: event_tesla_model_y_nightly_loop
         id: loop
+      - platform: time
+        at: input_datetime.tesla_model_y_plug_in_snooze_until
+        id: snooze_expired
       - platform: state
         entity_id: cover.large_garage_door
         from: 'open'
@@ -74,6 +82,10 @@ automation:
       - condition: state
         entity_id: switch.spaceship_charge
         state: 'off'
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states('input_datetime.tesla_model_y_plug_in_snooze_until'), 0) %}
+          {{ snooze_until <= as_timestamp(now()) }}
       - choose:
           - conditions:
               - condition: trigger
@@ -102,7 +114,7 @@ automation:
           - condition: time
             after: '20:00:00'
             before: '05:00:00'
-      - service: script.notify_engine
+      - service: script.notify_engine_two_button
         data:
           title: "Tesla Plug In Reminder"
           value1: >-
@@ -112,6 +124,9 @@ automation:
             {{ states('sensor.spaceship_battery_level') | float(0) | round(0) }} percent.
           who: 'parents'
           group: 'Tesla_Model_Y'
+          title1: "Snooze 24h"
+          action1: "SNOOZE_TESLA_PLUG_IN_24H"
+          icon1: "sfsymbols:clock"
       - service: script.send_to_logbook
         data:
           topic: "TESLA"
@@ -119,3 +134,24 @@ automation:
             Nightly plug-in reminder sent because the Model Y recently came in through the garage below 50 percent and is not charging.
       - delay: '00:30:00'
       - event: event_tesla_model_y_nightly_loop
+
+  - alias: "Tesla Model Y - Plug In Reminder Snooze"
+    id: 5b7b9b93-1f12-4c5e-9bc4-95c8cb1a104f
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_TESLA_PLUG_IN_24H
+    variables:
+      snooze_until: "{{ (now() + timedelta(hours=24)).strftime('%Y-%m-%d %H:%M:%S') }}"
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.tesla_model_y_plug_in_snooze_until
+        data:
+          datetime: "{{ snooze_until }}"
+      - service: script.send_to_logbook
+        data:
+          topic: "TESLA"
+          message: "Tesla plug-in reminders snoozed for 24 hours (until {{ snooze_until }})."

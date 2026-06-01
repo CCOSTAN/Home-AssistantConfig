@@ -4,46 +4,33 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # LG Fridge - SmartThinQ appliance monitoring - Fridge/freezer sensors via ThinQ integration. https://amzn.to/3lOYTCv.
-#  Debounces SmartThinQ door-open telemetry before fridge alerts and speech use it.
+#  Centralizes the LG Fridge - SmartThinQ appliance monitoring package configuration and helpers.
 # -------------------------------------------------------------------
-# Notes: SmartThinQ can briefly report the door open during appliance status refreshes; alerts use the confirmed helper below.
+# Notes: Door-open alerts now trigger directly from the SmartThinQ door sensor after 5 minutes instead of using a debounced helper entity.
 ######################################################################
-template:
-  - binary_sensor:
-      - name: "Refrigerator door confirmed open"
-        unique_id: refrigerator_door_confirmed_open
-        device_class: door
-        availability: "{{ states('binary_sensor.refrigerator_door_open') not in ['unknown', 'unavailable', 'none', ''] }}"
-        state: "{{ is_state('binary_sensor.refrigerator_door_open', 'on') }}"
-        delay_on:
-          minutes: 10
-        delay_off:
-          seconds: 30
-        attributes:
-          raw_sensor: binary_sensor.refrigerator_door_open
-          raw_state: "{{ states('binary_sensor.refrigerator_door_open') }}"
-
 automation:
   - alias: 'Fridge Door Open'
     id: 2346efcd-e8a8-4e86-b5b6-43eBl1nkFr1dge95D00r0pen
     mode: single
     trigger:
       - platform: state
-        entity_id: binary_sensor.refrigerator_door_confirmed_open
+        entity_id: binary_sensor.refrigerator_door_open
         to: 'on'
+        for:
+          minutes: 5
     condition:
       - condition: state
-        entity_id: binary_sensor.refrigerator_door_confirmed_open
+        entity_id: binary_sensor.refrigerator_door_open
         state: 'on'
     action:
       - service: script.notify_engine
         data:
           title: 'Fridge Door Open'
           value1: >
-            The SmartThinQ fridge door sensor has been confirmed open for more than 10 minutes. Please check and close the fridge door to avoid temperature issues.
+            The fridge door has been open for more than 5 minutes. Please check and close the fridge door to avoid temperature issues.
           who: 'family'
           group: 'information'
 
       - service: script.speech_engine
         data:
-          value1: "[Tell Household the Fridge Door is Open for more than 10 minutes]"
+          value1: "[Tell Household the Fridge Door is Open for more than 5 minutes]"
