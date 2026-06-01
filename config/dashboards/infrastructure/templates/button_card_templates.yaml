@@ -707,6 +707,56 @@ bearstone_infra_list_row:
     - padding-left: 8px
     - white-space: nowrap
 
+bearstone_infra_docker_volume_row:
+  template: bearstone_infra_list_row
+  icon: mdi:database
+  state_display: >
+    [[[
+      const toMiB = (raw, unitRaw) => {
+        const value = Number(raw);
+        if (!Number.isFinite(value)) return null;
+        const unit = String(unitRaw || 'MiB').trim().toLowerCase();
+        if (unit === 'b' || unit === 'byte' || unit === 'bytes') return value / 1048576;
+        if (unit === 'kib' || unit === 'kb') return value / 1024;
+        if (unit === 'gib' || unit === 'gb') return value * 1024;
+        if (unit === 'tib' || unit === 'tb') return value * 1048576;
+        return value;
+      };
+      const formatMiB = (value) => {
+        if (!Number.isFinite(value)) return 'No telemetry';
+        if (value >= 1048576) return `${(value / 1048576).toFixed(1)} TiB`;
+        if (value >= 1024) return `${(value / 1024).toFixed(1)} GiB`;
+        if (value > 0 && value < 1) return `${(value * 1024).toFixed(1)} KiB`;
+        const precision = value >= 10 ? 1 : 2;
+        return `${value.toFixed(precision)} MiB`;
+      };
+
+      const totalEntity = variables && variables.total_entity
+        ? states[variables.total_entity]
+        : entity;
+      const total = totalEntity
+        ? toMiB(totalEntity.state, totalEntity.attributes?.unit_of_measurement)
+        : null;
+      if (Number.isFinite(total)) return formatMiB(total);
+
+      const volumeEntities = Array.isArray(variables?.volume_entities)
+        ? variables.volume_entities
+        : [];
+      let sum = 0;
+      let seen = 0;
+      for (const entityId of volumeEntities) {
+        const volume = states[entityId];
+        const value = volume
+          ? toMiB(volume.state, volume.attributes?.unit_of_measurement)
+          : null;
+        if (Number.isFinite(value)) {
+          sum += value;
+          seen += 1;
+        }
+      }
+      return seen > 0 ? `${formatMiB(sum)} | ${seen} vols` : 'No telemetry';
+    ]]]
+
 bearstone_infra_alert_row:
   template: bearstone_infra_list_row
   # Home view only. Uses JS visibility checks to keep Home "exceptions-only".

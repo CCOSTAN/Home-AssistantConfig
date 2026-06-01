@@ -19,7 +19,7 @@
 # Notes: Teslamate and crystalsoftwashsolutions are live services and should remain in the monitored group when their discovery switches are present.
 # Notes: Treat telemetry reconnects from unavailable/unknown to a concrete stopped state as actionable outages.
 # Notes: Infra Info was removed; BearClaw Admin is the planning snapshot surface.
-# Notes: codex_appliance moved to a dedicated VM; monitor it through BearClaw status telemetry instead of old docker_17 container switches.
+# Notes: codex_appliance moved to a dedicated VM, but the legacy container switches still surface in HA and remain in the monitored group until the entities are retired.
 # Notes: Retired repair cleanup clears old codex_appliance and hashed dozzle Portainer repair IDs.
 ######################################################################
 
@@ -84,6 +84,7 @@ switch:
       - switch.cloudflared_kch_container_2
       - switch.cloudflared_wp_container
       - switch.cloudflared_wp_container_2
+      - switch.63a0a831eb7d_codex_appliance_container
       - switch.college_budget_app_container
       - switch.college_budget_app_container_2
       - switch.cruise_tracker_container
@@ -98,8 +99,13 @@ switch:
       - switch.dozzle_agent_14_container
       - switch.dozzle_agent_14_container_2
       - switch.7cf71db3325d_dozzle_agent_17_container
+      - switch.codex_appliance_container
+      - switch.codex_appliance_container_2
       - switch.dozzle_agent_69_container
       - switch.dozzle_agent_69_container_2
+      - switch.dozzle_agent_13_container
+      - switch.dozzle_container
+      - switch.dozzle_container_2
       - switch.duplicati_container
       - switch.duplicati_container_2
       - switch.esphome_container

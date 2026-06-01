@@ -11,6 +11,8 @@
 # Notes: Keeps cards visible when Portainer telemetry is unavailable (degraded mode).
 # Notes: Includes stack-level status tiles from Portainer `*_stack_status` entities.
 # Notes: Portainer volume usage is visible; volume prune is confined to host maintenance popups with hold-confirm actions.
+# Notes: Docker volume summary tiles are explicit per host because Portainer does not expose endpoint volume totals for every host.
+# Notes: Excludes transient codex_appliance Portainer run containers from generic container lists.
 ######################################################################
 
 - type: grid
@@ -118,50 +120,56 @@
     - type: custom:button-card
       template: bearstone_infra_panel_header
       name: Docker Volumes
-    - type: custom:auto-entities
-      show_empty: false
+    - type: custom:layout-card
       grid_options:
         columns: full
-      card:
-        type: custom:layout-card
-        layout_type: custom:grid-layout
-        layout:
-          grid-template-columns: repeat(4, minmax(0, 1fr))
-          grid-auto-flow: row
-          grid-auto-rows: min-content
-          grid-gap: 12px
-          margin: 0
-          mediaquery:
-            "(max-width: 900px)":
-              grid-template-columns: repeat(2, minmax(0, 1fr))
-      card_param: cards
-      filter:
-        include:
-        - entity_id: "/^sensor\\..*_volume_disk_usage_total_size$/"
-          options:
-            type: custom:button-card
-            template: bearstone_infra_list_row
-            icon: mdi:database
-            name: >
-              [[[
-                const friendly = entity?.attributes?.friendly_name
-                  ? String(entity.attributes.friendly_name)
-                  : String(entity?.entity_id ?? 'Volume usage');
-                return friendly.replace(/\s+Volume disk usage total size$/, '');
-              ]]]
-            state_display: >
-              [[[
-                const value = Number(entity?.state);
-                const unit = entity?.attributes?.unit_of_measurement ?? '';
-                if (!Number.isFinite(value)) return entity?.state ?? 'unknown';
-                if (unit === 'MiB' && value > 0 && value < 1) {
-                  return `${(value * 1024).toFixed(1)} KiB`;
-                }
-                const precision = value >= 10 ? 1 : 2;
-                return `${value.toFixed(precision)} ${unit}`.trim();
-              ]]]
-      sort:
-        method: name
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: repeat(4, minmax(0, 1fr))
+        grid-auto-flow: row
+        grid-auto-rows: min-content
+        grid-gap: 12px
+        margin: 0
+        mediaquery:
+          "(max-width: 900px)":
+            grid-template-columns: repeat(2, minmax(0, 1fr))
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_docker_volume_row
+        entity: sensor.carlo_hass_volume_disk_usage_total_size
+        name: docker_10
+        variables:
+          total_entity: sensor.carlo_hass_volume_disk_usage_total_size
+      - type: custom:button-card
+        template: bearstone_infra_docker_volume_row
+        entity: button.docker2_prune_unused_volumes
+        name: docker_14
+      - type: custom:button-card
+        template: bearstone_infra_docker_volume_row
+        entity: button.docker17_prune_unused_volumes
+        name: docker_17
+        variables:
+          volume_entities:
+            - sensor.17214906eee4a16eed521e2904730a8272958bb32209c8b204fef3914a85006f_volume_size
+            - sensor.17e04b7a1a6902f3192bd825b497c5a7a920c64c88a216968cf1700da94d10f0_volume_size
+            - sensor.31a30aacc34d2988cbedbd8aa82d29066a7630ad8e51ce3d55ea0d785c5e8dbc_volume_size
+            - sensor.8c8b88aa16230a391d2e61e75fcc62a57ee569416d7c55ab4e8cd7487813b5dd_volume_size
+            - sensor.9bfb74e2a728618f9c3c1a363d2ccb3bba6e0580a14b3ca6f32afa4dea827b25_volume_size
+            - sensor.a5f10bca01c2cdda3915951e27eef9fcd39a7eae695e3e9b21850550d7d91e29_volume_size
+            - sensor.a5f10bca01c2cdda3915951e27eef9fcd39a7eae695e3e9b21850550d7d91e29c_volume_size
+            - sensor.a6fd445f48ed6892eb26e97814cb7720758588101a441e6b3ffe117cb55f612c_volume_size
+            - sensor.dc429dc8845534e799ea6170bb3a9fb79db3dbb08db6ed198a396f2aadaa1a85_volume_size
+            - sensor.de3d33e1a75cb2d24f5f7f27f4d9bb1f814d72ef9229000a2bf9372e421dfaaf_volume_size
+            - sensor.deaf7fea946c0cd1a40d161ab66367fddc1f99c2a5aae7bf4ad99b47fe25283c_volume_size
+            - sensor.openrecord_local_openrecord_next_cache_volume_size
+            - sensor.openrecord_local_openrecord_scrapers_node_modules_volume_size
+            - sensor.openrecord_local_openrecord_web_node_modules_volume_size
+      - type: custom:button-card
+        template: bearstone_infra_docker_volume_row
+        entity: sensor.docker69_volume_disk_usage_total_size
+        name: docker_69
+        variables:
+          total_entity: sensor.docker69_volume_disk_usage_total_size
 
 - type: grid
   column_span: 4
@@ -270,6 +278,8 @@
             template: bearstone_infra_container_row
             icon: mdi:docker
         exclude:
+        - entity_id: "/^switch\\.[0-9a-f]{12}_codex_appliance_container$/"
+        - entity_id: "/^switch\\.docker_files_codex_appliance_run_[0-9a-f]+_container$/"
         - state: unavailable
         - state: unknown
       sort:

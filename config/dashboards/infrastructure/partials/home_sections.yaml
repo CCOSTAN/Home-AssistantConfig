@@ -8,6 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: Default/light theme only; no dark-mode specific styling.
 # Notes: Keep the first section full-width to avoid whitespace on desktop.
+# Notes: Excludes transient codex_appliance Portainer run containers from generic exception lists.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -420,6 +421,8 @@
               template: bearstone_infra_container_row
               icon: mdi:docker
           exclude:
+          - entity_id: "/^switch\\.[0-9a-f]{12}_codex_appliance_container$/"
+          - entity_id: "/^switch\\.docker_files_codex_appliance_run_[0-9a-f]+_container$/"
           - state: 'on'
           - state: unavailable
           - state: unknown
