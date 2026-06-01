@@ -51,6 +51,8 @@ Live view of the `config/` directory my production Home Assistant instance loads
 | Dashboards & Media | UI chrome, floorplans, sound bites, and automation assets. | [www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg](www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg), [media/](media) |
 | Seasonal Audio | Cuckoo clock with Halloween and Christmas sound packs. | [automation/System/CucKoo_Clock.yaml](automation/System/CucKoo_Clock.yaml) |
 
+Snoozeable maintenance notifications are shown in the latest walkthrough: [video](https://youtu.be/y47KSflS1aw), [companion post](https://www.vcloudinfo.com/2026/06/home-assistant-notification-snooze-buttons.html), and YAML examples in [packages/climate.yaml](packages/climate.yaml), [packages/printer.yaml](packages/printer.yaml), and [packages/vacation_mode.yaml](packages/vacation_mode.yaml).
+
 ### Gear tied to these automations (affiliate links)
 Only including devices that have active references in the files above.
 

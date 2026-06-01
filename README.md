@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Home Assistant Garage Automations
-[![All the Home Assistant Garage Automations We Actually Use](https://www.vcloudinfo.com/wp-content/uploads/2026/05/garage-arrival-smart-garage-thumbnail.png)](https://youtu.be/wFO0H5zgnzk)
+### Latest video: Stop Home Assistant Notification Spam with Snooze Buttons
+[![Stop Home Assistant Notification Spam with Snooze Buttons](https://www.vcloudinfo.com/wp-content/uploads/2026/06/home-assistant-notification-snooze-buttons-thumbnail.png)](https://youtu.be/y47KSflS1aw)
 
-This walkthrough shows how the garage became a reliable Home Assistant arrival and safety hub: guarded auto-open, actionable entry prompts, hallway lighting, wind alerts, nighttime camera reminders, and a Tesla plug-in reminder based on the garage door closing. [Watch the video](https://youtu.be/wFO0H5zgnzk), read the [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html), and browse the YAML in [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml), and [config/packages/tesla_model_y.yaml](config/packages/tesla_model_y.yaml).
+This quick walkthrough shows how I use Home Assistant mobile action buttons and `input_datetime` helpers to snooze maintenance reminders without muting them forever: AC filters, printer ink, and Vacation Mode missed-visit checks. [Watch the video](https://youtu.be/y47KSflS1aw), read the [companion post](https://www.vcloudinfo.com/2026/06/home-assistant-notification-snooze-buttons.html), and browse the YAML in [config/packages/climate.yaml](config/packages/climate.yaml), [config/packages/printer.yaml](config/packages/printer.yaml), and [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
@@ -53,6 +53,7 @@ This walkthrough shows how the garage became a reliable Home Assistant arrival a
 - Seasonal cuckoo clock with October and Christmas sound packs: [config/automation/System/CucKoo_Clock.yaml](config/automation/System/CucKoo_Clock.yaml)
 - Garage arrival and entry helpers: [config/packages/garadget.yaml](config/packages/garadget.yaml)
 - Vacation Mode and house-sitter checks: [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml)
+- Snoozeable maintenance notifications: [config/packages/climate.yaml](config/packages/climate.yaml), [config/packages/printer.yaml](config/packages/printer.yaml), [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml), [video walkthrough](https://youtu.be/y47KSflS1aw)
 - Battery and solar awareness: [config/packages/powerwall.yaml](config/packages/powerwall.yaml)
 - Presence-aware office comfort: [config/packages/office_motion.yaml](config/packages/office_motion.yaml)
 - Weather-aware lighting: [config/automation/dark_rainy_day.yaml](config/automation/dark_rainy_day.yaml)
