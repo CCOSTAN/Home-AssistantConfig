@@ -40,7 +40,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | --- | --- | --- |
 | [alarm.yaml](alarm.yaml) | NodeMCU-powered perimeter monitoring with arm/disarm helpers and rich notifications. | `binary_sensor.mcu*_gpio*`, `group.family`, notify + siren scripts |
 | [alexa_media_player.yaml](alexa_media_player.yaml) | Alexa Media helper sensors including stable bedroom wake-alarm wrappers for Carlo and Stacey plus a combined next-wake view. | `sensor.last_alexa`, `sensor.bedroom_next_wake_alarm`, `sensor.bedroom_next_wake_alarm_source`, `binary_sensor.bedroom_next_wake_alarm_active` |
-| [fridge.yaml](fridge.yaml) | SmartThinQ fridge monitoring with 5-minute door-open alerts plus fridge/freezer status announcements. | `binary_sensor.refrigerator_door_open`, `script.notify_engine`, `script.speech_engine` |
+| [fridge.yaml](fridge.yaml) | SmartThinQ fridge monitoring with 6-minute raw door-open alerts plus fridge/freezer status announcements. | `binary_sensor.refrigerator_door_open`, `script.notify_engine`, `script.speech_engine` |
 | [climate.yaml](climate.yaml) | Nest climate schedules plus runtime-based AC filter reminders with snooze and filter-changed actions. | `input_datetime.*_filter_snooze_until`, `script.notify_engine_two_button`, mobile app action events |
 | [garadget.yaml](garadget.yaml) | MQTT-based garage door control plus arrival helpers, entry prompts, wind checks, nighttime reminders, and camera context. | `cover.large_garage_door`, `cover.small_garage_door`, `group.garage_doors`, `sensor.garadget_reflection` |
 | [august.yaml](august.yaml) | Front-door August smart lock with Alexa Show camera pop-up when unlocked. | `lock.front_door`, media_player actions for front doorbell camera |

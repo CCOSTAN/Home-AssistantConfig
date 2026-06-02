@@ -6,7 +6,7 @@
 # LG Fridge - SmartThinQ appliance monitoring - Fridge/freezer sensors via ThinQ integration. https://amzn.to/3lOYTCv.
 #  Centralizes the LG Fridge - SmartThinQ appliance monitoring package configuration and helpers.
 # -------------------------------------------------------------------
-# Notes: Door-open alerts now trigger directly from the SmartThinQ door sensor after 5 minutes instead of using a debounced helper entity.
+# Notes: Door-open alerts use the raw SmartThinQ door sensor after 6 minutes, avoiding one-poll false opens without a helper entity.
 ######################################################################
 automation:
   - alias: 'Fridge Door Open'
@@ -17,7 +17,7 @@ automation:
         entity_id: binary_sensor.refrigerator_door_open
         to: 'on'
         for:
-          minutes: 5
+          minutes: 6
     condition:
       - condition: state
         entity_id: binary_sensor.refrigerator_door_open
@@ -27,10 +27,10 @@ automation:
         data:
           title: 'Fridge Door Open'
           value1: >
-            The fridge door has been open for more than 5 minutes. Please check and close the fridge door to avoid temperature issues.
+            The fridge door has been open for more than 6 minutes. Please check and close the fridge door to avoid temperature issues.
           who: 'family'
           group: 'information'
 
       - service: script.speech_engine
         data:
-          value1: "[Tell Household the Fridge Door is Open for more than 5 minutes]"
+          value1: "[Tell Household the Fridge Door is Open for more than 6 minutes]"
