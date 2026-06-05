@@ -193,12 +193,20 @@ script:
                     state: 'home'
                   - condition: numeric_state
                     entity_id: sensor.pirateweather_temperature
-                    below: 75
+                    below: 78
             sequence:
               - service: script.send_to_logbook
                 data:
                   topic: "CLIMATE"
-                  message: "Skipping downstairs HVAC changes (outside temp <75F)."
+                  message: "Downstairs target set to 78F (family home, outside temp <78F)."
+              - service: climate.set_hvac_mode
+                data:
+                  entity_id: climate.downstairs
+                  hvac_mode: cool
+              - service: climate.set_temperature
+                data:
+                  entity_id: climate.downstairs
+                  temperature: 78
           - conditions:
               - condition: and
                 conditions:
@@ -228,7 +236,7 @@ script:
                     entity_id: group.family
                     state: 'home'
                   - condition: template
-                    value_template: "{{ states('sensor.pirateweather_temperature')|float(-999) >= 75 }}"
+                    value_template: "{{ states('sensor.pirateweather_temperature')|float(-999) >= 78 }}"
             sequence:
               - service: script.send_to_logbook
                 data:

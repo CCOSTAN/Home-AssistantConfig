@@ -81,7 +81,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 
 ### Nest climate control
 - Logic lives in [climate.yaml](climate.yaml) and centralizes downstairs/upstairs Nest schedules, grid-aware guardrails, humidity pulses, and presence/weather-based targets.
-- Shared script keeps daytime targets consistent: away → eco, home + >92°F → 78°F, home default → 80°F. Downstairs bedtime cooling now stays dynamic: outside >80°F → 77°F, 76-79°F → 79°F, below 76°F → leave the current target alone. Grid-down conditions pause non-essential cool-downs.
+- Shared script keeps daytime targets consistent: away -> eco, home + outside <78°F or >92°F -> 78°F, home default -> 80°F. Downstairs bedtime cooling stays dynamic: outside >80°F -> 77°F, 76-79°F -> 79°F, below 76°F -> leave the current target alone. Grid-down conditions pause non-essential cool-downs.
 ![Nest Climate Control](../www/custom_ui/floorplan/images/branding/Nest_Climate_Control.png)
 
 ### Dreame vacuum automations
