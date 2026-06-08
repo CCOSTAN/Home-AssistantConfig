@@ -42,7 +42,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [alexa_media_player.yaml](alexa_media_player.yaml) | Alexa Media helper sensors including stable bedroom wake-alarm wrappers for Carlo and Stacey plus a combined next-wake view. | `sensor.last_alexa`, `sensor.bedroom_next_wake_alarm`, `sensor.bedroom_next_wake_alarm_source`, `binary_sensor.bedroom_next_wake_alarm_active` |
 | [fridge.yaml](fridge.yaml) | SmartThinQ fridge monitoring with 6-minute raw door-open alerts plus fridge/freezer status announcements. | `binary_sensor.refrigerator_door_open`, `script.notify_engine`, `script.speech_engine` |
 | [climate.yaml](climate.yaml) | Nest climate schedules plus runtime-based AC filter reminders with snooze and filter-changed actions. | `input_datetime.*_filter_snooze_until`, `script.notify_engine_two_button`, mobile app action events |
-| [garadget.yaml](garadget.yaml) | MQTT-based garage door control plus arrival helpers, entry prompts, wind checks, nighttime reminders, and camera context. | `cover.large_garage_door`, `cover.small_garage_door`, `group.garage_doors`, `sensor.garadget_reflection` |
+| [garadget.yaml](garadget.yaml) | MQTT-based garage door control plus arrival helpers, entry prompts, wind checks, nighttime reminders, and camera context. | `cover.large_garage_door`, `cover.small_garage_door`, `group.garage_doors`, `script.open_large_garage_door_if_ready` |
 | [august.yaml](august.yaml) | Front-door August smart lock with Alexa Show camera pop-up when unlocked. | `lock.front_door`, media_player actions for front doorbell camera |
 | [holiday.yaml](holiday.yaml) | REST-driven US holiday + flag sensors that color scenes and exterior lighting. | `sensor.holiday`, `sensor.flag`, JSON feed at `config/json_data/holidays.json` |
 | [lightning.yaml](lightning.yaml) | Blitzortung lightning counter monitoring with snoozeable push actions. | `sensor.blitzortung_lightning_counter`, `input_boolean.snooze_lightning`, notify engine actions |
@@ -74,7 +74,7 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 | [finance.yaml](finance.yaml) | Yahoo Finance sensor bundle for portfolio glances and Lovelace cards. | `sensor.tsla`, `sensor.aapl`, `sensor.amzn`, `sensor.msft` |
 
 ### Garadget automations
-- Logic lives in [garadget.yaml](garadget.yaml): auto-open on arrival, entry helper prompt (unlock front door or open garage), kid-specific trusted shortcuts, wind checks, nightly open-door reminders, and camera pop-ups.
+- Logic lives in [garadget.yaml](garadget.yaml): auto-open on arrival, entry helper prompt (unlock front door or open garage), trusted-family shortcuts, wind checks, nightly open-door reminders, and camera pop-ups.
 - MQTT-based covers for large/small doors; notifications and speech wired to the house notify/speech engines.
 - Video companion: [Garage automation walkthrough](https://youtu.be/wFO0H5zgnzk) and [companion blog post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html).
 ![Garadget Automation](../www/custom_ui/floorplan/images/branding/Garadget%20Automation.png)

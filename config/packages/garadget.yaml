@@ -84,6 +84,42 @@ group:
       - cover.large_garage_door
       - cover.small_garage_door
 
+script:
+  open_large_garage_door_if_ready:
+    alias: Open Large Garage Door If Ready
+    mode: single
+    fields:
+      person_name:
+        description: Optional person name for arrival logging.
+        example: Carlo
+    sequence:
+      - condition: state
+        entity_id: cover.large_garage_door
+        state: 'closed'
+      - condition: state
+        entity_id: group.family
+        state: 'home'
+      # - condition: state
+      #   entity_id: group.bed
+      #   state: 'off'
+      - service: cover.open_cover
+        target:
+          entity_id: cover.large_garage_door
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ person_name | default('', true) | trim != '' }}"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.last_person_home
+                data:
+                  value: "{{ person_name }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "GARAGE"
+                  message: "Large Garage was auto-opened for {{ person_name }}."
+
 automation:
 
   ######################################################################
@@ -99,29 +135,10 @@ automation:
           - person.stacey
         from: 'driving'
         to: 'home'
-    condition:
-      - condition: state
-        entity_id: cover.large_garage_door
-        state: 'closed'
-      # - condition: state
-      #   entity_id: group.bed
-      #   state: 'off'
-      - condition: state
-        entity_id: group.family
-        state: 'home'
     action:
-      - service: cover.open_cover
-        target:
-          entity_id: cover.large_garage_door
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.last_person_home
+      - service: script.open_large_garage_door_if_ready
         data:
-          value: "{{ trigger.to_state.entity_id.split('.')[1] }}"
-      - service: script.send_to_logbook
-        data:
-          topic: "GARAGE"
-          message: "Large Garage was auto-opened for {{ states('input_text.last_person_home') }}."
+          person_name: "{{ trigger.to_state.entity_id.split('.')[1] }}"
 
 ######################################################################
 ##  Entry helper prompt after arrival if auto-open didn’t fire.
@@ -176,16 +193,8 @@ automation:
       event_type: mobile_app_notification_action
       event_data:
         action: OPEN_LARGE_GARAGE
-    condition:
-      - condition: state
-        entity_id: cover.large_garage_door
-        state: 'closed'
-      - condition: state
-        entity_id: group.family
-        state: 'home'
     action:
-      - service: cover.open_cover
-        entity_id: cover.large_garage_door
+      - service: script.open_large_garage_door_if_ready
 
   - alias: 'Unlock Front Door Action'
     id: c3106db1-f2c4-4800-b1a3-76d440228600
@@ -199,9 +208,9 @@ automation:
         entity_id: lock.front_door
 
   ######################################################################
-  ##  Auto-unlock front door when Paige or Justin arrive from driving
+  ##  Auto-unlock front door when Paige, Justin, or Joyce arrive from driving
   ######################################################################
-  - alias: 'Auto Unlock Front Door on Arrival (Paige/Justin)'
+  - alias: 'Auto Unlock Front Door on Arrival (Paige/Justin/Joyce)'
     id: 8f4f5f6a-9c2d-4f4c-9f6c-7d5e5b2e2c3d
     mode: single
     trigger:
@@ -209,8 +218,12 @@ automation:
         entity_id:
           - person.paige
           - person.justin
+          - device_tracker.life360_joyce_ruskin
         from: 'driving'
         to: 'home'
+    variables:
+      arriving_person: >-
+        {{ (trigger.to_state.name | replace('Life360 ', '')).split(' ')[0] }}
     condition:
       - condition: state
         entity_id: lock.front_door
@@ -222,13 +235,13 @@ automation:
       - service: script.notify_engine
         data:
           title: "Front door auto-unlocked"
-          value1: "Unlocking for {{ trigger.to_state.name }} arriving from driving."
+          value1: "Unlocking for {{ arriving_person }} arriving from driving."
           who: "family"
           group: "Welcome_Home"
       - service: script.send_to_logbook
         data:
           topic: "DOORS"
-          message: "Front door auto-unlocked for {{ trigger.to_state.name }} arriving from driving."
+          message: "Front door auto-unlocked for {{ arriving_person }} arriving from driving."
 
 
 ######################################################################

@@ -19,7 +19,8 @@
 # Notes: Teslamate and crystalsoftwashsolutions are live services and should remain in the monitored group when their discovery switches are present.
 # Notes: Treat telemetry reconnects from unavailable/unknown to a concrete stopped state as actionable outages.
 # Notes: Infra Info was removed; BearClaw Admin is the planning snapshot surface.
-# Notes: codex_appliance moved to a dedicated VM, but the legacy container switches still surface in HA and remain in the monitored group until the entities are retired.
+# Notes: codex_appliance moved to a dedicated VM; keep the standard codex_appliance switches and retire the legacy hashed discovery entity when it disappears.
+# Notes: Paige's Bookshelf is a live monitored service and should remain in the group when its discovery switch is present.
 # Notes: Retired repair cleanup clears old codex_appliance and hashed dozzle Portainer repair IDs.
 ######################################################################
 
@@ -84,7 +85,6 @@ switch:
       - switch.cloudflared_kch_container_2
       - switch.cloudflared_wp_container
       - switch.cloudflared_wp_container_2
-      - switch.63a0a831eb7d_codex_appliance_container
       - switch.college_budget_app_container
       - switch.college_budget_app_container_2
       - switch.cruise_tracker_container
@@ -137,6 +137,7 @@ switch:
       - switch.nebula_sync_container_2
       - switch.onenote_indexer_container
       - switch.onenote_indexer_container_2
+      - switch.paiges_bookshelf_container
       - switch.panel_notes_container
       - switch.panel_notes_container_2
       - switch.pihole_container
