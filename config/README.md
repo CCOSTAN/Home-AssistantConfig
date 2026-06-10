@@ -43,7 +43,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 ### Featured automations by section
 | Section | Why start here | Featured automation(s) |
 | --- | --- | --- |
-| Packages | Self-contained subsystems that highlight patterns like combined alerts + actions. | [packages/alarm.yaml](packages/alarm.yaml), [packages/garadget.yaml](packages/garadget.yaml), [packages/vacation_mode.yaml](packages/vacation_mode.yaml), [packages/vacuum.yaml](packages/vacuum.yaml), [packages/powerwall.yaml](packages/powerwall.yaml) |
+| Packages | Self-contained subsystems that highlight patterns like combined alerts + actions. | [packages/alarm.yaml](packages/alarm.yaml), [packages/garadget.yaml](packages/garadget.yaml), [packages/llmvision.yaml](packages/llmvision.yaml), [packages/vacation_mode.yaml](packages/vacation_mode.yaml), [packages/vacuum.yaml](packages/vacuum.yaml), [packages/powerwall.yaml](packages/powerwall.yaml) |
 | Automations | Real-world triggers that tie Zwave, MQTT, and REST sensors into the rest of the house. | [automation/garage_entry_light.yaml](automation/garage_entry_light.yaml), [automation/dark_rainy_day.yaml](automation/dark_rainy_day.yaml), [automation/dash_buttons.yaml](automation/dash_buttons.yaml) |
 | Scripts | Reusable building blocks for lighting, notifications, safety responses, and Joanna/BearClaw remediation dispatch. | [script/joanna_dispatch.yaml](script/joanna_dispatch.yaml), [script/notify_engine.yaml](script/notify_engine.yaml), [script/speech_engine.yaml](script/speech_engine.yaml) |
 | Scenes | Seasonal and ambiance presets that the scripts and automations call into. | [scene/monthly_colors.yaml](scene/monthly_colors.yaml), [scene/living_room.yaml](scene/living_room.yaml) |
@@ -51,7 +51,7 @@ Live view of the `config/` directory my production Home Assistant instance loads
 | Dashboards & Media | UI chrome, floorplans, sound bites, and automation assets. | [www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg](www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg), [media/](media) |
 | Seasonal Audio | Cuckoo clock with Halloween and Christmas sound packs. | [automation/System/CucKoo_Clock.yaml](automation/System/CucKoo_Clock.yaml) |
 
-Snoozeable maintenance notifications are shown in the latest walkthrough: [video](https://youtu.be/y47KSflS1aw), [companion post](https://www.vcloudinfo.com/2026/06/home-assistant-notification-snooze-buttons.html), and YAML examples in [packages/climate.yaml](packages/climate.yaml), [packages/printer.yaml](packages/printer.yaml), and [packages/vacation_mode.yaml](packages/vacation_mode.yaml).
+The latest walkthrough shows the LLM Vision package reminder flow: [video](https://youtu.be/nAhCezFetvI) and YAML in [packages/llmvision.yaml](packages/llmvision.yaml). The earlier snoozeable maintenance notification walkthrough is still available with examples in [packages/climate.yaml](packages/climate.yaml), [packages/printer.yaml](packages/printer.yaml), and [packages/vacation_mode.yaml](packages/vacation_mode.yaml).
 
 ### Gear tied to these automations (affiliate links)
 Only including devices that have active references in the files above.

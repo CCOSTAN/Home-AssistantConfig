@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Stop Home Assistant Notification Spam with Snooze Buttons
-[![Stop Home Assistant Notification Spam with Snooze Buttons](https://www.vcloudinfo.com/wp-content/uploads/2026/06/home-assistant-notification-snooze-buttons-thumbnail.png)](https://youtu.be/y47KSflS1aw)
+### Latest video: Home Assistant Package Reminder: Camera to Phone Alert
+[![Home Assistant Package Reminder: Camera to Phone Alert](https://www.vcloudinfo.com/wp-content/uploads/2026/06/package-reminder-thumbnail.png)](https://youtu.be/nAhCezFetvI)
 
-This quick walkthrough shows how I use Home Assistant mobile action buttons and `input_datetime` helpers to snooze maintenance reminders without muting them forever: AC filters, printer ink, and Vacation Mode missed-visit checks. [Watch the video](https://youtu.be/y47KSflS1aw), read the [companion post](https://www.vcloudinfo.com/2026/06/home-assistant-notification-snooze-buttons.html), and browse the YAML in [config/packages/climate.yaml](config/packages/climate.yaml), [config/packages/printer.yaml](config/packages/printer.yaml), and [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml).
+This walkthrough shows how I use Home Assistant, LLM Vision, and a front-door camera event to confirm when a package is actually on the porch, store that state, and send a useful phone alert only when there is something to bring inside. [Watch the video](https://youtu.be/nAhCezFetvI) and browse the YAML in [config/packages/llmvision.yaml](config/packages/llmvision.yaml).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
@@ -47,6 +47,7 @@ This quick walkthrough shows how I use Home Assistant mobile action buttons and 
 ### Featured examples to start with
 - Alarm and perimeter monitoring: [config/packages/alarm.yaml](config/packages/alarm.yaml)
 - Garage routines and entry lighting: [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml), [video walkthrough](https://youtu.be/wFO0H5zgnzk)
+- LLM Vision package reminders: [config/packages/llmvision.yaml](config/packages/llmvision.yaml), [video walkthrough](https://youtu.be/nAhCezFetvI)
 - Holiday/front-of-house color scenes: [config/scene/monthly_colors.yaml](config/scene/monthly_colors.yaml), [config/script/monthly_color_scene.yaml](config/script/monthly_color_scene.yaml)
 - Dash-button triggers for quick actions: [config/automation/dash_buttons.yaml](config/automation/dash_buttons.yaml)
 - PC lock/unlock-driven lighting plus workday wake-up via HASS.Agent + Wake on LAN: [config/packages/hass_agent_homepc.yaml](config/packages/hass_agent_homepc.yaml)
