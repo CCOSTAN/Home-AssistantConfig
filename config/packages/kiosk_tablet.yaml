@@ -8,8 +8,10 @@
 # -------------------------------------------------------------------
 # Notes: Baseline view path is the real typo-like `kiosk_oveview` slug.
 # Notes: Uses Fully controls only; does not enable Fully Kiosk lockout mode.
-# Notes: Startup reload waits for HA's initial websocket state burst to settle.
+# Notes: Wake events only restore brightness/focus; URL reloads require page drift.
+# Notes: Startup recovery waits for HA's initial websocket state burst to settle.
 # Notes: Brightness recovery only runs when both SleepIQ in-bed sensors are off.
+# Video: https://youtu.be/ChgEu0IDWzc
 ######################################################################
 
 automation:
@@ -57,9 +59,7 @@ automation:
           {% set bed_clear = is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off')
              and is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off') %}
           {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
-          {{ trigger.id == 'wake'
-             or trigger.id == 'startup'
-             or (current_page not in invalid and '/dashboard-kiosk/kiosk_oveview' not in current_page)
+          {{ (current_page not in invalid and '/dashboard-kiosk/kiosk_oveview' not in current_page)
              or (foreground_app not in invalid and foreground_app != 'de.ozerov.fully')
              or (bed_clear and brightness not in invalid and brightness | float(100) < 40) }}
 
@@ -74,31 +74,58 @@ automation:
           previous_page: "{{ states('sensor.alarm_panel_1_current_page') }}"
           previous_app: "{{ states('sensor.alarm_panel_1_foreground_app') }}"
           previous_brightness: "{{ states('number.alarm_panel_1_screen_brightness') }}"
+          invalid:
+            - unknown
+            - unavailable
+            - none
+            - ""
+      - variables:
+          brightness_low: >-
+            {{ is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off')
+               and is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off')
+               and previous_brightness not in invalid
+               and previous_brightness | float(100) < 40 }}
+          foreground_drift: >-
+            {{ previous_app not in invalid and previous_app != 'de.ozerov.fully' }}
+          page_drift: >-
+            {{ previous_page not in invalid
+               and '/dashboard-kiosk/kiosk_oveview' not in previous_page }}
       - choose:
           - conditions:
-              - condition: state
-                entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-                state: "off"
-              - condition: state
-                entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-                state: "off"
+              - condition: template
+                value_template: "{{ brightness_low | bool }}"
             sequence:
               - service: number.set_value
                 target:
                   entity_id: number.alarm_panel_1_screen_brightness
                 data:
                   value: 100
-      - service: button.press
-        target:
-          entity_id: button.alarm_panel_1_bring_to_foreground
-      - delay: "00:00:02"
-      - service: button.press
-        target:
-          entity_id: button.alarm_panel_1_load_start_url
-      - service: script.send_to_logbook
-        data:
-          topic: "KIOSK"
-          message: >-
-            Bedroom tablet returned to the kiosk dashboard from
-            {{ previous_page }} (foreground app: {{ previous_app }};
-            brightness: {{ previous_brightness }}).
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ foreground_drift | bool }}"
+            sequence:
+              - service: button.press
+                target:
+                  entity_id: button.alarm_panel_1_bring_to_foreground
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ page_drift | bool }}"
+            sequence:
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ foreground_drift | bool }}"
+                    sequence:
+                      - delay: "00:00:02"
+              - service: button.press
+                target:
+                  entity_id: button.alarm_panel_1_load_start_url
+              - service: script.send_to_logbook
+                data:
+                  topic: "KIOSK"
+                  message: >-
+                    Bedroom tablet reloaded after page drift from
+                    {{ previous_page }} (foreground app: {{ previous_app }};
+                    brightness: {{ previous_brightness }}).
