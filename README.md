@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Home Assistant Package Reminder: Camera to Phone Alert
-[![Home Assistant Package Reminder: Camera to Phone Alert](https://www.vcloudinfo.com/wp-content/uploads/2026/06/package-reminder-thumbnail.png)](https://youtu.be/nAhCezFetvI)
+### Latest video: Turn a Cheap Fire Tablet Into a Home Assistant Camera Kiosk
+[![Turn a Cheap Fire Tablet Into a Home Assistant Camera Kiosk](https://www.vcloudinfo.com/wp-content/uploads/2026/06/home-assistant-kiosk-tablet-thumbnail.png)](https://youtu.be/ChgEu0IDWzc)
 
-This walkthrough shows how I use Home Assistant, LLM Vision, and a front-door camera event to confirm when a package is actually on the porch, store that state, and send a useful phone alert only when there is something to bring inside. [Watch the video](https://youtu.be/nAhCezFetvI) and browse the YAML in [config/packages/llmvision.yaml](config/packages/llmvision.yaml).
+This walkthrough shows how I turn a cheap Fire tablet into a purpose-built Home Assistant camera kiosk with a dedicated YAML dashboard, Fully Kiosk controls, bedtime dimming, and recovery automations. [Watch the video](https://youtu.be/ChgEu0IDWzc) and browse the YAML in [config/packages/kiosk_tablet.yaml](config/packages/kiosk_tablet.yaml) and [config/dashboards/kiosk](config/dashboards/kiosk).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
@@ -48,6 +48,7 @@ This walkthrough shows how I use Home Assistant, LLM Vision, and a front-door ca
 - Alarm and perimeter monitoring: [config/packages/alarm.yaml](config/packages/alarm.yaml)
 - Garage routines and entry lighting: [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml), [video walkthrough](https://youtu.be/wFO0H5zgnzk)
 - LLM Vision package reminders: [config/packages/llmvision.yaml](config/packages/llmvision.yaml), [video walkthrough](https://youtu.be/nAhCezFetvI)
+- Bedroom camera kiosk tablet: [config/packages/kiosk_tablet.yaml](config/packages/kiosk_tablet.yaml), [config/dashboards/kiosk](config/dashboards/kiosk), [video walkthrough](https://youtu.be/ChgEu0IDWzc)
 - Holiday/front-of-house color scenes: [config/scene/monthly_colors.yaml](config/scene/monthly_colors.yaml), [config/script/monthly_color_scene.yaml](config/script/monthly_color_scene.yaml)
 - Dash-button triggers for quick actions: [config/automation/dash_buttons.yaml](config/automation/dash_buttons.yaml)
 - PC lock/unlock-driven lighting plus workday wake-up via HASS.Agent + Wake on LAN: [config/packages/hass_agent_homepc.yaml](config/packages/hass_agent_homepc.yaml)
@@ -77,6 +78,7 @@ Only listing hardware that appears in active packages/automations here.
 https://amzn.to/48jVzZ3
 | Device | What it drives (friendly name -> file) | Buy |
 | --- | --- | --- |
+| Amazon Fire tablet wall kiosk | Bedroom camera screen with Fully Kiosk recovery, bedtime dimming, and a dedicated YAML dashboard - [kiosk tablet package](config/packages/kiosk_tablet.yaml), [kiosk dashboard](config/dashboards/kiosk), [video walkthrough](https://youtu.be/ChgEu0IDWzc) | [![Tablet](https://img.shields.io/badge/Buy-Fire%20Tablet-orange?logo=amazon)](https://amzn.to/2swPVSm) [![Mount](https://img.shields.io/badge/Buy-Wall%20Mount-orange?logo=amazon)](https://amzn.to/2tBSTUU) |
 | Garadget garage door controller | Garage doors: open/close, arrival helpers, wind alerts, and nighttime reminders - [garadget package](config/packages/garadget.yaml), [video walkthrough](https://youtu.be/wFO0H5zgnzk), [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html) | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
 | August smart lock | Front-door lock control + status - [august package](config/packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-August%20Lock-orange?logo=amazon)](https://amzn.to/48jVzZ3) |
 | Phyn Plus water shutoff | Leak detection + auto shutoff - [phynplus package](config/packages/phynplus.yaml) | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
