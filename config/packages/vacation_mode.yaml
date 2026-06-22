@@ -11,6 +11,7 @@
 # Notes: General vacation speech uses Chromecast only; the garage Alexa welcome is the one local-device exception.
 # Notes: Visit analytics use recorder-backed visit counts plus arrival/departure helpers for accurate durations.
 # Notes: Dorm zones are reported as away locations, not Bear Stone home.
+# Notes: Recent-departure lockout and a 3-hour stale-visit timeout prevent missed close edges from creating inflated visit durations.
 # Notes: Missed sitter alerts include 2-day and 3-day snooze actions that clear after a visit.
 # Video: https://youtu.be/15kRcFaVV2Y
 # Blog: https://www.vcloudinfo.com/2026/05/home-assistant-vacation-mode-house-sitter-automation.html
@@ -50,6 +51,34 @@ input_number:
     step: 0.1
     mode: box
     unit_of_measurement: min
+
+script:
+  vacation_house_sitter_clear_presence:
+    alias: Vacation House Sitter Clear Presence
+    mode: queued
+    fields:
+      visit_minutes:
+        description: Visit duration in minutes.
+      departure_timestamp:
+        description: Epoch timestamp to store as the sitter departure time.
+      clear_reason:
+        description: Reason this clear action ran.
+    sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.vacation_house_sitter_last_visit_minutes
+        data:
+          value: "{{ visit_minutes }}"
+
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.vacation_house_sitter_last_departure
+        data:
+          timestamp: "{{ departure_timestamp }}"
+
+      - service: homeassistant.turn_off
+        target:
+          entity_id: input_boolean.house_sitter_present
 
 sensor:
   - platform: history_stats
@@ -424,6 +453,11 @@ automation:
           {{ is_state('group.family', 'not_home')
              and is_state('input_boolean.vacation_mode', 'on')
              and is_state('input_boolean.house_sitter_present', 'off') }}
+      - condition: template
+        value_template: >-
+          {% set vacation_start = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
+          {% set departure_ts = as_timestamp(states('input_datetime.vacation_house_sitter_last_departure'), 0) %}
+          {{ departure_ts < vacation_start or (as_timestamp(now()) - departure_ts) >= 900 }}
 
       - service: input_boolean.turn_on
         entity_id:
@@ -509,6 +543,53 @@ automation:
           speech_direct: true
           speech_message: "{{ checklist_message }}"
 
+  - alias: 'Vacation Mode House Sitter Visit Timeout'
+    id: b7c03da2-9017-4524-8202-e93f5a6dd742
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: state
+        entity_id: input_boolean.house_sitter_present
+        to: 'on'
+        for: "03:00:00"
+
+    condition:
+      - condition: template
+        value_template: >-
+          {{ is_state('group.family', 'not_home')
+             and is_state('input_boolean.vacation_mode', 'on')
+             and is_state('input_boolean.house_sitter_present', 'on') }}
+
+    action:
+      - variables:
+          visit_count: "{{ states('sensor.vacation_house_sitter_visit_count') | int(0) }}"
+          visit_minutes_numeric: >-
+            {% set seconds = (as_timestamp(now()) - as_timestamp(states.input_boolean.house_sitter_present.last_changed, 0)) | int(0) %}
+            {{ (seconds / 60) | round(1) }}
+
+      - service: script.vacation_house_sitter_clear_presence
+        data:
+          visit_minutes: "{{ visit_minutes_numeric }}"
+          departure_timestamp: "{{ now().timestamp() }}"
+          clear_reason: timeout
+
+      - service: script.send_to_logbook
+        data:
+          topic: HOUSE SITTER
+          message: >-
+            House sitter presence timed out after {{ visit_minutes_numeric }} minutes because no departure door or garage close was detected.
+            Visit count this vacation is now {{ visit_count }}.
+
+      - service: script.notify_engine
+        data:
+          title: House sitter visit timeout
+          value1: >-
+            House sitter presence was still active after {{ visit_minutes_numeric }} minutes, so it was cleared as a stale visit.
+          who: carlo
+          group: information
+          level: active
+
   - alias: 'Vacation Mode House Sitter Departure'
     id: 04f5ab9e-65a8-4cd5-a8e9-0f40c82a2f62
     mode: single
@@ -547,21 +628,11 @@ automation:
             {% set remainder = (seconds % 60) | int(0) %}
             {{ minutes }} minute{{ 's' if minutes != 1 else '' }}{% if remainder > 0 %} and {{ remainder }} second{{ 's' if remainder != 1 else '' }}{% endif %}
 
-      - service: input_number.set_value
-        target:
-          entity_id: input_number.vacation_house_sitter_last_visit_minutes
+      - service: script.vacation_house_sitter_clear_presence
         data:
-          value: "{{ visit_minutes_numeric }}"
-
-      - service: input_datetime.set_datetime
-        target:
-          entity_id: input_datetime.vacation_house_sitter_last_departure
-        data:
-          timestamp: "{{ now().timestamp() }}"
-
-      - service: homeassistant.turn_off
-        target:
-          entity_id: input_boolean.house_sitter_present
+          visit_minutes: "{{ visit_minutes_numeric }}"
+          departure_timestamp: "{{ now().timestamp() }}"
+          clear_reason: "{{ trigger.id }}"
 
       - service: script.send_to_logbook
         data:
