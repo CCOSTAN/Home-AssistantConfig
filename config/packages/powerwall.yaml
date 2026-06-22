@@ -12,7 +12,7 @@
 # Notes: Read more https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html | Existing Issue #272
 # Tesla Powerwall added via UI Integration
 # Notes: Live outage tracking derives its chronometer anchor from binary_sensor.powerwall_grid_status.last_changed.
-# Notes: Camera PoE restore requires grid online and Powerwall charge at least 50%.
+# Notes: Docker host and camera PoE restore requires grid online for 10 minutes and Powerwall charge at least 50%.
 ######################################################################
 # Binary Sensors:
 #  - binary_sensor.powerwall_charging ............. battery_charging (on=charging)
@@ -300,7 +300,18 @@ automation:
         below: 75
         for:
           minutes: 3
+    condition:
+      - condition: template
+        value_template: "{{ is_state('binary_sensor.powerwall_grid_status', 'off') }}"
+      - condition: numeric_state
+        entity_id: sensor.powerwall_charge
+        above: 0
+        below: 75
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "POWER"
+          message: "Powerwall outage load-shed started at {{ states('sensor.powerwall_charge') }}% charge."
       - service: button.press
         target:
           entity_id:
@@ -374,44 +385,59 @@ automation:
                 data:
                   state: heat_pump
 
-  - alias: "Restore PoE ports when grid returns"
+  - alias: "Restore Docker hosts and camera PoE when grid returns"
     id: 1ae8b5c5-8627-4a44-8c8a-5bf8ca5e1bf5
-    description: "Turn camera PoE ports back on after grid has returned and battery is at least 50%"
+    description: "Start Docker hosts and turn camera PoE ports back on after grid has returned and battery is at least 50%"
     mode: single
     trigger:
-      - platform: state
-        entity_id: binary_sensor.powerwall_grid_status
-        from: 'off'
-        to: 'on'
+      - platform: template
+        value_template: "{{ is_state('binary_sensor.powerwall_grid_status', 'on') }}"
         for:
-          minutes: 60
+          minutes: 10
       - platform: numeric_state
         entity_id: sensor.powerwall_charge
         above: 49.9
 
     condition:
-      - condition: or
-        conditions:
-          - condition: state
-            entity_id: switch.poe_garage_port_3_poe
-            state: 'off'
-          - condition: state
-            entity_id: switch.poe_garage_port_4_poe
-            state: 'off'
-          - condition: state
-            entity_id: switch.poe_garage_port_5_poe
-            state: 'off'
-          - condition: state
-            entity_id: switch.poe_garage_port_6_poe
-            state: 'off'
       - condition: state
         entity_id: binary_sensor.powerwall_grid_status
         state: 'on'
+        for:
+          minutes: 10
       - condition: numeric_state
         entity_id: sensor.powerwall_charge
         above: 49.9
+      - condition: template
+        value_template: >-
+          {{ not is_state('binary_sensor.qemu_docker2_101_status', 'on')
+             or not is_state('binary_sensor.qemu_docker69_169_status', 'on')
+             or not is_state('switch.poe_garage_port_3_poe', 'on')
+             or not is_state('switch.poe_garage_port_4_poe', 'on')
+             or not is_state('switch.poe_garage_port_5_poe', 'on')
+             or not is_state('switch.poe_garage_port_6_poe', 'on') }}
     action:
+      - service: script.send_to_logbook
+        data:
+          topic: "POWER"
+          message: "Grid has been online for 10 minutes at {{ states('sensor.powerwall_charge') }}% charge. Restoring Docker hosts and camera PoE."
+      - if:
+          - condition: template
+            value_template: "{{ not is_state('binary_sensor.qemu_docker2_101_status', 'on') }}"
+        then:
+          - service: button.press
+            continue_on_error: true
+            target:
+              entity_id: button.qemu_docker2_101_start
+      - if:
+          - condition: template
+            value_template: "{{ not is_state('binary_sensor.qemu_docker69_169_status', 'on') }}"
+        then:
+          - service: button.press
+            continue_on_error: true
+            target:
+              entity_id: button.qemu_docker69_169_start
       - service: switch.turn_on
+        continue_on_error: true
         target:
           entity_id:
             - switch.poe_garage_port_3_poe
@@ -420,8 +446,8 @@ automation:
             - switch.poe_garage_port_6_poe
       - service: script.notify_engine
         data:
-          title: "Grid restored - PoE ports re-enabled"
-          value1: "Grid is online and Powerwall charge is at least 50%. Camera PoE ports 3-6 were turned back on automatically."
+          title: "Grid restored - environment recovery started"
+          value1: "Grid is online and Powerwall charge is at least 50%. Docker hosts 101/169 were started if needed, and camera PoE ports 3-6 were turned back on automatically."
           who: 'family'
           group: 'information'
 
