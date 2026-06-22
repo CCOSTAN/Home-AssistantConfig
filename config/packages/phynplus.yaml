@@ -8,8 +8,10 @@
 #  Push action buttons + Activity feed + Repairs issue while valve is closed.
 # -------------------------------------------------------------------
 # Info: https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html
-# HACS: https://github.com/MizterB/homeassistant-phyn
+# HACS: https://github.com/jordanruthe/homeassistant-phyn
 # Product: https://amzn.to/2Zy3sbJ
+# Notes: homeassistant-phyn v2026.6.3 exposes Phyn alerts as sensors/events.
+# Notes: Production YAML uses alert sensors; event triggers require HA Labs enablement.
 ######################################################################
 
 script:
@@ -44,43 +46,129 @@ automation:
       - platform: state
         entity_id: valve.phyn_shutoff_valve
         to: 'closed'
+        id: valve_closed
+      - platform: state
+        entity_id:
+          - binary_sensor.phyn_leak_alert
+          - binary_sensor.phyn_offline_leak_shutoff_alert
+          - binary_sensor.phyn_recurring_flow_alert
+          - binary_sensor.phyn_pinhole_leak_alert
+        to: 'on'
+        id: leak_alert_sensor
 
     condition:
       - condition: state
         entity_id: binary_sensor.phyn_leak_test_running
         state: 'off'
 
+    variables:
+      alert_source: >-
+        {% if trigger.to_state is defined and trigger.to_state is not none %}
+          {{ trigger.to_state.name }}
+        {% else %}
+          Phyn leak alert
+        {% endif %}
+      valve_state: "{{ states('valve.phyn_shutoff_valve') }}"
+
     action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'leak_alert_sensor' }}"
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "WATER"
+                  message: >-
+                    Phyn reported {{ alert_source }} while the shutoff valve is {{ valve_state }}.
+                    Check water areas and the Phyn app.
+
+              - service: repairs.create
+                data:
+                  issue_id: "phyn_leak_alert"
+                  title: "Phyn leak-style alert"
+                  severity: "warning"
+                  persistent: true
+                  description: >-
+                    Phyn reported a leak-style alert through the Home Assistant integration.
+
+                    alert_source: {{ alert_source }}
+                    valve_state: {{ valve_state }}
+
+                    Check the Phyn app, visible water areas, and the shutoff valve before deciding whether recovery action is needed.
+
+              - service: script.notify_engine
+                data:
+                  title: "Phyn Leak Alert"
+                  value1: >-
+                    {{ alert_source }} is active. Check the Phyn app and water areas.
+                    If the valve closed, use the shutoff notification to restore water after verification.
+                  who: "parents"
+                  group: "Phyn"
+                  level: "time-sensitive"
+        default:
+          - service: script.send_to_logbook
+            data:
+              topic: "WATER"
+              message: "Phyn detected a leak and shut off the water. Please verify."
+
+          - service: repairs.create
+            data:
+              issue_id: "phyn_leak_shutoff"
+              title: "Phyn leak shutoff"
+              severity: "critical"
+              persistent: true
+              description: >-
+                Phyn detected a potential leak and automatically closed the main water valve.
+
+                Verify there are no active leaks before restoring water service.
+
+          - service: script.phyn_send_actionable_leak_notification
+            data:
+              source: "initial"
+
+          - service: persistent_notification.create
+            data:
+              title: '🚨 Phyn Leak Detection Alert'
+              message: |
+                **CRITICAL**: Phyn has detected a potential leak and automatically shut off the main water supply.
+
+                **Action Required**: Please verify there are no leaks in the house before turning the water back on.
+
+                **Time**: {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
+              notification_id: 'phyn_leak_detection'
+
+  - alias: Dismiss Phyn Leak Alert When Alert Clears
+    id: 19ca32e0-58a9-44d7-aac0-67efd3421a98
+    description: Clear the warning-only Phyn alert repair after all leak-style alert sensors are off.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.phyn_leak_alert
+          - binary_sensor.phyn_offline_leak_shutoff_alert
+          - binary_sensor.phyn_recurring_flow_alert
+          - binary_sensor.phyn_pinhole_leak_alert
+        to: 'off'
+        for: '00:02:00'
+    condition:
+      - condition: template
+        value_template: >-
+          {{ expand(
+            'binary_sensor.phyn_leak_alert',
+            'binary_sensor.phyn_offline_leak_shutoff_alert',
+            'binary_sensor.phyn_recurring_flow_alert',
+            'binary_sensor.phyn_pinhole_leak_alert'
+          ) | selectattr('state', 'eq', 'on') | list | count == 0 }}
+    action:
+      - service: repairs.remove
+        continue_on_error: true
+        data:
+          issue_id: "phyn_leak_alert"
       - service: script.send_to_logbook
         data:
           topic: "WATER"
-          message: "Phyn detected a leak and shut off the water. Please verify."
-
-      - service: repairs.create
-        data:
-          issue_id: "phyn_leak_shutoff"
-          title: "Phyn leak shutoff"
-          severity: "critical"
-          persistent: true
-          description: >-
-            Phyn detected a potential leak and automatically closed the main water valve.
-
-            Verify there are no active leaks before restoring water service.
-
-      - service: script.phyn_send_actionable_leak_notification
-        data:
-          source: "initial"
-
-      - service: persistent_notification.create
-        data:
-          title: '🚨 Phyn Leak Detection Alert'
-          message: |
-            **CRITICAL**: Phyn has detected a potential leak and automatically shut off the main water supply.
-            
-            **Action Required**: Please verify there are no leaks in the house before turning the water back on.
-            
-            **Time**: {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
-          notification_id: 'phyn_leak_detection'
+          message: "All Phyn leak-style alert sensors are clear. Warning repair removed."
 
   - alias: Turn Phyn Water On
     id: 1f295bb8-8925-4b22-PHYN-9fe079b295a8
