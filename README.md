@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Turn a Cheap Fire Tablet Into a Home Assistant Camera Kiosk
-[![Turn a Cheap Fire Tablet Into a Home Assistant Camera Kiosk](https://www.vcloudinfo.com/wp-content/uploads/2026/06/home-assistant-kiosk-tablet-thumbnail.png)](https://youtu.be/ChgEu0IDWzc)
+### Latest video: Home Assistant Leak Detection Automations
+[![Home Assistant Leak Detection Automations](https://www.vcloudinfo.com/wp-content/uploads/2026/06/maxresdefault.jpg)](https://youtu.be/xbhgWnomFYI)
 
-This walkthrough shows how I turn a cheap Fire tablet into a purpose-built Home Assistant camera kiosk with a dedicated YAML dashboard, Fully Kiosk controls, bedtime dimming, and recovery automations. [Watch the video](https://youtu.be/ChgEu0IDWzc) and browse the YAML in [config/packages/kiosk_tablet.yaml](config/packages/kiosk_tablet.yaml) and [config/dashboards/kiosk](config/dashboards/kiosk).
+This walkthrough breaks down the water-leak response loop I use in Home Assistant: a shutoff valve state, a maintenance guard, Activity Feed context, Repairs tracking, and critical phone recovery actions. [Watch the video](https://youtu.be/xbhgWnomFYI), read the [companion blog post](https://www.vcloudinfo.com/2026/06/home-assistant-leak-detection-automations.html), browse the YAML in [config/packages/phynplus.yaml](config/packages/phynplus.yaml), and see the older Phyn Plus backstory in the [original write-up](https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
@@ -48,6 +48,7 @@ This walkthrough shows how I turn a cheap Fire tablet into a purpose-built Home 
 - Alarm and perimeter monitoring: [config/packages/alarm.yaml](config/packages/alarm.yaml)
 - Garage routines and entry lighting: [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml), [video walkthrough](https://youtu.be/wFO0H5zgnzk)
 - LLM Vision package reminders: [config/packages/llmvision.yaml](config/packages/llmvision.yaml), [video walkthrough](https://youtu.be/nAhCezFetvI)
+- Water leak response loop: [config/packages/phynplus.yaml](config/packages/phynplus.yaml), [video walkthrough](https://youtu.be/xbhgWnomFYI)
 - Bedroom camera kiosk tablet: [config/packages/kiosk_tablet.yaml](config/packages/kiosk_tablet.yaml), [config/dashboards/kiosk](config/dashboards/kiosk), [video walkthrough](https://youtu.be/ChgEu0IDWzc)
 - Holiday/front-of-house color scenes: [config/scene/monthly_colors.yaml](config/scene/monthly_colors.yaml), [config/script/monthly_color_scene.yaml](config/script/monthly_color_scene.yaml)
 - Dash-button triggers for quick actions: [config/automation/dash_buttons.yaml](config/automation/dash_buttons.yaml)
@@ -81,7 +82,7 @@ https://amzn.to/48jVzZ3
 | Amazon Fire tablet wall kiosk | Bedroom camera screen with Fully Kiosk recovery, bedtime dimming, and a dedicated YAML dashboard - [kiosk tablet package](config/packages/kiosk_tablet.yaml), [kiosk dashboard](config/dashboards/kiosk), [video walkthrough](https://youtu.be/ChgEu0IDWzc) | [![Tablet](https://img.shields.io/badge/Buy-Fire%20Tablet-orange?logo=amazon)](https://amzn.to/2swPVSm) [![Mount](https://img.shields.io/badge/Buy-Wall%20Mount-orange?logo=amazon)](https://amzn.to/2tBSTUU) |
 | Garadget garage door controller | Garage doors: open/close, arrival helpers, wind alerts, and nighttime reminders - [garadget package](config/packages/garadget.yaml), [video walkthrough](https://youtu.be/wFO0H5zgnzk), [companion post](https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html) | [![Buy](https://img.shields.io/badge/Buy-Garadget-orange?logo=amazon)](https://amzn.to/2jQLpVQ) |
 | August smart lock | Front-door lock control + status - [august package](config/packages/august.yaml) | [![Buy](https://img.shields.io/badge/Buy-August%20Lock-orange?logo=amazon)](https://amzn.to/48jVzZ3) |
-| Phyn Plus water shutoff | Leak detection + auto shutoff - [phynplus package](config/packages/phynplus.yaml) | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
+| Phyn Plus water shutoff | Leak detection + auto shutoff - [phynplus package](config/packages/phynplus.yaml), [video walkthrough](https://youtu.be/xbhgWnomFYI), [companion post](https://www.vcloudinfo.com/2026/06/home-assistant-leak-detection-automations.html), [original write-up](https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html) | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
 | Rachio sprinkler controller | Rain-skips and seasonal watering - [rachio package](config/packages/rachio.yaml) | [![Buy](https://img.shields.io/badge/Buy-Rachio-orange?logo=amazon)](https://amzn.to/2eoPKBW) |
 | Tesla Powerwall 2 | Grid-outage alerts + load-shed automations - [powerwall package](config/packages/powerwall.yaml) | [![Buy](https://img.shields.io/badge/Buy-Powerwall-orange?logo=tesla)](https://amzn.to/3UM4BZ5) |
 | NodeMCU motion sensor | Office motion lighting - [office_motion package](config/packages/office_motion.yaml) | [![Buy](https://img.shields.io/badge/Buy-Motion%20Node-orange?logo=amazon)](https://amzn.to/2oUgj5i) |
