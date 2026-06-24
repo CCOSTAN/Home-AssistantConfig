@@ -64,6 +64,7 @@ Current automations that kick off automated resolutions (via `script.joanna_disp
 | `docker_state_sync_repairs_dynamic` | Docker State Sync - Repairs (Dynamic) | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `docker_group_reconcile_weekly_joanna_review` | Docker Group Reconcile - Weekly Joanna Review | [../packages/docker_infrastructure.yaml](../packages/docker_infrastructure.yaml) |
 | `docker_host_disk_pressure_monitor` | Docker Host Disk Pressure Monitor | [../packages/infrastructure.yaml](../packages/infrastructure.yaml) |
+| `proxmox_updates_joanna_dispatch` | Proxmox Updates Joanna Dispatch | [../packages/proxmox.yaml](../packages/proxmox.yaml) |
 | `tugtainer_dispatch_joanna_for_available_updates` | Tugtainer - Dispatch Joanna For Available Updates | [../packages/tugtainer_updates.yaml](../packages/tugtainer_updates.yaml) |
 | `tugtainer_dispatch_joanna_for_home_assistant_core_digest` | Tugtainer - Dispatch Joanna For Home Assistant Core Digest | [../packages/tugtainer_updates.yaml](../packages/tugtainer_updates.yaml) |
 | `unifi_ap_no_clients_repair_combined` | Unifi AP Create Repair Issue after 5m of 0 Clients | [../packages/wireless.yaml](../packages/wireless.yaml) |
