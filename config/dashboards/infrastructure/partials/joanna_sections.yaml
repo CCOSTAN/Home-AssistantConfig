@@ -36,6 +36,16 @@
     icon: mdi:alert-circle-outline
   - type: custom:button-card
     template: bearstone_infra_kpi
+    entity: sensor.codex_reset_credits_available
+    name: Resets
+    icon: mdi:backup-restore
+  - type: custom:button-card
+    template: bearstone_infra_kpi
+    entity: sensor.codex_reset_credits_expiring_soon
+    name: Reset Warnings
+    icon: mdi:alert-clock
+  - type: custom:button-card
+    template: bearstone_infra_kpi
     entity: sensor.joanna_all_dispatches_24h
     name: All 24H
     icon: mdi:calendar-clock
@@ -179,6 +189,114 @@
   columns: 1
   square: false
   cards:
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Codex Reset Credits
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.codex_reset_credit_status
+      name: Collector Status
+      icon: mdi:clipboard-pulse-outline
+      state_display: >
+        [[[
+          const usage = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage || {};
+          const status = usage.status || 'unknown';
+          const ok = usage.ok === true;
+          const last = usage.lastCheckAt ? String(usage.lastCheckAt).replace('T', ' ').slice(0, 16) : 'not checked';
+          return `${ok ? 'ok' : status} | ${last}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.codex_reset_credit_next_expiration
+      name: Next Expiration
+      icon: mdi:calendar-clock
+      state_display: >
+        [[[
+          const usage = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage || {};
+          const days = usage.minDaysRemaining;
+          const expRaw = usage.soonestExpiresAt || '';
+          const exp = expRaw ? String(expRaw).replace('T', ' ').slice(0, 16) : 'n/a';
+          const dayText = Number.isFinite(Number(days)) ? `${Number(days).toFixed(1)}d` : 'n/a';
+          return `${dayText} | ${exp}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: binary_sensor.codex_reset_credit_expiring_soon
+      name: Repair Window
+      icon: mdi:alert-clock
+      state_display: >
+        [[[
+          const usage = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage || {};
+          const warn = usage.warnDays ?? 7;
+          const count = usage.warningCount ?? 0;
+          return `${count} within ${warn}d`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.bearclaw_status_telemetry
+      name: Reset #1
+      icon: mdi:backup-restore
+      state_display: >
+        [[[
+          const credits = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage?.credits || [];
+          const credit = credits[0];
+          if (!credit) return 'No reset';
+          const days = Number.isFinite(Number(credit.days_remaining)) ? `${Number(credit.days_remaining).toFixed(1)}d` : 'n/a';
+          const exp = credit.expires_at ? String(credit.expires_at).replace('T', ' ').slice(0, 16) : 'n/a';
+          return `${credit.status || 'unknown'} | ${days} | ${exp}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.bearclaw_status_telemetry
+      name: Reset #2
+      icon: mdi:backup-restore
+      state_display: >
+        [[[
+          const credits = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage?.credits || [];
+          const credit = credits[1];
+          if (!credit) return 'No reset';
+          const days = Number.isFinite(Number(credit.days_remaining)) ? `${Number(credit.days_remaining).toFixed(1)}d` : 'n/a';
+          const exp = credit.expires_at ? String(credit.expires_at).replace('T', ' ').slice(0, 16) : 'n/a';
+          return `${credit.status || 'unknown'} | ${days} | ${exp}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.bearclaw_status_telemetry
+      name: Reset #3
+      icon: mdi:backup-restore
+      state_display: >
+        [[[
+          const credits = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage?.credits || [];
+          const credit = credits[2];
+          if (!credit) return 'No reset';
+          const days = Number.isFinite(Number(credit.days_remaining)) ? `${Number(credit.days_remaining).toFixed(1)}d` : 'n/a';
+          const exp = credit.expires_at ? String(credit.expires_at).replace('T', ' ').slice(0, 16) : 'n/a';
+          return `${credit.status || 'unknown'} | ${days} | ${exp}`;
+        ]]]
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.bearclaw_status_telemetry
+      name: Reset #4
+      icon: mdi:backup-restore
+      state_display: >
+        [[[
+          const credits = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage?.credits || [];
+          const credit = credits[3];
+          if (!credit) return 'No reset';
+          const days = Number.isFinite(Number(credit.days_remaining)) ? `${Number(credit.days_remaining).toFixed(1)}d` : 'n/a';
+          const exp = credit.expires_at ? String(credit.expires_at).replace('T', ' ').slice(0, 16) : 'n/a';
+          return `${credit.status || 'unknown'} | ${days} | ${exp}`;
+        ]]]
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
   - type: custom:layout-card
     grid_options:
       columns: full
@@ -204,5 +322,7 @@
         hours_to_show: 72
         entities:
         - automation.bearclaw_reply_webhook
+        - automation.codex_reset_credit_expiry_repair
         - automation.tugtainer_dispatch_joanna_for_available_updates
+        - binary_sensor.codex_reset_credit_expiring_soon
         - script.joanna_dispatch

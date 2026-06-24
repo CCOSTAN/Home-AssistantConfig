@@ -6,12 +6,14 @@
 # BearClaw Integration - Home Assistant dispatch + lifecycle callbacks
 #  Home Assistant dispatches jobs to codex_appliance and receives structured lifecycle callbacks.
 # -------------------------------------------------------------------
+# Related Issue: 1797
 # Notes: Telegram ingress now lives directly in the dedicated codex_appliance VM.
 # Notes: Most BearClaw decision logic runs in codex_appliance/server.js.
 # Notes: GitHub capture behavior (issue creation/labels/research flow) belongs in codex_appliance, not HA YAML.
 # Notes: Shared script helper `script.joanna_dispatch` lives in config/script/joanna_dispatch.yaml.
 # Notes: The callback webhook writes JOANNA activity entries to logbook for traceability and optional HA alerts.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
+# Notes: Codex reset-credit expiry telemetry is sourced from the appliance `codexUsage` status field.
 # Notes: Nightly Duplicati verification calls a codex_appliance admin endpoint and returns structured health to HA via response_variable.
 # Notes: v2 intake is the primary HA contract; legacy command/ingest routes remain appliance-side shims.
 # Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
@@ -135,6 +137,7 @@ sensor:
       - platform
       - transports
       - followups
+      - codexUsage
       - qmdHealth
       - memoryIndex
 
@@ -241,6 +244,70 @@ template:
           {% set elapsed_ms = active.get('elapsedMs', 0) | int(0) %}
           {{ (elapsed_ms / 60000) | round(1) }}
 
+      - name: Codex Reset Credits Available
+        unique_id: codex_reset_credits_available
+        icon: mdi:backup-restore
+        unit_of_measurement: resets
+        state_class: measurement
+        state: >-
+          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+          {{ usage.get('availableCount', 0) | int(0) }}
+
+      - name: Codex Reset Credits Expiring Soon
+        unique_id: codex_reset_credits_expiring_soon
+        icon: mdi:alert-clock
+        unit_of_measurement: resets
+        state_class: measurement
+        state: >-
+          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+          {{ usage.get('warningCount', 0) | int(0) }}
+
+      - name: Codex Reset Credit Min Days Remaining
+        unique_id: codex_reset_credit_min_days_remaining
+        icon: mdi:timer-sand
+        unit_of_measurement: d
+        state_class: measurement
+        availability: >-
+          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+          {{ usage.get('minDaysRemaining') not in [none, 'unknown', 'unavailable', ''] }}
+        state: >-
+          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+          {{ usage.get('minDaysRemaining', 0) | float(0) | round(1) }}
+
+      - name: Codex Reset Credit Next Expiration
+        unique_id: codex_reset_credit_next_expiration
+        icon: mdi:calendar-clock
+        device_class: timestamp
+        availability: >-
+          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+          {{ usage.get('soonestExpiresAt') not in [none, 'unknown', 'unavailable', ''] }}
+        state: >-
+          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+          {{ usage.get('soonestExpiresAt') }}
+
+      - name: Codex Reset Credit Status
+        unique_id: codex_reset_credit_status
+        icon: mdi:clipboard-pulse-outline
+        state: >-
+          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+          {{ usage.get('status', 'unknown') }}
+        attributes:
+          ok: >-
+            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+            {{ usage.get('ok', false) }}
+          last_check_at: >-
+            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+            {{ usage.get('lastCheckAt') }}
+          next_check_at: >-
+            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+            {{ usage.get('nextCheckAt') }}
+          last_error: >-
+            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+            {{ usage.get('lastError') }}
+          credits: >-
+            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+            {{ usage.get('credits', []) }}
+
       - name: Joanna Minutes Since HA Dispatch
         unique_id: joanna_minutes_since_ha_dispatch
         icon: mdi:clock-fast
@@ -320,7 +387,91 @@ template:
         state: >-
           {% set memory = state_attr('sensor.bearclaw_status_telemetry', 'memoryIndex') | default({}, true) %}
           {{ memory.get('stale', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
+
+      - name: Codex Reset Credit Expiring Soon
+        unique_id: codex_reset_credit_expiring_soon
+        icon: mdi:alert-clock
+        state: >-
+          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+          {{ usage.get('issueActive', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
+        attributes:
+          warn_days: >-
+            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+            {{ usage.get('warnDays', 7) }}
+          warning_count: >-
+            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+            {{ usage.get('warningCount', 0) }}
+          soonest_expires_at: >-
+            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
+            {{ usage.get('soonestExpiresAt') }}
 automation:
+  - id: codex_reset_credit_expiry_repair
+    alias: Codex Reset Credit Expiry Repair
+    description: "Create/clear a Repair while available Codex reset credits are within the expiry warning window."
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.codex_reset_credit_expiring_soon
+      - platform: time_pattern
+        hours: "/6"
+    variables:
+      usage: "{{ state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) }}"
+      usage_ok: "{{ usage.get('ok', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}"
+      issue_active: "{{ is_state('binary_sensor.codex_reset_credit_expiring_soon', 'on') }}"
+      warn_days: "{{ usage.get('warnDays', 7) | int(7) }}"
+      warning_count: "{{ usage.get('warningCount', 0) | int(0) }}"
+      min_days: "{{ usage.get('minDaysRemaining') }}"
+      soonest_expires_at: "{{ usage.get('soonestExpiresAt') | default('unknown', true) }}"
+      last_check_at: "{{ usage.get('lastCheckAt') | default('unknown', true) }}"
+      expiring_summary: >-
+        {% set credits = usage.get('credits', []) %}
+        {% set ns = namespace(lines=[]) %}
+        {% for credit in credits %}
+          {% set status = credit.get('status', 'unknown') %}
+          {% set days = credit.get('days_remaining') %}
+          {% if status == 'available' and days is number and days <= warn_days %}
+            {% set ns.lines = ns.lines + [
+              'Reset #' ~ credit.get('index', loop.index) ~ ': ' ~
+              (days | round(1)) ~ ' days remaining; expires ' ~
+              credit.get('expires_at', 'unknown')
+            ] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.lines | join('\n') if ns.lines | count > 0 else 'No reset credits are inside the warning window.' }}
+    action:
+      - choose:
+          - conditions: "{{ issue_active }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: codex_reset_credit_expiring_soon
+                  title: "Codex reset credit expiring soon"
+                  description: >-
+                    {{ warning_count }} available Codex reset credit(s) expire within {{ warn_days }} days.
+
+                    Soonest expiration: {{ soonest_expires_at }}
+                    Minimum days remaining: {{ min_days }}
+                    Last successful/attempted check: {{ last_check_at }}
+
+                    {{ expiring_summary }}
+                  severity: warning
+                  persistent: true
+              - service: script.send_to_logbook
+                data:
+                  topic: "CODEX"
+                  message: >-
+                    Codex reset credit warning active: {{ warning_count }} reset(s) within {{ warn_days }} days.
+          - conditions: "{{ usage_ok }}"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: codex_reset_credit_expiring_soon
+              - service: script.send_to_logbook
+                data:
+                  topic: "CODEX"
+                  message: "Codex reset credit warning cleared after a successful reset snapshot."
+
   - id: bearclaw_lifecycle_webhook
     alias: BearClaw Lifecycle Webhook
     description: Receives structured BearClaw lifecycle callbacks for HA-triggered work.
