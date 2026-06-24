@@ -51,15 +51,15 @@ Completed on 2026-06-23.
   previous VM CPU model.
 - Disabled the generated PVE enterprise deb822 source with `Enabled: no` so
   no-subscription APT updates remain clean.
+- On 2026-06-24, enrolled the updated Microsoft UEFI 2023 certificates for the
+  camera/NVR VM EFI disk with `qm enroll-efi-keys`, then started the VM with no
+  EFI certificate warning and verified Frigate Docker health `healthy`.
 
 ## Residual Follow-Ups
 
 - Full retained VM backup archives were not found during inventory. Host config
   backups were captured, but this should be improved with a real enabled VM
   backup target and restore test.
-- One OVMF VM emitted a UEFI certificate warning on start. Plan a shutdown
-  window to enroll updated EFI keys with the Proxmox UI action or
-  `qm enroll-efi-keys` after checking guest OS implications.
 - `pve8to9` reported old-format RRD files as informational post-upgrade data.
   Keep them if historical graphs are useful; delete only if old history is not
   needed.
