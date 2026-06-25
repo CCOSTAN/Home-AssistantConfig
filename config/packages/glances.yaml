@@ -6,6 +6,7 @@
 # Glances - ProxMox/server stats via Glances integration.
 #  CPU, memory, and disk sensors from Glances API.
 # -------------------------------------------------------------------
+# Notes: Garage temperature ignores unavailable legacy thermal sensors so the average does not fall to 0 F.
 ######################################################################
 
 template:
@@ -15,25 +16,67 @@ template:
         device_class: temperature
         state_class: measurement
         unit_of_measurement: "\u00B0F"
+        availability: >-
+          {% set sources = [
+            'sensor.proxmox1_cpu_temperature',
+            'sensor.proxmox2_cpu_temperature',
+            'sensor.proxmox1_package_id_0_temperature',
+            'sensor.proxmox1_pch_skylake_1_temperature',
+            'sensor.proxmox1_core_0_temperature',
+            'sensor.proxmox1_core_1_temperature',
+            'sensor.proxmox1_core_2_temperature',
+            'sensor.proxmox1_core_3_temperature',
+            'sensor.proxmox1_acpitz_1_temperature',
+            'sensor.proxmox1_acpitz_2_temperature',
+            'sensor.proxmox2_package_id_0_temperature',
+            'sensor.proxmox2_pch_skylake_1_temperature',
+            'sensor.proxmox2_core_0_temperature',
+            'sensor.proxmox2_core_1_temperature',
+            'sensor.proxmox2_core_2_temperature',
+            'sensor.proxmox2_core_3_temperature',
+            'sensor.proxmox2_acpitz_1_temperature',
+            'sensor.proxmox2_acpitz_2_temperature'
+          ] %}
+          {% set ns = namespace(valid=false) %}
+          {% for source in sources %}
+            {% if states(source) | float(0) > 0 %}
+              {% set ns.valid = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.valid }}
         state: >-
-          {{ (
-            (states('sensor.proxmox1_package_id_0_temperature') | float(0) + 
-             states('sensor.proxmox1_pch_skylake_1_temperature') | float(0) + 
-             states('sensor.proxmox1_core_0_temperature') | float(0) + 
-             states('sensor.proxmox1_core_1_temperature') | float(0) + 
-             states('sensor.proxmox1_core_2_temperature') | float(0) + 
-             states('sensor.proxmox1_core_3_temperature') | float(0) + 
-             states('sensor.proxmox1_acpitz_1_temperature') | float(0) + 
-             states('sensor.proxmox1_acpitz_2_temperature') | float(0) + 
-             states('sensor.proxmox2_package_id_0_temperature') | float(0) + 
-             states('sensor.proxmox2_pch_skylake_1_temperature') | float(0) + 
-             states('sensor.proxmox2_core_0_temperature') | float(0) + 
-             states('sensor.proxmox2_core_1_temperature') | float(0) + 
-             states('sensor.proxmox2_core_2_temperature') | float(0) + 
-             states('sensor.proxmox2_core_3_temperature') | float(0) + 
-             states('sensor.proxmox2_acpitz_1_temperature') | float(0) + 
-             states('sensor.proxmox2_acpitz_2_temperature') | float(0)
-            ) / 16 ) | round(1) }}
+          {% set sources = [
+            'sensor.proxmox1_cpu_temperature',
+            'sensor.proxmox2_cpu_temperature',
+            'sensor.proxmox1_package_id_0_temperature',
+            'sensor.proxmox1_pch_skylake_1_temperature',
+            'sensor.proxmox1_core_0_temperature',
+            'sensor.proxmox1_core_1_temperature',
+            'sensor.proxmox1_core_2_temperature',
+            'sensor.proxmox1_core_3_temperature',
+            'sensor.proxmox1_acpitz_1_temperature',
+            'sensor.proxmox1_acpitz_2_temperature',
+            'sensor.proxmox2_package_id_0_temperature',
+            'sensor.proxmox2_pch_skylake_1_temperature',
+            'sensor.proxmox2_core_0_temperature',
+            'sensor.proxmox2_core_1_temperature',
+            'sensor.proxmox2_core_2_temperature',
+            'sensor.proxmox2_core_3_temperature',
+            'sensor.proxmox2_acpitz_1_temperature',
+            'sensor.proxmox2_acpitz_2_temperature'
+          ] %}
+          {% set ns = namespace(values=[]) %}
+          {% for source in sources %}
+            {% set temp = states(source) | float(0) %}
+            {% if temp > 0 %}
+              {% set ns.values = ns.values + [temp] %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.values | count > 0 %}
+            {{ ((ns.values | sum) / (ns.values | count)) | round(1) }}
+          {% else %}
+            unavailable
+          {% endif %}
 
 automation:
   - alias: "Garage Proxmox High Temperature Warning"
