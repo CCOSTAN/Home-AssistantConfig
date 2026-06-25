@@ -14,6 +14,8 @@
 # Notes: The callback webhook writes JOANNA activity entries to logbook for traceability and optional HA alerts.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
 # Notes: Codex reset-credit expiry telemetry is sourced from the appliance `codexUsage` status field.
+# Notes: Codex reset walkthrough: https://youtu.be/7wKhtrvtyiI
+# Notes: Codex reset companion post: https://www.vcloudinfo.com/2026/06/track-codex-resets-home-assistant.html
 # Notes: Nightly Duplicati verification calls a codex_appliance admin endpoint and returns structured health to HA via response_variable.
 # Notes: v2 intake is the primary HA contract; legacy command/ingest routes remain appliance-side shims.
 # Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
@@ -504,6 +506,25 @@ automation:
           topic: JOANNA
           message: "{{ status | upper }}: {{ logbook_message }}"
       - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ source == 'home_assistant_automation.vacation_house_status_digest'
+                     and status == 'completed' }}
+            sequence:
+              - service: script.notify_engine
+                data:
+                  title: Vacation digest review
+                  value1: >-
+                    {% set compact = (message if message | trim != '' else summary) | replace('\r', ' ') | replace('\n', ' ') | trim %}
+                    {% if compact | length > 420 %}
+                      {{ compact[:417] ~ '...' }}
+                    {% else %}
+                      {{ compact }}
+                    {% endif %}
+                  who: carlo
+                  group: vacation
+                  level: active
           - conditions:
               - condition: template
                 value_template: "{{ severity in ['warning', 'error', 'critical'] or status in ['failed', 'canceled'] }}"

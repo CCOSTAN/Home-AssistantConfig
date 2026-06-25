@@ -18,10 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Home Assistant Leak Detection Automations
-[![Home Assistant Leak Detection Automations](https://www.vcloudinfo.com/wp-content/uploads/2026/06/maxresdefault.jpg)](https://youtu.be/xbhgWnomFYI)
+### Latest video: Track Codex Resets in Home Assistant Before They Expire
+[![Track Codex Resets in Home Assistant Before They Expire](https://www.vcloudinfo.com/wp-content/uploads/2026/06/codex-resets-home-assistant-thumbnail.png)](https://youtu.be/7wKhtrvtyiI)
 
-This walkthrough breaks down the water-leak response loop I use in Home Assistant: a shutoff valve state, a maintenance guard, Activity Feed context, Repairs tracking, and critical phone recovery actions. [Watch the video](https://youtu.be/xbhgWnomFYI), read the [companion blog post](https://www.vcloudinfo.com/2026/06/home-assistant-leak-detection-automations.html), browse the YAML in [config/packages/phynplus.yaml](config/packages/phynplus.yaml), and see the older Phyn Plus backstory in the [original write-up](https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html).
+This walkthrough shows how I track Codex reset credits in Home Assistant: a reset-credit JSON feed, REST/template sensors, a dashboard card with expiration dates, and a Repair that stays open while any reset is within 7 days of expiring. [Watch the video](https://youtu.be/7wKhtrvtyiI), read the [companion blog post](https://www.vcloudinfo.com/2026/06/track-codex-resets-home-assistant.html), browse the YAML in [config/packages/bearclaw.yaml](config/packages/bearclaw.yaml), and see the dashboard source in [config/dashboards/infrastructure](config/dashboards/infrastructure).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
@@ -48,6 +48,7 @@ This walkthrough breaks down the water-leak response loop I use in Home Assistan
 - Alarm and perimeter monitoring: [config/packages/alarm.yaml](config/packages/alarm.yaml)
 - Garage routines and entry lighting: [config/packages/garadget.yaml](config/packages/garadget.yaml), [config/automation/garage_entry_light.yaml](config/automation/garage_entry_light.yaml), [video walkthrough](https://youtu.be/wFO0H5zgnzk)
 - LLM Vision package reminders: [config/packages/llmvision.yaml](config/packages/llmvision.yaml), [video walkthrough](https://youtu.be/nAhCezFetvI)
+- Codex reset-credit tracking: [config/packages/bearclaw.yaml](config/packages/bearclaw.yaml), [config/dashboards/infrastructure](config/dashboards/infrastructure), [video walkthrough](https://youtu.be/7wKhtrvtyiI)
 - Water leak response loop: [config/packages/phynplus.yaml](config/packages/phynplus.yaml), [video walkthrough](https://youtu.be/xbhgWnomFYI)
 - Bedroom camera kiosk tablet: [config/packages/kiosk_tablet.yaml](config/packages/kiosk_tablet.yaml), [config/dashboards/kiosk](config/dashboards/kiosk), [video walkthrough](https://youtu.be/ChgEu0IDWzc)
 - Holiday/front-of-house color scenes: [config/scene/monthly_colors.yaml](config/scene/monthly_colors.yaml), [config/script/monthly_color_scene.yaml](config/script/monthly_color_scene.yaml)

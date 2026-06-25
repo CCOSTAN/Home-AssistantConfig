@@ -41,11 +41,6 @@
     icon: mdi:backup-restore
   - type: custom:button-card
     template: bearstone_infra_kpi
-    entity: sensor.codex_reset_credits_expiring_soon
-    name: Reset Warnings
-    icon: mdi:alert-clock
-  - type: custom:button-card
-    template: bearstone_infra_kpi
     entity: sensor.joanna_all_dispatches_24h
     name: All 24H
     icon: mdi:calendar-clock
@@ -62,7 +57,7 @@
 
 - type: grid
   column_span: 4
-  columns: 2
+  columns: 3
   square: false
   cards:
   - type: custom:vertical-stack-in-card
@@ -184,11 +179,6 @@
           return `${enabled ? 'enabled' : 'disabled'} | ${age} min ago`;
         ]]]
 
-- type: grid
-  column_span: 4
-  columns: 1
-  square: false
-  cards:
   - type: custom:vertical-stack-in-card
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml

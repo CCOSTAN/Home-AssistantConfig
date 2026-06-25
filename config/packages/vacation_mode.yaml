@@ -7,12 +7,16 @@
 #  Detects long absences, tracks sitter visits, and delivers vacation-specific reminders.
 # -------------------------------------------------------------------
 # Related Issue: 793
+# Related Issue: 1791
+# Related Issue: 1792
 # Notes: Vacation mode auto-enables after 24 hours of family absence or 24 hours without bed use while the family is away.
 # Notes: General vacation speech uses Chromecast only; the garage Alexa welcome is the one local-device exception.
 # Notes: Visit analytics use recorder-backed visit counts plus arrival/departure helpers for accurate durations.
 # Notes: Dorm zones are reported as away locations, not Bear Stone home.
 # Notes: Recent-departure lockout and a 3-hour stale-visit timeout prevent missed close edges from creating inflated visit durations.
 # Notes: Missed sitter alerts include 2-day and 3-day snooze actions that clear after a visit.
+# Notes: 10 AM and 10 PM house digests send lock-screen pushes and dispatch a richer snapshot to Joanna for vacation-mode review.
+# Notes: Powerwall/grid status is always included in vacation digests because power events are high signal.
 # Video: https://youtu.be/15kRcFaVV2Y
 # Blog: https://www.vcloudinfo.com/2026/05/home-assistant-vacation-mode-house-sitter-automation.html
 # Snooze video: https://youtu.be/y47KSflS1aw
@@ -40,6 +44,10 @@ input_datetime:
     has_time: true
   vacation_house_sitter_missed_visit_snooze_until:
     name: Vacation House Sitter Missed Visit Snooze Until
+    has_date: true
+    has_time: true
+  vacation_house_status_digest_last_sent:
+    name: Vacation House Status Digest Last Sent
     has_date: true
     has_time: true
 
@@ -79,6 +87,235 @@ script:
       - service: homeassistant.turn_off
         target:
           entity_id: input_boolean.house_sitter_present
+
+  vacation_house_status_digest:
+    alias: Vacation House Status Digest
+    mode: queued
+    fields:
+      digest_mode:
+        description: Digest window label, usually morning or night.
+        example: morning
+    sequence:
+      - variables:
+          digest_mode_value: "{{ digest_mode | default('morning', true) | lower }}"
+      - variables:
+          digest_label: "{{ 'Night' if digest_mode_value == 'night' else 'Morning' }}"
+          last_digest_ts: "{{ as_timestamp(states('input_datetime.vacation_house_status_digest_last_sent'), 0) }}"
+          vacation_started_ts: "{{ as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) }}"
+          vacation_duration: >-
+            {% set started = as_timestamp(states.input_boolean.vacation_mode.last_changed, 0) %}
+            {% if is_state('input_boolean.vacation_mode', 'on') and started > 0 %}
+              {% set hours = ((as_timestamp(now()) - started) / 3600) | int(0) %}
+              {% set days = (hours // 24) | int(0) %}
+              {% set remaining_hours = (hours % 24) | int(0) %}
+              {{ days ~ 'd ' ~ remaining_hours ~ 'h' if days > 0 else remaining_hours ~ 'h' }}
+            {% else %}
+              inactive
+            {% endif %}
+          sitter_summary: >-
+            {% set visit_count = states('sensor.vacation_house_sitter_visit_count') | int(0) %}
+            {% set hours_since = state_attr('sensor.vacation_house_sitter_analytics', 'hours_since_last_visit') | float(0) %}
+            {% if is_state('input_boolean.house_sitter_present', 'on') %}
+              Sitter is currently at the house.
+            {% elif visit_count > 0 %}
+              Sitter visits: {{ visit_count }}; last visit {{ hours_since | round(1) }}h ago.
+            {% else %}
+              No sitter visit recorded yet this vacation.
+            {% endif %}
+          powerwall_grid_label: >-
+            {% set grid = states('binary_sensor.powerwall_grid_status') %}
+            {% if grid == 'on' %}
+              grid up
+            {% elif grid == 'off' %}
+              GRID DOWN
+            {% else %}
+              grid {{ grid }}
+            {% endif %}
+          powerwall_charge_label: >-
+            {% set charge = states('sensor.powerwall_charge') %}
+            {% if charge in ['unknown', 'unavailable', 'none', ''] %}
+              battery unavailable
+            {% else %}
+              battery {{ charge | float(0) | round(0) | int(0) }}%
+            {% endif %}
+          powerwall_grid_changed_ts: >-
+            {% set entity = states.binary_sensor.powerwall_grid_status if states.binary_sensor.powerwall_grid_status is defined else none %}
+            {{ as_timestamp(entity.last_changed, 0) if entity is not none else 0 }}
+          powerwall_recent_event: >-
+            {% set changed = powerwall_grid_changed_ts | float(0) %}
+            {{ last_digest_ts | float(0) > 0 and changed > last_digest_ts | float(0) }}
+          powerwall_summary: >-
+            {% set summary = 'Powerwall: ' ~ powerwall_grid_label | trim ~ ', ' ~ powerwall_charge_label | trim ~ '.' %}
+            {% if powerwall_recent_event | bool(false) %}
+              {{ summary }} Grid status changed since the last digest at {{ (powerwall_grid_changed_ts | float(0)) | timestamp_custom('%H:%M', true) }}.
+            {% else %}
+              {{ summary }}
+            {% endif %}
+          powerwall_issues: >-
+            {% set ns = namespace(items=[]) %}
+            {% set charge = states('sensor.powerwall_charge') %}
+            {% if is_state('binary_sensor.powerwall_grid_status', 'off') %}
+              {% set ns.items = ns.items + ['grid is down'] %}
+            {% endif %}
+            {% if charge in ['unknown', 'unavailable', 'none', ''] %}
+              {% set ns.items = ns.items + ['Powerwall charge unavailable'] %}
+            {% elif charge | float(100) < 60 %}
+              {% set ns.items = ns.items + ['Powerwall charge ' ~ (charge | float(0) | round(0) | int(0)) ~ '%'] %}
+            {% endif %}
+            {{ ns.items | join('; ') if ns.items | count > 0 else 'none' }}
+          security_issues: >-
+            {% set ns = namespace(items=[]) %}
+            {% if states('lock.front_door') != 'locked' %}
+              {% set ns.items = ns.items + ['front door ' ~ states('lock.front_door')] %}
+            {% endif %}
+            {% if states('group.locks') != 'locked' %}
+              {% set ns.items = ns.items + ['locks ' ~ states('group.locks')] %}
+            {% endif %}
+            {% if states('group.garage_doors') not in ['closed', 'off'] %}
+              {% set ns.items = ns.items + ['garage ' ~ states('group.garage_doors')] %}
+            {% endif %}
+            {% if states('group.entry_points') not in ['off', 'closed'] %}
+              {% set ns.items = ns.items + ['entry points ' ~ states('group.entry_points')] %}
+            {% endif %}
+            {{ ns.items | join('; ') if ns.items | count > 0 else 'none' }}
+          security_summary: >-
+            {% if security_issues == 'none' %}
+              Secure: locks locked, garage closed, entry points closed.
+            {% else %}
+              Needs security attention: {{ security_issues }}.
+            {% endif %}
+          climate_summary: >-
+            {% set down_temp = state_attr('climate.downstairs', 'current_temperature') %}
+            {% set up_temp = state_attr('climate.upstairs', 'current_temperature') %}
+            Climate: downstairs {{ down_temp if down_temp is not none else states('climate.downstairs') }}, upstairs {{ up_temp if up_temp is not none else states('climate.upstairs') }}.
+          safety_issues: >-
+            {% set ns = namespace(items=[]) %}
+            {% set fridge = states('sensor.refrigerator_fridge_temp') %}
+            {% set freezer = states('sensor.refrigerator_freezer_temp') %}
+            {% set flow = states('sensor.phyn_water_flowing') %}
+            {% if states('valve.phyn_shutoff_valve') != 'open' %}
+              {% set ns.items = ns.items + ['Phyn valve ' ~ states('valve.phyn_shutoff_valve')] %}
+            {% endif %}
+            {% if flow in ['unknown', 'unavailable', 'none', ''] %}
+              {% set ns.items = ns.items + ['water telemetry ' ~ flow] %}
+            {% elif flow in ['on', 'true'] or flow | float(0) > 0 %}
+              {% set ns.items = ns.items + ['water flowing ' ~ flow] %}
+            {% endif %}
+            {% if is_state('binary_sensor.refrigerator_door_open', 'on') %}
+              {% set ns.items = ns.items + ['refrigerator door open'] %}
+            {% endif %}
+            {% if fridge in ['unknown', 'unavailable', 'none', ''] and freezer in ['unknown', 'unavailable', 'none', ''] %}
+              {% set ns.items = ns.items + ['refrigerator telemetry unavailable'] %}
+            {% endif %}
+            {% if fridge not in ['unknown', 'unavailable', 'none', ''] and fridge | float(0) > 45 %}
+              {% set ns.items = ns.items + ['fridge ' ~ (fridge | float(0) | round(1)) ~ 'F'] %}
+            {% endif %}
+            {% if freezer not in ['unknown', 'unavailable', 'none', ''] and freezer | float(0) > 15 %}
+              {% set ns.items = ns.items + ['freezer ' ~ (freezer | float(0) | round(1)) ~ 'F'] %}
+            {% endif %}
+            {% if is_state('binary_sensor.front_door_packages_present', 'on') %}
+              {% set ns.items = ns.items + ['package at front door'] %}
+            {% endif %}
+            {{ ns.items | join('; ') if ns.items | count > 0 else 'none' }}
+          infra_issues: >-
+            {% set ns = namespace(items=[]) %}
+            {% if is_state('binary_sensor.mqtt_broker_problem', 'on') %}
+              {% set ns.items = ns.items + ['MQTT broker problem'] %}
+            {% endif %}
+            {% if is_state('binary_sensor.infra_nebula_sync_degraded', 'on') %}
+              {% set ns.items = ns.items + ['Nebula Sync DNS degraded'] %}
+            {% endif %}
+            {% if is_state('binary_sensor.infra_pihole_iot_dns_degraded', 'on') %}
+              {% set ns.items = ns.items + ['IoT Pi-hole DNS degraded'] %}
+            {% endif %}
+            {% if is_state('input_boolean.infra_duplicati_backup_repair_active', 'on') %}
+              {% set ns.items = ns.items + ['Duplicati backup repair active'] %}
+            {% endif %}
+            {{ ns.items | join('; ') if ns.items | count > 0 else 'none' }}
+      - variables:
+          action_items: >-
+            {% set ns = namespace(items=[]) %}
+            {% if powerwall_issues != 'none' %}
+              {% set ns.items = ns.items + ['Powerwall: ' ~ powerwall_issues] %}
+            {% endif %}
+            {% if security_issues != 'none' %}
+              {% set ns.items = ns.items + ['Security: ' ~ security_issues] %}
+            {% endif %}
+            {% if safety_issues != 'none' %}
+              {% set ns.items = ns.items + ['Safety: ' ~ safety_issues] %}
+            {% endif %}
+            {% if infra_issues != 'none' %}
+              {% set ns.items = ns.items + ['Infra: ' ~ infra_issues] %}
+            {% endif %}
+            {{ ns.items | join(' | ') if ns.items | count > 0 else 'No material issues found.' }}
+          fallback_message_one: >-
+            {% set msg = 'Vacation ' ~ digest_label | lower ~ ' (' ~ vacation_duration | trim ~ '): ' ~ powerwall_summary | trim ~ ' ' ~ security_summary | trim ~ ' ' ~ sitter_summary | trim %}
+            {{ msg[:447] ~ '...' if msg | length > 450 else msg }}
+          fallback_message_two: >-
+            {% set msg = 'Actions: ' ~ action_items | trim ~ ' ' ~ climate_summary | trim %}
+            {{ msg[:447] ~ '...' if msg | length > 450 else msg }}
+          joanna_diagnostics: >-
+            vacation_mode={{ states('input_boolean.vacation_mode') }};
+            digest={{ digest_mode_value }};
+            vacation_duration={{ vacation_duration | trim }};
+            last_digest_ts={{ last_digest_ts }};
+            powerwall_grid={{ states('binary_sensor.powerwall_grid_status') }};
+            powerwall_charge={{ states('sensor.powerwall_charge') }};
+            powerwall_recent_event={{ powerwall_recent_event | trim }};
+            security={{ security_issues }};
+            safety={{ safety_issues }};
+            infra={{ infra_issues }};
+            sitter={{ sitter_summary | trim }};
+            climate={{ climate_summary | trim }};
+            entities=binary_sensor.powerwall_grid_status,sensor.powerwall_charge,group.locks,lock.front_door,group.garage_doors,group.entry_points,input_boolean.house_sitter_present,sensor.vacation_house_sitter_analytics,sensor.phyn_water_flowing,valve.phyn_shutoff_valve,binary_sensor.refrigerator_door_open,sensor.refrigerator_fridge_temp,sensor.refrigerator_freezer_temp,binary_sensor.front_door_packages_present,binary_sensor.mqtt_broker_problem,binary_sensor.infra_nebula_sync_degraded,binary_sensor.infra_pihole_iot_dns_degraded,input_boolean.infra_duplicati_backup_repair_active
+
+      - service: script.notify_engine
+        data:
+          title: "Vacation {{ digest_label }} House Digest"
+          value1: "{{ fallback_message_one }}"
+          who: carlo
+          group: vacation
+          level: active
+
+      - service: script.notify_engine
+        data:
+          title: "Vacation {{ digest_label }} Power/Issues"
+          value1: "{{ fallback_message_two }}"
+          who: carlo
+          group: vacation
+          level: active
+
+      - service: rest_command.bearclaw_command
+        data:
+          source: home_assistant_automation.vacation_house_status_digest
+          user: carlo
+          context: "Vacation Mode {{ digest_label }} House Status Digest"
+          domain_hint: ops
+          lane_hint: joanna.ops
+          priority: high
+          async_only: true
+          metadata:
+            vacationMode: true
+            digestMode: "{{ digest_mode_value }}"
+            houseDigest: true
+            powerwallImportant: true
+          text: >-
+            Vacation {{ digest_label | lower }} house digest snapshot.
+            Fallback push 1: {{ fallback_message_one }}
+            Fallback push 2: {{ fallback_message_two }}
+            Diagnostics: {{ joanna_diagnostics }}
+            Request: Use the vacation-mode heavier reasoning profile. Return one concise Home Assistant push paragraph under 420 characters. Powerwall/grid status is high signal and must always be mentioned. Mention only material issues or actions; avoid Docker/AP recovery noise unless unresolved. Start with "Vacation {{ digest_label }}:".
+
+      - service: script.send_to_logbook
+        data:
+          topic: VACATION DIGEST
+          message: "{{ digest_label }} vacation digest sent. {{ action_items }}"
+
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.vacation_house_status_digest_last_sent
+        data:
+          timestamp: "{{ now().timestamp() }}"
 
 sensor:
   - platform: history_stats
@@ -256,6 +493,27 @@ automation:
           entity_id: input_datetime.vacation_house_sitter_missed_visit_snooze_until
         data:
           datetime: "{{ (now() - timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S') }}"
+
+  - alias: 'Vacation Mode House Digest Schedule'
+    id: ed48b582-107f-4424-ab47-bb54cbd8ad38
+    mode: single
+
+    trigger:
+      - platform: time
+        id: morning
+        at: "10:00:00"
+      - platform: time
+        id: night
+        at: "22:00:00"
+
+    condition:
+      - condition: template
+        value_template: "{{ is_state('input_boolean.vacation_mode', 'on') }}"
+
+    action:
+      - service: script.vacation_house_status_digest
+        data:
+          digest_mode: "{{ trigger.id }}"
 
   - alias: 'Vacation Mode Garage Welcome'
     id: 63ac9268-c895-4a1b-b0df-92b5bb8e9d01
