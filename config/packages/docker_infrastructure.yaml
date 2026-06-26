@@ -98,7 +98,8 @@ switch:
       - switch.dozzle_agent_10_container_2
       - switch.dozzle_agent_14_container
       - switch.dozzle_agent_14_container_2
-      - switch.7cf71db3325d_dozzle_agent_17_container
+      - switch.dozzle_agent_17_container
+      - switch.dozzle_agent_17_container_2
       - switch.codex_appliance_container
       - switch.codex_appliance_container_2
       - switch.dozzle_agent_69_container
@@ -1133,6 +1134,8 @@ automation:
             - user_docker_container_codex_appliance_offline
             - docker_container_39394ec38d4c_dozzle_offline
             - user_docker_container_39394ec38d4c_dozzle_offline
+            - docker_container_7cf71db3325d_dozzle_agent_17_offline
+            - user_docker_container_7cf71db3325d_dozzle_agent_17_offline
           sequence:
             - service: repairs.remove
               continue_on_error: true
