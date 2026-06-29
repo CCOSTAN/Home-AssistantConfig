@@ -3,8 +3,9 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Youtube Video description of how I use this script - Example action call was documented in the legacy header.
-#  Defines the Youtube Video description of how I use this script sequence for reuse by automations and dashboards.
+# Monthly Color Scene - Exterior seasonal lighting scene dispatcher.
+# Related Issue: 1774
+#  Turns on the scene exposed by sensor.holiday_lighting_scene after dark.
 # -------------------------------------------------------------------
 # Notes: https://www.vcloudinfo.com/2018/10/easy-smart-home-gadgets-i-use-for-my.html
 # Notes: https://www.vcloudinfo.com/2017/08/diy-outdoor-smart-home-led-strips.html
@@ -13,6 +14,7 @@
 # Notes: - service: script.monthly_color_scene
 # Notes: scenes should be named month_[01-12]_colors (month_06_colors)
 # Notes: Color help - http://www.esbnyc.com/explore/tower-lights/calendar
+# Notes: Active mode is inspectable at sensor.holiday_lighting_mode.
 ######################################################################
 monthly_color_scene:
   sequence:
@@ -22,51 +24,6 @@ monthly_color_scene:
 
     - service: scene.turn_on
       data:
-        entity_id: >
-          scene.month_
-          {%- if states.sensor.flag.state == "True" -%}
-          RWB
-          {%- elif now().strftime("%m%d")|int == 101 -%}
-          new_years_day
-          {%- elif now().strftime("%m%d")|int >= 210
-          and now().strftime("%m%d")|int <= 214-%}
-          valentine
-          {%- elif now().strftime("%m%d")|int == 305 -%}
-          mardi_gras
-          {%- elif now().strftime("%m%d")|int == 314 -%}
-          pi
-          {%- elif now().strftime("%m%d")|int >= 315
-          and now().strftime("%m%d")|int <= 317-%}
-          st_patty
-          {%- elif states('sensor.easter_countdown') | int < 4  -%}
-          easter
-          {%- elif now().strftime("%m%d")|int == 504 -%}
-          starwars
-          {%- elif now().strftime("%m%d")|int == 505 -%}
-          cinco_de_mayo
-          {%- elif states('sensor.mothers_countdown') | int < 4  -%}
-          mothers_day
-          {%- elif states('sensor.fathers_countdown') | int < 4  -%}
-          fathers_day
-          {%- elif states('sensor.memorial_day_countdown') | int < 3  -%}
-          RWB
-          {%- elif now().strftime("%m%d")|int == 704 -%}
-          RWB
-          {%- elif states('sensor.labor_day_countdown') | int < 3  -%}
-          RWB
-          {%- elif now().strftime("%m%d")|int >= 1001
-          and now().strftime("%m%d")|int <= 1031-%}
-          halloween
-          {%- elif now().strftime("%m%d")|int == 1111 -%}
-          veterans
-          {%- elif states('sensor.thanksgiving_day_countdown') | int < 4  -%}
-          thanksgiving
-          {%- elif states('sensor.chanukkah_countdown') | int <= 1  -%}
-          hanukkah
-          {%- elif states('sensor.christmas_countdown') | int <= 25 -%}
-          christmas
-          {%- elif now().strftime("%m%d")|int == 1231 -%}
-          new_years_day
-          {%- else -%}
-          standard
-          {%- endif -%}_colors
+        entity_id: >-
+          {%- set scene = states('sensor.holiday_lighting_scene') | trim -%}
+          {{ scene if scene[:12] == 'scene.month_' else 'scene.month_standard_colors' }}

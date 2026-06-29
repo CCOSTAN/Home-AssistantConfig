@@ -7,7 +7,8 @@
 #  Thermostat helpers for upstairs/downstairs comfort.
 # -------------------------------------------------------------------
 # Related Issue: 1571
-# Notes: Filter due alerts include 3-day snooze and Filter Changed push actions.
+# Notes: Filter due alerts use a 350h runtime threshold, 9-month hard limit, 3-day snooze, and Filter Changed push actions.
+# Notes: Condenser line cleanout uses a single 360-day reminder for both HVAC systems.
 # Video: https://youtu.be/y47KSflS1aw
 # Blog: https://www.vcloudinfo.com/2026/06/home-assistant-notification-snooze-buttons.html
 ######################################################################
@@ -53,19 +54,43 @@ template:
       - name: "Downstairs AC is Cooling"
         unique_id: downstairs_ac_cooling
         state: >
-          {{ state_attr('climate.downstairs', 'hvac_action') == 'cooling' }}
+          {% set action = state_attr('climate.downstairs', 'hvac_action') %}
+          {% set current = state_attr('climate.downstairs', 'current_temperature') | float(none) %}
+          {% set target = state_attr('climate.downstairs', 'temperature') | float(none) %}
+          {{
+            action == 'cooling'
+            or (
+              action is none
+              and is_state('climate.downstairs', 'cool')
+              and current is not none
+              and target is not none
+              and current > target
+            )
+          }}
       - name: "Upstairs AC is Cooling"
         unique_id: upstairs_ac_cooling
         state: >
-          {{ state_attr('climate.upstairs', 'hvac_action') == 'cooling' }}
+          {% set action = state_attr('climate.upstairs', 'hvac_action') %}
+          {% set current = state_attr('climate.upstairs', 'current_temperature') | float(none) %}
+          {% set target = state_attr('climate.upstairs', 'temperature') | float(none) %}
+          {{
+            action == 'cooling'
+            or (
+              action is none
+              and is_state('climate.upstairs', 'cool')
+              and current is not none
+              and target is not none
+              and current > target
+            )
+          }}
 
     sensor:
       - name: "Downstairs AC Cooling Numeric"
         unique_id: downstairs_ac_cooling_numeric
-        state: "{{ 1 if is_state('binary_sensor.downstairs_ac_cooling', 'on') else 0 }}"
+        state: "{{ 1 if is_state('binary_sensor.downstairs_ac_is_cooling', 'on') else 0 }}"
       - name: "Upstairs AC Cooling Numeric"
         unique_id: upstairs_ac_cooling_numeric
-        state: "{{ 1 if is_state('binary_sensor.upstairs_ac_cooling', 'on') else 0 }}"
+        state: "{{ 1 if is_state('binary_sensor.upstairs_ac_is_cooling', 'on') else 0 }}"
 
 input_datetime:
   downstairs_last_filter_change:
@@ -84,6 +109,16 @@ input_datetime:
     name: Upstairs Filter Snooze Until
     has_date: true
     has_time: true
+  hvac_condenser_lines_last_cleaned:
+    name: HVAC Condenser Lines Last Cleaned
+    has_date: true
+    has_time: false
+    initial: "2026-06-28"
+  hvac_condenser_lines_cleaning_snooze_until:
+    name: HVAC Condenser Lines Cleaning Snooze Until
+    has_date: true
+    has_time: true
+    initial: "2026-06-28 00:00:00"
 
 # ---------------------------------------------------------------------------
 #  Integration sensors tally runtime based on compressor state
@@ -143,6 +178,19 @@ script:
       - service: utility_meter.reset
         target:
           entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
+
+  reset_hvac_condenser_lines_cleaned:
+    alias: Reset HVAC Condenser Lines Cleaned
+    mode: queued
+    sequence:
+      - service: input_datetime.set_datetime
+        data:
+          entity_id: input_datetime.hvac_condenser_lines_last_cleaned
+          date: "{{ now().strftime('%Y-%m-%d') }}"
+      - service: input_datetime.set_datetime
+        data:
+          entity_id: input_datetime.hvac_condenser_lines_cleaning_snooze_until
+          datetime: "{{ (now() - timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S') }}"
 
   set_downstairs_target_temp_based_on_conditions:
     alias: Set Downstairs Target Temperature Based on Conditions
@@ -285,80 +333,75 @@ script:
 ### There are also some automations in the POWERWALL.yaml package when the grid is down.
 ##############################################################################
 automation:
-  - alias: Notify Downstairs Filter Change Due
-    description: Notify when downstairs runtime exceeds threshold since last filter change
+  - alias: Notify Climate Filter Change Due
+    description: Notify when HVAC filter runtime exceeds 350h or age reaches 9 months
     trigger:
       - platform: numeric_state
         entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
-        above: 800      # hours
+        above: 350
+        id: downstairs_runtime
       - platform: time
         at: "09:00:00"
+        id: downstairs_daily
+      - platform: numeric_state
+        entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
+        above: 350
+        id: upstairs_runtime
+      - platform: time
+        at: "09:10:00"
+        id: upstairs_daily
+    variables:
+      location: "{{ 'upstairs' if trigger.id.startswith('upstairs') else 'downstairs' }}"
+      location_title: "{{ 'Upstairs' if location == 'upstairs' else 'Downstairs' }}"
+      runtime_sensor: "sensor.{{ location }}_ac_runtime_since_last_filter_change"
+      last_filter_entity: "input_datetime.{{ location }}_last_filter_change"
+      snooze_entity: "input_datetime.{{ location }}_filter_snooze_until"
+      runtime_hours: "{{ states(runtime_sensor) | float(0) }}"
+      last_filter_ts: "{{ as_timestamp(states(last_filter_entity), 0) }}"
+      filter_age_days: "{{ ((as_timestamp(now()) - (last_filter_ts | float(0))) / 86400) | round(0) }}"
+      due_reason: >-
+        {% set runtime_due = runtime_hours | float(0) > 350 %}
+        {% set age_due = (last_filter_ts | float(0)) == 0 or (filter_age_days | int(0)) >= 274 %}
+        {% if runtime_due and age_due %}
+          Runtime has exceeded 350h and the filter is {{ filter_age_days }} days old.
+        {% elif runtime_due %}
+          Runtime has exceeded 350h.
+        {% else %}
+          Filter age has reached the 9-month hard limit ({{ filter_age_days }} days).
+        {% endif %}
     condition:
-      - condition: numeric_state
-        entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
-        above: 800
       - condition: template
         value_template: >-
-          {% set snooze_until = as_timestamp(states('input_datetime.downstairs_filter_snooze_until'), 0) %}
+          {{
+            (runtime_hours | float(0) > 350)
+            or (last_filter_ts | float(0)) == 0
+            or (filter_age_days | int(0)) >= 274
+          }}
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states(snooze_entity), 0) %}
           {{ snooze_until <= as_timestamp(now()) }}
     action:
       - service: script.send_to_logbook
         data:
           topic: "MAINTENANCE"
           message: >-
-            Downstairs AC filter due (runtime >800h). Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
+            {{ location_title }} AC filter due. {{ due_reason }} Runtime is {{ runtime_hours | round(1) }}h.
       - service: script.notify_engine_two_button
         data:
           title: "Home Maintenance Reminder"
-          value1: "It's time to change your Downstairs AC filter."
+          value1: "It's time to change your {{ location_title }} AC filter."
           value2: >
-            Runtime has exceeded 800h. Last changed {{ ((now() - states.input_datetime.downstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
+            {{ due_reason }} Runtime is {{ runtime_hours | round(1) }}h.
           title1: "Snooze 3d"
-          action1: "SNOOZE_DOWNSTAIRS_FILTER_3D"
+          action1: "{{ 'SNOOZE_UPSTAIRS_FILTER_3D' if location == 'upstairs' else 'SNOOZE_DOWNSTAIRS_FILTER_3D' }}"
           icon1: "sfsymbols:clock"
           title2: "Filter Changed"
-          action2: "RESET_DOWNSTAIRS_FILTER"
+          action2: "{{ 'RESET_UPSTAIRS_FILTER' if location == 'upstairs' else 'RESET_DOWNSTAIRS_FILTER' }}"
           icon2: "sfsymbols:checkmark.circle"
           who: "carlo"
           group: "maintenance"
           level: "active"
-
-  - alias: Notify Upstairs Filter Change Due
-    description: Notify when upstairs runtime exceeds threshold since last filter change
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
-        above: 450      # hours
-      - platform: time
-        at: "09:10:00"
-    condition:
-      - condition: numeric_state
-        entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
-        above: 450
-      - condition: template
-        value_template: >-
-          {% set snooze_until = as_timestamp(states('input_datetime.upstairs_filter_snooze_until'), 0) %}
-          {{ snooze_until <= as_timestamp(now()) }}
-    action:
-      - service: script.send_to_logbook
-        data:
-          topic: "MAINTENANCE"
-          message: >-
-            Upstairs AC filter due (runtime >450h). Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
-      - service: script.notify_engine_two_button
-        data:
-          title: "Home Maintenance Reminder"
-          value1: "It's time to change your Upstairs AC filter."
-          value2: >
-            Runtime has exceeded 450h. Last changed {{ ((now() - states.input_datetime.upstairs_last_filter_change.last_changed).total_seconds() / 86400) | round(0) }} days ago.
-          title1: "Snooze 3d"
-          action1: "SNOOZE_UPSTAIRS_FILTER_3D"
-          icon1: "sfsymbols:clock"
-          title2: "Filter Changed"
-          action2: "RESET_UPSTAIRS_FILTER"
-          icon2: "sfsymbols:checkmark.circle"
-          who: "carlo"
-          group: "maintenance"
 
   - alias: Climate Filter Reminder Actions
     id: 6d7056d0-90ce-4c4f-b8b1-fd32a7e58311
@@ -384,48 +427,112 @@ automation:
         event_data:
           action: RESET_UPSTAIRS_FILTER
         id: upstairs_reset
+    variables:
+      location: "{{ 'upstairs' if trigger.id.startswith('upstairs') else 'downstairs' }}"
+      location_title: "{{ 'Upstairs' if location == 'upstairs' else 'Downstairs' }}"
+      snooze_entity: "input_datetime.{{ location }}_filter_snooze_until"
+      reset_script: "script.reset_{{ location }}_filter"
     action:
       - choose:
-          - conditions: "{{ trigger.id == 'downstairs_snooze' }}"
+          - conditions: "{{ trigger.id.endswith('_snooze') }}"
             sequence:
               - variables:
                   snooze_until: "{{ (now() + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S') }}"
               - service: input_datetime.set_datetime
                 target:
-                  entity_id: input_datetime.downstairs_filter_snooze_until
+                  entity_id: "{{ snooze_entity }}"
                 data:
                   datetime: "{{ snooze_until }}"
               - service: script.send_to_logbook
                 data:
                   topic: "MAINTENANCE"
-                  message: "Downstairs AC filter reminder snoozed until {{ snooze_until }}."
-          - conditions: "{{ trigger.id == 'upstairs_snooze' }}"
+                  message: "{{ location_title }} AC filter reminder snoozed until {{ snooze_until }}."
+          - conditions: "{{ trigger.id.endswith('_reset') }}"
+            sequence:
+              - service: "{{ reset_script }}"
+              - service: script.send_to_logbook
+                data:
+                  topic: "MAINTENANCE"
+                  message: "{{ location_title }} AC filter reset from notification action."
+
+  - alias: Notify HVAC Condenser Lines Cleaning Due
+    id: 4dafac96-3163-4d63-847a-76727005f75b
+    description: Notify every 360 days when the outdoor condenser lines should be cleaned
+    trigger:
+      - platform: time
+        at: "09:20:00"
+    variables:
+      cleaned: "{{ states('input_datetime.hvac_condenser_lines_last_cleaned') }}"
+      cleaned_ts: >-
+        {% if cleaned in ['unknown', 'unavailable', 'none', ''] %}
+          0
+        {% else %}
+          {{ as_timestamp(strptime(cleaned, '%Y-%m-%d'), 0) }}
+        {% endif %}
+      days_since_cleaned: "{{ ((as_timestamp(now()) - (cleaned_ts | float(0))) / 86400) | round(0) }}"
+    condition:
+      - condition: template
+        value_template: "{{ (cleaned_ts | float(0)) == 0 or (days_since_cleaned | int(0)) >= 360 }}"
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states('input_datetime.hvac_condenser_lines_cleaning_snooze_until'), 0) %}
+          {{ snooze_until <= as_timestamp(now()) }}
+    action:
+      - service: script.send_to_logbook
+        data:
+          topic: "MAINTENANCE"
+          message: "HVAC condenser lines cleanout due; last cleaned {{ days_since_cleaned }} days ago."
+      - service: script.notify_engine_two_button
+        data:
+          title: "Home Maintenance Reminder"
+          value1: "Clean the HVAC condenser lines."
+          value2: "360-day cleanout is due; last cleaned {{ days_since_cleaned }} days ago."
+          title1: "Snooze 3d"
+          action1: "SNOOZE_HVAC_CONDENSER_LINES_3D"
+          icon1: "sfsymbols:clock"
+          title2: "Cleaned"
+          action2: "RESET_HVAC_CONDENSER_LINES_CLEANED"
+          icon2: "sfsymbols:checkmark.circle"
+          who: "carlo"
+          group: "maintenance"
+          level: "active"
+
+  - alias: Climate Condenser Lines Reminder Actions
+    id: dfe89869-4bd3-47f6-bf0d-612bf7ee949f
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_HVAC_CONDENSER_LINES_3D
+        id: snooze
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: RESET_HVAC_CONDENSER_LINES_CLEANED
+        id: reset
+    action:
+      - choose:
+          - conditions: "{{ trigger.id == 'snooze' }}"
             sequence:
               - variables:
                   snooze_until: "{{ (now() + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S') }}"
               - service: input_datetime.set_datetime
                 target:
-                  entity_id: input_datetime.upstairs_filter_snooze_until
+                  entity_id: input_datetime.hvac_condenser_lines_cleaning_snooze_until
                 data:
                   datetime: "{{ snooze_until }}"
               - service: script.send_to_logbook
                 data:
                   topic: "MAINTENANCE"
-                  message: "Upstairs AC filter reminder snoozed until {{ snooze_until }}."
-          - conditions: "{{ trigger.id == 'downstairs_reset' }}"
+                  message: "HVAC condenser lines cleanout reminder snoozed until {{ snooze_until }}."
+          - conditions: "{{ trigger.id == 'reset' }}"
             sequence:
-              - service: script.reset_downstairs_filter
+              - service: script.reset_hvac_condenser_lines_cleaned
               - service: script.send_to_logbook
                 data:
                   topic: "MAINTENANCE"
-                  message: "Downstairs AC filter reset from notification action."
-          - conditions: "{{ trigger.id == 'upstairs_reset' }}"
-            sequence:
-              - service: script.reset_upstairs_filter
-              - service: script.send_to_logbook
-                data:
-                  topic: "MAINTENANCE"
-                  message: "Upstairs AC filter reset from notification action."
+                  message: "HVAC condenser lines cleanout reset from notification action."
 
   - alias: 'AC Status Announcement'
     id: 7812fdaf-a3f8-498b-8f07-28e977e528fe

@@ -17,8 +17,19 @@
     entity: sensor.upstairs_ac_runtime_since_last_filter_change
   - type: tile
     entity: input_datetime.downstairs_last_filter_change
+    tap_action:
+      action: more-info
+      entity: script.reset_downstairs_filter
   - type: tile
     entity: input_datetime.upstairs_last_filter_change
+    tap_action:
+      action: more-info
+      entity: script.reset_upstairs_filter
+  - type: tile
+    entity: input_datetime.hvac_condenser_lines_last_cleaned
+    tap_action:
+      action: more-info
+      entity: script.reset_hvac_condenser_lines_cleaned
   - type: custom:power-flow-card-plus
     entities:
       battery:

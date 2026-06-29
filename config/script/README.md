@@ -32,7 +32,7 @@ Reusable scripts that other automations call for notifications, lighting, safety
 | [send_to_logbook.yaml](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
 | [joanna_dispatch.yaml](joanna_dispatch.yaml) | Shared AGENT engineer dispatch contract that routes HA-detected issues into Joanna/BearClaw remediation. |
 | [speech_engine.yaml](speech_engine.yaml) | TTS/announcement orchestration with templated speech; speech processing can bypass LLM rewriting for exact messages and also routes garage/office Echo announcements. |
-| [monthly_color_scene.yaml](monthly_color_scene.yaml) | Seasonal lighting scenes used across automations. |
+| [monthly_color_scene.yaml](monthly_color_scene.yaml) | Seasonal lighting dispatcher that follows `sensor.holiday_lighting_scene`. |
 | [interior_off.yaml](interior_off.yaml) | One-call "all interior lights off" helper. |
 
 ### Joanna + BearClaw AGENT engineer handoff

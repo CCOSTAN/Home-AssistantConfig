@@ -37,27 +37,27 @@ Reusable lighting and ambiance presets. Automations and scripts call these scene
 | Red_living_Room | All fixtures red, mid/high brightness | Alert/entry automations (garage/doors) |
 | Living_Room_Daytime_Cool | 5500K cool white, full brightness | Living room default automation (day) |
 | Living_Room_Evening_Amber | 2700K warm/amber, softer brightness | Living room default automation (night) |
-| month_standard_colors | Baseline white/neutral monthly palette | `script.monthly_color_scene` after sunset |
-| month_RWB_colors | Red/white/blue set (patriotic/July 4th) | `script.monthly_color_scene` (flag/holiday) |
-| month_valentine_colors | Valentine pinks/reds | `script.monthly_color_scene` (Feb 10–14) |
-| month_mardi_gras_colors | Purple/green/gold Mardi Gras | `script.monthly_color_scene` (Mar 5) |
-| month_st_patty_colors | Green-centric St. Patrick's | `script.monthly_color_scene` (Mar 15–17) |
-| month_pi_colors | Pi Day playful hues | `script.monthly_color_scene` (Mar 14) |
-| month_easter_colors | Pastel Easter set | `script.monthly_color_scene` (Easter countdown) |
-| month_starwars_colors | Star Wars themed mix | `script.monthly_color_scene` (May 4) |
-| month_cinco_de_mayo_colors | Cinco de Mayo festive mix | `script.monthly_color_scene` (May 5) |
-| month_mothers_day_colors | Mother's Day palette | `script.monthly_color_scene` (countdown) |
-| month_fathers_day_colors | Father's Day palette | `script.monthly_color_scene` (countdown) |
-| month_halloween_colors | Halloween oranges/purples | `script.monthly_color_scene` (Oct 1–31) |
-| month_veterans_colors | Veterans Day palette | `script.monthly_color_scene` (Nov 11) |
-| month_thanksgiving_colors | Autumn harvest tones | `script.monthly_color_scene` (countdown) |
-| month_hanukkah_colors | Hanukkah blues/whites | `script.monthly_color_scene` (Hanukkah countdown) |
-| month_christmas_colors | Christmas reds/greens | `script.monthly_color_scene` (Christmas countdown) |
-| month_new_years_day_colors | New Year's bright/celebratory | `script.monthly_color_scene` (Jan 1 & Dec 31) |
+| month_standard_colors | Baseline white/neutral monthly palette | `sensor.holiday_lighting_mode` = `standard` |
+| month_RWB_colors | Red/white/blue set (patriotic/July 4th) | `sensor.holiday_lighting_mode` = `RWB` |
+| month_valentine_colors | Valentine pinks/reds | `sensor.holiday_lighting_mode` = `valentine` |
+| month_mardi_gras_colors | Purple/green/gold Mardi Gras | `sensor.holiday_lighting_mode` = `mardi_gras` |
+| month_st_patty_colors | Green-centric St. Patrick's | `sensor.holiday_lighting_mode` = `st_patty` |
+| month_pi_colors | Pi Day playful hues | `sensor.holiday_lighting_mode` = `pi` |
+| month_easter_colors | Pastel Easter set | `sensor.holiday_lighting_mode` = `easter` |
+| month_starwars_colors | Star Wars themed mix | `sensor.holiday_lighting_mode` = `starwars` |
+| month_cinco_de_mayo_colors | Cinco de Mayo festive mix | `sensor.holiday_lighting_mode` = `cinco_de_mayo` |
+| month_mothers_day_colors | Mother's Day palette | `sensor.holiday_lighting_mode` = `mothers_day` |
+| month_fathers_day_colors | Father's Day palette | `sensor.holiday_lighting_mode` = `fathers_day` |
+| month_halloween_colors | Halloween oranges/purples | `sensor.holiday_lighting_mode` = `halloween` |
+| month_veterans_colors | Veterans Day palette | `sensor.holiday_lighting_mode` = `veterans` |
+| month_thanksgiving_colors | Autumn harvest tones | `sensor.holiday_lighting_mode` = `thanksgiving` |
+| month_hanukkah_colors | Hanukkah blues/whites | `sensor.holiday_lighting_mode` = `hanukkah` |
+| month_christmas_colors | Christmas reds/greens | `sensor.holiday_lighting_mode` = `christmas` |
+| month_new_years_day_colors | New Year's bright/celebratory | `sensor.holiday_lighting_mode` = `new_years_day` |
 
 ### Tips
 - Adjust scenes once and let all dependent automations inherit the change.
-- Pair with `script/monthly_color_scene.yaml` for dynamic monthly palettes.
+- Pair with `script/monthly_color_scene.yaml`; the active mode and scene are exposed by `sensor.holiday_lighting_mode` and `sensor.holiday_lighting_scene`.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 
