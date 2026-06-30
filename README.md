@@ -18,14 +18,14 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Tesla Powerwall Stopped Charging: Home Assistant Watchdog
-[![Tesla Powerwall Stopped Charging: Home Assistant Watchdog](https://www.vcloudinfo.com/wp-content/uploads/2026/06/powerwall-outage-mode-thumbnail.png)](https://youtu.be/hR_0lFEE2bA)
+### Latest video: Home Assistant Caught My HVAC Failure
+[![Home Assistant Caught My HVAC Failure](https://www.vcloudinfo.com/wp-content/uploads/2026/06/home-assistant-hvac-maintenance-thumbnail.png)](https://youtu.be/nScl2JxYSB8)
 
-This walkthrough shows the Home Assistant watchdog I built after my Tesla Powerwall stopped charging before Hurricane Milton: outage visibility, load shedding, alerts when the Powerwall stays low after grid power returns, and guarded recovery once the grid is stable. [Watch the video](https://youtu.be/hR_0lFEE2bA), read the [companion blog post](https://www.vcloudinfo.com/2026/06/tesla-powerwall-home-assistant-watchdog.html), browse the YAML in [config/packages/powerwall.yaml](config/packages/powerwall.yaml), and follow the background in [issue #1490](https://github.com/CCOSTAN/Home-AssistantConfig/issues/1490).
+This walkthrough shows the Home Assistant evidence trail from a failed HVAC blower: cooling was active while the downstairs temperature kept climbing, then the maintenance dashboard turned the repair into runtime-based filter reminders, reset actions, and a 360-day condenser-line cleanout reminder. [Watch the video](https://youtu.be/nScl2JxYSB8), browse the YAML in [config/packages/climate.yaml](config/packages/climate.yaml) and [config/dashboards/overview/partials/water_sections.yaml](config/dashboards/overview/partials/water_sections.yaml), and follow the background in [issue #273](https://github.com/CCOSTAN/Home-AssistantConfig/issues/273).
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
-- [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg) | [YouTube](https://youtube.com/vCloudInfo)
+- [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](#network-diagram) | [YouTube](https://youtube.com/vCloudInfo)
 - Config readmes: [Config index](config/README.md) | [Packages](config/packages/README.md) | [Automations](config/automation/README.md) | [Scripts](config/script/README.md) | [Scenes](config/scene/README.md) | [Sounds](config/sounds/README.md) | [Package triggers](config/packages/triggers/README.md)
 - Codex skills (optional): [codex_skills](codex_skills)
 
@@ -57,14 +57,17 @@ This walkthrough shows the Home Assistant watchdog I built after my Tesla Powerw
 - Seasonal cuckoo clock with October and Christmas sound packs: [config/automation/System/CucKoo_Clock.yaml](config/automation/System/CucKoo_Clock.yaml)
 - Garage arrival and entry helpers: [config/packages/garadget.yaml](config/packages/garadget.yaml)
 - Vacation Mode and house-sitter checks: [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml)
+- HVAC runtime maintenance loop: [config/packages/climate.yaml](config/packages/climate.yaml), [config/dashboards/overview/partials/water_sections.yaml](config/dashboards/overview/partials/water_sections.yaml), [video walkthrough](https://youtu.be/nScl2JxYSB8)
 - Snoozeable maintenance notifications: [config/packages/climate.yaml](config/packages/climate.yaml), [config/packages/printer.yaml](config/packages/printer.yaml), [config/packages/vacation_mode.yaml](config/packages/vacation_mode.yaml), [video walkthrough](https://youtu.be/y47KSflS1aw)
 - Battery and solar awareness: [config/packages/powerwall.yaml](config/packages/powerwall.yaml), [video walkthrough](https://youtu.be/hR_0lFEE2bA), [companion post](https://www.vcloudinfo.com/2026/06/tesla-powerwall-home-assistant-watchdog.html)
 - Presence-aware office comfort: [config/packages/office_motion.yaml](config/packages/office_motion.yaml)
 - Weather-aware lighting: [config/automation/dark_rainy_day.yaml](config/automation/dark_rainy_day.yaml)
 
 ### Network diagram
-![Smart Home Diagram](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Diagram.jpg)
-<img width="925" height="609" alt="Network" src="https://github.com/user-attachments/assets/df3b7eb5-cfcb-4650-8a41-996054cc70d2" />
+
+![Home Assistant Docker Ecosystem](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Ecosystem-2026.png)
+
+Editable topology source: [Mermaid](docs/diagrams/bear-stone-proxmox-docker-topology.mmd) and [notes](docs/diagrams/bear-stone-proxmox-docker-topology.md).
 
 
 **Docker add-ons & utilities**
@@ -86,6 +89,7 @@ https://amzn.to/48jVzZ3
 | Phyn Plus water shutoff | Leak detection + auto shutoff - [phynplus package](config/packages/phynplus.yaml), [video walkthrough](https://youtu.be/xbhgWnomFYI), [companion post](https://www.vcloudinfo.com/2026/06/home-assistant-leak-detection-automations.html), [original write-up](https://www.vcloudinfo.com/2020/05/phyn-plus-smart-water-shutoff-device.html) | [![Buy](https://img.shields.io/badge/Buy-Phyn%20Plus-orange?logo=amazon)](https://amzn.to/2Zy3sbJ) |
 | Rachio sprinkler controller | Rain-skips and seasonal watering - [rachio package](config/packages/rachio.yaml) | [![Buy](https://img.shields.io/badge/Buy-Rachio-orange?logo=amazon)](https://amzn.to/2eoPKBW) |
 | Tesla Powerwall 2 | Grid-outage alerts, charging watchdog, and load-shed automations - [powerwall package](config/packages/powerwall.yaml), [video walkthrough](https://youtu.be/hR_0lFEE2bA), [companion post](https://www.vcloudinfo.com/2026/06/tesla-powerwall-home-assistant-watchdog.html) | [![Buy](https://img.shields.io/badge/Buy-Powerwall-orange?logo=tesla)](https://amzn.to/3UM4BZ5) |
+| Google Nest thermostat | HVAC schedules plus runtime-based filter reminders and condenser-line cleanout tracking - [climate package](config/packages/climate.yaml), [maintenance dashboard partial](config/dashboards/overview/partials/water_sections.yaml), [video walkthrough](https://youtu.be/nScl2JxYSB8) | [![Buy](https://img.shields.io/badge/Buy-Nest%20Thermostat-orange?logo=google)](https://amzn.to/4olpINw) |
 | NodeMCU motion sensor | Office motion lighting - [office_motion package](config/packages/office_motion.yaml) | [![Buy](https://img.shields.io/badge/Buy-Motion%20Node-orange?logo=amazon)](https://amzn.to/2oUgj5i) |
 | Raspberry Pi 3 + Aeon Z-Wave stick | Z-Wave backbone for door/hall sensors - [garage entry helper](config/automation/garage_entry_light.yaml), [garage automation video](https://youtu.be/wFO0H5zgnzk) | [![Pi](https://img.shields.io/badge/Buy-Pi%203-orange?logo=raspberrypi)](https://amzn.to/2e3DOBY) [![Z-Wave](https://img.shields.io/badge/Buy-Z--Wave%20Stick-orange?logo=zwave)](https://amzn.to/2eAiAP0) |
 | Roku streaming device | TV presence -> scenes/lighting - [roku package](config/packages/roku.yaml) | [![Buy](https://img.shields.io/badge/Buy-Roku-orange?logo=roku)](https://amzn.to/2Ctp8cr) |
