@@ -9,9 +9,9 @@
 # Related Issue: 1584
 # Related Issue: 1798
 # Notes: Creates HA repair issues when proxmox nodes report updates.
-# Notes: Proxmox update activity also writes HA persistent notifications.
+# Notes: Proxmox update activity writes one final HA success notification per patched host.
 # Notes: Adds normalized runtime + disk health signals for dashboard/alerts.
-# Notes: Joanna dispatch handles Proxmox updates plus sustained runtime/disk degradations.
+# Notes: Joanna dispatch handles overnight Proxmox updates plus sustained runtime/disk degradations.
 # Notes: Normalized disk usage sensors expose state_class for long-term trend rollups.
 ######################################################################
 template:
@@ -114,7 +114,7 @@ automation:
 
   - alias: "Proxmox Updates Repair Issues"
     id: proxmox_updates_repair
-    description: "Track repair issues when Proxmox hosts report updates."
+    description: "Track repair issues when Proxmox hosts report updates, then notify once per host when updates clear."
     mode: restart
     trigger:
       - platform: state
@@ -151,51 +151,57 @@ automation:
                   description: >
                     {{ trigger.entity_id }} is ON, indicating pending updates on {{ node_name }}.
                     Apply updates in Proxmox, then reload this sensor to clear the issue.
-              - service: persistent_notification.create
-                data:
-                  notification_id: "{{ issue_id }}"
-                  title: "{{ node_name }} Proxmox updates available"
-                  message: >
-                    {{ node_name }} reports pending Proxmox updates via {{ trigger.entity_id }}.
-                    Joanna upgrade orchestration will run after the cluster update state settles.
         default:
           - service: repairs.remove
             continue_on_error: true
             data:
               issue_id: "{{ issue_id }}"
+          - service: persistent_notification.dismiss
+            continue_on_error: true
+            data:
+              notification_id: "proxmox_updates_joanna_dispatch"
           - service: persistent_notification.create
             data:
               notification_id: "{{ issue_id }}"
-              title: "{{ node_name }} Proxmox updates cleared"
+              title: "{{ node_name }} Proxmox updates applied"
               message: >
-                {{ node_name }} update telemetry returned to {{ trigger.to_state.state }}.
-                Repairs state has been cleared and Home Assistant now considers this host patched.
+                {{ node_name }} updates were successfully applied.
+                Update telemetry is now {{ trigger.to_state.state }}, and the repair issue has been cleared.
           - service: script.send_to_logbook
             data:
               topic: "PROXMOX"
-              message: "{{ node_name }} has been Patched"
+              message: "{{ node_name }} Proxmox updates were successfully applied."
 
   - alias: "Proxmox Updates Joanna Dispatch"
     id: proxmox_updates_joanna_dispatch
-    description: "Dispatch Joanna when Proxmox host updates are available, with kernel-refresh routing hints."
+    description: "Log when Proxmox updates appear, then dispatch Joanna overnight if updates remain."
     mode: restart
     trigger:
       - platform: state
+        id: detected
         entity_id:
           - binary_sensor.node_proxmox1_updates_packages
           - binary_sensor.node_proxmox02_updates_packages
         to: "on"
+      - platform: time
+        id: overnight
+        at: "02:15:00"
     condition:
       - condition: template
         value_template: >-
           {{ is_state('binary_sensor.node_proxmox1_updates_packages', 'on') or
              is_state('binary_sensor.node_proxmox02_updates_packages', 'on') }}
     action:
-      - delay: "00:01:00"
-      - condition: template
-        value_template: >-
-          {{ is_state('binary_sensor.node_proxmox1_updates_packages', 'on') or
-             is_state('binary_sensor.node_proxmox02_updates_packages', 'on') }}
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: detected
+            sequence:
+              - delay: "00:01:00"
+              - condition: template
+                value_template: >-
+                  {{ is_state('binary_sensor.node_proxmox1_updates_packages', 'on') or
+                     is_state('binary_sensor.node_proxmox02_updates_packages', 'on') }}
       - variables:
           proxmox1_updates_count: "{{ states('sensor.node_proxmox1_total_updates') | int(0) }}"
           proxmox02_updates_count: "{{ states('sensor.node_proxmox02_total_updates') | int(0) }}"
@@ -230,7 +236,9 @@ automation:
           structured_request: |-
             PROXMOX_HOST_UPGRADE_REQUEST
             tracking_issue=https://github.com/CCOSTAN/Home-AssistantConfig/issues/1798
-            triggered_entity={{ trigger.entity_id }}
+            triggered_entity={{ trigger.entity_id | default('time.proxmox_updates_overnight_window', true) }}
+            dispatch_reason={{ trigger.id }}
+            dispatch_window=overnight_02:15_local
             cluster_nodes=ProxMox1,ProxMox02
             proxmox1_updates_sensor=binary_sensor.node_proxmox1_updates_packages
             proxmox1_updates_state={{ states('binary_sensor.node_proxmox1_updates_packages') }}
@@ -242,44 +250,46 @@ automation:
             proxmox02_updates={{ proxmox02_updates_summary }}
             kernel_update_detected={{ (kernel_update_packages | trim) != 'none detected' }}
             kernel_update_packages={{ kernel_update_packages | trim }}
-            required_policy=Inspect live Proxmox cluster health, storage, VM placement, and node status before changing anything. Patch hosts one node at a time and verify each node returns healthy before moving to the next. If kernel packages are present or a reboot is required after kernel updates, use the $kernel-refresh skill and follow its ordered node-cycling workflow. Verify the live placement of Frigate/Docker14 VM 101, stop it before rebooting the host that owns it, and start it only after the host cycle and VM migrations are complete. Report progress, failures, resume state, and final verification.
-      - service: script.send_to_logbook
-        data:
-          topic: "PROXMOX"
-          message: >-
-            Proxmox updates detected on one or more hosts. Joanna upgrade orchestration requested.
-            Kernel refresh: {{ 'yes' if (kernel_update_packages | trim) != 'none detected' else 'not detected from HA package list' }}.
-      - service: persistent_notification.create
-        data:
-          notification_id: "proxmox_updates_joanna_dispatch"
-          title: "Proxmox updates detected"
-          message: |-
-            Joanna upgrade orchestration requested for Proxmox host updates.
-
-            ProxMox1: {{ proxmox1_updates_count }} updates - {{ proxmox1_updates_summary | trim }}
-            ProxMox02: {{ proxmox02_updates_count }} updates - {{ proxmox02_updates_summary | trim }}
-            Kernel refresh: {% if (kernel_update_packages | trim) != 'none detected' %}yes - {{ kernel_update_packages | trim }}{% else %}not detected from HA package list{% endif %}
-      - service: script.joanna_dispatch
-        data:
-          trigger_context: "HA automation proxmox_updates_joanna_dispatch (Proxmox Updates Joanna Dispatch)"
-          source: "home_assistant_automation.proxmox_updates_joanna_dispatch"
-          summary: >-
-            Proxmox host updates detected. Kernel refresh
-            {{ 'required' if (kernel_update_packages | trim) != 'none detected' else 'not detected from HA package list' }}.
-          entity_ids:
-            - "binary_sensor.node_proxmox1_updates_packages"
-            - "sensor.node_proxmox1_total_updates"
-            - "binary_sensor.node_proxmox02_updates_packages"
-            - "sensor.node_proxmox02_total_updates"
-            - "binary_sensor.proxmox1_runtime_healthy"
-            - "binary_sensor.proxmox02_runtime_healthy"
-            - "binary_sensor.qemu_docker2_101_status"
-          diagnostics: >-
-            proxmox1_updates_count={{ proxmox1_updates_count }},
-            proxmox02_updates_count={{ proxmox02_updates_count }},
-            kernel_update_detected={{ (kernel_update_packages | trim) != 'none detected' }},
-            kernel_update_packages={{ kernel_update_packages | trim }}
-          request: "{{ structured_request }}"
+            required_policy=This dispatch is Carlo's authorization to install pending same-release Proxmox package updates after live preflight passes; do not stop after read-only validation. Inspect live Proxmox cluster health, storage, VM placement, and node status before changing anything. Patch hosts one node at a time during the overnight window and verify each node remains healthy before moving to the next. Do not perform major-version upgrades, repository migrations, destructive cleanup, or force operations from this request. If the live preflight is unhealthy, pause and report instead of patching. If kernel packages are present or a reboot is required after kernel updates, use the $kernel-refresh skill and follow its ordered node-cycling workflow. Verify the live placement of Frigate/Docker14 VM 101, stop it before rebooting the host that owns it, and start it only after the host cycle and VM migrations are complete. After each host, verify the package versions/update list, then report progress, failures, resume state, package versions, and final verification.
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: overnight
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "PROXMOX"
+                  message: >-
+                    Overnight Proxmox update window reached. Joanna patch orchestration requested.
+                    Kernel refresh: {{ 'yes' if (kernel_update_packages | trim) != 'none detected' else 'not detected from HA package list' }}.
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "HA automation proxmox_updates_joanna_dispatch (Proxmox Updates Joanna Dispatch - Overnight)"
+                  source: "home_assistant_automation.proxmox_updates_joanna_dispatch"
+                  summary: >-
+                    Overnight Proxmox patch window reached. Patch hosts one at a time.
+                    Kernel refresh {{ 'required' if (kernel_update_packages | trim) != 'none detected' else 'not detected from HA package list' }}.
+                  entity_ids:
+                    - "binary_sensor.node_proxmox1_updates_packages"
+                    - "sensor.node_proxmox1_total_updates"
+                    - "binary_sensor.node_proxmox02_updates_packages"
+                    - "sensor.node_proxmox02_total_updates"
+                    - "binary_sensor.proxmox1_runtime_healthy"
+                    - "binary_sensor.proxmox02_runtime_healthy"
+                    - "binary_sensor.qemu_docker2_101_status"
+                  diagnostics: >-
+                    proxmox1_updates_count={{ proxmox1_updates_count }},
+                    proxmox02_updates_count={{ proxmox02_updates_count }},
+                    kernel_update_detected={{ (kernel_update_packages | trim) != 'none detected' }},
+                    kernel_update_packages={{ kernel_update_packages | trim }}
+                  request: "{{ structured_request }}"
+        default:
+          - service: script.send_to_logbook
+            data:
+              topic: "PROXMOX"
+              message: >-
+                Proxmox updates detected on one or more hosts. Joanna patch dispatch scheduled for 02:15 if updates remain.
+                Kernel refresh: {{ 'yes' if (kernel_update_packages | trim) != 'none detected' else 'not detected from HA package list' }}.
 
   - alias: "Proxmox Runtime Repair Issues"
     id: proxmox_runtime_repairs
