@@ -8,6 +8,7 @@
 #  Keeps push alerts but also logs to Activity feed.
 # -------------------------------------------------------------------
 # Guide: https://www.vcloudinfo.com/2020/08/adding-a-lightning-sensor-to-home-assistant.html | Existing Issue #392
+# Notes: Lightning Notification intentionally holds a 60-minute cooldown; duplicate triggers are silenced.
 ######################################################################
 input_boolean:
   snooze_lightning:
@@ -31,6 +32,7 @@ automation:
   - alias: 'Lightning Notification'
     id: 6e054688-5e75-48bd-9411-52a3e26264d1
     mode: single
+    max_exceeded: silent
     trigger:
       - platform: state
         entity_id: sensor.blitzortung_lightning_counter
