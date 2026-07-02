@@ -4,9 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Plays the number of cuckoos per hour and 1 on the half hour - Home Assistant automation behavior.
+# Related Issue: 984
 #  Defines the Plays the number of cuckoos per hour and 1 on the half hour triggers, conditions, and actions.
 # -------------------------------------------------------------------
 # Notes: More Info and Video: https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html
+# Notes: Patriotic cuckoos run July 3-4, last Monday in May, and first Monday in September.
+# Notes: Clock WAVs are served from /local/sounds so Chromecast fetches them from Home Assistant.
 ######################################################################
 - alias: Cuckoo Clock
   id: 33dcd8e2-e87c-4d18-82bc-c7f9b53a1624
@@ -43,8 +46,14 @@
         entity_id: media_player.livingroomCC
         media_content_id: >
           {% set month = now().strftime("%B") %}
-          {% set base = "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/" %}
-          {% if month == 'October' %}
+          {% set is_july_celebration = now().month == 7 and now().day in [3, 4] %}
+          {% set is_memorial_day = now().month == 5 and now().weekday() == 0 and now().day >= 25 %}
+          {% set is_labor_day = now().month == 9 and now().weekday() == 0 and now().day <= 7 %}
+          {% set is_patriotic_day = is_july_celebration or is_memorial_day or is_labor_day %}
+          {% set base = "http://192.168.10.10:8123/local/sounds/" %}
+          {% if is_patriotic_day %}
+            {% set folder = 'july-clock' %}
+          {% elif month == 'October' %}
             {% set folder = 'october-clock' %}
           {% elif month == 'December' %}
             {% set folder = 'december-clock' %}
@@ -53,4 +62,4 @@
           {% endif %}
           {% set file = 'cuckoo-clock-01.wav' if now().strftime("%M")|int == 30 else 'cuckoo-clock-' ~ now().strftime("%I") ~ '.wav' %}
           {{ base ~ folder ~ '/' ~ file }}
-        media_content_type: audio/mp4
+        media_content_type: audio/wav

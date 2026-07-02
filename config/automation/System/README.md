@@ -29,6 +29,7 @@ Meta automations that keep Home Assistant healthy�watchdogs, diagnostics, and 
 | [detect_and_adjust_lights.yaml](detect_and_adjust_lights.yaml) | Auto-untangles stuck lights and re-syncs states. |
 | [watchdog_light.yaml](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
 | [trigger_dump.yaml](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
+| [CucKoo_Clock.yaml](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. |
 | [door_chime.yaml](door_chime.yaml) | Friendly tones for door open/close events. |
 
 ### Tips
