@@ -236,7 +236,7 @@ automation:
           structured_request: |-
             PROXMOX_HOST_UPGRADE_REQUEST
             tracking_issue=https://github.com/CCOSTAN/Home-AssistantConfig/issues/1798
-            triggered_entity={{ trigger.entity_id | default('time.proxmox_updates_overnight_window', true) }}
+            triggered_entity={{ trigger.entity_id | default('overnight_time_trigger', true) }}
             dispatch_reason={{ trigger.id }}
             dispatch_window=overnight_02:15_local
             cluster_nodes=ProxMox1,ProxMox02
