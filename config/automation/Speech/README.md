@@ -26,10 +26,10 @@ Speech-first automations: contextual announcements, stats briefings, guest mode 
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [announcements.yaml](announcements.yaml) | Family and tracked Life360 arrival greetings plus daily/occasional broadcast messages. |
-| [home_stats.yaml](home_stats.yaml) | Voice summary of house status and interesting stats. |
-| [guest_mode.yaml](guest_mode.yaml) | Adjust announcements and behaviors while guests are over. |
-| [High_Wind_Speed_Check.yaml](High_Wind_Speed_Check.yaml) | Warn about severe wind before it causes issues. |
+| [![YAML source: announcements](https://img.shields.io/static/v1?label=YAML&message=announcements&color=CB171E&logo=yaml&logoColor=white)](announcements.yaml) | Family and tracked Life360 arrival greetings plus daily/occasional broadcast messages. |
+| [![YAML source: home_stats](https://img.shields.io/static/v1?label=YAML&message=home_stats&color=CB171E&logo=yaml&logoColor=white)](home_stats.yaml) | Voice summary of house status and interesting stats. |
+| [![YAML source: guest_mode](https://img.shields.io/static/v1?label=YAML&message=guest_mode&color=CB171E&logo=yaml&logoColor=white)](guest_mode.yaml) | Adjust announcements and behaviors while guests are over. |
+| [![YAML source: High_Wind_Speed_Check](https://img.shields.io/static/v1?label=YAML&message=High_Wind_Speed_Check&color=CB171E&logo=yaml&logoColor=white)](High_Wind_Speed_Check.yaml) | Warn about severe wind before it causes issues. |
 
 ### Tips
 - Pairs with `script/speech_engine.yaml` and `templates/speech/briefing.yaml` for reusable phrasing.

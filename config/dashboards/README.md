@@ -23,9 +23,9 @@
 This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resources.
 
 ### Walkthrough
-- Video: [Build Clean Home Assistant Dashboards with YAML Partials and Templates](https://youtu.be/aFis2YPeSuY)
-- Companion post: [Home Assistant Dashboard Design System (Button-Card First)](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html)
-- Kiosk camera tablet video: [Turn a Cheap Fire Tablet Into a Home Assistant Camera Kiosk](https://youtu.be/ChgEu0IDWzc)
+- Video: [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/aFis2YPeSuY)
+- Companion post: [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html)
+- Kiosk camera tablet video: [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/ChgEu0IDWzc)
 
 ### Why this exists
 - Home Assistant stores dashboards and resources in `config/.storage/` by default (runtime state).
@@ -48,10 +48,10 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
   - Cross-dashboard reuse only. If something is only used by one dashboard, keep it in that dashboard folder.
 
 ### Kiosk Camera Dashboard
-- Logic and recovery package: [../packages/kiosk_tablet.yaml](../packages/kiosk_tablet.yaml)
-- Dashboard entrypoint: [kiosk/dashboard.yaml](kiosk/dashboard.yaml)
-- Camera view: [kiosk/views/01_kiosk_oveview.yaml](kiosk/views/01_kiosk_oveview.yaml)
-- Camera sections: [kiosk/partials/kiosk_oveview_sections.yaml](kiosk/partials/kiosk_oveview_sections.yaml)
+- Logic and recovery package: [![YAML source: kiosk_tablet](https://img.shields.io/static/v1?label=YAML&message=kiosk_tablet&color=CB171E&logo=yaml&logoColor=white)](../packages/kiosk_tablet.yaml)
+- Dashboard entrypoint: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=dashboard&color=CB171E&logo=yaml&logoColor=white)](kiosk/dashboard.yaml)
+- Camera view: [![YAML source: 01_kiosk_oveview](https://img.shields.io/static/v1?label=YAML&message=01_kiosk_oveview&color=CB171E&logo=yaml&logoColor=white)](kiosk/views/01_kiosk_oveview.yaml)
+- Camera sections: [![YAML source: kiosk_oveview_sections](https://img.shields.io/static/v1?label=YAML&message=kiosk_oveview_sections&color=CB171E&logo=yaml&logoColor=white)](kiosk/partials/kiosk_oveview_sections.yaml)
 
 ### How it is wired into Home Assistant
 This folder is referenced from `config/configuration.yaml` via:

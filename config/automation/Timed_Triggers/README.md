@@ -19,17 +19,17 @@
 Time-based routines for wake/sleep cycles, sunrise/sunset shifts, and nightly watchdog tasks.
 
 ### Quick navigation
-- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Automation home](..) | [Blog: template conditions](https://www.vcloudinfo.com/2019/06/how-to-use-template-conditions-in-home-assistant.html)
+- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Automation home](..) | [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2019/06/how-to-use-template-conditions-in-home-assistant.html)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [sunrise_turn_off.yaml](sunrise_turn_off.yaml) | Shut down overnight lights as the sun comes up. |
-| [sunset_turn_on.yaml](sunset_turn_on.yaml) | Evening exterior/interior light kickoff. |
-| [night_watchdog.yaml](night_watchdog.yaml) | Late-night checks that everything is closed and safe. |
-| [wake_up.yaml](wake_up.yaml) | Morning scene starter that eases into the day. |
+| [![YAML source: sunrise_turn_off](https://img.shields.io/static/v1?label=YAML&message=sunrise_turn_off&color=CB171E&logo=yaml&logoColor=white)](sunrise_turn_off.yaml) | Shut down overnight lights as the sun comes up. |
+| [![YAML source: sunset_turn_on](https://img.shields.io/static/v1?label=YAML&message=sunset_turn_on&color=CB171E&logo=yaml&logoColor=white)](sunset_turn_on.yaml) | Evening exterior/interior light kickoff. |
+| [![YAML source: night_watchdog](https://img.shields.io/static/v1?label=YAML&message=night_watchdog&color=CB171E&logo=yaml&logoColor=white)](night_watchdog.yaml) | Late-night checks that everything is closed and safe. |
+| [![YAML source: wake_up](https://img.shields.io/static/v1?label=YAML&message=wake_up&color=CB171E&logo=yaml&logoColor=white)](wake_up.yaml) | Morning scene starter that eases into the day. |
 
 ### Tips
 - If you add new timed routines, keep names numeric or descriptive for easy sorting.

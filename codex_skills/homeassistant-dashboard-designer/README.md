@@ -21,8 +21,8 @@
 This directory contains the `homeassistant-dashboard-designer` Codex skill, stored in-repo so it can be shared with the community.
 
 ### Walkthrough
-- Video: [Build Clean Home Assistant Dashboards with YAML Partials and Templates](https://youtu.be/aFis2YPeSuY)
-- Companion post: [Home Assistant Dashboard Design System (Button-Card First)](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html)
+- Video: [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/aFis2YPeSuY)
+- Companion post: [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html)
 
 ### Quick navigation
 - You are here: `codex_skills/homeassistant-dashboard-designer/`

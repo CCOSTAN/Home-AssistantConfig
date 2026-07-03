@@ -27,8 +27,8 @@ Reusable lighting and ambiance presets. Automations and scripts call these scene
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [monthly_colors.yaml](monthly_colors.yaml) | Exterior lighting colors mapped to holidays and seasons. |
-| [living_room.yaml](living_room.yaml) | Core living-room presets: TV Time, red alert, new daytime cool and evening amber defaults. |
+| [![YAML source: monthly_colors](https://img.shields.io/static/v1?label=YAML&message=monthly_colors&color=CB171E&logo=yaml&logoColor=white)](monthly_colors.yaml) | Exterior lighting colors mapped to holidays and seasons. |
+| [![YAML source: living_room](https://img.shields.io/static/v1?label=YAML&message=living_room&color=CB171E&logo=yaml&logoColor=white)](living_room.yaml) | Core living-room presets: TV Time, red alert, new daytime cool and evening amber defaults. |
 
 ### Scene color schemes
 | Scene | Colors / temps | Driven by |

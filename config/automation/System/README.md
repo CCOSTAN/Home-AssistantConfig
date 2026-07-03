@@ -26,11 +26,11 @@ Meta automations that keep Home Assistant healthy�watchdogs, diagnostics, and 
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [detect_and_adjust_lights.yaml](detect_and_adjust_lights.yaml) | Auto-untangles stuck lights and re-syncs states. |
-| [watchdog_light.yaml](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
-| [trigger_dump.yaml](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
-| [CucKoo_Clock.yaml](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. |
-| [door_chime.yaml](door_chime.yaml) | Friendly tones for door open/close events. |
+| [![YAML source: detect_and_adjust_lights](https://img.shields.io/static/v1?label=YAML&message=detect_and_adjust_lights&color=CB171E&logo=yaml&logoColor=white)](detect_and_adjust_lights.yaml) | Auto-untangles stuck lights and re-syncs states. |
+| [![YAML source: watchdog_light](https://img.shields.io/static/v1?label=YAML&message=watchdog_light&color=CB171E&logo=yaml&logoColor=white)](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
+| [![YAML source: trigger_dump](https://img.shields.io/static/v1?label=YAML&message=trigger_dump&color=CB171E&logo=yaml&logoColor=white)](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
+| [![YAML source: CucKoo_Clock](https://img.shields.io/static/v1?label=YAML&message=CucKoo_Clock&color=CB171E&logo=yaml&logoColor=white)](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. |
+| [![YAML source: door_chime](https://img.shields.io/static/v1?label=YAML&message=door_chime&color=CB171E&logo=yaml&logoColor=white)](door_chime.yaml) | Friendly tones for door open/close events. |
 
 ### Tips
 - Great place to drop temporary diagnostics without touching user-facing automations.
