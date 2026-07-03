@@ -11,6 +11,10 @@
 #  means someone is physically home at this house.
 # Notes: Previous broadcast text is stale context only; current sensor data
 #  stays authoritative for entry point and action wording.
+# Notes: Weather context is gated by call_outside_weather or safety thresholds
+#  so narrow alerts stay action-first.
+# Notes: Household context macros stay quiet unless current state adds action
+#  or abnormal status worth announcing.
 ######################################################################
 
 
@@ -154,10 +158,92 @@
   {% endif -%}
   {%- endmacro -%}
 
-  {%- macro vacuum_rooms_cleaned() -%}
-  {% set cleaned = states('input_text.l10s_vacuum_rooms_cleaned_today') %}
-  {% if cleaned | length > 0 %}
-    Vacuum cleaned: {{ cleaned }}.
+  {%- macro tesla_charge_context() -%}
+  {% set battery = states('sensor.spaceship_battery_level') | float(none) %}
+  {% set snooze_until = as_timestamp(states('input_datetime.tesla_model_y_plug_in_snooze_until'), 0) %}
+  {% set last_garage_close = as_timestamp(states('input_datetime.tesla_model_y_last_garage_close'), 0) %}
+  {% set recent_arrival = last_garage_close > 0 and (as_timestamp(now()) - last_garage_close) < 43200 %}
+  {% if battery is not none
+      and battery < 50
+      and is_state('switch.spaceship_charge', 'off')
+      and is_state('person.carlo', 'home')
+      and is_state('person.stacey', 'home')
+      and as_timestamp(now()) >= snooze_until
+      and (recent_arrival or now().hour >= 17) -%}
+      Model Y battery is {{ battery | round(0) | int }} percent and it is not charging. Plug it in.
+  {%- endif -%}
+  {%- endmacro -%}
+
+  {%- macro energy_context() -%}
+  {% set powerwall_charge = states('sensor.powerwall_charge') | float(none) %}
+  {% set house_load = states('sensor.powerwall_load_power') | float(none) %}
+  {% if is_state('binary_sensor.powerwall_grid_status', 'off') -%}
+      Power is out{% if powerwall_charge is not none %}. Powerwall is at {{ powerwall_charge | round(0) | int }} percent{% endif %}. {% if house_load is not none and house_load > 5 %}House load is high; reduce large appliances.{% elif powerwall_charge is none or powerwall_charge < 75 %}Keep high-load devices off.{% else %}Stay aware of backup power until the grid returns.{% endif %}
+  {% elif powerwall_charge is not none and powerwall_charge < 50 -%}
+      Powerwall is at {{ powerwall_charge | round(0) | int }} percent while the grid is online. Keep backup charge in mind before running high-load devices.
+  {%- endif -%}
+  {%- endmacro -%}
+
+  {%- macro water_context() -%}
+  {% set valve_state = states('valve.phyn_shutoff_valve') %}
+  {% set hot_water = states('sensor.rheem_wh_available_hot_water') | float(none) %}
+  {% set compressor_health = states('sensor.rheem_wh_compressor_health') | float(none) %}
+  {% set tank_health = states('sensor.rheem_wh_tank_health') | float(none) %}
+  {% if valve_state == 'closed' and not is_state('binary_sensor.phyn_leak_test_running', 'on') -%}
+      Main water is shut off. Check for leaks before restoring water.
+  {% elif valve_state not in ['open', 'unknown', 'unavailable', 'none', ''] -%}
+      Main water valve is {{ valve_state }}. Check water status before using fixtures.
+  {%- endif %}
+  {% if hot_water is not none and hot_water < 30 -%}
+      Hot water is at {{ hot_water | round(0) | int }} percent. Keep showers short or wait for recovery.
+  {%- endif %}
+  {% if (compressor_health is not none and compressor_health < 90) or (tank_health is not none and tank_health < 90) -%}
+      Water heater health needs attention.
+  {%- endif -%}
+  {%- endmacro -%}
+
+  {%- macro comfort_context() -%}
+  {% set downstairs_current = state_attr('climate.downstairs', 'current_temperature') | float(none) %}
+  {% set downstairs_target = state_attr('climate.downstairs', 'temperature') | float(none) %}
+  {% set upstairs_current = state_attr('climate.upstairs', 'current_temperature') | float(none) %}
+  {% set upstairs_target = state_attr('climate.upstairs', 'temperature') | float(none) %}
+  {% set downstairs_humidity = states('sensor.downstairs_thermostat_humidity') | float(none) %}
+  {% if downstairs_humidity is none %}
+    {% set downstairs_humidity = state_attr('climate.downstairs', 'current_humidity') | float(none) %}
+  {% endif %}
+  {% if downstairs_current is not none and downstairs_target is not none and downstairs_current >= downstairs_target + 3 and is_state('binary_sensor.downstairs_ac_is_cooling', 'on') -%}
+      Downstairs is {{ downstairs_current | round(0) | int }} degrees and cooling toward {{ downstairs_target | round(0) | int }}.
+  {% elif downstairs_current is not none and downstairs_target is not none and downstairs_current >= downstairs_target + 4 and not is_state('climate.downstairs', 'off') -%}
+      Downstairs is {{ downstairs_current | round(0) | int }} degrees, above the {{ downstairs_target | round(0) | int }} degree target. Check the thermostat if it feels too warm.
+  {%- endif %}
+  {% if upstairs_current is not none and upstairs_target is not none and upstairs_current >= upstairs_target + 3 and is_state('binary_sensor.upstairs_ac_is_cooling', 'on') -%}
+      Upstairs is {{ upstairs_current | round(0) | int }} degrees and cooling toward {{ upstairs_target | round(0) | int }}.
+  {% elif upstairs_current is not none and upstairs_target is not none and upstairs_current >= upstairs_target + 4 and not is_state('climate.upstairs', 'off') -%}
+      Upstairs is {{ upstairs_current | round(0) | int }} degrees, above the {{ upstairs_target | round(0) | int }} degree target. Check the thermostat if it feels too warm.
+  {%- endif %}
+  {% if downstairs_humidity is not none and downstairs_humidity > 60 -%}
+      Downstairs humidity is {{ downstairs_humidity | round(0) | int }} percent. The house may feel warmer than the thermostat suggests.
+  {%- endif -%}
+  {%- endmacro -%}
+
+  {%- macro vacuum_context() -%}
+  {% set vac_state = states('vacuum.l10s_vacuum') %}
+  {% set vac_error = states('sensor.l10s_vacuum_error') %}
+  {% set room = states('sensor.l10s_vacuum_current_room') %}
+  {% set task_status = states('sensor.l10s_vacuum_task_status') %}
+  {% set phase = states('input_select.l10s_vacuum_phase') %}
+  {% set queue = states('input_text.l10s_vacuum_room_queue') | default('', true) | string | trim %}
+  {% set cleaned = states('input_text.l10s_vacuum_rooms_cleaned_today') | default('', true) | string | trim %}
+  {% set queue_count = queue | regex_findall('[0-9]+') | length %}
+  {% set valid_room = room not in ['unknown', 'unavailable', 'none', ''] %}
+  {% if vac_state == 'error' or vac_error not in ['no_error', 'unknown', 'unavailable', 'none', ''] -%}
+      Vacuum needs help{% if valid_room %} in {{ room }}{% endif %}. Error is {{ vac_error | replace('_', ' ') }}.
+  {% elif vac_state in ['cleaning', 'returning', 'paused'] -%}
+      Vacuum is {{ vac_state | replace('_', ' ') }}{% if valid_room %} near {{ room }}{% endif %}{% if queue_count > 0 %} with {{ queue_count }} rooms left{% elif task_status not in ['unknown', 'unavailable', 'none', ''] %}; task status is {{ task_status | replace('_', ' ') }}{% endif %}.
+  {% elif is_state('input_boolean.l10s_vacuum_on_demand', 'on') and queue_count > 0 -%}
+      Vacuum has {{ queue_count }} rooms queued for {{ phase | replace('_', ' ') }}.
+  {% elif cleaned not in ['unknown', 'unavailable', 'none', ''] -%}
+      Vacuum cleaned today: {{ cleaned }}.
   {% endif %}
   {%- endmacro -%}
 
@@ -254,11 +340,38 @@
     {% set day = current_date.strftime('%d') %} 
     {% set year = current_date.strftime('%Y') %}
     {% set time = current_date.strftime('%I:%M %p') %}
+    {% set call_no_announcement_flag = call_no_announcement | default(0) | int(0) %}
+    {% set call_inside_weather_flag = call_inside_weather | default(0) | int(0) %}
+    {% set call_outside_weather_flag = call_outside_weather | default(0) | int(0) %}
+    {% set call_dark_outside_flag = call_dark_outside | default(0) | int(0) %}
+    {% set call_garage_check_flag = call_garage_check | default(0) | int(0) %}
+    {% set call_window_check_flag = call_window_check | default(0) | int(0) %}
+    {% set call_garbage_day_flag = call_garbage_day | default(0) | int(0) %}
+    {% set no_fridge_flag = no_fridge | default(0) | int(0) %}
+    {% set lightning_close = states('sensor.blitzortung_lightning_counter') | int(0) > 0 and (states('sensor.blitzortung_lightning_distance') | float(9999) / 1.69) <= 10 %}
+    {% set weather_safety_context = (
+      states('sensor.nws_alerts') | int(0) > 0
+      or states('sensor.pirateweather_wind_speed') | float(0) >= 30
+      or states('sensor.bear_stone_common_air_quality_index') | int(0) >= 100
+      or lightning_close
+    ) %}
     [Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}]
 
     [Presence rule: Bear Stone home means a resident's person state is exactly `home`.
     Justin Dorm and Paige Dorm are away-from-Bear-Stone locations, not home for this house.
     Do not welcome or address residents at dorm zones as being home here.]
+
+    [LLM speech contract:
+    - Write a useful spoken household announcement, not a sensor report.
+    - Priority order: safety or action needed, useful implication, relevant context, then one optional human touch.
+    - Lead with the main thing that matters now. For urgent or narrow alerts, skip greetings and side notes.
+    - Translate sensor data into household meaning. Mention raw numbers only when they explain severity or change the action.
+    - Do not announce normal states just because they are available in context.
+    - Vary wording, sentence structure, openings, and closings so the house does not sound repetitive.
+    - Avoid robotic phrases like "currently", "detected", "please be advised", "sensor data", and "as an AI" unless needed for clarity.
+    - Add at most one small seasonal note, insight, or personality line, and only when no urgent action exists.
+    - Sound calm, practical, and natural. Do not joke during safety, security, water, appliance, or maintenance alerts.
+    ]
 
     [Resident: Location:
     - {{ friendly_location('person.carlo', 'sensor.carlo_place', 'Carlo') }}
@@ -269,8 +382,23 @@
       Cat Molly: Always home.
       {% endif %}
     ]
-    [Sensor Data: 
-    {% if call_no_announcement != 1 %}
+
+    [Primary event/requested action:
+    {{ personarriving | default('', true) }}
+    {{ NestStatus | default('', true) }}
+    {{ DoorOpened | default('', true) }}
+    {{ DoorClosed | default('', true) }}
+    {{ DoorLocked | default('', true) }}
+    {{ DoorUnLocked | default('', true) }}
+    {{ NewDevice | default('', true) }}
+    {% set primary_value = value1 | default('', true) | trim %}
+    {% if primary_value %}
+    {{ primary_value }}
+    {% endif %}
+    ]
+
+    [Optional greeting seed:
+    {% if call_no_announcement_flag != 1 %}
       {% if now().strftime('%H')|int(9999)< 12 and now().strftime('%H')|int(9999)> 6 %}
           Good morning. [if there is only one person home, address them specifically]
       {% elif now().strftime('%H')|int(9999)>= 12 and now().strftime('%H')|int(9999)< 17 %}
@@ -279,20 +407,19 @@
           Good evening. [if there is only one person home, address them specifically]
       {% endif %}
     {% endif %}
+    Use this only if it improves flow. Skip it for repeated, urgent, narrow, or very short announcements.
+    ]
 
-    {# Called from Annoucenments #}
-    {{ personarriving | default }}
-
-    {# Called from Nest when thermostats turn on #}
-    {{ NestStatus | default }}
-
-    {% if call_inside_weather == 1 %}
+    [Context data:
+    {% if call_inside_weather_flag == 1 %}
     {{ inside_weather() }}
     {% endif %}
 
+    {% if call_outside_weather_flag == 1 or weather_safety_context %}
     {{ outside_weather() }}
+    {% endif %}
 
-    {% if (states('sensor.blitzortung_lightning_counter')|int(0)) > 0 %}
+    {% if (states('sensor.blitzortung_lightning_counter')|int(0)) > 0 and (call_outside_weather_flag == 1 or lightning_close) %}
     {{ lightning() }}
     {% endif %}
 
@@ -301,35 +428,35 @@
     {% set fridge_temp = states('sensor.refrigerator_fridge_temp') | float(none) %}
     {% set fridge_door = states.binary_sensor.refrigerator_door_open %}
     {% set fridge_door_open = states('binary_sensor.refrigerator_door_open') == 'on' and fridge_door is not none and (as_timestamp(now()) - as_timestamp(fridge_door.last_changed)) > 360 %}
-    {% if ((blink_temp is not none and blink_temp > 55) or (freezer_temp is not none and freezer_temp > 5) or (fridge_temp is not none and fridge_temp > 50) or fridge_door_open) and no_fridge != 1 %}
+    {% if ((blink_temp is not none and blink_temp > 55) or (freezer_temp is not none and freezer_temp > 5) or (fridge_temp is not none and fridge_temp > 50) or fridge_door_open) and no_fridge_flag != 1 %}
     {{ fridge() }}
     {% endif %}
 
-    {{ DoorOpened | default }}
-    {{ DoorClosed | default }}
-
     {{ lock_check() }}
-      {# These two lock statements are sent directly from automations. #}
-    {{ DoorLocked | default }}
-    {{ DoorUnLocked | default }}
 
-    {% if call_dark_outside == 1 %}
+    {% if call_dark_outside_flag == 1 %}
     {{ dark_outside() }}
     {% endif %}
 
-    {% if call_garage_check == 1 or is_state('sun.sun', 'below_horizon') %}
+    {% if call_garage_check_flag == 1 or is_state('sun.sun', 'below_horizon') %}
     {{ garage_check() }}
     {% endif %}
 
-    {% if (call_window_check == 1 or is_state('sun.sun', 'below_horizon')) or is_state('group.entry_points', 'on') %}
+    {% if (call_window_check_flag == 1 or is_state('sun.sun', 'below_horizon')) or is_state('group.entry_points', 'on') %}
     {{ window_check() }}
     {% endif %}
 
     {{ front_door_packages() }}
 
-    {{ NewDevice | default }}
+    {{ tesla_charge_context() }}
 
-    {% if call_garbage_day == 1 %}
+    {{ energy_context() }}
+
+    {{ water_context() }}
+
+    {{ comfort_context() }}
+
+    {% if call_garbage_day_flag == 1 %}
     {{ garbage_day() }}
     {% endif %}
 
@@ -337,20 +464,20 @@
     {{ medicine() }}
     {% endif %}
 
-    {{ vacuum_rooms_cleaned() }}
+    {{ vacuum_context() }}
 
     {{ holiday() }}
-
-    {{ outside_weather }}
-   
-    {% if value1 is not none %}
-    {{ value1 | default }}
-    {% endif %}
 
     {# call a Random fact about the house or inspiration quote #}
     {{ ([moon, holiday, days_until ]|random)() }}
     ]
-    [Previous broadcast rule: The previous broadcast is stale context only and must not override current Sensor Data. Use it only to avoid repetitive wording. Do not repeat prior claims that a window, door, lock, garage door, or light was changed unless current Sensor Data supports that claim. If current Sensor Data says an entry point is still open and needs closure, say it is still open or needs attention, not that it is closed.]
+    [Previous broadcast rule:
+    The previous broadcast is stale context for repetition avoidance only.
+    Do not quote it, continue it, summarize it, trust it as current state, or repeat its exact phrasing.
+    If the same issue is still active, restate it from current Sensor Data with fresh wording.
+    Do not repeat prior claims that a window, door, lock, garage door, light, appliance, or weather condition changed unless current Sensor Data supports that claim.
+    If current Sensor Data says an entry point is still open and needs closure, say it is still open or needs attention, not that it is closed.
+    ]
     [Previous broadcast for context: "{{ state_attr('sensor.openai_response', 'response') }}" ]
 
   {%- endmacro -%}
