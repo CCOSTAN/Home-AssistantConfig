@@ -7,12 +7,12 @@
 #  Generates macro prompts for weather, reminders, and AI-driven speech routines.
 # -------------------------------------------------------------------
 #  Weather, responsibilities, holidays, air quality, and fact prompts parsed by speech_processing/speech_engine.
-# Notes: Dorm zones are away from Bear Stone; only person state `home`
+# Notes: Justin Dorm is away from Bear Stone; only person state `home`
 #  means someone is physically home at this house.
 # Notes: Previous broadcast text is stale context only; current sensor data
 #  stays authoritative for entry point and action wording.
-# Notes: Weather context is gated by call_outside_weather or safety thresholds
-#  so narrow alerts stay action-first.
+# Notes: Weather context is included during the useful daytime window, when
+#  requested, or when safety thresholds make it relevant.
 # Notes: Household context macros stay quiet unless current state adds action
 #  or abnormal status worth announcing.
 ######################################################################
@@ -298,6 +298,7 @@
       {% set place_state = states(place_sensor_id) if place_sensor_id in states else 'unknown' %}
       {% set location_label = place_state if place_state not in ['unknown','unavailable','','none'] else person_state %}
       {% set location_label = 'Away' if location_label in ['unknown','unavailable','','none'] else location_label %}
+      {% set location_label = 'Away' if name == 'Paige' and 'Dorm' in location_label else location_label %}
       {% set at_bear_stone = person_state == 'home' %}
       {% set at_dorm = 'Dorm' in location_label %}
       {% set last_changed = as_timestamp(person.last_changed) %}
@@ -312,6 +313,8 @@
         {{ name }}: at Bear Stone home{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% elif at_dorm %}
         {{ name }}: away at {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
+      {% elif location_label == 'Away' %}
+        {{ name }}: away{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% else %}
         {{ name }}: away at {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% endif %}
@@ -348,6 +351,8 @@
     {% set call_window_check_flag = call_window_check | default(0) | int(0) %}
     {% set call_garbage_day_flag = call_garbage_day | default(0) | int(0) %}
     {% set no_fridge_flag = no_fridge | default(0) | int(0) %}
+    {% set sunset_ts = as_timestamp(state_attr('sun.sun', 'next_setting'), 0) %}
+    {% set daytime_weather_context = is_state('sun.sun', 'above_horizon') and sunset_ts > 0 and as_timestamp(now()) < (sunset_ts - 7200) %}
     {% set lightning_close = states('sensor.blitzortung_lightning_counter') | int(0) > 0 and (states('sensor.blitzortung_lightning_distance') | float(9999) / 1.69) <= 10 %}
     {% set weather_safety_context = (
       states('sensor.nws_alerts') | int(0) > 0
@@ -358,7 +363,7 @@
     [Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}]
 
     [Presence rule: Bear Stone home means a resident's person state is exactly `home`.
-    Justin Dorm and Paige Dorm are away-from-Bear-Stone locations, not home for this house.
+    Justin Dorm is an away-from-Bear-Stone location, not home for this house.
     Do not welcome or address residents at dorm zones as being home here.]
 
     [LLM speech contract:
@@ -415,7 +420,7 @@
     {{ inside_weather() }}
     {% endif %}
 
-    {% if call_outside_weather_flag == 1 or weather_safety_context %}
+    {% if call_outside_weather_flag == 1 or daytime_weather_context or weather_safety_context %}
     {{ outside_weather() }}
     {% endif %}
 
