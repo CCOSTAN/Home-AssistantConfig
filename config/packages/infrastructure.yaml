@@ -19,6 +19,7 @@
 # Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
 # Notes: Nebula Sync DNS consistency compares primary/backup Pi-hole answers and dispatches Joanna on sustained drift or container loss.
 # Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
+# Notes: Immediate website-down states create Repairs and dispatch Joanna; SLO/latency automations cover longer-term UptimeRobot trends.
 ######################################################################
 
 input_text:
@@ -227,6 +228,31 @@ template:
             {% endif %}
           {% endfor %}
           {{ ns.count }}
+        attributes:
+          monitored_entities: >-
+            {{ [
+              'binary_sensor.vcloudinfo_com',
+              'binary_sensor.ipmer_com',
+              'binary_sensor.fordst_com',
+              'binary_sensor.www_kingcrafthomes_com'
+            ] }}
+          down_entities: >-
+            {% set ids = [
+              'binary_sensor.vcloudinfo_com',
+              'binary_sensor.ipmer_com',
+              'binary_sensor.fordst_com',
+              'binary_sensor.www_kingcrafthomes_com'
+            ] %}
+            {% set ns = namespace(items=[]) %}
+            {% for id in ids %}
+              {% if expand(id) | count > 0 %}
+                {% set st = states(id) %}
+                {% if st in ['off', 'unknown', 'unavailable'] %}
+                  {% set ns.items = ns.items + [id ~ '=' ~ st] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.items }}
 
   - binary_sensor:
       - name: "Infra WAN Quality Degraded"
@@ -416,6 +442,81 @@ automation:
           topic: "NETWORK"
           message: >-
             External IP changed from {{ trigger.from_state.state }} to {{ trigger.to_state.state }}.
+
+  - alias: "Infrastructure - Website Down Repair And Dispatch"
+    id: infra_website_down_repair_and_dispatch
+    description: "Create/clear Repairs and dispatch Joanna when monitored websites are immediately down."
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.infra_website_degraded
+        to: "on"
+        for: "00:05:00"
+        id: degraded
+      - platform: state
+        entity_id: binary_sensor.infra_website_degraded
+        to: "off"
+        id: recovered
+    variables:
+      down_count: "{{ states('sensor.infra_website_down_count') | int(0) }}"
+      down_entities: "{{ state_attr('sensor.infra_website_down_count', 'down_entities') | default([], true) | list }}"
+      down_summary: "{{ down_entities | join(', ') if (down_entities | count > 0) else 'none' }}"
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'degraded' and down_count > 0 }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: infra_website_down
+                  title: "Website availability degraded"
+                  description: >-
+                    {{ down_count }} monitored website
+                    {{ 'entity is' if down_count == 1 else 'entities are' }} down:
+                    {{ down_summary }}.
+                  severity: error
+                  persistent: true
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: >-
+                    HA automation infra_website_down_repair_and_dispatch
+                    (Infrastructure - Website Down Repair And Dispatch)
+                  source: "home_assistant_automation.infra_website_down_repair_and_dispatch"
+                  summary: "Monitored website availability degraded ({{ down_count }} down)"
+                  entity_ids:
+                    - binary_sensor.infra_website_degraded
+                    - sensor.infra_website_down_count
+                    - binary_sensor.vcloudinfo_com
+                    - sensor.vcloudinfo_com
+                    - sensor.wordpress_wp_state_2
+                    - switch.wordpress_wp_container_2
+                  diagnostics: >-
+                    down_entities={{ down_summary }};
+                    vcloudinfo_sensor={{ states('sensor.vcloudinfo_com') }};
+                    vcloudinfo_binary={{ states('binary_sensor.vcloudinfo_com') }};
+                    wordpress_state={{ states('sensor.wordpress_wp_state_2') }};
+                    wordpress_switch={{ states('switch.wordpress_wp_container_2') }};
+                    cloudflared_wp={{ states('switch.cloudflared_wp_container_2') }}.
+                  request: >-
+                    Investigate and resolve the monitored website outage. For
+                    vcloudinfo.com, start with public HTTPS reachability,
+                    wordpress_wp, wordpress_db, and cloudflared_wp telemetry.
+                    Verify public HTTP 200 recovery before closing out. Do not
+                    power-cycle unrelated infrastructure.
+              - service: script.send_to_logbook
+                data:
+                  topic: "INTERNET"
+                  message: "Website availability dispatch requested ({{ down_summary }})."
+        default:
+          - service: repairs.remove
+            continue_on_error: true
+            data:
+              issue_id: infra_website_down
+          - service: script.send_to_logbook
+            data:
+              topic: "INTERNET"
+              message: "Website availability recovered."
 
   - alias: "Infrastructure - Website Uptime SLO Repair"
     id: infra_website_uptime_slo_repair

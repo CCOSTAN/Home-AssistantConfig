@@ -18,6 +18,7 @@
 # Notes: Tapple is now served by `games_hub` on `/tapple/`; do not keep a standalone `tapple` container switch in the monitored group.
 # Notes: Teslamate and crystalsoftwashsolutions are live services and should remain in the monitored group when their discovery switches are present.
 # Notes: Treat telemetry reconnects from unavailable/unknown to a concrete stopped state as actionable outages.
+# Notes: Treat stuck `restarting` and `created` states as down so monitored containers dispatch remediation.
 # Notes: Infra Info was removed; BearClaw Admin is the planning snapshot surface.
 # Notes: codex_appliance moved to a dedicated VM; keep the standard codex_appliance switches and retire the legacy hashed discovery entity when it disappears.
 # Notes: Paige's Bookshelf is a live monitored service and should remain in the group when its discovery switch is present.
@@ -471,7 +472,7 @@ template:
               {% endfor %}
             {% endif %}
             {% set effective_state = resolver.state %}
-            {% if effective_state in ['off', 'stopped'] %}
+            {% if effective_state in ['off', 'stopped', 'exited', 'dead', 'restarting', 'created'] %}
               {% set ns.down = ns.down + [key] %}
             {% elif not telemetry_degraded and effective_state in ['unknown', 'unavailable'] %}
               {% set ns.down = ns.down + [key] %}
@@ -515,7 +516,7 @@ template:
                 {% endfor %}
               {% endif %}
               {% set effective_state = resolver.state %}
-              {% if effective_state in ['off', 'stopped'] %}
+              {% if effective_state in ['off', 'stopped', 'exited', 'dead', 'restarting', 'created'] %}
                 {% set ns.down = ns.down + [key] %}
               {% elif not telemetry_degraded and effective_state in ['unknown', 'unavailable'] %}
                 {% set ns.down = ns.down + [key] %}
@@ -596,7 +597,7 @@ script:
         example: true
     sequence:
       - variables:
-          down_states: ['off', 'stopped', 'exited', 'dead', 'unknown', 'unavailable']
+          down_states: ['off', 'stopped', 'exited', 'dead', 'restarting', 'created', 'unknown', 'unavailable']
           src_entity: "{{ entity_id | default('', true) }}"
           op: "{{ operation | default('create', true) | lower }}"
           wait_minutes: "{{ delay_minutes | default(0) | int(0) }}"
@@ -1046,13 +1047,13 @@ automation:
                 value_template: "{{ is_monitored_container_event }}"
             sequence:
               - variables:
-                  down_states: ['off', 'stopped', 'exited', 'dead', 'unknown', 'unavailable']
+                  down_states: ['off', 'stopped', 'exited', 'dead', 'restarting', 'created', 'unknown', 'unavailable']
               - choose:
                   - conditions: >-
                       {{ new_state in down_states and
                          (old_state not in down_states or
                           (old_state in ['unknown', 'unavailable'] and
-                           new_state in ['off', 'stopped', 'exited', 'dead'])) and
+                           new_state in ['off', 'stopped', 'exited', 'dead', 'restarting', 'created'])) and
                          not (is_state('binary_sensor.docker_container_telemetry_degraded', 'on') and
                               new_state in ['unknown', 'unavailable']) }}
                     sequence:
