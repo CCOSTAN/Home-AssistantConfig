@@ -31,7 +31,7 @@ Longer-running shell helpers referenced by automations, packages, or cron. Anyth
 | [apt_weekly.sh](apt_weekly.sh) | Twice-weekly APT updater that posts webhook status and can schedule reboot when needed. |
 | [apt_reboot_report.sh](apt_reboot_report.sh) | Boot-time webhook status reporter that clears/keeps reboot-required state in HA. |
 | [gitupdate.sh](gitupdate.sh) | Pull the latest config changes on demand. |
-| [![YAML source: basketball](https://img.shields.io/static/v1?label=YAML&message=basketball&color=CB171E&logo=yaml&logoColor=white)](basketball.yaml) | ESPN stat scraping helper used by sensors. |
+| [![YAML source: basketball](https://img.shields.io/static/v1?label=YAML&message=basketball&color=lightgrey&logo=github&logoColor=181717)](basketball.yaml) | ESPN stat scraping helper used by sensors. |
 | [Jinja Code.py](Jinja Code.py) | Reference Jinja snippets for templating. |
 
 ### Tips

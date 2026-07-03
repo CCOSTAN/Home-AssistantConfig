@@ -26,11 +26,11 @@ Meta automations that keep Home Assistant healthy�watchdogs, diagnostics, and 
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [![YAML source: detect_and_adjust_lights](https://img.shields.io/static/v1?label=YAML&message=detect_and_adjust_lights&color=CB171E&logo=yaml&logoColor=white)](detect_and_adjust_lights.yaml) | Auto-untangles stuck lights and re-syncs states. |
-| [![YAML source: watchdog_light](https://img.shields.io/static/v1?label=YAML&message=watchdog_light&color=CB171E&logo=yaml&logoColor=white)](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
-| [![YAML source: trigger_dump](https://img.shields.io/static/v1?label=YAML&message=trigger_dump&color=CB171E&logo=yaml&logoColor=white)](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
-| [![YAML source: CucKoo_Clock](https://img.shields.io/static/v1?label=YAML&message=CucKoo_Clock&color=CB171E&logo=yaml&logoColor=white)](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. |
-| [![YAML source: door_chime](https://img.shields.io/static/v1?label=YAML&message=door_chime&color=CB171E&logo=yaml&logoColor=white)](door_chime.yaml) | Friendly tones for door open/close events. |
+| [![YAML source: detect_and_adjust_lights](https://img.shields.io/static/v1?label=YAML&message=detect_and_adjust_lights&color=lightgrey&logo=github&logoColor=181717)](detect_and_adjust_lights.yaml) | Auto-untangles stuck lights and re-syncs states. |
+| [![YAML source: watchdog_light](https://img.shields.io/static/v1?label=YAML&message=watchdog_light&color=lightgrey&logo=github&logoColor=181717)](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
+| [![YAML source: trigger_dump](https://img.shields.io/static/v1?label=YAML&message=trigger_dump&color=lightgrey&logo=github&logoColor=181717)](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
+| [![YAML source: CucKoo_Clock](https://img.shields.io/static/v1?label=YAML&message=CucKoo_Clock&color=lightgrey&logo=github&logoColor=181717)](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. |
+| [![YAML source: door_chime](https://img.shields.io/static/v1?label=YAML&message=door_chime&color=lightgrey&logo=github&logoColor=181717)](door_chime.yaml) | Friendly tones for door open/close events. |
 
 ### Tips
 - Great place to drop temporary diagnostics without touching user-facing automations.

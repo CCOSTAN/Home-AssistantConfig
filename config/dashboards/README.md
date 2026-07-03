@@ -48,10 +48,10 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
   - Cross-dashboard reuse only. If something is only used by one dashboard, keep it in that dashboard folder.
 
 ### Kiosk Camera Dashboard
-- Logic and recovery package: [![YAML source: kiosk_tablet](https://img.shields.io/static/v1?label=YAML&message=kiosk_tablet&color=CB171E&logo=yaml&logoColor=white)](../packages/kiosk_tablet.yaml)
-- Dashboard entrypoint: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=dashboard&color=CB171E&logo=yaml&logoColor=white)](kiosk/dashboard.yaml)
-- Camera view: [![YAML source: 01_kiosk_oveview](https://img.shields.io/static/v1?label=YAML&message=01_kiosk_oveview&color=CB171E&logo=yaml&logoColor=white)](kiosk/views/01_kiosk_oveview.yaml)
-- Camera sections: [![YAML source: kiosk_oveview_sections](https://img.shields.io/static/v1?label=YAML&message=kiosk_oveview_sections&color=CB171E&logo=yaml&logoColor=white)](kiosk/partials/kiosk_oveview_sections.yaml)
+- Logic and recovery package: [![YAML source: kiosk_tablet](https://img.shields.io/static/v1?label=YAML&message=kiosk_tablet&color=lightgrey&logo=github&logoColor=181717)](../packages/kiosk_tablet.yaml)
+- Dashboard entrypoint: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=dashboard&color=lightgrey&logo=github&logoColor=181717)](kiosk/dashboard.yaml)
+- Camera view: [![YAML source: 01_kiosk_oveview](https://img.shields.io/static/v1?label=YAML&message=01_kiosk_oveview&color=lightgrey&logo=github&logoColor=181717)](kiosk/views/01_kiosk_oveview.yaml)
+- Camera sections: [![YAML source: kiosk_oveview_sections](https://img.shields.io/static/v1?label=YAML&message=kiosk_oveview_sections&color=lightgrey&logo=github&logoColor=181717)](kiosk/partials/kiosk_oveview_sections.yaml)
 
 ### How it is wired into Home Assistant
 This folder is referenced from `config/configuration.yaml` via:

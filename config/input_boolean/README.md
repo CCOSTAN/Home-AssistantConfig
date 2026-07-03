@@ -26,9 +26,9 @@ Mode and trigger toggles that drive automations (guest mode, parties, presence o
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [![YAML source: home_modes](https://img.shields.io/static/v1?label=YAML&message=home_modes&color=CB171E&logo=yaml&logoColor=white)](home_modes.yaml) | Guest, alert, and notification toggles used across automations. |
-| [![YAML source: trigger_booleans](https://img.shields.io/static/v1?label=YAML&message=trigger_booleans&color=CB171E&logo=yaml&logoColor=white)](trigger_booleans.yaml) | One-off toggles used as automation guards. |
-| [![YAML source: hidden_booleans](https://img.shields.io/static/v1?label=YAML&message=hidden_booleans&color=CB171E&logo=yaml&logoColor=white)](hidden_booleans.yaml) | Back-end toggles tucked away from the UI. |
+| [![YAML source: home_modes](https://img.shields.io/static/v1?label=YAML&message=home_modes&color=lightgrey&logo=github&logoColor=181717)](home_modes.yaml) | Guest, alert, and notification toggles used across automations. |
+| [![YAML source: trigger_booleans](https://img.shields.io/static/v1?label=YAML&message=trigger_booleans&color=lightgrey&logo=github&logoColor=181717)](trigger_booleans.yaml) | One-off toggles used as automation guards. |
+| [![YAML source: hidden_booleans](https://img.shields.io/static/v1?label=YAML&message=hidden_booleans&color=lightgrey&logo=github&logoColor=181717)](hidden_booleans.yaml) | Back-end toggles tucked away from the UI. |
 
 ### Tips
 - Flip booleans in the UI or via scripts to steer automations without edits.

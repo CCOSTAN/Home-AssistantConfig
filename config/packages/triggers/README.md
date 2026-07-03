@@ -27,9 +27,9 @@ Small, reusable trigger packages�button presses, state trackers, and helper fl
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [![YAML source: last_message](https://img.shields.io/static/v1?label=YAML&message=last_message&color=CB171E&logo=yaml&logoColor=white)](last_message.yaml) | Store the most recent TTS/notify payload for debugging. |
-| [![YAML source: self_destruct](https://img.shields.io/static/v1?label=YAML&message=self_destruct&color=CB171E&logo=yaml&logoColor=white)](self_destruct.yaml) | Fun self-destruct Easter egg with sound and light cues. |
-| [![YAML source: sleepy_dog](https://img.shields.io/static/v1?label=YAML&message=sleepy_dog&color=CB171E&logo=yaml&logoColor=white)](sleepy_dog.yaml) | Idle/dormant trigger helper to avoid duplicate alerts. |
+| [![YAML source: last_message](https://img.shields.io/static/v1?label=YAML&message=last_message&color=lightgrey&logo=github&logoColor=181717)](last_message.yaml) | Store the most recent TTS/notify payload for debugging. |
+| [![YAML source: self_destruct](https://img.shields.io/static/v1?label=YAML&message=self_destruct&color=lightgrey&logo=github&logoColor=181717)](self_destruct.yaml) | Fun self-destruct Easter egg with sound and light cues. |
+| [![YAML source: sleepy_dog](https://img.shields.io/static/v1?label=YAML&message=sleepy_dog&color=lightgrey&logo=github&logoColor=181717)](sleepy_dog.yaml) | Idle/dormant trigger helper to avoid duplicate alerts. |
 
 ### Tips
 - Drop these alongside your packages to keep repeated patterns DRY.

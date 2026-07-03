@@ -26,8 +26,8 @@ Standalone sensors that aren't bundled in packages - time/utility helpers and MQ
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [![YAML source: date_time](https://img.shields.io/static/v1?label=YAML&message=date_time&color=CB171E&logo=yaml&logoColor=white)](date_time.yaml) | Time/date sensors used across automations. |
-| [![YAML source: MQTT](https://img.shields.io/static/v1?label=YAML&message=MQTT&color=CB171E&logo=yaml&logoColor=white)](MQTT.yaml) | Generic MQTT sensor definitions. |
+| [![YAML source: date_time](https://img.shields.io/static/v1?label=YAML&message=date_time&color=lightgrey&logo=github&logoColor=181717)](date_time.yaml) | Time/date sensors used across automations. |
+| [![YAML source: MQTT](https://img.shields.io/static/v1?label=YAML&message=MQTT&color=lightgrey&logo=github&logoColor=181717)](MQTT.yaml) | Generic MQTT sensor definitions. |
 
 ### Tips
 - Great place for lightweight utility sensors you want everywhere.
