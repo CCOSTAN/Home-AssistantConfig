@@ -7,7 +7,7 @@
 #  Thermostat helpers for upstairs/downstairs comfort.
 # -------------------------------------------------------------------
 # Related Issue: 1571, 273
-# Notes: Filter due alerts use a 350h runtime threshold, 9-month hard limit, 3-day snooze, and Filter Changed push actions.
+# Notes: Filter due alerts use 350h downstairs/450h upstairs runtime thresholds, a 9-month hard limit, 3-day snooze, and Filter Changed push actions.
 # Notes: Condenser line cleanout uses a single 360-day reminder for both HVAC systems.
 # Notes: The snooze notification pattern is also covered at https://youtu.be/y47KSflS1aw.
 # Video: https://youtu.be/nScl2JxYSB8
@@ -91,6 +91,21 @@ template:
       - name: "Upstairs AC Cooling Numeric"
         unique_id: upstairs_ac_cooling_numeric
         state: "{{ 1 if is_state('binary_sensor.upstairs_ac_is_cooling', 'on') else 0 }}"
+      - name: "HVAC Condenser Lines Days Since Cleaned"
+        unique_id: hvac_condenser_lines_days_since_cleaned
+        unit_of_measurement: d
+        icon: mdi:calendar-clock
+        availability: >-
+          {% set raw = states('input_datetime.hvac_condenser_lines_last_cleaned') %}
+          {{ raw not in ['unknown', 'unavailable', 'none', ''] and as_timestamp(as_datetime(raw), default=none) is not none }}
+        state: >-
+          {% set raw = states('input_datetime.hvac_condenser_lines_last_cleaned') %}
+          {% set cleaned_ts = as_timestamp(as_datetime(raw), default=none) %}
+          {% if cleaned_ts is not none %}
+            {{ [((as_timestamp(now()) - cleaned_ts) / 86400) | int(0), 0] | max }}
+          {% else %}
+            0
+          {% endif %}
 
 input_datetime:
   downstairs_last_filter_change:
@@ -334,7 +349,7 @@ script:
 ##############################################################################
 automation:
   - alias: Notify Climate Filter Change Due
-    description: Notify when HVAC filter runtime exceeds 350h or age reaches 9 months
+    description: Notify when HVAC filter runtime exceeds the location threshold or age reaches 9 months
     trigger:
       - platform: numeric_state
         entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
@@ -345,7 +360,7 @@ automation:
         id: downstairs_daily
       - platform: numeric_state
         entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
-        above: 350
+        above: 450
         id: upstairs_runtime
       - platform: time
         at: "09:10:00"
@@ -357,15 +372,16 @@ automation:
       last_filter_entity: "input_datetime.{{ location }}_last_filter_change"
       snooze_entity: "input_datetime.{{ location }}_filter_snooze_until"
       runtime_hours: "{{ states(runtime_sensor) | float(0) }}"
+      runtime_threshold_hours: "{{ 450 if location == 'upstairs' else 350 }}"
       last_filter_ts: "{{ as_timestamp(states(last_filter_entity), 0) }}"
       filter_age_days: "{{ ((as_timestamp(now()) - (last_filter_ts | float(0))) / 86400) | round(0) }}"
       due_reason: >-
-        {% set runtime_due = runtime_hours | float(0) > 350 %}
+        {% set runtime_due = runtime_hours | float(0) > (runtime_threshold_hours | float(0)) %}
         {% set age_due = (last_filter_ts | float(0)) == 0 or (filter_age_days | int(0)) >= 274 %}
         {% if runtime_due and age_due %}
-          Runtime has exceeded 350h and the filter is {{ filter_age_days }} days old.
+          Runtime has exceeded {{ runtime_threshold_hours }}h and the filter is {{ filter_age_days }} days old.
         {% elif runtime_due %}
-          Runtime has exceeded 350h.
+          Runtime has exceeded {{ runtime_threshold_hours }}h.
         {% else %}
           Filter age has reached the 9-month hard limit ({{ filter_age_days }} days).
         {% endif %}
@@ -373,7 +389,7 @@ automation:
       - condition: template
         value_template: >-
           {{
-            (runtime_hours | float(0) > 350)
+            (runtime_hours | float(0) > (runtime_threshold_hours | float(0)))
             or (last_filter_ts | float(0)) == 0
             or (filter_age_days | int(0)) >= 274
           }}

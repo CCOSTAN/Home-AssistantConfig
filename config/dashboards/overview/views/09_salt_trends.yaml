@@ -1,0 +1,59 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Subview - Salt Trends
+#  Year-scale water softener salt maintenance history.
+# -------------------------------------------------------------------
+# Notes: Linked from the Home Maintenance water view salt tiles.
+# Notes: Uses native history graph cards because more-info dialogs do not expose a configurable default time window.
+######################################################################
+
+title: Salt Trends
+path: salt-trends
+subview: true
+back_path: /lovelace/water
+type: sections
+max_columns: 2
+sections:
+- type: grid
+  column_span: 2
+  cards:
+  - type: heading
+    heading: Water Softener Salt
+    heading_style: title
+  - type: entities
+    title: Current Salt Maintenance
+    entities:
+    - entity: sensor.water_softener_salt_days_since_last_add
+      name: Days since last refill
+    - entity: sensor.water_softener_salt_average_days_between_refills
+      name: Typical duration
+    - entity: sensor.water_softener_salt_refill_count
+      name: Refills logged
+    - entity: sensor.water_softener_salt_total_added
+      name: Total salt logged
+  # Fallback card: native history graph is used because the more-info dialog
+  # does not support a configurable default history range.
+  - type: history-graph
+    title: Salt Typically Lasts - Last 365 Days
+    hours_to_show: 8760
+    entities:
+    - entity: sensor.water_softener_salt_average_days_between_refills
+      name: Days between refills
+  # Fallback card: same controlled yearly window for low-frequency salt events.
+  - type: history-graph
+    title: Salt Refills Logged - Last 365 Days
+    hours_to_show: 8760
+    entities:
+    - entity: sensor.water_softener_salt_refill_count
+      name: Refill count
+  # Fallback card: same controlled yearly window for low-frequency salt events.
+  - type: history-graph
+    title: Salt Logged Total - Last 365 Days
+    hours_to_show: 8760
+    entities:
+    - entity: sensor.water_softener_salt_total_added
+      name: Total lb
+cards: []

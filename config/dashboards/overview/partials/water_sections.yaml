@@ -26,11 +26,25 @@
     tap_action:
       action: more-info
       entity: script.reset_upstairs_filter
-  - type: tile
+  - type: custom:mushroom-template-card
+    primary: HVAC Condenser Lines
+    secondary: >-
+      {% set days = states('sensor.hvac_condenser_lines_days_since_cleaned') | int(0) -%}
+      {% set raw = states('input_datetime.hvac_condenser_lines_last_cleaned') -%}
+      {%- set when = as_datetime(raw).strftime('%b %d, %Y') | replace(' 0', ' ') if raw not in ['unknown', 'unavailable', 'none', ''] else 'unknown' -%}
+      {%- if days < 1 -%}Cleaned today{%- elif days == 1 -%}1 day since {{ when }}{%- else -%}{{ days }} days since {{ when }}{%- endif -%}
+    icon: mdi:calendar-clock
     entity: input_datetime.hvac_condenser_lines_last_cleaned
+    icon_color: blue
     tap_action:
       action: more-info
       entity: script.reset_hvac_condenser_lines_cleaned
+    hold_action:
+      action: none
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
   - type: custom:power-flow-card-plus
     entities:
       battery:
@@ -127,4 +141,29 @@
       action: none
     layout: horizontal
     fill_container: true
+  - type: custom:mushroom-template-card
+    primary: >-
+      {% set days = states('sensor.water_softener_salt_days_since_last_add') | float(0) -%}
+      {%- if days < 1 -%}Last refill: today{%- elif days == 1 -%}Last refill: 1 day ago{%- else -%}Last refill: {{ days | round(1) }} days ago{%- endif -%}
+    secondary: "{{ states('sensor.water_softener_salt_last_summary') }}"
+    icon: mdi:shaker
+    entity: sensor.water_softener_salt_days_since_last_add
+    icon_color: blue
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/salt-trends
+    hold_action:
+      action: more-info
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  - type: tile
+    entity: sensor.water_softener_salt_average_days_between_refills
+    name: Salt typically lasts
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/salt-trends
+    hold_action:
+      action: more-info
   - type: energy-water-graph

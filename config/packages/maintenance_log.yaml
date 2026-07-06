@@ -8,8 +8,8 @@
 # -------------------------------------------------------------------
 # Notes: Webhook id is bearclaw_maintenance_log_v1 (Joanna -> HA contract).
 # Notes: Duplicate event_id values are ignored to prevent double-count totals.
-# Notes: Recent event history string format is "when|amount|note||...".
-# Notes: Numeric refill interval sensors expose state_class for long-term trend rollups.
+# Notes: Recent event history string format is "YYYY-MM-DD HH:MM:SS|amount|note||...".
+# Notes: Long-term stats live on template sensors; helpers are internal state for restore/calculation.
 ######################################################################
 
 input_number:
@@ -65,7 +65,6 @@ template:
       - name: "Water Softener Salt Days Since Last Add"
         unique_id: water_softener_salt_days_since_last_add
         unit_of_measurement: d
-        state_class: measurement
         availability: >-
           {% set raw = states('input_datetime.water_softener_salt_last_occurred_at') %}
           {% if raw in ['unknown', 'unavailable', 'none', ''] %}
@@ -107,7 +106,7 @@ template:
         state: >-
           {% set raw = states('input_text.water_softener_salt_recent_events') %}
           {% if raw in ['unknown', 'unavailable', 'none', ''] %}
-            150
+            unknown
           {% else %}
             {% set entries = raw.split('||') %}
             {% set ns = namespace(previous_ts=none, total_days=0, sample_count=0) %}
@@ -128,9 +127,22 @@ template:
             {% if ns.sample_count > 0 %}
               {{ (ns.total_days / ns.sample_count) | round(1) }}
             {% else %}
-              150
+              unknown
             {% endif %}
           {% endif %}
+
+      - name: "Water Softener Salt Refill Count"
+        unique_id: water_softener_salt_refill_count
+        icon: mdi:counter
+        state_class: total
+        state: "{{ states('counter.water_softener_salt_event_count') | int(0) }}"
+
+      - name: "Water Softener Salt Total Added"
+        unique_id: water_softener_salt_total_added
+        unit_of_measurement: lb
+        device_class: weight
+        state_class: total
+        state: "{{ states('input_number.water_softener_salt_total_added_lb') | float(0) | round(1) }}"
 
 automation:
   - alias: "Maintenance Log - Joanna Webhook Ingest"
@@ -216,7 +228,7 @@ automation:
       note_value: >-
         {% set text = raw_text if raw_text else 'Logged by Joanna webhook.' %}
         {{ text | truncate(255, true, '') }}
-      recent_event_line: "{{ occurred_display }}|{{ effective_amount_lb | round(1) }} lb|{{ note_value }}"
+      recent_event_line: "{{ occurred_local_datetime }}|{{ effective_amount_lb | round(1) }} lb|{{ note_value }}"
       next_recent_events: >-
         {% set current = (states('input_text.water_softener_salt_recent_events')
            | default('', true) | string).split('||') %}

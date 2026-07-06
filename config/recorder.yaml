@@ -12,6 +12,8 @@
 # Notes: Life360 trackers are explicitly included for map/history queries despite the broad device_tracker exclusion.
 # Notes: Raw Portainer container/stack status telemetry is live-only; keep Docker aggregate outage sensors, Repairs, and curated logbook events instead.
 # Notes: Mobile app phone telemetry is live-only; Life360 keeps location history and notify services remain available.
+# Notes: Rolling maintenance days-since sensors are live-only; durable interval/count/total sensors carry the history.
+# Notes: TP-Link lamp voltage diagnostics are live-only; useful energy/power sensors stay recorded.
 ######################################################################
 db_url: !secret recorder_db_url
 purge_keep_days: 180
@@ -169,6 +171,9 @@ exclude:
   entities:
     - automation.update_garage_get_status
     - automation.docker_telemetry_template_refresh
+    - sensor.hvac_condenser_lines_days_since_cleaned
+    - sensor.front_office_lamp_voltage
+    - sensor.water_softener_salt_days_since_last_add
     # BEGIN generated Portainer recorder/logbook noise exclusions
     # Portainer per-container/status plumbing is live-only; keep aggregate Docker outage sensors historically.
     - binary_sensor.docker_container_alerts_snoozed

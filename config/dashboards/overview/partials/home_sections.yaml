@@ -177,15 +177,28 @@
     - temperature
     vertical: false
     features_position: bottom
-  - type: tile
+  - type: custom:mushroom-template-card
     entity: climate.upstairs
-    show_entity_picture: false
-    hide_state: false
-    state_content:
-    - current_temperature
-    - temperature
-    vertical: false
-    features_position: bottom
+    primary: Upstairs
+    secondary: >-
+      {% set current = state_attr('climate.upstairs', 'current_temperature') %}
+      {% set target = state_attr('climate.upstairs', 'temperature') %}
+      {% set humidity = states('sensor.upstairs_humidity') %}
+      {% set current_text = ((current | float) | round(0) | int) ~ ' °F' if current is number else 'Current n/a' %}
+      {% set target_text = ((target | float) | round(0) | int) ~ ' °F' if target is number else 'Target n/a' %}
+      {% set humidity_text = ((humidity | float) | round(0) | int) ~ '% humidity' if is_number(humidity) else 'Humidity n/a' %}
+      {{ current_text }} · {{ target_text }} · {{ humidity_text }}
+    icon: mdi:thermostat
+    icon_color: >-
+      {% set mode = states('climate.upstairs') %}
+      {% if mode == 'cool' %}blue{% elif mode == 'heat' %}orange{% elif mode == 'off' %}grey{% else %}green{% endif %}
+    tap_action:
+      action: more-info
+    hold_action:
+      action: more-info
+    double_tap_action:
+      action: none
+    multiline_secondary: false
   - type: custom:search-card
     max_results: 10
   - type: custom:mini-graph-card
