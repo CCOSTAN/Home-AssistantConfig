@@ -9,6 +9,7 @@
 # -------------------------------------------------------------------
 # Notes: More Info and Video: https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html
 # Notes: Patriotic cuckoos run July 3-4, last Monday in May, and first Monday in September.
+# Notes: Patriotic/fireworks cuckoos are disabled for now; revisit issue 984 before re-enabling.
 # Notes: Clock WAVs are served from /local/sounds so Chromecast fetches them from Home Assistant.
 ######################################################################
 - alias: Cuckoo Clock
@@ -46,14 +47,22 @@
         entity_id: media_player.livingroomCC
         media_content_id: >
           {% set month = now().strftime("%B") %}
+          {#
+          Patriotic/fireworks cuckoos disabled 2026-07-04 due to noise sensitivity at home.
+          Re-enable by restoring this date branch and the july-clock folder selection below.
           {% set is_july_celebration = now().month == 7 and now().day in [3, 4] %}
           {% set is_memorial_day = now().month == 5 and now().weekday() == 0 and now().day >= 25 %}
           {% set is_labor_day = now().month == 9 and now().weekday() == 0 and now().day <= 7 %}
           {% set is_patriotic_day = is_july_celebration or is_memorial_day or is_labor_day %}
+          #}
+          {% set is_patriotic_day = false %}
           {% set base = "http://192.168.10.10:8123/local/sounds/" %}
+          {#
           {% if is_patriotic_day %}
             {% set folder = 'july-clock' %}
           {% elif month == 'October' %}
+          #}
+          {% if month == 'October' %}
             {% set folder = 'october-clock' %}
           {% elif month == 'December' %}
             {% set folder = 'december-clock' %}
