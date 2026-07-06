@@ -13,6 +13,7 @@
 # Notes: Fires `tugtainer_home_assistant_core_updated` when `### Updated:` includes Home Assistant.
 # Notes: Home Assistant changelog dispatch uses core-YYYY.M URL format from parsed/fallback version.
 # Notes: Joanna dispatch cooldown uses mode=single with a 24-hour delay lockout.
+# Notes: Available reports must not auto-update Home Assistant; HA core updates require explicit approval, config check, and a maintenance window.
 # - Blog: https://www.vcloudinfo.com/2026/04/joanna-home-assistant-changelog-digest-tugtainer.html
 # Notes: Prior background post https://www.vcloudinfo.com/2026/02/tugtainer-docker-updates-home-assistant-notifications.html
 ######################################################################
@@ -142,8 +143,14 @@ automation:
             event_type={{ event_type }},
             message={{ message }}
           request: >-
-            Review the Tugtainer report and update all containers listed under the
-            Available section. Report what was updated and any failures.
+            Review the Tugtainer report and prepare an update plan for containers
+            listed under the Available section. Do not update, recreate, or restart
+            Home Assistant (`home-assistant` or
+            `ghcr.io/home-assistant/home-assistant`) from this dispatch. For Home
+            Assistant core, report the available version and wait for explicit
+            approval, a config check, and a maintenance window. Update only non-HA
+            containers where the change is low-risk, then report what changed and
+            any failures.
       - delay: "24:00:00"
 
   - alias: "Tugtainer - Dispatch Joanna For Home Assistant Core Digest"
