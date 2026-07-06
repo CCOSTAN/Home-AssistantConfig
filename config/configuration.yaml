@@ -28,6 +28,11 @@ homeassistant:
 
 default_config:
 
+# Temporary Rheem EcoNet/ClearBlade TLS workaround.
+# Remove when https://github.com/CCOSTAN/Home-AssistantConfig/issues/1820 is resolved.
+additional_ca:
+  rheem_econet_digicert_g1: DigiCertGlobalRootCA.crt.pem
+
 frontend:
   extra_module_url:
     - /hacsfiles/custom-sidebar/custom-sidebar-plugin.js
