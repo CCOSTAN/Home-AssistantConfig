@@ -1,0 +1,255 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Subview - Sprinklers
+#  Rachio-backed sprinkler status, zone history, and watering controls.
+# -------------------------------------------------------------------
+# Notes: Linked from the Home Maintenance water view sprinkler tiles.
+# Notes: Zone last-run values come from trigger-based template sensors in config/packages/rachio.yaml.
+######################################################################
+
+title: Sprinklers
+path: sprinklers
+subview: true
+back_path: /lovelace/water
+type: sections
+max_columns: 3
+sections:
+- type: grid
+  column_span: 3
+  cards:
+  - type: heading
+    heading: Sprinklers
+    heading_style: title
+  # Fallback card: Mushroom is already the established Home Maintenance summary style.
+  - type: custom:mushroom-template-card
+    primary: >-
+      {% set status = states('sensor.rachio_controller_status') %}
+      {% set active = states('sensor.rachio_active_zone') %}
+      {% if status == 'watering' %}
+        Watering {{ active }}
+      {% elif status == 'rain_delay' %}
+        Rain delay is active
+      {% elif status == 'standby' %}
+        Controller is in standby
+      {% elif status == 'unavailable' %}
+        Sprinklers are unavailable
+      {% else %}
+        Sprinklers are ready
+      {% endif %}
+    secondary: >-
+      {% set last = states('sensor.rachio_last_run_summary') %}
+      {% set completed = state_attr('sensor.rachio_last_run_summary', 'completed_at') %}
+      {% set duration = state_attr('sensor.rachio_last_run_summary', 'duration_min') %}
+      {% if last not in ['unknown', 'unavailable', 'none', ''] and completed not in ['unknown', 'unavailable', 'none', '', none] %}
+        {% set when = as_datetime(completed).strftime('%b %d, %I:%M %p') | replace(' 0', ' ') %}
+        Last run: {{ last }} for {{ duration }} min at {{ when }}
+      {% else %}
+        {{ state_attr('sensor.rachio_controller_status', 'schedule_summary') | default('No completed run captured yet.', true) }}
+      {% endif %}
+    icon: mdi:sprinkler-variant
+    entity: sensor.rachio_controller_status
+    icon_color: >-
+      {% set status = states('sensor.rachio_controller_status') %}
+      {% if status == 'watering' %}
+        green
+      {% elif status in ['rain_delay', 'standby'] %}
+        blue
+      {% elif status == 'unavailable' %}
+        red
+      {% else %}
+        teal
+      {% endif %}
+    tap_action:
+      action: more-info
+    hold_action:
+      action: none
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  - type: tile
+    entity: switch.daily_flex_watering_schedule
+    name: Flex watering schedule
+    hold_action:
+      action: more-info
+  - type: tile
+    entity: switch.carlo_rachio_rain_delay
+    name: Rain delay
+    hold_action:
+      action: more-info
+  - type: tile
+    entity: switch.carlo_rachio_in_standby_mode
+    name: Standby mode
+    hold_action:
+      action: more-info
+  - type: tile
+    entity: script.rachio_pause_watering_30
+    name: Pause 30 minutes
+    icon: mdi:pause-circle
+    tap_action:
+      action: call-service
+      service: script.rachio_pause_watering_30
+  - type: tile
+    entity: script.rachio_resume_watering
+    name: Resume watering
+    icon: mdi:play-circle
+    tap_action:
+      action: call-service
+      service: script.rachio_resume_watering
+  - type: tile
+    entity: script.rachio_stop_watering
+    name: Stop watering
+    icon: mdi:stop-circle
+    tap_action:
+      action: call-service
+      service: script.rachio_stop_watering
+- type: grid
+  column_span: 3
+  cards:
+  - type: heading
+    heading: Zones
+    heading_style: subtitle
+  # Fallback card: Mushroom template card combines live zone state and the paired last-run sensor in one compact tile.
+  - type: custom:mushroom-template-card
+    primary: Front Lawn
+    secondary: >-
+      {% set completed = state_attr('sensor.rachio_front_lawn_last_run', 'completed_at') %}
+      {% set minutes = states('sensor.rachio_front_lawn_last_run') %}
+      {% if is_state('switch.front_lawn', 'on') %}
+        {{ state_attr('switch.front_lawn', 'Summary') | default('Watering now', true) }}
+      {% elif completed not in ['unknown', 'unavailable', 'none', '', none] %}
+        {% set when = as_datetime(completed).strftime('%b %d, %I:%M %p') | replace(' 0', ' ') %}
+        Last run: {{ when }} for {{ minutes }} min
+      {% else %}
+        {{ state_attr('switch.front_lawn', 'Summary') | default('No completed run captured yet.', true) }}
+      {% endif %}
+    icon: mdi:sprinkler-variant
+    entity: switch.front_lawn
+    icon_color: "{% if is_state('switch.front_lawn', 'on') %}green{% elif is_state('switch.front_lawn', 'unavailable') %}red{% else %}blue{% endif %}"
+    tap_action:
+      action: more-info
+    hold_action:
+      action: more-info
+      entity: sensor.rachio_front_lawn_last_run
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  # Fallback card: same compact zone-state and last-run pairing for this zone.
+  - type: custom:mushroom-template-card
+    primary: Front Hedges
+    secondary: >-
+      {% set completed = state_attr('sensor.rachio_front_hedges_last_run', 'completed_at') %}
+      {% set minutes = states('sensor.rachio_front_hedges_last_run') %}
+      {% if is_state('switch.front_hedges_right_side_house', 'on') %}
+        {{ state_attr('switch.front_hedges_right_side_house', 'Summary') | default('Watering now', true) }}
+      {% elif completed not in ['unknown', 'unavailable', 'none', '', none] %}
+        {% set when = as_datetime(completed).strftime('%b %d, %I:%M %p') | replace(' 0', ' ') %}
+        Last run: {{ when }} for {{ minutes }} min
+      {% else %}
+        {{ state_attr('switch.front_hedges_right_side_house', 'Summary') | default('No completed run captured yet.', true) }}
+      {% endif %}
+    icon: mdi:sprinkler-variant
+    entity: switch.front_hedges_right_side_house
+    icon_color: "{% if is_state('switch.front_hedges_right_side_house', 'on') %}green{% elif is_state('switch.front_hedges_right_side_house', 'unavailable') %}red{% else %}blue{% endif %}"
+    tap_action:
+      action: more-info
+    hold_action:
+      action: more-info
+      entity: sensor.rachio_front_hedges_last_run
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  # Fallback card: same compact zone-state and last-run pairing for this zone.
+  - type: custom:mushroom-template-card
+    primary: Left Side House
+    secondary: >-
+      {% set completed = state_attr('sensor.rachio_left_side_house_last_run', 'completed_at') %}
+      {% set minutes = states('sensor.rachio_left_side_house_last_run') %}
+      {% if is_state('switch.left_side_house', 'on') %}
+        {{ state_attr('switch.left_side_house', 'Summary') | default('Watering now', true) }}
+      {% elif completed not in ['unknown', 'unavailable', 'none', '', none] %}
+        {% set when = as_datetime(completed).strftime('%b %d, %I:%M %p') | replace(' 0', ' ') %}
+        Last run: {{ when }} for {{ minutes }} min
+      {% else %}
+        {{ state_attr('switch.left_side_house', 'Summary') | default('No completed run captured yet.', true) }}
+      {% endif %}
+    icon: mdi:sprinkler-variant
+    entity: switch.left_side_house
+    icon_color: "{% if is_state('switch.left_side_house', 'on') %}green{% elif is_state('switch.left_side_house', 'unavailable') %}red{% else %}blue{% endif %}"
+    tap_action:
+      action: more-info
+    hold_action:
+      action: more-info
+      entity: sensor.rachio_left_side_house_last_run
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  # Fallback card: same compact zone-state and last-run pairing for this zone.
+  - type: custom:mushroom-template-card
+    primary: Backyard Shrubs
+    secondary: >-
+      {% set completed = state_attr('sensor.rachio_backyard_shrubs_last_run', 'completed_at') %}
+      {% set minutes = states('sensor.rachio_backyard_shrubs_last_run') %}
+      {% if is_state('switch.backyard_shrubs', 'on') %}
+        {{ state_attr('switch.backyard_shrubs', 'Summary') | default('Watering now', true) }}
+      {% elif completed not in ['unknown', 'unavailable', 'none', '', none] %}
+        {% set when = as_datetime(completed).strftime('%b %d, %I:%M %p') | replace(' 0', ' ') %}
+        Last run: {{ when }} for {{ minutes }} min
+      {% else %}
+        {{ state_attr('switch.backyard_shrubs', 'Summary') | default('No completed run captured yet.', true) }}
+      {% endif %}
+    icon: mdi:sprinkler-variant
+    entity: switch.backyard_shrubs
+    icon_color: "{% if is_state('switch.backyard_shrubs', 'on') %}green{% elif is_state('switch.backyard_shrubs', 'unavailable') %}red{% else %}blue{% endif %}"
+    tap_action:
+      action: more-info
+    hold_action:
+      action: more-info
+      entity: sensor.rachio_backyard_shrubs_last_run
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+- type: grid
+  column_span: 3
+  cards:
+  - type: heading
+    heading: Last Run History
+    heading_style: subtitle
+  # Fallback card: native entities card exposes attributes without adding more template helpers.
+  - type: entities
+    title: Last Completed Run
+    entities:
+    - entity: sensor.rachio_last_run_summary
+      name: Zone
+    - type: attribute
+      entity: sensor.rachio_last_run_summary
+      attribute: duration_min
+      name: Duration
+      suffix: min
+    - type: attribute
+      entity: sensor.rachio_last_run_summary
+      attribute: completed_at
+      name: Completed
+    - entity: sensor.rachio_active_zone
+      name: Active zone
+  # Fallback card: native history graph gives sparse duration history without another custom graph template.
+  - type: history-graph
+    title: Zone Run Durations - Last 90 Days
+    hours_to_show: 2160
+    entities:
+    - entity: sensor.rachio_front_lawn_last_run
+      name: Front Lawn
+    - entity: sensor.rachio_front_hedges_last_run
+      name: Front Hedges
+    - entity: sensor.rachio_left_side_house_last_run
+      name: Left Side House
+    - entity: sensor.rachio_backyard_shrubs_last_run
+      name: Backyard Shrubs
+cards: []

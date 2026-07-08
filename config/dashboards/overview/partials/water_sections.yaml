@@ -8,7 +8,10 @@
 # -------------------------------------------------------------------
 # Notes: Extracted from config/dashboards/overview/views/07_water.yaml key `sections`.
 # Notes: Includes water and home utility telemetry (filters, power, hot water).
-# Video: https://youtu.be/nScl2JxYSB8
+# Video: HVAC maintenance dashboard - https://youtu.be/nScl2JxYSB8
+# Video: Water softener salt tracking - https://youtu.be/_OqTv9i-jAs
+# Blog: https://www.vcloudinfo.com/2026/07/home-assistant-water-softener-salt-automation.html
+# Notes: Sprinkler overview links to config/dashboards/overview/views/10_sprinklers.yaml.
 ######################################################################
 
 - cards:
@@ -141,6 +144,62 @@
       action: none
     layout: horizontal
     fill_container: true
+  # Fallback card: Mushroom matches the existing Home Maintenance overview tile style.
+  - type: custom:mushroom-template-card
+    primary: >-
+      {% set status = states('sensor.rachio_controller_status') %}
+      {% set active = states('sensor.rachio_active_zone') %}
+      {% if status == 'watering' %}
+        Sprinklers: {{ active }}
+      {% elif status == 'rain_delay' %}
+        Sprinklers: rain delay
+      {% elif status == 'standby' %}
+        Sprinklers: standby
+      {% elif status == 'unavailable' %}
+        Sprinklers: unavailable
+      {% else %}
+        Sprinklers: ready
+      {% endif %}
+    secondary: >-
+      {% set zone = states('sensor.rachio_last_run_summary') %}
+      {% set completed = state_attr('sensor.rachio_last_run_summary', 'completed_at') %}
+      {% set duration = state_attr('sensor.rachio_last_run_summary', 'duration_min') %}
+      {% if zone not in ['unknown', 'unavailable', 'none', ''] and completed not in ['unknown', 'unavailable', 'none', '', none] %}
+        {% set when = as_datetime(completed).strftime('%b %d, %I:%M %p') | replace(' 0', ' ') %}
+        Last run: {{ zone }}{% if duration not in ['unknown', 'unavailable', 'none', '', none] %}, {{ duration }} min{% endif %} at {{ when }}
+      {% else %}
+        {{ state_attr('sensor.rachio_controller_status', 'schedule_summary') | default('No completed run captured yet.', true) }}
+      {% endif %}
+    icon: mdi:sprinkler-variant
+    entity: sensor.rachio_controller_status
+    icon_color: >-
+      {% set status = states('sensor.rachio_controller_status') %}
+      {% if status == 'watering' %}
+        green
+      {% elif status in ['rain_delay', 'standby'] %}
+        blue
+      {% elif status == 'unavailable' %}
+        red
+      {% else %}
+        teal
+      {% endif %}
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/sprinklers
+    hold_action:
+      action: more-info
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
+  - type: tile
+    entity: switch.carlo_rachio_rain_delay
+    name: Sprinkler rain delay
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/sprinklers
+    hold_action:
+      action: more-info
   - type: custom:mushroom-template-card
     primary: >-
       {% set days = states('sensor.water_softener_salt_days_since_last_add') | float(0) -%}

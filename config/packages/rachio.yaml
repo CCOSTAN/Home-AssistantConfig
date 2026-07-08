@@ -3,13 +3,358 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Rachio Sprinkler - Rain skips and seasonal scheduling - Smart sprinkler controller via Rachio. https://amzn.to/2eoPKBW.
-#  Centralizes the Rachio Sprinkler - Rain skips and seasonal scheduling package configuration and helpers.
+# Rachio Sprinkler - dashboard state, run history, and watering controls - Smart sprinkler controller via Rachio. https://amzn.to/2eoPKBW.
+#  Builds a reusable sprinkler dashboard pattern around native Rachio zone switches and controller actions.
 # -------------------------------------------------------------------
+# Notes: Attribute audit found native zone metadata and active-run summaries, but no durable off-state last-run/duration attributes.
+# Notes: Last-run sensors are trigger-based template sensors derived from zone on->off transitions; no input_* helpers are used.
 ######################################################################
-# 
-# sensor:
-#   - platform: mqtt
-#     state_topic: "ifttt/rachio/watering_time"
-#     name: "Rachio_watering_time"
 
+template:
+  - binary_sensor:
+      - name: Rachio Watering Now
+        unique_id: rachio_watering_now
+        icon: mdi:sprinkler-variant
+        state: >-
+          {% set zones = [
+            'switch.front_lawn',
+            'switch.front_hedges_right_side_house',
+            'switch.left_side_house',
+            'switch.backyard_shrubs'
+          ] %}
+          {{ expand(zones) | selectattr('state', 'eq', 'on') | list | count > 0 }}
+        attributes:
+          active_zones: >-
+            {% set zones = [
+              'switch.front_lawn',
+              'switch.front_hedges_right_side_house',
+              'switch.left_side_house',
+              'switch.backyard_shrubs'
+            ] %}
+            {% set active = expand(zones) | selectattr('state', 'eq', 'on') | list %}
+            {{ active | map(attribute='name') | map('replace', 'Carlo-Rachio ', '') | list | join(', ') }}
+          active_zone_entities: >-
+            {% set zones = [
+              'switch.front_lawn',
+              'switch.front_hedges_right_side_house',
+              'switch.left_side_house',
+              'switch.backyard_shrubs'
+            ] %}
+            {% set active = expand(zones) | selectattr('state', 'eq', 'on') | list %}
+            {{ active | map(attribute='entity_id') | list | join(', ') }}
+    sensor:
+      - name: Rachio Active Zone
+        unique_id: rachio_active_zone
+        icon: mdi:sprinkler-variant
+        state: >-
+          {% set zones = [
+            'switch.front_lawn',
+            'switch.front_hedges_right_side_house',
+            'switch.left_side_house',
+            'switch.backyard_shrubs'
+          ] %}
+          {% set active = expand(zones) | selectattr('state', 'eq', 'on') | list %}
+          {% if not is_state('binary_sensor.carlo_rachio', 'on') %}
+            Unavailable
+          {% elif active | count > 0 %}
+            {{ active | map(attribute='name') | map('replace', 'Carlo-Rachio ', '') | list | join(', ') }}
+          {% else %}
+            Idle
+          {% endif %}
+        attributes:
+          active_zone_entities: >-
+            {% set zones = [
+              'switch.front_lawn',
+              'switch.front_hedges_right_side_house',
+              'switch.left_side_house',
+              'switch.backyard_shrubs'
+            ] %}
+            {% set active = expand(zones) | selectattr('state', 'eq', 'on') | list %}
+            {{ active | map(attribute='entity_id') | list | join(', ') }}
+          schedule_state: "{{ states('switch.daily_flex_watering_schedule') }}"
+      - name: Rachio Controller Status
+        unique_id: rachio_controller_status
+        icon: mdi:sprinkler-variant
+        state: >-
+          {% set zones = [
+            'switch.front_lawn',
+            'switch.front_hedges_right_side_house',
+            'switch.left_side_house',
+            'switch.backyard_shrubs'
+          ] %}
+          {% set active = expand(zones) | selectattr('state', 'eq', 'on') | list %}
+          {% if not is_state('binary_sensor.carlo_rachio', 'on') %}
+            unavailable
+          {% elif active | count > 0 %}
+            watering
+          {% elif is_state('switch.carlo_rachio_rain_delay', 'on') %}
+            rain_delay
+          {% elif is_state('switch.carlo_rachio_in_standby_mode', 'on') %}
+            standby
+          {% else %}
+            ready
+          {% endif %}
+        attributes:
+          controller_online: "{{ states('binary_sensor.carlo_rachio') }}"
+          rain_sensor: "{{ states('binary_sensor.carlo_rachio_rain_sensor') }}"
+          rain_delay: "{{ states('switch.carlo_rachio_rain_delay') }}"
+          standby: "{{ states('switch.carlo_rachio_in_standby_mode') }}"
+          active_zones: >-
+            {% set zones = [
+              'switch.front_lawn',
+              'switch.front_hedges_right_side_house',
+              'switch.left_side_house',
+              'switch.backyard_shrubs'
+            ] %}
+            {% set active = expand(zones) | selectattr('state', 'eq', 'on') | list %}
+            {{ active | map(attribute='name') | map('replace', 'Carlo-Rachio ', '') | list | join(', ') }}
+          schedule_summary: "{{ state_attr('switch.daily_flex_watering_schedule', 'Summary') }}"
+          schedule_duration: "{{ state_attr('switch.daily_flex_watering_schedule', 'Duration') }}"
+          schedule_type: "{{ state_attr('switch.daily_flex_watering_schedule', 'Type') }}"
+  - trigger:
+      - platform: state
+        entity_id:
+          - switch.front_lawn
+          - switch.front_hedges_right_side_house
+          - switch.left_side_house
+          - switch.backyard_shrubs
+        from: "on"
+        to: "off"
+    sensor:
+      - name: Rachio Last Run Summary
+        unique_id: rachio_last_run_summary
+        icon: mdi:sprinkler-variant
+        state: "{{ trigger.from_state.name | replace('Carlo-Rachio ', '') }}"
+        attributes:
+          zone_entity: "{{ trigger.entity_id }}"
+          started_at: "{{ trigger.from_state.last_changed.isoformat() }}"
+          completed_at: "{{ trigger.to_state.last_changed.isoformat() }}"
+          duration_min: >-
+            {% set start = as_timestamp(trigger.from_state.last_changed, default=none) %}
+            {% set stop = as_timestamp(trigger.to_state.last_changed, default=none) %}
+            {% if start is not none and stop is not none and stop >= start %}
+              {{ ((stop - start) / 60) | round(1) }}
+            {% else %}
+              unknown
+            {% endif %}
+          source_summary: "{{ trigger.to_state.attributes.get('Summary', '') }}"
+  - trigger:
+      - platform: state
+        entity_id: switch.front_lawn
+        from: "on"
+        to: "off"
+    sensor:
+      - name: Rachio Front Lawn Last Run
+        unique_id: rachio_front_lawn_last_run
+        icon: mdi:sprinkler-variant
+        unit_of_measurement: min
+        state_class: measurement
+        state: >-
+          {% set start = as_timestamp(trigger.from_state.last_changed, default=none) %}
+          {% set stop = as_timestamp(trigger.to_state.last_changed, default=none) %}
+          {% if start is not none and stop is not none and stop >= start %}
+            {{ ((stop - start) / 60) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+        attributes:
+          zone_entity: switch.front_lawn
+          zone_name: "{{ trigger.from_state.name | replace('Carlo-Rachio ', '') }}"
+          started_at: "{{ trigger.from_state.last_changed.isoformat() }}"
+          completed_at: "{{ trigger.to_state.last_changed.isoformat() }}"
+          source_summary: "{{ trigger.to_state.attributes.get('Summary', '') }}"
+  - trigger:
+      - platform: state
+        entity_id: switch.front_hedges_right_side_house
+        from: "on"
+        to: "off"
+    sensor:
+      - name: Rachio Front Hedges Last Run
+        unique_id: rachio_front_hedges_last_run
+        icon: mdi:sprinkler-variant
+        unit_of_measurement: min
+        state_class: measurement
+        state: >-
+          {% set start = as_timestamp(trigger.from_state.last_changed, default=none) %}
+          {% set stop = as_timestamp(trigger.to_state.last_changed, default=none) %}
+          {% if start is not none and stop is not none and stop >= start %}
+            {{ ((stop - start) / 60) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+        attributes:
+          zone_entity: switch.front_hedges_right_side_house
+          zone_name: "{{ trigger.from_state.name | replace('Carlo-Rachio ', '') }}"
+          started_at: "{{ trigger.from_state.last_changed.isoformat() }}"
+          completed_at: "{{ trigger.to_state.last_changed.isoformat() }}"
+          source_summary: "{{ trigger.to_state.attributes.get('Summary', '') }}"
+  - trigger:
+      - platform: state
+        entity_id: switch.left_side_house
+        from: "on"
+        to: "off"
+    sensor:
+      - name: Rachio Left Side House Last Run
+        unique_id: rachio_left_side_house_last_run
+        icon: mdi:sprinkler-variant
+        unit_of_measurement: min
+        state_class: measurement
+        state: >-
+          {% set start = as_timestamp(trigger.from_state.last_changed, default=none) %}
+          {% set stop = as_timestamp(trigger.to_state.last_changed, default=none) %}
+          {% if start is not none and stop is not none and stop >= start %}
+            {{ ((stop - start) / 60) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+        attributes:
+          zone_entity: switch.left_side_house
+          zone_name: "{{ trigger.from_state.name | replace('Carlo-Rachio ', '') }}"
+          started_at: "{{ trigger.from_state.last_changed.isoformat() }}"
+          completed_at: "{{ trigger.to_state.last_changed.isoformat() }}"
+          source_summary: "{{ trigger.to_state.attributes.get('Summary', '') }}"
+  - trigger:
+      - platform: state
+        entity_id: switch.backyard_shrubs
+        from: "on"
+        to: "off"
+    sensor:
+      - name: Rachio Backyard Shrubs Last Run
+        unique_id: rachio_backyard_shrubs_last_run
+        icon: mdi:sprinkler-variant
+        unit_of_measurement: min
+        state_class: measurement
+        state: >-
+          {% set start = as_timestamp(trigger.from_state.last_changed, default=none) %}
+          {% set stop = as_timestamp(trigger.to_state.last_changed, default=none) %}
+          {% if start is not none and stop is not none and stop >= start %}
+            {{ ((stop - start) / 60) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+        attributes:
+          zone_entity: switch.backyard_shrubs
+          zone_name: "{{ trigger.from_state.name | replace('Carlo-Rachio ', '') }}"
+          started_at: "{{ trigger.from_state.last_changed.isoformat() }}"
+          completed_at: "{{ trigger.to_state.last_changed.isoformat() }}"
+          source_summary: "{{ trigger.to_state.attributes.get('Summary', '') }}"
+
+script:
+  rachio_stop_watering:
+    alias: Rachio Stop Watering
+    icon: mdi:stop-circle
+    mode: single
+    sequence:
+      - service: rachio.stop_watering
+        data:
+          devices: Carlo-Rachio
+      - service: script.send_to_logbook
+        data:
+          topic: SPRINKLERS
+          message: Stop watering requested from Home Assistant.
+  rachio_pause_watering_30:
+    alias: Rachio Pause Watering 30 Minutes
+    icon: mdi:pause-circle
+    mode: single
+    sequence:
+      - service: rachio.pause_watering
+        data:
+          devices: Carlo-Rachio
+          duration: 30
+      - service: script.send_to_logbook
+        data:
+          topic: SPRINKLERS
+          message: Watering pause requested from Home Assistant for 30 minutes.
+  rachio_resume_watering:
+    alias: Rachio Resume Watering
+    icon: mdi:play-circle
+    mode: single
+    sequence:
+      - service: rachio.resume_watering
+        data:
+          devices: Carlo-Rachio
+      - service: script.send_to_logbook
+        data:
+          topic: SPRINKLERS
+          message: Resume watering requested from Home Assistant.
+
+automation:
+  - id: 4df26960-17cd-4a3b-9f29-9189d6ad1d73
+    alias: Rachio - Activity Feed
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.front_lawn
+          - switch.front_hedges_right_side_house
+          - switch.left_side_house
+          - switch.backyard_shrubs
+        from: "off"
+        to: "on"
+        id: zone_started
+      - platform: state
+        entity_id:
+          - switch.front_lawn
+          - switch.front_hedges_right_side_house
+          - switch.left_side_house
+          - switch.backyard_shrubs
+        from: "on"
+        to: "off"
+        id: zone_finished
+      - platform: state
+        entity_id: switch.carlo_rachio_rain_delay
+        id: rain_delay_changed
+      - platform: state
+        entity_id: switch.carlo_rachio_in_standby_mode
+        id: standby_changed
+    action:
+      - variables:
+          zone_name: "{{ trigger.to_state.name | replace('Carlo-Rachio ', '') if trigger.to_state is defined else '' }}"
+          summary: "{{ trigger.to_state.attributes.get('Summary', '') if trigger.to_state is defined else '' }}"
+          duration_min: >-
+            {% if trigger.from_state is defined and trigger.to_state is defined %}
+              {% set start = as_timestamp(trigger.from_state.last_changed, default=none) %}
+              {% set stop = as_timestamp(trigger.to_state.last_changed, default=none) %}
+              {% if start is not none and stop is not none and stop >= start %}
+                {{ ((stop - start) / 60) | round(1) }}
+              {% else %}
+                unknown
+              {% endif %}
+            {% else %}
+              unknown
+            {% endif %}
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: zone_started
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: SPRINKLERS
+                  message: >-
+                    {{ zone_name }} started watering{% if summary %}: {{ summary }}{% else %}.{% endif %}
+          - conditions:
+              - condition: trigger
+                id: zone_finished
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: SPRINKLERS
+                  message: >-
+                    {{ zone_name }} finished watering{% if duration_min not in ['unknown', 'unavailable', 'none', ''] %} after {{ duration_min }} minutes{% endif %}{% if summary %}: {{ summary }}{% else %}.{% endif %}
+          - conditions:
+              - condition: trigger
+                id: rain_delay_changed
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: SPRINKLERS
+                  message: "Rain delay turned {{ trigger.to_state.state }}."
+          - conditions:
+              - condition: trigger
+                id: standby_changed
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: SPRINKLERS
+                  message: "Standby mode turned {{ trigger.to_state.state }}."

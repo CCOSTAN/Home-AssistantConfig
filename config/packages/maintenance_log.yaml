@@ -3,10 +3,12 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Maintenance Logging - Joanna webhook ingest + graphable HA history
+# Maintenance Logging - webhook ingest + graphable HA history
 #  Stores water softener salt maintenance events in recorder-backed helpers.
 # -------------------------------------------------------------------
-# Notes: Webhook id is bearclaw_maintenance_log_v1 (Joanna -> HA contract).
+# Video: https://youtu.be/_OqTv9i-jAs
+# Blog: https://www.vcloudinfo.com/2026/07/home-assistant-water-softener-salt-automation.html
+# Notes: Webhook id is bearclaw_maintenance_log_v1; payloads can come from agents, NFC tags, QR codes, or dashboard buttons.
 # Notes: Duplicate event_id values are ignored to prevent double-count totals.
 # Notes: Recent event history string format is "YYYY-MM-DD HH:MM:SS|amount|note||...".
 # Notes: Long-term stats live on template sensors; helpers are internal state for restore/calculation.
