@@ -70,11 +70,40 @@ sections:
       action: none
     layout: horizontal
     fill_container: true
-  - type: tile
-    entity: switch.daily_flex_watering_schedule
-    name: Flex watering schedule
-    hold_action:
+  # Fallback card: Mushroom renders optional schedule details from the controller
+  # summary sensor so a missing native schedule switch does not break the view.
+  - type: custom:mushroom-template-card
+    primary: >-
+      {% set summary = state_attr('sensor.rachio_controller_status', 'schedule_summary') %}
+      {% set schedule_state = state_attr('sensor.rachio_active_zone', 'schedule_state') %}
+      {% if summary not in ['unknown', 'unavailable', 'none', '', none] %}
+        Schedule: {{ summary }}
+      {% elif schedule_state not in ['unknown', 'unavailable', 'none', '', none] %}
+        Schedule: {{ schedule_state | title }}
+      {% else %}
+        Schedule not exposed
+      {% endif %}
+    secondary: >-
+      {% set duration = state_attr('sensor.rachio_controller_status', 'schedule_duration') %}
+      {% set schedule_type = state_attr('sensor.rachio_controller_status', 'schedule_type') %}
+      {% if schedule_type not in ['unknown', 'unavailable', 'none', '', none] and duration not in ['unknown', 'unavailable', 'none', '', none] %}
+        {{ schedule_type }} - {{ duration }}
+      {% elif duration not in ['unknown', 'unavailable', 'none', '', none] %}
+        {{ duration }}
+      {% else %}
+        Controller schedule details are unavailable.
+      {% endif %}
+    icon: mdi:calendar-clock
+    entity: sensor.rachio_controller_status
+    icon_color: blue
+    tap_action:
       action: more-info
+    hold_action:
+      action: none
+    double_tap_action:
+      action: none
+    layout: horizontal
+    fill_container: true
   - type: tile
     entity: switch.carlo_rachio_rain_delay
     name: Rain delay
