@@ -123,8 +123,8 @@ template:
         unit_of_measurement: "%"
         state_class: measurement
         icon: mdi:harddisk
-        availability: "{{ states('sensor.192_168_10_17_disk_usage') not in ['unknown', 'unavailable', 'none', ''] }}"
-        state: "{{ states('sensor.192_168_10_17_disk_usage') | float(0) | round(1) }}"
+        availability: "{{ states('sensor.docker17_disk_usage') not in ['unknown', 'unavailable', 'none', ''] }}"
+        state: "{{ states('sensor.docker17_disk_usage') | float(0) | round(1) }}"
 
       - name: "docker_14 Disk Used Percentage"
         unique_id: docker_14_disk_used_percentage
@@ -793,9 +793,9 @@ automation:
         - host_id: docker_17
           host_name: docker_17
           disk_entity: sensor.docker_17_disk_used_percentage
-          raw_entity: sensor.192_168_10_17_disk_usage
-          free_entity: sensor.192_168_10_17_disk_free
-          used_entity: sensor.192_168_10_17_disk_used
+          raw_entity: sensor.docker17_disk_usage
+          free_entity: sensor.docker17_disk_free
+          used_entity: sensor.docker17_disk_used
           band_entity: input_text.docker_17_disk_pressure_band
           issue_id: docker_host_docker_17_disk_pressure
         - host_id: docker_14
