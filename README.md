@@ -27,7 +27,7 @@ Start with the automation: one Home Assistant webhook records each water softene
 - You are here: `/` (root repo guide)
 - [Blog](https://www.vcloudinfo.com) | [Issues](https://github.com/CCOSTAN/Home-AssistantConfig/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) | [Diagram](#network-diagram) | [YouTube](https://youtube.com/vCloudInfo)
 - Config readmes: [Config index](config/README.md) | [Packages](config/packages/README.md) | [Automations](config/automation/README.md) | [Scripts](config/script/README.md) | [Scenes](config/scene/README.md) | [Sounds](config/sounds/README.md) | [Package triggers](config/packages/triggers/README.md)
-- Codex skills (optional): [codex_skills](codex_skills)
+- Codex skills (optional): [Home Assistant Codex Skills](https://github.com/CCOSTAN/Home-Assistant-Codex-Skills)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
