@@ -22,6 +22,8 @@
       state_filter:
         home: none
         not_home: grayscale(100%) opacity(50%)
+        Justin Dorm: grayscale(10%) opacity(50%)
+        Paige Home: grayscale(10%) opacity(50%)
         driving: grayscale(100%) opacity(50%)
     - type: picture-entity
       entity: person.stacey
@@ -31,6 +33,8 @@
       state_filter:
         home: none
         not_home: grayscale(100%) opacity(50%)
+        Justin Dorm: grayscale(10%) opacity(50%)
+        Paige Home: grayscale(10%) opacity(50%)
         gym: grayscale(100%) opacity(50%)
         driving: grayscale(100%) opacity(50%)
     - type: picture-entity
@@ -42,6 +46,7 @@
         home: none
         not_home: grayscale(100%) opacity(50%)
         Justin Dorm: grayscale(10%) opacity(50%)
+        Paige Home: grayscale(10%) opacity(50%)
         gym: grayscale(100%) opacity(50%)
         driving: grayscale(100%) opacity(50%)
     - type: picture-entity
@@ -54,6 +59,7 @@
         not_home: grayscale(100%) opacity(50%)
         paige_work: grayscale(100%) opacity(50%)
         Justin Dorm: grayscale(10%) opacity(50%)
+        Paige Home: grayscale(10%) opacity(50%)
         gym: grayscale(100%) opacity(50%)
         driving: grayscale(100%) opacity(50%)
     columns: 4
@@ -100,14 +106,14 @@
       action: none
     layout: horizontal
     fill_container: true
+  # Core map cards are required to show each person's location history.
   - type: map
     entities:
     - person.justin
-    - person.paige
     hours_to_show: 48
     aspect_ratio: '4:3'
     theme_mode: auto
-    card_mod:
+    card_mod: &person_location_map_style
       style: null
       ha-map $ ha-entity-marker $: ".marker { \n  /* Style person marker & adjust position to avoid blocking waypoints */\
         \ \n  border: 3px solid var(\u2014state-person) !important; \n  border-radius: 50% 50% 50% 0px !important; \n  transform:\
@@ -125,27 +131,19 @@
         \ %}; \n}\n"
   - type: map
     entities:
+    - person.paige
+    hours_to_show: 48
+    aspect_ratio: '4:3'
+    theme_mode: auto
+    card_mod: *person_location_map_style
+  - type: map
+    entities:
     - person.carlo
     - person.stacey
     hours_to_show: 48
     aspect_ratio: '4:3'
     theme_mode: auto
-    card_mod:
-      style: null
-      ha-map $ ha-entity-marker $: ".marker { \n  /* Style person marker & adjust position to avoid blocking waypoints */\
-        \ \n  border: 3px solid var(\u2014state-person) !important; \n  border-radius: 50% 50% 50% 0px !important; \n  transform:\
-        \ rotate(-45deg) translate(50%, -50%); \n  overflow: visible !important;\n} \n.entity-picture { \n  /* Correct orientation\
-        \ of person avatar / \n  transform: rotate(45deg); \n  border-radius: 50%; \n} \n"
-      ha-map $: "path:first-child { \n  / Style accuracy radius / \n  stroke: var(\u2014state-person); \n  fill: color-mix(in\
-        \ srgb, var(\u2014state-person) 50%, transparent); \n  stroke-width: 0px; } \npath:nth-child(even) { \n  / Styling\
-        \ for waypoints / \n  stroke: var(\u2014purple-color); \n  stroke-width: 4px; \n} \npath:nth-child(odd):not(:first-child)\
-        \ { \n  / Styling for lines */ \n  stroke: var(\u2014purple-color); \n  stroke-width: 4px; \n}\n:host { \n  /* Define\
-        \ Person State colors. Can be added to theme / \n  \u2014state-person-home: var(\u2014green-color); \n  \u2014state-person-not-home:\
-        \ var(\u2014red-color); \n  \u2014state-person-zone: var(\u2014blue-color); \n  \u2014state-person-unknown: var(\u2014\
-        grey-color); \n  / Set person state color */ \n  \u2014state-person: \n    {% if is_state(config.entities[0].entity,\
-        \ [\u2018home\u2019, \u2018not_home\u2019, \u2018unknown\u2019]) %} \n      var(\u2014state-person-{{ states(config.entities[0].entity)\
-        \ | replace(\u2018_\u2019, \u2018-\u2018) }}) \n    {% else %} \n      var(\u2014state-person-zone) \n    {% endif\
-        \ %}; \n}\n"
+    card_mod: *person_location_map_style
   column_span: 1
 - cards:
   - type: custom:mushroom-vacuum-card

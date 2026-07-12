@@ -7,8 +7,8 @@
 #  Generates macro prompts for weather, reminders, and AI-driven speech routines.
 # -------------------------------------------------------------------
 #  Weather, responsibilities, holidays, air quality, and fact prompts parsed by speech_processing/speech_engine.
-# Notes: Justin Dorm is away from Bear Stone; only person state `home`
-#  means someone is physically home at this house.
+# Notes: Person state `home` means someone is physically at Bear Stone.
+#  Paige Home and Justin Dorm are spoken as home only for their respective child.
 # Notes: Previous broadcast text is stale context only; current sensor data
 #  stays authoritative for entry point and action wording.
 # Notes: Weather context is included during the useful daytime window, when
@@ -292,15 +292,15 @@
   {% macro friendly_location(person_id, place_sensor_id, name) %}
     {% set person = states[person_id] %}
     {% if not person %}
-      {{ name }}: Away
+      {{ name }}: location unavailable
     {% else %}
       {% set person_state = states(person_id) %}
       {% set place_state = states(place_sensor_id) if place_sensor_id in states else 'unknown' %}
       {% set location_label = place_state if place_state not in ['unknown','unavailable','','none'] else person_state %}
       {% set location_label = 'Away' if location_label in ['unknown','unavailable','','none'] else location_label %}
-      {% set location_label = 'Away' if name == 'Paige' and 'Dorm' in location_label else location_label %}
       {% set at_bear_stone = person_state == 'home' %}
-      {% set at_dorm = 'Dorm' in location_label %}
+      {% set location_key = location_label | lower %}
+      {% set at_personal_home = (name == 'Paige' and location_key == 'paige home') or (name == 'Justin' and location_key == 'justin dorm') %}
       {% set last_changed = as_timestamp(person.last_changed) %}
       {% set seconds = (as_timestamp(now()) - last_changed) | int(0) if last_changed else 0 %}
       {% set hours = (seconds // 3600) | int %}
@@ -311,12 +311,12 @@
         {{ name }}: driving{% if driving_label %} near {{ driving_label }}{% endif %}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% elif at_bear_stone %}
         {{ name }}: at Bear Stone home{% if seconds >= 60 %} for {{ duration }}{% endif %}
-      {% elif at_dorm %}
-        {{ name }}: away at {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
+      {% elif at_personal_home %}
+        {{ name }}: home at {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% elif location_label == 'Away' %}
-        {{ name }}: away{% if seconds >= 60 %} for {{ duration }}{% endif %}
+        {{ name }}: location unavailable{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% else %}
-        {{ name }}: away at {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
+        {{ name }}: at {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% endif %}
     {% endif %}
   {% endmacro %}
@@ -362,9 +362,11 @@
     ) %}
     [Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}]
 
-    [Presence rule: Bear Stone home means a resident's person state is exactly `home`.
-    Justin Dorm is an away-from-Bear-Stone location, not home for this house.
-    Do not welcome or address residents at dorm zones as being home here.]
+    [Presence and location rule:
+    - Bear Stone home means a resident's person state is exactly `home`.
+    - When a presence update is useful, name each resident's known location instead of saying only that they are away.
+    - Paige at Paige Home and Justin at Justin Dorm are each home at their own home. Do not describe either as away, and do not welcome them as being at Bear Stone.
+    - Other named places are off-site locations. Use "location unavailable" only when no current location label exists.]
 
     [LLM speech contract:
     - Write a useful spoken household announcement, not a sensor report.
