@@ -5,6 +5,8 @@
 # -------------------------------------------------------------------
 # Recorder Configuration - database retention and exclusions
 #  Stores HA history while purging noise and controlling DB size.
+# Video: https://youtu.be/aceV7ObKJVA
+# Blog: https://www.vcloudinfo.com/2026/07/using-codex-clean-up-home-assistant-entities.html
 # -------------------------------------------------------------------
 # Notes: Keeps 180 days (1/2 year); excludes vcloudinfo pings, noisy connectivity telemetry, countdown-style alarm helpers, low-value script/button/scene history, MariaDB snapshot helpers, raw Docker/Proxmox/Glances host telemetry including dynamic Docker veth sensors, PoE live power, and other high-churn entities; MariaDB via recorder_db_url.
 # Notes: L10s status/room telemetry is live-only; keep curated VACUUM logbook entries plus error/run context instead.
@@ -205,17 +207,6 @@ exclude:
     - binary_sensor.docker17_status
     - binary_sensor.docker2_status
     - binary_sensor.docker69_status
-    - binary_sensor.dozzle_agent_10_status
-    - binary_sensor.dozzle_agent_10_status_2
-    - binary_sensor.dozzle_agent_13_status
-    - binary_sensor.dozzle_agent_14_status
-    - binary_sensor.dozzle_agent_14_status_2
-    - binary_sensor.dozzle_agent_17_status
-    - binary_sensor.dozzle_agent_17_status_2
-    - binary_sensor.dozzle_agent_69_status
-    - binary_sensor.dozzle_agent_69_status_2
-    - binary_sensor.dozzle_status
-    - binary_sensor.dozzle_status_2
     - binary_sensor.duplicati_status
     - binary_sensor.duplicati_status_2
     - binary_sensor.esphome_status
@@ -310,17 +301,6 @@ exclude:
     - sensor.docker_files_codex_appliance_run_f05ee34fde70_state
     - sensor.docker_socket_proxy_state
     - sensor.docker_socket_proxy_state_2
-    - sensor.dozzle_agent_10_state
-    - sensor.dozzle_agent_10_state_2
-    - sensor.dozzle_agent_13_state
-    - sensor.dozzle_agent_14_state
-    - sensor.dozzle_agent_14_state_2
-    - sensor.dozzle_agent_17_state
-    - sensor.dozzle_agent_17_state_2
-    - sensor.dozzle_agent_69_state
-    - sensor.dozzle_agent_69_state_2
-    - sensor.dozzle_state
-    - sensor.dozzle_state_2
     - sensor.duplicati_state
     - sensor.duplicati_state_2
     - sensor.esphome_state

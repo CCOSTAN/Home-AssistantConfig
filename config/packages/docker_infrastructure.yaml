@@ -6,6 +6,8 @@
 # Docker Infrastructure - Host patching and container alerts
 # Related Issue: 1632, 1584, 1739
 #  APT results and container down repairs.
+# Video: https://youtu.be/aceV7ObKJVA
+# Blog: https://www.vcloudinfo.com/2026/07/using-codex-clean-up-home-assistant-entities.html
 # -------------------------------------------------------------------
 # Notes: Hosts run daily read-only APT pending checks plus Mon/Thu 12:00 APT jobs.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
@@ -23,7 +25,7 @@
 # Notes: codex_appliance moved to a dedicated VM; keep the standard codex_appliance switches and retire the legacy hashed discovery entity when it disappears.
 # Notes: Paige's Bookshelf is a live monitored service and should remain in the group when its discovery switch is present.
 # Notes: Panel Notes currently exposes both `switch.panel_notes_container` and `switch.panel_notes_container_2`; keep the discovered live switches aligned until the duplicate is removed.
-# Notes: Retired repair cleanup clears old codex_appliance and hashed dozzle Portainer repair IDs.
+# Notes: Retired repair cleanup clears stale legacy codex_appliance and Dozzle repair IDs.
 ######################################################################
 
 input_datetime:
@@ -96,19 +98,8 @@ switch:
       - switch.dashy_container_2
       - switch.docker_socket_proxy_container
       - switch.docker_socket_proxy_container_2
-      - switch.dozzle_agent_10_container
-      - switch.dozzle_agent_10_container_2
-      - switch.dozzle_agent_14_container
-      - switch.dozzle_agent_14_container_2
-      - switch.dozzle_agent_17_container
-      - switch.dozzle_agent_17_container_2
       - switch.codex_appliance_container
       - switch.codex_appliance_container_2
-      - switch.dozzle_agent_69_container
-      - switch.dozzle_agent_69_container_2
-      - switch.dozzle_agent_13_container
-      - switch.dozzle_container
-      - switch.dozzle_container_2
       - switch.duplicati_container
       - switch.duplicati_container_2
       - switch.esphome_container
@@ -124,6 +115,9 @@ switch:
       - switch.home_assistant_container_2
       - switch.imposter_container
       - switch.imposter_container_2
+      - switch.jobs_backend_container
+      - switch.jobs_db_container
+      - switch.jobs_frontend_container
       - switch.kingcrafthomes_container
       - switch.kingcrafthomes_container_2
       - switch.lmediaservices_container
@@ -1134,10 +1128,26 @@ automation:
           for_each:
             - docker_container_codex_appliance_offline
             - user_docker_container_codex_appliance_offline
+            - docker_container_dozzle_offline
+            - user_docker_container_dozzle_offline
+            - docker_container_dozzle_agent_10_offline
+            - user_docker_container_dozzle_agent_10_offline
+            - docker_container_dozzle_agent_13_offline
+            - user_docker_container_dozzle_agent_13_offline
+            - docker_container_dozzle_agent_14_offline
+            - user_docker_container_dozzle_agent_14_offline
+            - docker_container_dozzle_agent_17_offline
+            - user_docker_container_dozzle_agent_17_offline
+            - docker_container_dozzle_agent_69_offline
+            - user_docker_container_dozzle_agent_69_offline
             - docker_container_39394ec38d4c_dozzle_offline
             - user_docker_container_39394ec38d4c_dozzle_offline
+            - docker_container_3a446393a8c5_dozzle_offline
+            - user_docker_container_3a446393a8c5_dozzle_offline
             - docker_container_7cf71db3325d_dozzle_agent_17_offline
             - user_docker_container_7cf71db3325d_dozzle_agent_17_offline
+            - docker_container_22461629865b_dozzle_agent_69_offline
+            - user_docker_container_22461629865b_dozzle_agent_69_offline
           sequence:
             - service: repairs.remove
               continue_on_error: true
