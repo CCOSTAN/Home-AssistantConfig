@@ -10,8 +10,8 @@
 # Notes: Front-door package detection waits 3 minutes after person
 #  activity, skips routine relocks unless a package is already present,
 #  and rate-limits/downscales OpenAI vision calls for cost control.
-# Notes: Both analyzers use gpt-5.4-nano; the garage check remains manual
-#  while detection accuracy is evaluated.
+# Notes: The garage analyzer uses gpt-5.4-nano and remains manual;
+#  the front-door analyzer uses gpt-4.1-mini for reliable package detection.
 # Docs: https://llmvision.gitbook.io/getting-started/usage/image-analyzer
 # Video: https://youtu.be/nAhCezFetvI
 ######################################################################
@@ -184,7 +184,7 @@ automation:
         response_variable: llmvision_result
         data:
           provider: !secret llmvision_provider_entry
-          model: gpt-5.4-nano
+          model: gpt-4.1-mini
           message: "{{ prompt_text }}"
           image_entity:
             - camera.frontdoorbell
