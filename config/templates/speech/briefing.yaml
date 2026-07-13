@@ -8,6 +8,8 @@
 # -------------------------------------------------------------------
 #  Weather, responsibilities, holidays, air quality, and fact prompts parsed by speech_processing/speech_engine.
 # Notes: Person state `home` means someone is physically at Bear Stone.
+#  Greetings use only that dynamic in-home audience; off-site residents are
+#  reported separately by their current known location.
 #  Paige Home and Justin Dorm are spoken as home only for their respective child.
 # Notes: Previous broadcast text is stale context only; current sensor data
 #  stays authoritative for entry point and action wording.
@@ -295,9 +297,10 @@
       {{ name }}: location unavailable
     {% else %}
       {% set person_state = states(person_id) %}
+      {% set unknown_locations = ['unknown', 'unavailable', '', 'none', 'not_home', 'not home', 'away'] %}
       {% set place_state = states(place_sensor_id) if place_sensor_id in states else 'unknown' %}
-      {% set location_label = place_state if place_state not in ['unknown','unavailable','','none'] else person_state %}
-      {% set location_label = 'Away' if location_label in ['unknown','unavailable','','none'] else location_label %}
+      {% set location_label = place_state if place_state | lower not in unknown_locations else person_state %}
+      {% set location_label = 'Away' if location_label | lower in unknown_locations else location_label %}
       {% set at_bear_stone = person_state == 'home' %}
       {% set location_key = location_label | lower %}
       {% set at_personal_home = (name == 'Paige' and location_key == 'paige home') or (name == 'Justin' and location_key == 'justin dorm') %}
@@ -307,7 +310,7 @@
       {% set minutes = ((seconds % 3600) // 60) | int %}
       {% set duration = (hours ~ ' hours') if hours >= 1 else (minutes ~ ' minutes') %}
       {% if person_state == 'driving' %}
-        {% set driving_label = location_label if location_label != 'Away' else '' %}
+        {% set driving_label = location_label if location_label | lower not in unknown_locations + ['driving'] else '' %}
         {{ name }}: driving{% if driving_label %} near {{ driving_label }}{% endif %}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% elif at_bear_stone %}
         {{ name }}: at Bear Stone home{% if seconds >= 60 %} for {{ duration }}{% endif %}
@@ -362,11 +365,25 @@
     ) %}
     [Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}]
 
+    {% set residents = [
+      ('person.carlo', 'sensor.carlo_place', 'Carlo'),
+      ('person.stacey', 'sensor.stacey_place', 'Stacey'),
+      ('person.justin', 'sensor.justin_place', 'Justin'),
+      ('person.paige', 'sensor.paige_place', 'Paige')
+    ] %}
+    {% set at_bear_stone = namespace(names=[]) %}
+    {% for person_id, place_sensor_id, name in residents %}
+      {% if is_state(person_id, 'home') %}
+        {% set at_bear_stone.names = at_bear_stone.names + [name] %}
+      {% endif %}
+    {% endfor %}
+
     [Presence and location rule:
     - Bear Stone home means a resident's person state is exactly `home`.
-    - When a presence update is useful, name each resident's known location instead of saying only that they are away.
+    - The announcement audience is the dynamic `People at Bear Stone` list below. Greet only those people, and never greet, welcome, or imply that any other resident is at Bear Stone.
+    - When a presence update is useful, report each off-site resident's known location to the people at Bear Stone. Those residents are status updates, not greeting recipients.
     - Paige at Paige Home and Justin at Justin Dorm are each home at their own home. Do not describe either as away, and do not welcome them as being at Bear Stone.
-    - Other named places are off-site locations. Use "location unavailable" only when no current location label exists.]
+    - Other named places, including driving, are off-site locations. Use "location unavailable" only when no current location label exists.]
 
     [LLM speech contract:
     - Write a useful spoken household announcement, not a sensor report.
@@ -380,11 +397,23 @@
     - Sound calm, practical, and natural. Do not joke during safety, security, water, appliance, or maintenance alerts.
     ]
 
-    [Resident: Location:
-    - {{ friendly_location('person.carlo', 'sensor.carlo_place', 'Carlo') }}
-    - {{ friendly_location('person.stacey', 'sensor.stacey_place', 'Stacey') }}
-    - {{ friendly_location('person.justin', 'sensor.justin_place', 'Justin') }}
-    - {{ friendly_location('person.paige', 'sensor.paige_place', 'Paige') }}
+    [People at Bear Stone:
+    {% if at_bear_stone.names %}
+    - {{ at_bear_stone.names | join(', ') }}
+    {% else %}
+    - Nobody is currently at Bear Stone.
+    {% endif %}
+    ]
+
+    [Off-site resident locations:
+    {% for person_id, place_sensor_id, name in residents if not is_state(person_id, 'home') %}
+    - {{ friendly_location(person_id, place_sensor_id, name) }}
+    {% else %}
+    - Everyone is currently at Bear Stone.
+    {% endfor %}
+    ]
+
+    [Household context:
       {% if range(1, 100) | random <= 25 %}
       Cat Molly: Always home.
       {% endif %}
@@ -414,7 +443,7 @@
           Good evening. [if there is only one person home, address them specifically]
       {% endif %}
     {% endif %}
-    Use this only if it improves flow. Skip it for repeated, urgent, narrow, or very short announcements.
+    Use this only if it improves flow. Address only the `People at Bear Stone` list above; if that list is empty, do not greet anyone. Skip it for repeated, urgent, narrow, or very short announcements.
     ]
 
     [Context data:
