@@ -3,12 +3,10 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure View - Docker containers
-# Related Issue: 1560, 1725
-#  Container status + restart controls (Portainer integration).
+# Infrastructure View - Docker
+#  Exception-first host, update, volume, and workload health.
 # -------------------------------------------------------------------
-# Notes: Uses `binary_sensor.*_status` and `button.*_restart_container` entities (Portainer integration).
-# Notes: 2026.5 Portainer volume prune controls are exposed through confirmed host maintenance popups; kill/recreate buttons are intentionally not exposed broadly.
+# Notes: Complete healthy inventory is available from the hidden Docker Inventory subview.
 ######################################################################
 
 title: Docker
@@ -16,6 +14,8 @@ path: docker
 type: sections
 icon: mdi:docker
 theme: default
+max_columns: 4
+dense_section_placement: true
 badges: []
 sections: !include /config/dashboards/infrastructure/partials/docker_containers_sections.yaml
-max_columns: 4
+cards: []

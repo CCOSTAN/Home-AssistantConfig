@@ -3,20 +3,19 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure Subview - Pi-hole Detail
-#  Large analytics and controls for both DNS nodes.
+# Infrastructure View - Network and External Services
+#  Combined WAN telemetry, dual Pi-hole operations, and website health.
 # -------------------------------------------------------------------
-# Notes: Hidden drill-down reached from the combined Network view.
+# Notes: Detailed Pi-hole and website telemetry use hidden drill-down subviews.
 ######################################################################
 
-title: Pi-hole Details
-path: pihole
+title: Network
+path: network
 type: sections
-subview: true
-back_path: /dashboard-infrastructure/network
+icon: mdi:wan
 theme: default
 max_columns: 4
 dense_section_placement: true
 badges: []
-sections: !include /config/dashboards/infrastructure/partials/pihole_detail_sections.yaml
+sections: !include /config/dashboards/infrastructure/partials/network_sections.yaml
 cards: []

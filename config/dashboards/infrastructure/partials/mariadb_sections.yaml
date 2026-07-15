@@ -3,149 +3,289 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure Partial - mariadb sections
-#  Reusable list extracted from a view for smaller diffs and safer edits.
+# Infrastructure Partial - MariaDB
+#  Humanized KPIs, seven-day capacity trends, recorder health, and tuning.
 # -------------------------------------------------------------------
-# Notes: Stitch-inspired MariaDB layout (KPI strip + 3 panel columns).
+# Notes: Database growth, ingest rate, and connections use consistent 168-hour graphs.
 ######################################################################
 
+# -------------------------------------------------------------------
+# Humanized KPI strip (mandatory first full-width wrapper)
+# -------------------------------------------------------------------
 - type: grid
   column_span: 4
-  columns: 4
+  columns: 1
   square: false
   cards:
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.database_size
-    name: DB Size
-    icon: mdi:database
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.database_tables_count
-    name: Tables
-    icon: mdi:table
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.mariadb_connections
-    name: Conn.
-    icon: mdi:lan-connect
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.mariadb_uptime
-    name: Uptime
-    icon: mdi:timer-outline
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.database_size
+      name: Database Size
+      icon: mdi:database
+      state_display: >
+        [[[
+          const mib = Number(entity?.state);
+          return Number.isFinite(mib) ? `${(mib / 1024).toFixed(1)} GiB` : 'NO DATA';
+        ]]]
 
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.database_tables_count
+      name: Tables
+      icon: mdi:table
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_connections
+      name: Connections
+      icon: mdi:lan-connect
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_uptime
+      name: Uptime
+      icon: mdi:timer-outline
+      state_display: >
+        [[[
+          const seconds = Number(entity?.state);
+          if (!Number.isFinite(seconds)) return 'NO DATA';
+          const days = Math.floor(seconds / 86400);
+          const hours = Math.floor((seconds % 86400) / 3600);
+          return `${days}d ${hours}h`;
+        ]]]
+
+# -------------------------------------------------------------------
+# Capacity and workload trends
+# -------------------------------------------------------------------
 - type: grid
   column_span: 4
   columns: 3
   square: false
   cards:
-  - type: custom:vertical-stack-in-card
+  - type: custom:mini-graph-card
+    name: Database Growth
+    icon: mdi:database-arrow-up
+    hours_to_show: 168
+    points_per_hour: 0.25
+    line_width: 2
+    smoothing: true
+    show:
+      legend: false
+      labels: false
+      name: true
+      icon: true
+      state: true
+    entities:
+    - entity: sensor.database_size
+      name: Database Size
     card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Database Statistics
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.database_total_records
-      name: Total Records
-      icon: mdi:counter
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.database_records_per_day
+      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+  - type: custom:mini-graph-card
+    name: Recorder Ingest Rate
+    icon: mdi:chart-line
+    hours_to_show: 168
+    points_per_hour: 0.25
+    line_width: 2
+    smoothing: true
+    show:
+      legend: false
+      labels: false
+      name: true
+      icon: true
+      state: true
+    entities:
+    - entity: sensor.database_records_per_day
       name: Records per Day
-      icon: mdi:chart-line
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.database_oldest_record
-      name: Oldest Record
-      icon: mdi:clock-start
-
-  - type: custom:vertical-stack-in-card
     card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: MariaDB Status
-    - type: custom:button-card
-      template: bearstone_infra_list_row_running
-      entity: sensor.mariadb_status
-      name: Server Status
-      icon: mdi:database
-      state_display: >
-        [[[
-          if (entity.state === 'unknown') return 'Unknown';
-          return String(entity.state).toUpperCase();
-        ]]]
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.mariadb_version
-      name: Version
-      icon: mdi:information-outline
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.mariadb_performance
-      name: Performance
-      icon: mdi:chart-line
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.mariadb_questions
-      name: Total Queries
-      icon: mdi:database-search
+      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
 
-  - type: custom:vertical-stack-in-card
+  - type: custom:mini-graph-card
+    name: Active Connections
+    icon: mdi:lan-connect
+    hours_to_show: 168
+    points_per_hour: 0.25
+    line_width: 2
+    smoothing: true
+    show:
+      legend: false
+      labels: false
+      name: true
+      icon: true
+      state: true
+    entities:
+    - entity: sensor.mariadb_connections
+      name: Connections
     card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+# -------------------------------------------------------------------
+# Recorder and server health
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: dense
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
     cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: MariaDB Tuning
-    - type: grid
-      columns: 2
-      square: false
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
       cards:
       - type: custom:button-card
-        template: bearstone_infra_kpi
-        entity: sensor.mariadb_buffer_pool_size
-        name: InnoDB Buffer
-        icon: mdi:memory
+        template: bearstone_infra_panel_header
+        name: Recorder Health
+
       - type: custom:button-card
-        template: bearstone_infra_kpi
-        entity: sensor.mariadb_max_connections
-        name: Max Conn.
-        icon: mdi:account-multiple
+        template: bearstone_infra_list_row
+        entity: sensor.database_total_records
+        name: Total Records
+        icon: mdi:counter
+
       - type: custom:button-card
-        template: bearstone_infra_kpi
-        entity: sensor.mariadb_log_file_size
-        name: Log File
-        icon: mdi:file
+        template: bearstone_infra_list_row
+        entity: sensor.database_records_per_day
+        name: Records per Day
+        icon: mdi:chart-line
+
       - type: custom:button-card
-        template: bearstone_infra_kpi
-        entity: sensor.mariadb_tmp_table_size
-        name: Temp Size
-        icon: mdi:table
+        template: bearstone_infra_list_row
+        entity: sensor.database_oldest_record
+        name: Oldest Retained Record
+        icon: mdi:clock-start
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
       - type: custom:button-card
-        template: bearstone_infra_kpi
-        entity: sensor.mariadb_io_capacity
-        name: IO Capacity
+        template: bearstone_infra_panel_header
+        name: MariaDB Status
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: sensor.mariadb_status
+        name: Server Status
+        icon: mdi:database-check
+        state_display: '[[[ return String(entity.state ?? "NO DATA").toUpperCase(); ]]]'
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.mariadb_version
+        name: Version
+        icon: mdi:information-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.mariadb_performance
+        name: Query Rate
         icon: mdi:speedometer
-      - type: custom:button-card
-        template: bearstone_infra_kpi
-        entity: sensor.mariadb_io_threads
-        name: IO Threads
-        icon: mdi:developer-board
-      - type: custom:button-card
-        template: bearstone_infra_kpi
-        entity: sensor.mariadb_table_cache
-        name: Table Cache
-        icon: mdi:cached
-      - type: custom:button-card
-        template: bearstone_infra_kpi
-        entity: sensor.mariadb_buffer_sizes
-        name: Sort/Join
-        icon: mdi:code-brackets
 
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.mariadb_questions
+        name: Total Queries
+        icon: mdi:database-search
 
+# -------------------------------------------------------------------
+# Static tuning reference
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: dense
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: MariaDB Tuning Reference
+      view_layout:
+        grid-column: 1 / -1
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_buffer_pool_size
+      name: InnoDB Buffer
+      icon: mdi:memory
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_max_connections
+      name: Max Connections
+      icon: mdi:account-multiple
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_log_file_size
+      name: Log File
+      icon: mdi:file
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_tmp_table_size
+      name: Temp Table Size
+      icon: mdi:table
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_io_capacity
+      name: IO Capacity
+      icon: mdi:speedometer
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_io_threads
+      name: IO Threads
+      icon: mdi:developer-board
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_table_cache
+      name: Table Cache
+      icon: mdi:cached
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.mariadb_buffer_sizes
+      name: Sort / Join
+      icon: mdi:code-brackets

@@ -3,10 +3,10 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure View - Home
-#  Clean layout inspired by Stitch wireframe (hosts, right-rail trends, storage, wifi, apt).
+# Infrastructure View - operations summary
+#  Compact category health, active exceptions, datacenter, and network trends.
 # -------------------------------------------------------------------
-# Notes: Uses existing Infrastructure entities from Proxmox/UniFi/UPS/Docker hosts.
+# Notes: Production exception-first Infrastructure home view.
 ######################################################################
 
 title: Infrastructure
@@ -15,6 +15,7 @@ type: sections
 icon: mdi:view-dashboard-variant
 theme: default
 max_columns: 4
+dense_section_placement: true
 badges: []
 sections: !include /config/dashboards/infrastructure/partials/home_sections.yaml
 cards: []

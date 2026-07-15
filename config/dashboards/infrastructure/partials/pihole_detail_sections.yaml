@@ -1,0 +1,50 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - Pi-hole detail drill-down
+#  Large analytics cards for both primary and secondary DNS nodes.
+# -------------------------------------------------------------------
+# Notes: Kept out of the primary Network view to preserve dense operations layout.
+######################################################################
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 1200px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Primary DNS
+      - type: custom:pi-hole
+        device_id: d69637da16f7d7f3626070582be59808
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Secondary DNS
+      - type: custom:pi-hole
+        device_id: e6ca0f9504eaa7908cc84b5d77571d61
+

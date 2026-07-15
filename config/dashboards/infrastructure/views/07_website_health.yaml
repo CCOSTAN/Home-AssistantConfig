@@ -3,18 +3,20 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure View - Website Health
-#  Website uptime + domain expiry + certificate telemetry details.
+# Infrastructure Subview - Website Details
+#  Current uptime, registration expiry, and actionable exceptions.
 # -------------------------------------------------------------------
-# Notes: Home view surfaces only exceptions; this view carries detail.
+# Notes: Hidden drill-down reached from the combined Network view.
 ######################################################################
 
-title: Website Health
+title: Website Details
 path: website-health
 type: sections
-icon: mdi:web-check
+subview: true
+back_path: /dashboard-infrastructure/network
 theme: default
+max_columns: 4
+dense_section_placement: true
 badges: []
 sections: !include /config/dashboards/infrastructure/partials/website_health_sections.yaml
-max_columns: 4
 cards: []

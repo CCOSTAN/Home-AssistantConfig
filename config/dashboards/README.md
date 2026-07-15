@@ -78,6 +78,10 @@ Lovelace resources are loaded from:
 - Include paths in Lovelace YAML should use absolute container paths starting with `/config/`.
   - Example: `!include /config/dashboards/overview/partials/some_cards.yaml`
 - Views are loaded using `!include_dir_list` and ordered by filename (prefix with `01_`, `02_`, etc.).
+- Infrastructure views are desktop-first and dense by default: use `type: sections`, `max_columns: 4`, and `dense_section_placement: true` on every standard view.
+  - Use responsive `layout-card` grids with `min-content` rows inside full-width section wrappers so panels pack tightly without fixed-height gaps.
+  - Keep related panels similar in height, avoid spacer cards, and verify both desktop and single-column mobile layouts.
+  - Keep WAN telemetry, compact dual Pi-hole controls, and current website health together on the Network view; reserve hidden subviews for detailed Pi-hole analytics and domain/monitor telemetry.
 - Prefer card-native styling; treat `card_mod` as a last resort.
 - Prefer CSS variables (`var(--*)`) over hardcoded hex colors.
 - When using the Stitch MCP for inspiration, generation may exceed the tool timeout; wait and then fetch results via `stitch/list_screens` and `stitch/get_screen`.

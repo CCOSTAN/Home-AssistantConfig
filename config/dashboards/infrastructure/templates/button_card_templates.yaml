@@ -731,6 +731,8 @@ bearstone_infra_docker_volume_row:
         return `${value.toFixed(precision)} MiB`;
       };
 
+      if (variables?.not_instrumented === true) return 'Not instrumented';
+
       const totalEntity = variables && variables.total_entity
         ? states[variables.total_entity]
         : entity;
@@ -784,7 +786,7 @@ bearstone_infra_alert_row:
           if (kind === 'binary_on') show = (stateStr === 'on');
           else if (kind === 'binary_off') show = (stateStr === 'off');
           else if (kind === 'ap_zero') show = (stateStr === '0' && ageS >= minAge);
-          else if (kind === 'disk_high') {
+          else if (kind === 'disk_high' || kind === 'numeric_high') {
             const v = parseFloat(stateStr);
             show = Number.isFinite(v) && (thr !== null ? (v > thr) : (v > 80));
           } else if (kind === 'speedtest_slow') {
@@ -889,3 +891,152 @@ bearstone_infra_kpi:
     - font-size: 16px
     - font-weight: 800
     - opacity: 0.9
+
+bearstone_infra_status_kpi:
+  template: bearstone_infra_kpi
+  state_display: >
+    [[[
+      const raw = String(entity?.state ?? '').toLowerCase();
+      const unavailable = ['unknown', 'unavailable', 'none', ''].includes(raw);
+      const okState = String(variables?.ok_state ?? 'off').toLowerCase();
+      if (unavailable) return 'NO DATA';
+      if (raw === okState) return variables?.healthy_text ?? 'HEALTHY';
+      if (variables?.alert_text) return variables.alert_text;
+      if (variables?.raw_suffix) return `${entity.state} ${variables.raw_suffix}`;
+      return 'ATTENTION';
+    ]]]
+  styles:
+    card:
+    - border-color: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const okState = String(variables?.ok_state ?? 'off').toLowerCase();
+          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(245,124,0,0.45)';
+          return raw === okState ? 'rgba(67,160,71,0.45)' : 'rgba(229,57,53,0.40)';
+        ]]]
+    - background: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const okState = String(variables?.ok_state ?? 'off').toLowerCase();
+          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(255,243,224,0.85)';
+          return raw === okState ? 'rgba(232,245,233,0.85)' : 'rgba(255,235,238,0.85)';
+        ]]]
+    icon:
+    - color: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const okState = String(variables?.ok_state ?? 'off').toLowerCase();
+          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(245,124,0,1)';
+          return raw === okState ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
+        ]]]
+    state:
+    - color: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const okState = String(variables?.ok_state ?? 'off').toLowerCase();
+          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(230,81,0,1)';
+          return raw === okState ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
+        ]]]
+    - opacity: 1
+
+bearstone_infra_update_row:
+  template: bearstone_infra_list_row
+  icon: mdi:package-up
+  show_label: true
+  variables:
+    apt_severity: >
+      [[[
+        const state = String(entity?.state ?? '').toUpperCase();
+        if (!state || state.includes('UNKNOWN') || state.includes('UNAVAILABLE') || state.includes('ERROR')) return 'error';
+        const host = entity?.entity_id?.match(/^sensor\.(docker_\d+)_apt_status$/)?.[1];
+        const dueRaw = host ? states[`input_datetime.apt_${host}_action_due`]?.state : null;
+        const due = dueRaw && !['unknown', 'unavailable', 'none'].includes(String(dueRaw).toLowerCase())
+          ? new Date(String(dueRaw).replace(' ', 'T'))
+          : null;
+        const actionable = state.includes('PENDING') || state.includes('REBOOT REQ');
+        if (actionable && due instanceof Date && !Number.isNaN(due.getTime()) && Date.now() > due.getTime()) return 'overdue';
+        if (actionable) return 'scheduled';
+        if (state.includes('NO UPDATES') || state.includes('UPDATED')) return 'healthy';
+        return 'neutral';
+      ]]]
+  state_display: >
+    [[[ return String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+  label: >
+    [[[
+      const state = String(entity?.state ?? '').toUpperCase();
+      const host = entity?.entity_id?.match(/^sensor\.(docker_\d+)_apt_status$/)?.[1];
+      const dueRaw = host ? states[`input_datetime.apt_${host}_action_due`]?.state : null;
+      const parseDate = (raw) => {
+        if (!raw || ['unknown', 'unavailable', 'none', ''].includes(String(raw).toLowerCase())) return null;
+        const value = new Date(String(raw).replace(' ', 'T'));
+        return Number.isNaN(value.getTime()) ? null : value;
+      };
+      const formatTime = (value) => value.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit'
+      }).toUpperCase();
+      const formatDue = (value) => {
+        const weekday = value.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+        return `${weekday} ${formatTime(value)}`;
+      };
+      const actionable = state.includes('PENDING') || state.includes('REBOOT REQ');
+      const due = parseDate(dueRaw);
+      if (actionable) {
+        const action = state.includes('REBOOT REQ') ? 'REBOOT' : 'UPDATE';
+        return due ? `${action} ${formatDue(due)}` : `${action} SCHEDULED`;
+      }
+      return 'NO ACTION SCHEDULED';
+    ]]]
+  styles:
+    grid:
+    - grid-template-areas: '"i n s" "i l l"'
+    - grid-template-columns: 24px 1fr auto
+    - grid-template-rows: min-content min-content
+    card:
+    - border-color: >
+        [[[
+          if (variables.apt_severity === 'overdue') return 'rgba(229,57,53,0.40)';
+          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(245,124,0,0.45)';
+          if (variables.apt_severity === 'healthy') return 'rgba(67,160,71,0.45)';
+          return 'var(--divider-color)';
+        ]]]
+    - background: >
+        [[[
+          if (variables.apt_severity === 'overdue') return 'rgba(255,235,238,0.85)';
+          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(255,243,224,0.85)';
+          if (variables.apt_severity === 'healthy') return 'rgba(232,245,233,0.85)';
+          return 'rgba(0,0,0,0.02)';
+        ]]]
+    icon:
+    - color: >
+        [[[
+          if (variables.apt_severity === 'overdue') return 'rgba(198,40,40,1)';
+          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(230,81,0,1)';
+          if (variables.apt_severity === 'healthy') return 'rgba(46,125,50,1)';
+          return 'var(--primary-color)';
+        ]]]
+    state:
+    - color: >
+        [[[
+          if (variables.apt_severity === 'overdue') return 'rgba(198,40,40,1)';
+          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(230,81,0,1)';
+          if (variables.apt_severity === 'healthy') return 'rgba(46,125,50,1)';
+          return 'var(--secondary-text-color)';
+        ]]]
+    label:
+    - grid-area: l
+    - justify-self: start
+    - padding-top: 3px
+    - font-size: 11px
+    - font-weight: 700
+    - letter-spacing: 0.02em
+    - opacity: 0.72
+    - white-space: normal
+    - text-align: left
+    - color: >
+        [[[
+          if (variables.apt_severity === 'overdue') return 'rgba(198,40,40,1)';
+          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(230,81,0,1)';
+          if (variables.apt_severity === 'healthy') return 'rgba(46,125,50,1)';
+          return 'var(--secondary-text-color)';
+        ]]]

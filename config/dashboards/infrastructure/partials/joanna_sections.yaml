@@ -3,58 +3,67 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure Partial - Joanna sections
-#  Joanna/BearClaw dispatch KPI, trend, latest-state, and filtered activity panels.
+# Infrastructure Partial - Joanna
+#  Focused dispatch health, latest activity, rolling volume, and diagnostics.
 # -------------------------------------------------------------------
-# Notes: Reuses shared bearstone_infra_* templates and standard infra card_mod snippets.
+# Notes: The large embedded logbook is replaced by a direct Activity navigation card.
+# Notes: This view changes HA presentation only; BearClaw runtime behavior is untouched.
 ######################################################################
 
+# -------------------------------------------------------------------
+# Dispatch health strip (mandatory first full-width wrapper)
+# -------------------------------------------------------------------
 - type: grid
   column_span: 4
-  columns: 6
+  columns: 1
   square: false
   cards:
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.joanna_ha_dispatches_24h
-    name: HA 24H
-    icon: mdi:calendar-clock
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.joanna_ha_dispatches_7d
-    name: HA 7D
-    icon: mdi:calendar-range
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.joanna_ha_dispatches_30d
-    name: HA 30D
-    icon: mdi:calendar-month
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.joanna_ha_errors_24h
-    name: HA Errors 24H
-    icon: mdi:alert-circle-outline
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.codex_reset_credits_available
-    name: Resets
-    icon: mdi:backup-restore
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.joanna_all_dispatches_24h
-    name: All 24H
-    icon: mdi:calendar-clock
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.joanna_all_dispatches_7d
-    name: All 7D
-    icon: mdi:calendar-range
-  - type: custom:button-card
-    template: bearstone_infra_kpi
-    entity: sensor.joanna_all_dispatches_30d
-    name: All 30D
-    icon: mdi:calendar-month
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.joanna_ha_dispatches_24h
+      name: HA 24H
+      icon: mdi:home-automation
 
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.joanna_all_dispatches_24h
+      name: All 24H
+      icon: mdi:robot
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.joanna_ha_success_rate_24h
+      name: HA Success
+      icon: mdi:percent-circle
+      state_display: '[[[ return `${entity.state}%`; ]]]'
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.joanna_ha_errors_24h
+      name: HA Errors 24H
+      icon: mdi:alert-circle-outline
+      variables:
+        ok_state: '0'
+        healthy_text: NONE
+        raw_suffix: ERRORS
+
+# -------------------------------------------------------------------
+# Trend, latest state, and reset summary
+# -------------------------------------------------------------------
 - type: grid
   column_span: 4
   columns: 3
@@ -66,9 +75,10 @@
     cards:
     - type: custom:button-card
       template: bearstone_infra_panel_header
-      name: HA Dispatch Trend
+      name: Dispatch Trend
+
     - type: custom:mini-graph-card
-      name: HA Dispatches (24h Window)
+      name: HA Dispatches (24h Rolling)
       icon: mdi:chart-timeline-variant
       hours_to_show: 168
       points_per_hour: 1
@@ -82,9 +92,31 @@
         state: true
       entities:
       - entity: sensor.joanna_ha_dispatches_24h
-        name: HA 24h
+        name: HA Dispatches
       card_mod:
         style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.joanna_ha_dispatches_7d
+      name: HA Dispatches 7D
+      icon: mdi:calendar-range
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.joanna_ha_dispatches_30d
+      name: HA Dispatches 30D
+      icon: mdi:calendar-month
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.joanna_all_dispatches_24h
+      name: Open Joanna Activity
+      icon: mdi:timeline-text-outline
+      state_display: '[[[ return `${entity.state} dispatches in 24h`; ]]]'
+      tap_action:
+        action: navigate
+        navigation_path: /logbook?entity_id=script.joanna_dispatch
 
   - type: custom:vertical-stack-in-card
     card_mod:
@@ -92,7 +124,8 @@
     cards:
     - type: custom:button-card
       template: bearstone_infra_panel_header
-      name: Latest Snapshot
+      name: Latest Activity
+
     - type: custom:button-card
       template: bearstone_infra_list_row
       entity: sensor.bearclaw_status_telemetry
@@ -100,12 +133,12 @@
       icon: mdi:robot
       state_display: >
         [[[
-          const stats = states['sensor.bearclaw_status_telemetry']?.attributes?.dispatchStats || {};
-          const latest = stats?.latest?.haAutomation || {};
-          const source = latest?.source || 'none';
-          const when = latest?.dispatchedAt || 'n/a';
+          const latest = states['sensor.bearclaw_status_telemetry']?.attributes?.dispatchStats?.latest?.haAutomation || {};
+          const source = latest.source || 'none';
+          const when = latest.dispatchedAt ? String(latest.dispatchedAt).replace('T', ' ').slice(0, 16) : 'n/a';
           return `${source} | ${when}`;
         ]]]
+
     - type: custom:button-card
       template: bearstone_infra_list_row
       entity: sensor.bearclaw_status_telemetry
@@ -113,48 +146,34 @@
       icon: mdi:check-circle-outline
       state_display: >
         [[[
-          const stats = states['sensor.bearclaw_status_telemetry']?.attributes?.dispatchStats || {};
-          const latest = stats?.latest?.haAutomation || {};
-          const state = latest?.state || 'none';
-          const when = latest?.completedAt || 'n/a';
+          const latest = states['sensor.bearclaw_status_telemetry']?.attributes?.dispatchStats?.latest?.haAutomation || {};
+          const state = latest.state || 'none';
+          const when = latest.completedAt ? String(latest.completedAt).replace('T', ' ').slice(0, 16) : 'n/a';
           return `${state} | ${when}`;
         ]]]
+
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.bearclaw_status_telemetry
-      name: Latest Any Dispatch
-      icon: mdi:robot-excited
-      state_display: >
-        [[[
-          const stats = states['sensor.bearclaw_status_telemetry']?.attributes?.dispatchStats || {};
-          const latest = stats?.latest?.all || {};
-          const source = latest?.source || 'none';
-          const when = latest?.dispatchedAt || 'n/a';
-          return `${source} | ${when}`;
-        ]]]
+      entity: sensor.joanna_all_dispatches_7d
+      name: All Dispatches 7D
+      icon: mdi:calendar-range
+
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.bearclaw_status_telemetry
-      name: HA Success (24h)
-      icon: mdi:percent-circle
-      state_display: >
-        [[[
-          const v = states['sensor.joanna_ha_success_rate_24h']?.state ?? '0';
-          return `${v}%`;
-        ]]]
+      entity: sensor.joanna_all_dispatches_30d
+      name: All Dispatches 30D
+      icon: mdi:calendar-month
+
     - type: custom:button-card
-      template: bearstone_infra_list_row
+      template: bearstone_infra_status_kpi
       entity: binary_sensor.joanna_qmd_healthy
       name: QMD Health
       icon: mdi:heart-pulse
-      state_display: >
-        [[[
-          const qmd = states['sensor.bearclaw_status_telemetry']?.attributes?.qmdHealth || {};
-          const healthy = states['binary_sensor.joanna_qmd_healthy']?.state === 'on';
-          const status = qmd?.status || (healthy ? 'healthy' : 'unknown');
-          const failures = states['sensor.joanna_qmd_consecutive_failures']?.state ?? '0';
-          return `${status} | fail ${failures}`;
-        ]]]
+      variables:
+        ok_state: 'on'
+        healthy_text: HEALTHY
+        alert_text: DEGRADED
+
     - type: custom:button-card
       template: bearstone_infra_list_row
       entity: sensor.joanna_memory_docs
@@ -162,21 +181,10 @@
       icon: mdi:database-search
       state_display: >
         [[[
-          const docs = states['sensor.joanna_memory_docs']?.state ?? '0';
+          const docs = entity?.state ?? '0';
           const chunks = states['sensor.joanna_memory_chunks']?.state ?? '0';
           const stale = states['binary_sensor.joanna_memory_index_stale']?.state === 'on';
-          return `${docs} docs | ${chunks} chunks${stale ? ' | stale' : ''}`;
-        ]]]
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: binary_sensor.joanna_session_source_indexed
-      name: Session Transcript Indexing
-      icon: mdi:message-text-clock-outline
-      state_display: >
-        [[[
-          const enabled = states['binary_sensor.joanna_session_source_indexed']?.state === 'on';
-          const age = states['sensor.joanna_minutes_since_memory_index']?.state ?? '0';
-          return `${enabled ? 'enabled' : 'disabled'} | ${age} min ago`;
+          return `${docs} docs | ${chunks} chunks${stale ? ' | STALE' : ''}`;
         ]]]
 
   - type: custom:vertical-stack-in-card
@@ -186,6 +194,7 @@
     - type: custom:button-card
       template: bearstone_infra_panel_header
       name: Codex Reset Credits
+
     - type: custom:button-card
       template: bearstone_infra_list_row
       entity: sensor.codex_reset_credit_status
@@ -194,125 +203,90 @@
       state_display: >
         [[[
           const usage = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage || {};
-          const status = usage.status || 'unknown';
-          const ok = usage.ok === true;
           const last = usage.lastCheckAt ? String(usage.lastCheckAt).replace('T', ' ').slice(0, 16) : 'not checked';
-          return `${ok ? 'ok' : status} | ${last}`;
-        ]]]
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.codex_reset_credit_next_expiration
-      name: Next Expiration
-      icon: mdi:calendar-clock
-      state_display: >
-        [[[
-          const usage = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage || {};
-          const days = usage.minDaysRemaining;
-          const expRaw = usage.soonestExpiresAt || '';
-          const exp = expRaw ? String(expRaw).replace('T', ' ').slice(0, 16) : 'n/a';
-          const dayText = Number.isFinite(Number(days)) ? `${Number(days).toFixed(1)}d` : 'n/a';
-          return `${dayText} | ${exp}`;
-        ]]]
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: binary_sensor.codex_reset_credit_expiring_soon
-      name: Repair Window
-      icon: mdi:alert-clock
-      state_display: >
-        [[[
-          const usage = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage || {};
-          const warn = usage.warnDays ?? 7;
-          const count = usage.warningCount ?? 0;
-          return `${count} within ${warn}d`;
-        ]]]
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.bearclaw_status_telemetry
-      name: Reset #1
-      icon: mdi:backup-restore
-      state_display: >
-        [[[
-          const credits = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage?.credits || [];
-          const credit = credits[0];
-          if (!credit) return 'No reset';
-          const days = Number.isFinite(Number(credit.days_remaining)) ? `${Number(credit.days_remaining).toFixed(1)}d` : 'n/a';
-          const exp = credit.expires_at ? String(credit.expires_at).replace('T', ' ').slice(0, 16) : 'n/a';
-          return `${credit.status || 'unknown'} | ${days} | ${exp}`;
-        ]]]
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.bearclaw_status_telemetry
-      name: Reset #2
-      icon: mdi:backup-restore
-      state_display: >
-        [[[
-          const credits = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage?.credits || [];
-          const credit = credits[1];
-          if (!credit) return 'No reset';
-          const days = Number.isFinite(Number(credit.days_remaining)) ? `${Number(credit.days_remaining).toFixed(1)}d` : 'n/a';
-          const exp = credit.expires_at ? String(credit.expires_at).replace('T', ' ').slice(0, 16) : 'n/a';
-          return `${credit.status || 'unknown'} | ${days} | ${exp}`;
-        ]]]
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.bearclaw_status_telemetry
-      name: Reset #3
-      icon: mdi:backup-restore
-      state_display: >
-        [[[
-          const credits = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage?.credits || [];
-          const credit = credits[2];
-          if (!credit) return 'No reset';
-          const days = Number.isFinite(Number(credit.days_remaining)) ? `${Number(credit.days_remaining).toFixed(1)}d` : 'n/a';
-          const exp = credit.expires_at ? String(credit.expires_at).replace('T', ' ').slice(0, 16) : 'n/a';
-          return `${credit.status || 'unknown'} | ${days} | ${exp}`;
-        ]]]
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.bearclaw_status_telemetry
-      name: Reset #4
-      icon: mdi:backup-restore
-      state_display: >
-        [[[
-          const credits = states['sensor.bearclaw_status_telemetry']?.attributes?.codexUsage?.credits || [];
-          const credit = credits[3];
-          if (!credit) return 'No reset';
-          const days = Number.isFinite(Number(credit.days_remaining)) ? `${Number(credit.days_remaining).toFixed(1)}d` : 'n/a';
-          const exp = credit.expires_at ? String(credit.expires_at).replace('T', ' ').slice(0, 16) : 'n/a';
-          return `${credit.status || 'unknown'} | ${days} | ${exp}`;
+          return `${usage.ok === true ? 'ok' : (usage.status || 'unknown')} | ${last}`;
         ]]]
 
-- type: grid
-  column_span: 4
-  columns: 1
-  square: false
-  cards:
-  - type: custom:layout-card
-    grid_options:
-      columns: full
-    layout_type: custom:grid-layout
-    layout:
-      grid-template-columns: repeat(1, minmax(0, 1fr))
-      grid-auto-flow: row
-      grid-auto-rows: min-content
-      grid-gap: 12px
-      margin: 0
-    cards:
-    - type: custom:vertical-stack-in-card
-      grid_options:
-        columns: full
-      card_mod:
-        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-      cards:
-      - type: custom:button-card
-        template: bearstone_infra_panel_header
-        name: Joanna Activity
-      # Fallback card: Lovelace logbook card is required to show filtered activity history.
-      - type: logbook
-        hours_to_show: 72
-        entities:
-        - automation.bearclaw_reply_webhook
-        - automation.codex_reset_credit_expiry_repair
-        - automation.tugtainer_dispatch_joanna_for_available_updates
-        - binary_sensor.codex_reset_credit_expiring_soon
-        - script.joanna_dispatch
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.codex_reset_credit_expiring_soon
+      name: Next Expiration
+      icon: mdi:calendar-alert
+      variables:
+        ok_state: 'off'
+      state_display: >
+        [[[
+          const raw = states['sensor.codex_reset_credit_next_expiration']?.state;
+          const days = Number(states['sensor.codex_reset_credit_min_days_remaining']?.state);
+          if (!raw || raw === 'unknown' || raw === 'unavailable') return 'NO DATA';
+          const when = new Date(raw).toLocaleString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+          });
+          return `${when} | ${Number.isFinite(days) ? days.toFixed(1) + ' DAYS' : ''}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.codex_reset_credit_status
+      name: Reset Slot 1
+      icon: mdi:numeric-1-box-outline
+      state_display: >
+        [[[
+          const credit = (entity?.attributes?.credits || []).find(item => Number(item.index) === 1);
+          if (!credit?.expires_at) return 'NO DATA';
+          const when = new Date(credit.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const days = Number(credit.days_remaining);
+          return `${when} | ${Number.isFinite(days) ? days.toFixed(1) + ' DAYS' : String(credit.status || '').toUpperCase()}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.codex_reset_credit_status
+      name: Reset Slot 2
+      icon: mdi:numeric-2-box-outline
+      state_display: >
+        [[[
+          const credit = (entity?.attributes?.credits || []).find(item => Number(item.index) === 2);
+          if (!credit?.expires_at) return 'NO DATA';
+          const when = new Date(credit.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const days = Number(credit.days_remaining);
+          return `${when} | ${Number.isFinite(days) ? days.toFixed(1) + ' DAYS' : String(credit.status || '').toUpperCase()}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.codex_reset_credit_status
+      name: Reset Slot 3
+      icon: mdi:numeric-3-box-outline
+      state_display: >
+        [[[
+          const credit = (entity?.attributes?.credits || []).find(item => Number(item.index) === 3);
+          if (!credit?.expires_at) return 'NO DATA';
+          const when = new Date(credit.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const days = Number(credit.days_remaining);
+          return `${when} | ${Number.isFinite(days) ? days.toFixed(1) + ' DAYS' : String(credit.status || '').toUpperCase()}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.codex_reset_credit_status
+      name: Reset Slot 4
+      icon: mdi:numeric-4-box-outline
+      state_display: >
+        [[[
+          const credit = (entity?.attributes?.credits || []).find(item => Number(item.index) === 4);
+          if (!credit?.expires_at) return 'NO DATA';
+          const when = new Date(credit.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const days = Number(credit.days_remaining);
+          return `${when} | ${Number.isFinite(days) ? days.toFixed(1) + ' DAYS' : String(credit.status || '').toUpperCase()}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.joanna_session_source_indexed
+      name: Transcript Indexing
+      icon: mdi:message-text-clock-outline
+      variables:
+        ok_state: 'on'
+        healthy_text: ENABLED
+        alert_text: DISABLED

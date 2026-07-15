@@ -1,0 +1,315 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - Network, DNS, and external services
+#  Current WAN telemetry, dual Pi-hole operations, and website health.
+# -------------------------------------------------------------------
+# Notes: Pi-hole blocking controls are mirrored by pihole_ha.yaml.
+# Notes: Detailed Pi-hole and website telemetry live in hidden drill-down views.
+######################################################################
+
+# -------------------------------------------------------------------
+# Current network health
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_wan_quality_degraded
+      name: WAN
+      icon: mdi:wan
+      variables:
+        ok_state: 'off'
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.speedtest_download
+      name: Download
+      icon: mdi:download-network-outline
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          const unit = entity?.attributes?.unit_of_measurement ?? 'Mbit/s';
+          return Number.isFinite(value) ? `${value.toFixed(0)} ${unit}` : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.speedtest_upload
+      name: Upload
+      icon: mdi:upload-network-outline
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          const unit = entity?.attributes?.unit_of_measurement ?? 'Mbit/s';
+          return Number.isFinite(value) ? `${value.toFixed(0)} ${unit}` : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.speedtest_ping
+      name: Latency
+      icon: mdi:timer-outline
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          const unit = entity?.attributes?.unit_of_measurement ?? 'ms';
+          return Number.isFinite(value) ? `${value.toFixed(1)} ${unit}` : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.pi_hole_status
+      name: Primary DNS
+      icon: mdi:pi-hole
+      variables:
+        ok_state: 'on'
+        healthy_text: RUNNING
+        alert_text: DOWN
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.pi_hole_status_2
+      name: Secondary DNS
+      icon: mdi:pi-hole
+      variables:
+        ok_state: 'on'
+        healthy_text: RUNNING
+        alert_text: DOWN
+
+# -------------------------------------------------------------------
+# Trends, Pi-hole controls, and website health
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 1200px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Internet
+
+      - type: custom:mini-graph-card
+        name: Internet Throughput
+        icon: mdi:speedometer
+        hours_to_show: 24
+        points_per_hour: 1
+        line_width: 2
+        smoothing: true
+        show:
+          fill: false
+          legend: true
+          labels: false
+          name: true
+          icon: true
+          state: false
+        entities:
+        - entity: sensor.speedtest_download
+          name: Download
+          show_legend_state: true
+        - entity: sensor.speedtest_upload
+          name: Upload
+          show_legend_state: true
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.speedtest_ping
+        name: Current Latency
+        icon: mdi:wan
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            const unit = entity?.attributes?.unit_of_measurement ?? 'ms';
+            return Number.isFinite(value) ? `${value.toFixed(1)} ${unit}` : 'NO DATA';
+          ]]]
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Pi-hole DNS
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: binary_sensor.pi_hole_status
+        name: Primary Service
+        icon: mdi:dns
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'RUNNING' : 'DOWN'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: switch.pi_hole
+        name: Primary Blocking
+        icon: mdi:shield-check-outline
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'ENABLED' : 'DISABLED'; ]]]
+        tap_action:
+          action: toggle
+          confirmation:
+            text: Toggle Pi-hole blocking? Home Assistant mirrors this setting to both DNS nodes.
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: binary_sensor.pi_hole_status_2
+        name: Secondary Service
+        icon: mdi:dns
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'RUNNING' : 'DOWN'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: switch.pi_hole_2
+        name: Secondary Blocking
+        icon: mdi:shield-check-outline
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'ENABLED' : 'DISABLED'; ]]]
+        tap_action:
+          action: toggle
+          confirmation:
+            text: Toggle Pi-hole blocking? Home Assistant mirrors this setting to both DNS nodes.
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.infra_nebula_sync_dns_consistency
+        name: Primary / Secondary Sync
+        icon: mdi:database-sync-outline
+        state_display: >
+          [[[ return String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.infra_dns_pihole_degraded
+        name: Open Detailed Pi-hole Analytics
+        icon: mdi:chart-box-outline
+        state_display: >
+          [[[ return 'OPEN'; ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/pihole
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Website Health
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: binary_sensor.vcloudinfo_com
+        name: vcloudinfo.com
+        icon: mdi:web
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'UP' : String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: binary_sensor.www_kingcrafthomes_com
+        name: kingcrafthomes.com
+        icon: mdi:web
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'UP' : String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: binary_sensor.bear_stone
+        name: Bear Stone
+        icon: mdi:web-check
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'UP' : String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.infra_website_down_count
+        name: Monitoring Coverage
+        icon: mdi:cloud-check-outline
+        state_display: >
+          [[[
+            const down = Number(entity?.state);
+            if (!Number.isFinite(down)) return 'NO DATA';
+            return `${3 - down}/3 MONITORS UP`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.ipmer_com_days_until_expiration
+        name: Next Domain Expiry
+        icon: mdi:calendar-clock
+        state_display: >
+          [[[
+            const domains = [
+              ['vcloudinfo.com', 'sensor.vcloudinfo_com_days_until_expiration', 'sensor.vcloudinfo_com_expires'],
+              ['ipmer.com', 'sensor.ipmer_com_days_until_expiration', 'sensor.ipmer_com_expires'],
+              ['kingcraftshomes.com', 'sensor.kingcrafthomes_com_days_until_expiration', 'sensor.kingcrafthomes_com_expires'],
+            ];
+            const candidates = domains
+              .map(([name, daysId, expiresId]) => ({
+                name,
+                days: Number(states[daysId]?.state),
+                expires: String(states[expiresId]?.state ?? ''),
+              }))
+              .filter((item) => Number.isFinite(item.days))
+              .sort((a, b) => a.days - b.days);
+            if (!candidates.length) return 'NO DATA';
+            const next = candidates[0];
+            const date = /^\d{4}-\d{2}-\d{2}/.test(next.expires)
+              ? next.expires.slice(0, 10)
+              : 'DATE UNKNOWN';
+            return `${next.name.toUpperCase()} | ${Math.round(next.days)} DAYS | ${date}`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.infra_website_degraded
+        name: Open Website Details
+        icon: mdi:chart-box-outline
+        state_display: >
+          [[[ return 'OPEN'; ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/website-health

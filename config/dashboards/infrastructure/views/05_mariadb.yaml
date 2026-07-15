@@ -4,17 +4,18 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure View - MariaDB
-#  YAML-exported Lovelace dashboard (split into view files).
+#  Humanized KPIs, recorder health, capacity trends, and tuning details.
 # -------------------------------------------------------------------
-# Notes: Exported from config/.storage/lovelace.dashboard_infrastructure view index 5.
+# Notes: Trend cards use a consistent seven-day window.
 ######################################################################
 
-type: sections
 title: MariaDB
 path: mariadb
-max_columns: 4
+type: sections
 icon: mdi:database
 theme: default
+max_columns: 4
+dense_section_placement: true
 badges: []
 sections: !include /config/dashboards/infrastructure/partials/mariadb_sections.yaml
 cards: []

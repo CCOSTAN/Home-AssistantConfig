@@ -3,20 +3,20 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Infrastructure Subview - Pi-hole Detail
-#  Large analytics and controls for both DNS nodes.
+# Infrastructure Subview - Docker Inventory
+#  Full stack and container inventory separated from the operational view.
 # -------------------------------------------------------------------
-# Notes: Hidden drill-down reached from the combined Network view.
+# Notes: Hidden subview reached from the Docker exceptions panel.
 ######################################################################
 
-title: Pi-hole Details
-path: pihole
+title: Docker Inventory
+path: docker-inventory
 type: sections
 subview: true
-back_path: /dashboard-infrastructure/network
+icon: mdi:format-list-bulleted-square
 theme: default
 max_columns: 4
 dense_section_placement: true
 badges: []
-sections: !include /config/dashboards/infrastructure/partials/pihole_detail_sections.yaml
+sections: !include /config/dashboards/infrastructure/partials/docker_inventory_sections.yaml
 cards: []
