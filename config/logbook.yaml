@@ -17,6 +17,7 @@
 # Notes: Water-softener salt helpers stay in recorder for restore/math; curated MAINTENANCE events and trend sensors are the visible signal.
 # Notes: Rolling maintenance days-since sensors are live-only display helpers.
 # Notes: TP-Link lamp voltage diagnostics stay out of Activity; recorder.yaml keeps them live-only.
+# Notes: WHOIS days-until-expiration countdowns stay out of Activity; actionable domain alert changes remain visible.
 ######################################################################
 
 exclude:
@@ -86,6 +87,10 @@ exclude:
     - sensor.hvac_condenser_lines_days_since_cleaned
     - sensor.front_office_lamp_voltage
     - sensor.water_softener_salt_days_since_last_add
+    - sensor.fordst_com_days_until_expiration
+    - sensor.ipmer_com_days_until_expiration
+    - sensor.kingcrafthomes_com_days_until_expiration
+    - sensor.vcloudinfo_com_days_until_expiration
     - input_datetime.water_softener_salt_last_occurred_at
     - input_number.water_softener_salt_last_amount_lb
     - input_number.water_softener_salt_total_added_lb

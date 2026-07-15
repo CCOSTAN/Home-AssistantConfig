@@ -4,13 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure - Observability, disk pressure, and Joanna review workflows
-#  WAN/DNS/website/domain/cert/Docker host state normalized for dashboards, plus scheduled infrastructure reviews.
+#  WAN/DNS/website/Docker host state normalized for dashboards, plus scheduled infrastructure reviews.
 # Video: https://youtu.be/aceV7ObKJVA
 # Blog: https://www.vcloudinfo.com/2026/07/using-codex-clean-up-home-assistant-entities.html
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
-# Notes: Domain warning threshold is <30 days; critical threshold is <14 days.
 # Notes: Nightly Duplicati verification runs at 08:00 after the 05:30 Duplicati job and docker_14 reboot window.
 # Notes: Duplicati transport/API errors are logged only; repairs are reserved for proven failed or stale backups.
 # Notes: Duplicati failure Repairs enable a recovery poll that clears the Repair after a later successful run.
@@ -21,7 +20,8 @@
 # Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
 # Notes: Nebula Sync DNS consistency compares primary/backup Pi-hole answers and dispatches Joanna on sustained drift or container loss.
 # Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
-# Notes: Immediate website-down states create Repairs and dispatch Joanna; SLO/latency automations cover longer-term UptimeRobot trends.
+# Notes: Garage compute health uses the same 145 F threshold as the existing temperature notification.
+# Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
 ######################################################################
 
 input_text:
@@ -144,72 +144,6 @@ template:
         availability: "{{ states('sensor.docker69_disk_usage') not in ['unknown', 'unavailable', 'none', ''] }}"
         state: "{{ states('sensor.docker69_disk_usage') | float(0) | round(1) }}"
 
-      - name: "Infra Domain Expiry Min Days"
-        unique_id: infra_domain_expiry_min_days
-        unit_of_measurement: "d"
-        state: >-
-          {% set ids = [
-            'sensor.vcloudinfo_com_days_until_expiration',
-            'sensor.ipmer_com_days_until_expiration',
-            'sensor.fordst_com_days_until_expiration',
-            'sensor.kingcrafthomes_com_days_until_expiration'
-          ] %}
-          {% set ns = namespace(min=9999, any=false) %}
-          {% for id in ids %}
-            {% if expand(id) | count > 0 %}
-              {% set raw = states(id) %}
-              {% if raw not in ['unknown', 'unavailable', 'none', ''] %}
-                {% set ns.any = true %}
-                {% set val = raw | float(9999) %}
-                {% if val < ns.min %}
-                  {% set ns.min = val %}
-                {% endif %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {% if ns.any %}
-            {{ ns.min | round(0) }}
-          {% else %}
-            {{ none }}
-          {% endif %}
-
-      - name: "Infra Cert Expiry Min Days"
-        unique_id: infra_cert_expiry_min_days
-        unit_of_measurement: "d"
-        state: >-
-          {% set ns = namespace(min=9999, any=false) %}
-          {% for item in states.sensor %}
-            {% if item.entity_id is search('(vcloudinfo|ipmer|fordst|kingcrafthomes).*(cert|ssl|tls)') %}
-              {% set raw = item.state %}
-              {% if raw not in ['unknown', 'unavailable', 'none', ''] %}
-                {% set value = raw | float(9999) %}
-                {% if value != 9999 %}
-                  {% set ns.any = true %}
-                  {% if value < ns.min %}
-                    {% set ns.min = value %}
-                  {% endif %}
-                {% endif %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {% if ns.any %}
-            {{ ns.min | round(0) }}
-          {% else %}
-            {{ none }}
-          {% endif %}
-
-      - name: "Infra Cert Telemetry Count"
-        unique_id: infra_cert_telemetry_count
-        icon: mdi:counter
-        state: >-
-          {% set ns = namespace(count=0) %}
-          {% for item in states.sensor %}
-            {% if item.entity_id is search('(vcloudinfo|ipmer|fordst|kingcrafthomes).*(cert|ssl|tls)') %}
-              {% set ns.count = ns.count + 1 %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.count }}
-
       - name: "Infra Website Down Count"
         unique_id: infra_website_down_count
         icon: mdi:counter
@@ -256,6 +190,30 @@ template:
             {% endfor %}
             {{ ns.items }}
 
+      - name: "Infra Dashboard Active Issue Count"
+        unique_id: infra_dashboard_active_issue_count
+        icon: mdi:alert-circle-check-outline
+        state_class: measurement
+        state: >-
+          {% set categories = [
+            'binary_sensor.infra_wan_quality_degraded',
+            'binary_sensor.infra_dns_pihole_degraded',
+            'binary_sensor.infra_compute_degraded',
+            'binary_sensor.infra_storage_degraded',
+            'binary_sensor.infra_external_monitoring_degraded'
+          ] %}
+          {{ expand(categories) | selectattr('state', 'eq', 'on') | list | count }}
+        attributes:
+          active_entities: >-
+            {% set categories = [
+              'binary_sensor.infra_wan_quality_degraded',
+              'binary_sensor.infra_dns_pihole_degraded',
+              'binary_sensor.infra_compute_degraded',
+              'binary_sensor.infra_storage_degraded',
+              'binary_sensor.infra_external_monitoring_degraded'
+            ] %}
+            {{ expand(categories) | selectattr('state', 'eq', 'on') | map(attribute='entity_id') | list }}
+
   - binary_sensor:
       - name: "Infra WAN Quality Degraded"
         unique_id: infra_wan_quality_degraded
@@ -273,9 +231,22 @@ template:
         unique_id: infra_dns_pihole_degraded
         device_class: problem
         state: >-
-          {% set switch_state = states('switch.pi_hole') %}
-          {% set service_state = states('binary_sensor.pihole_status') %}
-          {{ switch_state != 'on' or service_state in ['off', 'unavailable', 'unknown'] }}
+          {% set members = [
+            'switch.pi_hole',
+            'binary_sensor.pi_hole_status',
+            'switch.pi_hole_2',
+            'binary_sensor.pi_hole_status_2'
+          ] %}
+          {{ expand(members) | rejectattr('state', 'eq', 'on') | list | count > 0 }}
+        attributes:
+          problem_entities: >-
+            {% set members = [
+              'switch.pi_hole',
+              'binary_sensor.pi_hole_status',
+              'switch.pi_hole_2',
+              'binary_sensor.pi_hole_status_2'
+            ] %}
+            {{ expand(members) | rejectattr('state', 'eq', 'on') | map(attribute='entity_id') | list }}
 
       - name: "Infra Nebula Sync Degraded"
         unique_id: infra_nebula_sync_degraded
@@ -376,51 +347,41 @@ template:
           {% endfor %}
           {{ ns.seen and ns.breach }}
 
-      - name: "Infra Domain Expiry Critical"
-        unique_id: infra_domain_expiry_critical
+      - name: "Infra Compute Degraded"
+        unique_id: infra_compute_degraded
         device_class: problem
         state: >-
-          {% set d = states('sensor.infra_domain_expiry_min_days') %}
-          {% if d in ['unknown', 'unavailable', 'none', ''] %}
-            false
-          {% else %}
-            {{ d | float(9999) < 14 }}
-          {% endif %}
+          {{ is_state('binary_sensor.docker_container_telemetry_degraded', 'on') or
+             states('binary_sensor.proxmox1_runtime_healthy') != 'on' or
+             states('binary_sensor.proxmox02_runtime_healthy') != 'on' or
+             is_state('binary_sensor.node_proxmox1_updates_packages', 'on') or
+             is_state('binary_sensor.node_proxmox02_updates_packages', 'on') or
+             states('sensor.proxmox_garage_average_temperature') in ['unknown', 'unavailable', 'none', ''] or
+             states('sensor.proxmox_garage_average_temperature') | float(0) > 145 }}
 
-      - name: "Infra Domain Expiry Warning"
-        unique_id: infra_domain_expiry_warning
+      - name: "Infra Storage Degraded"
+        unique_id: infra_storage_degraded
         device_class: problem
         state: >-
-          {% set d = states('sensor.infra_domain_expiry_min_days') %}
-          {% if d in ['unknown', 'unavailable', 'none', ''] %}
-            false
-          {% else %}
-            {% set days = d | float(9999) %}
-            {{ days < 30 and days >= 14 }}
-          {% endif %}
+          {% set limits = {
+            'sensor.disk_use_percent': 80,
+            'sensor.carlo_nvr_volume_1_volume_used': 85,
+            'sensor.carlo_nas01_volume_1_volume_used': 85
+          } %}
+          {% set ns = namespace(degraded=false) %}
+          {% for entity_id, limit in limits.items() %}
+            {% set raw = states(entity_id) %}
+            {% if raw in ['unknown', 'unavailable', 'none', ''] or raw | float(0) > limit %}
+              {% set ns.degraded = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.degraded }}
 
-      - name: "Infra Cert Expiry Critical"
-        unique_id: infra_cert_expiry_critical
+      - name: "Infra External Monitoring Degraded"
+        unique_id: infra_external_monitoring_degraded
         device_class: problem
         state: >-
-          {% set d = states('sensor.infra_cert_expiry_min_days') %}
-          {% if d in ['unknown', 'unavailable', 'none', ''] %}
-            false
-          {% else %}
-            {{ d | float(9999) < 14 }}
-          {% endif %}
-
-      - name: "Infra Cert Expiry Warning"
-        unique_id: infra_cert_expiry_warning
-        device_class: problem
-        state: >-
-          {% set d = states('sensor.infra_cert_expiry_min_days') %}
-          {% if d in ['unknown', 'unavailable', 'none', ''] %}
-            false
-          {% else %}
-            {% set days = d | float(9999) %}
-            {{ days < 30 and days >= 14 }}
-          {% endif %}
+          {{ is_state('binary_sensor.infra_website_degraded', 'on') }}
 
 automation:
   - alias: "Infrastructure - External IP Change Logbook"

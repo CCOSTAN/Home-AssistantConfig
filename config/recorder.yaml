@@ -13,9 +13,10 @@
 # Notes: Tesla Fleet Spaceship telemetry is live-only in HA; TeslaMate is the historical car database.
 # Notes: Life360 trackers are explicitly included for map/history queries despite the broad device_tracker exclusion.
 # Notes: Raw Portainer container/stack status telemetry is live-only; keep Docker aggregate outage sensors, Repairs, and curated logbook events instead.
-# Notes: Mobile app phone telemetry is live-only; Life360 keeps location history and notify services remain available.
+# Notes: Mobile app phone telemetry is live-only except daily pedometer metrics for Carlo and Stacey, retained for fitness history; Life360 keeps location history and notify services remain available.
 # Notes: Rolling maintenance days-since sensors are live-only; durable interval/count/total sensors carry the history.
 # Notes: TP-Link lamp voltage diagnostics are live-only; useful energy/power sensors stay recorded.
+# Notes: WHOIS days-until-expiration countdowns are live-only; actual expiry timestamps and alert-state changes remain durable.
 ######################################################################
 db_url: !secret recorder_db_url
 purge_keep_days: 180
@@ -34,6 +35,16 @@ include:
     - device_tracker.life360_paige_costanzo
     - device_tracker.life360_stacey_costanzo
     - device_tracker.life360_yolanda_costanzo
+    - sensor.carlo_maxpro_average_active_pace
+    - sensor.carlo_maxpro_distance
+    - sensor.carlo_maxpro_floors_ascended
+    - sensor.carlo_maxpro_floors_descended
+    - sensor.carlo_maxpro_steps
+    - sensor.stacey_iphone11_average_active_pace
+    - sensor.stacey_iphone11_distance
+    - sensor.stacey_iphone11_floors_ascended
+    - sensor.stacey_iphone11_floors_descended
+    - sensor.stacey_iphone11_steps
 exclude:
   domains:
     - button
@@ -175,6 +186,10 @@ exclude:
     - sensor.hvac_condenser_lines_days_since_cleaned
     - sensor.front_office_lamp_voltage
     - sensor.water_softener_salt_days_since_last_add
+    - sensor.fordst_com_days_until_expiration
+    - sensor.ipmer_com_days_until_expiration
+    - sensor.kingcrafthomes_com_days_until_expiration
+    - sensor.vcloudinfo_com_days_until_expiration
     # BEGIN generated Portainer recorder/logbook noise exclusions
     # Portainer per-container/status plumbing is live-only; keep aggregate Docker outage sensors historically.
     - binary_sensor.docker_container_alerts_snoozed

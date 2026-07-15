@@ -11,6 +11,7 @@
 # Notes: Creates persistent notifications and stamps last-update time.
 # Notes: Fires update events independently when a report has both Available and Updated sections.
 # Notes: Fires `tugtainer_home_assistant_core_updated` when `### Updated:` includes Home Assistant.
+# Notes: Failed or rolled-back reports dispatch Joanna immediately, outside the Available-report cooldown.
 # Notes: Home Assistant changelog dispatch uses core-YYYY.M URL format from parsed/fallback version.
 # Notes: Joanna dispatch cooldown uses mode=single with a 24-hour delay lockout.
 # Notes: Available reports must not auto-update Home Assistant; HA core updates require explicit approval, config check, and a maintenance window.
@@ -29,7 +30,7 @@ input_datetime:
 automation:
   - alias: "Tugtainer Update Report"
     id: tugtainer_update_report
-    description: "Receive Tugtainer update notifications and post persistent alerts."
+    description: "Receive Tugtainer reports, post persistent alerts, and dispatch failed updates."
     mode: queued
     trigger:
       - platform: webhook
@@ -43,6 +44,9 @@ automation:
       message: "{{ payload.message | default('Update event received') }}"
       event_type: "{{ payload.type | default('info') }}"
       has_available_section: "{{ '### available:' in (message | lower) }}"
+      has_failed_section: "{{ '### failed:' in (message | lower) }}"
+      has_rolled_back_section: "{{ '### rolled-back:' in (message | lower) }}"
+      has_failure_section: "{{ has_failed_section or has_rolled_back_section }}"
       updated_section: >-
         {% set sections = message | regex_findall('(?is)###\\s*updated:\\s*(.*?)(?:\\n###\\s|$)') %}
         {{ sections[0] if sections | count > 0 else '' }}
@@ -101,6 +105,38 @@ automation:
               title: "{{ title }}"
               event_type: "{{ event_type }}"
               message: "{{ message }}"
+      - if:
+          - condition: template
+            value_template: "{{ has_failure_section }}"
+        then:
+          - service: script.send_to_logbook
+            data:
+              topic: "DOCKER"
+              message: >-
+                Tugtainer reported failed or rolled-back container updates.
+                Joanna dispatch requested.
+          - service: script.joanna_dispatch
+            data:
+              trigger_context: "HA automation tugtainer_update_report (Tugtainer Update Report)"
+              source: "home_assistant_automation.tugtainer_update_report"
+              summary: "Tugtainer reported failed or rolled-back container updates"
+              entity_ids:
+                - "input_datetime.tugtainer_last_update"
+              diagnostics: >-
+                title={{ title }},
+                event_type={{ event_type }},
+                failed_section={{ has_failed_section }},
+                rolled_back_section={{ has_rolled_back_section }},
+                message={{ message }}
+              request: >-
+                Investigate this Tugtainer failure report. Inspect the owning Docker
+                host, Tugtainer logs, and live container state before changing
+                anything. Recover failed or rolled-back services through their
+                Compose definitions when safe, verify application health, and
+                reconcile Tugtainer state. Do not update, recreate, or restart Home
+                Assistant (`home-assistant` or
+                `ghcr.io/home-assistant/home-assistant`) from this dispatch. Report
+                what was fixed and any remaining blockers.
       - if:
           - condition: template
             value_template: "{{ ha_core_update_detected and (ha_core_version_minor | trim != '') }}"

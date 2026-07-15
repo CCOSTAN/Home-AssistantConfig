@@ -10,8 +10,10 @@
 # Blog: https://www.vcloudinfo.com/2026/07/using-codex-clean-up-home-assistant-entities.html
 # -------------------------------------------------------------------
 # Notes: Hosts run daily read-only APT pending checks plus Mon/Thu 12:00 APT jobs.
+# Notes: All Docker hosts use America/New_York so staggered maintenance shares one local window.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Reboot staggering: docker_14, docker_69, docker_17, docker_10.
+# Notes: Per-host action-due helpers preserve overdue state across daily checks and HA restarts.
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
 # Notes: Weekly Joanna reconcile checks discovered container switches vs configured group members.
 # Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
@@ -37,12 +39,20 @@ input_datetime:
     name: "docker_10 APT last update"
     has_date: true
     has_time: true
+  apt_docker_10_action_due:
+    name: "docker_10 APT action due"
+    has_date: true
+    has_time: true
   apt_docker_17_last_check:
     name: "docker_17 APT last check"
     has_date: true
     has_time: true
   apt_docker_17_last_update:
     name: "docker_17 APT last update"
+    has_date: true
+    has_time: true
+  apt_docker_17_action_due:
+    name: "docker_17 APT action due"
     has_date: true
     has_time: true
   apt_docker_14_last_check:
@@ -53,12 +63,20 @@ input_datetime:
     name: "docker_14 APT last update"
     has_date: true
     has_time: true
+  apt_docker_14_action_due:
+    name: "docker_14 APT action due"
+    has_date: true
+    has_time: true
   apt_docker_69_last_check:
     name: "docker_69 APT last check"
     has_date: true
     has_time: true
   apt_docker_69_last_update:
     name: "docker_69 APT last update"
+    has_date: true
+    has_time: true
+  apt_docker_69_action_due:
+    name: "docker_69 APT action due"
     has_date: true
     has_time: true
   docker_container_alerts_snooze_until:
@@ -929,24 +947,62 @@ automation:
       packages: "{{ payload.get('packages', 0) | int(0) }}"
       security_packages: "{{ payload.get('security_packages', 0) | int(0) }}"
       message: "{{ payload.get('message', '') | string }}"
+      event_kind: "{{ payload.get('event', 'maintenance') | string }}"
       helpers:
         docker_10:
           last_check: input_datetime.apt_docker_10_last_check
           last_update: input_datetime.apt_docker_10_last_update
           last_result: input_text.apt_docker_10_last_result
+          action_due: input_datetime.apt_docker_10_action_due
+          reboot_delay: 20
         docker_14:
           last_check: input_datetime.apt_docker_14_last_check
           last_update: input_datetime.apt_docker_14_last_update
           last_result: input_text.apt_docker_14_last_result
+          action_due: input_datetime.apt_docker_14_action_due
+          reboot_delay: 5
         docker_17:
           last_check: input_datetime.apt_docker_17_last_check
           last_update: input_datetime.apt_docker_17_last_update
           last_result: input_text.apt_docker_17_last_result
+          action_due: input_datetime.apt_docker_17_action_due
+          reboot_delay: 15
         docker_69:
           last_check: input_datetime.apt_docker_69_last_check
           last_update: input_datetime.apt_docker_69_last_update
           last_result: input_text.apt_docker_69_last_result
+          action_due: input_datetime.apt_docker_69_action_due
+          reboot_delay: 10
       host_helpers: "{{ helpers[host_id] if host_id in helpers else none }}"
+      previous_result: "{{ states(host_helpers.last_result) | upper }}"
+      previous_actionable: >-
+        {{ 'PENDING' in previous_result or 'REBOOT REQ' in previous_result }}
+      previous_reboot: "{{ 'REBOOT REQ' in previous_result }}"
+      actionable: "{{ success and (packages > 0 or reboot_required) }}"
+      due_state: "{{ states(host_helpers.action_due) }}"
+      due_missing: >-
+        {{ due_state in ['unknown', 'unavailable', 'none', ''] or
+           due_state.endswith('00:00:00') }}
+      set_action_due: >-
+        {{ actionable and
+           (not previous_actionable or due_missing or previous_reboot != reboot_required) }}
+      action_due: >-
+        {% set noon = today_at('12:00') %}
+        {% set weekday = now().weekday() %}
+        {% set maintenance_report = event_kind == 'maintenance' %}
+        {% set current_window = maintenance_report and weekday in [0, 3]
+            and now() >= noon and now() < noon + timedelta(hours=4) %}
+        {% if current_window %}
+          {% set offset = 0 %}
+        {% elif weekday in [0, 3] and now() < noon %}
+          {% set offset = 0 %}
+        {% elif weekday < 3 %}
+          {% set offset = 3 - weekday %}
+        {% else %}
+          {% set offset = 7 - weekday %}
+        {% endif %}
+        {% set delay = host_helpers.reboot_delay if reboot_required else 0 %}
+        {{ (noon + timedelta(days=offset, minutes=delay)).strftime('%Y-%m-%d %H:%M:%S') }}
       result: >-
         {% set security = ' (' ~ security_packages ~ ' SEC)' if security_packages > 0 else '' %}
         {% if not success %}
@@ -976,6 +1032,14 @@ automation:
           entity_id: "{{ host_helpers.last_result }}"
         data:
           value: "{{ result }}"
+      - choose:
+          - conditions: "{{ set_action_due }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: "{{ host_helpers.action_due }}"
+                data:
+                  datetime: "{{ action_due }}"
       - choose:
           - conditions: "{{ success and updated }}"
             sequence:
