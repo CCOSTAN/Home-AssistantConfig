@@ -1,0 +1,15 @@
+[Unit]
+Description=Report boot completion for APT reboot tracking
+After=network-online.target docker.service
+Wants=network-online.target
+ConditionPathExists=/usr/local/sbin/apt_weekly.sh
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/apt_reboot_report.sh --from-apt-weekly
+User=root
+Group=root
+TimeoutStartSec=330
+
+[Install]
+WantedBy=multi-user.target
