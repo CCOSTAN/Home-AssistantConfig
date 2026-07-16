@@ -17,6 +17,8 @@
 # Notes: Rolling maintenance days-since sensors are live-only; durable interval/count/total sensors carry the history.
 # Notes: TP-Link lamp voltage diagnostics are live-only; useful energy/power sensors stay recorded.
 # Notes: WHOIS days-until-expiration countdowns are live-only; actual expiry timestamps and alert-state changes remain durable.
+# Notes: Dashboard aggregate issue counts are live-only; the underlying degraded-state sensors carry useful history.
+# Notes: The SQL-backed sleep-score average is live-only; direct nightly scores keep the durable history.
 ######################################################################
 db_url: !secret recorder_db_url
 purge_keep_days: 180
@@ -183,6 +185,7 @@ exclude:
   entities:
     - automation.update_garage_get_status
     - automation.docker_telemetry_template_refresh
+    - sensor.infra_dashboard_active_issue_count
     - sensor.hvac_condenser_lines_days_since_cleaned
     - sensor.front_office_lamp_voltage
     - sensor.water_softener_salt_days_since_last_add
@@ -424,6 +427,7 @@ exclude:
     - sensor.ha_uptime
     - sensor.large_garage_door_since
     - sensor.small_garage_door_since
+    - sensor.sleep_score_14_day_averages
     - sensor.last_alexa
     - sensor.lights_on_count
     - sensor.low_battery

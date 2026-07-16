@@ -10,9 +10,11 @@
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
+# Notes: WAN outages alert immediately at near-zero throughput or 90% packet loss; performance degradation requires 6 continuous hours below 300/300 Mbps, above 80 ms, above 5% loss, or unavailable telemetry.
 # Notes: Nightly Duplicati verification runs at 08:00 after the 05:30 Duplicati job and docker_14 reboot window.
 # Notes: Duplicati transport/API errors are logged only; repairs are reserved for proven failed or stale backups.
 # Notes: Duplicati failure Repairs enable a recovery poll that clears the Repair after a later successful run.
+# Notes: Duplicati verification persists its result and latest successful backup time for the Docker storage dashboard.
 # Notes: Monthly HA log hygiene review requests Telegram + public-safe GitHub issue follow-up only; Joanna must wait for approval before any changes.
 # Notes: Numeric WAN telemetry exposes state_class so recorder can keep long-term statistics.
 # Notes: Docker host root disk usage uses Glances-backed normalized sensors; raw Glances sensors are recorder/logbook-filtered.
@@ -22,6 +24,7 @@
 # Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
 # Notes: Garage compute health uses the same 145 F threshold as the existing temperature notification.
 # Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
+# Notes: Dashboard aggregate issue count is live-only; its underlying degraded sensors retain actionable history.
 ######################################################################
 
 input_text:
@@ -40,10 +43,19 @@ input_text:
   infra_pihole_iot_dns_health_band:
     name: "Pi-hole IoT DNS health band"
     max: 20
+  infra_duplicati_backup_verification_status:
+    name: "Duplicati backup verification status"
+    max: 20
 
 input_boolean:
   infra_duplicati_backup_repair_active:
     name: "Duplicati backup repair active"
+
+input_datetime:
+  infra_duplicati_backup_last_success:
+    name: "Duplicati backup last success"
+    has_date: true
+    has_time: true
 
 command_line:
   - sensor:
@@ -193,7 +205,6 @@ template:
       - name: "Infra Dashboard Active Issue Count"
         unique_id: infra_dashboard_active_issue_count
         icon: mdi:alert-circle-check-outline
-        state_class: measurement
         state: >-
           {% set categories = [
             'binary_sensor.infra_wan_quality_degraded',
@@ -215,17 +226,55 @@ template:
             {{ expand(categories) | selectattr('state', 'eq', 'on') | map(attribute='entity_id') | list }}
 
   - binary_sensor:
+      - name: "Infra WAN Outage"
+        unique_id: infra_wan_outage
+        device_class: problem
+        state: >-
+          {% set loss_raw = states('sensor.infra_wan_packet_loss') %}
+          {% set download_raw = states('sensor.speedtest_download') %}
+          {% set upload_raw = states('sensor.speedtest_upload') %}
+          {% set invalid_values = ['unknown', 'unavailable', 'none', ''] %}
+          {% set loss = loss_raw | float(0) %}
+          {% set download = download_raw | float(0) %}
+          {% set upload = upload_raw | float(0) %}
+          {{ (loss_raw not in invalid_values and loss >= 90) or
+             (download_raw not in invalid_values and download <= 1) or
+             (upload_raw not in invalid_values and upload <= 1) }}
+
+      - name: "Infra WAN Sustained Degradation"
+        unique_id: infra_wan_sustained_degradation
+        device_class: problem
+        delay_on: "06:00:00"
+        delay_off: "00:30:00"
+        state: >-
+          {% set loss_raw = states('sensor.infra_wan_packet_loss') %}
+          {% set lat_raw = states('sensor.infra_wan_latency_ms') %}
+          {% set download_raw = states('sensor.speedtest_download') %}
+          {% set upload_raw = states('sensor.speedtest_upload') %}
+          {% set invalid_values = ['unknown', 'unavailable', 'none', ''] %}
+          {% set invalid = loss_raw in invalid_values or
+                           lat_raw in invalid_values or
+                           download_raw in invalid_values or
+                           upload_raw in invalid_values %}
+          {% set loss = loss_raw | float(0) %}
+          {% set lat = lat_raw | float(0) %}
+          {% set download = download_raw | float(0) %}
+          {% set upload = upload_raw | float(0) %}
+          {{ invalid or loss > 5 or lat > 80 or download < 300 or upload < 300 }}
+
       - name: "Infra WAN Quality Degraded"
         unique_id: infra_wan_quality_degraded
         device_class: problem
         state: >-
-          {% set loss_raw = states('sensor.infra_wan_packet_loss') %}
-          {% set lat_raw = states('sensor.infra_wan_latency_ms') %}
-          {% set invalid = loss_raw in ['unknown', 'unavailable', 'none', ''] or
-                           lat_raw in ['unknown', 'unavailable', 'none', ''] %}
-          {% set loss = loss_raw | float(0) %}
-          {% set lat = lat_raw | float(0) %}
-          {{ invalid or loss > 5 or lat > 80 }}
+          {{ is_state('binary_sensor.infra_wan_outage', 'on') or
+             is_state('binary_sensor.infra_wan_sustained_degradation', 'on') }}
+        attributes:
+          evaluation_window: "6 hours"
+          throughput_threshold_mbps: 300
+          latency_threshold_ms: 80
+          packet_loss_threshold_percent: 5
+          outage_throughput_mbps: 1
+          outage_packet_loss_percent: 90
 
       - name: "Infra DNS Pihole Degraded"
         unique_id: infra_dns_pihole_degraded
@@ -992,8 +1041,24 @@ automation:
               - service: input_boolean.turn_off
                 target:
                   entity_id: input_boolean.infra_duplicati_backup_repair_active
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_duplicati_backup_verification_status
+                data:
+                  value: "verified"
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.infra_duplicati_backup_last_success
+                data:
+                  timestamp: >-
+                    {{ as_timestamp(verify_last_success.get('endedAt'), as_timestamp(now())) }}
           - conditions: "{{ verify_transport_issue }}"
             sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.infra_duplicati_backup_verification_status
+                data:
+                  value: "unverified"
               - service: script.send_to_logbook
                 data:
                   topic: "BACKUP"
@@ -1002,6 +1067,11 @@ automation:
                     status {{ verify_status }} with issue {{ verify_issue }}. No repair card was opened because
                     this is verifier transport state, not a confirmed backup failure.
         default:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.infra_duplicati_backup_verification_status
+            data:
+              value: "failed"
           - service: input_boolean.turn_on
             target:
               entity_id: input_boolean.infra_duplicati_backup_repair_active

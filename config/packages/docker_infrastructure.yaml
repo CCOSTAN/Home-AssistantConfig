@@ -12,8 +12,10 @@
 # Notes: Hosts run daily read-only APT pending checks plus Mon/Thu 12:00 APT jobs.
 # Notes: All Docker hosts use America/New_York so staggered maintenance shares one local window.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
+# Notes: Boot reports reuse the registered APT webhook and retry while Home Assistant starts.
 # Notes: Reboot staggering: docker_14, docker_69, docker_17, docker_10.
 # Notes: Per-host action-due helpers preserve overdue state across daily checks and HA restarts.
+# Notes: Monitored workload count deduplicates Portainer `_container_2` companion entities.
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
 # Notes: Weekly Joanna reconcile checks discovered container switches vs configured group members.
 # Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
@@ -400,7 +402,15 @@ template:
         unique_id: docker_monitored_container_count
         icon: mdi:format-list-numbered
         state: >-
-          {{ state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) | count }}
+          {% set ns = namespace(keys=[]) %}
+          {% set monitored = state_attr('sensor.docker_monitored_switch_inventory', 'entity_id') | default([], true) %}
+          {% for switch_entity in monitored %}
+            {% set key = switch_entity | replace('switch.', '') | regex_replace('_container(?:_2)?$', '') %}
+            {% if key not in ns.keys %}
+              {% set ns.keys = ns.keys + [key] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.keys | count }}
 
       - name: "Docker Monitored Unavailable Count"
         unique_id: docker_monitored_unavailable_count

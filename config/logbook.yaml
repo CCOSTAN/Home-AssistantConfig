@@ -18,6 +18,9 @@
 # Notes: Rolling maintenance days-since sensors are live-only display helpers.
 # Notes: TP-Link lamp voltage diagnostics stay out of Activity; recorder.yaml keeps them live-only.
 # Notes: WHOIS days-until-expiration countdowns stay out of Activity; actionable domain alert changes remain visible.
+# Notes: Dashboard aggregate issue counts stay out of Activity; underlying degraded-state changes remain visible.
+# Notes: The SQL-backed sleep-score average stays out of Activity; source scores remain available in Health.
+# Notes: Duplicati result helpers stay out of Activity; curated BACKUP entries carry verification outcomes.
 ######################################################################
 
 exclude:
@@ -84,6 +87,7 @@ exclude:
     - automation.detect_lights_and_adjust_the_brightness_when_turned_on_based_on_time
     - automation.docker_state_sync_repairs_dynamic
     - automation.docker_telemetry_template_refresh
+    - sensor.infra_dashboard_active_issue_count
     - sensor.hvac_condenser_lines_days_since_cleaned
     - sensor.front_office_lamp_voltage
     - sensor.water_softener_salt_days_since_last_add
@@ -99,6 +103,8 @@ exclude:
     - input_text.water_softener_salt_recent_events
     - counter.water_softener_salt_event_count
     - sensor.water_softener_salt_last_summary
+    - input_datetime.infra_duplicati_backup_last_success
+    - input_text.infra_duplicati_backup_verification_status
     # BEGIN generated Portainer recorder/logbook noise exclusions
     # Portainer per-container/status plumbing is live-only; keep aggregate Docker outage sensors historically.
     - binary_sensor.docker_container_alerts_snoozed
@@ -330,6 +336,7 @@ exclude:
     - sensor.phyn_water_flowing
     - sensor.sleepnumber_carlo_carlo_pressure
     - sensor.sleepnumber_carlo_stacey_pressure
+    - sensor.sleep_score_14_day_averages
     - sensor.small_garage_reflection_rate
     - sensor.small_garage_status
     - sensor.small_garage_time_in_state

@@ -3,72 +3,51 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Speedtest Alerts - Log internet speed drops/restores to Activity feed
+# Speedtest Alerts - Log sustained WAN degradation, outages, and recovery
 # Related Issue: 1550
-#  Uses `script.send_to_logbook` + `sensor.activity_feed`.
+#  Uses the normalized WAN health sensors plus `script.send_to_logbook`.
 # -------------------------------------------------------------------
+# Notes: Brief Speedtest transitions do not create Activity entries; outages are immediate and performance degradation requires 6 continuous hours.
 ######################################################################
 
 automation:
-  - alias: "Internet Speed is Slow (Logbook)"
+  - alias: "Internet WAN Degraded (Logbook)"
     id: notify-carlo-slow-internet-speed
-    description: "Logs an Activity entry if download or upload speed falls below 300 Mbps."
+    description: "Logs an Activity entry for an immediate outage or sustained WAN degradation."
     trigger:
-      - platform: numeric_state
-        entity_id: sensor.speedtest_download
-        below: 300
-      - platform: numeric_state
-        entity_id: sensor.speedtest_upload
-        below: 300
-
-    condition:
-      - condition: state
-        entity_id: group.bed
-        state: 'off'
-      - condition: template # Checks to make sure the system hasn't been restarted in the past 10 minutes
-        value_template: >-
-          {% set uptime = states('sensor.ha_uptime') | as_datetime %}
-          {% set now = now() %}
-          {{ (now - uptime).total_seconds() / 60 >= 10 }}
-
+      - platform: state
+        entity_id: binary_sensor.infra_wan_quality_degraded
+        from: 'off'
+        to: 'on'
     action:
       - service: script.send_to_logbook
         data:
           topic: "NETWORK"
           message: >-
+            {% set outage = is_state('binary_sensor.infra_wan_outage', 'on') %}
             Download: {{ states('sensor.speedtest_download') }} Mbps,
-            Upload: {{ states('sensor.speedtest_upload') }} Mbps.
-            One or both speeds are below 300 Mbps.
+            upload: {{ states('sensor.speedtest_upload') }} Mbps,
+            latency: {{ states('sensor.infra_wan_latency_ms') }} ms,
+            packet loss: {{ states('sensor.infra_wan_packet_loss') }}%.
+            {{ 'Immediate WAN outage detected.' if outage else 'WAN performance remained degraded for 6 hours.' }}
     mode: single
 
-  - alias: "Internet Speed Restored (Logbook)"
+  - alias: "Internet WAN Restored (Logbook)"
     id: notify-carlo-internet-speed-restored
-    description: "Logs an Activity entry when download and upload speeds are back above 300/300 Mbps."
+    description: "Logs an Activity entry when the normalized WAN alert clears."
     trigger:
-      - platform: numeric_state
-        entity_id: sensor.speedtest_download
-        above: 300
-      - platform: numeric_state
-        entity_id: sensor.speedtest_upload
-        above: 300
-    condition:
-      - condition: numeric_state
-        entity_id: sensor.speedtest_download
-        above: 300
-      - condition: numeric_state
-        entity_id: sensor.speedtest_upload
-        above: 300
-      - condition: template # Checks to make sure the system hasn't been restarted in the past 10 minutes
-        value_template: >-
-          {% set uptime = states('sensor.ha_uptime') | as_datetime %}
-          {% set now = now() %}
-          {{ (now - uptime).total_seconds() / 60 >= 10 }}
+      - platform: state
+        entity_id: binary_sensor.infra_wan_quality_degraded
+        from: 'on'
+        to: 'off'
     action:
       - service: script.send_to_logbook
         data:
           topic: "NETWORK"
           message: >-
             Download: {{ states('sensor.speedtest_download') }} Mbps,
-            Upload: {{ states('sensor.speedtest_upload') }} Mbps.
-            Internet speeds are back to normal.
+            Upload: {{ states('sensor.speedtest_upload') }} Mbps,
+            latency: {{ states('sensor.infra_wan_latency_ms') }} ms,
+            packet loss: {{ states('sensor.infra_wan_packet_loss') }}%.
+            WAN alert cleared.
     mode: single

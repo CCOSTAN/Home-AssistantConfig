@@ -15,6 +15,8 @@
 #        (helpers/automations) centralized in this file.
 # Notes: `group.bed` is occupancy-only so dependent automations get a clean
 #        on/off state from the two in-bed binary sensors.
+# Notes: The SQL summary averages each day's highest non-zero score over the
+#        latest 14 calendar days; source SleepIQ scores remain the history.
 ######################################################################
 homeassistant:
   customize_glob:
@@ -34,6 +36,47 @@ sleepiq:
   username: !secret sleepiq_username
   password: !secret sleepiq_password
 #-------------------------------------------
+
+sql:
+  - name: Sleep Score 14 Day Averages
+    unique_id: sleep_score_14_day_averages
+    icon: mdi:sleep
+    unit_of_measurement: score
+    query: >-
+      SELECT
+        ROUND(AVG(CASE
+          WHEN daily.entity_id = 'sensor.sleepnumber_carlo_carlo_sleep_score'
+          THEN daily.daily_score END), 1) AS carlo,
+        ROUND(AVG(CASE
+          WHEN daily.entity_id = 'sensor.sleepnumber_carlo_stacey_sleep_score'
+          THEN daily.daily_score END), 1) AS stacey,
+        COUNT(CASE
+          WHEN daily.entity_id = 'sensor.sleepnumber_carlo_carlo_sleep_score'
+          THEN 1 END) AS carlo_nights,
+        COUNT(CASE
+          WHEN daily.entity_id = 'sensor.sleepnumber_carlo_stacey_sleep_score'
+          THEN 1 END) AS stacey_nights
+      FROM (
+        SELECT
+          states_meta.entity_id,
+          DATE(FROM_UNIXTIME(states.last_updated_ts)) AS score_day,
+          MAX(CAST(states.state AS DECIMAL(5,2))) AS daily_score
+        FROM states
+        INNER JOIN states_meta
+          ON states.metadata_id = states_meta.metadata_id
+        WHERE states_meta.entity_id IN (
+          'sensor.sleepnumber_carlo_carlo_sleep_score',
+          'sensor.sleepnumber_carlo_stacey_sleep_score'
+        )
+          AND DATE(FROM_UNIXTIME(states.last_updated_ts)) >=
+            CURDATE() - INTERVAL 13 DAY
+          AND CAST(states.state AS DECIMAL(5,2)) > 0
+        GROUP BY
+          states_meta.entity_id,
+          DATE(FROM_UNIXTIME(states.last_updated_ts))
+      ) AS daily
+    column: carlo
+
 # sensor:
 #   - platform: history_stats
 #     name: Carlo_sleep_hours
