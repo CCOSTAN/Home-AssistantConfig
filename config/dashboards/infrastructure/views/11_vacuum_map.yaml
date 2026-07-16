@@ -1,0 +1,34 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Systems Subview - Vacuum Map
+#  Full interactive Dreame map for zone, point, and room cleaning.
+# -------------------------------------------------------------------
+# Notes: Specialized map card is retained because native cards do not expose interactive vacuum-map cleaning.
+# Notes: Panel view is intentional so the single interactive map can use the full available canvas.
+######################################################################
+
+title: Vacuum Map
+path: vacuum-map
+subview: true
+back_path: /dashboard-infrastructure/vacuum
+type: panel
+icon: mdi:map-outline
+theme: default
+cards:
+# Fallback card: the installed vacuum map card provides device-specific interactive map controls.
+- type: custom:xiaomi-vacuum-map-card
+  grid_options:
+    columns: full
+  map_source:
+    camera: camera.l10s_vacuum_map
+  calibration_source:
+    camera: true
+  entity: vacuum.l10s_vacuum
+  vacuum_platform: Tasshack/dreame-vacuum
+  map_modes:
+  - template: vacuum_clean_zone
+  - template: vacuum_clean_point
+  - template: vacuum_clean_segment

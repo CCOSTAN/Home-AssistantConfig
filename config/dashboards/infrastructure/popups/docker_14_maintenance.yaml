@@ -8,6 +8,7 @@
 # -------------------------------------------------------------------
 # Related Issue: 1560, 1725
 # Notes: Reuses existing Infrastructure button-card templates inside the popup.
+# Notes: Maintenance controls use one full-width column for reliable desktop and touch interaction.
 # Notes: Volume prune is destructive; keep it hold-to-act with an explicit confirmation.
 ######################################################################
 
@@ -24,7 +25,7 @@ width_desktop: 520px
 bg_opacity: '35'
 cards:
 - type: grid
-  columns: 2
+  columns: 1
   square: false
   cards:
   - type: custom:button-card

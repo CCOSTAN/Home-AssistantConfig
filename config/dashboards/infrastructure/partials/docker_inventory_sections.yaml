@@ -37,13 +37,7 @@
       name: Back to Docker Operations
       icon: mdi:arrow-left
       state_display: >
-        [[[
-          const ids = states['sensor.docker_monitored_switch_inventory']?.attributes?.entity_id;
-          const unique = Array.isArray(ids)
-            ? ids.filter(id => !String(id).endsWith('_container_2')).length
-            : entity.state;
-          return `${unique} monitored workloads`;
-        ]]]
+        [[[ return `${entity.state} monitored workloads`; ]]]
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/docker

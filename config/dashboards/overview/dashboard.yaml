@@ -7,7 +7,9 @@
 #  YAML-exported Lovelace dashboard (split into view files).
 # -------------------------------------------------------------------
 # Notes: Used by `/config/ui-lovelace.yaml` (main Lovelace UI). Views are loaded from /config/dashboards/overview/views.
+# Notes: Overview reuses the Systems button-card templates for its compact house-status ribbon and Health view.
 ######################################################################
 
 title: Bear Stone
+button_card_templates: !include /config/dashboards/infrastructure/templates/button_card_templates.yaml
 views: !include_dir_list /config/dashboards/overview/views

@@ -3,16 +3,20 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Overview View - Camera
-#  Standardized access controls above the live camera grid.
+# Infrastructure Subview - WAN Detail
+#  Current diagnostics, alert rules, and multi-day internet trends.
 # -------------------------------------------------------------------
-# Notes: Uses the shared Overview ribbon template for entry controls.
+# Notes: Hidden drill-down reached from the combined Network view.
 ######################################################################
 
-title: Camera
-path: camera
-icon: mdi:cctv
+title: WAN Details
+path: wan
 type: sections
+subview: true
+back_path: /dashboard-infrastructure/network
+theme: default
 max_columns: 4
-sections: !include /config/dashboards/overview/partials/camera_sections.yaml
+dense_section_placement: true
 badges: []
+sections: !include /config/dashboards/infrastructure/partials/wan_detail_sections.yaml
+cards: []

@@ -1,0 +1,462 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Systems Partial - Home Water
+#  Protection, live use, hot water, maintenance, outdoor water, and trends.
+# -------------------------------------------------------------------
+# Notes: NAS, NVR, and unrelated house-temperature cards are omitted; refrigerator temperature stays with home safety.
+# Notes: Maintenance rows reuse existing reset scripts through safe more-info flows.
+# Notes: Active Phyn leak alerts are shown; the integration's stale latest-test leak flag is not an operator alert.
+# Notes: Daily usage uses change on the same sum-only statistic configured in Energy.
+######################################################################
+
+# -------------------------------------------------------------------
+# Water health strip (mandatory first full-width wrapper)
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: switch.phyn_autoshutoff_enabled
+      name: Auto Shutoff
+      icon: mdi:shield-water-outline
+      variables:
+        ok_state: 'on'
+        healthy_text: ACTIVE
+        alert_text: 'OFF'
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.garage_phyn_leak_alert
+      name: Active Leak
+      icon: mdi:pipe-leak
+      variables:
+        ok_state: 'off'
+        healthy_text: CLEAR
+        alert_text: LEAK
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: valve.phyn_shutoff_valve
+      name: Main Valve
+      icon: mdi:valve
+      variables:
+        ok_state: open
+        healthy_text: OPEN
+        alert_text: CLOSED
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.phyn_average_water_flow_rate
+      name: Flow Rate
+      icon: mdi:waves-arrow-right
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.rheem_wh_available_hot_water
+      name: Hot Water
+      icon: mdi:water-thermometer
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.phyn_daily_water_usage
+      name: Used Today
+      icon: mdi:water-outline
+
+# -------------------------------------------------------------------
+# Home maintenance and outdoor water
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Home Maintenance
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.blink_blink1_temperature
+        name: Refrigerator Temperature
+        icon: mdi:fridge-outline
+        state:
+        - operator: '>'
+          value: 60
+          styles:
+            card:
+            - border-color: rgba(229,57,53,0.35)
+            - background: rgba(255,235,238,0.85)
+            icon:
+            - color: rgba(198,40,40,1)
+            state:
+            - color: rgba(198,40,40,1)
+            - opacity: 1
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.downstairs_ac_runtime_since_last_filter_change
+        name: Downstairs Filter Runtime
+        icon: mdi:air-filter
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} / 350 h` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_datetime.downstairs_last_filter_change
+        name: Downstairs Filter Changed
+        icon: mdi:calendar-check-outline
+        tap_action:
+          action: more-info
+          entity: script.reset_downstairs_filter
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.upstairs_ac_runtime_since_last_filter_change
+        name: Upstairs Filter Runtime
+        icon: mdi:air-filter
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} / 450 h` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_datetime.upstairs_last_filter_change
+        name: Upstairs Filter Changed
+        icon: mdi:calendar-check-outline
+        tap_action:
+          action: more-info
+          entity: script.reset_upstairs_filter
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.hvac_condenser_lines_days_since_cleaned
+        name: Condenser Lines
+        icon: mdi:pipe-wrench
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} / 360 DAYS` : 'NO DATA';
+          ]]]
+        tap_action:
+          action: more-info
+          entity: script.reset_hvac_condenser_lines_cleaned
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Water Delivery & Softener
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.water_softener_salt_last_summary
+        name: Last Salt Refill
+        icon: mdi:shaker
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.water_softener_salt_average_days_between_refills
+        name: Typical Salt Interval
+        icon: mdi:calendar-sync-outline
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/salt-trends
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_datetime.water_delivery_date
+        name: Next Water Delivery
+        icon: mdi:truck-delivery-outline
+        state_display: >
+          [[[
+            const raw = String(entity?.state ?? '');
+            const value = raw ? new Date(`${raw}T00:00:00`) : null;
+            if (!(value instanceof Date) || Number.isNaN(value.getTime())) return 'NO DATE';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const formatted = value.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+            return value < today ? `OVERDUE · ${formatted}` : formatted;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Manage ReadyRefresh
+        icon: mdi:open-in-new
+        show_state: false
+        tap_action:
+          action: url
+          url_path: https://www.readyrefresh.com/en/login
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Outdoor Water
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rachio_controller_status
+        name: Sprinkler Controller
+        icon: mdi:sprinkler-variant
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/sprinklers
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rachio_active_zone
+        name: Active Zone
+        icon: mdi:sprinkler
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: switch.carlo_rachio_rain_delay
+        name: Rain Delay
+        icon: mdi:weather-rainy
+        tap_action:
+          action: more-info
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rachio_last_run_summary
+        name: Last Sprinkler Run
+        icon: mdi:history
+
+# -------------------------------------------------------------------
+# Water protection and hot water
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Water Protection
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: valve.phyn_shutoff_valve
+        name: Main Shutoff Valve
+        icon: mdi:valve
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: switch.phyn_autoshutoff_enabled
+        name: Automatic Shutoff
+        icon: mdi:shield-water-outline
+        tap_action:
+          action: more-info
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: switch.phyn_scheduled_leak_test_enabled
+        name: Scheduled Leak Tests
+        icon: mdi:calendar-search
+        state_display: >
+          [[[
+            return entity?.state === 'on' ? 'ENABLED' : 'OFF';
+          ]]]
+        tap_action:
+          action: more-info
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.phyn_leak_test_running
+        name: Leak Test Activity
+        icon: mdi:water-search
+        state_display: >
+          [[[
+            return entity?.state === 'on' ? 'RUNNING' : 'IDLE';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.phyn_average_water_flow_rate
+        name: Current Flow Rate
+        icon: mdi:water-pump
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.phyn_current_water_pressure
+        name: Water Pressure
+        icon: mdi:gauge
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.phyn_average_water_temperature
+        name: Supply Temperature
+        icon: mdi:thermometer-water
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Hot Water System
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rheem_wh_available_hot_water
+        name: Available Hot Water
+        icon: mdi:water-percent
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.rheem_wh_running
+        name: Heat Pump
+        icon: mdi:heat-pump-outline
+        state_display: >
+          [[[
+            return entity?.state === 'on' ? 'RUNNING' : 'IDLE';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rheem_wh_running_state
+        name: Operating State
+        icon: mdi:state-machine
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rheem_wh_tank_health
+        name: Tank Health
+        icon: mdi:shield-check-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rheem_wh_alert_count
+        name: Active Alerts
+        icon: mdi:alert-circle-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: water_heater.rheem_wh
+        name: Water Heater Controls
+        icon: mdi:water-boiler
+
+# -------------------------------------------------------------------
+# Thirty-day water trends
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Daily Water Use - 30 Days
+
+      # Fallback card: change uses the same sum-only long-term statistic as Energy.
+      - type: statistics-graph
+        chart_type: bar
+        days_to_show: 30
+        period: day
+        stat_types:
+        - change
+        entities:
+        - entity: sensor.phyn_daily_water_usage
+          name: Daily Usage
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Lowest Hot Water - 30 Days
+
+      # Fallback card: daily minimum shows whether household demand is outrunning recovery.
+      - type: statistics-graph
+        chart_type: line
+        days_to_show: 30
+        period: day
+        stat_types:
+        - min
+        entities:
+        - entity: sensor.rheem_wh_available_hot_water
+          name: Available Hot Water

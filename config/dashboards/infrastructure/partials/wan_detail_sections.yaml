@@ -1,0 +1,352 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - WAN Detail
+#  Immediate outage detection, sustained degradation, and 14-day trends.
+# -------------------------------------------------------------------
+# Notes: Near-zero throughput or 90% packet loss alerts immediately.
+# Notes: Other threshold breaches must remain continuous for 6 hours.
+######################################################################
+
+# -------------------------------------------------------------------
+# WAN evaluation ribbon
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_wan_quality_degraded
+      name: WAN
+      icon: mdi:wan
+      variables:
+        ok_state: 'off'
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_wan_outage
+      name: Immediate Outage
+      icon: mdi:lan-disconnect
+      variables:
+        ok_state: 'off'
+        healthy_text: CLEAR
+        alert_text: OUTAGE
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_wan_sustained_degradation
+      name: Sustained Performance
+      icon: mdi:timer-alert-outline
+      variables:
+        ok_state: 'off'
+        healthy_text: CLEAR
+        alert_text: DEGRADED
+      state_display: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'OBSERVING';
+          return raw === 'on' ? 'DEGRADED' : 'CLEAR';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: binary_sensor.infra_wan_sustained_degradation
+      name: Evaluation Window
+      icon: mdi:timer-sand
+      state_display: >
+        [[[ return '6 HOURS'; ]]]
+
+# -------------------------------------------------------------------
+# Current values and explicit alert rules
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Current WAN Signals
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.speedtest_download
+        name: Download
+        icon: mdi:download-network-outline
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} Mbit/s` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.speedtest_upload
+        name: Upload
+        icon: mdi:upload-network-outline
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} Mbit/s` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.speedtest_ping
+        name: Speedtest Latency
+        icon: mdi:speedometer
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} ms` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.infra_wan_latency_ms
+        name: Continuous Latency
+        icon: mdi:wan
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} ms` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.infra_wan_packet_loss
+        name: Packet Loss
+        icon: mdi:chart-bell-curve-cumulative
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)}%` : 'NO DATA';
+          ]]]
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Why WAN Would Alert
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.infra_wan_quality_degraded
+        name: Current Threshold Breach
+        icon: mdi:alert-decagram-outline
+        state_display: >
+          [[[
+            const invalid = (value) => ['unknown', 'unavailable', 'none', ''].includes(String(value ?? '').toLowerCase());
+            const numeric = (id) => invalid(states[id]?.state) ? null : Number(states[id]?.state);
+            const download = numeric('sensor.speedtest_download');
+            const upload = numeric('sensor.speedtest_upload');
+            const latency = numeric('sensor.infra_wan_latency_ms');
+            const loss = numeric('sensor.infra_wan_packet_loss');
+            const reasons = [];
+            if ([download, upload, latency, loss].some((value) => value === null || !Number.isFinite(value))) reasons.push('NO DATA');
+            if (download !== null && download < 300) reasons.push('DOWNLOAD');
+            if (upload !== null && upload < 300) reasons.push('UPLOAD');
+            if (latency !== null && latency > 80) reasons.push('LATENCY');
+            if (loss !== null && loss > 5) reasons.push('PACKET LOSS');
+            return reasons.length ? reasons.join(' · ') : 'NONE';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.infra_wan_outage
+        name: Immediate Outage Rule
+        icon: mdi:lan-disconnect
+        state_display: >
+          [[[ return '≤1 Mbit/s OR ≥90% LOSS'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.infra_wan_sustained_degradation
+        name: Performance Persistence
+        icon: mdi:timer-alert-outline
+        state_display: >
+          [[[ return '6 CONTINUOUS HOURS'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.speedtest_download
+        name: Throughput Rule
+        icon: mdi:speedometer-slow
+        state_display: >
+          [[[ return '<300 / 300 Mbit/s'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.infra_wan_latency_ms
+        name: Latency Rule
+        icon: mdi:timer-outline
+        state_display: >
+          [[[ return '>80 ms'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.infra_wan_packet_loss
+        name: Packet Loss Rule
+        icon: mdi:chart-bell-curve-cumulative
+        state_display: >
+          [[[ return '>5%'; ]]]
+
+# -------------------------------------------------------------------
+# Multi-day trend and alert history
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:vertical-stack-in-card
+    grid_options:
+      columns: full
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: WAN Trends - 7 Days
+
+    - type: custom:layout-card
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+        grid-auto-flow: row
+        grid-auto-rows: min-content
+        grid-gap: 12px
+        margin: 0
+        mediaquery:
+          "(max-width: 900px)":
+            grid-template-columns: repeat(1, minmax(0, 1fr))
+      cards:
+      - type: custom:mini-graph-card
+        name: Download - 7 Days
+        icon: mdi:download-network-outline
+        entities:
+        - entity: sensor.speedtest_download
+          name: Download
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 2
+        smoothing: true
+        show:
+          fill: false
+          legend: false
+          labels: false
+          name: true
+          icon: true
+          state: true
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+      - type: custom:mini-graph-card
+        name: Upload - 7 Days
+        icon: mdi:upload-network-outline
+        entities:
+        - entity: sensor.speedtest_upload
+          name: Upload
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 2
+        smoothing: true
+        show:
+          fill: false
+          legend: false
+          labels: false
+          name: true
+          icon: true
+          state: true
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+      - type: custom:mini-graph-card
+        name: Continuous Latency - 7 Days
+        icon: mdi:wan
+        entities:
+        - entity: sensor.infra_wan_latency_ms
+          name: Latency
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 2
+        smoothing: true
+        show:
+          fill: false
+          legend: false
+          labels: false
+          name: true
+          icon: true
+          state: true
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+      - type: custom:mini-graph-card
+        name: Packet Loss - 7 Days
+        icon: mdi:chart-bell-curve-cumulative
+        entities:
+        - entity: sensor.infra_wan_packet_loss
+          name: Packet Loss
+        hours_to_show: 168
+        points_per_hour: 1
+        line_width: 2
+        smoothing: false
+        show:
+          fill: false
+          legend: false
+          labels: false
+          name: true
+          icon: true
+          state: true
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    # Core history-graph is required for binary outage/degradation timelines.
+    - type: history-graph
+      title: WAN Alert Timeline - 14 Days
+      hours_to_show: 336
+      entities:
+      - entity: binary_sensor.infra_wan_outage
+        name: Immediate Outage
+      - entity: binary_sensor.infra_wan_sustained_degradation
+        name: Sustained Degradation
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml

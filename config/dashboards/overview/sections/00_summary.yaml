@@ -1,0 +1,118 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Section - priority ribbon and daily controls
+#  Systems first, then frequent doors, climate, and vacuum access.
+# -------------------------------------------------------------------
+# Notes: Equal-width pills keep the whole ribbon compact and consistent.
+######################################################################
+
+type: grid
+column_span: 4
+columns: 1
+square: false
+cards:
+- type: custom:layout-card
+  grid_options:
+    columns: full
+  layout_type: custom:grid-layout
+  layout:
+    grid-template-columns: repeat(6, minmax(0, 1fr))
+    grid-auto-flow: row
+    grid-auto-rows: min-content
+    align-items: center
+    grid-gap: 10px
+    margin: 0
+    mediaquery:
+      "(max-width: 900px)":
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+  cards:
+  - type: custom:button-card
+    template: bearstone_overview_ribbon_control
+    entity: sensor.infra_dashboard_active_issue_count
+    name: Systems
+    icon: mdi:home-cog-outline
+    variables:
+      ok_states:
+      - '0'
+      state_labels:
+        '0': ALL CLEAR
+      raw_suffix: ACTIVE
+    tap_action:
+      action: navigate
+      navigation_path: /dashboard-infrastructure/home
+
+  - type: custom:button-card
+    template: bearstone_overview_ribbon_control
+    entity: cover.large_garage_door
+    name: Large Garage
+    icon: mdi:garage
+    variables:
+      ok_states:
+      - closed
+      warning_states:
+      - opening
+      - closing
+
+  - type: custom:button-card
+    template: bearstone_overview_ribbon_control
+    entity: lock.front_door
+    name: Front Door
+    icon: mdi:door-closed-lock
+    variables:
+      ok_states:
+      - locked
+
+  - type: custom:button-card
+    template: bearstone_overview_ribbon_control
+    entity: climate.downstairs
+    name: Downstairs
+    icon: mdi:thermostat
+    variables:
+      display_mode: climate
+      humidity_entity: sensor.downstairs_humidity
+      ok_states:
+      - auto
+      - cool
+      - dry
+      - fan_only
+      - heat
+      - heat_cool
+      - 'off'
+
+  - type: custom:button-card
+    template: bearstone_overview_ribbon_control
+    entity: climate.upstairs
+    name: Upstairs
+    icon: mdi:thermostat
+    variables:
+      display_mode: climate
+      humidity_entity: sensor.upstairs_humidity
+      ok_states:
+      - auto
+      - cool
+      - dry
+      - fan_only
+      - heat
+      - heat_cool
+      - 'off'
+
+  - type: custom:button-card
+    template: bearstone_overview_ribbon_control
+    entity: vacuum.l10s_vacuum
+    name: Vacuum
+    icon: mdi:robot-vacuum
+    variables:
+      ok_states:
+      - docked
+      active_states:
+      - cleaning
+      - paused
+      - returning
+      state_labels:
+        docked: READY
+    tap_action:
+      action: navigate
+      navigation_path: /dashboard-infrastructure/vacuum

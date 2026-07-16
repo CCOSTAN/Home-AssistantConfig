@@ -3,323 +3,287 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Overview Partial - health sections
-#  SleepIQ score/recovery trends plus bed controls.
+# Overview Partial - Health
+#  Current SleepIQ state, paired nightly trends, and native bed controls.
 # -------------------------------------------------------------------
-# Related Issue: 1584
-# Notes: Uses direct SleepIQ integration entities (no helper template sensors).
+# Notes: Daily maximum statistics suppress SleepIQ's between-session zero states.
+# Notes: Direct integration entities are reused; no dashboard helper state is added.
+# Notes: The ribbon prioritizes occupancy, firmness, and current session duration.
 ######################################################################
 
+# -------------------------------------------------------------------
+# Current sleep strip (mandatory first full-width wrapper)
+# -------------------------------------------------------------------
 - type: grid
   column_span: 4
-  columns: 2
+  columns: 1
   square: false
   cards:
-  - type: entities
-    title: Carlo Bed Controls
-    show_header_toggle: false
-    entities:
-    - entity: number.sleepnumber_carlo_carlo_firmness
-      name: Firmness
-    - entity: number.sleepnumber_carlo_right_head_position_2
-      name: Head Position
-    - entity: number.sleepnumber_carlo_right_foot_position_2
-      name: Foot Position
-    - entity: select.sleepnumber_carlo_foundation_preset_right
-      name: Preset
-    - entity: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-      name: In Bed
-  - type: entities
-    title: Stacey Bed Controls
-    show_header_toggle: false
-    entities:
-    - entity: number.sleepnumber_carlo_stacey_firmness
-      name: Firmness
-    - entity: number.sleepnumber_carlo_left_head_position_2
-      name: Head Position
-    - entity: select.sleepnumber_carlo_foundation_preset_left
-      name: Preset
-    - entity: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-      name: In Bed
-
-- type: grid
-  column_span: 4
-  columns: 2
-  square: false
-  cards:
-  - type: vertical-stack
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
-    - type: markdown
-      content: |
-        ## Carlo Health
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_carlo_sleep_score
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_carlo_sleep_score
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_carlo_sleep_score
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Sleep Score
-        icon: mdi:sleep
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+      name: Carlo
+      icon: mdi:bed
+      state_display: >
+        [[[
+          return entity?.state === 'on' ? 'IN BED' : 'OUT OF BED';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: number.sleepnumber_carlo_carlo_firmness
+      name: Carlo Firmness
+      icon: mdi:bed-outline
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value) ? value.toFixed(0) : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: sensor.sleepnumber_carlo_carlo_sleep_duration
+      name: Carlo Slept
+      icon: mdi:timer-sand
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          const inBed = states['binary_sensor.sleepnumber_carlo_carlo_is_in_bed']?.state === 'on';
+          if (inBed && (!Number.isFinite(value) || value <= 0)) return 'IN PROGRESS';
+          if (!Number.isFinite(value)) return 'NO DATA';
+          return `${Math.floor(value)}h ${Math.round((value % 1) * 60)}m`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      name: Stacey
+      icon: mdi:bed-double-outline
+      state_display: >
+        [[[
+          return entity?.state === 'on' ? 'IN BED' : 'OUT OF BED';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: number.sleepnumber_carlo_stacey_firmness
+      name: Stacey Firmness
+      icon: mdi:bed-outline
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value) ? value.toFixed(0) : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: sensor.sleepnumber_carlo_stacey_sleep_duration
+      name: Stacey Slept
+      icon: mdi:timer-sand
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          const inBed = states['binary_sensor.sleepnumber_carlo_stacey_is_in_bed']?.state === 'on';
+          if (inBed && (!Number.isFinite(value) || value <= 0)) return 'IN PROGRESS';
+          if (!Number.isFinite(value)) return 'NO DATA';
+          return `${Math.floor(value)}h ${Math.round((value % 1) * 60)}m`;
+        ]]]
+
+# -------------------------------------------------------------------
+# Fourteen-night paired trends
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Sleep Score - 14 Nights
+
+      # Fallback card: daily statistics remove integration zero placeholders.
+      - type: statistics-graph
+        chart_type: line
+        days_to_show: 14
+        period: day
+        stat_types:
+        - max
         entities:
         - entity: sensor.sleepnumber_carlo_carlo_sleep_score
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_carlo_sleep_duration
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_carlo_sleep_duration
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_carlo_sleep_duration
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Sleep Duration
-        icon: mdi:timer-sand
+          name: Carlo
+        - entity: sensor.sleepnumber_carlo_stacey_sleep_score
+          name: Stacey
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Sleep Duration - 14 Nights
+
+      # Fallback card: daily statistics remove integration zero placeholders.
+      - type: statistics-graph
+        chart_type: line
+        days_to_show: 14
+        period: day
+        stat_types:
+        - max
         entities:
         - entity: sensor.sleepnumber_carlo_carlo_sleep_duration
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_average
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_average
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_average
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Heart Rate Average
-        icon: mdi:heart-pulse
+          name: Carlo
+        - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
+          name: Stacey
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Heart Rate - 14 Nights
+
+      # Fallback card: daily statistics remove integration zero placeholders.
+      - type: statistics-graph
+        chart_type: line
+        days_to_show: 14
+        period: day
+        stat_types:
+        - max
         entities:
         - entity: sensor.sleepnumber_carlo_carlo_heart_rate_average
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_carlo_respiratory_rate_average
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_carlo_respiratory_rate_average
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_carlo_respiratory_rate_average
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Respiratory Rate Average
-        icon: mdi:lungs
+          name: Carlo
+        - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
+          name: Stacey
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Respiratory Rate - 14 Nights
+
+      # Fallback card: daily statistics remove integration zero placeholders.
+      - type: statistics-graph
+        chart_type: line
+        days_to_show: 14
+        period: day
+        stat_types:
+        - max
         entities:
         - entity: sensor.sleepnumber_carlo_carlo_respiratory_rate_average
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_variability
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_variability
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_carlo_heart_rate_variability
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Heart Rate Variability
-        icon: mdi:chart-bell-curve-cumulative
+          name: Carlo
+        - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
+          name: Stacey
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Heart Rate Variability - 14 Nights
+
+      # Fallback card: daily statistics remove integration zero placeholders.
+      - type: statistics-graph
+        chart_type: line
+        days_to_show: 14
+        period: day
+        stat_types:
+        - max
         entities:
         - entity: sensor.sleepnumber_carlo_carlo_heart_rate_variability
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_carlo_pressure
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_carlo_pressure
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_carlo_pressure
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Pressure
-        icon: mdi:gauge
-        entities:
-        - entity: sensor.sleepnumber_carlo_carlo_pressure
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-
-  - type: vertical-stack
-    cards:
-    - type: markdown
-      content: |
-        ## Stacey Health
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_stacey_sleep_score
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_stacey_sleep_score
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_stacey_sleep_score
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Sleep Score
-        icon: mdi:sleep
-        entities:
-        - entity: sensor.sleepnumber_carlo_stacey_sleep_score
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Sleep Duration
-        icon: mdi:timer-sand
-        entities:
-        - entity: sensor.sleepnumber_carlo_stacey_sleep_duration
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Heart Rate Average
-        icon: mdi:heart-pulse
-        entities:
-        - entity: sensor.sleepnumber_carlo_stacey_heart_rate_average
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Respiratory Rate Average
-        icon: mdi:lungs
-        entities:
-        - entity: sensor.sleepnumber_carlo_stacey_respiratory_rate_average
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_variability
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_variability
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_stacey_heart_rate_variability
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Heart Rate Variability
-        icon: mdi:chart-bell-curve-cumulative
-        entities:
+          name: Carlo
         - entity: sensor.sleepnumber_carlo_stacey_heart_rate_variability
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-        show:
-          fill: false
-          points: false
-          extrema: true
-    - type: conditional
-      conditions:
-      - entity: sensor.sleepnumber_carlo_stacey_pressure
-        state_not: unknown
-      - entity: sensor.sleepnumber_carlo_stacey_pressure
-        state_not: unavailable
-      - entity: sensor.sleepnumber_carlo_stacey_pressure
-        state_not: none
-      card:
-        type: custom:mini-graph-card
-        name: Pressure
-        icon: mdi:gauge
-        entities:
-        - entity: sensor.sleepnumber_carlo_stacey_pressure
-        hours_to_show: 168
-        points_per_hour: 1
-        line_width: 3
-        graph: line
-      show:
-        fill: false
-        points: false
-        extrema: true
+          name: Stacey
 
+# -------------------------------------------------------------------
+# Native foundation controls
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    # Fallback cards: native number/select rows retain sliders and presets.
+    - type: entities
+      title: Carlo Bed Controls
+      show_header_toggle: false
+      entities:
+      - entity: number.sleepnumber_carlo_carlo_firmness
+        name: Firmness
+      - entity: number.sleepnumber_carlo_right_head_position_2
+        name: Head Position
+      - entity: number.sleepnumber_carlo_right_foot_position_2
+        name: Foot Position
+      - entity: select.sleepnumber_carlo_foundation_preset_right
+        name: Preset
+      - entity: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        name: In Bed
+
+    - type: entities
+      title: Stacey Bed Controls
+      show_header_toggle: false
+      entities:
+      - entity: number.sleepnumber_carlo_stacey_firmness
+        name: Firmness
+      - entity: number.sleepnumber_carlo_left_head_position_2
+        name: Head Position
+      - entity: select.sleepnumber_carlo_foundation_preset_left
+        name: Preset
+      - entity: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        name: In Bed
+      - entity: input_boolean.carlo_snore
+        name: Carlo Snore Mode
+        icon: mdi:sleep-off
+        tap_action:
+          action: toggle
+          confirmation:
+            text: Toggle Carlo's snore preset automation?

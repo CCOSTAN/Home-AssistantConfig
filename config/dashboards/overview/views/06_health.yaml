@@ -7,15 +7,16 @@
 #  SleepIQ health metrics view for Carlo and Stacey.
 # -------------------------------------------------------------------
 # Related Issue: 1584
-# Notes: Dedicated health view keeps Overview Home compact.
+# Notes: Promoted from the approved Health pilot; personal health remains with Overview.
 ######################################################################
 
 title: Health
 path: health
 type: sections
 icon: mdi:heart-pulse
-theme: Backend-selected
+theme: default
 max_columns: 4
+dense_section_placement: true
 badges: []
 sections: !include /config/dashboards/overview/partials/health_sections.yaml
 cards: []

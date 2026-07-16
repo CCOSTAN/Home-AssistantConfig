@@ -5,12 +5,28 @@
 # -------------------------------------------------------------------
 # Custom Sidebar - Sidebar shortcut configuration
 # Related Issue: 1572
-#  Adds a bottom-fixed Developer Tools link through elchininet/custom-sidebar.
+#  Pins core views, hides low-use panels, and fixes Developer Tools at the bottom.
 # -------------------------------------------------------------------
 # Served as /local/custom-sidebar-config.yaml; plugin loads via HACS.
 ######################################################################
 
 order:
+  - item: Overview
+    exact: true
+    icon: mdi:view-dashboard
+
+  - item: Systems
+    exact: true
+    icon: mdi:server-network
+
+  - item: Calendar
+    exact: true
+    hide: true
+
+  - item: Media
+    exact: true
+    hide: true
+
   - new_item: true
     item: developer_tools
     name: Developer Tools

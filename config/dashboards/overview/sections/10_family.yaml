@@ -1,0 +1,216 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Section - family presence and compact maps
+#  Special-home overlays stay visible while Bear Stone home stays clean.
+# -------------------------------------------------------------------
+# Notes: Core picture and map cards preserve person images and route history.
+# Notes: Mobile search sits before maps so entity lookup remains near the top.
+######################################################################
+
+cards:
+# Fallback card: picture-entity provides native person images and state filters.
+- square: true
+  type: grid
+  columns: 4
+  cards:
+  - type: picture-entity
+    entity: person.carlo
+    name: Carlo
+    show_state: false
+    show_name: false
+    state_filter:
+      home: none
+      not_home: grayscale(100%) opacity(50%)
+      Justin Dorm: grayscale(10%) opacity(50%)
+      Paige Home: grayscale(10%) opacity(50%)
+      Joyce Home: grayscale(100%) opacity(50%)
+      driving: grayscale(100%) opacity(50%)
+
+  - type: picture-entity
+    entity: person.stacey
+    name: Stacey
+    show_state: false
+    show_name: false
+    state_filter:
+      home: none
+      not_home: grayscale(100%) opacity(50%)
+      Justin Dorm: grayscale(10%) opacity(50%)
+      Paige Home: grayscale(10%) opacity(50%)
+      Joyce Home: grayscale(100%) opacity(50%)
+      gym: grayscale(100%) opacity(50%)
+      driving: grayscale(100%) opacity(50%)
+
+  - type: picture-entity
+    entity: person.justin
+    name: Justin
+    show_state: true
+    show_name: false
+    card_mod:
+      style: |
+        .footer {
+          display: {% if is_state('person.justin', 'Justin Dorm') %}block{% else %}none{% endif %};
+          padding: 4px 2px !important;
+          font-size: 11px !important;
+          line-height: 14px !important;
+        }
+    state_filter:
+      home: none
+      not_home: grayscale(100%) opacity(50%)
+      Justin Dorm: grayscale(10%) opacity(50%)
+      Paige Home: grayscale(10%) opacity(50%)
+      Joyce Home: grayscale(100%) opacity(50%)
+      gym: grayscale(100%) opacity(50%)
+      driving: grayscale(100%) opacity(50%)
+
+  - type: picture-entity
+    entity: person.paige
+    name: Paige
+    show_state: true
+    show_name: false
+    card_mod:
+      style: |
+        .footer {
+          display: {% if is_state('person.paige', 'Paige Home') %}block{% else %}none{% endif %};
+          padding: 4px 2px !important;
+          font-size: 11px !important;
+          line-height: 14px !important;
+        }
+    state_filter:
+      home: none
+      not_home: grayscale(100%) opacity(50%)
+      paige_work: grayscale(100%) opacity(50%)
+      Justin Dorm: grayscale(10%) opacity(50%)
+      Paige Home: grayscale(10%) opacity(50%)
+      Joyce Home: grayscale(100%) opacity(50%)
+      gym: grayscale(100%) opacity(50%)
+      driving: grayscale(100%) opacity(50%)
+
+# Fallback card: conditional rows explain away locations and collapse when empty.
+- type: conditional
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity: person.carlo
+      state_not: home
+    - condition: state
+      entity: person.stacey
+      state_not: home
+    - condition: and
+      conditions:
+      - condition: state
+        entity: person.justin
+        state_not: home
+      - condition: state
+        entity: person.justin
+        state_not: Justin Dorm
+    - condition: and
+      conditions:
+      - condition: state
+        entity: person.paige
+        state_not: home
+      - condition: state
+        entity: person.paige
+        state_not: Paige Home
+  card:
+    type: entities
+    state_color: false
+    entities:
+    - type: conditional
+      conditions:
+      - entity: person.carlo
+        state_not: home
+      row:
+        entity: sensor.carlo_location_display
+        name: Carlo Location
+    - type: conditional
+      conditions:
+      - entity: person.stacey
+        state_not: home
+      row:
+        entity: sensor.stacey_location_display
+        name: Stacey Location
+    - type: conditional
+      conditions:
+      - entity: person.justin
+        state_not: home
+      - entity: person.justin
+        state_not: Justin Dorm
+      row:
+        entity: sensor.justin_location_display
+        name: Justin Location
+    - type: conditional
+      conditions:
+      - entity: person.paige
+        state_not: home
+      - entity: person.paige
+        state_not: Paige Home
+      row:
+        entity: sensor.paige_location_display
+        name: Paige Location
+
+# Fallback card: screen condition moves shared search ahead of maps on mobile.
+- type: conditional
+  conditions:
+  - condition: screen
+    media_query: "(max-width: 900px)"
+  card: !include /config/dashboards/overview/partials/entity_search.yaml
+
+- type: custom:mushroom-template-card
+  primary: Zoom Map
+  icon: mdi:map-marker
+  fill_container: true
+  layout: horizontal
+  grid_options:
+    columns: full
+    rows: 1
+  tap_action:
+    action: navigate
+    navigation_path: /lovelace/family_locator
+  hold_action:
+    action: none
+  double_tap_action:
+    action: none
+
+# Fallback cards: map preserves each person's 24-hour location path.
+- type: map
+  entities:
+  - person.justin
+  hours_to_show: 24
+  aspect_ratio: '16:9'
+  theme_mode: auto
+  card_mod: &person_location_map_style
+    style:
+      ha-map $ ha-entity-marker $: |
+        .marker {
+          border: 3px solid var(--primary-color) !important;
+          border-radius: 50% 50% 50% 0 !important;
+          transform: rotate(-45deg) translate(50%, -50%);
+          overflow: visible !important;
+        }
+        .entity-picture {
+          transform: rotate(45deg);
+          border-radius: 50%;
+        }
+
+- type: map
+  entities:
+  - person.paige
+  hours_to_show: 24
+  aspect_ratio: '16:9'
+  theme_mode: auto
+  card_mod: *person_location_map_style
+
+- type: map
+  entities:
+  - person.carlo
+  - person.stacey
+  hours_to_show: 24
+  aspect_ratio: '16:9'
+  theme_mode: auto
+  card_mod: *person_location_map_style
+
+column_span: 1

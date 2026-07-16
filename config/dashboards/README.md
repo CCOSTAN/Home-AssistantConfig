@@ -60,6 +60,8 @@ This folder is referenced from `config/configuration.yaml` via:
 - `lovelace.dashboards: ...`
   - Default Overview YAML dashboard: `lovelace.dashboards.lovelace.filename: ui-lovelace.yaml`
   - Additional YAML dashboards: `filename: dashboards/<dashboard>/dashboard.yaml`
+  - Overview Home uses ordered production sections under `overview/sections/`; approved pilot edits now apply directly there.
+  - `dashboard-infrastructure` is presented as **Systems** while retaining its stable URL; it owns Home Water, Vacuum, network, compute, storage, and service drill-downs, including hidden WAN/Pi-hole/website detail views.
 
 Note:
 - Do not use legacy `lovelace.mode: yaml` (removed in Home Assistant 2026.8).
@@ -78,10 +80,15 @@ Lovelace resources are loaded from:
 - Include paths in Lovelace YAML should use absolute container paths starting with `/config/`.
   - Example: `!include /config/dashboards/overview/partials/some_cards.yaml`
 - Views are loaded using `!include_dir_list` and ordered by filename (prefix with `01_`, `02_`, etc.).
-- Infrastructure views are desktop-first and dense by default: use `type: sections`, `max_columns: 4`, and `dense_section_placement: true` on every standard view.
+- Systems views are desktop-first and dense by default: use `type: sections`, `max_columns: 4`, and `dense_section_placement: true` on every standard view.
   - Use responsive `layout-card` grids with `min-content` rows inside full-width section wrappers so panels pack tightly without fixed-height gaps.
   - Keep related panels similar in height, avoid spacer cards, and verify both desktop and single-column mobile layouts.
   - Keep WAN telemetry, compact dual Pi-hole controls, and current website health together on the Network view; reserve hidden subviews for detailed Pi-hole analytics and domain/monitor telemetry.
+  - Use primary KPI tiles as the canonical drill-down entry point instead of repeating navigation rows at the bottom of a view.
+  - Treat NAS long-term statistics as the Docker capacity source of truth; keep host cleanup controls in full-width, single-column maintenance popups.
+- Major Overview redesigns use a hidden `-staging` dashboard for review and keep production view paths unchanged until explicit promotion approval.
+- Overview is the daily home page: preserve people, climate, lighting, cameras, weather, and frequently used controls while bubbling up a compact mix of actionable system state and key household context.
+- Home Water and Vacuum live under Systems; personal Health remains under Overview. Detailed Salt Trends, Sprinklers, and Vacuum Map views are Systems subviews.
 - Prefer card-native styling; treat `card_mod` as a last resort.
 - Prefer CSS variables (`var(--*)`) over hardcoded hex colors.
 - When using the Stitch MCP for inspiration, generation may exceed the tool timeout; wait and then fetch results via `stitch/list_screens` and `stitch/get_screen`.

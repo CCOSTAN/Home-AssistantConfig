@@ -36,10 +36,16 @@ function Get-EffectiveUrlAndStatus {
 $targets = @(
   '/',
   '/lovelace',
+  '/lovelace/home',
+  '/lovelace/health',
   '/lovelace/cameras',
   '/profile',
   '/dashboard-infrastructure',
   '/dashboard-infrastructure/home',
+  '/dashboard-infrastructure/home-water',
+  '/dashboard-infrastructure/vacuum',
+  '/dashboard-infrastructure/network',
+  '/dashboard-infrastructure/wan',
   '/dashboard-infrastructure/joanna',
   '/dashboard-infrastructure/docker',
   '/dashboard-kiosk'

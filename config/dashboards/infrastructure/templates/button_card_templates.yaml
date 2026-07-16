@@ -8,6 +8,7 @@
 #  Shared `button_card_templates` used across Infrastructure views.
 # -------------------------------------------------------------------
 # Notes: Keep templates generic; view-specific tuning stays in the view partials.
+# Notes: The compact ribbon template supports Overview status and daily controls.
 ######################################################################
 
 bearstone_infra_base:
@@ -707,58 +708,6 @@ bearstone_infra_list_row:
     - padding-left: 8px
     - white-space: nowrap
 
-bearstone_infra_docker_volume_row:
-  template: bearstone_infra_list_row
-  icon: mdi:database
-  state_display: >
-    [[[
-      const toMiB = (raw, unitRaw) => {
-        const value = Number(raw);
-        if (!Number.isFinite(value)) return null;
-        const unit = String(unitRaw || 'MiB').trim().toLowerCase();
-        if (unit === 'b' || unit === 'byte' || unit === 'bytes') return value / 1048576;
-        if (unit === 'kib' || unit === 'kb') return value / 1024;
-        if (unit === 'gib' || unit === 'gb') return value * 1024;
-        if (unit === 'tib' || unit === 'tb') return value * 1048576;
-        return value;
-      };
-      const formatMiB = (value) => {
-        if (!Number.isFinite(value)) return 'No telemetry';
-        if (value >= 1048576) return `${(value / 1048576).toFixed(1)} TiB`;
-        if (value >= 1024) return `${(value / 1024).toFixed(1)} GiB`;
-        if (value > 0 && value < 1) return `${(value * 1024).toFixed(1)} KiB`;
-        const precision = value >= 10 ? 1 : 2;
-        return `${value.toFixed(precision)} MiB`;
-      };
-
-      if (variables?.not_instrumented === true) return 'Not instrumented';
-
-      const totalEntity = variables && variables.total_entity
-        ? states[variables.total_entity]
-        : entity;
-      const total = totalEntity
-        ? toMiB(totalEntity.state, totalEntity.attributes?.unit_of_measurement)
-        : null;
-      if (Number.isFinite(total)) return formatMiB(total);
-
-      const volumeEntities = Array.isArray(variables?.volume_entities)
-        ? variables.volume_entities
-        : [];
-      let sum = 0;
-      let seen = 0;
-      for (const entityId of volumeEntities) {
-        const volume = states[entityId];
-        const value = volume
-          ? toMiB(volume.state, volume.attributes?.unit_of_measurement)
-          : null;
-        if (Number.isFinite(value)) {
-          sum += value;
-          seen += 1;
-        }
-      }
-      return seen > 0 ? `${formatMiB(sum)} | ${seen} vols` : 'No telemetry';
-    ]]]
-
 bearstone_infra_alert_row:
   template: bearstone_infra_list_row
   # Home view only. Uses JS visibility checks to keep Home "exceptions-only".
@@ -785,6 +734,10 @@ bearstone_infra_alert_row:
           let show = false;
           if (kind === 'binary_on') show = (stateStr === 'on');
           else if (kind === 'binary_off') show = (stateStr === 'off');
+          else if (kind === 'state_not') {
+            const okState = String(variables?.ok_state ?? '').toLowerCase();
+            show = stateStr.toLowerCase() !== okState;
+          }
           else if (kind === 'ap_zero') show = (stateStr === '0' && ageS >= minAge);
           else if (kind === 'disk_high' || kind === 'numeric_high') {
             const v = parseFloat(stateStr);
@@ -937,6 +890,139 @@ bearstone_infra_status_kpi:
           if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(230,81,0,1)';
           return raw === okState ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
         ]]]
+    - opacity: 1
+
+bearstone_overview_ribbon_control:
+  template: bearstone_infra_chip
+  variables:
+    ok_states: []
+    active_states: []
+    warning_states: []
+    state_labels: {}
+    raw_suffix: ''
+    display_mode: state
+    humidity_entity: ''
+  state_display: >
+    [[[
+      const raw = String(entity?.state ?? 'unknown').toLowerCase();
+      if (variables?.display_mode === 'climate') {
+        const current = Number(entity?.attributes?.current_temperature);
+        const target = Number(entity?.attributes?.temperature);
+        const humidityEntity = String(variables?.humidity_entity ?? '').trim();
+        const humidity = humidityEntity ? Number(states[humidityEntity]?.state) : Number.NaN;
+        const currentText = Number.isFinite(current) ? `${Math.round(current)}°` : 'n/a';
+        const targetText = Number.isFinite(target) ? `${Math.round(target)}°` : 'n/a';
+        const humidityText = Number.isFinite(humidity) ? ` · ${Math.round(humidity)}%` : '';
+        return `${currentText} / ${targetText}${humidityText}`;
+      }
+      const labels = variables?.state_labels || {};
+      if (Object.prototype.hasOwnProperty.call(labels, raw)) return labels[raw];
+      const suffix = String(variables?.raw_suffix ?? '').trim();
+      const display = raw.replaceAll('_', ' ').toUpperCase();
+      return suffix ? `${display} ${suffix}` : display;
+    ]]]
+  styles:
+    card:
+    - border-color: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
+          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
+          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(245,124,0,0.45)';
+          if (active.includes(raw)) return 'rgba(30,136,229,0.45)';
+          return ok.includes(raw) ? 'rgba(67,160,71,0.45)' : 'rgba(229,57,53,0.40)';
+        ]]]
+    - background: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
+          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
+          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(255,243,224,0.85)';
+          if (active.includes(raw)) return 'rgba(227,242,253,0.90)';
+          return ok.includes(raw) ? 'rgba(232,245,233,0.85)' : 'rgba(255,235,238,0.85)';
+        ]]]
+    icon:
+    - color: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
+          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
+          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(245,124,0,1)';
+          if (active.includes(raw)) return 'rgba(25,118,210,1)';
+          return ok.includes(raw) ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
+        ]]]
+    name:
+    - font-size: 13px
+    - font-weight: 900
+    - opacity: 1
+    state:
+    - color: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
+          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
+          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(230,81,0,1)';
+          if (active.includes(raw)) return 'rgba(25,118,210,1)';
+          return ok.includes(raw) ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
+        ]]]
+    - font-size: 12px
+    - font-weight: 900
+    - opacity: 1
+
+bearstone_overview_sleep_summary:
+  template: bearstone_infra_kpi
+  show_icon: false
+  show_label: true
+  variables:
+    score_attribute: ''
+    green_threshold: 88
+    amber_threshold: 65
+  styles:
+    card:
+    - min-height: 62px
+    - padding: 8px 12px
+    grid:
+    - grid-template-areas: '"n" "s" "l"'
+    - grid-template-rows: min-content min-content 14px
+    - row-gap: 1px
+    name:
+    - font-size: 12px
+    - font-weight: 900
+    - opacity: 0.75
+    state:
+    - font-size: 26px
+    - font-weight: 900
+    - opacity: 1
+    - color: >
+        [[[
+          const attribute = String(variables?.score_attribute ?? '').trim();
+          const score = Number(attribute ? entity?.attributes?.[attribute] : entity?.state);
+          const greenThreshold = Number(variables?.green_threshold ?? 88);
+          const amberThreshold = Number(variables?.amber_threshold ?? 65);
+          if (!Number.isFinite(score)) return 'var(--secondary-text-color)';
+          if (score >= greenThreshold) return '#2e7d32';
+          if (score >= amberThreshold) return '#f9a825';
+          return '#c62828';
+        ]]]
+    label:
+    - font-size: 11px
+    - font-weight: 700
+    - line-height: 14px
+
+bearstone_health_kpi:
+  template: bearstone_infra_kpi
+  styles:
+    name:
+    - font-size: 12px
+    - font-weight: 900
+    - opacity: 0.8
+    state:
+    - font-size: 17px
+    - font-weight: 900
     - opacity: 1
 
 bearstone_infra_update_row:

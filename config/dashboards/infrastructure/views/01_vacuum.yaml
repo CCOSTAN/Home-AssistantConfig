@@ -3,14 +3,19 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Overview Partial - vacuum badges
-#  Reusable list extracted from a view for smaller diffs and safer edits.
+# Systems View - Vacuum
+#  Action-first cleaning status, plan, controls, and maintenance health.
 # -------------------------------------------------------------------
-# Notes: Extracted from config/dashboards/overview/views/05_vacuum.yaml key `badges`.
+# Notes: Promoted from the approved Vacuum pilot.
 ######################################################################
 
-- type: entity
-  show_name: true
-  show_state: true
-  show_icon: true
-  entity: input_boolean.l10s_vacuum_on_demand
+title: Vacuum
+path: vacuum
+type: sections
+icon: mdi:robot-vacuum
+theme: default
+max_columns: 4
+dense_section_placement: true
+badges: []
+sections: !include /config/dashboards/infrastructure/partials/vacuum_sections.yaml
+cards: []

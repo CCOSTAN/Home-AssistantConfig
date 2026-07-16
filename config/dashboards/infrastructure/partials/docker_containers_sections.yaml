@@ -4,10 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - Docker operations
-#  Host health, updates, volumes, active exceptions, and inventory drill-down.
+#  Host health, updates, NAS capacity, active exceptions, and inventory drill-down.
 # -------------------------------------------------------------------
 # Notes: Healthy stacks and containers live in the hidden Docker Inventory subview.
 # Notes: Host maintenance controls remain in the existing confirmed popups.
+# Notes: Synology NAS/NVR temperatures stay with their storage telemetry, not household temperature cards.
+# Notes: Storage Health includes the persisted nightly Duplicati verification result and last successful backup time.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -38,13 +40,10 @@
       name: Monitored
       icon: mdi:docker
       state_display: >
-        [[[
-          const ids = states['sensor.docker_monitored_switch_inventory']?.attributes?.entity_id;
-          const unique = Array.isArray(ids)
-            ? ids.filter(id => !String(id).endsWith('_container_2')).length
-            : entity.state;
-          return `${unique} workloads`;
-        ]]]
+        [[[ return `${entity.state} workloads`; ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/docker-inventory
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -77,7 +76,7 @@
       icon: mdi:nas
 
 # -------------------------------------------------------------------
-# Host maintenance signals and volume telemetry
+# Host maintenance signals and durable NAS capacity history
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -144,49 +143,66 @@
       cards:
       - type: custom:button-card
         template: bearstone_infra_panel_header
-        name: Docker Volumes
+        name: Storage Health
+
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.carlo_nas01_temperature
+          name: NAS Temperature
+          icon: mdi:nas
+
+        - type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.carlo_nvr_temperature
+          name: NVR Temperature
+          icon: mdi:video-box
 
       - type: custom:button-card
-        template: bearstone_infra_docker_volume_row
-        entity: sensor.carlo_hass_volume_disk_usage_total_size
-        name: docker_10
+        template: bearstone_infra_status_kpi
+        entity: input_text.infra_duplicati_backup_verification_status
+        name: Docker Config Backup
+        icon: mdi:backup-restore
         variables:
-          total_entity: sensor.carlo_hass_volume_disk_usage_total_size
+          ok_state: verified
+        state_display: >
+          [[[
+            const status = String(entity?.state ?? 'unverified').toLowerCase();
+            const raw = String(states['input_datetime.infra_duplicati_backup_last_success']?.state ?? '');
+            const parsed = raw ? new Date(raw.replace(' ', 'T')) : null;
+            const when = parsed instanceof Date && !Number.isNaN(parsed.getTime())
+              ? parsed.toLocaleString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit'
+                }).toUpperCase()
+              : 'NO SUCCESS TIME';
+            if (status === 'verified') return `SUCCESS · ${when}`;
+            if (status === 'failed') return `FAILED · LAST SUCCESS ${when}`;
+            return `UNVERIFIED · LAST SUCCESS ${when}`;
+          ]]]
 
-      - type: custom:button-card
-        template: bearstone_infra_docker_volume_row
-        entity: button.docker2_prune_unused_volumes
-        name: docker_14
-        variables:
-          not_instrumented: true
-
-      - type: custom:button-card
-        template: bearstone_infra_docker_volume_row
-        entity: button.docker17_prune_unused_volumes
-        name: docker_17
-        variables:
-          volume_entities:
-          - sensor.17214906eee4a16eed521e2904730a8272958bb32209c8b204fef3914a85006f_volume_size
-          - sensor.17e04b7a1a6902f3192bd825b497c5a7a920c64c88a216968cf1700da94d10f0_volume_size
-          - sensor.31a30aacc34d2988cbedbd8aa82d29066a7630ad8e51ce3d55ea0d785c5e8dbc_volume_size
-          - sensor.8c8b88aa16230a391d2e61e75fcc62a57ee569416d7c55ab4e8cd7487813b5dd_volume_size
-          - sensor.9bfb74e2a728618f9c3c1a363d2ccb3bba6e0580a14b3ca6f32afa4dea827b25_volume_size
-          - sensor.a5f10bca01c2cdda3915951e27eef9fcd39a7eae695e3e9b21850550d7d91e29_volume_size
-          - sensor.a5f10bca01c2cdda3915951e27eef9fcd39a7eae695e3e9b21850550d7d91e29c_volume_size
-          - sensor.a6fd445f48ed6892eb26e97814cb7720758588101a441e6b3ffe117cb55f612c_volume_size
-          - sensor.dc429dc8845534e799ea6170bb3a9fb79db3dbb08db6ed198a396f2aadaa1a85_volume_size
-          - sensor.de3d33e1a75cb2d24f5f7f27f4d9bb1f814d72ef9229000a2bf9372e421dfaaf_volume_size
-          - sensor.deaf7fea946c0cd1a40d161ab66367fddc1f99c2a5aae7bf4ad99b47fe25283c_volume_size
-          - sensor.openrecord_local_openrecord_next_cache_volume_size
-          - sensor.openrecord_local_openrecord_scrapers_node_modules_volume_size
-          - sensor.openrecord_local_openrecord_web_node_modules_volume_size
-
-      - type: custom:button-card
-        template: bearstone_infra_docker_volume_row
-        entity: sensor.docker69_volume_disk_usage_total_size
-        name: docker_69
-        variables:
-          total_entity: sensor.docker69_volume_disk_usage_total_size
+      # Core statistics-graph is required because mini-graph-card can only read
+      # the 180-day recorder window, while long-term statistics retain 12 months.
+      - type: statistics-graph
+        title: NAS + NVR Used Space - 12 Months
+        chart_type: line
+        days_to_show: 365
+        period: month
+        stat_types:
+        - mean
+        - max
+        entities:
+        - entity: sensor.carlo_nas01_volume_1_used_space
+          name: NAS Used Space
+        - entity: sensor.carlo_nvr_volume_1_used_space
+          name: NVR Used Space
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
 
 # -------------------------------------------------------------------
 # Exceptions only; full inventory is a hidden subview
@@ -216,10 +232,7 @@
       state_display: >
         [[[
           const unavailable = states['sensor.docker_monitored_unavailable_count']?.state ?? '0';
-          const ids = states['sensor.docker_monitored_switch_inventory']?.attributes?.entity_id;
-          const total = Array.isArray(ids)
-            ? ids.filter(id => !String(id).endsWith('_container_2')).length
-            : (states['sensor.docker_monitored_container_count']?.state ?? '0');
+          const total = states['sensor.docker_monitored_container_count']?.state ?? '0';
           return `${unavailable}/${total} unavailable`;
         ]]]
 
@@ -277,23 +290,6 @@
           {% endfor %}]
       sort:
         method: name
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.docker_monitored_container_count
-      name: Open Full Docker Inventory
-      icon: mdi:format-list-bulleted-square
-      state_display: >
-        [[[
-          const ids = states['sensor.docker_monitored_switch_inventory']?.attributes?.entity_id;
-          const unique = Array.isArray(ids)
-            ? ids.filter(id => !String(id).endsWith('_container_2')).length
-            : entity.state;
-          return `${unique} monitored workloads`;
-        ]]]
-      tap_action:
-        action: navigate
-        navigation_path: /dashboard-infrastructure/docker-inventory
 
 # Existing confirmed host maintenance popups are intentionally reused.
 - type: grid

@@ -1,0 +1,383 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Systems Partial - Vacuum
+#  Current state, today's cleaning plan, controls, and maintenance health.
+# -------------------------------------------------------------------
+# Notes: Full interactive map remains available as a production drill-down.
+# Notes: Monotonic cleaning totals are shown as facts, not misleading trends.
+# Notes: Consumable rows require a confirmed hold before the native reset button is pressed.
+######################################################################
+
+# -------------------------------------------------------------------
+# Current cleaning strip (mandatory first full-width wrapper)
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: vacuum.l10s_vacuum
+      name: Robot
+      icon: mdi:robot-vacuum
+      state_display: >
+        [[[
+          return String(entity?.state ?? 'NO DATA').replaceAll('_', ' ').toUpperCase();
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.l10s_vacuum_battery_level
+      name: Battery
+      icon: mdi:battery
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.l10s_vacuum_current_room
+      name: Current Room
+      icon: mdi:map-marker-radius-outline
+      state_display: >
+        [[[
+          const raw = String(entity?.state ?? 'NO DATA');
+          return ['unknown', 'unavailable', 'none', ''].includes(raw.toLowerCase())
+            ? 'NO DATA'
+            : raw.replaceAll('-', ' ');
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: input_text.l10s_vacuum_room_queue
+      name: Remaining
+      icon: mdi:playlist-play
+      state_display: >
+        [[[
+          const ids = String(entity?.state ?? '').match(/\d+/g) ?? [];
+          return ids.length ? `${ids.length} ROOMS` : 'COMPLETE';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.l10s_vacuum_error
+      name: Error
+      icon: mdi:robot-vacuum-alert
+      state_display: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          if (['no_error', 'no error', 'none'].includes(raw)) return 'CLEAR';
+          if (['unknown', 'unavailable', ''].includes(raw)) return 'NO DATA';
+          return raw.replaceAll('_', ' ').toUpperCase();
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.l10s_vacuum_low_water_warning
+      name: Mop Water
+      icon: mdi:water-check-outline
+      state_display: >
+        [[[
+          const raw = String(entity?.state ?? '').toLowerCase();
+          if (['no_warning', 'no warning', 'none'].includes(raw)) return 'READY';
+          if (['unknown', 'unavailable', ''].includes(raw)) return 'NO DATA';
+          return raw.replaceAll('_', ' ').toUpperCase();
+        ]]]
+
+# -------------------------------------------------------------------
+# Today's plan and native device controls
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Today's Cleaning
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_boolean.l10s_vacuum_on_demand
+        name: On-Demand Cycle
+        icon: mdi:play-circle-outline
+        state_display: >
+          [[[
+            return entity?.state === 'on' ? 'ACTIVE' : 'OFF';
+          ]]]
+        tap_action:
+          action: toggle
+          confirmation:
+            text: Start or stop the on-demand cleaning cycle?
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_select.l10s_vacuum_phase
+        name: Current Phase
+        icon: mdi:playlist-check
+        state_display: >
+          [[[
+            return String(entity?.state ?? 'NO DATA').replaceAll('_', ' ').toUpperCase();
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_text.l10s_vacuum_room_queue
+        name: Rooms Remaining
+        icon: mdi:format-list-numbered
+        state_display: >
+          [[[
+            const roomNames = {
+              '1': 'Pool Bath', '2': 'Office', '3': 'Kids Bath', '4': 'Primary Bath',
+              '6': 'Paige', '7': 'Primary Bed', '8': 'Justin', '9': 'Stacey Office',
+              '10': 'Living', '12': 'Dining', '13': 'Hallway', '14': 'Kitchen',
+              '15': 'Foyer', '17': 'Formal Dining'
+            };
+            const ids = String(entity?.state ?? '').match(/\d+/g) ?? [];
+            if (!ids.length) return 'COMPLETE';
+            const names = ids.map((id) => roomNames[id] ?? id);
+            return names.length > 3 ? `${names.slice(0, 3).join(', ')} +${names.length - 3}` : names.join(', ');
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_text.l10s_vacuum_rooms_cleaned_today
+        name: Cleaned Today
+        icon: mdi:check-all
+        state_display: >
+          [[[
+            const rooms = String(entity?.state ?? '').split(',').map((value) => value.trim()).filter(Boolean);
+            return rooms.length ? `${rooms.length} ROOMS` : 'NONE YET';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: camera.l10s_vacuum_map
+        name: Open Full Vacuum Map
+        icon: mdi:map-outline
+        state_display: OPEN
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/vacuum-map
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Vacuum Controls
+
+      # Fallback card: native entities preserve safe vacuum and select controls.
+      - type: entities
+        show_header_toggle: false
+        entities:
+        - entity: vacuum.l10s_vacuum
+          name: Vacuum
+        - entity: select.l10s_vacuum_cleaning_mode
+          name: Cleaning Mode
+        - entity: select.l10s_vacuum_suction_level
+          name: Suction
+        - entity: select.l10s_vacuum_mop_pad_humidity
+          name: Mop Moisture
+        - entity: select.l10s_vacuum_auto_empty_frequency
+          name: Auto-Empty
+        - entity: switch.l10s_vacuum_auto_dust_collecting
+          name: Auto Dust Collection
+
+# -------------------------------------------------------------------
+# Consumables and last-run evidence
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Consumables - Hold a Row to Reset
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_filter_left
+        name: Filter
+        icon: mdi:air-filter
+        tap_action:
+          action: more-info
+        hold_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.l10s_vacuum_reset_filter
+          confirmation:
+            text: Reset the vacuum filter life to 100%?
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_main_brush_left
+        name: Main Brush
+        icon: mdi:brush
+        tap_action:
+          action: more-info
+        hold_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.l10s_vacuum_reset_main_brush
+          confirmation:
+            text: Reset the main brush life to 100%?
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_side_brush_left
+        name: Side Brush
+        icon: mdi:brush-variant
+        tap_action:
+          action: more-info
+        hold_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.l10s_vacuum_reset_side_brush
+          confirmation:
+            text: Reset the side brush life to 100%?
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_sensor_dirty_left
+        name: Sensors
+        icon: mdi:radar
+        tap_action:
+          action: more-info
+        hold_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.l10s_vacuum_reset_sensor
+          confirmation:
+            text: Reset the vacuum sensor-cleaning life to 100%?
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_mop_pad_left
+        name: Mop Pads
+        icon: mdi:water-sync
+        tap_action:
+          action: more-info
+        hold_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.l10s_vacuum_reset_mop_pad
+          confirmation:
+            text: Reset the mop pad life to 100%?
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_detergent_left
+        name: Detergent
+        icon: mdi:bottle-tonic-outline
+        tap_action:
+          action: more-info
+        hold_action:
+          action: call-service
+          service: button.press
+          service_data:
+            entity_id: button.l10s_vacuum_reset_detergent
+          confirmation:
+            text: Reset the detergent life to 100%?
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Cleaning Evidence
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_cleaning_count
+        name: Completed Runs
+        icon: mdi:counter
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_total_cleaned_area
+        name: Lifetime Area
+        icon: mdi:ruler-square
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_cleaning_history
+        name: Last Cleaning Record
+        icon: mdi:history
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_dust_collection
+        name: Dust Collection
+        icon: mdi:delete-sweep-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_task_status
+        name: Last Task Status
+        icon: mdi:clipboard-check-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.l10s_vacuum_error
+        name: Current Error
+        icon: mdi:alert-circle-outline

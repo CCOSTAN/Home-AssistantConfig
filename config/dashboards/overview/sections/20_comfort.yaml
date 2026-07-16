@@ -1,0 +1,177 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Section - search, sleep, and frequent lighting
+#  Puts entity search first for fast mobile access, then daily controls.
+# -------------------------------------------------------------------
+# Notes: The strong SQL-backed summary links to detailed Health trends.
+######################################################################
+
+cards:
+# Fallback card: screen condition keeps shared search atop desktop column two.
+- type: conditional
+  conditions:
+  - condition: screen
+    media_query: "(min-width: 901px)"
+  card: !include /config/dashboards/overview/partials/entity_search.yaml
+
+- type: custom:mushroom-vacuum-card
+  entity: vacuum.l10s_vacuum
+  icon_animation: true
+  commands:
+  - return_home
+  - start_pause
+  - locate
+  double_tap_action:
+    action: none
+  tap_action:
+    action: navigate
+    navigation_path: /dashboard-infrastructure/vacuum
+  visibility:
+  - condition: state
+    entity: vacuum.l10s_vacuum
+    state_not: docked
+  primary_info: name
+  fill_container: true
+  grid_options:
+    rows: 1
+    columns: full
+  layout: horizontal
+
+- type: custom:vertical-stack-in-card
+  card_mod:
+    style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_panel_header
+    name: Sleep Score - 14-Day Average
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+    - type: custom:button-card
+      template: bearstone_overview_sleep_summary
+      entity: sensor.sleep_score_14_day_averages
+      name: Carlo
+      state_display: >
+        [[[
+          const score = Number(entity?.state);
+          return Number.isFinite(score) ? score.toFixed(1) : 'n/a';
+        ]]]
+      label: >
+        [[[
+          const nights = Number(entity?.attributes?.carlo_nights ?? 0);
+          return `${nights} ${nights === 1 ? 'night' : 'nights'}`;
+        ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/health
+      hold_action:
+        action: navigate
+        navigation_path: /lovelace/health
+    - type: custom:button-card
+      template: bearstone_overview_sleep_summary
+      entity: sensor.sleep_score_14_day_averages
+      name: Stacey
+      variables:
+        score_attribute: stacey
+      state_display: >
+        [[[
+          const score = Number(entity?.attributes?.stacey);
+          return Number.isFinite(score) ? score.toFixed(1) : 'n/a';
+        ]]]
+      label: >
+        [[[
+          const nights = Number(entity?.attributes?.stacey_nights ?? 0);
+          return `${nights} ${nights === 1 ? 'night' : 'nights'}`;
+        ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/health
+      hold_action:
+        action: navigate
+        navigation_path: /lovelace/health
+  grid_options:
+    columns: full
+    rows: 3
+
+- type: custom:bubble-card
+  card_type: button
+  button_type: slider
+  entity: light.living_room_lights
+  name: Living Room Lights
+  icon: mdi:sofa
+  show_state: true
+  show_attribute: false
+  show_last_changed: true
+  tap_action:
+    action: navigate
+    navigation_path: '#ovw-living-room'
+  button_action:
+    tap_action:
+      action: navigate
+      navigation_path: '#ovw-living-room'
+  grid_options:
+    columns: 6
+    rows: 1
+  card_layout: large
+
+- type: custom:bubble-card
+  card_type: button
+  button_type: switch
+  entity: sensor.number_of_lights_on
+  name: Lights On
+  icon: mdi:lightbulb-on-outline
+  show_state: true
+  show_name: true
+  show_attribute: false
+  tap_action:
+    action: navigate
+    navigation_path: '#ovw-lights'
+  button_action:
+    tap_action:
+      action: navigate
+      navigation_path: '#ovw-lights'
+  grid_options:
+    columns: 6
+    rows: 1
+  card_layout: large
+
+- type: custom:bubble-card
+  card_type: button
+  button_type: switch
+  entity: group.interior_switches
+  name: Interior Switches
+  icon: mdi:lightning-bolt
+  show_state: true
+  show_attribute: false
+  show_last_changed: false
+  button_action:
+    tap_action:
+      action: more-info
+  grid_options:
+    columns: 6
+    rows: 1
+  tap_action:
+    action: toggle
+  card_layout: large
+
+- type: custom:bubble-card
+  card_type: button
+  button_type: state
+  entity: group.exterior_lights
+  name: Exterior Lights
+  icon: mdi:palm-tree
+  show_state: true
+  show_attribute: false
+  show_last_changed: true
+  grid_options:
+    columns: 6
+    rows: 1
+
+- !include /config/dashboards/overview/popups/living_room.yaml
+- !include /config/dashboards/overview/popups/lights.yaml
+
+column_span: 1

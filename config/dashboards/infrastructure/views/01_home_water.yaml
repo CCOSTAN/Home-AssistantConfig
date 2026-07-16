@@ -3,19 +3,19 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Overview Partial - home badges
-#  Reusable list extracted from a view for smaller diffs and safer edits.
+# Systems View - Home Water
+#  Leak protection, current use, hot water, maintenance, and trends.
 # -------------------------------------------------------------------
-# Notes: Extracted from config/dashboards/overview/views/01_home.yaml key `badges`.
+# Notes: Promoted from the approved Home Water pilot.
 ######################################################################
 
-- type: entity
-  entity: cover.large_garage_door
-  display_type: complete
-  show_entity_picture: false
-- type: entity
-  entity: cover.small_garage_door
-  display_type: complete
-- type: entity
-  entity: lock.front_door
-  display_type: complete
+title: Home Water
+path: home-water
+type: sections
+icon: mdi:home-flood
+theme: default
+max_columns: 4
+dense_section_placement: true
+badges: []
+sections: !include /config/dashboards/infrastructure/partials/home_water_sections.yaml
+cards: []

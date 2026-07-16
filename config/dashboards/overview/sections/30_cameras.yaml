@@ -1,0 +1,60 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Section - camera and weather awareness
+#  Keeps security views and outdoor context together in one column.
+# -------------------------------------------------------------------
+# Notes: Camera cards retain existing navigation and live behavior.
+# Notes: Hourly and daily forecasts remain complementary at a glance.
+######################################################################
+
+cards:
+- type: custom:frigate-events-card
+  frigate_client_id: frigate
+  event_count: 5
+  video: true
+  video_on_hover: true
+
+- type: picture-entity
+  entity: camera.birdseye
+  show_state: true
+  show_name: true
+  camera_view: live
+  tap_action:
+    action: navigate
+    navigation_path: /lovelace/cameras
+
+- type: weather-forecast
+  show_current: true
+  show_forecast: true
+  entity: weather.pirateweather
+  forecast_type: hourly
+  secondary_info_attribute: humidity
+
+- type: custom:clock-weather-card
+  entity: weather.pirateweather
+  sun_entity: sun.sun
+  temperature_sensor: sensor.pirateweather_temperature
+  humidity_sensor: sensor.pirateweather_humidity
+  weather_icon_type: fill
+  animated_icon: true
+  forecast_rows: 5
+  locale: en-GB
+  time_pattern: HH:mm
+  time_format: 12
+  date_pattern: DDDD
+  hide_today_section: true
+  hide_forecast_section: false
+  show_humidity: true
+  hide_clock: false
+  hide_date: true
+  hourly_forecast: false
+  use_browser_time: false
+  time_zone: null
+  show_decimal: false
+  aqi_sensor: sensor.bear_stone_common_air_quality_index
+  apparent_sensor: null
+
+column_span: 1

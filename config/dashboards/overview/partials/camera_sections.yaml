@@ -4,10 +4,63 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Overview Partial - camera sections
-#  Reusable list extracted from a view for smaller diffs and safer edits.
+#  Standardized access ribbon followed by live exterior cameras.
 # -------------------------------------------------------------------
-# Notes: Extracted from config/dashboards/overview/views/03_camera.yaml key `sections`.
+# Notes: Entry controls reuse the same shared template as the Home ribbon.
 ######################################################################
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: center
+      grid-gap: 10px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_overview_ribbon_control
+      entity: cover.large_garage_door
+      name: Large Garage
+      icon: mdi:garage
+      variables:
+        ok_states:
+        - closed
+        warning_states:
+        - opening
+        - closing
+
+    - type: custom:button-card
+      template: bearstone_overview_ribbon_control
+      entity: cover.small_garage_door
+      name: Small Garage
+      icon: mdi:garage
+      variables:
+        ok_states:
+        - closed
+        warning_states:
+        - opening
+        - closing
+
+    - type: custom:button-card
+      template: bearstone_overview_ribbon_control
+      entity: lock.front_door
+      name: Front Door
+      icon: mdi:door-closed-lock
+      variables:
+        ok_states:
+        - locked
 
 - type: grid
   cards:

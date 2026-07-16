@@ -3,25 +3,21 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Overview View - home
-#  YAML-exported Lovelace dashboard (split into view files).
+# Overview View - Home
+#  Three-column household status, controls, family, and awareness.
 # -------------------------------------------------------------------
-# Notes: Exported from config/.storage/lovelace.lovelace view index 1.
+# Notes: Promoted from the approved Overview pilot; edits now apply live.
 ######################################################################
 
 path: home
-theme: Backend-selected
-layout:
-  max_columns: 4
-badges: !include /config/dashboards/overview/partials/home_badges.yaml
-sections: !include /config/dashboards/overview/partials/home_sections.yaml
-type: sections
-max_columns: 4
+title: Home
 icon: mdi:home
+theme: Backend-selected
+type: sections
+max_columns: 3
+badges: []
+sections: !include_dir_list /config/dashboards/overview/sections
 cards: []
-header:
-  layout: center
-  badges_position: bottom
 visible:
 - user: be280a93c9d7416e98d25d0470f414be
 - user: 46a8d15eb20e4a1daf2d1d1f63180ec5
