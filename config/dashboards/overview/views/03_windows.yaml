@@ -1,0 +1,23 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview View - GPIO entry points
+# Related Issue: 1843
+#  Window, door, and slider contacts with perimeter and MQTT context.
+# -------------------------------------------------------------------
+# Notes: The Home Windows ribbon is the canonical entry point for this subview.
+######################################################################
+
+title: Windows
+path: windows
+subview: true
+icon: mdi:window-closed-variant
+theme: Backend-selected
+type: sections
+max_columns: 4
+dense_section_placement: true
+badges: []
+sections: !include /config/dashboards/overview/partials/entry_points_sections.yaml
+cards: []

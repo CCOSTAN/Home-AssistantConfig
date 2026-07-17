@@ -61,6 +61,7 @@ This folder is referenced from `config/configuration.yaml` via:
   - Default Overview YAML dashboard: `lovelace.dashboards.lovelace.filename: ui-lovelace.yaml`
   - Additional YAML dashboards: `filename: dashboards/<dashboard>/dashboard.yaml`
   - Overview Home uses ordered production sections under `overview/sections/`; approved pilot edits now apply directly there.
+  - Overview Home's **Windows** ribbon opens a dedicated GPIO entry-point subview with perimeter, MQTT, and individual contact status.
   - `dashboard-infrastructure` is presented as **Systems** while retaining its stable URL; it owns Home Water, Vacuum, network, compute, storage, and service drill-downs, including hidden WAN/Pi-hole/website detail views.
 
 Note:

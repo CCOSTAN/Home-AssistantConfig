@@ -1,0 +1,290 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Partial - GPIO entry points
+# Related Issue: 1843
+#  Perimeter summary and all MQTT-backed entry-point contacts.
+# -------------------------------------------------------------------
+# Notes: Contact tiles follow group.entry_points and open more-info history.
+# Notes: MQTT health is global; per-NodeMCU freshness is not currently exposed.
+######################################################################
+
+# -------------------------------------------------------------------
+# Perimeter summary (mandatory first full-width wrapper)
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 10px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Perimeter Summary
+      view_layout:
+        grid-column: 1 / -1
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: group.entry_points
+      name: GPIO Contacts
+      icon: mdi:window-closed-variant
+      variables:
+        ok_state: 'off'
+        healthy_text: SECURE
+        alert_text: OPEN
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mqtt_broker_problem
+      name: MQTT Broker
+      icon: mdi:message-check-outline
+      variables:
+        ok_state: 'off'
+        healthy_text: CONNECTED
+        alert_text: PROBLEM
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: lock.front_door
+      name: Front Lock
+      icon: mdi:door-closed-lock
+      variables:
+        ok_state: locked
+        healthy_text: LOCKED
+        alert_text: UNLOCKED
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: group.garage_doors
+      name: Garage Doors
+      icon: mdi:garage-variant
+      variables:
+        ok_state: closed
+        healthy_text: CLOSED
+        alert_text: OPEN
+
+# -------------------------------------------------------------------
+# Entry doors and sliders
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 10px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Entry Doors and Sliders
+      view_layout:
+        grid-column: 1 / -1
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu1_gpio5
+      name: Front Door
+      icon: mdi:door-closed
+      variables: &contact_status
+        ok_state: 'off'
+        healthy_text: CLOSED
+        alert_text: OPEN
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu1_gpio12
+      name: Interior Garage Door
+      icon: mdi:door-closed
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu2_gpio5
+      name: Back Door
+      icon: mdi:door-closed
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu2_gpio9
+      name: Master Slider
+      icon: mdi:door-sliding
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu2_gpio12
+      name: Main Slider
+      icon: mdi:door-sliding
+      variables: *contact_status
+
+# -------------------------------------------------------------------
+# Common-area windows
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 10px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Common-Area Windows
+      view_layout:
+        grid-column: 1 / -1
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu1_gpio10
+      name: Dining Room Windows
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu1_gpio13
+      name: Front Den Windows
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu1_gpio14
+      name: Office Window
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu2_gpio4
+      name: Dinette Windows
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu2_gpio10
+      name: Master Bathroom Window
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+# -------------------------------------------------------------------
+# Bedroom windows
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 10px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Bedroom Windows
+      view_layout:
+        grid-column: 1 / -1
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu1_gpio4
+      name: Paige Window
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu2_gpio13
+      name: Upstairs Bedroom Window
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu2_gpio14
+      name: Justin Window
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu3_gpio4
+      name: Stacey Bedroom Window
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu3_gpio5
+      name: Carlo Bedroom Window
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu3_gpio10
+      name: Master Bedroom Window
+      icon: mdi:window-closed-variant
+      variables: *contact_status
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.mcu3_gpio14
+      name: Upstairs Windows
+      icon: mdi:window-closed-variant
+      variables: *contact_status

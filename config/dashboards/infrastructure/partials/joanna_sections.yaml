@@ -6,7 +6,7 @@
 # Infrastructure Partial - Joanna
 #  Focused dispatch health, latest activity, rolling volume, and diagnostics.
 # -------------------------------------------------------------------
-# Notes: The large embedded logbook is replaced by a direct Activity navigation card.
+# Notes: The activity drill-down reads the same rolling 24-hour runtime job history as the dispatch counters.
 # Notes: This view changes HA presentation only; BearClaw runtime behavior is untouched.
 ######################################################################
 
@@ -116,7 +116,7 @@
       state_display: '[[[ return `${entity.state} dispatches in 24h`; ]]]'
       tap_action:
         action: navigate
-        navigation_path: /logbook?entity_id=script.joanna_dispatch
+        navigation_path: /dashboard-infrastructure/joanna-activity
 
   - type: custom:vertical-stack-in-card
     card_mod:

@@ -10,10 +10,12 @@
 # Notes: Maintenance rows reuse existing reset scripts through safe more-info flows.
 # Notes: Active Phyn leak alerts are shown; the integration's stale latest-test leak flag is not an operator alert.
 # Notes: Daily usage uses change on the same sum-only statistic configured in Energy.
+# Notes: The overview ribbon prioritizes the next maintenance action and frequent controls without hidden grid placeholders.
+# Notes: Refrigerator temperature remains a temporary Home Maintenance overview item until a better permanent view is chosen.
 ######################################################################
 
 # -------------------------------------------------------------------
-# Water health strip (mandatory first full-width wrapper)
+# Water overview ribbon (mandatory first full-width wrapper)
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -25,7 +27,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-template-columns: repeat(7, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -35,40 +37,109 @@
           grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
     - type: custom:button-card
-      template: bearstone_infra_status_kpi
-      entity: switch.phyn_autoshutoff_enabled
-      name: Auto Shutoff
-      icon: mdi:shield-water-outline
+      template: bearstone_infra_kpi
+      entity: sensor.downstairs_ac_runtime_since_last_filter_change
+      name: Next Maintenance
+      icon: mdi:calendar-clock
       variables:
-        ok_state: 'on'
-        healthy_text: ACTIVE
-        alert_text: 'OFF'
+        next_maintenance: >
+          [[[
+            const candidates = [];
+            const addCandidate = (entityId, label, current, limit, unit) => {
+              if (!Number.isFinite(current) || !Number.isFinite(limit) || limit <= 0) return;
+              const remaining = Math.ceil(limit - current);
+              candidates.push({
+                entity: entityId,
+                progress: current / limit,
+                text: remaining <= 0 ? `DUE · ${label}` : `${label} · ${remaining}${unit}`,
+              });
+            };
 
-    - type: custom:button-card
-      template: bearstone_infra_status_kpi
-      entity: binary_sensor.garage_phyn_leak_alert
-      name: Active Leak
-      icon: mdi:pipe-leak
-      variables:
-        ok_state: 'off'
-        healthy_text: CLEAR
-        alert_text: LEAK
+            addCandidate(
+              'sensor.downstairs_ac_runtime_since_last_filter_change',
+              'DOWNSTAIRS',
+              Number(states['sensor.downstairs_ac_runtime_since_last_filter_change']?.state),
+              350,
+              'H',
+            );
+            addCandidate(
+              'sensor.upstairs_ac_runtime_since_last_filter_change',
+              'UPSTAIRS',
+              Number(states['sensor.upstairs_ac_runtime_since_last_filter_change']?.state),
+              450,
+              'H',
+            );
+            addCandidate(
+              'sensor.hvac_condenser_lines_days_since_cleaned',
+              'CONDENSER',
+              Number(states['sensor.hvac_condenser_lines_days_since_cleaned']?.state),
+              360,
+              'D',
+            );
+            addCandidate(
+              'sensor.water_softener_salt_days_since_last_add',
+              'SALT',
+              Number(states['sensor.water_softener_salt_days_since_last_add']?.state),
+              Number(states['sensor.water_softener_salt_average_days_between_refills']?.state),
+              'D',
+            );
+
+            candidates.sort((a, b) => b.progress - a.progress);
+            return candidates[0] ?? { entity: entity.entity_id, text: 'NO DATA' };
+          ]]]
+      state_display: >
+        [[[
+          const text = variables?.next_maintenance?.text ?? 'NO DATA';
+          return text
+            .replace('DOWNSTAIRS', 'DOWN')
+            .replace('UPSTAIRS', 'UP')
+            .replace('CONDENSER', 'COND');
+        ]]]
+      tap_action:
+        action: more-info
+        entity: >
+          [[[
+            return variables?.next_maintenance?.entity ?? entity.entity_id;
+          ]]]
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
       entity: valve.phyn_shutoff_valve
-      name: Main Valve
+      name: Water Protection
       icon: mdi:valve
       variables:
         ok_state: open
         healthy_text: OPEN
         alert_text: CLOSED
+      tap_action:
+        action: more-info
 
     - type: custom:button-card
       template: bearstone_infra_kpi
-      entity: sensor.phyn_average_water_flow_rate
-      name: Flow Rate
-      icon: mdi:waves-arrow-right
+      entity: sensor.rachio_controller_status
+      name: Sprinklers
+      icon: mdi:sprinkler-variant
+      state_display: >
+        [[[
+          const status = String(entity?.state ?? '').toLowerCase();
+          if (status === 'watering') {
+            const zones = String(entity?.attributes?.active_zones ?? '').trim();
+            return zones ? `RUNNING · ${zones.toUpperCase()}` : 'RUNNING';
+          }
+          if (status === 'rain_delay') return 'RAIN DELAY';
+          if (status === 'standby') return 'STANDBY';
+          if (['unknown', 'unavailable', 'none', ''].includes(status)) return 'OFFLINE';
+          return 'READY';
+        ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/sprinklers
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.blink_blink1_temperature
+      name: Refrigerator
+      icon: mdi:fridge-outline
 
     - type: custom:button-card
       template: bearstone_infra_kpi
@@ -81,6 +152,25 @@
       entity: sensor.phyn_daily_water_usage
       name: Used Today
       icon: mdi:water-outline
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: input_datetime.water_delivery_date
+      name: Next Delivery
+      icon: mdi:truck-delivery-outline
+      state_display: >
+        [[[
+          const raw = String(entity?.state ?? '');
+          const value = raw ? new Date(`${raw}T00:00:00`) : null;
+          if (!(value instanceof Date) || Number.isNaN(value.getTime())) return 'NO DATE';
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const formatted = value.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+          return value < today ? `OVERDUE · ${formatted}` : formatted;
+        ]]]
+      tap_action:
+        action: url
+        url_path: https://www.readyrefresh.com/en/login
 
 # -------------------------------------------------------------------
 # Home maintenance and outdoor water

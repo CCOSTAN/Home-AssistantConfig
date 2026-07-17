@@ -6,7 +6,8 @@
 # Systems Partial - operations summary
 #  House-system health strip, active issues, datacenter, and network trends.
 # -------------------------------------------------------------------
-# Notes: Infrastructure, Water, and Vacuum provide the operational roll-up for Systems.
+# Notes: The health ribbon mirrors the visible dashboard navigation order and labels.
+# Notes: DNS and external-monitoring faults roll up under Network instead of duplicating it.
 # Notes: All overview trends use a 24-hour window with visible series labels.
 ######################################################################
 
@@ -35,7 +36,7 @@
     - type: custom:button-card
       template: bearstone_infra_status_kpi
       entity: sensor.infra_dashboard_active_issue_count
-      name: Infrastructure
+      name: Systems
       icon: mdi:shield-check-outline
       variables:
         ok_state: '0'
@@ -44,60 +45,8 @@
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_wan_quality_degraded
-      name: Network
-      icon: mdi:wan
-      variables:
-        ok_state: 'off'
-      tap_action:
-        action: navigate
-        navigation_path: /dashboard-infrastructure/network
-
-    - type: custom:button-card
-      template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_dns_pihole_degraded
-      name: DNS
-      icon: mdi:dns-outline
-      variables:
-        ok_state: 'off'
-      tap_action:
-        action: navigate
-        navigation_path: /dashboard-infrastructure/network
-
-    - type: custom:button-card
-      template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_compute_degraded
-      name: Compute
-      icon: mdi:server-network
-      variables:
-        ok_state: 'off'
-      tap_action:
-        action: navigate
-        navigation_path: /dashboard-infrastructure/proxmox
-
-    - type: custom:button-card
-      template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_storage_degraded
-      name: Storage
-      icon: mdi:database-check-outline
-      variables:
-        ok_state: 'off'
-
-    - type: custom:button-card
-      template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_external_monitoring_degraded
-      name: External
-      icon: mdi:web-check
-      variables:
-        ok_state: 'off'
-      tap_action:
-        action: navigate
-        navigation_path: /dashboard-infrastructure/network
-
-    - type: custom:button-card
-      template: bearstone_infra_status_kpi
       entity: binary_sensor.garage_phyn_leak_alert
-      name: Water
+      name: Home Water
       icon: mdi:shield-water-outline
       variables:
         ok_state: 'off'
@@ -118,6 +67,63 @@
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/vacuum
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_compute_degraded
+      name: ProxMox
+      icon: mdi:server-network
+      variables:
+        ok_state: 'off'
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/proxmox
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.docker_container_telemetry_degraded
+      name: Docker
+      icon: mdi:docker
+      variables:
+        ok_state: 'off'
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/docker
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_wan_quality_degraded
+      name: Network
+      icon: mdi:wan
+      variables:
+        ok_state: 'off'
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/network
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.mariadb_status
+      name: MariaDB
+      icon: mdi:database
+      variables:
+        ok_state: running
+        healthy_text: RUNNING
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/mariadb
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.bearclaw_status_telemetry
+      name: Joanna
+      icon: mdi:robot-outline
+      variables:
+        ok_state: ok
+        healthy_text: HEALTHY
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/joanna
 
 # -------------------------------------------------------------------
 # Active exceptions and datacenter
