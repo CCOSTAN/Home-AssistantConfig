@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Twice-weekly APT maintenance for Docker hosts (Mon/Thu 12:00 via systemd timer).
+# Twice-weekly overnight APT maintenance for Docker hosts (host-specific Mon/Thu timers).
 # Posts results to Home Assistant webhook and optionally schedules reboot when required.
 
 WEBHOOK_URL="$1"
