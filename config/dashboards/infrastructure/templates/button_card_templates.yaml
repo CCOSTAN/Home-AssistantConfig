@@ -902,6 +902,14 @@ bearstone_overview_ribbon_control:
     raw_suffix: ''
     display_mode: state
     humidity_entity: ''
+    cooling_entity: ''
+    cooling_active: >
+      [[[
+        const coolingEntity = String(variables?.cooling_entity ?? '').trim();
+        return Boolean(coolingEntity && states[coolingEntity]?.state === 'on');
+      ]]]
+    mobile_compact: >
+      [[[ return window.innerWidth <= 600; ]]]
   state_display: >
     [[[
       const raw = String(entity?.state ?? 'unknown').toLowerCase();
@@ -913,6 +921,7 @@ bearstone_overview_ribbon_control:
         const currentText = Number.isFinite(current) ? `${Math.round(current)}°` : 'n/a';
         const targetText = Number.isFinite(target) ? `${Math.round(target)}°` : 'n/a';
         const humidityText = Number.isFinite(humidity) ? ` · ${Math.round(humidity)}%` : '';
+        if (variables?.mobile_compact) return `${currentText}/${targetText}${humidityText}`;
         return `${currentText} / ${targetText}${humidityText}`;
       }
       const labels = variables?.state_labels || {};
@@ -923,12 +932,17 @@ bearstone_overview_ribbon_control:
     ]]]
   styles:
     card:
+    - min-height: >
+        [[[ return variables?.mobile_compact ? '44px' : 'auto'; ]]]
+    - padding: >
+        [[[ return variables?.mobile_compact ? '5px 7px' : '10px 12px'; ]]]
     - border-color: >
         [[[
           const raw = String(entity?.state ?? '').toLowerCase();
           const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
           const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
           const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (variables?.cooling_active) return 'rgba(30,136,229,0.45)';
           if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(245,124,0,0.45)';
           if (active.includes(raw)) return 'rgba(30,136,229,0.45)';
           return ok.includes(raw) ? 'rgba(67,160,71,0.45)' : 'rgba(229,57,53,0.40)';
@@ -939,24 +953,41 @@ bearstone_overview_ribbon_control:
           const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
           const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
           const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (variables?.cooling_active) return 'rgba(227,242,253,0.90)';
           if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(255,243,224,0.85)';
           if (active.includes(raw)) return 'rgba(227,242,253,0.90)';
           return ok.includes(raw) ? 'rgba(232,245,233,0.85)' : 'rgba(255,235,238,0.85)';
         ]]]
+    grid:
+    - grid-template-areas: >
+        [[[ return variables?.mobile_compact ? '"n" "s"' : '"i n" "i s"'; ]]]
+    - grid-template-columns: >
+        [[[ return variables?.mobile_compact ? '1fr' : '28px 1fr'; ]]]
+    - column-gap: 0
     icon:
+    - display: >
+        [[[ return variables?.mobile_compact ? 'none' : 'block'; ]]]
+    - width: >
+        [[[ return variables?.mobile_compact ? '14px' : '18px'; ]]]
     - color: >
         [[[
           const raw = String(entity?.state ?? '').toLowerCase();
           const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
           const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
           const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (variables?.cooling_active) return 'rgba(25,118,210,1)';
           if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(245,124,0,1)';
           if (active.includes(raw)) return 'rgba(25,118,210,1)';
           return ok.includes(raw) ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
         ]]]
     name:
-    - font-size: 13px
+    - font-size: >
+        [[[ return variables?.mobile_compact ? '10px' : '13px'; ]]]
     - font-weight: 900
+    - line-height: >
+        [[[ return variables?.mobile_compact ? '11px' : 'normal'; ]]]
+    - justify-self: >
+        [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
     - opacity: 1
     state:
     - color: >
@@ -965,12 +996,18 @@ bearstone_overview_ribbon_control:
           const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
           const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
           const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (variables?.cooling_active) return 'rgba(25,118,210,1)';
           if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(230,81,0,1)';
           if (active.includes(raw)) return 'rgba(25,118,210,1)';
           return ok.includes(raw) ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
         ]]]
-    - font-size: 12px
+    - font-size: >
+        [[[ return variables?.mobile_compact ? '9px' : '12px'; ]]]
     - font-weight: 900
+    - line-height: >
+        [[[ return variables?.mobile_compact ? '10px' : 'normal'; ]]]
+    - justify-self: >
+        [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
     - opacity: 1
 
 bearstone_overview_sleep_summary:

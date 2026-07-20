@@ -8,6 +8,8 @@
 #  Systems first, then frequent entry points, climate, and vacuum access.
 # -------------------------------------------------------------------
 # Notes: Equal-width pills keep the whole ribbon compact and consistent.
+# Notes: Thermostat pills use the climate cooling helpers for active light-blue shading.
+# Notes: Mobile uses a compact four-column ribbon while preserving 44px tap targets.
 ######################################################################
 
 type: grid
@@ -27,8 +29,9 @@ cards:
     grid-gap: 10px
     margin: 0
     mediaquery:
-      "(max-width: 900px)":
-        grid-template-columns: repeat(2, minmax(0, 1fr))
+      "(max-width: 600px)":
+        grid-template-columns: repeat(4, minmax(0, 1fr))
+        grid-gap: 4px
   cards:
   - type: custom:button-card
     template: bearstone_overview_ribbon_control
@@ -89,6 +92,7 @@ cards:
     variables:
       display_mode: climate
       humidity_entity: sensor.downstairs_humidity
+      cooling_entity: binary_sensor.downstairs_ac_is_cooling
       ok_states:
       - auto
       - cool
@@ -106,6 +110,7 @@ cards:
     variables:
       display_mode: climate
       humidity_entity: sensor.upstairs_humidity
+      cooling_entity: binary_sensor.upstairs_ac_is_cooling
       ok_states:
       - auto
       - cool
