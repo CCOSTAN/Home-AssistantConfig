@@ -34,6 +34,7 @@ Speech-first automations: contextual announcements, stats briefings, guest mode 
 ### Tips
 - Pairs with `script/speech_engine.yaml` and `templates/speech/briefing.yaml` for reusable phrasing.
 - Keep announcements natural and action-first; the LLM prompt should avoid previous-message repetition and include weather when requested, safety-relevant, or still useful before late-day context takes over.
+- Airly's nearest-monitor CAQI is the primary local reading and stays silent below medium (50); Pirate Weather US AQI is a safety backstop at 101 or higher. Normal readings are never added to speech.
 - Briefing context includes quiet-by-default Tesla, energy, water, comfort, and vacuum checks so routine announcements stay useful without repeating normal status.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**

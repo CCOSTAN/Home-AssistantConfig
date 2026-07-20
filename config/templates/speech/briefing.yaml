@@ -4,9 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Speech Briefing Macros - TTS prompt helpers for daily briefings
+# Related Issue: 1834
 #  Generates macro prompts for weather, reminders, and AI-driven speech routines.
 # -------------------------------------------------------------------
 #  Weather, responsibilities, holidays, air quality, and fact prompts parsed by speech_processing/speech_engine.
+# Notes: The nearest Airly CAQI is the primary local reading and stays silent
+#  below medium (50). Pirate Weather US AQI is a safety backstop at 101+.
 # Notes: Person state `home` means someone is physically at Bear Stone.
 #  Greetings use only that dynamic in-home audience; off-site residents are
 #  reported separately by their current known location.
@@ -43,10 +46,26 @@
 
   {% macro outside_weather() %}
     [Here is the current weather outside]
-    {% set aq_description = state_attr('sensor.bear_stone_common_air_quality_index', 'description') | default('') %}
-    {% set aq_index = states('sensor.bear_stone_common_air_quality_index') | int(0) %}
-    {% if aq_index >= 50 %}
-    [Air Quality: {{ aq_description }}]
+    {% set airly_entity = 'sensor.bear_stone_common_air_quality_index' %}
+    {% set airly_index = states(airly_entity) | float(none) %}
+    {% set airly_level = state_attr(airly_entity, 'level') | default('', true) %}
+    {% set airly_description = state_attr(airly_entity, 'description') | default('', true) %}
+    {% set airly_alert = airly_index is not none and airly_index >= 50 %}
+    {% set pirate_aqi = states('sensor.pirateweather_air_quality_index') | float(none) %}
+    {% set pirate_alert = pirate_aqi is not none and pirate_aqi >= 101 %}
+    {% if airly_alert or pirate_alert %}
+      {% if pirate_alert %}
+        {% set pirate_value = pirate_aqi | round(0) | int %}
+        {% set pirate_category =
+          'unhealthy for sensitive groups' if pirate_value <= 150
+          else 'unhealthy' if pirate_value <= 200
+          else 'very unhealthy' if pirate_value <= 300
+          else 'hazardous' %}
+      {% endif %}
+    [Outdoor air quality alert:
+      {% if airly_alert %}Nearest Airly CAQI is {{ airly_index | round(0) | int }}{% if airly_level %}, rated {{ airly_level | lower }}{% endif %}.{% if airly_description %} {{ airly_description }}{% endif %}{% endif %}
+      {% if pirate_alert %}Pirate Weather US AQI is {{ pirate_value }}, which is {{ pirate_category }}.{% endif %}
+      Mention only the abnormal reading or readings and give brief, calm outdoor guidance appropriate to the severity.]
     {% endif %}
     {% set pirateweather_metrics = states.sensor
       | selectattr('entity_id','search','pirateweather')
@@ -360,7 +379,8 @@
     {% set weather_safety_context = (
       states('sensor.nws_alerts') | int(0) > 0
       or states('sensor.pirateweather_wind_speed') | float(0) >= 30
-      or states('sensor.bear_stone_common_air_quality_index') | int(0) >= 100
+      or states('sensor.bear_stone_common_air_quality_index') | float(0) >= 50
+      or states('sensor.pirateweather_air_quality_index') | int(0) >= 101
       or lightning_close
     ) %}
     [Current date time: {{ month }} {{ day }}, {{ year }} {{ time }}]
