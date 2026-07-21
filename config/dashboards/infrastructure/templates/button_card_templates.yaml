@@ -933,19 +933,20 @@ bearstone_overview_ribbon_control:
   styles:
     card:
     - min-height: >
-        [[[ return variables?.mobile_compact ? '44px' : 'auto'; ]]]
+        [[[ return variables?.mobile_compact ? '64px' : 'auto'; ]]]
     - padding: >
-        [[[ return variables?.mobile_compact ? '5px 7px' : '10px 12px'; ]]]
+        [[[ return variables?.mobile_compact ? '4px 5px' : '10px 12px'; ]]]
     - border-color: >
         [[[
           const raw = String(entity?.state ?? '').toLowerCase();
           const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
           const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
           const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          const mobile = Boolean(variables?.mobile_compact);
           if (variables?.cooling_active) return 'rgba(30,136,229,0.45)';
           if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(245,124,0,0.45)';
           if (active.includes(raw)) return 'rgba(30,136,229,0.45)';
-          return ok.includes(raw) ? 'rgba(67,160,71,0.45)' : 'rgba(229,57,53,0.40)';
+          return ok.includes(raw) ? 'rgba(67,160,71,0.45)' : mobile ? 'rgba(183,28,28,1)' : 'rgba(229,57,53,0.40)';
         ]]]
     - background: >
         [[[
@@ -953,41 +954,68 @@ bearstone_overview_ribbon_control:
           const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
           const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
           const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          const mobile = Boolean(variables?.mobile_compact);
           if (variables?.cooling_active) return 'rgba(227,242,253,0.90)';
           if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(255,243,224,0.85)';
           if (active.includes(raw)) return 'rgba(227,242,253,0.90)';
-          return ok.includes(raw) ? 'rgba(232,245,233,0.85)' : 'rgba(255,235,238,0.85)';
+          return ok.includes(raw) ? 'rgba(232,245,233,0.85)' : mobile ? 'rgba(183,28,28,0.96)' : 'rgba(255,235,238,0.85)';
         ]]]
     grid:
     - grid-template-areas: >
-        [[[ return variables?.mobile_compact ? '"n" "s"' : '"i n" "i s"'; ]]]
+        [[[ return variables?.mobile_compact ? '"i" "n" "s"' : '"i n" "i s"'; ]]]
     - grid-template-columns: >
         [[[ return variables?.mobile_compact ? '1fr' : '28px 1fr'; ]]]
+    - grid-template-rows: >
+        [[[ return variables?.mobile_compact ? '18px 24px 12px' : 'min-content min-content'; ]]]
     - column-gap: 0
+    - row-gap: >
+        [[[ return variables?.mobile_compact ? '1px' : '0'; ]]]
     icon:
     - display: >
-        [[[ return variables?.mobile_compact ? 'none' : 'block'; ]]]
+        [[[ return 'block'; ]]]
     - width: >
-        [[[ return variables?.mobile_compact ? '14px' : '18px'; ]]]
+        [[[ return '18px'; ]]]
+    - justify-self: >
+        [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
     - color: >
         [[[
           const raw = String(entity?.state ?? '').toLowerCase();
           const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
           const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
           const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          const mobile = Boolean(variables?.mobile_compact);
           if (variables?.cooling_active) return 'rgba(25,118,210,1)';
           if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(245,124,0,1)';
           if (active.includes(raw)) return 'rgba(25,118,210,1)';
-          return ok.includes(raw) ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
+          return ok.includes(raw) ? 'rgba(46,125,50,1)' : mobile ? '#ffffff' : 'rgba(198,40,40,1)';
         ]]]
     name:
+    - color: >
+        [[[
+          if (!variables?.mobile_compact) return 'var(--primary-text-color)';
+          const raw = String(entity?.state ?? '').toLowerCase();
+          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
+          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
+          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          if (variables?.cooling_active || active.includes(raw)) return '#0d47a1';
+          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return '#e65100';
+          return ok.includes(raw) ? '#1b5e20' : '#ffffff';
+        ]]]
     - font-size: >
-        [[[ return variables?.mobile_compact ? '10px' : '13px'; ]]]
+        [[[ return variables?.mobile_compact ? '12px' : '13px'; ]]]
     - font-weight: 900
     - line-height: >
-        [[[ return variables?.mobile_compact ? '11px' : 'normal'; ]]]
+        [[[ return variables?.mobile_compact ? '12px' : 'normal'; ]]]
     - justify-self: >
         [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
+    - white-space: >
+        [[[ return variables?.mobile_compact ? 'normal' : 'nowrap'; ]]]
+    - overflow: >
+        [[[ return variables?.mobile_compact ? 'visible' : 'hidden'; ]]]
+    - text-overflow: >
+        [[[ return variables?.mobile_compact ? 'clip' : 'ellipsis'; ]]]
+    - text-align: >
+        [[[ return variables?.mobile_compact ? 'center' : 'left'; ]]]
     - opacity: 1
     state:
     - color: >
@@ -996,16 +1024,17 @@ bearstone_overview_ribbon_control:
           const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
           const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
           const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          const mobile = Boolean(variables?.mobile_compact);
           if (variables?.cooling_active) return 'rgba(25,118,210,1)';
           if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(230,81,0,1)';
           if (active.includes(raw)) return 'rgba(25,118,210,1)';
-          return ok.includes(raw) ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
+          return ok.includes(raw) ? 'rgba(46,125,50,1)' : mobile ? '#ffffff' : 'rgba(198,40,40,1)';
         ]]]
     - font-size: >
-        [[[ return variables?.mobile_compact ? '9px' : '12px'; ]]]
+        [[[ return variables?.mobile_compact ? '11px' : '12px'; ]]]
     - font-weight: 900
     - line-height: >
-        [[[ return variables?.mobile_compact ? '10px' : 'normal'; ]]]
+        [[[ return variables?.mobile_compact ? '12px' : 'normal'; ]]]
     - justify-self: >
         [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
     - opacity: 1
