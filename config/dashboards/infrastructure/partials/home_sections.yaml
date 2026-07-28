@@ -4,11 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Systems Partial - operations summary
-#  House-system health strip, active issues, datacenter, and network trends.
+#  House-system health strip, active issues, and datacenter status.
 # -------------------------------------------------------------------
 # Notes: The health ribbon mirrors the visible dashboard navigation order and labels.
 # Notes: DNS and external-monitoring faults roll up under Network instead of duplicating it.
-# Notes: All overview trends use a 24-hour window with visible series labels.
+# Notes: Network trend panels live on Network so Overview stays focused on broad house status.
+# Notes: Power & Solar shows realtime flow; accumulated history remains in Energy.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -24,7 +25,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(8, minmax(0, 1fr))
+      grid-template-columns: repeat(9, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -103,6 +104,18 @@
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
+      entity: binary_sensor.powerwall_status
+      name: Powerwall
+      icon: mdi:home-battery-outline
+      variables:
+        ok_state: 'on'
+        healthy_text: ONLINE
+        alert_text: OFFLINE
+      tap_action:
+        action: more-info
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
       entity: sensor.mariadb_status
       name: MariaDB
       icon: mdi:database
@@ -138,7 +151,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-template-columns: repeat(3, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -294,60 +307,6 @@
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
 
-      - type: custom:button-card
-        template: bearstone_infra_panel_header
-        name: Network Trends
-
-      - type: custom:mini-graph-card
-        name: Internet Throughput
-        icon: mdi:speedometer
-        hours_to_show: 24
-        points_per_hour: 1
-        line_width: 2
-        smoothing: true
-        show:
-          fill: false
-          legend: true
-          labels: false
-          name: true
-          icon: true
-          state: false
-        entities:
-        - entity: sensor.speedtest_download
-          name: Download
-          show_legend_state: true
-        - entity: sensor.speedtest_upload
-          name: Upload
-          show_legend_state: true
-        card_mod:
-          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
-
-      - type: custom:mini-graph-card
-        name: Wi-Fi Clients
-        icon: mdi:wifi
-        hours_to_show: 24
-        points_per_hour: 1
-        line_width: 2
-        smoothing: true
-        show:
-          legend: true
-          labels: false
-          name: true
-          icon: true
-          state: true
-        entities:
-        - entity: sensor.total_wifi_clients
-          name: Total
-          show_graph: false
-        - entity: sensor.unifi_ap_office_clients
-          name: Office
-        - entity: sensor.unifi_ap_study_clients
-          name: Study
-        - entity: sensor.unifi_ap_garage_clients
-          name: Garage
-        card_mod:
-          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
-
     - type: custom:vertical-stack-in-card
       card_mod:
         style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
@@ -423,3 +382,42 @@
             const status = String(entity?.state ?? '').toUpperCase();
             return status ? (status.includes('OB') ? 'YES' : 'NO') : 'NO DATA';
           ]]]
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Power & Solar
+
+      - type: custom:power-flow-card-plus
+        dashboard_link: /energy/overview
+        dashboard_link_label: Open Energy
+        clickable_entities: false
+        use_new_flow_rate_model: true
+        power_outage:
+          entity: binary_sensor.powerwall_grid_status
+          state_alert: 'off'
+          icon_alert: mdi:transmission-tower-off
+          label_alert: GRID OUTAGE
+        entities:
+          grid:
+            entity: sensor.powerwall_site_power
+            name: Grid
+          solar:
+            entity: sensor.powerwall_solar_power
+            name: Solar
+            color: '#f9a825'
+            color_icon: true
+            color_value: true
+          battery:
+            entity: sensor.powerwall_battery_power
+            name: Battery
+            state_of_charge: sensor.powerwall_charge
+          home:
+            entity: sensor.powerwall_load_power
+            name: Home
+        tap_action:
+          action: navigate
+          navigation_path: /energy/overview

@@ -4,10 +4,18 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$py = Get-Command py -ErrorAction SilentlyContinue
-if (-not $py) {
-  throw "Python launcher 'py' not found. Install Python 3 or run tools/validate_dashboards.py with your python."
+$python = Get-Command py -ErrorAction SilentlyContinue
+$arguments = @()
+
+if ($python) {
+  $arguments += '-3'
+} else {
+  $python = Get-Command python -ErrorAction SilentlyContinue
 }
 
-py -3 "$repoRoot\tools\validate_dashboards.py"
+if (-not $python) {
+  throw "Python 3 not found. Install Python 3 and the pinned requirements in requirements-dev.txt."
+}
 
+& $python.Source @arguments "$repoRoot/tools/validate_dashboards.py"
+exit $LASTEXITCODE

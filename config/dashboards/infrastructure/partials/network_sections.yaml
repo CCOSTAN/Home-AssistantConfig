@@ -72,7 +72,7 @@
         navigation_path: /dashboard-infrastructure/pihole
 
 # -------------------------------------------------------------------
-# Trends, Pi-hole controls, and website health
+# Trends, Wi-Fi, Pi-hole controls, and website health
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -141,6 +141,32 @@
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/wan
+
+      - type: custom:mini-graph-card
+        name: Wi-Fi Clients
+        icon: mdi:wifi
+        hours_to_show: 24
+        points_per_hour: 1
+        line_width: 2
+        smoothing: true
+        show:
+          legend: true
+          labels: false
+          name: true
+          icon: true
+          state: true
+        entities:
+        - entity: sensor.total_wifi_clients
+          name: Total
+          show_graph: false
+        - entity: sensor.unifi_ap_office_clients
+          name: Office
+        - entity: sensor.unifi_ap_study_clients
+          name: Study
+        - entity: sensor.unifi_ap_garage_clients
+          name: Garage
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
 
     - type: custom:vertical-stack-in-card
       card_mod:

@@ -62,6 +62,10 @@
         ok_state: 'off'
         healthy_text: CURRENT
         alert_text: PENDING
+        pending_detail: true
+        pending_count_entity: sensor.node_proxmox1_total_updates
+        pending_schedule_hour: 2
+        pending_schedule_minute: 15
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -72,6 +76,10 @@
         ok_state: 'off'
         healthy_text: CURRENT
         alert_text: PENDING
+        pending_detail: true
+        pending_count_entity: sensor.node_proxmox02_total_updates
+        pending_schedule_hour: 2
+        pending_schedule_minute: 15
 
 # -------------------------------------------------------------------
 # Host resource trends

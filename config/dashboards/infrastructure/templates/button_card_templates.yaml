@@ -853,6 +853,20 @@ bearstone_infra_status_kpi:
       const unavailable = ['unknown', 'unavailable', 'none', ''].includes(raw);
       const okState = String(variables?.ok_state ?? 'off').toLowerCase();
       if (unavailable) return 'NO DATA';
+      if (variables?.pending_detail && raw === 'on') {
+        const countEntity = String(variables?.pending_count_entity ?? '').trim();
+        const countRaw = countEntity ? states[countEntity]?.state : '';
+        const count = Number.parseInt(countRaw, 10);
+        const countText = Number.isFinite(count) && count > 0
+          ? `${count} PKG${count === 1 ? '' : 'S'}`
+          : 'UPDATES';
+        const next = new Date();
+        next.setHours(Number(variables?.pending_schedule_hour ?? 2), Number(variables?.pending_schedule_minute ?? 15), 0, 0);
+        if (next <= new Date()) next.setDate(next.getDate() + 1);
+        const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
+        const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
+        return `${countText} · NEXT CHECK ${dateText} ${timeText}`;
+      }
       if (raw === okState) return variables?.healthy_text ?? 'HEALTHY';
       if (variables?.alert_text) return variables.alert_text;
       if (variables?.raw_suffix) return `${entity.state} ${variables.raw_suffix}`;
