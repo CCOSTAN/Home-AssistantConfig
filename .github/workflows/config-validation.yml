@@ -1,0 +1,59 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Config Validation - Deterministic repository validation gate.
+#  Runs mutation-sensitive tests plus strict dashboard and holiday checks.
+# -------------------------------------------------------------------
+######################################################################
+name: Config Validation
+
+on:
+  pull_request:
+  push:
+    branches: ["master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: config-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-validation:
+    name: Deterministic validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install validation dependencies
+        run: python -m pip install --requirement requirements-dev.txt
+
+      - name: Run mutation-sensitive validator tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Validate dashboard YAML and include graph
+        shell: pwsh
+        run: ./tools/validate_dashboards.ps1
+
+      - name: Validate holiday calendars, scenes, and routing
+        shell: pwsh
+        run: ./tools/holiday_lighting_coverage.ps1
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate browser smoke script syntax
+        run: node --check tools/ha_ui_smoke.mjs
