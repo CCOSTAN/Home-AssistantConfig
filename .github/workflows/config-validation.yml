@@ -35,6 +35,7 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
+          cache-dependency-path: requirements-dev.txt
 
       - name: Install validation dependencies
         run: python -m pip install --requirement requirements-dev.txt
