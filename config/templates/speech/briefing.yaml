@@ -5,6 +5,8 @@
 # -------------------------------------------------------------------
 # Speech Briefing Macros - TTS prompt helpers for daily briefings
 # Related Issue: 1834
+# Video: https://youtu.be/Gjk7z34Qe_4
+# Blog: https://www.vcloudinfo.com/2026/07/home-assistant-air-quality-airly-pirate-weather.html
 #  Generates macro prompts for weather, reminders, and AI-driven speech routines.
 # -------------------------------------------------------------------
 #  Weather, responsibilities, holidays, air quality, and fact prompts parsed by speech_processing/speech_engine.
@@ -14,6 +16,7 @@
 #  Greetings use only that dynamic in-home audience; off-site residents are
 #  reported separately by their current known location.
 #  Paige Home and Justin Dorm are spoken as home only for their respective child.
+#  Missing current locations fall back to neighborhood, city, then last named place.
 # Notes: Previous broadcast text is stale context only; current sensor data
 #  stays authoritative for entry point and action wording.
 # Notes: Weather context is included during the useful daytime window, when
@@ -309,17 +312,27 @@
   {% endif %}
   {%- endmacro -%}
 
-   {# friendly duration/location helper #}
+  {# friendly duration/location helper #}
   {% macro friendly_location(person_id, place_sensor_id, name) %}
     {% set person = states[person_id] %}
     {% if not person %}
-      {{ name }}: location unavailable
+      {{ name }}: location has not updated
     {% else %}
       {% set person_state = states(person_id) %}
       {% set unknown_locations = ['unknown', 'unavailable', '', 'none', 'not_home', 'not home', 'away'] %}
       {% set place_state = states(place_sensor_id) if place_sensor_id in states else 'unknown' %}
-      {% set location_label = place_state if place_state | lower not in unknown_locations else person_state %}
-      {% set location_label = 'Away' if location_label | lower in unknown_locations else location_label %}
+      {% set place_known = place_state | lower not in unknown_locations %}
+      {% set person_known = person_state | lower not in unknown_locations %}
+      {% set neighborhood = state_attr(place_sensor_id, 'place_neighbourhood') | default('', true) | string | trim %}
+      {% set city = state_attr(place_sensor_id, 'city') | default('', true) | string | trim %}
+      {% set last_place = state_attr(place_sensor_id, 'last_place_name') | default('', true) | string | trim %}
+      {% set neighborhood_known = neighborhood | lower not in unknown_locations %}
+      {% set city_known = city | lower not in unknown_locations %}
+      {% set last_place_known = last_place | lower not in unknown_locations %}
+      {% set fallback_label = neighborhood if neighborhood_known else city if city_known else last_place if last_place_known else '' %}
+      {% set fallback_kind = 'neighborhood' if neighborhood_known else 'city' if city_known else 'place' if last_place_known else '' %}
+      {% set using_fallback = not place_known and not person_known and fallback_label %}
+      {% set location_label = place_state if place_known else person_state if person_known else fallback_label %}
       {% set at_bear_stone = person_state == 'home' %}
       {% set location_key = location_label | lower %}
       {% set at_personal_home = (name == 'Paige' and location_key == 'paige home') or (name == 'Justin' and location_key == 'justin dorm') %}
@@ -329,14 +342,16 @@
       {% set minutes = ((seconds % 3600) // 60) | int %}
       {% set duration = (hours ~ ' hours') if hours >= 1 else (minutes ~ ' minutes') %}
       {% if person_state == 'driving' %}
-        {% set driving_label = location_label if location_label | lower not in unknown_locations + ['driving'] else '' %}
+        {% set driving_label = place_state if place_known else fallback_label %}
         {{ name }}: driving{% if driving_label %} near {{ driving_label }}{% endif %}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% elif at_bear_stone %}
         {{ name }}: at Bear Stone home{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% elif at_personal_home %}
         {{ name }}: home at {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
-      {% elif location_label == 'Away' %}
-        {{ name }}: location unavailable{% if seconds >= 60 %} for {{ duration }}{% endif %}
+      {% elif using_fallback %}
+        {{ name }}: last known {{ 'in' if fallback_kind in ['neighborhood', 'city'] else 'near' }} {{ fallback_label }}
+      {% elif not location_label %}
+        {{ name }}: location has not updated{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% else %}
         {{ name }}: at {{ location_label }}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% endif %}
@@ -403,7 +418,9 @@
     - The announcement audience is the dynamic `People at Bear Stone` list below. Greet only those people, and never greet, welcome, or imply that any other resident is at Bear Stone.
     - When a presence update is useful, report each off-site resident's known location to the people at Bear Stone. Those residents are status updates, not greeting recipients.
     - Paige at Paige Home and Justin at Justin Dorm are each home at their own home. Do not describe either as away, and do not welcome them as being at Bear Stone.
-    - Other named places, including driving, are off-site locations. Use "location unavailable" only when no current location label exists.]
+    - Other named places, including driving, are off-site locations.
+    - When a current location is unavailable, use the last-known neighborhood, city, or named place supplied below. Keep the words "last known" so stale data is not presented as current.
+    - Do not say "location unavailable." If no useful fallback exists, say the location has not updated.]
 
     [LLM speech contract:
     - Write a useful spoken household announcement, not a sensor report.

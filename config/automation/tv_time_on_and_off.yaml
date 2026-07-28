@@ -3,10 +3,10 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# config/automation/tv_time_on_and_off.yaml - TV Time: soften house lights when living room media starts after 8pm/sunset.
-#  Defines the config/automation/tv_time_on_and_off.yaml triggers, conditions, and actions.
+# TV Time and Samsung Power - Living room media scenes and explicit TV wake.
+#  Softens house lights for TV time and wakes the Samsung Q70 via WOL.
 # -------------------------------------------------------------------
-# Notes: https://github.com/CCOSTAN/Home-AssistantConfig
+# Notes: Explicit WOL replaces Samsung's deprecated implicit wake behavior.
 ######################################################################
 - alias: TV Time
   id: 6e59d312-661f-40da-bb08-416f2e86b566
@@ -44,3 +44,15 @@
 
     - service: scene.turn_on
       entity_id: scene.tv_time
+
+
+- alias: "Samsung Q70 - Explicit Wake-on-LAN"
+  id: 08c48f69-bb66-4d65-bba8-d21c4343ad47
+  mode: single
+  trigger:
+    - platform: samsungtv.turn_on
+      entity_id: media_player.samsung_q70_series_65
+  action:
+    - service: wake_on_lan.send_magic_packet
+      data:
+        mac: "bc:7e:8b:1e:8a:d8"

@@ -6,8 +6,9 @@
 # Media Players Group - Multi-room media control
 #  Keep entries aligned with active media_player IDs.
 # -------------------------------------------------------------------
-# Related Issue: n/a
 # Notes: Removed stale media_player.* refs that triggered Spook warnings.
+# Notes: Samsung Q70 power control uses the native samsungtv entity, not
+#        unavailable Alexa or DLNA aliases.
 ######################################################################
 
 media_players:
@@ -26,10 +27,9 @@ media_players:
     - media_player.master_bathroom
 tvs:
   entities:
-    - media_player.carlo_s_samsung_tv_2020_q
     - media_player.fireplaceroku
     - media_player.living_room_ultra
     - media_player.roku_3810x_923c
     - media_player.roku_living_room
-    - media_player.tv_samsung_q70_series_65
+    - media_player.samsung_q70_series_65
     
