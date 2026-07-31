@@ -9,6 +9,7 @@
 # -------------------------------------------------------------------
 # Notes: Keep templates generic; view-specific tuning stays in the view partials.
 # Notes: The compact ribbon template supports Overview status and daily controls.
+# Notes: Mobile templates extend the ribbon with larger accessible tap targets and text.
 ######################################################################
 
 bearstone_infra_base:
@@ -711,10 +712,40 @@ bearstone_infra_list_row:
 bearstone_infra_alert_row:
   template: bearstone_infra_list_row
   # Home view only. Uses JS visibility checks to keep Home "exceptions-only".
+  show_label: true
+  label: >
+    [[[ return String(variables?.exception_detail ?? ''); ]]]
+  variables:
+    alert_severity: >
+      [[[
+        const normalizeIds = (value) => {
+          if (Array.isArray(value)) return value.map(String);
+          if (typeof value === 'string' && value.trim()) return [value.trim()];
+          return [];
+        };
+        const anyOn = (ids) => ids.some((id) => String(states[id]?.state ?? '').toLowerCase() === 'on');
+        if (anyOn(normalizeIds(variables?.critical_entity_ids))) return 'critical';
+        if (anyOn(normalizeIds(variables?.warning_entity_ids)) || variables?.warning_only) return 'warning';
+        return 'critical';
+      ]]]
   styles:
+    grid:
+    - grid-template-areas: '"i n s" "i l l"'
+    - grid-template-columns: 24px 1fr auto
+    - grid-template-rows: min-content min-content
     card:
-    - border-color: rgba(229,57,53,0.25)
-    - background: rgba(255,235,238,0.65)
+    - border-color: >
+        [[[
+          return variables?.alert_severity === 'warning'
+            ? 'rgba(245,124,0,0.35)'
+            : 'rgba(229,57,53,0.25)';
+        ]]]
+    - background: >
+        [[[
+          return variables?.alert_severity === 'warning'
+            ? 'rgba(255,243,224,0.75)'
+            : 'rgba(255,235,238,0.65)';
+        ]]]
     - display: >
         [[[
           const kind = (variables && variables.alert_kind) ? String(variables.alert_kind) : '';
@@ -725,11 +756,6 @@ bearstone_infra_alert_row:
           const lastChanged = entity && entity.last_changed ? new Date(entity.last_changed) : null;
           // If we can't determine age, do not surface time-gated alerts.
           const ageS = lastChanged ? ((Date.now() - lastChanged.getTime()) / 1000) : 0;
-
-          const num = (entId) => {
-            const v = parseFloat(states[entId] ? states[entId].state : '');
-            return Number.isFinite(v) ? v : null;
-          };
 
           let show = false;
           if (kind === 'binary_on') show = (stateStr === 'on');
@@ -742,15 +768,34 @@ bearstone_infra_alert_row:
           else if (kind === 'disk_high' || kind === 'numeric_high') {
             const v = parseFloat(stateStr);
             show = Number.isFinite(v) && (thr !== null ? (v > thr) : (v > 80));
-          } else if (kind === 'speedtest_slow') {
-            const dl = num('sensor.speedtest_download');
-            const ul = num('sensor.speedtest_upload');
-            const t = (thr !== null) ? thr : 300;
-            show = (dl !== null && dl < t) || (ul !== null && ul < t);
           }
 
           return show ? 'block' : 'none';
         ]]]
+    icon:
+    - color: >
+        [[[
+          return variables?.alert_severity === 'warning'
+            ? 'rgba(230,81,0,1)'
+            : 'rgba(198,40,40,1)';
+        ]]]
+    state:
+    - color: >
+        [[[
+          return variables?.alert_severity === 'warning'
+            ? 'rgba(230,81,0,1)'
+            : 'rgba(198,40,40,1)';
+        ]]]
+    label:
+    - grid-area: l
+    - justify-self: start
+    - padding-top: 3px
+    - font-size: 11px
+    - font-weight: 700
+    - line-height: 14px
+    - opacity: 0.78
+    - white-space: normal
+    - text-align: left
 
 bearstone_infra_list_row_running:
   template: bearstone_infra_list_row
@@ -847,12 +892,31 @@ bearstone_infra_kpi:
 
 bearstone_infra_status_kpi:
   template: bearstone_infra_kpi
+  variables:
+    status_severity: >
+      [[[
+        const raw = String(entity?.state ?? '').toLowerCase();
+        const unavailable = ['unknown', 'unavailable', 'none', ''].includes(raw);
+        if (unavailable) return 'unknown';
+        const normalizeIds = (value) => {
+          if (Array.isArray(value)) return value.map(String);
+          if (typeof value === 'string' && value.trim()) return [value.trim()];
+          return [];
+        };
+        const anyOn = (ids) => ids.some((id) => String(states[id]?.state ?? '').toLowerCase() === 'on');
+        const critical = anyOn(normalizeIds(variables?.critical_entity_ids));
+        const warning = anyOn(normalizeIds(variables?.warning_entity_ids));
+        const warningState = String(variables?.warning_state ?? '').toLowerCase();
+        const okState = String(variables?.ok_state ?? 'off').toLowerCase();
+        if (critical) return 'critical';
+        if (warning || (warningState && raw === warningState)) return 'warning';
+        return raw === okState ? 'healthy' : 'critical';
+      ]]]
   state_display: >
     [[[
       const raw = String(entity?.state ?? '').toLowerCase();
-      const unavailable = ['unknown', 'unavailable', 'none', ''].includes(raw);
-      const okState = String(variables?.ok_state ?? 'off').toLowerCase();
-      if (unavailable) return 'NO DATA';
+      const severity = String(variables?.status_severity ?? '');
+      if (severity === 'unknown') return 'NO DATA';
       if (variables?.pending_detail && raw === 'on') {
         const countEntity = String(variables?.pending_count_entity ?? '').trim();
         const countRaw = countEntity ? states[countEntity]?.state : '';
@@ -867,7 +931,9 @@ bearstone_infra_status_kpi:
         const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
         return `${countText} · NEXT CHECK ${dateText} ${timeText}`;
       }
-      if (raw === okState) return variables?.healthy_text ?? 'HEALTHY';
+      if (severity === 'warning') return variables?.warning_text ?? variables?.alert_text ?? 'DEGRADED';
+      if (severity === 'healthy') return variables?.healthy_text ?? 'HEALTHY';
+      if (variables?.critical_text) return variables.critical_text;
       if (variables?.alert_text) return variables.alert_text;
       if (variables?.raw_suffix) return `${entity.state} ${variables.raw_suffix}`;
       return 'ATTENTION';
@@ -876,33 +942,33 @@ bearstone_infra_status_kpi:
     card:
     - border-color: >
         [[[
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const okState = String(variables?.ok_state ?? 'off').toLowerCase();
-          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(245,124,0,0.45)';
-          return raw === okState ? 'rgba(67,160,71,0.45)' : 'rgba(229,57,53,0.40)';
+          const severity = String(variables?.status_severity ?? '');
+          if (severity === 'healthy') return 'rgba(67,160,71,0.45)';
+          if (severity === 'critical') return 'rgba(229,57,53,0.40)';
+          return 'rgba(245,124,0,0.45)';
         ]]]
     - background: >
         [[[
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const okState = String(variables?.ok_state ?? 'off').toLowerCase();
-          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(255,243,224,0.85)';
-          return raw === okState ? 'rgba(232,245,233,0.85)' : 'rgba(255,235,238,0.85)';
+          const severity = String(variables?.status_severity ?? '');
+          if (severity === 'healthy') return 'rgba(232,245,233,0.85)';
+          if (severity === 'critical') return 'rgba(255,235,238,0.85)';
+          return 'rgba(255,243,224,0.85)';
         ]]]
     icon:
     - color: >
         [[[
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const okState = String(variables?.ok_state ?? 'off').toLowerCase();
-          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(245,124,0,1)';
-          return raw === okState ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
+          const severity = String(variables?.status_severity ?? '');
+          if (severity === 'healthy') return 'rgba(46,125,50,1)';
+          if (severity === 'critical') return 'rgba(198,40,40,1)';
+          return 'rgba(230,81,0,1)';
         ]]]
     state:
     - color: >
         [[[
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const okState = String(variables?.ok_state ?? 'off').toLowerCase();
-          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'rgba(230,81,0,1)';
-          return raw === okState ? 'rgba(46,125,50,1)' : 'rgba(198,40,40,1)';
+          const severity = String(variables?.status_severity ?? '');
+          if (severity === 'healthy') return 'rgba(46,125,50,1)';
+          if (severity === 'critical') return 'rgba(198,40,40,1)';
+          return 'rgba(230,81,0,1)';
         ]]]
     - opacity: 1
 
@@ -912,6 +978,8 @@ bearstone_overview_ribbon_control:
     ok_states: []
     active_states: []
     warning_states: []
+    warning_entity_ids: []
+    critical_entity_ids: []
     state_labels: {}
     raw_suffix: ''
     display_mode: state
@@ -924,6 +992,24 @@ bearstone_overview_ribbon_control:
       ]]]
     mobile_compact: >
       [[[ return window.innerWidth <= 600; ]]]
+    status_severity: >
+      [[[
+        const raw = String(entity?.state ?? '').toLowerCase();
+        const normalizeIds = (value) => {
+          if (Array.isArray(value)) return value.map(String);
+          if (typeof value === 'string' && value.trim()) return [value.trim()];
+          return [];
+        };
+        const anyOn = (ids) => ids.some((id) => String(states[id]?.state ?? '').toLowerCase() === 'on');
+        const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
+        const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
+        const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+        if (anyOn(normalizeIds(variables?.critical_entity_ids))) return 'critical';
+        if (anyOn(normalizeIds(variables?.warning_entity_ids))) return 'warning';
+        if (variables?.cooling_active || active.includes(raw)) return 'active';
+        if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'warning';
+        return ok.includes(raw) ? 'healthy' : 'critical';
+      ]]]
   state_display: >
     [[[
       const raw = String(entity?.state ?? 'unknown').toLowerCase();
@@ -952,27 +1038,21 @@ bearstone_overview_ribbon_control:
         [[[ return variables?.mobile_compact ? '4px 5px' : '10px 12px'; ]]]
     - border-color: >
         [[[
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
-          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
-          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          const severity = String(variables?.status_severity ?? 'critical');
           const mobile = Boolean(variables?.mobile_compact);
-          if (variables?.cooling_active) return 'rgba(30,136,229,0.45)';
-          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(245,124,0,0.45)';
-          if (active.includes(raw)) return 'rgba(30,136,229,0.45)';
-          return ok.includes(raw) ? 'rgba(67,160,71,0.45)' : mobile ? 'rgba(183,28,28,1)' : 'rgba(229,57,53,0.40)';
+          if (severity === 'active') return 'rgba(30,136,229,0.45)';
+          if (severity === 'warning') return 'rgba(245,124,0,0.45)';
+          if (severity === 'healthy') return 'rgba(67,160,71,0.45)';
+          return mobile ? 'rgba(183,28,28,1)' : 'rgba(229,57,53,0.40)';
         ]]]
     - background: >
         [[[
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
-          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
-          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          const severity = String(variables?.status_severity ?? 'critical');
           const mobile = Boolean(variables?.mobile_compact);
-          if (variables?.cooling_active) return 'rgba(227,242,253,0.90)';
-          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(255,243,224,0.85)';
-          if (active.includes(raw)) return 'rgba(227,242,253,0.90)';
-          return ok.includes(raw) ? 'rgba(232,245,233,0.85)' : mobile ? 'rgba(183,28,28,0.96)' : 'rgba(255,235,238,0.85)';
+          if (severity === 'active') return 'rgba(227,242,253,0.90)';
+          if (severity === 'warning') return 'rgba(255,243,224,0.85)';
+          if (severity === 'healthy') return 'rgba(232,245,233,0.85)';
+          return mobile ? 'rgba(183,28,28,0.96)' : 'rgba(255,235,238,0.85)';
         ]]]
     grid:
     - grid-template-areas: >
@@ -993,27 +1073,21 @@ bearstone_overview_ribbon_control:
         [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
     - color: >
         [[[
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
-          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
-          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          const severity = String(variables?.status_severity ?? 'critical');
           const mobile = Boolean(variables?.mobile_compact);
-          if (variables?.cooling_active) return 'rgba(25,118,210,1)';
-          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(245,124,0,1)';
-          if (active.includes(raw)) return 'rgba(25,118,210,1)';
-          return ok.includes(raw) ? 'rgba(46,125,50,1)' : mobile ? '#ffffff' : 'rgba(198,40,40,1)';
+          if (severity === 'active') return 'rgba(25,118,210,1)';
+          if (severity === 'warning') return 'rgba(245,124,0,1)';
+          if (severity === 'healthy') return 'rgba(46,125,50,1)';
+          return mobile ? '#ffffff' : 'rgba(198,40,40,1)';
         ]]]
     name:
     - color: >
         [[[
           if (!variables?.mobile_compact) return 'var(--primary-text-color)';
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
-          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
-          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
-          if (variables?.cooling_active || active.includes(raw)) return '#0d47a1';
-          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return '#e65100';
-          return ok.includes(raw) ? '#1b5e20' : '#ffffff';
+          const severity = String(variables?.status_severity ?? 'critical');
+          if (severity === 'active') return '#0d47a1';
+          if (severity === 'warning') return '#e65100';
+          return severity === 'healthy' ? '#1b5e20' : '#ffffff';
         ]]]
     - font-size: >
         [[[ return variables?.mobile_compact ? '12px' : '13px'; ]]]
@@ -1034,15 +1108,12 @@ bearstone_overview_ribbon_control:
     state:
     - color: >
         [[[
-          const raw = String(entity?.state ?? '').toLowerCase();
-          const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
-          const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
-          const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+          const severity = String(variables?.status_severity ?? 'critical');
           const mobile = Boolean(variables?.mobile_compact);
-          if (variables?.cooling_active) return 'rgba(25,118,210,1)';
-          if (['unknown', 'unavailable', 'none', ''].includes(raw) || warning.includes(raw)) return 'rgba(230,81,0,1)';
-          if (active.includes(raw)) return 'rgba(25,118,210,1)';
-          return ok.includes(raw) ? 'rgba(46,125,50,1)' : mobile ? '#ffffff' : 'rgba(198,40,40,1)';
+          if (severity === 'active') return 'rgba(25,118,210,1)';
+          if (severity === 'warning') return 'rgba(230,81,0,1)';
+          if (severity === 'healthy') return 'rgba(46,125,50,1)';
+          return mobile ? '#ffffff' : 'rgba(198,40,40,1)';
         ]]]
     - font-size: >
         [[[ return variables?.mobile_compact ? '11px' : '12px'; ]]]
@@ -1052,6 +1123,62 @@ bearstone_overview_ribbon_control:
     - justify-self: >
         [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
     - opacity: 1
+
+bearstone_mobile_header:
+  template: bearstone_infra_panel_header
+  styles:
+    card:
+    - padding: 10px 2px 8px 2px
+    name:
+    - font-size: 22px
+    - line-height: 26px
+
+bearstone_nav_back:
+  template: bearstone_infra_list_row
+  show_state: false
+  styles:
+    card:
+    - min-height: 60px
+    - padding: 14px 16px
+    grid:
+    - grid-template-areas: '"i n"'
+    - grid-template-columns: 32px 1fr
+    icon:
+    - width: 26px
+    name:
+    - font-size: 17px
+    - line-height: 22px
+
+bearstone_mobile_control:
+  template: bearstone_overview_ribbon_control
+  variables:
+    mobile_compact: true
+  styles:
+    card:
+    - min-height: 112px
+    - padding: 12px 10px
+    - border-radius: 20px
+    grid:
+    - grid-template-areas: '"i" "n" "s"'
+    - grid-template-columns: 1fr
+    - grid-template-rows: 34px min-content min-content
+    - row-gap: 6px
+    icon:
+    - width: 32px
+    - justify-self: center
+    name:
+    - font-size: 18px
+    - line-height: 22px
+    - justify-self: center
+    - white-space: normal
+    - overflow: visible
+    - text-overflow: clip
+    - text-align: center
+    state:
+    - font-size: 15px
+    - line-height: 18px
+    - justify-self: center
+    - text-align: center
 
 bearstone_overview_sleep_summary:
   template: bearstone_infra_kpi

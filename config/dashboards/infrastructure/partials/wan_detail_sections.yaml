@@ -4,10 +4,10 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - WAN Detail
-#  Immediate outage detection, sustained degradation, and 14-day trends.
+#  Corroborated reachability, continuous quality, Ookla capacity snapshots, and trends.
 # -------------------------------------------------------------------
-# Notes: Near-zero throughput or 90% packet loss alerts immediately.
-# Notes: Other threshold breaches must remain continuous for 6 hours.
+# Notes: All four ICMP/HTTPS probes must fail for 2 minutes before WAN is down.
+# Notes: Ookla capacity is advisory; continuous latency/loss determine degraded and critical quality.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -34,45 +34,70 @@
     cards:
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_wan_quality_degraded
-      name: WAN
+      entity: sensor.infra_wan_reachability
+      name: Reachability
       icon: mdi:wan
       variables:
-        ok_state: 'off'
+        ok_state: online
+        warning_state: partial
+        healthy_text: ONLINE
+        warning_text: PARTIAL
+        critical_text: DOWN
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_wan_outage
-      name: Immediate Outage
-      icon: mdi:lan-disconnect
+      entity: binary_sensor.infra_wan_quality_degraded
+      name: Continuous Quality
+      icon: mdi:pulse
       variables:
         ok_state: 'off'
-        healthy_text: CLEAR
-        alert_text: OUTAGE
+        healthy_text: GOOD
+        warning_text: DEGRADED
+        critical_text: SEVERE
+        warning_entity_ids:
+        - binary_sensor.infra_wan_sustained_degradation
+        critical_entity_ids:
+        - binary_sensor.infra_wan_critical
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_wan_sustained_degradation
-      name: Sustained Performance
-      icon: mdi:timer-alert-outline
+      entity: binary_sensor.infra_wan_capacity_degraded
+      name: Ookla Capacity
+      icon: mdi:speedometer
       variables:
         ok_state: 'off'
-        healthy_text: CLEAR
-        alert_text: DEGRADED
+        warning_state: 'on'
+        healthy_text: FULL
+        warning_text: SLOW
+        warning_entity_ids:
+        - binary_sensor.infra_wan_capacity_stale
       state_display: >
         [[[
+          if (states['binary_sensor.infra_wan_capacity_stale']?.state === 'on') return 'STALE';
           const raw = String(entity?.state ?? '').toLowerCase();
-          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'OBSERVING';
-          return raw === 'on' ? 'DEGRADED' : 'CLEAR';
+          if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'NO DATA';
+          return raw === 'on' ? 'SLOW' : 'FULL';
         ]]]
 
     - type: custom:button-card
-      template: bearstone_infra_kpi
-      entity: binary_sensor.infra_wan_sustained_degradation
-      name: Evaluation Window
-      icon: mdi:timer-sand
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_wan_capacity_stale
+      name: Test Freshness
+      icon: mdi:clock-check-outline
+      variables:
+        ok_state: 'off'
+        warning_state: 'on'
+        healthy_text: CURRENT
+        warning_text: STALE
       state_display: >
-        [[[ return '6 HOURS'; ]]]
+        [[[
+          if (entity?.state === 'on') return 'STALE';
+          const raw = states['sensor.ookla_speedtest_last_test']?.state;
+          const when = raw ? new Date(raw) : null;
+          if (!when || Number.isNaN(when.getTime())) return 'NO DATA';
+          const minutes = Math.max(0, Math.floor((Date.now() - when.getTime()) / 60000));
+          return minutes < 60 ? `${minutes} MIN AGO` : `${Math.floor(minutes / 60)} HR AGO`;
+        ]]]
 
 # -------------------------------------------------------------------
 # Current values and explicit alert rules
@@ -106,8 +131,8 @@
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.speedtest_download
-        name: Download
+        entity: sensor.ookla_speedtest_download
+        name: Ookla Download
         icon: mdi:download-network-outline
         state_display: >
           [[[
@@ -117,8 +142,8 @@
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.speedtest_upload
-        name: Upload
+        entity: sensor.ookla_speedtest_upload
+        name: Ookla Upload
         icon: mdi:upload-network-outline
         state_display: >
           [[[
@@ -128,9 +153,31 @@
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.speedtest_ping
-        name: Speedtest Latency
+        entity: sensor.ookla_speedtest_ping
+        name: Ookla Idle Latency
         icon: mdi:speedometer
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} ms` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.ookla_speedtest_download_ping
+        name: Loaded Download Latency
+        icon: mdi:download-network
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} ms` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.ookla_speedtest_jitter
+        name: Ookla Jitter
+        icon: mdi:pulse
         state_display: >
           [[[
             const value = Number(entity?.state);
@@ -159,75 +206,134 @@
             return Number.isFinite(value) ? `${value.toFixed(1)}%` : 'NO DATA';
           ]]]
 
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.infra_wan_reachability
+        name: Reachability Checks
+        icon: mdi:lan-check
+        state_display: >
+          [[[
+            const passed = Number(entity?.attributes?.checks_passed);
+            const total = Number(entity?.attributes?.checks_total);
+            return Number.isFinite(passed) && Number.isFinite(total)
+              ? `${passed}/${total} PASSED`
+              : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.ookla_speedtest_server
+        name: Ookla Server Used
+        icon: mdi:server-network
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.ookla_speedtest_last_test
+        name: Run Ookla Capacity Test
+        icon: mdi:play-speed
+        state_display: >
+          [[[
+            const when = entity?.state ? new Date(entity.state) : null;
+            if (!when || Number.isNaN(when.getTime())) return 'NO PRIOR TEST';
+            const minutes = Math.max(0, Math.floor((Date.now() - when.getTime()) / 60000));
+            return minutes < 60 ? `LAST ${minutes} MIN AGO` : `LAST ${Math.floor(minutes / 60)} HR AGO`;
+          ]]]
+        tap_action:
+          action: call-service
+          service: ookla_speedtest.run_speedtest
+          confirmation:
+            text: Run a full Ookla test? This briefly saturates the WAN connection.
+
     - type: custom:vertical-stack-in-card
       card_mod:
         style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
       cards:
       - type: custom:button-card
         template: bearstone_infra_panel_header
-        name: Why WAN Would Alert
+        name: How WAN Is Evaluated
 
       - type: custom:button-card
         template: bearstone_infra_list_row
         entity: binary_sensor.infra_wan_quality_degraded
-        name: Current Threshold Breach
+        name: Current Evaluation
         icon: mdi:alert-decagram-outline
         state_display: >
           [[[
             const invalid = (value) => ['unknown', 'unavailable', 'none', ''].includes(String(value ?? '').toLowerCase());
             const numeric = (id) => invalid(states[id]?.state) ? null : Number(states[id]?.state);
-            const download = numeric('sensor.speedtest_download');
-            const upload = numeric('sensor.speedtest_upload');
+            const download = numeric('sensor.ookla_speedtest_download');
+            const upload = numeric('sensor.ookla_speedtest_upload');
             const latency = numeric('sensor.infra_wan_latency_ms');
             const loss = numeric('sensor.infra_wan_packet_loss');
+            const reachability = String(states['sensor.infra_wan_reachability']?.state ?? '').toLowerCase();
             const reasons = [];
-            if ([download, upload, latency, loss].some((value) => value === null || !Number.isFinite(value))) reasons.push('NO DATA');
-            if (download !== null && download < 300) reasons.push('DOWNLOAD');
-            if (upload !== null && upload < 300) reasons.push('UPLOAD');
-            if (latency !== null && latency > 80) reasons.push('LATENCY');
-            if (loss !== null && loss > 5) reasons.push('PACKET LOSS');
+            if (reachability === 'offline') reasons.push('OUTAGE');
+            else if (reachability === 'partial') reasons.push('PARTIAL REACHABILITY');
+            else if (!['online'].includes(reachability)) reasons.push('REACHABILITY NO DATA');
+            if ([latency, loss].some((value) => value === null || !Number.isFinite(value))) reasons.push('QUALITY NO DATA');
+            if (latency !== null && latency > 80) reasons.push(latency > 250 ? 'SEVERE LATENCY' : 'LATENCY');
+            if (loss !== null && loss > 5) reasons.push(loss > 25 ? 'SEVERE LOSS' : 'PACKET LOSS');
+            if (states['binary_sensor.infra_wan_capacity_stale']?.state === 'on') reasons.push('OOKLA STALE');
+            else if ([download, upload].some((value) => value === null || !Number.isFinite(value))) reasons.push('CAPACITY NO DATA');
+            else if (download < 300 || upload < 300) reasons.push('CAPACITY SNAPSHOT');
             return reasons.length ? reasons.join(' · ') : 'NONE';
           ]]]
 
       - type: custom:button-card
         template: bearstone_infra_list_row
         entity: binary_sensor.infra_wan_outage
-        name: Immediate Outage Rule
+        name: Corroborated Outage
         icon: mdi:lan-disconnect
         state_display: >
-          [[[ return '≤1 Mbit/s OR ≥90% LOSS'; ]]]
+          [[[ return '0/4 PROBES · 2 MINUTES'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.infra_wan_severe_degradation
+        name: Severe Quality Rule
+        icon: mdi:alert-octagon-outline
+        state_display: >
+          [[[ return '>250 ms OR >25% LOSS'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.infra_wan_severe_degradation
+        name: Severe Persistence
+        icon: mdi:timer-alert
+        state_display: >
+          [[[ return '30 CONTINUOUS MINUTES'; ]]]
 
       - type: custom:button-card
         template: bearstone_infra_list_row
         entity: binary_sensor.infra_wan_sustained_degradation
-        name: Performance Persistence
+        name: Sustained Quality Rule
+        icon: mdi:pulse
+        state_display: >
+          [[[ return '>80 ms OR >5% LOSS'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.infra_wan_sustained_degradation
+        name: Quality Persistence
         icon: mdi:timer-alert-outline
         state_display: >
           [[[ return '6 CONTINUOUS HOURS'; ]]]
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.speedtest_download
-        name: Throughput Rule
+        entity: binary_sensor.infra_wan_capacity_degraded
+        name: Capacity Advisory
         icon: mdi:speedometer-slow
         state_display: >
-          [[[ return '<300 / 300 Mbit/s'; ]]]
+          [[[ return '<300 / 300 Mbit/s · LATEST TEST'; ]]]
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.infra_wan_latency_ms
-        name: Latency Rule
-        icon: mdi:timer-outline
+        entity: binary_sensor.infra_wan_capacity_stale
+        name: Capacity Freshness
+        icon: mdi:clock-alert-outline
         state_display: >
-          [[[ return '>80 ms'; ]]]
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: sensor.infra_wan_packet_loss
-        name: Packet Loss Rule
-        icon: mdi:chart-bell-curve-cumulative
-        state_display: >
-          [[[ return '>5%'; ]]]
+          [[[ return 'STALE AFTER 14 HOURS'; ]]]
 
 # -------------------------------------------------------------------
 # Multi-day trend and alert history
@@ -263,7 +369,7 @@
         name: Download - 7 Days
         icon: mdi:download-network-outline
         entities:
-        - entity: sensor.speedtest_download
+        - entity: sensor.ookla_speedtest_download
           name: Download
         hours_to_show: 168
         points_per_hour: 1
@@ -283,7 +389,7 @@
         name: Upload - 7 Days
         icon: mdi:upload-network-outline
         entities:
-        - entity: sensor.speedtest_upload
+        - entity: sensor.ookla_speedtest_upload
           name: Upload
         hours_to_show: 168
         points_per_hour: 1
@@ -345,8 +451,12 @@
       hours_to_show: 336
       entities:
       - entity: binary_sensor.infra_wan_outage
-        name: Immediate Outage
+        name: Corroborated Outage
+      - entity: binary_sensor.infra_wan_severe_degradation
+        name: Severe Quality
       - entity: binary_sensor.infra_wan_sustained_degradation
-        name: Sustained Degradation
+        name: Sustained Quality
+      - entity: binary_sensor.infra_wan_capacity_degraded
+        name: Capacity Advisory
       card_mod:
         style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml

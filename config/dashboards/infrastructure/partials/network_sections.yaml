@@ -9,7 +9,8 @@
 # Notes: Pi-hole blocking controls are mirrored by pihole_ha.yaml.
 # Notes: Detailed WAN, Pi-hole, and website telemetry live in hidden drill-down views.
 # Notes: The ribbon is status-only; Internet metrics remain in the trend panel.
-# Notes: WAN throughput uses a 7-day window so transient and sustained patterns are distinguishable.
+# Notes: Ookla capacity snapshots use a 7-day window; continuous latency/loss determine WAN quality.
+# Notes: WAN status is green when clear, amber for sustained quality degradation, and red only for corroborated outage or severe quality.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -41,6 +42,13 @@
       icon: mdi:wan
       variables:
         ok_state: 'off'
+        healthy_text: HEALTHY
+        warning_text: DEGRADED
+        critical_text: DOWN
+        warning_entity_ids:
+        - binary_sensor.infra_wan_sustained_degradation
+        critical_entity_ids:
+        - binary_sensor.infra_wan_critical
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/wan
@@ -104,7 +112,7 @@
         name: Internet
 
       - type: custom:mini-graph-card
-        name: Internet Throughput
+        name: Ookla Capacity Snapshots
         icon: mdi:speedometer
         hours_to_show: 168
         points_per_hour: 1
@@ -118,10 +126,10 @@
           icon: true
           state: false
         entities:
-        - entity: sensor.speedtest_download
+        - entity: sensor.ookla_speedtest_download
           name: Download
           show_legend_state: true
-        - entity: sensor.speedtest_upload
+        - entity: sensor.ookla_speedtest_upload
           name: Upload
           show_legend_state: true
         card_mod:
@@ -129,8 +137,8 @@
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.speedtest_ping
-        name: Current Latency
+        entity: sensor.infra_wan_latency_ms
+        name: Continuous Latency
         icon: mdi:wan
         state_display: >
           [[[

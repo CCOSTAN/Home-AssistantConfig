@@ -23,6 +23,8 @@
 This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resources.
 
 ### Walkthrough
+- Mobile quick-access video: [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/ujP-zYLEso8)
+- Mobile quick-access companion post: [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/07/home-assistant-mobile-dashboard-big-buttons.html)
 - Video: [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/aFis2YPeSuY)
 - Companion post: [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/02/home-assistant-dashboard-design-system-button-card.html)
 - Kiosk camera tablet video: [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/ChgEu0IDWzc)
@@ -47,6 +49,12 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
 - `shared/`
   - Cross-dashboard reuse only. If something is only used by one dashboard, keep it in that dashboard folder.
 
+### Mobile Quick Access
+- Mobile is the second visible Overview view, directly after Home and before Cameras.
+- Two-column controls use large labels, states, icons, and touch targets for quick use without glasses.
+- Primary actions cover garage doors, the front-door lock, thermostats, household alerts, and entry-point status.
+- Packages opens the doorbell camera; Systems opens the desktop control center; destination views place a large Back to Home control at the top.
+
 ### Kiosk Camera Dashboard
 - Logic and recovery package: [![YAML source: kiosk_tablet](https://img.shields.io/static/v1?label=YAML&message=kiosk_tablet&color=lightgrey&logo=github&logoColor=181717)](../packages/kiosk_tablet.yaml)
 - Dashboard entrypoint: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=dashboard&color=lightgrey&logo=github&logoColor=181717)](kiosk/dashboard.yaml)
@@ -60,6 +68,7 @@ This folder is referenced from `config/configuration.yaml` via:
 - `lovelace.dashboards: ...`
   - Default Overview YAML dashboard: `lovelace.dashboards.lovelace.filename: ui-lovelace.yaml`
   - Additional YAML dashboards: `filename: dashboards/<dashboard>/dashboard.yaml`
+  - Overview's second visible view is **Mobile**, a phone-first quick-control surface for garage doors, the front-door lock, thermostats, and compact household alerts.
   - Overview Home uses ordered production sections under `overview/sections/`; approved pilot edits now apply directly there.
   - Overview Home's **Windows** ribbon opens a dedicated GPIO entry-point subview with perimeter, MQTT, and individual contact status.
   - `dashboard-infrastructure` is presented as **Systems** while retaining its stable URL; it owns Home Water, Vacuum, network, compute, storage, and service drill-downs, including hidden WAN/Pi-hole/website detail views.

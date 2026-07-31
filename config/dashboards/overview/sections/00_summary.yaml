@@ -10,6 +10,7 @@
 # Notes: Equal-width pills keep the whole ribbon compact and consistent.
 # Notes: Thermostat pills use the climate cooling helpers for active light-blue shading.
 # Notes: Mobile uses high-contrast four-column icon tiles with 64px tap targets.
+# Notes: Systems mirrors infrastructure severity: sustained degradation is amber and only critical faults are red.
 ######################################################################
 
 type: grid
@@ -44,6 +45,14 @@ cards:
       state_labels:
         '0': ALL CLEAR
       raw_suffix: ACTIVE
+      warning_entity_ids:
+      - binary_sensor.infra_wan_sustained_degradation
+      critical_entity_ids:
+      - binary_sensor.infra_wan_critical
+      - binary_sensor.infra_dns_pihole_degraded
+      - binary_sensor.infra_compute_degraded
+      - binary_sensor.infra_storage_degraded
+      - binary_sensor.infra_external_monitoring_degraded
     tap_action:
       action: navigate
       navigation_path: /dashboard-infrastructure/home

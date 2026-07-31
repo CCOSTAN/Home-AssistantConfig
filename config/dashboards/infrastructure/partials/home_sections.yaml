@@ -10,6 +10,9 @@
 # Notes: DNS and external-monitoring faults roll up under Network instead of duplicating it.
 # Notes: Network trend panels live on Network so Overview stays focused on broad house status.
 # Notes: Power & Solar shows realtime flow; accumulated history remains in Energy.
+# Notes: Scheduled Proxmox maintenance and sustained WAN quality/reset warnings render amber; critical conditions remain red.
+# Notes: Active Issue rows enumerate faults, scheduled maintenance, and reset urgency so drill-down is optional for initial triage.
+# Notes: Back to Overview is the first control in the landing-view navigation strip.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -35,6 +38,16 @@
           grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
     - type: custom:button-card
+      template: bearstone_nav_back
+      name: Back to Overview
+      icon: mdi:arrow-left
+      view_layout:
+        grid-column: 1 / -1
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/home
+
+    - type: custom:button-card
       template: bearstone_infra_status_kpi
       entity: sensor.infra_dashboard_active_issue_count
       name: Systems
@@ -42,7 +55,16 @@
       variables:
         ok_state: '0'
         healthy_text: ALL CLEAR
+        warning_text: WARNING
         raw_suffix: ACTIVE
+        warning_entity_ids:
+        - binary_sensor.infra_wan_sustained_degradation
+        critical_entity_ids:
+        - binary_sensor.infra_wan_critical
+        - binary_sensor.infra_dns_pihole_degraded
+        - binary_sensor.infra_compute_degraded
+        - binary_sensor.infra_storage_degraded
+        - binary_sensor.infra_external_monitoring_degraded
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -76,6 +98,10 @@
       icon: mdi:server-network
       variables:
         ok_state: 'off'
+        warning_text: MAINTENANCE
+        warning_entity_ids:
+        - binary_sensor.node_proxmox1_updates_packages
+        - binary_sensor.node_proxmox02_updates_packages
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/proxmox
@@ -98,6 +124,13 @@
       icon: mdi:wan
       variables:
         ok_state: 'off'
+        healthy_text: HEALTHY
+        warning_text: DEGRADED
+        critical_text: DOWN
+        warning_entity_ids:
+        - binary_sensor.infra_wan_sustained_degradation
+        critical_entity_ids:
+        - binary_sensor.infra_wan_critical
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/network
@@ -112,7 +145,8 @@
         healthy_text: ONLINE
         alert_text: OFFLINE
       tap_action:
-        action: more-info
+        action: navigate
+        navigation_path: /energy/overview
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -134,12 +168,18 @@
       variables:
         ok_state: ok
         healthy_text: HEALTHY
+        warning_text: RESET SOON
+        critical_text: RESET URGENT
+        warning_entity_ids:
+        - binary_sensor.codex_reset_credit_expiring_soon
+        critical_entity_ids:
+        - binary_sensor.codex_reset_credit_expiring_critical
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/joanna
 
 # -------------------------------------------------------------------
-# Active exceptions and datacenter
+# Active issues and datacenter
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -166,7 +206,7 @@
       cards:
       - type: custom:button-card
         template: bearstone_infra_panel_header
-        name: Active Exceptions
+        name: Active Issue
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
@@ -175,6 +215,35 @@
         icon: mdi:wan
         variables:
           alert_kind: binary_on
+          warning_entity_ids:
+          - binary_sensor.infra_wan_sustained_degradation
+          critical_entity_ids:
+          - binary_sensor.infra_wan_critical
+          exception_detail: >
+            [[[
+              const value = (id) => {
+                const raw = String(states[id]?.state ?? '').toLowerCase();
+                if (['unknown', 'unavailable', 'none', ''].includes(raw)) return null;
+                const number = Number(raw);
+                return Number.isFinite(number) ? number : null;
+              };
+              const latency = value('sensor.infra_wan_latency_ms');
+              const loss = value('sensor.infra_wan_packet_loss');
+              const reachability = String(states['sensor.infra_wan_reachability']?.state ?? '').toLowerCase();
+              const issues = [];
+              if (reachability === 'offline') issues.push('REACHABILITY OFFLINE');
+              else if (reachability === 'partial') issues.push('REACHABILITY PARTIAL');
+              if ([latency, loss].some((item) => item === null)) issues.push('QUALITY TELEMETRY MISSING');
+              if (latency !== null && latency > 80) issues.push(`LATENCY ${latency.toFixed(0)} > 80 ms`);
+              if (loss !== null && loss > 5) issues.push(`LOSS ${loss.toFixed(1)}% > 5%`);
+              return issues.join(' · ');
+            ]]]
+        state_display: >
+          [[[
+            return states['binary_sensor.infra_wan_critical']?.state === 'on'
+              ? 'CRITICAL'
+              : 'DEGRADED';
+          ]]]
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/network
@@ -186,6 +255,19 @@
         icon: mdi:dns-outline
         variables:
           alert_kind: binary_on
+          exception_detail: >
+            [[[
+              const labels = {
+                'switch.pi_hole': 'PRIMARY BLOCKING',
+                'binary_sensor.pi_hole_status': 'PRIMARY SERVICE',
+                'switch.pi_hole_2': 'SECONDARY BLOCKING',
+                'binary_sensor.pi_hole_status_2': 'SECONDARY SERVICE'
+              };
+              const raw = entity?.attributes?.problem_entities;
+              const ids = Array.isArray(raw) ? raw : [];
+              return ids.map((id) => `${labels[id] || id} ${String(states[id]?.state ?? 'unknown').toUpperCase()}`).join(' · ');
+            ]]]
+        state_display: '[[[ return "ATTENTION"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/network
@@ -197,6 +279,8 @@
         icon: mdi:pipe-leak
         variables:
           alert_kind: binary_on
+          exception_detail: PHYN REPORTED AN ACTIVE LEAK
+        state_display: '[[[ return "LEAK"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/home-water
@@ -209,6 +293,9 @@
         variables:
           alert_kind: state_not
           ok_state: no_error
+          exception_detail: >
+            [[[ return String(entity?.state ?? 'UNKNOWN').replaceAll('_', ' ').toUpperCase(); ]]]
+        state_display: '[[[ return "ATTENTION"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/vacuum
@@ -220,6 +307,8 @@
         icon: mdi:server-off
         variables:
           alert_kind: binary_off
+          exception_detail: HOST RUNTIME SENSOR IS OFFLINE
+        state_display: '[[[ return "OFFLINE"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
@@ -231,6 +320,8 @@
         icon: mdi:server-off
         variables:
           alert_kind: binary_off
+          exception_detail: HOST RUNTIME SENSOR IS OFFLINE
+        state_display: '[[[ return "OFFLINE"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
@@ -238,10 +329,25 @@
       - type: custom:button-card
         template: bearstone_infra_alert_row
         entity: binary_sensor.node_proxmox1_updates_packages
-        name: Proxmox01 updates pending
+        name: Proxmox01 maintenance pending
         icon: mdi:package-up
         variables:
           alert_kind: binary_on
+          warning_only: true
+          exception_detail: >
+            [[[
+              const count = Number.parseInt(states['sensor.node_proxmox1_total_updates']?.state, 10);
+              const countText = Number.isFinite(count)
+                ? `${count} PKG${count === 1 ? '' : 'S'}`
+                : 'PACKAGE COUNT UNKNOWN';
+              const next = new Date();
+              next.setHours(2, 15, 0, 0);
+              if (next <= new Date()) next.setDate(next.getDate() + 1);
+              const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
+              const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
+              return `${countText} · NEXT CHECK ${dateText} ${timeText}`;
+            ]]]
+        state_display: '[[[ return "SCHEDULED"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
@@ -249,10 +355,25 @@
       - type: custom:button-card
         template: bearstone_infra_alert_row
         entity: binary_sensor.node_proxmox02_updates_packages
-        name: Proxmox02 updates pending
+        name: Proxmox02 maintenance pending
         icon: mdi:package-up
         variables:
           alert_kind: binary_on
+          warning_only: true
+          exception_detail: >
+            [[[
+              const count = Number.parseInt(states['sensor.node_proxmox02_total_updates']?.state, 10);
+              const countText = Number.isFinite(count)
+                ? `${count} PKG${count === 1 ? '' : 'S'}`
+                : 'PACKAGE COUNT UNKNOWN';
+              const next = new Date();
+              next.setHours(2, 15, 0, 0);
+              if (next <= new Date()) next.setDate(next.getDate() + 1);
+              const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
+              const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
+              return `${countText} · NEXT CHECK ${dateText} ${timeText}`;
+            ]]]
+        state_display: '[[[ return "SCHEDULED"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
@@ -264,6 +385,12 @@
         icon: mdi:docker
         variables:
           alert_kind: binary_on
+          exception_detail: >
+            [[[
+              const unavailable = states['sensor.docker_monitored_unavailable_count']?.state ?? '0';
+              const total = states['sensor.docker_monitored_container_count']?.state ?? '0';
+              return `${unavailable} OF ${total} MONITORED WORKLOADS UNAVAILABLE`;
+            ]]]
         state_display: >
           [[[
             const unavailable = states['sensor.docker_monitored_unavailable_count']?.state ?? '0';
@@ -281,6 +408,26 @@
         icon: mdi:database-alert-outline
         variables:
           alert_kind: binary_on
+          exception_detail: >
+            [[[
+              const limits = {
+                'sensor.disk_use_percent': ['HOME ASSISTANT', 80],
+                'sensor.carlo_nvr_volume_1_volume_used': ['NVR', 85],
+                'sensor.carlo_nas01_volume_1_volume_used': ['NAS', 85]
+              };
+              const issues = [];
+              for (const [id, [label, limit]] of Object.entries(limits)) {
+                const raw = String(states[id]?.state ?? '').toLowerCase();
+                const value = Number(raw);
+                if (['unknown', 'unavailable', 'none', ''].includes(raw) || !Number.isFinite(value)) {
+                  issues.push(`${label} NO DATA`);
+                } else if (value > limit) {
+                  issues.push(`${label} ${value.toFixed(1)}% > ${limit}%`);
+                }
+              }
+              return issues.join(' · ');
+            ]]]
+        state_display: '[[[ return "ATTENTION"; ]]]'
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
@@ -289,9 +436,56 @@
         icon: mdi:web-off
         variables:
           alert_kind: binary_on
+          exception_detail: >
+            [[[
+              const raw = states['sensor.infra_website_down_count']?.attributes?.down_entities;
+              const items = Array.isArray(raw) ? raw : [];
+              const labels = {
+                'binary_sensor.vcloudinfo_com': 'VCLOUDINFO.COM',
+                'binary_sensor.ipmer_com': 'IPMER.COM',
+                'binary_sensor.fordst_com': 'BEAR STONE',
+                'binary_sensor.www_kingcrafthomes_com': 'KINGCRAFTHOMES.COM'
+              };
+              return items.map((item) => {
+                const [id, state] = String(item).split('=');
+                return `${labels[id] || id} ${String(state || 'down').toUpperCase()}`;
+              }).join(' · ');
+            ]]]
+        state_display: '[[[ return "DOWN"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/network
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.codex_reset_credit_expiring_soon
+        name: Codex reset expires soon
+        icon: mdi:calendar-alert
+        variables:
+          alert_kind: binary_on
+          warning_entity_ids:
+          - binary_sensor.codex_reset_credit_expiring_soon
+          critical_entity_ids:
+          - binary_sensor.codex_reset_credit_expiring_critical
+          exception_detail: >
+            [[[
+              const raw = states['sensor.codex_reset_credit_next_expiration']?.state;
+              const days = Number(states['sensor.codex_reset_credit_min_days_remaining']?.state);
+              if (!raw || ['unknown', 'unavailable'].includes(String(raw).toLowerCase())) return 'EXPIRATION DATE UNAVAILABLE';
+              const when = new Date(raw).toLocaleString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+              });
+              return `${when} · ${Number.isFinite(days) ? days.toFixed(1) + ' DAYS' : 'DAYS UNKNOWN'}`;
+            ]]]
+        state_display: >
+          [[[
+            return states['binary_sensor.codex_reset_credit_expiring_critical']?.state === 'on'
+              ? 'RESET URGENT'
+              : 'RESET SOON';
+          ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/joanna
 
       - type: custom:button-card
         template: bearstone_infra_alert_row

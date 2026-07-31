@@ -8,6 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: The activity drill-down reads the same rolling 24-hour runtime job history as the dispatch counters.
 # Notes: This view changes HA presentation only; BearClaw runtime behavior is untouched.
+# Notes: Reset expiry is amber within 7 days and red within 3 days; the four reset slots remain visible.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -214,6 +215,12 @@
       icon: mdi:calendar-alert
       variables:
         ok_state: 'off'
+        warning_text: EXPIRING SOON
+        critical_text: EXPIRING URGENTLY
+        warning_entity_ids:
+        - binary_sensor.codex_reset_credit_expiring_soon
+        critical_entity_ids:
+        - binary_sensor.codex_reset_credit_expiring_critical
       state_display: >
         [[[
           const raw = states['sensor.codex_reset_credit_next_expiration']?.state;
