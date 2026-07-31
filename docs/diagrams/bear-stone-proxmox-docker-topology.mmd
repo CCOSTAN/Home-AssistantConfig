@@ -20,23 +20,26 @@ flowchart TD
 
     subgraph CX[codex-appliance - Codex runtime]
         Runtime[Codex and MCP runtime]
-        Ops[Admin UI and service agents]
+        Ops[OneNote indexers, admin UI, and service agents]
     end
 
     subgraph D17[docker17 - Internal apps and tools]
         Tools[Dashy, Tugtainer, Duplicati]
-        InternalApps[Poker, Cruise, RVTools, TeslaMate]
+        InternalApps[Poker, Cruise, Health Diary, RVTools, TeslaMate]
     end
 
     subgraph D69[docker69 - Public edge and apps]
         Tunnel[Cloudflare tunnels]
-        PublicApps[WordPress, panel QR app, public apps]
+        PublicApps[WordPress, Webhooks Engine, panel QR app, public apps]
     end
 
     P1 --> HA
     P1 --> Runtime
-    P1 --> NFS
-    P2 --> NFS
+    P1 --> Tools
+    P1 --> Tunnel
+    P2 --> Frigate
+    NFS --> HA
+    NFS --> Runtime
     NFS --> Frigate
     NFS --> Tools
     NFS --> Tunnel
