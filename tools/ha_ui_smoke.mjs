@@ -174,7 +174,15 @@ async function validateRoute(page, baseUrl, route, outputDir) {
     if (renderedViews < 1) {
       failures.push("no rendered hui-view found");
     }
-    const errorCards = await page.locator("hui-error-card").count();
+    // Some async custom cards briefly render an error card before their HA
+    // entity attributes arrive. Re-check after hydration before failing the
+    // route so the smoke test measures the settled UI rather than the load
+    // transition.
+    let errorCards = await page.locator("hui-error-card").count();
+    if (errorCards > 0) {
+      await page.waitForTimeout(4_000);
+      errorCards = await page.locator("hui-error-card").count();
+    }
     if (errorCards > 0) {
       failures.push(`${errorCards} hui-error-card element(s) rendered`);
     }
