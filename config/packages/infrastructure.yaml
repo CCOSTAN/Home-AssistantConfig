@@ -10,7 +10,9 @@
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
-# Notes: WAN outages alert immediately at near-zero throughput or 90% packet loss; performance degradation requires 6 continuous hours below 300/300 Mbps, above 80 ms, above 5% loss, or unavailable telemetry.
+# Notes: WAN outages require all four independent ICMP/HTTPS probes to fail continuously for 2 minutes.
+# Notes: Continuous latency/loss determine WAN quality; Ookla throughput is a separate twice-daily capacity snapshot and never declares an outage.
+# Notes: Severe quality turns critical after 30 minutes above 250 ms or 25% loss; moderate quality degradation requires 6 hours above 80 ms or 5% loss.
 # Notes: Nightly Duplicati verification runs at 08:00 after the 05:30 Duplicati job and docker_14 reboot window.
 # Notes: Duplicati transport/API errors are logged only; repairs are reserved for proven failed or stale backups.
 # Notes: Duplicati failure Repairs enable a recovery poll that clears the Repair after a later successful run.
@@ -81,6 +83,28 @@ command_line:
       unit_of_measurement: "ms"
       state_class: measurement
       value_template: "{{ (value | regex_replace('[^0-9.]', '')) or 'unknown' }}"
+
+  - sensor:
+      name: Infra WAN Reachability
+      unique_id: infra_wan_reachability
+      command: >-
+        /bin/bash -c 'ok=0; cf=down; google=down; quad9=down; https=down;
+        if ping -q -c 1 -W 1 1.1.1.1 >/dev/null 2>&1; then cf=up; ok=$((ok+1)); fi;
+        if ping -q -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; then google=up; ok=$((ok+1)); fi;
+        if ping -q -c 1 -W 1 9.9.9.9 >/dev/null 2>&1; then quad9=up; ok=$((ok+1)); fi;
+        if curl -fsS --max-time 4 https://www.google.com/generate_204 >/dev/null 2>&1; then https=up; ok=$((ok+1)); fi;
+        status=partial; if [ "$ok" -ge 3 ]; then status=online; elif [ "$ok" -eq 0 ]; then status=offline; fi;
+        printf "{\"status\":\"%s\",\"checks_passed\":%s,\"checks_total\":4,\"cloudflare_icmp\":\"%s\",\"google_icmp\":\"%s\",\"quad9_icmp\":\"%s\",\"google_https\":\"%s\"}\n"
+        "$status" "$ok" "$cf" "$google" "$quad9" "$https"'
+      scan_interval: 60
+      value_template: "{{ value_json.status | default('unknown') }}"
+      json_attributes:
+        - checks_passed
+        - checks_total
+        - cloudflare_icmp
+        - google_icmp
+        - quad9_icmp
+        - google_https
 
   - sensor:
       name: Infra External IP Fallback
@@ -229,52 +253,96 @@ template:
       - name: "Infra WAN Outage"
         unique_id: infra_wan_outage
         device_class: problem
+        delay_on: "00:02:00"
+        delay_off: "00:01:00"
+        state: "{{ is_state('sensor.infra_wan_reachability', 'offline') }}"
+        attributes:
+          evaluation_window: "2 minutes"
+          probe_policy: "all 4 probes failed"
+
+      - name: "Infra WAN Capacity Degraded"
+        unique_id: infra_wan_capacity_degraded
+        device_class: problem
+        availability: >-
+          {{ states('sensor.ookla_speedtest_download') not in ['unknown', 'unavailable', 'none', ''] and
+             states('sensor.ookla_speedtest_upload') not in ['unknown', 'unavailable', 'none', ''] }}
         state: >-
-          {% set loss_raw = states('sensor.infra_wan_packet_loss') %}
-          {% set download_raw = states('sensor.speedtest_download') %}
-          {% set upload_raw = states('sensor.speedtest_upload') %}
-          {% set invalid_values = ['unknown', 'unavailable', 'none', ''] %}
-          {% set loss = loss_raw | float(0) %}
-          {% set download = download_raw | float(0) %}
-          {% set upload = upload_raw | float(0) %}
-          {{ (loss_raw not in invalid_values and loss >= 90) or
-             (download_raw not in invalid_values and download <= 1) or
-             (upload_raw not in invalid_values and upload <= 1) }}
+          {{ states('sensor.ookla_speedtest_download') | float(0) < 300 or
+             states('sensor.ookla_speedtest_upload') | float(0) < 300 }}
+        attributes:
+          source: "Ookla Speedtest CLI"
+          download_threshold_mbps: 300
+          upload_threshold_mbps: 300
+          last_test: "{{ states('sensor.ookla_speedtest_last_test') }}"
+          server: "{{ states('sensor.ookla_speedtest_server') }}"
+          freshness_entity: "binary_sensor.infra_wan_capacity_stale"
+
+      - name: "Infra WAN Capacity Stale"
+        unique_id: infra_wan_capacity_stale
+        device_class: problem
+        state: >-
+          {% set last_raw = states('sensor.ookla_speedtest_last_test') %}
+          {% if last_raw in ['unknown', 'unavailable', 'none', ''] %}
+            true
+          {% else %}
+            {{ as_timestamp(now()) - as_timestamp(last_raw, 0) > 50400 }}
+          {% endif %}
+        attributes:
+          freshness_limit: "14 hours"
+          schedule: "02:17 and 14:17 local"
 
       - name: "Infra WAN Sustained Degradation"
         unique_id: infra_wan_sustained_degradation
         device_class: problem
         delay_on: "06:00:00"
-        delay_off: "00:30:00"
+        delay_off: "00:05:00"
         state: >-
           {% set loss_raw = states('sensor.infra_wan_packet_loss') %}
           {% set lat_raw = states('sensor.infra_wan_latency_ms') %}
-          {% set download_raw = states('sensor.speedtest_download') %}
-          {% set upload_raw = states('sensor.speedtest_upload') %}
           {% set invalid_values = ['unknown', 'unavailable', 'none', ''] %}
-          {% set invalid = loss_raw in invalid_values or
-                           lat_raw in invalid_values or
-                           download_raw in invalid_values or
-                           upload_raw in invalid_values %}
+          {% set valid = loss_raw not in invalid_values and lat_raw not in invalid_values %}
           {% set loss = loss_raw | float(0) %}
           {% set lat = lat_raw | float(0) %}
-          {% set download = download_raw | float(0) %}
-          {% set upload = upload_raw | float(0) %}
-          {{ invalid or loss > 5 or lat > 80 or download < 300 or upload < 300 }}
+          {{ valid and (loss > 5 or lat > 80) }}
+
+      - name: "Infra WAN Severe Degradation"
+        unique_id: infra_wan_severe_degradation
+        device_class: problem
+        delay_on: "00:30:00"
+        state: >-
+          {% set loss_raw = states('sensor.infra_wan_packet_loss') %}
+          {% set lat_raw = states('sensor.infra_wan_latency_ms') %}
+          {% set invalid_values = ['unknown', 'unavailable', 'none', ''] %}
+          {% set valid = loss_raw not in invalid_values and
+                         lat_raw not in invalid_values %}
+          {% set loss = loss_raw | float(0) %}
+          {% set lat = lat_raw | float(0) %}
+          {{ valid and (loss > 25 or lat > 250) }}
+
+      - name: "Infra WAN Critical"
+        unique_id: infra_wan_critical
+        device_class: problem
+        state: >-
+          {{ is_state('binary_sensor.infra_wan_outage', 'on') or
+             is_state('binary_sensor.infra_wan_severe_degradation', 'on') }}
+        attributes:
+          severe_evaluation_window: "30 minutes"
+          severe_latency_threshold_ms: 250
+          severe_packet_loss_threshold_percent: 25
 
       - name: "Infra WAN Quality Degraded"
         unique_id: infra_wan_quality_degraded
         device_class: problem
         state: >-
-          {{ is_state('binary_sensor.infra_wan_outage', 'on') or
+          {{ is_state('binary_sensor.infra_wan_critical', 'on') or
              is_state('binary_sensor.infra_wan_sustained_degradation', 'on') }}
         attributes:
           evaluation_window: "6 hours"
-          throughput_threshold_mbps: 300
           latency_threshold_ms: 80
           packet_loss_threshold_percent: 5
-          outage_throughput_mbps: 1
-          outage_packet_loss_percent: 90
+          capacity_entity: "binary_sensor.infra_wan_capacity_degraded"
+          reachability_entity: "sensor.infra_wan_reachability"
+          severity_scale: "healthy | degraded | critical"
 
       - name: "Infra DNS Pihole Degraded"
         unique_id: infra_dns_pihole_degraded
@@ -403,8 +471,6 @@ template:
           {{ is_state('binary_sensor.docker_container_telemetry_degraded', 'on') or
              states('binary_sensor.proxmox1_runtime_healthy') != 'on' or
              states('binary_sensor.proxmox02_runtime_healthy') != 'on' or
-             is_state('binary_sensor.node_proxmox1_updates_packages', 'on') or
-             is_state('binary_sensor.node_proxmox02_updates_packages', 'on') or
              states('sensor.proxmox_garage_average_temperature') in ['unknown', 'unavailable', 'none', ''] or
              states('sensor.proxmox_garage_average_temperature') | float(0) > 145 }}
 

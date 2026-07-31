@@ -3,17 +3,17 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Speedtest Alerts - Log sustained WAN degradation, outages, and recovery
+# Ookla WAN Alerts - Log corroborated outages, quality degradation, capacity snapshots, and recovery
 # Related Issue: 1550
-#  Uses the normalized WAN health sensors plus `script.send_to_logbook`.
+#  Uses continuous reachability/quality sensors plus Ookla CLI capacity snapshots.
 # -------------------------------------------------------------------
-# Notes: Brief Speedtest transitions do not create Activity entries; outages are immediate and performance degradation requires 6 continuous hours.
+# Notes: Capacity snapshots never declare the WAN down; brief quality transitions do not create Activity entries.
 ######################################################################
 
 automation:
   - alias: "Internet WAN Degraded (Logbook)"
     id: notify-carlo-slow-internet-speed
-    description: "Logs an Activity entry for an immediate outage or sustained WAN degradation."
+    description: "Logs an Activity entry for a corroborated outage or sustained WAN quality degradation."
     trigger:
       - platform: state
         entity_id: binary_sensor.infra_wan_quality_degraded
@@ -25,11 +25,19 @@ automation:
           topic: "NETWORK"
           message: >-
             {% set outage = is_state('binary_sensor.infra_wan_outage', 'on') %}
-            Download: {{ states('sensor.speedtest_download') }} Mbps,
-            upload: {{ states('sensor.speedtest_upload') }} Mbps,
-            latency: {{ states('sensor.infra_wan_latency_ms') }} ms,
+            {% set severe = is_state('binary_sensor.infra_wan_severe_degradation', 'on') %}
+            Reachability: {{ states('sensor.infra_wan_reachability') }},
+            continuous latency: {{ states('sensor.infra_wan_latency_ms') }} ms,
             packet loss: {{ states('sensor.infra_wan_packet_loss') }}%.
-            {{ 'Immediate WAN outage detected.' if outage else 'WAN performance remained degraded for 6 hours.' }}
+            Latest Ookla capacity: {{ states('sensor.ookla_speedtest_download') }} Mbps down /
+            {{ states('sensor.ookla_speedtest_upload') }} Mbps up.
+            {% if outage %}
+              Corroborated WAN outage detected.
+            {% elif severe %}
+              Severe WAN quality remained degraded for 30 minutes.
+            {% else %}
+              WAN quality remained degraded for 6 hours.
+            {% endif %}
     mode: single
 
   - alias: "Internet WAN Restored (Logbook)"
@@ -45,9 +53,49 @@ automation:
         data:
           topic: "NETWORK"
           message: >-
-            Download: {{ states('sensor.speedtest_download') }} Mbps,
-            Upload: {{ states('sensor.speedtest_upload') }} Mbps,
-            latency: {{ states('sensor.infra_wan_latency_ms') }} ms,
+            Reachability: {{ states('sensor.infra_wan_reachability') }},
+            continuous latency: {{ states('sensor.infra_wan_latency_ms') }} ms,
             packet loss: {{ states('sensor.infra_wan_packet_loss') }}%.
+            Latest Ookla capacity: {{ states('sensor.ookla_speedtest_download') }} Mbps down /
+            {{ states('sensor.ookla_speedtest_upload') }} Mbps up.
             WAN alert cleared.
+    mode: single
+
+  - alias: "Internet WAN Capacity Degraded (Logbook)"
+    id: log-ookla-wan-capacity-degraded
+    description: "Logs a slow Ookla capacity snapshot without declaring a WAN outage."
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.infra_wan_capacity_degraded
+        from: 'off'
+        to: 'on'
+    action:
+      - service: script.send_to_logbook
+        data:
+          topic: "NETWORK"
+          message: >-
+            Ookla capacity snapshot was below 300/300 Mbps:
+            {{ states('sensor.ookla_speedtest_download') }} Mbps down /
+            {{ states('sensor.ookla_speedtest_upload') }} Mbps up,
+            {{ states('sensor.ookla_speedtest_ping') }} ms idle latency,
+            server {{ states('sensor.ookla_speedtest_server') }}.
+    mode: single
+
+  - alias: "Internet WAN Capacity Restored (Logbook)"
+    id: log-ookla-wan-capacity-restored
+    description: "Logs when a later Ookla capacity snapshot clears the advisory."
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.infra_wan_capacity_degraded
+        from: 'on'
+        to: 'off'
+    action:
+      - service: script.send_to_logbook
+        data:
+          topic: "NETWORK"
+          message: >-
+            Ookla capacity snapshot recovered:
+            {{ states('sensor.ookla_speedtest_download') }} Mbps down /
+            {{ states('sensor.ookla_speedtest_upload') }} Mbps up,
+            server {{ states('sensor.ookla_speedtest_server') }}.
     mode: single

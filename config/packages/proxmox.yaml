@@ -8,10 +8,11 @@
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Related Issue: 1798
-# Notes: Creates HA repair issues when proxmox nodes report updates.
-# Notes: Proxmox update activity writes one final HA success notification per patched host.
+# Notes: Proxmox update availability is dashboard-only maintenance state; no Repair is created.
 # Notes: Adds normalized runtime + disk health signals for dashboard/alerts.
 # Notes: Joanna dispatch handles overnight Proxmox updates plus sustained runtime/disk degradations.
+# Notes: Docker14 must be confirmed stopped before either Proxmox node reboots and restored after recovery.
+# Notes: Return migrations are sequential; Docker14 startup waits for expected placement and capacity headroom.
 # Notes: Normalized disk usage sensors expose state_class for long-term trend rollups.
 ######################################################################
 template:
@@ -112,66 +113,6 @@ automation:
           topic: "FRIGATE"
           message: "Frigate server rebooted at 5 AM."
 
-  - alias: "Proxmox Updates Repair Issues"
-    id: proxmox_updates_repair
-    description: "Track repair issues when Proxmox hosts report updates, then notify once per host when updates clear."
-    mode: restart
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.node_proxmox1_updates_packages
-        to: "on"
-      - platform: state
-        entity_id: binary_sensor.node_proxmox1_updates_packages
-        to: "off"
-      - platform: state
-        entity_id: binary_sensor.node_proxmox02_updates_packages
-        to: "on"
-      - platform: state
-        entity_id: binary_sensor.node_proxmox02_updates_packages
-        to: "off"
-    variables:
-      node_name: >
-        {% if 'proxmox1' in trigger.entity_id %}Proxmox1{% else %}Proxmox02{% endif %}
-      issue_id: >
-        {% if 'proxmox1' in trigger.entity_id %}
-          proxmox1_updates_available
-        {% else %}
-          proxmox02_updates_available
-        {% endif %}
-    action:
-      - choose:
-          - conditions: "{{ trigger.to_state.state == 'on' }}"
-            sequence:
-              - service: repairs.create
-                data:
-                  issue_id: "{{ issue_id }}"
-                  severity: warning
-                  persistent: false
-                  title: "{{ node_name }} has updates available"
-                  description: >
-                    {{ trigger.entity_id }} is ON, indicating pending updates on {{ node_name }}.
-                    Apply updates in Proxmox, then reload this sensor to clear the issue.
-        default:
-          - service: repairs.remove
-            continue_on_error: true
-            data:
-              issue_id: "{{ issue_id }}"
-          - service: persistent_notification.dismiss
-            continue_on_error: true
-            data:
-              notification_id: "proxmox_updates_joanna_dispatch"
-          - service: persistent_notification.create
-            data:
-              notification_id: "{{ issue_id }}"
-              title: "{{ node_name }} Proxmox updates applied"
-              message: >
-                {{ node_name }} updates were successfully applied.
-                Update telemetry is now {{ trigger.to_state.state }}, and the repair issue has been cleared.
-          - service: script.send_to_logbook
-            data:
-              topic: "PROXMOX"
-              message: "{{ node_name }} Proxmox updates were successfully applied."
-
   - alias: "Proxmox Updates Joanna Dispatch"
     id: proxmox_updates_joanna_dispatch
     description: "Log when Proxmox updates appear, then dispatch Joanna overnight if updates remain."
@@ -250,7 +191,10 @@ automation:
             proxmox02_updates={{ proxmox02_updates_summary }}
             kernel_update_detected={{ (kernel_update_packages | trim) != 'none detected' }}
             kernel_update_packages={{ kernel_update_packages | trim }}
-            required_policy=This dispatch is Carlo's authorization to install pending same-release Proxmox package updates after live preflight passes; do not stop after read-only validation. Inspect live Proxmox cluster health, storage, VM placement, and node status before changing anything. Patch hosts one node at a time during the overnight window and verify each node remains healthy before moving to the next. Do not perform major-version upgrades, repository migrations, destructive cleanup, or force operations from this request. If the live preflight is unhealthy, pause and report instead of patching. If kernel packages are present or a reboot is required after kernel updates, use the $kernel-refresh skill and follow its ordered node-cycling workflow. Verify the live placement of Frigate/Docker14 VM 101, stop it before rebooting the host that owns it, and start it only after the host cycle and VM migrations are complete. After each host, verify the package versions/update list, then report progress, failures, resume state, package versions, and final verification.
+            required_policy=This dispatch is Carlo's authorization to install pending same-release Proxmox package updates after live preflight passes; do not stop after read-only validation. Inspect live Proxmox cluster health, storage, VM placement, node status, and destination memory headroom before changing anything. Patch hosts one node at a time during the overnight window and verify each node remains healthy before moving to the next. Do not perform major-version upgrades, repository migrations, destructive cleanup, or force operations from this request. If the live preflight is unhealthy, pause and report instead of patching. If kernel packages are present or a reboot is required after kernel updates, use the $kernel-refresh skill and follow its ordered node-cycling workflow; if that skill is unavailable, stop before any reboot and report the blocker.
+            migration_policy=Capture each running VM's expected final node before evacuation. Migrate exactly one VM at a time and wait for task success plus running/unlocked/HA-started state before starting another. If any return migration fails or any non-Docker14 VM remains on ProxMox02, recover the expected placement and recheck memory headroom before continuing; do not start Docker14 while placement is incomplete.
+            docker14_policy=Verify the live placement of Frigate/Docker14 VM 101, gracefully shut it down before rebooting either Proxmox node even when VM 101 is hosted on the other node, confirm Proxmox reports it stopped, and start it only after the final host cycle, sequential return migrations, and capacity checks are complete. Starting the existing stopped VM 101 for this authorized recovery does not require separate confirmation. Never issue a Proxmox reboot while Docker14 is running.
+            completion_policy=After each host, verify package versions and the update list. Final success requires expected VM placement, no locks, HA resources started, Docker14 and dependent services healthy, and enough host memory headroom; report progress, failures, resume state, package versions, and final verification.
       - choose:
           - conditions:
               - condition: trigger
