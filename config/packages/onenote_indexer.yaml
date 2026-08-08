@@ -166,42 +166,6 @@ template:
           {{ is_state('sensor.onenote_indexer_last_job_status', 'error') }}
 
 automation:
-  - id: onenote_indexer_daily_delete_maintenance
-    alias: OneNote Indexer - Daily Delete Maintenance Request
-    description: Ask Joanna daily to run duplicate cleanup and delete reconciliation for OneNote indexer.
-    mode: single
-    trigger:
-      - platform: time
-        at: "03:15:00"
-    condition:
-      - condition: template
-        value_template: "{{ not (state_attr('sensor.onenote_indexer_last_job_status', 'running') | default(false) | bool) }}"
-    action:
-      - variables:
-          trigger_context: "HA automation onenote_indexer_daily_delete_maintenance (OneNote Indexer - Daily Delete Maintenance Request)"
-      - service: script.send_to_logbook
-        data:
-          topic: "ONENOTE"
-          message: "Requesting daily duplicate cleanup + delete reconciliation run from Joanna."
-      - service: script.joanna_dispatch
-        data:
-          trigger_context: "{{ trigger_context }}"
-          source: "home_assistant_automation.onenote_indexer_daily_delete_maintenance"
-          summary: "Run daily OneNote indexer duplicate cleanup and deletion reconciliation"
-          entity_ids:
-            - "sensor.onenote_indexer_status_payload"
-            - "sensor.onenote_indexer_last_job_status"
-          diagnostics: "scheduled_time=03:15:00"
-          request: >-
-            Run OneNote duplicate cleanup and apply deletions.
-            Start with any dependency check needed before cleanup or delete reconciliation.
-            If cleanup does not finish cleanly or index health is not confirmed, report back with:
-            Headline: Cleanup did not finish cleanly; index health is not confirmed.
-            Action: Retry cleanup after dependency check.
-            Otherwise include delete reconciliation, then send a brief conversational morning summary.
-            Tell me whether cleanup finished and whether anything actually changed.
-            Only include detailed counts or backend metrics if pages were removed, something failed, or you need my attention.
-
   - id: onenote_indexer_failure_open_repair
     alias: OneNote Indexer - Open Repair On Failure
     description: Open a Spook Repair issue and ask Joanna to troubleshoot when indexer status is failed.

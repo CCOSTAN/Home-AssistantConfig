@@ -3,8 +3,8 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Proxmox Host Automations - reboots, repairs, and Joanna dispatch
-#  Nightly Frigate host reboot plus update/runtime/disk health automations.
+# Proxmox Host Automations - repairs and Joanna dispatch
+#  Update, runtime, and disk health automations.
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Related Issue: 1798
@@ -97,22 +97,6 @@ template:
           {% endif %}
 
 automation:
-  - alias: "Nightly Frigate Server Reboot"
-    id: nightly_frigate_reboot
-    description: "Reboots the Frigate server every day at 5 AM"
-    mode: single
-    trigger:
-      - platform: time
-        at: "05:00:00"
-    action:
-      - service: button.press
-        target:
-          entity_id: button.qemu_docker2_101_reboot
-      - service: script.send_to_logbook
-        data:
-          topic: "FRIGATE"
-          message: "Frigate server rebooted at 5 AM."
-
   - alias: "Proxmox Updates Joanna Dispatch"
     id: proxmox_updates_joanna_dispatch
     description: "Log when Proxmox updates appear, then dispatch Joanna overnight if updates remain."
