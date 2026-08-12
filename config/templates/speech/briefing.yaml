@@ -16,7 +16,9 @@
 #  Greetings use only that dynamic in-home audience; off-site residents are
 #  reported separately by their current known location.
 #  Paige Home and Justin Dorm are spoken as home only for their respective child.
-#  Missing current locations fall back to neighborhood, city, then last named place.
+#  Named personal zones such as Paige Work outrank reverse-geocoded venues.
+#  Prefer clean current place names; missing locations fall back to retained
+#  place name, neighborhood, city, then last named place.
 # Notes: Previous broadcast text is stale context only; current sensor data
 #  stays authoritative for entry point and action wording.
 # Notes: Weather context is included during the useful daytime window, when
@@ -109,8 +111,8 @@
   {%- endmacro -%}
 
   {%- macro lightning() -%}
-     There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected within {{(states('sensor.blitzortung_lightning_distance') | int(9999)/ 1.69) | round (1, 'floor')}} Miles of our House.  
-     Nearest Storm Distance : {{states('sensor.pirateweather_nearest_storm_distance')}} Miles.
+    {% set distance_km = states('sensor.blitzortung_lightning_distance') | float(none) %}
+    There have been {{ states('sensor.blitzortung_lightning_counter') }} lightning strikes detected{% if distance_km is not none %} within {{ (distance_km / 1.609344) | round(1) }} miles of our house{% else %} nearby{% endif %}.
   {%- endmacro -%}
 
   {%- macro fridge() -%}
@@ -141,7 +143,7 @@
   {%- endmacro -%}
 
   {%- macro lock_check() -%}
-  {% if states.group.locks.state !='locked' -%}
+  {% if not is_state('group.locks', 'locked') -%}
       The
       {%- for state in states.lock -%}
       {%- endfor %}
@@ -156,7 +158,7 @@
   {%- endmacro -%}
 
   {%- macro garage_check() -%}
-  {% if states.group.garage_doors.state !='closed' -%}
+  {% if not is_state('group.garage_doors', 'closed') -%}
       The
       {%- for state in states.cover -%}
       {%- endfor %}
@@ -282,31 +284,31 @@
   {%- endmacro -%}
 
   {%- macro holiday() -%}
-  {% if states.sensor.holiday.state != '' %}
-      Today is {{ states.sensor.holiday.state }}.
+  {% if states('sensor.holiday') != '' %}
+      Today is {{ states('sensor.holiday') }}.
   {% endif %}
   {%- endmacro -%}
 
   {# YOUTUBE VIDEO ********* https://www.vcloudinfo.com/2019/11/adding-days-until-sensor-to-my-home-assistant-speech-routines.html #}
   {%- macro days_until() -%}
   {%- if states('sensor.mothers_countdown') | int(9999)< 20  -%}
-    and don't forget, there is only {{ states.sensor.mothers_countdown.state }} days until Mothers day!
+    and don't forget, there is only {{ states('sensor.mothers_countdown') }} days until Mothers day!
   {%- elif states('sensor.fathers_countdown') | int(9999)< 20  -%}
-      and don't forget, there are {{ states.sensor.fathers_countdown.state }} days until Fathers day!
+      and don't forget, there are {{ states('sensor.fathers_countdown') }} days until Fathers day!
   {%- elif states('sensor.easter_countdown') | int(9999)< 15  -%}
-      and don't forget, there are {{ states.sensor.easter_countdown.state }} colorful days until Easter Sunday!
+      and don't forget, there are {{ states('sensor.easter_countdown') }} colorful days until Easter Sunday!
   {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 10 and states('sensor.thanksgiving_day_countdown') | int(9999)> 0  -%}
-      and don't forget, there are {{ states.sensor.thanksgiving_day_countdown.state }} thankful days until Thanksgiving
+      and don't forget, there are {{ states('sensor.thanksgiving_day_countdown') }} thankful days until Thanksgiving
   {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 1  -%}
       and don't forget, Thanksgiving is tomorrow!
   {%- elif states('sensor.halloween_countdown') | int(9999)< 30 and states('sensor.halloween_countdown') | int(9999)> 0 -%}
-      and don't forget, there are {{ states.sensor.halloween_countdown.state }} Spooky days until Halloween!
+      and don't forget, there are {{ states('sensor.halloween_countdown') }} Spooky days until Halloween!
   {%- elif states('sensor.halloween_countdown') | int(9999)< 1  -%}
       and don't forget, Tomorrow is Halloween!
   {%- elif states('sensor.chanukkah_countdown') | int(9999)< 15  -%}
-      and don't forget, there are {{ states.sensor.chanukkah_countdown.state }} days until Chanukkah!
+      and don't forget, there are {{ states('sensor.chanukkah_countdown') }} days until Chanukkah!
   {%- elif states('sensor.christmas_countdown') | int(9999)< 30 and states('sensor.christmas_countdown') | int(9999)> 0  -%}
-      and don't forget, there are {{ states.sensor.christmas_countdown.state }} Merry days until Christmas!
+      and don't forget, there are {{ states('sensor.christmas_countdown') }} Merry days until Christmas!
   {%- elif states('sensor.christmas_countdown') | int(9999)< 1  -%}
       and don't forget, Santa Claus is coming tomorrow!
   {% endif %}
@@ -320,29 +322,40 @@
     {% else %}
       {% set person_state = states(person_id) %}
       {% set unknown_locations = ['unknown', 'unavailable', '', 'none', 'not_home', 'not home', 'away'] %}
-      {% set place_state = states(place_sensor_id) if place_sensor_id in states else 'unknown' %}
+      {% set place_state = states(place_sensor_id) %}
       {% set place_known = place_state | lower not in unknown_locations %}
       {% set person_known = person_state | lower not in unknown_locations %}
+      {% set person_key = person_state | lower %}
+      {% set named_zone_known = person_known and person_key not in ['home', 'driving'] %}
+      {% set zone_friendly_name = state_attr('zone.' ~ person_key, 'friendly_name') | default(person_key, true) | string | trim %}
+      {% set zone_words = zone_friendly_name | replace('_', ' ') | trim %}
+      {% set zone_words_key = zone_words | lower %}
+      {% set resident_prefix = (name | lower) ~ ' ' %}
+      {% set prefix_length = resident_prefix | length %}
+      {% set named_zone_label = zone_words[prefix_length:] if zone_words_key[:prefix_length] == resident_prefix else zone_words %}
+      {% set place_name = state_attr(place_sensor_id, 'place_name') | default('', true) | string | trim %}
       {% set neighborhood = state_attr(place_sensor_id, 'place_neighbourhood') | default('', true) | string | trim %}
       {% set city = state_attr(place_sensor_id, 'city') | default('', true) | string | trim %}
       {% set last_place = state_attr(place_sensor_id, 'last_place_name') | default('', true) | string | trim %}
+      {% set place_name_known = place_name | lower not in unknown_locations %}
       {% set neighborhood_known = neighborhood | lower not in unknown_locations %}
       {% set city_known = city | lower not in unknown_locations %}
       {% set last_place_known = last_place | lower not in unknown_locations %}
-      {% set fallback_label = neighborhood if neighborhood_known else city if city_known else last_place if last_place_known else '' %}
-      {% set fallback_kind = 'neighborhood' if neighborhood_known else 'city' if city_known else 'place' if last_place_known else '' %}
+      {% set current_place_label = place_name if place_name_known else place_state %}
+      {% set fallback_label = place_name if place_name_known else neighborhood if neighborhood_known else city if city_known else last_place if last_place_known else '' %}
+      {% set fallback_kind = 'place' if place_name_known else 'neighborhood' if neighborhood_known else 'city' if city_known else 'place' if last_place_known else '' %}
       {% set using_fallback = not place_known and not person_known and fallback_label %}
-      {% set location_label = place_state if place_known else person_state if person_known else fallback_label %}
       {% set at_bear_stone = person_state == 'home' %}
-      {% set location_key = location_label | lower %}
-      {% set at_personal_home = (name == 'Paige' and location_key == 'paige home') or (name == 'Justin' and location_key == 'justin dorm') %}
+      {% set at_personal_home = (name == 'Paige' and person_key == 'paige_home') or (name == 'Justin' and person_key == 'justin_dorm') %}
+      {% set personal_home_label = 'Paige Home' if name == 'Paige' and person_key == 'paige_home' else 'Justin Dorm' if name == 'Justin' and person_key == 'justin_dorm' else '' %}
+      {% set location_label = personal_home_label if at_personal_home else named_zone_label if named_zone_known else current_place_label if place_known else fallback_label %}
       {% set last_changed = as_timestamp(person.last_changed) %}
       {% set seconds = (as_timestamp(now()) - last_changed) | int(0) if last_changed else 0 %}
       {% set hours = (seconds // 3600) | int %}
       {% set minutes = ((seconds % 3600) // 60) | int %}
       {% set duration = (hours ~ ' hours') if hours >= 1 else (minutes ~ ' minutes') %}
       {% if person_state == 'driving' %}
-        {% set driving_label = place_state if place_known else fallback_label %}
+        {% set driving_label = current_place_label if place_known else fallback_label %}
         {{ name }}: driving{% if driving_label %} near {{ driving_label }}{% endif %}{% if seconds >= 60 %} for {{ duration }}{% endif %}
       {% elif at_bear_stone %}
         {{ name }}: at Bear Stone home{% if seconds >= 60 %} for {{ duration }}{% endif %}
@@ -390,7 +403,7 @@
     {% set no_fridge_flag = no_fridge | default(0) | int(0) %}
     {% set sunset_ts = as_timestamp(state_attr('sun.sun', 'next_setting'), 0) %}
     {% set daytime_weather_context = is_state('sun.sun', 'above_horizon') and sunset_ts > 0 and as_timestamp(now()) < (sunset_ts - 7200) %}
-    {% set lightning_close = states('sensor.blitzortung_lightning_counter') | int(0) > 0 and (states('sensor.blitzortung_lightning_distance') | float(9999) / 1.69) <= 10 %}
+    {% set lightning_close = states('sensor.blitzortung_lightning_counter') | int(0) > 0 and (states('sensor.blitzortung_lightning_distance') | float(9999) / 1.609344) <= 10 %}
     {% set weather_safety_context = (
       states('sensor.nws_alerts') | int(0) > 0
       or states('sensor.pirateweather_wind_speed') | float(0) >= 30
@@ -418,8 +431,9 @@
     - The announcement audience is the dynamic `People at Bear Stone` list below. Greet only those people, and never greet, welcome, or imply that any other resident is at Bear Stone.
     - When a presence update is useful, report each off-site resident's known location to the people at Bear Stone. Those residents are status updates, not greeting recipients.
     - Paige at Paige Home and Justin at Justin Dorm are each home at their own home. Do not describe either as away, and do not welcome them as being at Bear Stone.
+    - Prefer a resident's named personal zone over a nearby reverse-geocoded venue. For example, report Paige_Work as "Paige is at work."
     - Other named places, including driving, are off-site locations.
-    - When a current location is unavailable, use the last-known neighborhood, city, or named place supplied below. Keep the words "last known" so stale data is not presented as current.
+    - When a current location is unavailable, prefer the last-known named place, then neighborhood or city supplied below. Keep the words "last known" so stale data is not presented as current.
     - Do not say "location unavailable." If no useful fallback exists, say the location has not updated.]
 
     [LLM speech contract:
