@@ -28,6 +28,7 @@ Reusable scripts that other automations call for notifications, lighting, safety
 | File | Why it matters |
 | --- | --- |
 | [![YAML source: notify_engine](https://img.shields.io/static/v1?label=YAML&message=notify_engine&color=lightgrey&logo=github&logoColor=181717)](notify_engine.yaml) | Single entrypoint for rich push notifications. |
+| [![YAML source: hvac_control](https://img.shields.io/static/v1?label=YAML&message=hvac_control&color=lightgrey&logo=github&logoColor=181717)](hvac_control.yaml) | Single reconciler for grid, entry-point, occupancy, and target-temperature HVAC policy. |
 | [![YAML source: notify_live_activity](https://img.shields.io/static/v1?label=YAML&message=notify_live_activity&color=lightgrey&logo=github&logoColor=181717)](notify_live_activity.yaml) | Shared helper for tagged live activity/live update pushes and clear commands. |
 | [![YAML source: send_to_logbook](https://img.shields.io/static/v1?label=YAML&message=send_to_logbook&color=lightgrey&logo=github&logoColor=181717)](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
 | [![YAML source: joanna_dispatch](https://img.shields.io/static/v1?label=YAML&message=joanna_dispatch&color=lightgrey&logo=github&logoColor=181717)](joanna_dispatch.yaml) | Shared AGENT engineer dispatch contract that routes HA-detected issues into Joanna/BearClaw remediation. |
@@ -55,7 +56,6 @@ Current automations that kick off automated resolutions (via `script.joanna_disp
 | Automation ID | Alias | File |
 | --- | --- | --- |
 | `mqtt_open_repair_on_failure` | MQTT - Open Repair On Failure | [![YAML source: mqtt_status](https://img.shields.io/static/v1?label=YAML&message=mqtt_status&color=lightgrey&logo=github&logoColor=181717)](../packages/mqtt_status.yaml) |
-| `onenote_indexer_daily_delete_maintenance` | OneNote Indexer - Daily Delete Maintenance Request | [![YAML source: onenote_indexer](https://img.shields.io/static/v1?label=YAML&message=onenote_indexer&color=lightgrey&logo=github&logoColor=181717)](../packages/onenote_indexer.yaml) |
 | `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [![YAML source: onenote_indexer](https://img.shields.io/static/v1?label=YAML&message=onenote_indexer&color=lightgrey&logo=github&logoColor=181717)](../packages/onenote_indexer.yaml) |
 | `infra_backup_nightly_verification` | Infrastructure - Backup Nightly Verification | [![YAML source: infrastructure](https://img.shields.io/static/v1?label=YAML&message=infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/infrastructure.yaml) |
 | `infra_monthly_log_hygiene_review` | Infrastructure - Monthly HA Log Hygiene Review | [![YAML source: infrastructure](https://img.shields.io/static/v1?label=YAML&message=infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/infrastructure.yaml) |
