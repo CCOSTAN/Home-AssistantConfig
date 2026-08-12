@@ -470,11 +470,9 @@ automation:
         value_template: "{{ states('binary_sensor.powerwall_grid_status') == 'off' }}"
 
     action:
-      - service: climate.turn_off
+      - service: script.reconcile_hvac_state
         data:
-         entity_id:
-           - climate.downstairs
-           - climate.upstairs
+          reason: "grid outage"
 
       - service: script.notify_engine
         data:
@@ -494,46 +492,14 @@ automation:
         for:
           minutes: 10
 
-    condition:
-      - condition: template
-        value_template: "{{ states('binary_sensor.powerwall_grid_status') == 'on' }}"
-      - condition: or
-        conditions:
-          - condition: state
-            entity_id: climate.downstairs
-            state: 'off'
-          - condition: state
-            entity_id: climate.upstairs
-            state: 'off'
-
     action:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.pirateweather_temperature
-                below: 75
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Skipping downstairs cool mode (outside temp <75F)."
-        default:
-          - service: climate.set_hvac_mode
-            data:
-              entity_id: climate.downstairs
-              hvac_mode: cool
-      - service: climate.set_hvac_mode
+      - service: script.reconcile_hvac_state
         data:
-          entity_id: climate.upstairs
-          hvac_mode: cool
-      - service: climate.set_temperature
-        data:
-          entity_id: climate.upstairs
-          temperature: 80
+          reason: "grid restored"
 
       - service: script.notify_engine
         data:
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
-          value1: "All AC systems are set back to normal operations (downstairs cool may be skipped if outside <75F)."
+          value1: "HVAC settings were reconciled with grid, entry-point, and occupancy conditions."
           who: 'family'
           group: 'information'

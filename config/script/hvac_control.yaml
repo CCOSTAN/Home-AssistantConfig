@@ -1,0 +1,143 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# HVAC Control - Shared thermostat target and safety reconciliation
+#  Keeps grid, open-entry, occupancy, guest, and weather rules aligned.
+# -------------------------------------------------------------------
+######################################################################
+
+set_downstairs_target_temp_based_on_conditions:
+  alias: Set Downstairs Target Temperature Based on Conditions
+  mode: restart
+  sequence:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: group.family
+              state: 'not_home'
+            - condition: state
+              entity_id: input_boolean.guest_mode
+              state: 'off'
+          sequence:
+            - service: script.send_to_logbook
+              data:
+                topic: "CLIMATE"
+                message: "Downstairs HVAC set to ECO (family not_home)."
+            - service: climate.set_preset_mode
+              target:
+                entity_id: climate.downstairs
+              data:
+                preset_mode: 'eco'
+      default:
+        - variables:
+            outside_temp: "{{ states('sensor.pirateweather_temperature') | float(none) }}"
+            target_temp: >-
+              {% if outside_temp is none %}
+                80
+              {% elif outside_temp < 78 or outside_temp > 92 %}
+                78
+              {% else %}
+                80
+              {% endif %}
+        - service: climate.set_preset_mode
+          target:
+            entity_id: climate.downstairs
+          data:
+            preset_mode: 'none'
+        - service: climate.set_hvac_mode
+          target:
+            entity_id: climate.downstairs
+          data:
+            hvac_mode: cool
+        - service: climate.set_temperature
+          target:
+            entity_id: climate.downstairs
+          data:
+            temperature: "{{ target_temp }}"
+        - service: script.send_to_logbook
+          data:
+            topic: "CLIMATE"
+            message: >-
+              Downstairs target set to {{ target_temp }}F
+              (family/guest occupied; outside={{ outside_temp | default('unavailable', true) }}F).
+
+reconcile_hvac_state:
+  alias: Reconcile HVAC State
+  mode: restart
+  sequence:
+    - variables:
+        reconcile_reason: "{{ reason | default('state change', true) }}"
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.powerwall_grid_status
+              state: 'off'
+          sequence:
+            - service: climate.turn_off
+              target:
+                entity_id:
+                  - climate.downstairs
+                  - climate.upstairs
+            - service: script.send_to_logbook
+              data:
+                topic: "CLIMATE"
+                message: "HVAC kept off because the grid is down ({{ reconcile_reason }})."
+        - conditions:
+            - condition: state
+              entity_id: group.entry_points
+              state: 'on'
+          sequence:
+            - service: climate.turn_off
+              target:
+                entity_id:
+                  - climate.downstairs
+                  - climate.upstairs
+            - service: script.send_to_logbook
+              data:
+                topic: "CLIMATE"
+                message: "HVAC kept off because an entry point is open ({{ reconcile_reason }})."
+        - conditions:
+            - condition: state
+              entity_id: group.family
+              state: 'not_home'
+            - condition: state
+              entity_id: input_boolean.guest_mode
+              state: 'off'
+          sequence:
+            - service: climate.set_preset_mode
+              target:
+                entity_id: climate.downstairs
+              data:
+                preset_mode: 'eco'
+            - service: climate.set_hvac_mode
+              target:
+                entity_id: climate.upstairs
+              data:
+                hvac_mode: cool
+            - service: climate.set_temperature
+              target:
+                entity_id: climate.upstairs
+              data:
+                temperature: 83
+            - service: script.send_to_logbook
+              data:
+                topic: "CLIMATE"
+                message: "HVAC reconciled to away targets ({{ reconcile_reason }})."
+      default:
+        - service: script.set_downstairs_target_temp_based_on_conditions
+        - service: climate.set_hvac_mode
+          target:
+            entity_id: climate.upstairs
+          data:
+            hvac_mode: cool
+        - service: climate.set_temperature
+          target:
+            entity_id: climate.upstairs
+          data:
+            temperature: 82
+        - service: script.send_to_logbook
+          data:
+            topic: "CLIMATE"
+            message: "HVAC reconciled to occupied targets ({{ reconcile_reason }})."

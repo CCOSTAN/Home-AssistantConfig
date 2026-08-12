@@ -256,12 +256,14 @@ automation:
 
     condition:
       - condition: template
-        value_template: "{{ states('climate.downstairs') != 'off' }}"
+        value_template: >-
+          {{ states('climate.downstairs') != 'off'
+             or states('climate.upstairs') != 'off' }}
 
     action:
-      - service: climate.turn_off
+      - service: script.reconcile_hvac_state
         data:
-          entity_id: climate.downstairs
+          reason: "entry point left open"
       - service: script.speech_engine
         data:
           value1: >-
@@ -285,29 +287,10 @@ automation:
         for:
           minutes: 5
 
-    condition:
-      - condition: template
-        value_template: "{{ states('climate.downstairs') == 'off' }}"
-
     action:
-      - service: climate.turn_on
+      - service: script.reconcile_hvac_state
         data:
-          entity_id: climate.downstairs
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.pirateweather_temperature
-                below: 75
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Skipping downstairs cool mode (outside temp <75F)."
-        default:
-          - service: climate.set_hvac_mode
-            data:
-              entity_id: climate.downstairs
-              hvac_mode: cool
+          reason: "entry points secured"
 
 #-------------------------------------------#-------------------------------------------
   - alias: 'Alarm lights in Living room'
@@ -332,8 +315,8 @@ automation:
     action:
       - choose:
           - conditions: >
-              {{ states.group.entry_points.state == 'on' or
-                 states.group.garage_doors.state != 'closed' }}
+              {{ is_state('group.entry_points', 'on') or
+                 not is_state('group.garage_doors', 'closed') }}
             sequence:
               - service: scene.turn_on
                 entity_id: scene.Red_living_Room

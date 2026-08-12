@@ -207,128 +207,6 @@ script:
           entity_id: input_datetime.hvac_condenser_lines_cleaning_snooze_until
           datetime: "{{ (now() - timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S') }}"
 
-  set_downstairs_target_temp_based_on_conditions:
-    alias: Set Downstairs Target Temperature Based on Conditions
-    mode: single
-    sequence:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: group.family
-                state: 'not_home'
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Downstairs HVAC set to ECO (family not_home)."
-              - service: climate.set_preset_mode
-                data:
-                  entity_id: climate.downstairs
-                  preset_mode: 'eco'
-          - conditions:
-              - condition: and
-                conditions:
-                  - condition: state
-                    entity_id: group.family
-                    state: 'home'
-                  - condition: template
-                    value_template: >-
-                      {{ states('sensor.pirateweather_temperature') in ['unknown','unavailable','none',''] }}
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Outside temp unavailable; allowing downstairs cool mode (defaulting to 80F)."
-              - service: climate.set_hvac_mode
-                data:
-                  entity_id: climate.downstairs
-                  hvac_mode: cool
-              - service: climate.set_temperature
-                data:
-                  entity_id: climate.downstairs
-                  temperature: 80
-
-          - conditions:
-              - condition: and
-                conditions:
-                  - condition: state
-                    entity_id: group.family
-                    state: 'home'
-                  - condition: numeric_state
-                    entity_id: sensor.pirateweather_temperature
-                    below: 78
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Downstairs target set to 78F (family home, outside temp <78F)."
-              - service: climate.set_hvac_mode
-                data:
-                  entity_id: climate.downstairs
-                  hvac_mode: cool
-              - service: climate.set_temperature
-                data:
-                  entity_id: climate.downstairs
-                  temperature: 78
-          - conditions:
-              - condition: and
-                conditions:
-                  - condition: state
-                    entity_id: group.family
-                    state: 'home'
-                  - condition: numeric_state
-                    entity_id: sensor.pirateweather_temperature
-                    above: 92
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Downstairs target set to 78F (family home, temp >92F)."
-              - service: climate.set_hvac_mode
-                data:
-                  entity_id: climate.downstairs
-                  hvac_mode: cool
-              - service: climate.set_temperature
-                data:
-                  entity_id: climate.downstairs
-                  temperature: 78
-          - conditions:
-              - condition: and
-                conditions:
-                  - condition: state
-                    entity_id: group.family
-                    state: 'home'
-                  - condition: template
-                    value_template: "{{ states('sensor.pirateweather_temperature')|float(-999) >= 78 }}"
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Downstairs target set to 80F (family home)."
-              - service: climate.set_hvac_mode
-                data:
-                  entity_id: climate.downstairs
-                  hvac_mode: cool
-              - service: climate.set_temperature
-                data:
-                  entity_id: climate.downstairs
-                  temperature: 80
-
-  set_downstairs_daytime_target:
-    alias: Set Downstairs Daytime Target
-    mode: single
-    sequence:
-      - service: script.set_downstairs_target_temp_based_on_conditions
-
-  set_downstairs_hvac_cool:
-    alias: Set Downstairs HVAC Cool
-    mode: single
-    sequence:
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.downstairs
-          hvac_mode: cool
-
   set_upstairs_cool_82:
     alias: Set Upstairs Cool 82
     mode: single
@@ -349,6 +227,7 @@ script:
 ##############################################################################
 automation:
   - alias: Notify Climate Filter Change Due
+    id: notify_climate_filter_change_due
     description: Notify when HVAC filter runtime exceeds the location threshold or age reaches 9 months
     trigger:
       - platform: numeric_state
@@ -658,7 +537,9 @@ automation:
             entity_id: binary_sensor.powerwall_grid_status
             state: 'on'
     action:
-      - service: script.set_downstairs_daytime_target
+      - service: script.reconcile_hvac_state
+        data:
+          reason: daytime target refresh
           
 # Set thermostats to eco mode when everyone is away
   - alias: 'Set Thermostats to Eco When Away'
@@ -676,26 +557,9 @@ automation:
         entity_id: input_boolean.guest_mode
         state: 'off'
     action:
-      - service: climate.set_preset_mode
+      - service: script.reconcile_hvac_state
         data:
-          entity_id: climate.downstairs
-          preset_mode: 'eco'
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.pirateweather_temperature
-                below: 75
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Skipping downstairs cool mode (outside temp <75F)."
-        default:
-          - service: script.set_downstairs_hvac_cool
-      - service: climate.set_temperature
-        data:
-          entity_id: climate.upstairs
-          temperature: 83
+          reason: family away
 
   # Automation: Set Thermostats Back to Cool Mode
   - alias: 'Set Thermostats to Cool When Home'
@@ -717,19 +581,9 @@ automation:
         entity_id: binary_sensor.powerwall_grid_status
         state: 'on'
     action:
-      - service: climate.set_preset_mode
+      - service: script.reconcile_hvac_state
         data:
-          entity_id: climate.downstairs
-          preset_mode: 'none'
-      - service: climate.set_hvac_mode
-        data:
-          entity_id: climate.upstairs
-          hvac_mode: cool
-      - service: script.set_downstairs_target_temp_based_on_conditions
-      - service: climate.set_temperature
-        data:
-          entity_id: climate.upstairs
-          temperature: 82
+          reason: family home
 
   - alias: 'Reset Upstairs to 82 Each Night'
     id: reset_upstairs_thermostat_nightly_82
@@ -765,6 +619,9 @@ automation:
         value_template: "{{ state_attr('climate.downstairs', 'hvac_action') == 'idle' }}"
       - condition: template # Never run if the grid is down and running on powerwall.
         value_template: "{{ states('binary_sensor.powerwall_grid_status')|lower == 'on' }}"
+      - condition: state
+        entity_id: group.entry_points
+        state: 'off'
     action:
       - choose:
           - conditions:
@@ -790,5 +647,7 @@ automation:
               entity_id: climate.downstairs
               temperature: 77
           - delay: "00:20:00"
-          - service: script.set_downstairs_target_temp_based_on_conditions
+          - service: script.reconcile_hvac_state
+            data:
+              reason: humidity cycle complete
           - delay: "02:00:00"      # stops it from being triggered again too soon.
