@@ -1,0 +1,130 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Bedroom Home Cards - Fixed 1024x600 landscape event display
+#  Shared camera priority with a Bedroom-specific read-only default view.
+# -------------------------------------------------------------------
+# Related Issue: 1875
+# Notes: No current-time clock; both nightstands already provide visible clocks.
+# Notes: Full-screen event cameras replace the default status/camera/alert bands.
+# Video: https://youtu.be/ChgEu0IDWzc
+######################################################################
+
+- type: vertical-stack
+  cards:
+    - type: conditional
+      conditions:
+        - entity: sensor.kiosk_active_camera_view
+          state: garage
+      card:
+        type: picture-glance
+        title: Garage
+        camera_image: camera.garagecam
+        camera_view: auto
+        aspect_ratio: "2:1"
+        entities: []
+
+    - type: conditional
+      conditions:
+        - entity: sensor.kiosk_active_camera_view
+          state: front_door
+      card:
+        type: picture-glance
+        title: Front Door
+        camera_image: camera.frontdoorbell
+        camera_view: auto
+        aspect_ratio: "2:1"
+        entities: []
+
+    # Bedroom context is intentionally distinct from Kitchen's clock/forecast banner.
+    - type: conditional
+      conditions:
+        - entity: sensor.kiosk_active_camera_view
+          state: none
+      card:
+        type: markdown
+        content: >-
+          ## {{ states('sensor.bedroom_kiosk_header') }}
+
+          {{ state_attr('sensor.bedroom_kiosk_header', 'detail') }}
+        card_mod:
+          style: |
+            ha-card {
+              height: 100px !important;
+              overflow: hidden !important;
+            }
+            ha-markdown {
+              padding: 12px 24px !important;
+            }
+            h2 {
+              font-size: 28px !important;
+              line-height: 1.15 !important;
+              margin: 0 0 8px !important;
+            }
+            p {
+              font-size: 18px !important;
+              line-height: 1.2 !important;
+              margin: 0 !important;
+            }
+
+    # Built-in camera cards are the legacy-WebView-safe rendering path.
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+        - type: conditional
+          conditions:
+            - entity: sensor.kiosk_active_camera_view
+              state: none
+          card:
+            type: picture-glance
+            title: Front Lawn
+            camera_image: camera.frontlawn
+            camera_view: auto
+            aspect_ratio: "2:1"
+            entities: []
+
+        - type: conditional
+          conditions:
+            - entity: sensor.kiosk_active_camera_view
+              state: none
+          card:
+            type: picture-glance
+            title: Driveway
+            camera_image: camera.driveway
+            camera_view: auto
+            aspect_ratio: "2:1"
+            entities: []
+
+    # One large priority message remains readable from across the Bedroom.
+    - type: conditional
+      conditions:
+        - entity: sensor.kiosk_active_camera_view
+          state: none
+      card:
+        type: markdown
+        content: >-
+          ## {{ states('sensor.kiosk_household_alert') }}
+
+          {{ state_attr('sensor.kiosk_household_alert', 'detail') }}
+        card_mod:
+          style: |
+            ha-card {
+              height: 120px !important;
+              overflow: hidden !important;
+            }
+            ha-markdown {
+              padding: 12px 24px !important;
+            }
+            h2 {
+              font-size: 26px !important;
+              line-height: 1.15 !important;
+              margin: 0 0 8px !important;
+            }
+            p {
+              font-size: 17px !important;
+              line-height: 1.25 !important;
+              margin: 0 !important;
+            }

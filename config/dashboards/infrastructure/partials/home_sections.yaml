@@ -28,7 +28,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(9, minmax(0, 1fr))
+      grid-template-columns: repeat(10, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -159,6 +159,19 @@
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/mariadb
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.kiosk_devices_need_attention
+      name: Kiosks
+      icon: mdi:tablet-dashboard
+      variables:
+        ok_state: 'off'
+        healthy_text: ONLINE
+        alert_text: ATTENTION
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/kiosks
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -299,6 +312,27 @@
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/vacuum
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.kiosk_devices_need_attention
+        name: Kiosk device needs attention
+        icon: mdi:tablet-alert
+        variables:
+          alert_kind: binary_on
+          exception_detail: >
+            [[[
+              const bedroom = states['binary_sensor.bedroom_kiosk_needs_attention']?.attributes?.status;
+              const kitchen = states['binary_sensor.kitchen_kiosk_needs_attention']?.attributes?.status;
+              const issues = [];
+              if (states['binary_sensor.bedroom_kiosk_needs_attention']?.state === 'on') issues.push(`BEDROOM: ${String(bedroom ?? 'ATTENTION').toUpperCase()}`);
+              if (states['binary_sensor.kitchen_kiosk_needs_attention']?.state === 'on') issues.push(`KITCHEN: ${String(kitchen ?? 'ATTENTION').toUpperCase()}`);
+              return issues.join(' · ') || 'KIOSK TELEMETRY REQUIRES REVIEW';
+            ]]]
+        state_display: '[[[ return "ATTENTION"; ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/kiosks
 
       - type: custom:button-card
         template: bearstone_infra_alert_row

@@ -1,0 +1,565 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Kiosk Satellite Partial - Ambient kitchen display
+#  Enlarged camera feeds plus rotating household reminders, cruise countdown, and locations.
+# -------------------------------------------------------------------
+# Notes: Three-row landscape layout uses full-width clock and alert banners around the camera row.
+# Notes: Camera cards use automatic streaming to limit idle tablet load.
+# Notes: Native Garage and Front Door views take over for their matching live states.
+# Notes: The lower panel is display-only and mirrors read-only household fact entities.
+######################################################################
+
+# Clock and camera wall
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+    - type: custom:layout-card
+      grid_options:
+        columns: full
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+        grid-template-areas: |
+          "clock clock"
+          "frontlawn driveway"
+          "ambient ambient"
+        align-items: stretch
+        grid-gap: 10px
+        margin: 0
+        mediaquery:
+          "(max-width: 700px)":
+            grid-template-columns: 1fr
+            grid-template-areas: |
+              "clock"
+              "frontlawn"
+              "driveway"
+              "ambient"
+      cards:
+        # The established clock-weather-card supplies a live clock; button-card has no minute ticker.
+        - type: custom:clock-weather-card
+          entity: weather.pirateweather
+          sun_entity: sun.sun
+          weather_icon_type: fill
+          animated_icon: true
+          forecast_rows: 3
+          locale: en-US
+          time_pattern: h:mm
+          time_format: 12
+          date_pattern: DDDD
+          hide_today_section: false
+          hide_forecast_section: false
+          hide_clock: false
+          hide_date: false
+          use_browser_time: true
+          card_mod:
+            style: |
+              ha-card {
+                display: block !important;
+                height: 150px !important;
+                padding: 12px 24px !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+              }
+              ha-card > div {
+                display: grid !important;
+                grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+                align-items: center;
+                gap: 24px;
+                height: 126px;
+              }
+              clock-weather-card-today {
+                height: 126px !important;
+              }
+              clock-weather-card-forecast {
+                max-height: 126px;
+                overflow: hidden;
+              }
+              @media (max-width: 700px) {
+                ha-card > div {
+                  grid-template-columns: 1fr;
+                }
+                clock-weather-card-forecast {
+                  display: none;
+                }
+              }
+          view_layout:
+            grid-area: clock
+
+        # Built-in picture-glance is required because button-card cannot render HA camera streams.
+        - type: picture-glance
+          title: Driveway
+          camera_image: camera.driveway
+          camera_view: auto
+          aspect_ratio: "21:9"
+          entities: []
+          view_layout:
+            grid-area: driveway
+
+        - type: picture-glance
+          title: Front Lawn
+          camera_image: camera.frontlawn
+          camera_view: auto
+          aspect_ratio: "21:9"
+          entities: []
+          view_layout:
+            grid-area: frontlawn
+
+        # CSS animation rotates only the currently relevant, read-only household facts.
+        - type: custom:button-card
+          show_icon: false
+          show_name: false
+          show_state: false
+          tap_action:
+            action: none
+          hold_action:
+            action: none
+          double_tap_action:
+            action: none
+          triggers_update:
+            - binary_sensor.garage_phyn_battery_alert
+            - binary_sensor.garage_phyn_freeze_warning_alert
+            - binary_sensor.garage_phyn_high_pressure_alert
+            - binary_sensor.garage_phyn_leak_alert
+            - binary_sensor.garage_phyn_offline_leak_shutoff_alert
+            - binary_sensor.garage_phyn_pinhole_leak_alert
+            - binary_sensor.garage_phyn_recurring_flow_alert
+            - binary_sensor.garage_phyn_temperature_alert
+            - sensor.nws_alerts_alerts
+            - group.garage_doors
+            - group.entry_points
+            - group.locks
+            - binary_sensor.front_door_packages_present
+            - sensor.rheem_wh_available_hot_water
+            - input_boolean.garbage_cans_out
+            - input_datetime.water_delivery_date
+            - sensor.water_softener_salt_days_since_last_add
+            - sensor.water_softener_salt_average_days_between_refills
+            - sensor.spaceship_battery_level
+            - switch.spaceship_charge
+            - input_datetime.tesla_model_y_last_garage_close
+            - input_datetime.tesla_model_y_plug_in_snooze_until
+            - sensor.next_booked_cruise_countdown
+            - person.carlo
+            - person.stacey
+            - person.justin
+            - person.paige
+            - sensor.carlo_location_display
+            - sensor.stacey_location_display
+            - sensor.justin_location_display
+            - sensor.paige_location_display
+          custom_fields:
+            ambient: >
+              [[[
+                const state = (entityId) => states[entityId]?.state;
+                const valid = (value) => !['unknown', 'unavailable', 'none', '', undefined].includes(value);
+                const pretty = (value) => String(value || 'Unknown').replaceAll('_', ' ');
+                const dateKey = (date) => {
+                  const year = date.getFullYear();
+                  const month = String(date.getMonth() + 1).padStart(2, '0');
+                  const day = String(date.getDate()).padStart(2, '0');
+                  return `${year}-${month}-${day}`;
+                };
+                const items = [];
+                const now = new Date();
+
+                const phynAlerts = [
+                  'binary_sensor.garage_phyn_battery_alert',
+                  'binary_sensor.garage_phyn_freeze_warning_alert',
+                  'binary_sensor.garage_phyn_high_pressure_alert',
+                  'binary_sensor.garage_phyn_leak_alert',
+                  'binary_sensor.garage_phyn_offline_leak_shutoff_alert',
+                  'binary_sensor.garage_phyn_pinhole_leak_alert',
+                  'binary_sensor.garage_phyn_recurring_flow_alert',
+                  'binary_sensor.garage_phyn_temperature_alert'
+                ].filter((entityId) => state(entityId) === 'on');
+                if (phynAlerts.length > 0) {
+                  const alertNames = phynAlerts.map((entityId) =>
+                    states[entityId]?.attributes?.friendly_name || pretty(entityId.split('.')[1])
+                  );
+                  items.push({
+                    kicker: 'WATER SYSTEM',
+                    title: 'Phyn needs attention',
+                    detail: alertNames.join(' · '),
+                    icon: 'mdi:water-alert-outline',
+                    accent: '#c62828'
+                  });
+                }
+
+                const weatherAlertEntity = states['sensor.nws_alerts_alerts'];
+                const weatherAlertCount = Number.parseInt(weatherAlertEntity?.state, 10);
+                const weatherAlerts = Array.isArray(weatherAlertEntity?.attributes?.Alerts)
+                  ? weatherAlertEntity.attributes.Alerts
+                  : [];
+                const cleanAlertText = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+                const alertSection = (description, label) => {
+                  const pattern = new RegExp(
+                    `\\*\\s*${label}\\.{3}\\s*([\\s\\S]*?)(?=\\n\\s*\\n\\s*\\*\\s*[A-Z ]+\\.{3}|$)`,
+                    'i'
+                  );
+                  return cleanAlertText(String(description || '').match(pattern)?.[1]);
+                };
+                const limitAlertText = (value, maxLength = 240) => {
+                  const text = cleanAlertText(value);
+                  if (text.length <= maxLength) return text;
+                  return `${text.slice(0, maxLength - 3).replace(/\s+\S*$/, '')}...`;
+                };
+                const severityOrder = { Extreme: 0, Severe: 1, Moderate: 2, Minor: 3, Unknown: 4 };
+                const severityColors = {
+                  Extreme: '#b71c1c',
+                  Severe: '#c62828',
+                  Moderate: '#d84315',
+                  Minor: '#f9a825',
+                  Unknown: '#546e7a'
+                };
+                const uniqueWeatherAlerts = weatherAlerts
+                  .filter((alert, index, alerts) => {
+                    const alertKey = alert.ID || alert.URL || `${alert.Event}|${alert.Expires}`;
+                    return alerts.findIndex((candidate) =>
+                      (candidate.ID || candidate.URL || `${candidate.Event}|${candidate.Expires}`) === alertKey
+                    ) === index;
+                  })
+                  .sort((left, right) =>
+                    (severityOrder[left.Severity] ?? severityOrder.Unknown)
+                    - (severityOrder[right.Severity] ?? severityOrder.Unknown)
+                  );
+
+                if (uniqueWeatherAlerts.length > 0) {
+                  uniqueWeatherAlerts.forEach((alert, index) => {
+                    const severity = severityColors[alert.Severity] ? alert.Severity : 'Unknown';
+                    const detailParts = [
+                      alertSection(alert.Description, 'WHAT'),
+                      alertSection(alert.Description, 'WHERE'),
+                      alertSection(alert.Description, 'WHEN')
+                    ].filter(Boolean);
+                    const detail = detailParts.length > 0
+                      ? detailParts.join(' · ')
+                      : alert.Headline || alert.Description || 'Active National Weather Service alert';
+                    const position = uniqueWeatherAlerts.length > 1
+                      ? ` ${index + 1}/${uniqueWeatherAlerts.length}`
+                      : '';
+                    items.push({
+                      kicker: `WEATHER ALERT${position} · ${severity.toUpperCase()}`,
+                      title: alert.Event || `${weatherAlertCount} active alerts`,
+                      detail: limitAlertText(detail),
+                      icon: 'mdi:weather-lightning-rainy',
+                      accent: severityColors[severity]
+                    });
+                  });
+                } else if (Number.isFinite(weatherAlertCount) && weatherAlertCount > 0) {
+                  items.push({
+                    kicker: 'WEATHER ALERT',
+                    title: `${weatherAlertCount} active ${weatherAlertCount === 1 ? 'alert' : 'alerts'}`,
+                    detail: 'Alert details are temporarily unavailable',
+                    icon: 'mdi:weather-lightning-rainy',
+                    accent: severityColors.Unknown
+                  });
+                }
+
+                if (valid(state('group.garage_doors')) && !['closed', 'off'].includes(state('group.garage_doors'))) {
+                  const openGarages = ['cover.large_garage_door', 'cover.small_garage_door']
+                    .filter((entityId) => valid(state(entityId)) && state(entityId) !== 'closed')
+                    .map((entityId) => states[entityId]?.attributes?.friendly_name || pretty(entityId.split('.')[1]));
+                  items.push({
+                    kicker: 'GARAGE',
+                    title: 'Garage door open',
+                    detail: openGarages.join(' · ') || 'Check both garage doors',
+                    icon: 'mdi:garage-open-variant',
+                    accent: '#ef6c00'
+                  });
+                }
+
+                if (state('group.entry_points') === 'on') {
+                  const openEntries = (states['group.entry_points']?.attributes?.entity_id || [])
+                    .filter((entityId) => state(entityId) === 'on')
+                    .map((entityId) => states[entityId]?.attributes?.friendly_name || pretty(entityId.split('.')[1]));
+                  const extraCount = Math.max(0, openEntries.length - 3);
+                  const entryDetail = openEntries.slice(0, 3).join(' · ') + (extraCount ? ` · +${extraCount} more` : '');
+                  items.push({
+                    kicker: 'ENTRY POINT',
+                    title: openEntries.length === 1 ? 'Door or window open' : `${openEntries.length} openings detected`,
+                    detail: entryDetail || 'Check the exterior doors and windows',
+                    icon: 'mdi:door-open',
+                    accent: '#ef6c00'
+                  });
+                }
+
+                if (valid(state('group.locks')) && state('group.locks') !== 'locked') {
+                  items.push({
+                    kicker: 'SECURITY',
+                    title: 'Check the front door lock',
+                    detail: `Lock group is ${pretty(state('group.locks'))}`,
+                    icon: 'mdi:lock-alert-outline',
+                    accent: '#c62828'
+                  });
+                }
+
+                if (state('binary_sensor.front_door_packages_present') === 'on') {
+                  items.push({
+                    kicker: 'FRONT DOOR',
+                    title: 'Package waiting',
+                    detail: 'Remember to bring it inside',
+                    icon: 'mdi:package-variant-closed',
+                    accent: '#8e5a2b'
+                  });
+                }
+
+                const hotWater = Number.parseFloat(state('sensor.rheem_wh_available_hot_water'));
+                if (Number.isFinite(hotWater) && hotWater < 30) {
+                  items.push({
+                    kicker: 'HOT WATER',
+                    title: 'Hot water is running low',
+                    detail: `${Math.round(hotWater)}% available — keep showers short`,
+                    icon: 'mdi:water-thermometer-outline',
+                    accent: '#0277bd'
+                  });
+                }
+
+                const weekday = now.toLocaleDateString('en-US', {weekday: 'short'});
+                if (['Wed', 'Sun'].includes(weekday) && state('input_boolean.garbage_cans_out') !== 'on') {
+                  items.push({
+                    kicker: 'TODAY',
+                    title: weekday === 'Wed' ? 'Garbage + recycling day' : 'Garbage day',
+                    detail: 'Put the cans at the curb',
+                    icon: 'mdi:trash-can-outline',
+                    accent: '#2e7d32'
+                  });
+                }
+
+                const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                if (state('input_datetime.water_delivery_date') === dateKey(tomorrow)) {
+                  items.push({
+                    kicker: 'WATER DELIVERY TOMORROW',
+                    title: 'Put the bottles out',
+                    detail: 'Stage them before leaving the house',
+                    icon: 'mdi:bottle-soda-classic-outline',
+                    accent: '#0277bd'
+                  });
+                }
+
+                const battery = Number.parseFloat(state('sensor.spaceship_battery_level'));
+                const lastClose = new Date(String(state('input_datetime.tesla_model_y_last_garage_close')).replace(' ', 'T'));
+                const snoozeUntil = new Date(String(state('input_datetime.tesla_model_y_plug_in_snooze_until')).replace(' ', 'T'));
+                const recentArrival = Number.isFinite(lastClose.getTime()) && (now.getTime() - lastClose.getTime()) < 43200000;
+                const snoozeExpired = !Number.isFinite(snoozeUntil.getTime()) || snoozeUntil <= now;
+                if (
+                  Number.isFinite(battery) && battery < 50 && recentArrival && snoozeExpired &&
+                  state('switch.spaceship_charge') === 'off' &&
+                  state('person.carlo') === 'home' && state('person.stacey') === 'home'
+                ) {
+                  items.push({
+                    kicker: 'MODEL Y',
+                    title: 'Plug in the Tesla',
+                    detail: `${Math.round(battery)}% battery after the latest garage arrival`,
+                    icon: 'mdi:ev-plug-tesla',
+                    accent: '#c62828'
+                  });
+                }
+
+                const saltDays = Number.parseFloat(state('sensor.water_softener_salt_days_since_last_add'));
+                const saltAverage = Number.parseFloat(state('sensor.water_softener_salt_average_days_between_refills'));
+                if (
+                  Number.isFinite(saltDays) && Number.isFinite(saltAverage) && saltAverage > 0 &&
+                  saltDays >= saltAverage * 0.9
+                ) {
+                  items.push({
+                    kicker: 'WATER SOFTENER',
+                    title: 'Salt refill coming due',
+                    detail: `${Math.round(saltDays)} days since the last refill`,
+                    icon: 'mdi:shaker-outline',
+                    accent: '#00838f'
+                  });
+                }
+
+                const cruiseDays = Number.parseInt(state('sensor.next_booked_cruise_countdown'), 10);
+                const cruiseEntity = states['sensor.next_booked_cruise_countdown'];
+                const cruiseShip = String(cruiseEntity?.attributes?.ship || '').trim();
+                const cruiseDate = String(cruiseEntity?.attributes?.sail_date || '').trim();
+                if (Number.isInteger(cruiseDays) && cruiseDays >= 0 && cruiseShip && cruiseDate) {
+                  const sailDate = new Date(`${cruiseDate}T12:00:00`);
+                  const sailLabel = Number.isFinite(sailDate.getTime())
+                    ? sailDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    : cruiseDate;
+                  const cruiseNights = Number.parseInt(cruiseEntity?.attributes?.nights, 10);
+                  const cruisePort = String(cruiseEntity?.attributes?.port || '').trim();
+                  const detail = [
+                    `Departs ${sailLabel}`,
+                    Number.isInteger(cruiseNights) && cruiseNights > 0
+                      ? `${cruiseNights} ${cruiseNights === 1 ? 'night' : 'nights'}`
+                      : '',
+                    cruisePort
+                  ].filter(Boolean).join(' · ');
+                  items.push({
+                    kicker: 'NEXT BOOKED CRUISE',
+                    title: cruiseDays === 0
+                      ? `${cruiseShip} sails today`
+                      : `${cruiseDays} ${cruiseDays === 1 ? 'day' : 'days'} until ${cruiseShip}`,
+                    detail,
+                    icon: 'mdi:ferry',
+                    accent: '#00838f'
+                  });
+                }
+
+                [
+                  ['Carlo', 'person.carlo', 'sensor.carlo_location_display'],
+                  ['Stacey', 'person.stacey', 'sensor.stacey_location_display'],
+                  ['Justin', 'person.justin', 'sensor.justin_location_display'],
+                  ['Paige', 'person.paige', 'sensor.paige_location_display']
+                ].forEach(([name, personId, locationId]) => {
+                  const personState = state(personId);
+                  if (valid(personState) && personState !== 'home') {
+                    const locationEntity = states[locationId];
+                    const rawLocation = pretty(valid(state(locationId)) ? state(locationId) : personState);
+                    const withoutName = rawLocation.replace(new RegExp(`^${name}\\s+`, 'i'), '');
+                    const sinceMatch = withoutName.match(/\s*\(since\s+([^)]+)\)\s*$/i);
+                    const location = withoutName.replace(/\s*\(since\s+[^)]+\)\s*$/i, '').trim();
+                    const changedAt = new Date(locationEntity?.last_changed || states[personId]?.last_changed);
+                    const since = sinceMatch?.[1] || (
+                      Number.isFinite(changedAt.getTime())
+                        ? changedAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+                        : 'recently'
+                    );
+                    items.push({
+                      kicker: 'FAMILY LOCATION',
+                      title: `${name} - ${location || pretty(personState)}`,
+                      detail: `Since ${since}`,
+                      icon: 'mdi:map-marker-account-outline',
+                      accent: '#6a1b9a'
+                    });
+                  }
+                });
+
+                if (items.length === 0) {
+                  items.push({
+                    kicker: 'HOUSEHOLD',
+                    title: 'Everything is handled',
+                    detail: 'Everyone is home and there are no active reminders',
+                    icon: 'mdi:check-circle-outline',
+                    accent: '#2e7d32'
+                  });
+                }
+
+                const secondsPerSlide = 10;
+                const duration = items.length * secondsPerSlide;
+                const phase = Math.floor(now.getTime() / 1000) % duration;
+                const slot = 100 / items.length;
+                const fade = Math.min(4, slot * 0.18);
+                return html`
+                  <style>
+                    @keyframes kitchen-ambient-cycle {
+                      0% { opacity: 0; transform: translateY(12px); }
+                      ${fade}% { opacity: 1; transform: translateY(0); }
+                      ${slot - fade}% { opacity: 1; transform: translateY(0); }
+                      ${slot}% { opacity: 0; transform: translateY(-12px); }
+                      100% { opacity: 0; transform: translateY(-12px); }
+                    }
+                    .kitchen-ambient-rotator {
+                      position: relative;
+                      width: 100%;
+                      height: 100%;
+                    }
+                    .kitchen-ambient-slide {
+                      position: absolute;
+                      inset: 0;
+                      display: grid;
+                      grid-template-columns: 100px minmax(0, 1fr);
+                      grid-template-areas: 'icon copy';
+                      align-items: center;
+                      gap: 24px;
+                      padding: 8px 42px;
+                      box-sizing: border-box;
+                      opacity: 0;
+                      animation-name: kitchen-ambient-cycle;
+                      animation-timing-function: linear;
+                      animation-iteration-count: infinite;
+                    }
+                    .kitchen-ambient-slide.single {
+                      opacity: 1;
+                      animation: none;
+                    }
+                    .kitchen-ambient-icon {
+                      grid-area: icon;
+                      display: grid;
+                      place-items: center;
+                      width: 88px;
+                      height: 88px;
+                      border-radius: 24px;
+                      color: var(--accent);
+                      background: color-mix(in srgb, var(--accent) 14%, transparent);
+                    }
+                    .kitchen-ambient-icon ha-icon { --mdc-icon-size: 56px; }
+                    .kitchen-ambient-copy {
+                      grid-area: copy;
+                      min-width: 0;
+                      text-align: left;
+                    }
+                    .kitchen-ambient-kicker {
+                      color: var(--accent);
+                      font-size: 16px;
+                      font-weight: 700;
+                      letter-spacing: 0.12em;
+                    }
+                    .kitchen-ambient-title {
+                      margin-top: 4px;
+                      color: var(--primary-text-color);
+                      font-size: 28px;
+                      font-weight: 600;
+                      line-height: 1;
+                      display: -webkit-box;
+                      -webkit-box-orient: vertical;
+                      -webkit-line-clamp: 2;
+                      white-space: normal;
+                      overflow-wrap: anywhere;
+                      overflow: hidden;
+                    }
+                    .kitchen-ambient-detail {
+                      margin-top: 4px;
+                      color: var(--secondary-text-color);
+                      font-size: 26px;
+                      font-weight: 500;
+                      line-height: 1.15;
+                      display: -webkit-box;
+                      -webkit-box-orient: vertical;
+                      -webkit-line-clamp: 3;
+                      white-space: normal;
+                      overflow-wrap: anywhere;
+                      overflow: hidden;
+                    }
+                  </style>
+                  <div class="kitchen-ambient-rotator">
+                    ${items.map((item, index) => html`
+                      <div
+                        class="kitchen-ambient-slide ${items.length === 1 ? 'single' : ''}"
+                        style="--accent:${item.accent};animation-duration:${duration}s;animation-delay:${index * secondsPerSlide - phase}s"
+                      >
+                        <div class="kitchen-ambient-icon"><ha-icon .icon=${item.icon}></ha-icon></div>
+                        <div class="kitchen-ambient-copy">
+                          <div class="kitchen-ambient-kicker">${item.kicker}</div>
+                          <div class="kitchen-ambient-title">${item.title}</div>
+                          <div class="kitchen-ambient-detail">${item.detail}</div>
+                        </div>
+                      </div>
+                    `)}
+                  </div>
+                `;
+              ]]]
+          styles:
+            card:
+              - height: 185px
+              - overflow: hidden
+              - border-radius: 18px
+              - background: linear-gradient(120deg, rgba(33, 150, 243, 0.08), rgba(103, 58, 183, 0.08))
+            grid:
+              - grid-template-areas: '"ambient"'
+              - grid-template-columns: 1fr
+              - grid-template-rows: 1fr
+            custom_fields:
+              ambient:
+                - width: 100%
+                - height: 100%
+          view_layout:
+            grid-area: ambient

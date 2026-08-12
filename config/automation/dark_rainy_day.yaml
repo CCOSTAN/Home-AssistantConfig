@@ -8,6 +8,10 @@
 # -------------------------------------------------------------------
 # Notes:
 #  Avoid trigger entity string-splitting; map trigger IDs safely.
+#  Lightning may turn on the lights here, but its safety speech is owned by
+#  the Lightning Notification automation to prevent back-to-back briefings.
+#  Kitchen Show illuminance confirms the occupied first floor is actually dim;
+#  weather behavior falls back unchanged if that MQTT sensor is unavailable.
 ######################################################################
 
 - alias: 'Dark House Little extra light'
@@ -24,6 +28,10 @@
     - platform: numeric_state
       entity_id: sensor.blitzortung_lightning_counter
       above: 1
+    - platform: numeric_state
+      entity_id: sensor.kitchen_show_ambient_light
+      below: 30
+      for: "00:05:00"
     - platform: state
       entity_id: group.family
       to: 'home'
@@ -44,6 +52,11 @@
           - condition: numeric_state
             entity_id: sensor.blitzortung_lightning_counter
             above: 1
+      - condition: template
+        value_template: >-
+          {% set lux = states('sensor.kitchen_show_ambient_light') %}
+          {{ lux in ['unknown', 'unavailable', 'none', '']
+             or lux | float(0) < 35 }}
       - condition: state
         entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
         state: 'off'
@@ -66,21 +79,27 @@
         brightness: 255
         color_temp_kelvin: 5500
 
-    - service: script.speech_engine
-      data:
-        value1: >-
-          {% set reason_map = {
-            'sensor.pirateweather_precip': 'rain',
-            'sensor.pirateweather_precip_intensity': 'heavy rain',
-            'sensor.blitzortung_lightning_counter': 'lightning',
-            'group.family': 'rain and clouds',
-            'binary_sensor.sleepnumber_carlo_carlo_is_in_bed': 'rain and clouds'
-          } %}
-          {% set reason = reason_map.get(trigger.entity_id | default(''), 'weather changes') %}
-          Because of the {{ reason }} outside. I will turn on some extra lights in the living room.
-        call_outside_weather: 1
-        call_window_check: 1
-        call_garage_check: 1
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: >-
+                {{ trigger.entity_id | default('') != 'sensor.blitzortung_lightning_counter' }}
+          sequence:
+            - service: script.speech_engine
+              data:
+                value1: >-
+                  {% set reason_map = {
+                    'sensor.pirateweather_precip': 'rain',
+                    'sensor.pirateweather_precip_intensity': 'heavy rain',
+                    'sensor.kitchen_show_ambient_light': 'rain and clouds',
+                    'group.family': 'rain and clouds',
+                    'binary_sensor.sleepnumber_carlo_carlo_is_in_bed': 'rain and clouds'
+                  } %}
+                  {% set reason = reason_map.get(trigger.entity_id | default(''), 'weather changes') %}
+                  Because of the {{ reason }} outside. I will turn on some extra lights in the living room.
+                call_outside_weather: 1
+                call_window_check: 1
+                call_garage_check: 1
 
     - delay:
         hours: 3

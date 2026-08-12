@@ -1,0 +1,192 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - kiosks
+#  Exception-first health, device telemetry, and live dashboard previews.
+# -------------------------------------------------------------------
+# Notes: Included by config/dashboards/infrastructure/views/05z_kiosks.yaml.
+######################################################################
+
+# -------------------------------------------------------------------
+# Device health strip
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.bedroom_kiosk_needs_attention
+      name: Bedroom Tablet
+      icon: mdi:tablet
+      variables:
+        ok_state: 'off'
+        healthy_text: ONLINE
+        alert_text: NEEDS ATTENTION
+      state_display: >
+        [[[ return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase(); ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-bedroom/home
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.kitchen_kiosk_needs_attention
+      name: Kitchen Show
+      icon: mdi:monitor-dashboard
+      variables:
+        ok_state: 'off'
+        healthy_text: ONLINE
+        alert_text: NEEDS ATTENTION
+      state_display: >
+        [[[ return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase(); ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-kiosk-satellite-staging/home
+
+# -------------------------------------------------------------------
+# Latest device screenshots
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 2
+  square: false
+  cards:
+  - camera_view: auto
+    type: picture-glance
+    title: Bedroom Tablet
+    image: https://demo.home-assistant.io/stub_config/kitchen.png
+    entities:
+    - entity: binary_sensor.bedroom_kiosk_needs_attention
+    image_entity: image.alarm_panel_1_screenshot
+    tap_action:
+      action: navigate
+      navigation_path: /dashboard-bedroom/home
+
+  - camera_view: auto
+    type: picture-glance
+    title: Kitchen Show
+    image: https://demo.home-assistant.io/stub_config/kitchen.png
+    entities:
+    - entity: binary_sensor.kitchen_kiosk_needs_attention
+    - entity: sensor.kitchen_show_last_screenshot
+    camera_image: camera.kitchen_show_screenshot
+    tap_action:
+      action: navigate
+      navigation_path: /dashboard-kiosk-satellite-staging/home
+
+# -------------------------------------------------------------------
+# Device telemetry
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 2
+  square: false
+  cards:
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Bedroom Tablet
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.alarm_panel_1_battery
+      name: Battery
+      icon: mdi:battery
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: binary_sensor.alarm_panel_1_plugged_in
+      name: Power
+      icon: mdi:power-plug
+      state_display: >
+        [[[ return entity?.state === 'on' ? 'PLUGGED IN' : 'ON BATTERY'; ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.alarm_panel_1_current_page
+      name: Dashboard
+      icon: mdi:web
+      state_display: >
+        [[[
+          const page = String(entity?.state ?? '');
+          return page.includes('/local/bedroom-kiosk.html') ? 'PAGE OK' : 'CHECK PAGE';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.alarm_panel_1_foreground_app
+      name: Foreground App
+      icon: mdi:application-outline
+      state_display: >
+        [[[ return entity?.state === 'de.ozerov.fully' ? 'FULLY KIOSK' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Kitchen Show
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.kitchen_show_battery
+      name: Battery
+      icon: mdi:battery
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.kitchen_show_last_seen
+      name: Last Seen
+      icon: mdi:clock-check-outline
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.kitchen_show_current_page
+      name: Dashboard
+      icon: mdi:web
+      state_display: >
+        [[[
+          const page = String(entity?.state ?? '');
+          return page.includes('/dashboard-kiosk-satellite-staging/home') ? 'PAGE OK' : 'CHECK PAGE';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: update.kitchen_show_update
+      name: Kiosk Satellite
+      icon: mdi:update
+      state_display: >
+        [[[
+          const installed = entity?.attributes?.installed_version ?? 'unknown';
+          const latest = entity?.attributes?.latest_version ?? installed;
+          return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.kitchen_show_remote_admin
+      name: Remote Admin
+      icon: mdi:remote-desktop
+      state_display: AVAILABLE

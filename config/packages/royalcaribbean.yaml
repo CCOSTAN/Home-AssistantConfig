@@ -3,11 +3,32 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Royal Caribbean Price Alerts - Webhook-driven drop notifications
-#  Uses Cruise Tracker webhook to notify via notify_engine + HA UI.
+# Royal Caribbean - Price alerts and a sanitized booked-cruise countdown
+#  Uses Cruise Tracker for webhook alerts and a read-only Kitchen Show fact.
 # -------------------------------------------------------------------
 # Notes: Use script.notify_engine for app notifications.
+# Notes: The REST endpoint omits confirmation, cabin, price, and watch-list data.
 ######################################################################
+
+sensor:
+  - platform: rest
+    name: Next Booked Cruise Countdown
+    unique_id: next_booked_cruise_countdown
+    resource: !secret cruise_tracker_next_booked_url
+    method: GET
+    scan_interval: 3600
+    timeout: 20
+    value_template: >-
+      {% set cruise = value_json.next_booked_cruise | default(none) %}
+      {{ cruise.days_until if cruise is mapping and cruise.days_until is number else 'unknown' }}
+    json_attributes_path: "$.next_booked_cruise"
+    json_attributes:
+      - ship
+      - sail_date
+      - nights
+      - port
+    icon: mdi:ferry
+    unit_of_measurement: "days"
 
 automation:
   - alias: "Royal Caribbean Price Drop Alert"

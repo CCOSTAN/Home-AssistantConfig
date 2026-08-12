@@ -1,0 +1,22 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Event-Driven Kiosk View - Home clock and cameras
+#  Shared landscape view for Kiosk Satellite and Fully Kiosk tablets.
+# -------------------------------------------------------------------
+# Related Issue: 1875
+# Notes: The Kitchen Show is the reference implementation for this shared view.
+# Notes: Device-specific kiosk controls stay out of the shared dashboard.
+######################################################################
+
+title: Home
+path: home
+icon: mdi:cctv
+theme: kiosk_satellite_auto
+type: sections
+max_columns: 4
+dense_section_placement: true
+sections: !include /config/dashboards/kiosk_satellite_staging/partials/home_sections.yaml
+cards: []

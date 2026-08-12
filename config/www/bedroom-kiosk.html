@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Bedroom Kiosk</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --background: #eef1f5;
+      --surface: #ffffff;
+      --text: #111827;
+      --muted: #4b5563;
+      --border: rgba(17, 24, 39, .16);
+      --overlay: rgba(0, 0, 0, .62);
+      font-family: Roboto, Arial, sans-serif;
+    }
+    body.dark {
+      --background: #080b10;
+      --surface: #141922;
+      --text: #f7f8fa;
+      --muted: #c4cad4;
+      --border: rgba(255, 255, 255, .17);
+      --overlay: rgba(0, 0, 0, .72);
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body { background: var(--background); color: var(--text); }
+    #default-view {
+      display: grid;
+      grid-template-rows: 100px minmax(0, 1fr) 120px;
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+      padding: 8px;
+    }
+    .band {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      padding: 12px 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+    .headline {
+      overflow: hidden;
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.12;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .detail {
+      display: -webkit-box;
+      overflow: hidden;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.25;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+    #cameras {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      min-height: 0;
+    }
+    .camera {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #111820;
+    }
+    .camera img, #event-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .camera-label, #event-label {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      padding: 10px 16px;
+      color: #fff;
+      background: var(--overlay);
+      font-size: 21px;
+      font-weight: 700;
+    }
+    #event-view {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background: #000;
+    }
+    #event-view.front-door #event-image { object-fit: contain; }
+    #event-label { padding: 14px 22px; font-size: 28px; }
+    #connection {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      display: none;
+      padding: 9px 16px;
+      color: #fff;
+      background: #b91c1c;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="connection">Connecting to Home Assistant…</div>
+  <main id="default-view">
+    <section class="band">
+      <h1 class="headline" id="header-headline">Bedroom status</h1>
+      <p class="detail" id="header-detail">Connecting to Home Assistant…</p>
+    </section>
+    <section id="cameras">
+      <div class="camera">
+        <img id="front-lawn" alt="Front Lawn camera">
+        <div class="camera-label">Front Lawn</div>
+      </div>
+      <div class="camera">
+        <img id="driveway" alt="Driveway camera">
+        <div class="camera-label">Driveway</div>
+      </div>
+    </section>
+    <section class="band">
+      <h2 class="headline" id="alert-headline">Household status</h2>
+      <p class="detail" id="alert-detail">Loading alerts and reminders…</p>
+    </section>
+  </main>
+  <section id="event-view">
+    <img id="event-image" alt="Active event camera">
+    <div id="event-label"></div>
+  </section>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var stateEntities = [
+        'sensor.kiosk_active_camera_view',
+        'sensor.bedroom_kiosk_header',
+        'sensor.kiosk_household_alert'
+      ];
+      var states = {};
+      var imageUrls = {};
+      var stateRefreshRunning = false;
+      var imageRefreshRunning = false;
+
+      function setTheme() {
+        var hour = new Date().getHours();
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.classList.toggle('dark', prefersDark || hour >= 20 || hour < 7);
+      }
+
+      function getTokens() {
+        try {
+          return JSON.parse(localStorage.getItem('hassTokens') || 'null');
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function tokenExpiresSoon(tokens) {
+        if (!tokens || !tokens.expires) return false;
+        var expires = typeof tokens.expires === 'number'
+          ? tokens.expires
+          : new Date(tokens.expires).getTime();
+        return isFinite(expires) && expires - Date.now() < 60000;
+      }
+
+      function refreshToken(tokens) {
+        if (!tokens || !tokens.refresh_token) return Promise.reject(new Error('Home Assistant session missing'));
+        var body = new URLSearchParams();
+        body.set('grant_type', 'refresh_token');
+        body.set('refresh_token', tokens.refresh_token);
+        var clientId = tokens.clientId || tokens.client_id;
+        if (clientId) body.set('client_id', clientId);
+        return fetch('/auth/token', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
+          body: body.toString()
+        }).then(function (response) {
+          if (!response.ok) throw new Error('Home Assistant session refresh failed');
+          return response.json();
+        }).then(function (result) {
+          tokens.access_token = result.access_token;
+          tokens.token_type = result.token_type || tokens.token_type;
+          tokens.expires_in = result.expires_in;
+          tokens.expires = new Date(Date.now() + (result.expires_in * 1000)).toISOString();
+          localStorage.setItem('hassTokens', JSON.stringify(tokens));
+          return tokens;
+        });
+      }
+
+      function ensureToken(forceRefresh) {
+        var tokens = getTokens();
+        if (!tokens || !tokens.access_token) return Promise.reject(new Error('Home Assistant session missing'));
+        return forceRefresh || tokenExpiresSoon(tokens) ? refreshToken(tokens) : Promise.resolve(tokens);
+      }
+
+      function authorizedFetch(path, options, retry) {
+        options = options || {};
+        return ensureToken(false).then(function (tokens) {
+          options.headers = options.headers || {};
+          options.headers.Authorization = 'Bearer ' + tokens.access_token;
+          return fetch(path, options);
+        }).then(function (response) {
+          if (response.status === 401 && retry !== false) {
+            return ensureToken(true).then(function () {
+              return authorizedFetch(path, options, false);
+            });
+          }
+          if (!response.ok) throw new Error('Home Assistant request failed: ' + response.status);
+          return response;
+        });
+      }
+
+      function setConnectionError(message) {
+        var banner = document.getElementById('connection');
+        banner.textContent = message;
+        banner.style.display = 'block';
+      }
+
+      function clearConnectionError() {
+        document.getElementById('connection').style.display = 'none';
+      }
+
+      function render() {
+        var active = states['sensor.kiosk_active_camera_view'];
+        var header = states['sensor.bedroom_kiosk_header'];
+        var alert = states['sensor.kiosk_household_alert'];
+        var mode = active ? active.state : 'none';
+        var eventView = document.getElementById('event-view');
+        var defaultView = document.getElementById('default-view');
+
+        if (mode === 'garage' || mode === 'front_door') {
+          defaultView.style.display = 'none';
+          eventView.style.display = 'block';
+          eventView.className = mode === 'front_door' ? 'front-door' : '';
+          document.getElementById('event-label').textContent = mode === 'garage' ? 'Garage' : 'Front Door';
+        } else {
+          eventView.style.display = 'none';
+          defaultView.style.display = 'grid';
+        }
+
+        if (header) {
+          document.getElementById('header-headline').textContent = header.state;
+          document.getElementById('header-detail').textContent = header.attributes.detail || '';
+        }
+        if (alert) {
+          document.getElementById('alert-headline').textContent = alert.state;
+          document.getElementById('alert-detail').textContent = alert.attributes.detail || '';
+        }
+      }
+
+      function refreshStates() {
+        if (stateRefreshRunning) return;
+        stateRefreshRunning = true;
+        Promise.all(stateEntities.map(function (entityId) {
+          return authorizedFetch('/api/states/' + entityId).then(function (response) {
+            return response.json();
+          }).then(function (value) {
+            states[entityId] = value;
+          });
+        })).then(function () {
+          clearConnectionError();
+          render();
+        }).catch(function (error) {
+          setConnectionError(error.message + ' — load Home Assistant once to renew the trusted session.');
+        }).then(function () {
+          stateRefreshRunning = false;
+        });
+      }
+
+      function updateImage(elementId, cameraEntity) {
+        return authorizedFetch('/api/camera_proxy/' + cameraEntity).then(function (response) {
+          return response.blob();
+        }).then(function (blob) {
+          var nextUrl = URL.createObjectURL(blob);
+          var image = document.getElementById(elementId);
+          var previousUrl = imageUrls[elementId];
+          image.onload = function () {
+            if (previousUrl) URL.revokeObjectURL(previousUrl);
+          };
+          image.src = nextUrl;
+          imageUrls[elementId] = nextUrl;
+        });
+      }
+
+      function refreshImages() {
+        if (imageRefreshRunning) return;
+        imageRefreshRunning = true;
+        var active = states['sensor.kiosk_active_camera_view'];
+        var mode = active ? active.state : 'none';
+        var requests;
+        if (mode === 'garage') {
+          requests = [updateImage('event-image', 'camera.garagecam')];
+        } else if (mode === 'front_door') {
+          requests = [updateImage('event-image', 'camera.frontdoorbell')];
+        } else {
+          requests = [
+            updateImage('front-lawn', 'camera.frontlawn'),
+            updateImage('driveway', 'camera.driveway')
+          ];
+        }
+        Promise.all(requests).catch(function (error) {
+          setConnectionError(error.message);
+        }).then(function () {
+          imageRefreshRunning = false;
+        });
+      }
+
+      setTheme();
+      refreshStates();
+      window.setTimeout(refreshImages, 1000);
+      window.setInterval(refreshStates, 5000);
+      window.setInterval(refreshImages, 4000);
+      window.setInterval(setTheme, 60000);
+    }());
+  </script>
+</body>
+</html>

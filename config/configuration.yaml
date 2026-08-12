@@ -28,14 +28,10 @@ homeassistant:
 
 default_config:
 
-# Temporary Rheem EcoNet/ClearBlade TLS workaround.
-# Remove when https://github.com/CCOSTAN/Home-AssistantConfig/issues/1820 is resolved.
-additional_ca:
-  rheem_econet_digicert_g1: DigiCertGlobalRootCA.crt.pem
-
 frontend:
+  themes: !include_dir_merge_named themes
   extra_module_url:
-    - /hacsfiles/custom-sidebar/custom-sidebar-plugin.js?v=16.0.0
+    - /local/custom-sidebar-loader.js?v=1.0.0
 
 # -------------------------------------------------------------------
 # Lovelace (YAML dashboards/resources)
@@ -59,13 +55,20 @@ lovelace:
       show_in_sidebar: true
       require_admin: true
       filename: dashboards/infrastructure/dashboard.yaml
-    dashboard-kiosk:
+    dashboard-bedroom:
       mode: yaml
-      title: "KIOSK"
-      icon: mdi:tablet-dashboard
-      show_in_sidebar: true
+      title: "Bedroom"
+      icon: mdi:bed-outline
+      show_in_sidebar: false
       require_admin: false
-      filename: dashboards/kiosk/dashboard.yaml
+      filename: dashboards/bedroom/dashboard.yaml
+    dashboard-kiosk-satellite-staging:
+      mode: yaml
+      title: "Kiosk Satellite Preview"
+      icon: mdi:tablet-dashboard
+      show_in_sidebar: false
+      require_admin: false
+      filename: dashboards/kiosk_satellite_staging/dashboard.yaml
 
 config:
 
@@ -96,8 +99,13 @@ cloud:
         - light.upstairs_lamp
         - light.sink
         - camera.frontdoorbell
+        - camera.poolcam
+        - camera.frontlawn
         - camera.driveway
         - camera.garagecam
+        - camera.kidsgate
+        - camera.bedroomgate
+        - camera.filtergate
         - camera.birdseye
         - switch.kitchen_accent_1
         - switch.kitchen_accent_2
@@ -130,10 +138,20 @@ cloud:
         name: Living Room Slider
       camera.frontdoorbell:
         name: Front Doorbell
+      camera.poolcam:
+        name: Pool Camera
+      camera.frontlawn:
+        name: Front Lawn Camera
       camera.driveway:
         name: Driveway
       camera.garagecam:
         name: Garage Camera
+      camera.kidsgate:
+        name: Kids Gate Camera
+      camera.bedroomgate:
+        name: Bedroom Gate Camera
+      camera.filtergate:
+        name: Filter Gate Camera
       camera.birdseye:
         name: Birdseye
 

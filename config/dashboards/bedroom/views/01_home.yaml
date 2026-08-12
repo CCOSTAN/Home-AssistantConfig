@@ -1,0 +1,23 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Bedroom Home - Landscape night-watch display
+#  Wake alarm, exterior cameras, and household exceptions without a clock.
+# -------------------------------------------------------------------
+# Related Issue: 1875
+# Notes: Garage takes priority, followed by Front Door, then Bedroom Home.
+# Notes: Core cards remain compatible with the Fire tablet's legacy WebView.
+# Video: https://youtu.be/ChgEu0IDWzc
+######################################################################
+
+title: Bedroom
+path: home
+icon: mdi:bed-outline
+theme: kiosk_satellite_auto
+type: panel
+cards: !include /config/dashboards/bedroom/partials/home_cards.yaml
+visible:
+  - user: be280a93c9d7416e98d25d0470f414be
+  - user: 9543feb5402742a0ab90f301f09f1c0e

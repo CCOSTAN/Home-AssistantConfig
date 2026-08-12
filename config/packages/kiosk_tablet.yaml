@@ -3,17 +3,30 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Bedroom Kiosk Tablet - Fully Kiosk page recovery
-#  Keeps the Master Bedroom Fire tablet pinned to the kiosk dashboard.
+# Kiosk Tablets - Fully recovery and Kiosk Satellite camera policy
+#  Keeps the Bedroom tablet stable and drives state-based Kitchen Show camera views.
 # -------------------------------------------------------------------
-# Notes: Baseline view path is the real typo-like `kiosk_oveview` slug.
-# Notes: Uses Fully controls only; does not enable Fully Kiosk lockout mode.
+# Related Issue: 1875
+# Notes: `/dashboard-bedroom/home` remains the canonical desktop/future-hardware route.
+# Notes: The Android 5 Fully tablet uses `/local/bedroom-kiosk.html`, a lightweight renderer.
+# Notes: Shared camera, header, and alert sensors keep both Bedroom renderers DRY.
+# Notes: Fully controls apply only to the legacy Bedroom tablet.
+# Notes: Kitchen Show uses Kiosk Satellite discovery entities; no screensaver helper is required.
+# Notes: Kitchen Show stays dark while the house is empty or asleep and wakes only for occupied-house events.
+# Notes: Garage takes over while either door is moving/open; Front Door takes over while unlocked.
+# Notes: New Kiosk Satellite releases dispatch Joanna to install and verify the Kitchen Show update.
 # Notes: Wake events only restore brightness/focus; URL reloads require page drift.
 # Notes: Fully auto-reload on screen-on/screensaver-stop is disabled to avoid motion wake reload loops.
 # Notes: Startup recovery waits for HA's initial websocket state burst to settle.
 # Notes: Brightness recovery only runs when both SleepIQ in-bed sensors are off.
+# Notes: Fully availability/page/app/power plus Kitchen last-seen/update/screenshot freshness feed Systems telemetry.
 # Video: https://youtu.be/ChgEu0IDWzc
 ######################################################################
+
+input_text:
+  kitchen_show_kiosk_satellite_last_dispatched_version:
+    name: "Kitchen Show Kiosk Satellite Last Dispatched Version"
+    max: 32
 
 automation:
   - alias: "Bedroom Kiosk Tablet - Return to Kiosk View"
@@ -60,7 +73,7 @@ automation:
           {% set bed_clear = is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off')
              and is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off') %}
           {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
-          {{ (current_page not in invalid and '/dashboard-kiosk/kiosk_oveview' not in current_page)
+          {{ (current_page not in invalid and '/local/bedroom-kiosk.html' not in current_page)
              or (foreground_app not in invalid and foreground_app != 'de.ozerov.fully')
              or (bed_clear and brightness not in invalid and brightness | float(100) < 40) }}
 
@@ -90,7 +103,7 @@ automation:
             {{ previous_app not in invalid and previous_app != 'de.ozerov.fully' }}
           page_drift: >-
             {{ previous_page not in invalid
-               and '/dashboard-kiosk/kiosk_oveview' not in previous_page }}
+               and '/local/bedroom-kiosk.html' not in previous_page }}
       - choose:
           - conditions:
               - condition: template
@@ -130,3 +143,509 @@ automation:
                     Bedroom tablet reloaded after page drift from
                     {{ previous_page }} (foreground app: {{ previous_app }};
                     brightness: {{ previous_brightness }}).
+
+  - alias: "Kitchen Kiosk Satellite - State Camera Policy"
+    id: 4c3ddc5b-1fe2-4c11-a77c-e2c15d374e77
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.kiosk_active_camera_view
+
+    condition:
+      - condition: state
+        entity_id: binary_sensor.kitchen_kiosk_should_be_on
+        state: "on"
+
+    action:
+      - service: script.kitchen_kiosk_apply_camera_policy
+
+  - alias: "Kitchen Kiosk Satellite - Screen Policy"
+    id: 99d8d43b-9448-4916-b313-8117a038baaf
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_kiosk_should_be_on
+        to: "on"
+      - platform: state
+        entity_id: light.kitchen_show_screen
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.kitchen_kiosk_should_be_on
+        to: "off"
+
+    action:
+      - condition: template
+        value_template: >-
+          {{ states('binary_sensor.kitchen_kiosk_should_be_on') in ['on', 'off'] }}
+      - variables:
+          desired_volume: >-
+            {{ 10 if is_state('binary_sensor.kitchen_kiosk_should_be_on', 'on') else 0 }}
+      # Android reports the nearest hardware volume step (13% for a 10% request).
+      - if:
+          - condition: template
+            value_template: >-
+              {{ (states('number.kitchen_show_volume') | int(-1)
+                  - desired_volume | int(-1)) | abs > 3 }}
+        then:
+          - service: number.set_value
+            target:
+              entity_id: number.kitchen_show_volume
+            data:
+              value: "{{ desired_volume | int(0) }}"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.kitchen_kiosk_should_be_on
+                state: "on"
+            sequence:
+              # Kiosk Satellite owns idle dimming. This event-driven dismiss
+              # wakes to the dashboard without a poller repeatedly forcing the
+              # panel on during an occupied day.
+              - service: button.press
+                target:
+                  entity_id: button.kitchen_show_postpone_screensaver
+              - service: script.kitchen_kiosk_apply_camera_policy
+        default:
+          - service: button.press
+            target:
+              entity_id: button.kitchen_show_close_camera_view
+          - service: light.turn_off
+            target:
+              entity_id: light.kitchen_show_screen
+
+  - alias: "Kitchen Kiosk Satellite - Refresh Systems Snapshot"
+    id: e920cab1-59d3-4d45-8aad-67170127504f
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: event
+        event_type: homeassistant_started
+        id: startup
+      - platform: time_pattern
+        minutes: "/15"
+        id: periodic
+    action:
+      - delay: "{{ '00:02:00' if trigger.id == 'startup' else '00:00:00' }}"
+      - condition: template
+        value_template: >-
+          {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen'), 0) %}
+          {{ last_seen > 0 and (as_timestamp(now()) - last_seen) < 300 }}
+      - service: button.press
+        target:
+          entity_id: button.kitchen_show_take_screenshot
+
+  - alias: "Kitchen Kiosk Satellite - Update Joanna Dispatch"
+    id: 199e30f0-e28c-4842-953d-a65bc4b4e1d3
+    description: "Dispatch Joanna when a new Kiosk Satellite release is available for the Kitchen Show."
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: state
+        entity_id: update.kitchen_show_update
+        from: "off"
+        to: "on"
+        for: "00:02:00"
+
+    condition:
+      - condition: template
+        value_template: >-
+          {% set installed = state_attr('update.kitchen_show_update', 'installed_version') | default('', true) | string %}
+          {% set latest = state_attr('update.kitchen_show_update', 'latest_version') | default('', true) | string %}
+          {{ installed not in ['', 'unknown', 'unavailable']
+             and latest not in ['', 'unknown', 'unavailable']
+             and installed != latest
+             and latest != states('input_text.kitchen_show_kiosk_satellite_last_dispatched_version') }}
+
+    action:
+      - variables:
+          installed_version: >-
+            {{ state_attr('update.kitchen_show_update', 'installed_version') | default('unknown', true) }}
+          latest_version: >-
+            {{ state_attr('update.kitchen_show_update', 'latest_version') | default('unknown', true) }}
+          release_url: >-
+            {{ state_attr('update.kitchen_show_update', 'release_url') | default('not provided', true) }}
+          structured_request: |-
+            KITCHEN_KIOSK_SATELLITE_UPDATE_REQUEST
+            target_device=Kitchen Show
+            update_entity=update.kitchen_show_update
+            installed_version={{ installed_version }}
+            target_version={{ latest_version }}
+            release_url={{ release_url }}
+            authorization=This dispatch authorizes installing the pending Kiosk Satellite application update on the Kitchen Show only. Do not update LineageOS, Home Assistant, or unrelated applications and do not factory-reset or re-enroll the tablet.
+            required_action=Inspect the live update entity and device availability, invoke the supported Home Assistant update.install action, and observe whether installation actually begins. If Android does not finish the installation, use the pre-authorized Joanna ops helper /opt/codex/bin/kitchen-kiosk-update --expected-version {{ latest_version }} to complete this same signed Kiosk Satellite update over the existing LAN-only management path.
+            required_verification=Do not stop at a successful service call. Verify update.kitchen_show_update reports installed_version equal to latest_version, in_progress is false, the Kitchen Show returns online, sensor.kitchen_show_current_page is the expected kiosk dashboard, sensor.kitchen_show_remote_admin is available, and a fresh screenshot can be requested.
+            failure_policy=If the signed release cannot be installed safely or the device does not recover, stop without changing unrelated software and report the blocking evidence.
+      - service: script.send_to_logbook
+        data:
+          topic: "KIOSK"
+          message: >-
+            Joanna dispatched to update Kitchen Show Kiosk Satellite from
+            {{ installed_version }} to {{ latest_version }}.
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "HA automation kitchen_kiosk_satellite_update_joanna_dispatch (Kitchen Kiosk Satellite - Update Joanna Dispatch)"
+          source: "home_assistant_automation.kitchen_kiosk_satellite_update_dispatch"
+          summary: >-
+            Kiosk Satellite {{ latest_version }} is available for Kitchen Show;
+            installed version is {{ installed_version }}.
+          request: "{{ structured_request }}"
+          entity_ids:
+            - update.kitchen_show_update
+            - sensor.kitchen_show_last_seen
+            - sensor.kitchen_show_current_page
+            - sensor.kitchen_show_remote_admin
+            - button.kitchen_show_take_screenshot
+          diagnostics: >-
+            update_state={{ states('update.kitchen_show_update') }};
+            in_progress={{ state_attr('update.kitchen_show_update', 'in_progress') }};
+            last_seen={{ states('sensor.kitchen_show_last_seen') }};
+            current_page={{ states('sensor.kitchen_show_current_page') }};
+            remote_admin={{ states('sensor.kitchen_show_remote_admin') }}
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.kitchen_show_kiosk_satellite_last_dispatched_version
+        data:
+          value: "{{ latest_version }}"
+
+template:
+  - sensor:
+      - name: "Kiosk Active Camera View"
+        unique_id: kiosk_active_camera_view
+        icon: mdi:camera-switch
+        state: >-
+          {% set garage_states = [
+            states('cover.large_garage_door'),
+            states('cover.small_garage_door')
+          ] %}
+          {% if garage_states | select('in', ['opening', 'open', 'closing']) | list | count > 0 %}
+            garage
+          {% elif is_state('lock.front_door', 'unlocked') %}
+            front_door
+          {% else %}
+            none
+          {% endif %}
+
+      - name: "Bedroom Kiosk Header"
+        unique_id: bedroom_kiosk_header
+        icon: mdi:bed-clock
+        state: >-
+          {% set alarm = states('sensor.bedroom_next_wake_alarm') %}
+          {% set alarm_ts = as_timestamp(alarm, none) %}
+          {% set alarm_source = states('sensor.bedroom_next_wake_alarm_source')
+             | replace(' Bedroom', '') %}
+          {% if alarm_ts is not none %}
+            NEXT ALARM - {{ alarm_source }} · {{ alarm_ts | timestamp_custom('%a %-I:%M %p') }}
+          {% else %}
+            NO BEDROOM WAKE ALARM SET
+          {% endif %}
+        attributes:
+          detail: >-
+            {% set weather = states('weather.pirateweather') | replace('_', ' ') | title %}
+            {% set temperature = state_attr('weather.pirateweather', 'temperature') %}
+            {% set secure = is_state('group.garage_doors', 'closed')
+               and is_state('group.locks', 'locked')
+               and is_state('group.entry_points', 'off') %}
+            {{ 'House secured' if secure else 'Check house security' }} ·
+            {{ temperature | round(0) if temperature is number else '--' }}° · {{ weather }}
+
+      - name: "Kiosk Household Alert"
+        unique_id: kiosk_household_alert
+        icon: mdi:message-alert-outline
+        state: >-
+          {% set alerts = state_attr('sensor.nws_alerts_alerts', 'Alerts') | default([], true) %}
+          {% set hot_water = states('sensor.rheem_wh_available_hot_water') | float(100) %}
+          {% set tomorrow = (now() + timedelta(days=1)).strftime('%Y-%m-%d') %}
+          {% set battery = states('sensor.spaceship_battery_level') | float(100) %}
+          {% set ns = namespace(name='', raw='') %}
+          {% for name, person, location in [
+             ('Carlo', 'person.carlo', 'sensor.carlo_location_display'),
+             ('Stacey', 'person.stacey', 'sensor.stacey_location_display'),
+             ('Justin', 'person.justin', 'sensor.justin_location_display'),
+             ('Paige', 'person.paige', 'sensor.paige_location_display')
+          ] %}
+            {% if not ns.name and states(person) not in ['home', 'unknown', 'unavailable'] %}
+              {% set ns.name = name %}
+              {% set ns.raw = states(location) if states(location) not in ['unknown', 'unavailable'] else states(person) %}
+            {% endif %}
+          {% endfor %}
+          {% if alerts | count > 0 %}
+            WEATHER ALERT - {{ alerts[0].Event | default('National Weather Service') }}
+          {% elif is_state('binary_sensor.front_door_packages_present', 'on') %}
+            PACKAGE AT THE FRONT DOOR
+          {% elif is_state('group.entry_points', 'on') %}
+            ENTRY POINT OPEN
+          {% elif states('group.locks') not in ['locked', 'unknown', 'unavailable'] %}
+            CHECK THE FRONT DOOR LOCK
+          {% elif hot_water < 30 %}
+            HOT WATER IS RUNNING LOW
+          {% elif now().strftime('%a') in ['Wed', 'Sun']
+             and not is_state('input_boolean.garbage_cans_out', 'on') %}
+            {{ 'GARBAGE + RECYCLING' if now().strftime('%a') == 'Wed' else 'GARBAGE' }} DAY
+          {% elif states('input_datetime.water_delivery_date') == tomorrow %}
+            WATER DELIVERY TOMORROW
+          {% elif battery < 50 and is_state('switch.spaceship_charge', 'off')
+             and is_state('person.carlo', 'home') and is_state('person.stacey', 'home') %}
+            PLUG IN THE TESLA
+          {% elif ns.name %}
+            {% set location = ns.raw | replace(ns.name ~ ' ', '') %}
+            {{ ns.name }} - {{ location.split(' (since ')[0] }}
+          {% else %}
+            EVERYTHING IS HANDLED
+          {% endif %}
+        attributes:
+          detail: >-
+            {% set alerts = state_attr('sensor.nws_alerts_alerts', 'Alerts') | default([], true) %}
+            {% set hot_water = states('sensor.rheem_wh_available_hot_water') | float(100) %}
+            {% set tomorrow = (now() + timedelta(days=1)).strftime('%Y-%m-%d') %}
+            {% set battery = states('sensor.spaceship_battery_level') | float(100) %}
+            {% set ns = namespace(name='', raw='') %}
+            {% for name, person, location in [
+               ('Carlo', 'person.carlo', 'sensor.carlo_location_display'),
+               ('Stacey', 'person.stacey', 'sensor.stacey_location_display'),
+               ('Justin', 'person.justin', 'sensor.justin_location_display'),
+               ('Paige', 'person.paige', 'sensor.paige_location_display')
+            ] %}
+              {% if not ns.name and states(person) not in ['home', 'unknown', 'unavailable'] %}
+                {% set ns.name = name %}
+                {% set ns.raw = states(location) if states(location) not in ['unknown', 'unavailable'] else states(person) %}
+              {% endif %}
+            {% endfor %}
+            {% if alerts | count > 0 %}
+              {{ (alerts[0].Headline | default(alerts[0].Description, true))
+                 | replace('\n', ' ') | truncate(300, true) }}
+            {% elif is_state('binary_sensor.front_door_packages_present', 'on') %}
+              Remember to bring it inside.
+            {% elif is_state('group.entry_points', 'on') %}
+              Check the exterior doors and windows.
+            {% elif states('group.locks') not in ['locked', 'unknown', 'unavailable'] %}
+              Lock status is {{ states('group.locks') | replace('_', ' ') }}.
+            {% elif hot_water < 30 %}
+              {{ hot_water | round(0) }}% is available - keep showers short.
+            {% elif now().strftime('%a') in ['Wed', 'Sun']
+               and not is_state('input_boolean.garbage_cans_out', 'on') %}
+              Put the cans at the curb.
+            {% elif states('input_datetime.water_delivery_date') == tomorrow %}
+              Put the empty bottles out.
+            {% elif battery < 50 and is_state('switch.spaceship_charge', 'off')
+               and is_state('person.carlo', 'home') and is_state('person.stacey', 'home') %}
+              Model Y battery is {{ battery | round(0) }}%.
+            {% elif ns.name %}
+              {% set parts = ns.raw.split(' (since ') %}
+              {{ 'Since ' ~ (parts[1] | replace(')', '')) if parts | count > 1 else 'Away from home' }}
+            {% else %}
+              No active household alerts or reminders.
+            {% endif %}
+
+  - binary_sensor:
+      - name: "Kitchen Kiosk Should Be On"
+        unique_id: kitchen_kiosk_should_be_on
+        icon: mdi:monitor-eye
+        state: >-
+          {% set guest = is_state('input_boolean.guest_mode', 'on') %}
+          {% set sitter = is_state('input_boolean.house_sitter_present', 'on') %}
+          {% set family_home = is_state('group.family', 'home') %}
+          {% set carlo_bed = is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'on') %}
+          {% set stacey_bed = is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'on') %}
+          {% set bedtime = (carlo_bed or stacey_bed)
+             and (carlo_bed or is_state('person.carlo', 'not_home'))
+             and (stacey_bed or is_state('person.stacey', 'not_home')) %}
+          {{ guest or sitter or (family_home and not bedtime) }}
+        attributes:
+          reason: >-
+            {% if is_state('input_boolean.guest_mode', 'on') %}
+              guest mode
+            {% elif is_state('input_boolean.house_sitter_present', 'on') %}
+              house sitter present
+            {% elif not is_state('group.family', 'home') %}
+              nobody home
+            {% elif is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'on')
+               and is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'on') %}
+              household asleep
+            {% elif is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'on')
+               and is_state('person.stacey', 'not_home') %}
+              Carlo asleep and Stacey away
+            {% elif is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'on')
+               and is_state('person.carlo', 'not_home') %}
+              Stacey asleep and Carlo away
+            {% else %}
+              household active
+            {% endif %}
+
+      - name: "Bedroom Kiosk Needs Attention"
+        unique_id: bedroom_kiosk_needs_attention
+        device_class: problem
+        icon: mdi:tablet-alert
+        delay_on: "00:02:00"
+        delay_off: "00:00:30"
+        state: >-
+          {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+          {% set page = states('sensor.alarm_panel_1_current_page') %}
+          {% set app = states('sensor.alarm_panel_1_foreground_app') %}
+          {% set battery = states('sensor.alarm_panel_1_battery') | float(0) %}
+          {{ page in invalid
+             or app in invalid
+             or '/local/bedroom-kiosk.html' not in page
+             or app != 'de.ozerov.fully'
+             or (battery < 20 and not is_state('binary_sensor.alarm_panel_1_plugged_in', 'on')) }}
+        attributes:
+          status: >-
+            {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+            {% set page = states('sensor.alarm_panel_1_current_page') %}
+            {% set app = states('sensor.alarm_panel_1_foreground_app') %}
+            {% set battery = states('sensor.alarm_panel_1_battery') | float(0) %}
+            {% if page in invalid or app in invalid %}
+              offline
+            {% elif '/local/bedroom-kiosk.html' not in page %}
+              page drift
+            {% elif app != 'de.ozerov.fully' %}
+              app drift
+            {% elif battery < 20 and not is_state('binary_sensor.alarm_panel_1_plugged_in', 'on') %}
+              low battery
+            {% else %}
+              online
+            {% endif %}
+          current_page: "{{ states('sensor.alarm_panel_1_current_page') }}"
+          foreground_app: "{{ states('sensor.alarm_panel_1_foreground_app') }}"
+          battery: "{{ states('sensor.alarm_panel_1_battery') }}"
+
+      - name: "Kitchen Kiosk Needs Attention"
+        unique_id: kitchen_kiosk_needs_attention
+        device_class: problem
+        icon: mdi:monitor-alert
+        delay_on: "00:02:00"
+        delay_off: "00:00:30"
+        state: >-
+          {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+          {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen'), 0) %}
+          {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot'), 0) %}
+          {% set page = states('sensor.kitchen_show_current_page') %}
+          {% set remote_admin = states('sensor.kitchen_show_remote_admin') %}
+          {% set battery = states('sensor.kitchen_show_battery') | float(0) %}
+          {% set offline = last_seen == 0 or (as_timestamp(now()) - last_seen) > 300 %}
+          {% set screenshot_stale = screenshot == 0 or (as_timestamp(now()) - screenshot) > 2700 %}
+          {{ offline
+             or page in invalid
+             or remote_admin in invalid
+             or '/dashboard-kiosk-satellite-staging/home' not in page
+             or (battery < 20 and not is_state('binary_sensor.kitchen_show_charging', 'on'))
+             or is_state('update.kitchen_show_update', 'on')
+             or screenshot_stale }}
+        attributes:
+          status: >-
+            {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+            {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen'), 0) %}
+            {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot'), 0) %}
+            {% set page = states('sensor.kitchen_show_current_page') %}
+            {% set remote_admin = states('sensor.kitchen_show_remote_admin') %}
+            {% set battery = states('sensor.kitchen_show_battery') | float(0) %}
+            {% if last_seen == 0 or (as_timestamp(now()) - last_seen) > 300 %}
+              offline
+            {% elif page in invalid or remote_admin in invalid %}
+              telemetry unavailable
+            {% elif '/dashboard-kiosk-satellite-staging/home' not in page %}
+              page drift
+            {% elif battery < 20 and not is_state('binary_sensor.kitchen_show_charging', 'on') %}
+              low battery
+            {% elif is_state('update.kitchen_show_update', 'on') %}
+              update available
+            {% elif screenshot == 0 or (as_timestamp(now()) - screenshot) > 2700 %}
+              screenshot stale
+            {% else %}
+              online
+            {% endif %}
+          last_seen: "{{ states('sensor.kitchen_show_last_seen') }}"
+          last_screenshot: "{{ states('sensor.kitchen_show_last_screenshot') }}"
+          current_page: "{{ states('sensor.kitchen_show_current_page') }}"
+          battery: "{{ states('sensor.kitchen_show_battery') }}"
+
+      - name: "Kiosk Devices Need Attention"
+        unique_id: kiosk_devices_need_attention
+        device_class: problem
+        icon: mdi:tablet-cellphone
+        state: >-
+          {{ is_state('binary_sensor.bedroom_kiosk_needs_attention', 'on')
+             or is_state('binary_sensor.kitchen_kiosk_needs_attention', 'on') }}
+        attributes:
+          status: >-
+            {% set bedroom = is_state('binary_sensor.bedroom_kiosk_needs_attention', 'on') %}
+            {% set kitchen = is_state('binary_sensor.kitchen_kiosk_needs_attention', 'on') %}
+            {% if bedroom and kitchen %}
+              Bedroom and Kitchen need attention
+            {% elif bedroom %}
+              Bedroom needs attention
+            {% elif kitchen %}
+              Kitchen needs attention
+            {% else %}
+              All kiosks online
+            {% endif %}
+          devices: >-
+            {% set ns = namespace(items=[]) %}
+            {% if is_state('binary_sensor.bedroom_kiosk_needs_attention', 'on') %}
+              {% set ns.items = ns.items + ['Bedroom'] %}
+            {% endif %}
+            {% if is_state('binary_sensor.kitchen_kiosk_needs_attention', 'on') %}
+              {% set ns.items = ns.items + ['Kitchen'] %}
+            {% endif %}
+            {{ ns.items }}
+
+script:
+  kitchen_kiosk_apply_camera_policy:
+    alias: "Kitchen Kiosk - Apply Camera Policy"
+    mode: restart
+    variables:
+      desired_view: >-
+        {{ {'garage': 'Garage', 'front_door': 'Front Door'}.get(
+             states('sensor.kiosk_active_camera_view'), 'none') }}
+      desired_button: >-
+        {{ 'button.kitchen_show_show_garage'
+           if desired_view == 'Garage'
+           else 'button.kitchen_show_show_front_door' }}
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ desired_view in ['Garage', 'Front Door'] }}"
+            sequence:
+              - condition: template
+                value_template: >-
+                  {{ states('sensor.kitchen_show_active_camera_view') != desired_view }}
+              - service: script.kitchen_kiosk_show_camera
+                data:
+                  show_button: "{{ desired_button }}"
+        default:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >-
+                      {{ states('sensor.kitchen_show_active_camera_view')
+                         not in ['none', 'unknown', 'unavailable'] }}
+                sequence:
+                  - service: button.press
+                    target:
+                      entity_id: button.kitchen_show_close_camera_view
+          - service: button.press
+            target:
+              entity_id: button.kitchen_show_bring_to_front
+
+  kitchen_kiosk_show_camera:
+    alias: "Kitchen Kiosk - Show Camera"
+    mode: restart
+    fields:
+      show_button:
+        name: Camera view button
+        description: Kiosk Satellite MQTT button for the native camera view.
+        required: true
+        selector:
+          entity:
+            domain: button
+    sequence:
+      - service: light.turn_on
+        target:
+          entity_id: light.kitchen_show_screen
+      - service: button.press
+        target:
+          entity_id: button.kitchen_show_bring_to_front
+      - delay: "00:00:01"
+      - service: button.press
+        target:
+          entity_id: "{{ show_button }}"

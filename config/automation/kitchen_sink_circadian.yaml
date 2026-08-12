@@ -10,6 +10,8 @@
 # Notes: Uses color temperature only to avoid inherited color scenes.
 #  TV playback keeps the sink off so media time does not re-light it.
 # Notes: Office lamp switch off-gates the sink while active PC work is in progress.
+# Notes: Kitchen Show illuminance gates only new automatic turn-ons. Once the
+#  sink is on, its normal circadian tuning continues without lux-based shutoff.
 ######################################################################
 
 - alias: "Kitchen Sink Circadian Daylight"
@@ -59,6 +61,11 @@
     - platform: time_pattern
       minutes: "/30"
       id: tune
+    - platform: numeric_state
+      entity_id: sensor.kitchen_show_ambient_light
+      below: 30
+      for: "00:05:00"
+      id: tune
     - platform: homeassistant
       event: start
       id: tune
@@ -82,6 +89,10 @@
           {{ carlo_awake or stacey_awake }}
         working_active: >-
           {{ is_state('switch.office_lamp_switch', 'on') }}
+        ambient_dark: >-
+          {% set lux = states('sensor.kitchen_show_ambient_light') %}
+          {{ lux in ['unknown', 'unavailable', 'none', '']
+             or lux | float(0) < 35 }}
         target_kelvin: >-
           {% set elevation = state_attr('sun.sun', 'elevation') | float(-90) %}
           {% if elevation <= -2 %}
@@ -111,7 +122,8 @@
              and not (tv_active | bool)
              and not (working_active | bool)
              and ((awake_home | bool) or is_state('light.sink', 'on'))
-             and (is_state('light.sink', 'on') or now().hour >= 4) }}
+             and (is_state('light.sink', 'on')
+                  or ((ambient_dark | bool) and now().hour >= 4)) }}
     - choose:
         - conditions:
             - condition: template

@@ -5,8 +5,8 @@
 # -------------------------------------------------------------------
 # Infrastructure - Observability, disk pressure, and Joanna review workflows
 #  WAN/DNS/website/Docker host state normalized for dashboards, plus scheduled infrastructure reviews.
-# Video: https://youtu.be/aceV7ObKJVA
-# Blog: https://www.vcloudinfo.com/2026/07/using-codex-clean-up-home-assistant-entities.html
+# Video: https://youtu.be/F-PpsKkzcrM
+# Blog: https://www.vcloudinfo.com/2026/08/home-assistant-internet-speed-monitoring-ookla.html
 # -------------------------------------------------------------------
 # Related Issue: 1584
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
@@ -235,7 +235,8 @@ template:
             'binary_sensor.infra_dns_pihole_degraded',
             'binary_sensor.infra_compute_degraded',
             'binary_sensor.infra_storage_degraded',
-            'binary_sensor.infra_external_monitoring_degraded'
+            'binary_sensor.infra_external_monitoring_degraded',
+            'binary_sensor.kiosk_devices_need_attention'
           ] %}
           {{ expand(categories) | selectattr('state', 'eq', 'on') | list | count }}
         attributes:
@@ -245,7 +246,8 @@ template:
               'binary_sensor.infra_dns_pihole_degraded',
               'binary_sensor.infra_compute_degraded',
               'binary_sensor.infra_storage_degraded',
-              'binary_sensor.infra_external_monitoring_degraded'
+              'binary_sensor.infra_external_monitoring_degraded',
+              'binary_sensor.kiosk_devices_need_attention'
             ] %}
             {{ expand(categories) | selectattr('state', 'eq', 'on') | map(attribute='entity_id') | list }}
 

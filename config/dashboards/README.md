@@ -55,19 +55,29 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
 - Primary actions cover garage doors, the front-door lock, thermostats, household alerts, and entry-point status.
 - Packages opens the doorbell camera; Systems opens the desktop control center; destination views place a large Back to Home control at the top.
 
-### Kiosk Camera Dashboard
+### Event-Driven Kiosk Dashboards
 - Logic and recovery package: [![YAML source: kiosk_tablet](https://img.shields.io/static/v1?label=YAML&message=kiosk_tablet&color=lightgrey&logo=github&logoColor=181717)](../packages/kiosk_tablet.yaml)
-- Dashboard entrypoint: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=dashboard&color=lightgrey&logo=github&logoColor=181717)](kiosk/dashboard.yaml)
-- Camera view: [![YAML source: 01_kiosk_oveview](https://img.shields.io/static/v1?label=YAML&message=01_kiosk_oveview&color=lightgrey&logo=github&logoColor=181717)](kiosk/views/01_kiosk_oveview.yaml)
-- Camera sections: [![YAML source: kiosk_oveview_sections](https://img.shields.io/static/v1?label=YAML&message=kiosk_oveview_sections&color=lightgrey&logo=github&logoColor=181717)](kiosk/partials/kiosk_oveview_sections.yaml)
+- Bedroom dashboard: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=bedroom&color=lightgrey&logo=github&logoColor=181717)](bedroom/dashboard.yaml)
+- Bedroom landscape view: [![YAML source: 01_home](https://img.shields.io/static/v1?label=YAML&message=01_home&color=lightgrey&logo=github&logoColor=181717)](bedroom/views/01_home.yaml)
+- Android 5 renderer: [![HTML source: bedroom-kiosk](https://img.shields.io/static/v1?label=HTML&message=bedroom-kiosk&color=lightgrey&logo=html5&logoColor=E34F26)](../www/bedroom-kiosk.html)
+- Kiosk Satellite preview: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=kiosk_satellite_staging&color=lightgrey&logo=github&logoColor=181717)](kiosk_satellite_staging/dashboard.yaml)
+- Kitchen tablet view: [![YAML source: 01_home](https://img.shields.io/static/v1?label=YAML&message=01_home&color=lightgrey&logo=github&logoColor=181717)](kiosk_satellite_staging/views/01_home.yaml)
+- Automatic day/night theme: [![YAML source: kiosk_satellite](https://img.shields.io/static/v1?label=YAML&message=kiosk_satellite_theme&color=lightgrey&logo=github&logoColor=181717)](../themes/kiosk_satellite.yaml)
+
+The displays share only the reusable event and screen-policy state they need. Kitchen keeps its clock/current-weather/forecast banner and rotating household context, including the next confirmed cruise countdown, while the fixed-landscape Bedroom dashboard omits the redundant clock and uses that space for the next wake alarm, security/weather context, larger Front Lawn and Driveway feeds, and a readable household alert. Both use the same Garage-then-Front-Door event priority. The canonical Bedroom Lovelace view and its Android 5 lightweight renderer consume the same camera, header, and alert sensors; the renderer bypasses only the unsupported Home Assistant frontend on the frozen Fire WebView. Kitchen uses native Kiosk Satellite camera overlays and idle dimming; Home Assistant handles only household sleep/away enforcement, volume, and event-camera wake instead of periodically forcing the screen on. True idle panel-off remains disabled until the Crown LineageOS device has a reliable motion-wake input. Its device schedule changes the Home Assistant theme between light at 07:00 and dark at 19:00. Other clients follow their own system preference.
 
 ### How it is wired into Home Assistant
 This folder is referenced from `config/configuration.yaml` via:
 - `lovelace.resource_mode: yaml`
 - `lovelace.resources: !include dashboards/resources.yaml`
 - `lovelace.dashboards: ...`
+- `frontend.themes: !include_dir_merge_named themes` loads the shared tablet's light and dark palette.
   - Default Overview YAML dashboard: `lovelace.dashboards.lovelace.filename: ui-lovelace.yaml`
   - Additional YAML dashboards: `filename: dashboards/<dashboard>/dashboard.yaml`
+  - `dashboard-bedroom` is the canonical Bedroom desktop-review and future-hardware route; it is hidden from the sidebar and linked from the Bedroom Tablet snapshot on Systems' Kiosks tab. The current Android 5 Fire uses the equivalent lightweight renderer under `www/`.
+  - `dashboard-kiosk-satellite-staging` is the hidden validation surface for the shared Kiosk Satellite camera view.
+  - Systems' visible Kiosks tab sits immediately before Joanna and combines attention telemetry with the latest Bedroom Tablet and Kitchen Show screenshots; tapping either snapshot opens that display's live dashboard.
+  - The Systems Joanna page links to BearClaw Admin from Dispatch Trend and to a hidden AI Diagnostics subview that shows the latest OpenAI instructions and response together; LLM Vision production diagnostics and retired QMD health telemetry are not shown.
   - Overview's second visible view is **Mobile**, a phone-first quick-control surface for garage doors, the front-door lock, thermostats, and compact household alerts.
   - Overview Home uses ordered production sections under `overview/sections/`; approved pilot edits now apply directly there.
   - Overview Home's **Windows** ribbon opens a dedicated GPIO entry-point subview with perimeter, MQTT, and individual contact status.
