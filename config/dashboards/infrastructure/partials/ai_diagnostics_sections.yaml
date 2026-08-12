@@ -1,0 +1,38 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - AI Diagnostics
+#  Shows the current instruction and response pair for request tracing.
+# -------------------------------------------------------------------
+# Notes: Included by config/dashboards/infrastructure/views/06b_ai_diagnostics.yaml.
+######################################################################
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: AI Diagnostics
+
+    - type: markdown
+      title: Response Received from OpenAI
+      content: >-
+        {{ state_attr('sensor.openai_response', 'response') or 'No response available.' }}
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    # Core markdown is required because long templated diagnostic payloads cannot be rendered safely by the shared button-card templates.
+    - type: markdown
+      title: Instructions Sent to OpenAI
+      content: >-
+        {{ state_attr('sensor.openai_instructions', 'instructions') or 'No instructions available.' }}
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml

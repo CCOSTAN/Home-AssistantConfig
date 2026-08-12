@@ -3,16 +3,20 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Overview View - Admin
-#  YAML-exported Lovelace dashboard (split into view files).
+# Infrastructure View - AI Diagnostics
+#  Compact diagnostic surface for the most recent OpenAI response.
 # -------------------------------------------------------------------
-# Notes: Exported from config/.storage/lovelace.lovelace view index 8.
+# Notes: The Joanna AI Diagnostics row is the canonical entry point.
 ######################################################################
 
-title: Admin
-icon: mdi:security
-visible:
-- user: be280a93c9d7416e98d25d0470f414be
-cards: []
+title: AI Diagnostics
+path: ai-diagnostics
+subview: true
+icon: mdi:message-text-outline
+theme: default
 type: sections
-sections: !include /config/dashboards/overview/partials/admin_sections.yaml
+max_columns: 4
+dense_section_placement: true
+badges: []
+sections: !include /config/dashboards/infrastructure/partials/ai_diagnostics_sections.yaml
+cards: []

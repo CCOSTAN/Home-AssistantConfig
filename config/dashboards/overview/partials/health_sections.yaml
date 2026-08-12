@@ -4,11 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Overview Partial - Health
-#  Current SleepIQ state, paired nightly trends, and native bed controls.
+#  Current SleepIQ state, Joanna achievements and steps, paired nightly trends, and native bed controls.
 # -------------------------------------------------------------------
 # Notes: Daily maximum statistics suppress SleepIQ's between-session zero states.
 # Notes: Direct integration entities are reused; no dashboard helper state is added.
 # Notes: The ribbon prioritizes occupancy, firmness, and current session duration.
+# Notes: Step cards use each person's authoritative daily source with completed-day 7d averages and prior 28d/90d baselines.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -101,6 +102,120 @@
           if (inBed && (!Number.isFinite(value) || value <= 0)) return 'IN PROGRESS';
           if (!Number.isFinite(value)) return 'NO DATA';
           return `${Math.floor(value)}h ${Math.round((value % 1) * 60)}m`;
+        ]]]
+
+# -------------------------------------------------------------------
+# HealthKit steps and personal records
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: sensor.joanna_carlo_steps_trend
+      name: Carlo Steps - 7d Avg
+      icon: mdi:walk
+      show_label: true
+      variables:
+        detail_layout: true
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value) ? `${Math.round(value).toLocaleString()} / day` : 'NO DATA';
+        ]]]
+      label: >
+        [[[
+          const attrs = entity?.attributes || {};
+          const value = (averageKey, samplesKey, windowDays) => {
+            const raw = attrs[averageKey];
+            const number = raw === null || raw === undefined || raw === '' ? NaN : Number(raw);
+            if (!Number.isFinite(number)) return '—';
+            const samples = Number(attrs[samplesKey] || 0);
+            const coverage = samples > 0 && samples < windowDays ? ` (${samples}d)` : '';
+            return `${Math.round(number).toLocaleString()}${coverage}`;
+          };
+          return `28d ${value('prior_28d_average', 'prior_28d_samples', 28)} · 90d ${value('prior_90d_average', 'prior_90d_samples', 90)}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: sensor.joanna_stacey_steps_trend
+      name: Stacey Steps - 7d Avg
+      icon: mdi:walk
+      show_label: true
+      variables:
+        detail_layout: true
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value) ? `${Math.round(value).toLocaleString()} / day` : 'NO DATA';
+        ]]]
+      label: >
+        [[[
+          const attrs = entity?.attributes || {};
+          const value = (averageKey, samplesKey, windowDays) => {
+            const raw = attrs[averageKey];
+            const number = raw === null || raw === undefined || raw === '' ? NaN : Number(raw);
+            if (!Number.isFinite(number)) return '—';
+            const samples = Number(attrs[samplesKey] || 0);
+            const coverage = samples > 0 && samples < windowDays ? ` (${samples}d)` : '';
+            return `${Math.round(number).toLocaleString()}${coverage}`;
+          };
+          return `28d ${value('prior_28d_average', 'prior_28d_samples', 28)} · 90d ${value('prior_90d_average', 'prior_90d_samples', 90)}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: sensor.joanna_carlo_latest_personal_record
+      name: Carlo Personal Record
+      icon: mdi:trophy-outline
+      show_label: true
+      variables:
+        detail_layout: true
+      state_display: >
+        [[[
+          return entity?.attributes?.display_value || 'NO RECORDS';
+        ]]]
+      label: >
+        [[[
+          const attrs = entity?.attributes || {};
+          const pieces = [entity?.state, attrs.activity_type, attrs.achieved_on].filter((value) => value && value !== 'unknown');
+          return pieces.join(' · ') || 'Stored HealthKit history';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_health_kpi
+      entity: sensor.joanna_stacey_latest_personal_record
+      name: Stacey Personal Record
+      icon: mdi:trophy-outline
+      show_label: true
+      variables:
+        detail_layout: true
+      state_display: >
+        [[[
+          return entity?.attributes?.display_value || 'NO RECORDS';
+        ]]]
+      label: >
+        [[[
+          const attrs = entity?.attributes || {};
+          const pieces = [entity?.state, attrs.activity_type, attrs.achieved_on].filter((value) => value && value !== 'unknown');
+          return pieces.join(' · ') || 'Stored HealthKit history';
         ]]]
 
 # -------------------------------------------------------------------

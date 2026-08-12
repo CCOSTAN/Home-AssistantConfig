@@ -1222,15 +1222,57 @@ bearstone_overview_sleep_summary:
 
 bearstone_health_kpi:
   template: bearstone_infra_kpi
+  variables:
+    detail_layout: false
   styles:
+    grid:
+    - grid-template-areas: >
+        [[[
+          return variables?.detail_layout
+            ? '"i" "n" "s" "l"'
+            : '"i" "n" "s"';
+        ]]]
+    - grid-template-columns: minmax(0, 1fr)
+    - grid-template-rows: >
+        [[[
+          return variables?.detail_layout
+            ? '22px min-content min-content minmax(18px, auto)'
+            : '22px min-content min-content';
+        ]]]
     name:
     - font-size: 12px
     - font-weight: 900
     - opacity: 0.8
+    - justify-self: stretch
+    - width: 100%
+    - min-width: 0
+    - white-space: normal
+    - overflow: visible
+    - text-overflow: clip
+    - line-height: 15px
     state:
     - font-size: 17px
     - font-weight: 900
     - opacity: 1
+    - justify-self: stretch
+    - width: 100%
+    - min-width: 0
+    - white-space: normal
+    - overflow: visible
+    - text-overflow: clip
+    - line-height: 22px
+    label:
+    - font-size: 12px
+    - font-weight: 600
+    - opacity: 0.78
+    - justify-self: stretch
+    - width: 100%
+    - min-width: 0
+    - white-space: normal
+    - overflow: visible
+    - text-overflow: clip
+    - text-align: center
+    - line-height: 16px
 
 bearstone_infra_update_row:
   template: bearstone_infra_list_row
