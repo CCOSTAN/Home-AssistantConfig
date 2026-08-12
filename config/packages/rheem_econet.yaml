@@ -9,7 +9,6 @@
 #  Logs hot-water availability alerts to Activity feed; keeps announcements.
 # -------------------------------------------------------------------
 # Docs: https://www.home-assistant.io/integrations/econet/ | Existing notes: Issue #892
-# Temporary DigiCert G1 CA workaround lives in configuration.yaml/additional_ca.
 # Powerwall outage control for Rheem WH lives in config/packages/powerwall.yaml
 ######################################################################
 
@@ -19,18 +18,23 @@
 
 automation:
   - alias: "Rheem Water Heater Health Monitoring"
+    id: rheem_water_heater_health_monitoring
+    mode: single
+    max_exceeded: silent
     trigger:
       - platform: numeric_state
+        id: compressor_health
         entity_id: sensor.rheem_wh_compressor_health
         below: 90  # Adjust threshold as needed
       - platform: numeric_state
+        id: tank_health
         entity_id: sensor.rheem_wh_tank_health
         below: 90  # Adjust threshold as needed
     action:
       - choose:
           - conditions:
               - condition: trigger
-                id: sensor.rheem_wh_compressor_health
+                id: compressor_health
             sequence:
               - service: script.notify_engine
                 data:
@@ -40,7 +44,7 @@ automation:
                   group: 'information'
           - conditions:
               - condition: trigger
-                id: sensor.rheem_wh_tank_health
+                id: tank_health
             sequence:
               - service: script.notify_engine
                 data:
@@ -50,6 +54,9 @@ automation:
                   group: 'information'
 
   - alias: "Rheem Water Heater Hot Water Availability Alert"
+    id: rheem_water_heater_hot_water_availability_alert
+    mode: single
+    max_exceeded: silent
     trigger:
       - platform: numeric_state
         entity_id: sensor.rheem_wh_available_hot_water
@@ -61,7 +68,7 @@ automation:
           message: "Hot water availability is below 30%."
       - service: script.speech_engine
         data:
-          value1: "Please be aware that the hot water has dropped below 30% availability. Gallons used today: {{sensor.phyn_daily_water_usage}}"
+          value1: "Please be aware that the hot water has dropped below 30% availability. Gallons used today: {{ states('sensor.phyn_daily_water_usage') }}"
 
       - service: notify.alexa_media_master_bathroom
         data:
@@ -77,9 +84,10 @@ automation:
 
       - wait_template: "{{ states('sensor.rheem_wh_available_hot_water')|float > 50 }}"
         timeout: '01:00:00'  # Adjust timeout as needed
+        continue_on_timeout: false
       - service: script.speech_engine
         data:
-          value1: "The available hot water is now above 50%. Normal showering can resume. Gallons used today: {{sensor.phyn_daily_water_usage}}"
+          value1: "The available hot water is now above 50%. Normal showering can resume. Gallons used today: {{ states('sensor.phyn_daily_water_usage') }}"
 
 #-------------------------------------------
 # Available Rheem entities snapshot (for reference)

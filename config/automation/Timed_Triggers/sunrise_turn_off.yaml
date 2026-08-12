@@ -32,7 +32,9 @@
       entity_id: all
 
     - wait_template: >-
-       {{ states.sun.sun.state == 'above_horizon' }}
+       {{ is_state('sun.sun', 'above_horizon') }}
+      timeout: "04:00:00"
+      continue_on_timeout: false
     - service: homeassistant.turn_off
       entity_id:
         - group.master_bathroom_accents

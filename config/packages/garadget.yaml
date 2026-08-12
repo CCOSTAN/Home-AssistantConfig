@@ -264,53 +264,6 @@ automation:
           topic: "garadget/GLarge/command"
           payload: "get-status"
 
-  ###################################
-  ## Garadget Wind Door Checks -  [Garadget](https://amzn.to/2jQLpVQ)
-  ###################################
-
-  - alias: 'Wind Speed Garage Door Check'
-    id: 2819207a-1716-4552-be34-a8e0f7af004e
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.pirateweather_wind_speed
-        above: 30
-
-    condition:
-      - condition: or
-        conditions:
-          - condition: state
-            entity_id: cover.large_garage_door
-            state: 'open'
-          - condition: state
-            entity_id: cover.small_garage_door
-            state: 'open'
-
-    action:
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.alert_mode
-
-      - service: script.notify_engine
-        data:
-          title: 'Check/Close Garage Doors - High Speed Wind Alert:'
-          value1: "Small: {{ states('cover.small_garage_door')}}"
-          value2: "Large: {{ states('cover.large_garage_door')}}"
-          group: 'information'
-          who: 'parents'
-
-      - service: script.speech_engine
-        data:
-          value1: >
-            "The wind speed is {{ states('sensor.pirateweather_wind_speed')|round}} miles per hour.  For safety, please close the garage doors.
-            {% if is_state('cover.large_garage_door', 'open') -%}
-              Large Garage Door: open
-            {% endif -%}
-            {% if is_state('cover.small_garage_door', 'open') -%}
-              {% if is_state('cover.large_garage_door', 'open') -%}and
-              {%- endif %} Small Garage Door: open.
-            {% endif %}"
-
-  ##############################################################################
-
   - alias: Is the Garage door Open at night - Checks every 30 minutes or 5 minutes after we drive away.
     id: 4eb3e83e-4484-4102-a4ca-6bacd5b3cbdd
 

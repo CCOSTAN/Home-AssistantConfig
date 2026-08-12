@@ -60,7 +60,7 @@
         - light.outdoor_bathroom
       data:
         brightness: >
-          {% if states.group.family.state == 'home' -%}
+          {% if is_state('group.family', 'home') -%}
           10
           {% elif is_state('input_boolean.vacation_mode', 'on') and is_state('input_boolean.house_sitter_present', 'off') -%}
           35
@@ -74,7 +74,9 @@
               state: 'off'
           sequence:
             - wait_template: >-
-                {{ states.group.family.state == 'home' }}
+                {{ is_state('group.family', 'home') }}
+              timeout: "06:00:00"
+              continue_on_timeout: false
             - service: homeassistant.turn_on
               entity_id:
                - group.master_bathroom_accents
@@ -201,4 +203,3 @@
                   entity_id:
                     - light.living_room_accents
                     - light.ikea_1
-

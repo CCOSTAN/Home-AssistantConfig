@@ -3,44 +3,63 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# High Wind Alerts - Severe wind warnings (push + Activity feed)
+# High Wind Alerts - Tiered wind and open-garage safety warnings.
 # Related Issue: 1550
-#  Logs to Activity feed while keeping existing notifications and actions.
+#  Coalesces 30/40/60 mph crossings so the highest current tier owns the alert.
 # -------------------------------------------------------------------
 ######################################################################
 
 - alias: 'High Wind Speed Notification'
   id: 5cc158a5-038a-4078-a9fb-c9f9cf9ecd49
-  mode: single
+  mode: restart
   trigger:
     - platform: numeric_state
+      id: wind_advisory
       entity_id: sensor.pirateweather_wind_speed
       above: 30
     - platform: numeric_state
+      id: wind_severe
       entity_id: sensor.pirateweather_wind_speed
       above: 40
     - platform: numeric_state
+      id: wind_emergency
       entity_id: sensor.pirateweather_wind_speed
       above: 60
 
   action:
+    - delay: "00:00:02"
+    - variables:
+        wind_speed: "{{ states('sensor.pirateweather_wind_speed') | float(0) }}"
+        wind_severity: >-
+          {% if wind_speed > 60 %}emergency
+          {% elif wind_speed > 40 %}severe
+          {% else %}advisory
+          {% endif %}
+        garage_warning: >-
+          {% set ns = namespace(doors=[]) %}
+          {% if is_state('cover.large_garage_door', 'open') %}
+            {% set ns.doors = ns.doors + ['large garage door'] %}
+          {% endif %}
+          {% if is_state('cover.small_garage_door', 'open') %}
+            {% set ns.doors = ns.doors + ['small garage door'] %}
+          {% endif %}
+          {{ (' Close the ' ~ ns.doors | join(' and ') ~ '.') if ns.doors | count > 0 else '' }}
+        wind_message: >-
+          {% if wind_severity == 'emergency' %}
+            Hurricane-force winds are detected at {{ wind_speed | round }} mph. Stay indoors.
+          {% elif wind_severity == 'severe' %}
+            Severe winds are detected at {{ wind_speed | round }} mph. Find shelter and avoid going outside.
+          {% else %}
+            Heavy winds are detected at {{ wind_speed | round }} mph. Be careful outdoors.
+          {% endif %}{{ garage_warning }}
     - service: script.send_to_logbook
       data:
         topic: "WEATHER"
-        message: >-
-          Wind speed is {{ states('sensor.pirateweather_wind_speed') | round }} mph (thresholds: 30/40/60).
+        message: "{{ wind_message }}"
     - service: script.notify_engine
       data:
-        title: 'VERY HIGH WINDS:'
-        value1:  >-
-          {% set windspeed = states.sensor.pirateweather_wind_speed.state | round %}
-          {% if ( windspeed > 31 ) and ( windspeed <= 45 ) %}
-             HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors!
-          {% elif ( windspeed > 45 ) and ( windspeed <= 60 ) %}
-             Warning! Wind speed is {{windspeed}} MPH. FIND SHELTER IMMEDIATELY!
-          {% elif ( windspeed > 60 ) %}
-             HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS!
-          {% endif %}
+        title: "{{ wind_severity | upper }} WIND ALERT"
+        value1: "{{ wind_message }}"
         who: 'family'
         group: 'Alert'
 
@@ -49,19 +68,14 @@
 
     - service: script.speech_engine
       data:
-        value1: >
-          {% set windspeed = states.sensor.pirateweather_wind_speed.state | round %}
-          {% if ( windspeed > 31 ) and ( windspeed <= 40 ) %}
-             HEAVY WINDS!!! Current Wind Speed is : {{windspeed}} mph! Be VERY careful outdoors!
-          {% elif ( windspeed > 40 ) and ( windspeed <= 60 ) %}
-             Warning! Wind speed is {{windspeed}} MPH. FIND SHELTER IMMEDIATELY!
-          {% elif ( windspeed > 60 ) %}
-             HURRICANE WINDS. FIND SHELTER, AND STAY INDOORS!
-          {% endif %}
+        value1: "{{ wind_message }}"
         call_window_check: 1
         call_garage_check: 1
 
-    - service: script.emergency
+    - choose:
+        - conditions: "{{ wind_severity == 'emergency' }}"
+          sequence:
+            - service: script.emergency
 
     - delay:
         hours: 2

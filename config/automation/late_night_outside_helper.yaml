@@ -38,7 +38,7 @@
 
     - service: >
        {% set hour=states("sensor.time").split(':')[0] | int %}
-       {% if hour >= 5 and hour <= 9 and states.group.bed.state == 'on'%}
+       {% if hour >= 5 and hour <= 9 and is_state('group.bed', 'on') %}
          switch.turn_off
        {% else %}
           switch.turn_on
@@ -48,6 +48,9 @@
         - switch.back_landscaping
         - switch.front_door_outlet
         - switch.foyer_outlet
-    - wait_template: "{{ is_state('group.entry_points', 'off') }}"
-    - wait_template: "{{ is_state('group.garage_doors', 'closed') }}"
+    - wait_template: >-
+        {{ is_state('group.entry_points', 'off')
+           and is_state('group.garage_doors', 'closed') }}
+      timeout: "04:00:00"
+      continue_on_timeout: false
     - service: script.monthly_color_scene

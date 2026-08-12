@@ -32,7 +32,7 @@
     - service: media_player.play_media
       data:
         entity_id: >
-          {% if states.group.bed.state == 'off' %}
+          {% if is_state('group.bed', 'off') %}
           media_player.livingroomCC
           {% else %}
           media_player.bedroom

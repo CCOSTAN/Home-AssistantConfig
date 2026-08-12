@@ -9,6 +9,8 @@
 ######################################################################
 - alias: 'Shut down AMP in Living room'
   id: 3b41321c-8242-4cf5-9a93-b2b7aeeb8ea0
+  mode: single
+  max_exceeded: silent
   trigger:
     - platform: time
       at: '22:00:00'
@@ -16,10 +18,16 @@
   action:
     - wait_template: >-
        {{ not is_state('input_boolean.guest_mode', 'on') or is_state('group.bed', 'on') }}
+      timeout: "08:00:00"
+      continue_on_timeout: false
     - wait_template: >-
        {{ not is_state('media_player.livingroomCC', 'playing') }}
+      timeout: "02:00:00"
+      continue_on_timeout: true
     - wait_template: >-
        {{ not is_state('media_player.everywhere', 'playing') }}
+      timeout: "02:00:00"
+      continue_on_timeout: true
 
     - service: script.speech_engine
       data:
@@ -29,5 +37,7 @@
 
     - wait_template: >-
        {{ not is_state('media_player.livingroomCC', 'playing') }}
+      timeout: "00:10:00"
+      continue_on_timeout: true
     - service: switch.turn_off
       entity_id: switch.lr_amp

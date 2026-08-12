@@ -36,7 +36,9 @@
         - switch.office_lamp_switch
         
     - wait_template: >-
-       {{ states.sun.sun.state == 'above_horizon' }}
+       {{ is_state('sun.sun', 'above_horizon') }}
+      timeout: "04:00:00"
+      continue_on_timeout: false
     - service: homeassistant.turn_on
       entity_id: 
         - switch.alarm_panel_1_motion_detection

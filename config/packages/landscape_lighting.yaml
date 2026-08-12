@@ -54,7 +54,9 @@ automation:
           entity_id: switch.back_landscaping
 
         - wait_template: >-
-           {{ states.group.bed.state == 'on' }}
+           {{ is_state('group.bed', 'on') }}
+          timeout: "08:00:00"
+          continue_on_timeout: false
 
         - delay: '0{{ range(0,2) | random | int }}:{{ range(0,5) | random | int }}{{ range(0,9) | random | int }}:00'
 

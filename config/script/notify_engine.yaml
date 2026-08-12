@@ -34,64 +34,85 @@
 
 
 notify_engine:
+  alias: Notify Engine
+  mode: parallel
+  max: 20
   sequence:
-    - condition: or
-      conditions:
-        - condition: state
-          entity_id: input_boolean.text_notifications
-          state: 'on'
-
-    - service: >
-          {% if who == 'stacey' %}
+    - condition: state
+      entity_id: input_boolean.text_notifications
+      state: 'on'
+    - variables:
+        notify_service: >-
+          {% if who | default('family', true) == 'stacey' %}
             notify.mobile_app_stacey_iphone11
-          {% elif who == 'carlo' %}
+          {% elif who | default('family', true) == 'carlo' %}
             notify.mobile_app_carlo_maxpro
-          {% elif who == 'parents' %}
+          {% elif who | default('family', true) == 'parents' %}
             notify.ios_parents
-          {% elif who == 'family' %}
-            notify.ios_family
           {% else %}
             notify.ios_family
           {% endif %}
-      data:
-        title: "{{ title }}"
-        message: "{{ ' '.join([value1|default('', true), value2|default('', true), value3|default('', true)]) | trim }}"
-        data:
-          group: "{{ group|default('information') }}"
-          interuption_level: "{{ level|default('active') }}"
-          entity_id: "{{ camera_entity|default('', true) }}"
+        notify_message: >-
+          {{ ' '.join([
+            value1 | default('', true),
+            value2 | default('', true),
+            value3 | default('', true)
+          ]) | trim }}
+        has_actions: >-
+          {{ action1 | default('', true) | length > 0
+             or action2 | default('', true) | length > 0 }}
+    - choose:
+        - conditions: "{{ has_actions }}"
+          sequence:
+            - service: "{{ notify_service }}"
+              data:
+                title: "{{ title | default('', true) }}"
+                message: "{{ notify_message }}"
+                data:
+                  actions:
+                    - title: "{{ title1 | default('', true) }}"
+                      action: "{{ action1 | default('', true) }}"
+                      icon: "{{ icon1 | default('sfsymbols:house.circle', true) }}"
+                      destructive: "{{ destructive1 | default(false, true) }}"
+                    - title: "{{ title2 | default('', true) }}"
+                      action: "{{ action2 | default('', true) }}"
+                      icon: "{{ icon2 | default('sfsymbols:house.circle', true) }}"
+                      destructive: "{{ destructive2 | default(false, true) }}"
+                  group: "{{ group | default('information', true) }}"
+                  entity_id: "{{ camera_entity | default('', true) }}"
+                  push:
+                    interruption-level: "{{ level | default('active', true) }}"
+      default:
+        - service: "{{ notify_service }}"
+          data:
+            title: "{{ title | default('', true) }}"
+            message: "{{ notify_message }}"
+            data:
+              group: "{{ group | default('information', true) }}"
+              entity_id: "{{ camera_entity | default('', true) }}"
+              push:
+                interruption-level: "{{ level | default('active', true) }}"
 
 notify_engine_two_button:
+  alias: Notify Engine Two Button
+  mode: parallel
+  max: 20
   sequence:
-    - condition: or
-      conditions:
-        - condition: state
-          entity_id: input_boolean.text_notifications
-          state: 'on'
-
-    - service: >
-          {% if who == 'stacey' %}
-            notify.mobile_app_stacey_iphone11
-          {% elif who == 'carlo' %}
-            notify.mobile_app_carlo_maxpro
-          {% elif who == 'parents' %}
-            notify.ios_parents
-          {% elif who == 'family' %}
-            notify.ios_family
-          {% else %}
-            notify.ios_family
-          {% endif %}
+    - service: script.notify_engine
       data:
-        message: "{{ ' '.join([value1|default('', true), value2|default('', true), value3|default('', true)]) | trim }}"
-        title: "{{ title|default('', true) }}"
-        data:
-          actions:
-            - title: "{{ title1|default('', true) }}"
-              action: "{{ action1|default('', true) }}"
-              icon: "{{ icon1|default ('sfsymbols:house.circle', true) }}"
-              destructive: "{{ destructive1|default('false', true) }}"
-            - title: "{{ title2|default('', true) }}"
-              action: "{{ action2|default('', true) }}"
-              icon: "{{ icon2|default ('sfsymbols:house.circle', true) }}"
-              destructive: "{{ destructive2|default('false', true) }}"         
-          group: "{{ group|default('information', true) }}"
+        title: "{{ title | default('', true) }}"
+        value1: "{{ value1 | default('', true) }}"
+        value2: "{{ value2 | default('', true) }}"
+        value3: "{{ value3 | default('', true) }}"
+        who: "{{ who | default('family', true) }}"
+        group: "{{ group | default('information', true) }}"
+        level: "{{ level | default('active', true) }}"
+        camera_entity: "{{ camera_entity | default('', true) }}"
+        title1: "{{ title1 | default('', true) }}"
+        action1: "{{ action1 | default('', true) }}"
+        icon1: "{{ icon1 | default('sfsymbols:house.circle', true) }}"
+        destructive1: "{{ destructive1 | default(false, true) }}"
+        title2: "{{ title2 | default('', true) }}"
+        action2: "{{ action2 | default('', true) }}"
+        icon2: "{{ icon2 | default('sfsymbols:house.circle', true) }}"
+        destructive2: "{{ destructive2 | default(false, true) }}"

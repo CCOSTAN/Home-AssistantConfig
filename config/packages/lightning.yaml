@@ -8,7 +8,10 @@
 #  Keeps push alerts but also logs to Activity feed.
 # -------------------------------------------------------------------
 # Guide: https://www.vcloudinfo.com/2020/08/adding-a-lightning-sensor-to-home-assistant.html | Existing Issue #392
-# Notes: Lightning Notification intentionally holds a 60-minute cooldown; duplicate triggers are silenced.
+# Notes: Lightning Notification owns lightning safety speech and intentionally
+#  holds a 60-minute cooldown; duplicate triggers are silenced.
+# Notes: Wait briefly for numeric distance data, then fall back to "nearby"
+#  rather than aborting when the distance sensor is unavailable.
 ######################################################################
 input_boolean:
   snooze_lightning:
@@ -49,15 +52,28 @@ automation:
         state: 'off'
 
     action:
+      - wait_template: >-
+          {{ is_number(states('sensor.blitzortung_lightning_distance')) }}
+        timeout: "00:00:05"
+        continue_on_timeout: true
+
+      - variables:
+          lightning_location: >-
+            {% set distance_km = states('sensor.blitzortung_lightning_distance') | float(none) %}
+            {% if distance_km is not none %}
+              within {{ (distance_km / 1.609344) | round(1) }} miles of our home
+            {% else %}
+              nearby
+            {% endif %}
+
       - service: script.send_to_logbook
         data:
           topic: "WEATHER"
-          message: >-
-            Lightning detected within {{ (states('sensor.blitzortung_lightning_distance') | int / 1.609) | round(1, 'floor') }} miles.
+          message: "Lightning detected {{ lightning_location }}."
       - service: script.notify_engine_two_button
         data:
           title: 'Lightning Warning!'
-          value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.609) | round (1, 'floor')}} Miles of our home.  Be careful if outdoors."
+          value1: "Lightning has been detected {{ lightning_location }}. Be careful if outdoors."
           title1: 'Snooze Alerts until tomorrow'
           action1: 'SNOOZE_LIGHTNING'
           icon1: 'sfsymbols:arrow.up.circle'
@@ -66,7 +82,7 @@ automation:
 
       - service: script.speech_engine
         data:
-          value1: "Lightning has been detected within {{(states('sensor.blitzortung_lightning_distance') | int / 1.609) | round (1, 'floor')}} Miles of our home.  Please make sure everyone is inside the house."
+          value1: "Lightning has been detected {{ lightning_location }}. Please make sure everyone is inside the house."
           call_window_check: 1
           call_garage_check: 1
           

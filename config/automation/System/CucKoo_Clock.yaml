@@ -41,6 +41,8 @@
         volume_level: 0.22
 
     - wait_template: "{{ not is_state('media_player.livingroomCC', 'playing') }}"
+      timeout: "00:02:00"
+      continue_on_timeout: false
 
     - service: media_player.play_media
       data:
