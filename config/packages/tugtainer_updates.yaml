@@ -11,10 +11,10 @@
 # Notes: Creates persistent notifications and stamps last-update time.
 # Notes: Fires update events independently when a report has both Available and Updated sections.
 # Notes: Fires `tugtainer_home_assistant_core_updated` when `### Updated:` includes Home Assistant.
-# Notes: Failed or rolled-back reports dispatch Joanna immediately, outside the Available-report cooldown.
+# Notes: Every Available report dispatches Joanna; Tugtainer owns report scheduling and de-duplication.
 # Notes: Home Assistant changelog dispatch uses core-YYYY.M URL format from parsed/fallback version.
-# Notes: Joanna dispatch cooldown uses mode=single with a 24-hour delay lockout.
-# Notes: Available reports must not auto-update Home Assistant; HA core updates require explicit approval, config check, and a maintenance window.
+# Notes: Home Assistant is auto-update eligible after its Tugtainer pre-update config check; no per-release approval is required.
+# Notes: Portainer image-update entities are auto-disabled because Tugtainer/Compose own container rollouts.
 # - Video: https://youtu.be/4NNOkXzUyYw
 # - Blog: https://www.vcloudinfo.com/2026/07/home-assistant-tugtainer-docker-updates.html
 # Notes: Changelog digest follow-up https://www.vcloudinfo.com/2026/04/joanna-home-assistant-changelog-digest-tugtainer.html
@@ -28,6 +28,54 @@ input_datetime:
     has_time: true
 
 automation:
+  - alias: "Tugtainer - Disable Duplicate Portainer Image Updates"
+    id: tugtainer_disable_duplicate_portainer_image_updates
+    description: "Keep Portainer's per-container image-update entities disabled while preserving its health telemetry."
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: entity_registry_updated
+        event_data:
+          action: create
+      - platform: homeassistant
+        event: start
+    variables:
+      portainer_update_entities: >-
+        {% set found = namespace(entities=[]) %}
+        {% if trigger.platform == 'event' %}
+          {% set candidate = trigger.event.data.entity_id | default('', true) | string %}
+          {% if candidate.startswith('update.') and
+                candidate.endswith('_image_update_available') and
+                config_entry_attr(config_entry_id(candidate), 'domain') == 'portainer' %}
+            {% set found.entities = [candidate] %}
+          {% endif %}
+        {% else %}
+          {% for candidate in states.update | map(attribute='entity_id') | list %}
+            {% if candidate.endswith('_image_update_available') and
+                  config_entry_attr(config_entry_id(candidate), 'domain') == 'portainer' %}
+              {% set found.entities = found.entities + [candidate] %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {{ found.entities }}
+    condition:
+      - condition: template
+        value_template: "{{ portainer_update_entities | count > 0 }}"
+    action:
+      - repeat:
+          for_each: "{{ portainer_update_entities }}"
+          sequence:
+            - service: homeassistant.disable_entity
+              data:
+                entity_id: "{{ repeat.item }}"
+      - service: script.send_to_logbook
+        data:
+          topic: "DOCKER"
+          message: >-
+            Disabled {{ portainer_update_entities | count }} duplicate Portainer
+            image-update {{ 'entity' if portainer_update_entities | count == 1 else 'entities' }};
+            Tugtainer and Compose remain the rollout owners.
+
   - alias: "Tugtainer Update Report"
     id: tugtainer_update_report
     description: "Receive Tugtainer reports, post persistent alerts, and dispatch failed updates."
@@ -133,10 +181,11 @@ automation:
                 host, Tugtainer logs, and live container state before changing
                 anything. Recover failed or rolled-back services through their
                 Compose definitions when safe, verify application health, and
-                reconcile Tugtainer state. Do not update, recreate, or restart Home
-                Assistant (`home-assistant` or
-                `ghcr.io/home-assistant/home-assistant`) from this dispatch. Report
-                what was fixed and any remaining blockers.
+                reconcile Tugtainer state. For a Home Assistant failure, use its
+                validated configuration, retained prior image, HTTP healthcheck,
+                and owning Compose definition to recover it without waiting for
+                per-release approval. Report what was fixed and any remaining
+                blockers.
       - if:
           - condition: template
             value_template: "{{ ha_core_update_detected and (ha_core_version_minor | trim != '') }}"
@@ -153,8 +202,8 @@ automation:
 
   - alias: "Tugtainer - Dispatch Joanna For Available Updates"
     id: tugtainer_dispatch_joanna_for_available_updates
-    description: "Dispatch Joanna on Available updates with a 24-hour cooldown and no helper entities."
-    mode: single
+    description: "Dispatch Joanna for every Tugtainer Available report."
+    mode: queued
     trigger:
       - platform: event
         event_type: tugtainer_available_detected
@@ -173,7 +222,7 @@ automation:
         data:
           trigger_context: "{{ trigger_context }}"
           source: "home_assistant_automation.tugtainer_dispatch_joanna_for_available_updates"
-          summary: "Tugtainer reported Available container updates requiring manual action"
+          summary: "Tugtainer reported container updates scheduled for automatic rollout"
           entity_ids:
             - "input_datetime.tugtainer_last_update"
           diagnostics: >-
@@ -181,15 +230,16 @@ automation:
             event_type={{ event_type }},
             message={{ message }}
           request: >-
-            Review the Tugtainer report and prepare an update plan for containers
-            listed under the Available section. Do not update, recreate, or restart
-            Home Assistant (`home-assistant` or
-            `ghcr.io/home-assistant/home-assistant`) from this dispatch. For Home
-            Assistant core, report the available version and wait for explicit
-            approval, a config check, and a maintenance window. Update only non-HA
-            containers where the change is low-risk, then report what changed and
-            any failures.
-      - delay: "24:00:00"
+            Review the Tugtainer report for containers listed under Available.
+            Eligible containers, including Home Assistant core, are scheduled for
+            Tugtainer's 07:00 automatic rollout and do not require per-release
+            approval. When Home Assistant is listed, confirm its pre-update config
+            check, HTTP healthcheck, and rollback safeguards remain configured;
+            do not race the scheduled rollout with an early manual recreation.
+            Protected Tugtainer control-plane containers cannot self-update; update
+            those one host at a time through their owning Compose definitions when
+            low-risk. Verify the scheduled and manual updates, reconcile Tugtainer's
+            inventory, and report any failures or rollbacks.
 
   - alias: "Tugtainer - Dispatch Joanna For Home Assistant Core Digest"
     id: tugtainer_dispatch_joanna_for_home_assistant_core_digest
