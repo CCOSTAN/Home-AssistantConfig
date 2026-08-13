@@ -19,6 +19,8 @@
 # Notes: WHOIS days-until-expiration countdowns are live-only; actual expiry timestamps and alert-state changes remain durable.
 # Notes: Dashboard aggregate issue counts are live-only; the underlying degraded-state sensors carry useful history.
 # Notes: The SQL-backed sleep-score average is live-only; direct nightly scores keep the durable history.
+# Notes: Kiosk point-in-time URLs, timestamps, active/detail views, timers, CPU load, and RAM telemetry are live-only; keep illuminance and CPU temperature for lighting calibration and thermal trends.
+# Notes: UniFi AP CPU, memory, and per-AP/aggregate client counts are live-only; zero-client Repairs and curated WIRELESS logbook events retain actionable incidents.
 ######################################################################
 db_url: !secret recorder_db_url
 purge_keep_days: 180
@@ -111,6 +113,9 @@ exclude:
     - sensor.*_wi_fi_signal
     - sensor.*_wifi_signal
     - sensor.*_wifi_signal_strength
+    - sensor.unifi_ap_*_clients
+    - sensor.unifi_ap_*_cpu_utilization
+    - sensor.unifi_ap_*_memory_utilization
     - sensor.carlo_maxpro_*
     - sensor.stacey_iphone11_*
     - sensor.*_wake_alarm_minutes
@@ -186,6 +191,7 @@ exclude:
     - automation.update_garage_get_status
     - automation.docker_telemetry_template_refresh
     - sensor.infra_dashboard_active_issue_count
+    - sensor.total_wifi_clients
     - sensor.hvac_condenser_lines_days_since_cleaned
     - sensor.front_office_lamp_voltage
     - sensor.water_softener_salt_days_since_last_add
@@ -193,6 +199,18 @@ exclude:
     - sensor.ipmer_com_days_until_expiration
     - sensor.kingcrafthomes_com_days_until_expiration
     - sensor.vcloudinfo_com_days_until_expiration
+    # Kiosk Satellite operational state is useful now, not as history.
+    - sensor.kitchen_show_active_camera_view
+    - sensor.kitchen_show_cpu_usage
+    - sensor.kitchen_show_current_page
+    - sensor.kitchen_show_last_screenshot
+    - sensor.kitchen_show_next_alarm
+    - sensor.kitchen_show_ram_available
+    - sensor.kitchen_show_ram_total
+    - sensor.kitchen_show_remote_admin
+    - input_text.kitchen_kiosk_detail_view
+    - timer.kitchen_kiosk_detail_display
+    - timer.kitchen_kiosk_radar_display
     # BEGIN generated Portainer recorder/logbook noise exclusions
     # Portainer per-container/status plumbing is live-only; keep aggregate Docker outage sensors historically.
     - binary_sensor.docker_container_alerts_snoozed
