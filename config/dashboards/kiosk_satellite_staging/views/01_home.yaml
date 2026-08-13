@@ -8,15 +8,14 @@
 # -------------------------------------------------------------------
 # Related Issue: 1875
 # Notes: The Kitchen Show is the reference implementation for this shared view.
+# Notes: Panel mode removes unused top padding while the inner layout preserves safe side margins.
+# Notes: The Kitchen Show uses a fixed dark theme for maximum distance readability.
 # Notes: Device-specific kiosk controls stay out of the shared dashboard.
 ######################################################################
 
 title: Home
 path: home
 icon: mdi:cctv
-theme: kiosk_satellite_auto
-type: sections
-max_columns: 4
-dense_section_placement: true
-sections: !include /config/dashboards/kiosk_satellite_staging/partials/home_sections.yaml
-cards: []
+theme: kiosk_satellite_dark
+type: panel
+cards: !include /config/dashboards/kiosk_satellite_staging/partials/home_sections.yaml

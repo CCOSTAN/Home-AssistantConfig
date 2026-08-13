@@ -14,12 +14,17 @@
 # Notes: Kitchen Show uses Kiosk Satellite discovery entities; no screensaver helper is required.
 # Notes: Kitchen Show stays dark while the house is empty or asleep and wakes only for occupied-house events.
 # Notes: Garage takes over while either door is moving/open; Front Door takes over while unlocked.
-# Notes: New Kiosk Satellite releases dispatch Joanna to install and verify the Kitchen Show update.
+# Notes: At 07:00, a pending new Kiosk Satellite release dispatches Joanna once for install and verification.
 # Notes: Wake events only restore brightness/focus; URL reloads require page drift.
 # Notes: Fully auto-reload on screen-on/screensaver-stop is disabled to avoid motion wake reload loops.
 # Notes: Startup recovery waits for HA's initial websocket state burst to settle.
 # Notes: Brightness recovery only runs when both SleepIQ in-bed sensors are off.
 # Notes: Fully availability/page/app/power plus Kitchen last-seen/update/screenshot freshness feed Systems telemetry.
+# Notes: Kitchen updates are advisory telemetry and do not raise kiosk or Systems fault rollups.
+# Notes: Kiosk attention sensors expose only their stable status attribute so recorder preserves problem transitions without heartbeat churn.
+# Notes: Nearby daytime rain or lightning starts a five-minute NOAA radar view; the ambient banner offers daylight replay while the event remains active.
+# Notes: Actionable Kitchen banner slides open one shared short-lived detail surface; camera events retain priority.
+# Notes: Phyn detail can restore a closed main valve only after an explicit on-screen confirmation.
 # Video: https://youtu.be/ChgEu0IDWzc
 ######################################################################
 
@@ -27,6 +32,22 @@ input_text:
   kitchen_show_kiosk_satellite_last_dispatched_version:
     name: "Kitchen Show Kiosk Satellite Last Dispatched Version"
     max: 32
+  kitchen_kiosk_detail_view:
+    name: "Kitchen Kiosk Detail View"
+    initial: none
+    max: 128
+
+timer:
+  kitchen_kiosk_radar_display:
+    name: "Kitchen Kiosk Radar Display"
+    duration: "00:05:00"
+    restore: true
+    icon: mdi:radar
+  kitchen_kiosk_detail_display:
+    name: "Kitchen Kiosk Detail Display"
+    duration: "00:03:00"
+    restore: false
+    icon: mdi:card-text-outline
 
 automation:
   - alias: "Bedroom Kiosk Tablet - Return to Kiosk View"
@@ -206,6 +227,9 @@ automation:
                   entity_id: button.kitchen_show_postpone_screensaver
               - service: script.kitchen_kiosk_apply_camera_policy
         default:
+          - service: timer.cancel
+            target:
+              entity_id: timer.kitchen_kiosk_detail_display
           - service: button.press
             target:
               entity_id: button.kitchen_show_close_camera_view
@@ -213,8 +237,51 @@ automation:
             target:
               entity_id: light.kitchen_show_screen
 
+  - alias: "Kitchen Kiosk Satellite - Daylight Radar Trigger"
+    id: 411dc0c0-a291-48e7-a493-2481a8d9477d
+    description: "Show NOAA radar for five minutes when a nearby daytime rain or lightning event begins."
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kiosk_rain_radar_weather_event
+        to: "on"
+
+    condition:
+      - condition: state
+        entity_id: binary_sensor.kiosk_rain_radar_weather_event
+        state: "on"
+      - condition: state
+        entity_id: timer.kitchen_kiosk_radar_display
+        state: idle
+
+    action:
+      - service: script.kitchen_kiosk_show_event
+        data:
+          event_type: radar
+
+  - alias: "Kitchen Kiosk Satellite - Clear Detail View"
+    id: 17bef67a-f68e-4b57-b04c-c2b890fafb77
+    description: "Clear transient banner detail state after timeout or household shutdown."
+    mode: restart
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.kitchen_kiosk_detail_display
+      - platform: event
+        event_type: timer.cancelled
+        event_data:
+          entity_id: timer.kitchen_kiosk_detail_display
+    action:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.kitchen_kiosk_detail_view
+        data:
+          value: none
+
   - alias: "Kitchen Kiosk Satellite - Refresh Systems Snapshot"
     id: e920cab1-59d3-4d45-8aad-67170127504f
+    description: "Reconcile an active startup storm, then refresh the Systems dashboard screenshot."
     mode: single
     max_exceeded: silent
     trigger:
@@ -225,7 +292,17 @@ automation:
         minutes: "/15"
         id: periodic
     action:
-      - delay: "{{ '00:02:00' if trigger.id == 'startup' else '00:00:00' }}"
+      - delay: "{{ '00:03:00' if trigger.id == 'startup' else '00:00:00' }}"
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: startup
+            sequence:
+              - service: automation.trigger
+                target:
+                  entity_id: automation.kitchen_kiosk_satellite_daylight_radar_trigger
+                data:
+                  skip_condition: false
       - condition: template
         value_template: >-
           {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen'), 0) %}
@@ -236,17 +313,17 @@ automation:
 
   - alias: "Kitchen Kiosk Satellite - Update Joanna Dispatch"
     id: 199e30f0-e28c-4842-953d-a65bc4b4e1d3
-    description: "Dispatch Joanna when a new Kiosk Satellite release is available for the Kitchen Show."
+    description: "At 07:00, dispatch Joanna once when a new Kiosk Satellite release is pending for the Kitchen Show."
     mode: single
     max_exceeded: silent
     trigger:
-      - platform: state
-        entity_id: update.kitchen_show_update
-        from: "off"
-        to: "on"
-        for: "00:02:00"
+      - platform: time
+        at: "07:00:00"
 
     condition:
+      - condition: state
+        entity_id: update.kitchen_show_update
+        state: "on"
       - condition: template
         value_template: >-
           {% set installed = state_attr('update.kitchen_show_update', 'installed_version') | default('', true) | string %}
@@ -437,6 +514,38 @@ template:
             {% endif %}
 
   - binary_sensor:
+      - name: "Kiosk Rain Radar Weather Event"
+        unique_id: kiosk_rain_radar_weather_event
+        icon: mdi:radar
+        delay_on: "00:02:00"
+        state: >-
+          {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+          {% set precip = states('sensor.pirateweather_precip') | lower %}
+          {% set intensity = states('sensor.pirateweather_precip_intensity') | float(0) %}
+          {% set storm_distance_state = states('sensor.pirateweather_nearest_storm_distance') %}
+          {% set storm_distance_miles = storm_distance_state | float(999) %}
+          {% set lightning_count = states('sensor.blitzortung_lightning_counter') | int(0) %}
+          {% set lightning_distance_state = states('sensor.blitzortung_lightning_distance') %}
+          {% set lightning_distance_miles = lightning_distance_state | float(9999) / 1.609344 %}
+          {{ is_state('binary_sensor.kitchen_kiosk_should_be_on', 'on')
+             and is_state('sun.sun', 'above_horizon')
+             and (
+               precip == 'rain'
+               or intensity > 0.2
+               or (storm_distance_state not in invalid and storm_distance_miles <= 10)
+               or (lightning_count > 0
+                   and lightning_distance_state not in invalid
+                   and lightning_distance_miles <= 10)
+             ) }}
+
+      - name: "Kiosk Rain Radar Active"
+        unique_id: kiosk_rain_radar_active
+        icon: mdi:radar
+        state: >-
+          {{ is_state('binary_sensor.kitchen_kiosk_should_be_on', 'on')
+             and is_state('sun.sun', 'above_horizon')
+             and is_state('timer.kitchen_kiosk_radar_display', 'active') }}
+
       - name: "Kitchen Kiosk Should Be On"
         unique_id: kitchen_kiosk_should_be_on
         icon: mdi:monitor-eye
@@ -504,9 +613,6 @@ template:
             {% else %}
               online
             {% endif %}
-          current_page: "{{ states('sensor.alarm_panel_1_current_page') }}"
-          foreground_app: "{{ states('sensor.alarm_panel_1_foreground_app') }}"
-          battery: "{{ states('sensor.alarm_panel_1_battery') }}"
 
       - name: "Kitchen Kiosk Needs Attention"
         unique_id: kitchen_kiosk_needs_attention
@@ -528,7 +634,6 @@ template:
              or remote_admin in invalid
              or '/dashboard-kiosk-satellite-staging/home' not in page
              or (battery < 20 and not is_state('binary_sensor.kitchen_show_charging', 'on'))
-             or is_state('update.kitchen_show_update', 'on')
              or screenshot_stale }}
         attributes:
           status: >-
@@ -546,17 +651,13 @@ template:
               page drift
             {% elif battery < 20 and not is_state('binary_sensor.kitchen_show_charging', 'on') %}
               low battery
-            {% elif is_state('update.kitchen_show_update', 'on') %}
-              update available
             {% elif screenshot == 0 or (as_timestamp(now()) - screenshot) > 2700 %}
               screenshot stale
+            {% elif is_state('update.kitchen_show_update', 'on') %}
+              update available
             {% else %}
               online
             {% endif %}
-          last_seen: "{{ states('sensor.kitchen_show_last_seen') }}"
-          last_screenshot: "{{ states('sensor.kitchen_show_last_screenshot') }}"
-          current_page: "{{ states('sensor.kitchen_show_current_page') }}"
-          battery: "{{ states('sensor.kitchen_show_battery') }}"
 
       - name: "Kiosk Devices Need Attention"
         unique_id: kiosk_devices_need_attention
@@ -609,8 +710,9 @@ script:
               - condition: template
                 value_template: >-
                   {{ states('sensor.kitchen_show_active_camera_view') != desired_view }}
-              - service: script.kitchen_kiosk_show_camera
+              - service: script.kitchen_kiosk_show_event
                 data:
+                  event_type: camera
                   show_button: "{{ desired_button }}"
         default:
           - choose:
@@ -627,25 +729,169 @@ script:
             target:
               entity_id: button.kitchen_show_bring_to_front
 
-  kitchen_kiosk_show_camera:
-    alias: "Kitchen Kiosk - Show Camera"
+  kitchen_kiosk_show_event:
+    alias: "Kitchen Kiosk - Show Display Event"
     mode: restart
     fields:
+      event_type:
+        name: Event type
+        description: Event renderer to show on the Kitchen kiosk.
+        required: true
+        selector:
+          select:
+            options:
+              - radar
+              - camera
+              - detail
       show_button:
         name: Camera view button
         description: Kiosk Satellite MQTT button for the native camera view.
-        required: true
+        required: false
         selector:
           entity:
             domain: button
     sequence:
+      - condition: template
+        value_template: >-
+          {{ event_type in ['camera', 'detail']
+             or (
+               event_type == 'radar'
+               and is_state('binary_sensor.kitchen_kiosk_should_be_on', 'on')
+               and is_state('sun.sun', 'above_horizon')
+               and is_state('binary_sensor.kiosk_rain_radar_weather_event', 'on')
+             ) }}
       - service: light.turn_on
         target:
           entity_id: light.kitchen_show_screen
       - service: button.press
         target:
-          entity_id: button.kitchen_show_bring_to_front
-      - delay: "00:00:01"
+          entity_id: button.kitchen_show_postpone_screensaver
       - service: button.press
         target:
-          entity_id: "{{ show_button }}"
+          entity_id: button.kitchen_show_bring_to_front
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ event_type == 'radar' }}"
+            sequence:
+              - service: timer.cancel
+                target:
+                  entity_id: timer.kitchen_kiosk_detail_display
+              - service: timer.start
+                target:
+                  entity_id: timer.kitchen_kiosk_radar_display
+                data:
+                  duration: "00:05:00"
+          - conditions:
+              - condition: template
+                value_template: "{{ event_type == 'camera' }}"
+            sequence:
+              - service: timer.cancel
+                target:
+                  entity_id: timer.kitchen_kiosk_detail_display
+              - condition: template
+                value_template: >-
+                  {{ show_button is defined and show_button | string | length > 0 }}
+              - delay: "00:00:01"
+              - service: button.press
+                target:
+                  entity_id: "{{ show_button }}"
+
+  kitchen_kiosk_show_detail:
+    alias: "Kitchen Kiosk - Show Banner Detail"
+    mode: restart
+    fields:
+      detail_type:
+        name: Detail type
+        description: Contextual detail renderer requested by the active banner slide.
+        required: true
+        selector:
+          select:
+            options:
+              - weather
+              - package
+              - family
+              - entry_points
+              - phyn
+              - hot_water
+      detail_subject:
+        name: Detail subject
+        description: Optional alert ID or person entity for the detail renderer.
+        required: false
+        selector:
+          text:
+    variables:
+      normalized_type: "{{ detail_type | default('', true) | lower }}"
+      normalized_subject: "{{ detail_subject | default('', true) | string }}"
+      allowed_people:
+        - person.carlo
+        - person.stacey
+        - person.justin
+        - person.paige
+      phyn_alert_entities:
+        - binary_sensor.garage_phyn_battery_alert
+        - binary_sensor.garage_phyn_freeze_warning_alert
+        - binary_sensor.garage_phyn_high_pressure_alert
+        - binary_sensor.garage_phyn_leak_alert
+        - binary_sensor.garage_phyn_offline_leak_shutoff_alert
+        - binary_sensor.garage_phyn_pinhole_leak_alert
+        - binary_sensor.garage_phyn_recurring_flow_alert
+        - binary_sensor.garage_phyn_temperature_alert
+      detail_is_valid: >-
+        {% set phyn_alert = expand(phyn_alert_entities)
+           | selectattr('state', 'eq', 'on') | list | count > 0 %}
+        {{ is_state('binary_sensor.kitchen_kiosk_should_be_on', 'on')
+           and (
+             (normalized_type == 'weather' and states('sensor.nws_alerts_alerts') | int(0) > 0)
+             or (normalized_type == 'package' and is_state('binary_sensor.front_door_packages_present', 'on'))
+             or (normalized_type == 'family'
+                 and normalized_subject in allowed_people
+                 and states(normalized_subject) not in ['home', 'unknown', 'unavailable'])
+             or (normalized_type == 'entry_points' and is_state('group.entry_points', 'on'))
+             or (normalized_type == 'phyn'
+                 and (phyn_alert or states('valve.phyn_shutoff_valve') != 'open'))
+             or (normalized_type == 'hot_water'
+                 and states('sensor.rheem_wh_available_hot_water') | float(100) < 30)
+           ) }}
+      detail_duration: >-
+        {{ '00:05:00' if normalized_type in ['weather', 'phyn'] else '00:03:00' }}
+      detail_value: >-
+        {{ normalized_type ~ ('|' ~ normalized_subject if normalized_subject | length > 0 else '') }}
+    sequence:
+      - condition: template
+        value_template: "{{ detail_is_valid }}"
+      - service: timer.cancel
+        target:
+          entity_id: timer.kitchen_kiosk_radar_display
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.kitchen_kiosk_detail_view
+        data:
+          value: "{{ detail_value }}"
+      - service: timer.start
+        target:
+          entity_id: timer.kitchen_kiosk_detail_display
+        data:
+          duration: "{{ detail_duration }}"
+      - service: script.kitchen_kiosk_show_event
+        data:
+          event_type: detail
+
+  kitchen_kiosk_restore_phyn_water:
+    alias: "Kitchen Kiosk - Restore Phyn Water"
+    mode: single
+    sequence:
+      - condition: state
+        entity_id: timer.kitchen_kiosk_detail_display
+        state: active
+      - condition: template
+        value_template: >-
+          {{ states('input_text.kitchen_kiosk_detail_view').split('|')[0] == 'phyn'
+             and is_state('valve.phyn_shutoff_valve', 'closed') }}
+      - service: valve.open_valve
+        target:
+          entity_id: valve.phyn_shutoff_valve
+      - service: script.send_to_logbook
+        data:
+          topic: WATER
+          message: "Kitchen Show requested that the Phyn main water valve be turned on."

@@ -9,7 +9,12 @@
 # Notes: Three-row landscape layout uses full-width clock and alert banners around the camera row.
 # Notes: Camera cards use automatic streaming to limit idle tablet load.
 # Notes: Native Garage and Front Door views take over for their matching live states.
-# Notes: The lower panel is display-only and mirrors read-only household fact entities.
+# Notes: Nearby rain or lightning starts a five-minute NOAA radar view only while the sun is above the horizon.
+# Notes: After radar returns to the ambient wall, Storms Approaching offers another five-minute replay from the lower banner.
+# Notes: Actionable banner slides open one shared full-screen detail surface and return automatically to the ambient wall.
+# Notes: Family detail centers only the selected person; Phyn detail includes a confirmed main-valve restore action.
+# Notes: The large-format lower panel otherwise mirrors read-only household fact entities.
+# Notes: The clock uses oversized time text and places live conditions beneath the current-weather icon.
 ######################################################################
 
 # Clock and camera wall
@@ -29,8 +34,10 @@
           "frontlawn driveway"
           "ambient ambient"
         align-items: stretch
-        grid-gap: 10px
-        margin: 0
+        grid-gap: 6px
+        margin: 0 36px
+        padding: 0
+        "--masonry-view-card-margin": 0px
         mediaquery:
           "(max-width: 700px)":
             grid-template-columns: 1fr
@@ -74,6 +81,45 @@
               }
               clock-weather-card-today {
                 height: 126px !important;
+                position: relative !important;
+              }
+              clock-weather-card-today-left {
+                align-items: flex-start !important;
+                justify-content: center !important;
+              }
+              clock-weather-card-today-left .grow-img {
+                width: 96px !important;
+                height: 96px !important;
+                flex: 0 0 96px !important;
+              }
+              clock-weather-card-today-right,
+              clock-weather-card-today-right-wrap {
+                position: static !important;
+              }
+              clock-weather-card-today-right-wrap {
+                height: 126px !important;
+                justify-content: center !important;
+              }
+              clock-weather-card-today-right-wrap-top {
+                position: absolute !important;
+                left: 0;
+                bottom: 3px;
+                width: 35% !important;
+                height: 24px !important;
+                font-size: 18px !important;
+                font-weight: 600 !important;
+                line-height: 24px !important;
+                text-align: center !important;
+              }
+              clock-weather-card-today-right-wrap-center {
+                min-height: 78px !important;
+                font-size: 76px !important;
+                font-weight: 500 !important;
+                line-height: 1 !important;
+              }
+              clock-weather-card-today-right-wrap-bottom {
+                font-size: 16px !important;
+                line-height: 20px !important;
               }
               clock-weather-card-forecast {
                 max-height: 126px;
@@ -129,12 +175,19 @@
             - binary_sensor.garage_phyn_pinhole_leak_alert
             - binary_sensor.garage_phyn_recurring_flow_alert
             - binary_sensor.garage_phyn_temperature_alert
+            - valve.phyn_shutoff_valve
+            - sensor.phyn_current_water_pressure
+            - sensor.phyn_average_water_flow_rate
             - sensor.nws_alerts_alerts
             - group.garage_doors
             - group.entry_points
             - group.locks
             - binary_sensor.front_door_packages_present
             - sensor.rheem_wh_available_hot_water
+            - binary_sensor.rheem_wh_running
+            - sensor.rheem_wh_tank_health
+            - sensor.rheem_wh_compressor_health
+            - water_heater.rheem_wh
             - input_boolean.garbage_cans_out
             - input_datetime.water_delivery_date
             - sensor.water_softener_salt_days_since_last_add
@@ -152,6 +205,12 @@
             - sensor.stacey_location_display
             - sensor.justin_location_display
             - sensor.paige_location_display
+            - binary_sensor.kiosk_rain_radar_weather_event
+            - binary_sensor.kiosk_rain_radar_active
+            - timer.kitchen_kiosk_radar_display
+            - input_text.kitchen_kiosk_detail_view
+            - timer.kitchen_kiosk_detail_display
+            - camera.frontdoorbell
           custom_fields:
             ambient: >
               [[[
@@ -166,6 +225,41 @@
                 };
                 const items = [];
                 const now = new Date();
+                const detailValue = valid(state('input_text.kitchen_kiosk_detail_view'))
+                  ? state('input_text.kitchen_kiosk_detail_view')
+                  : 'none';
+                const [detailType, detailSubject = ''] = detailValue.split('|');
+                const detailActive = state('timer.kitchen_kiosk_detail_display') === 'active' && detailType !== 'none';
+                const callScript = (service, data = {}) =>
+                  hass.callService('script', service, data);
+                const closeDetail = (event) => {
+                  event?.stopPropagation();
+                  hass.callService('timer', 'cancel', {}, {
+                    entity_id: 'timer.kitchen_kiosk_detail_display'
+                  });
+                };
+
+                const radarWeatherEvent = states['binary_sensor.kiosk_rain_radar_weather_event'];
+                const radarDisplayTimer = states['timer.kitchen_kiosk_radar_display'];
+                const radarReplayReady =
+                  radarWeatherEvent?.state === 'on' &&
+                  state('binary_sensor.kiosk_rain_radar_active') !== 'on' &&
+                  radarDisplayTimer?.state === 'idle' &&
+                  new Date(radarDisplayTimer.last_changed).getTime() >
+                    new Date(radarWeatherEvent.last_changed).getTime();
+                if (radarReplayReady) {
+                  items.push({
+                    kicker: 'WEATHER RADAR',
+                    title: 'Storms Approaching',
+                    detail: 'Tap for radar',
+                    icon: 'mdi:radar',
+                    accent: '#0288d1',
+                    action: {
+                      service: 'kitchen_kiosk_show_event',
+                      data: {event_type: 'radar'}
+                    }
+                  });
+                }
 
                 const phynAlerts = [
                   'binary_sensor.garage_phyn_battery_alert',
@@ -177,16 +271,21 @@
                   'binary_sensor.garage_phyn_recurring_flow_alert',
                   'binary_sensor.garage_phyn_temperature_alert'
                 ].filter((entityId) => state(entityId) === 'on');
-                if (phynAlerts.length > 0) {
+                const phynValveState = state('valve.phyn_shutoff_valve');
+                if (phynAlerts.length > 0 || (valid(phynValveState) && phynValveState !== 'open')) {
                   const alertNames = phynAlerts.map((entityId) =>
                     states[entityId]?.attributes?.friendly_name || pretty(entityId.split('.')[1])
                   );
                   items.push({
                     kicker: 'WATER SYSTEM',
-                    title: 'Phyn needs attention',
-                    detail: alertNames.join(' · '),
+                    title: phynValveState === 'closed' ? 'Main water is off' : 'Phyn needs attention',
+                    detail: `${alertNames.join(' · ') || `Valve is ${pretty(phynValveState)}`} · Tap for water details`,
                     icon: 'mdi:water-alert-outline',
-                    accent: '#c62828'
+                    accent: '#c62828',
+                    action: {
+                      service: 'kitchen_kiosk_show_detail',
+                      data: {detail_type: 'phyn'}
+                    }
                   });
                 }
 
@@ -247,7 +346,14 @@
                       title: alert.Event || `${weatherAlertCount} active alerts`,
                       detail: limitAlertText(detail),
                       icon: 'mdi:weather-lightning-rainy',
-                      accent: severityColors[severity]
+                      accent: severityColors[severity],
+                      action: {
+                        service: 'kitchen_kiosk_show_detail',
+                        data: {
+                          detail_type: 'weather',
+                          detail_subject: String(alert.ID || index)
+                        }
+                      }
                     });
                   });
                 } else if (Number.isFinite(weatherAlertCount) && weatherAlertCount > 0) {
@@ -256,7 +362,11 @@
                     title: `${weatherAlertCount} active ${weatherAlertCount === 1 ? 'alert' : 'alerts'}`,
                     detail: 'Alert details are temporarily unavailable',
                     icon: 'mdi:weather-lightning-rainy',
-                    accent: severityColors.Unknown
+                    accent: severityColors.Unknown,
+                    action: {
+                      service: 'kitchen_kiosk_show_detail',
+                      data: {detail_type: 'weather', detail_subject: '0'}
+                    }
                   });
                 }
 
@@ -284,7 +394,11 @@
                     title: openEntries.length === 1 ? 'Door or window open' : `${openEntries.length} openings detected`,
                     detail: entryDetail || 'Check the exterior doors and windows',
                     icon: 'mdi:door-open',
-                    accent: '#ef6c00'
+                    accent: '#ef6c00',
+                    action: {
+                      service: 'kitchen_kiosk_show_detail',
+                      data: {detail_type: 'entry_points'}
+                    }
                   });
                 }
 
@@ -302,9 +416,13 @@
                   items.push({
                     kicker: 'FRONT DOOR',
                     title: 'Package waiting',
-                    detail: 'Remember to bring it inside',
+                    detail: 'Tap for the front door view',
                     icon: 'mdi:package-variant-closed',
-                    accent: '#8e5a2b'
+                    accent: '#8e5a2b',
+                    action: {
+                      service: 'kitchen_kiosk_show_detail',
+                      data: {detail_type: 'package'}
+                    }
                   });
                 }
 
@@ -313,9 +431,13 @@
                   items.push({
                     kicker: 'HOT WATER',
                     title: 'Hot water is running low',
-                    detail: `${Math.round(hotWater)}% available — keep showers short`,
+                    detail: `${Math.round(hotWater)}% available · Tap for recovery details`,
                     icon: 'mdi:water-thermometer-outline',
-                    accent: '#0277bd'
+                    accent: '#0277bd',
+                    action: {
+                      service: 'kitchen_kiosk_show_detail',
+                      data: {detail_type: 'hot_water'}
+                    }
                   });
                 }
 
@@ -428,7 +550,11 @@
                       title: `${name} - ${location || pretty(personState)}`,
                       detail: `Since ${since}`,
                       icon: 'mdi:map-marker-account-outline',
-                      accent: '#6a1b9a'
+                      accent: '#6a1b9a',
+                      action: {
+                        service: 'kitchen_kiosk_show_detail',
+                        data: {detail_type: 'family', detail_subject: personId}
+                      }
                     });
                   }
                 });
@@ -443,11 +569,208 @@
                   });
                 }
 
+                const formatSince = (entity) => {
+                  const changed = new Date(entity?.last_changed);
+                  if (!Number.isFinite(changed.getTime())) return 'recently';
+                  const minutes = Math.max(0, Math.floor((Date.now() - changed.getTime()) / 60000));
+                  if (minutes < 1) return 'just now';
+                  if (minutes < 60) return `${minutes} min ago`;
+                  const hours = Math.floor(minutes / 60);
+                  return `${hours} hr${hours === 1 ? '' : 's'} ago`;
+                };
+                const renderDetail = () => {
+                  let kicker = 'HOUSEHOLD DETAIL';
+                  let title = 'Current status';
+                  let icon = 'mdi:information-outline';
+                  let body = html`<div class="kitchen-detail-message">This detail is no longer active.</div>`;
+
+                  if (detailType === 'weather') {
+                    const alert = uniqueWeatherAlerts.find((candidate, index) =>
+                      String(candidate.ID || index) === detailSubject
+                    ) || uniqueWeatherAlerts[0];
+                    kicker = `NWS WEATHER ALERT · ${String(alert?.Severity || 'Unknown').toUpperCase()}`;
+                    title = alert?.Event || 'Weather alert';
+                    icon = 'mdi:weather-lightning-rainy';
+                    if (alert) {
+                      const sections = [
+                        ['WHAT', alertSection(alert.Description, 'WHAT')],
+                        ['WHERE', alertSection(alert.Description, 'WHERE')],
+                        ['WHEN', alertSection(alert.Description, 'WHEN')],
+                        ['IMPACTS', alertSection(alert.Description, 'IMPACTS')]
+                      ].filter(([, value]) => value);
+                      const instructions = limitAlertText(alert.Instruction, 220);
+                      body = html`
+                        <div class="kitchen-detail-weather-headline">${cleanAlertText(alert.Headline)}</div>
+                        <div class="kitchen-detail-grid weather">
+                          ${sections.map(([label, value]) => html`
+                            <div class="kitchen-detail-tile">
+                              <div class="kitchen-detail-label">${label}</div>
+                              <div class="kitchen-detail-value">${value}</div>
+                            </div>
+                          `)}
+                        </div>
+                        ${instructions ? html`
+                          <div class="kitchen-detail-instructions">
+                            <strong>STAY SAFE</strong> · ${instructions}
+                          </div>
+                        ` : ''}
+                      `;
+                    }
+                  } else if (detailType === 'package') {
+                    const camera = states['camera.frontdoorbell'];
+                    const packageEntity = states['binary_sensor.front_door_packages_present'];
+                    const picture = String(camera?.attributes?.entity_picture || '');
+                    kicker = 'FRONT DOOR';
+                    title = 'Package waiting';
+                    icon = 'mdi:package-variant-closed';
+                    body = html`
+                      <div class="kitchen-detail-camera">
+                        ${picture ? html`<img src="${picture}${picture.includes('?') ? '&' : '?'}kiosk=${Date.now()}" alt="Front door camera">` : ''}
+                        <div class="kitchen-detail-camera-caption">
+                          Last checked ${packageEntity?.attributes?.last_run || 'recently'}
+                        </div>
+                      </div>
+                    `;
+                  } else if (detailType === 'family') {
+                    const person = states[detailSubject];
+                    const locationEntityId = {
+                      'person.carlo': 'sensor.carlo_location_display',
+                      'person.stacey': 'sensor.stacey_location_display',
+                      'person.justin': 'sensor.justin_location_display',
+                      'person.paige': 'sensor.paige_location_display'
+                    }[detailSubject];
+                    const latitude = Number(person?.attributes?.latitude);
+                    const longitude = Number(person?.attributes?.longitude);
+                    const personName = person?.attributes?.friendly_name || pretty(detailSubject.split('.')[1]);
+                    const rawLocation = pretty(state(locationEntityId));
+                    const withoutName = rawLocation.replace(new RegExp(`^${personName}\s+`, 'i'), '');
+                    const location = withoutName.replace(/\s*\(since\s+[^)]+\)\s*$/i, '').trim();
+                    const mapUrl = Number.isFinite(latitude) && Number.isFinite(longitude)
+                      ? `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.018}%2C${latitude - 0.012}%2C${longitude + 0.018}%2C${latitude + 0.012}&layer=mapnik&marker=${latitude}%2C${longitude}`
+                      : '';
+                    kicker = 'FAMILY LOCATION';
+                    title = `${personName} · ${location || pretty(person?.state)}`;
+                    icon = 'mdi:map-marker-account-outline';
+                    body = mapUrl ? html`
+                      <div class="kitchen-detail-map">
+                        <iframe src="${mapUrl}" title="${personName} location map"></iframe>
+                        <div class="kitchen-detail-map-caption">Updated ${formatSince(person)}</div>
+                      </div>
+                    ` : html`<div class="kitchen-detail-message">Location coordinates are unavailable.</div>`;
+                  } else if (detailType === 'entry_points') {
+                    const openEntries = (states['group.entry_points']?.attributes?.entity_id || [])
+                      .map((entityId) => states[entityId])
+                      .filter((entry) => entry?.state === 'on');
+                    kicker = 'ENTRY POINTS';
+                    title = `${openEntries.length} ${openEntries.length === 1 ? 'opening' : 'openings'} detected`;
+                    icon = 'mdi:door-open';
+                    body = html`
+                      <div class="kitchen-detail-grid entries">
+                        ${openEntries.map((entry) => html`
+                          <div class="kitchen-detail-tile entry">
+                            <ha-icon icon="mdi:door-open"></ha-icon>
+                            <div>
+                              <div class="kitchen-detail-entry-name">${entry.attributes?.friendly_name || 'Open entry'}</div>
+                              <div class="kitchen-detail-entry-since">Open ${formatSince(entry)}</div>
+                            </div>
+                          </div>
+                        `)}
+                      </div>
+                    `;
+                  } else if (detailType === 'phyn') {
+                    const valveState = state('valve.phyn_shutoff_valve');
+                    const flow = Number.parseFloat(state('sensor.phyn_average_water_flow_rate'));
+                    const pressure = Number.parseFloat(state('sensor.phyn_current_water_pressure'));
+                    const alerts = phynAlerts.map((entityId) =>
+                      states[entityId]?.attributes?.friendly_name || pretty(entityId.split('.')[1])
+                    );
+                    kicker = 'PHYN WATER SYSTEM';
+                    title = valveState === 'closed' ? 'Main water is off' : 'Water system needs attention';
+                    icon = 'mdi:water-alert-outline';
+                    body = html`
+                      <div class="kitchen-detail-grid metrics">
+                        <div class="kitchen-detail-metric">
+                          <span>MAIN VALVE</span><strong>${pretty(valveState)}</strong>
+                        </div>
+                        <div class="kitchen-detail-metric">
+                          <span>FLOW</span><strong>${Number.isFinite(flow) ? `${flow.toFixed(1)} gal/min` : 'Unknown'}</strong>
+                        </div>
+                        <div class="kitchen-detail-metric">
+                          <span>PRESSURE</span><strong>${Number.isFinite(pressure) ? `${pressure.toFixed(0)} psi` : 'Unknown'}</strong>
+                        </div>
+                      </div>
+                      <div class="kitchen-detail-alert-list">
+                        ${alerts.length ? alerts.join(' · ') : 'No active Phyn alert text is available.'}
+                      </div>
+                      ${valveState === 'closed' ? html`
+                        <button
+                          class="kitchen-detail-water-button"
+                          @click=${(event) => {
+                            event.stopPropagation();
+                            if (window.confirm('Turn the Phyn main water supply ON? Confirm the leak is safe first.')) {
+                              callScript('kitchen_kiosk_restore_phyn_water');
+                            }
+                          }}
+                        >TURN WATER ON</button>
+                      ` : html`<div class="kitchen-detail-safe-state">Main water is ${pretty(valveState)}</div>`}
+                    `;
+                  } else if (detailType === 'hot_water') {
+                    const available = Number.parseFloat(state('sensor.rheem_wh_available_hot_water'));
+                    const heater = states['water_heater.rheem_wh'];
+                    const running = state('binary_sensor.rheem_wh_running') === 'on';
+                    const target = Number.parseFloat(heater?.attributes?.temperature);
+                    const mode = pretty(heater?.attributes?.operation_mode || heater?.state);
+                    const tankHealth = Number.parseFloat(state('sensor.rheem_wh_tank_health'));
+                    const compressorHealth = Number.parseFloat(state('sensor.rheem_wh_compressor_health'));
+                    kicker = 'HOT WATER RECOVERY';
+                    title = running ? 'Heating now' : 'Standing by';
+                    icon = 'mdi:water-boiler';
+                    body = html`
+                      <div class="kitchen-detail-hot-water">
+                        <div class="kitchen-detail-hot-percent">${Number.isFinite(available) ? Math.round(available) : '--'}<span>%</span></div>
+                        <div class="kitchen-detail-hot-label">HOT WATER AVAILABLE</div>
+                        <div class="kitchen-detail-grid metrics hot">
+                          <div class="kitchen-detail-metric"><span>MODE</span><strong>${mode}</strong></div>
+                          <div class="kitchen-detail-metric"><span>TARGET</span><strong>${Number.isFinite(target) ? `${Math.round(target)}°F` : 'Unknown'}</strong></div>
+                          <div class="kitchen-detail-metric"><span>TANK HEALTH</span><strong>${Number.isFinite(tankHealth) ? `${Math.round(tankHealth)}%` : 'Unknown'}</strong></div>
+                          <div class="kitchen-detail-metric"><span>COMPRESSOR</span><strong>${Number.isFinite(compressorHealth) ? `${Math.round(compressorHealth)}%` : 'Unknown'}</strong></div>
+                        </div>
+                      </div>
+                    `;
+                  }
+
+                  return html`
+                    <div class="kitchen-detail-overlay" @click=${(event) => event.stopPropagation()}>
+                      <div class="kitchen-detail-header">
+                        <div class="kitchen-detail-header-icon"><ha-icon .icon=${icon}></ha-icon></div>
+                        <div class="kitchen-detail-header-copy">
+                          <div class="kitchen-detail-kicker">${kicker}</div>
+                          <div class="kitchen-detail-title">${title}</div>
+                        </div>
+                        <button class="kitchen-detail-close" @click=${closeDetail} aria-label="Return to dashboard">×</button>
+                      </div>
+                      <div class="kitchen-detail-body">${body}</div>
+                    </div>
+                  `;
+                };
+
                 const secondsPerSlide = 10;
                 const duration = items.length * secondsPerSlide;
                 const phase = Math.floor(now.getTime() / 1000) % duration;
                 const slot = 100 / items.length;
                 const fade = Math.min(4, slot * 0.18);
+                const handleAmbientTap = (event) => {
+                  const visibleSlides = [...event.currentTarget.querySelectorAll('.kitchen-ambient-slide')]
+                    .map((slide, index) => ({
+                      index,
+                      opacity: Number.parseFloat(getComputedStyle(slide).opacity) || 0
+                    }))
+                    .sort((left, right) => right.opacity - left.opacity);
+                  const activeItem = items[visibleSlides[0]?.index ?? 0] || items[0];
+                  if (!activeItem?.action) return;
+                  event.stopPropagation();
+                  callScript(activeItem.action.service, activeItem.action.data);
+                };
                 return html`
                   <style>
                     @keyframes kitchen-ambient-cycle {
@@ -461,16 +784,17 @@
                       position: relative;
                       width: 100%;
                       height: 100%;
+                      cursor: pointer;
                     }
                     .kitchen-ambient-slide {
                       position: absolute;
                       inset: 0;
                       display: grid;
-                      grid-template-columns: 100px minmax(0, 1fr);
+                      grid-template-columns: 132px minmax(0, 1fr);
                       grid-template-areas: 'icon copy';
                       align-items: center;
-                      gap: 24px;
-                      padding: 8px 42px;
+                      gap: 30px;
+                      padding: 2px 36px;
                       box-sizing: border-box;
                       opacity: 0;
                       animation-name: kitchen-ambient-cycle;
@@ -485,13 +809,13 @@
                       grid-area: icon;
                       display: grid;
                       place-items: center;
-                      width: 88px;
-                      height: 88px;
-                      border-radius: 24px;
+                      width: 112px;
+                      height: 112px;
+                      border-radius: 28px;
                       color: var(--accent);
                       background: color-mix(in srgb, var(--accent) 14%, transparent);
                     }
-                    .kitchen-ambient-icon ha-icon { --mdc-icon-size: 56px; }
+                    .kitchen-ambient-icon ha-icon { --mdc-icon-size: 72px; }
                     .kitchen-ambient-copy {
                       grid-area: copy;
                       min-width: 0;
@@ -499,16 +823,17 @@
                     }
                     .kitchen-ambient-kicker {
                       color: var(--accent);
-                      font-size: 16px;
-                      font-weight: 700;
-                      letter-spacing: 0.12em;
+                      font-size: 24px;
+                      font-weight: 800;
+                      line-height: 1.1;
+                      letter-spacing: 0.1em;
                     }
                     .kitchen-ambient-title {
-                      margin-top: 4px;
+                      margin-top: 6px;
                       color: var(--primary-text-color);
-                      font-size: 28px;
-                      font-weight: 600;
-                      line-height: 1;
+                      font-size: var(--title-size, 52px);
+                      font-weight: 700;
+                      line-height: 1.02;
                       display: -webkit-box;
                       -webkit-box-orient: vertical;
                       -webkit-line-clamp: 2;
@@ -517,11 +842,11 @@
                       overflow: hidden;
                     }
                     .kitchen-ambient-detail {
-                      margin-top: 4px;
+                      margin-top: 6px;
                       color: var(--secondary-text-color);
-                      font-size: 26px;
-                      font-weight: 500;
-                      line-height: 1.15;
+                      font-size: 40px;
+                      font-weight: 600;
+                      line-height: 1.08;
                       display: -webkit-box;
                       -webkit-box-orient: vertical;
                       -webkit-line-clamp: 3;
@@ -529,12 +854,218 @@
                       overflow-wrap: anywhere;
                       overflow: hidden;
                     }
+                    .kitchen-detail-overlay {
+                      position: fixed;
+                      inset: 0;
+                      z-index: 10000;
+                      box-sizing: border-box;
+                      padding: 22px 36px;
+                      color: #f3f6fb;
+                      background: radial-gradient(circle at top right, #172235 0%, #080e16 55%);
+                      overflow: hidden;
+                      text-align: left;
+                    }
+                    .kitchen-detail-header {
+                      display: grid;
+                      grid-template-columns: 76px minmax(0, 1fr) 68px;
+                      align-items: center;
+                      gap: 20px;
+                      min-height: 100px;
+                      padding-bottom: 18px;
+                      border-bottom: 2px solid rgba(255,255,255,0.16);
+                    }
+                    .kitchen-detail-header-icon {
+                      display: grid;
+                      place-items: center;
+                      width: 72px;
+                      height: 72px;
+                      border-radius: 20px;
+                      color: #4fc3f7;
+                      background: rgba(79,195,247,0.14);
+                    }
+                    .kitchen-detail-header-icon ha-icon { --mdc-icon-size: 48px; }
+                    .kitchen-detail-kicker {
+                      color: #4fc3f7;
+                      font-size: 22px;
+                      font-weight: 800;
+                      letter-spacing: 0.1em;
+                    }
+                    .kitchen-detail-title {
+                      margin-top: 4px;
+                      font-size: 48px;
+                      font-weight: 750;
+                      line-height: 1;
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                    }
+                    .kitchen-detail-close {
+                      width: 64px;
+                      height: 64px;
+                      border: 2px solid rgba(255,255,255,0.25);
+                      border-radius: 20px;
+                      color: #fff;
+                      background: rgba(255,255,255,0.08);
+                      font-size: 46px;
+                      line-height: 52px;
+                    }
+                    .kitchen-detail-body {
+                      height: calc(100vh - 164px);
+                      padding-top: 18px;
+                      box-sizing: border-box;
+                      overflow: hidden;
+                    }
+                    .kitchen-detail-weather-headline {
+                      margin-bottom: 14px;
+                      color: #ffca70;
+                      font-size: 24px;
+                      font-weight: 700;
+                      line-height: 1.15;
+                      white-space: normal;
+                      display: -webkit-box;
+                      -webkit-box-orient: vertical;
+                      -webkit-line-clamp: 2;
+                      overflow: hidden;
+                    }
+                    .kitchen-detail-grid {
+                      display: grid;
+                      gap: 14px;
+                    }
+                    .kitchen-detail-grid.weather { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                    .kitchen-detail-grid.entries { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+                    .kitchen-detail-grid.metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+                    .kitchen-detail-grid.metrics.hot { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+                    .kitchen-detail-tile,
+                    .kitchen-detail-metric {
+                      padding: 18px 22px;
+                      border: 1px solid rgba(255,255,255,0.14);
+                      border-radius: 18px;
+                      background: rgba(255,255,255,0.06);
+                      overflow: hidden;
+                    }
+                    .kitchen-detail-label,
+                    .kitchen-detail-metric span,
+                    .kitchen-detail-hot-label {
+                      color: #7fd7ff;
+                      font-size: 20px;
+                      font-weight: 800;
+                      letter-spacing: 0.08em;
+                    }
+                    .kitchen-detail-value {
+                      margin-top: 7px;
+                      font-size: 23px;
+                      font-weight: 600;
+                      line-height: 1.18;
+                      white-space: normal;
+                      overflow-wrap: anywhere;
+                      display: -webkit-box;
+                      -webkit-box-orient: vertical;
+                      -webkit-line-clamp: 3;
+                      overflow: hidden;
+                    }
+                    .kitchen-detail-instructions,
+                    .kitchen-detail-alert-list,
+                    .kitchen-detail-safe-state {
+                      margin-top: 16px;
+                      padding: 17px 22px;
+                      border-radius: 18px;
+                      background: rgba(255,193,7,0.12);
+                      font-size: 22px;
+                      font-weight: 600;
+                      line-height: 1.2;
+                      white-space: normal;
+                      overflow-wrap: anywhere;
+                      display: -webkit-box;
+                      -webkit-box-orient: vertical;
+                      -webkit-line-clamp: 2;
+                      overflow: hidden;
+                    }
+                    .kitchen-detail-tile.entry {
+                      display: grid;
+                      grid-template-columns: 48px 1fr;
+                      align-items: center;
+                      gap: 14px;
+                    }
+                    .kitchen-detail-tile.entry ha-icon { --mdc-icon-size: 42px; color: #ffb74d; }
+                    .kitchen-detail-entry-name { font-size: 28px; font-weight: 700; }
+                    .kitchen-detail-entry-since { margin-top: 4px; color: #aeb9c8; font-size: 22px; }
+                    .kitchen-detail-metric span { display: block; }
+                    .kitchen-detail-metric strong {
+                      display: block;
+                      margin-top: 10px;
+                      font-size: 38px;
+                      line-height: 1.05;
+                    }
+                    .kitchen-detail-camera,
+                    .kitchen-detail-map {
+                      position: relative;
+                      width: 100%;
+                      height: 100%;
+                      overflow: hidden;
+                      border-radius: 20px;
+                      background: #03070b;
+                    }
+                    .kitchen-detail-camera img {
+                      width: 100%;
+                      height: 100%;
+                      object-fit: contain;
+                    }
+                    .kitchen-detail-camera-caption,
+                    .kitchen-detail-map-caption {
+                      position: absolute;
+                      left: 22px;
+                      bottom: 20px;
+                      padding: 12px 18px;
+                      border-radius: 14px;
+                      color: #fff;
+                      background: rgba(0,0,0,0.72);
+                      font-size: 26px;
+                      font-weight: 700;
+                    }
+                    .kitchen-detail-map iframe {
+                      width: 100%;
+                      height: 100%;
+                      border: 0;
+                      filter: brightness(0.84) contrast(1.08);
+                    }
+                    .kitchen-detail-water-button {
+                      display: block;
+                      width: 100%;
+                      margin-top: 20px;
+                      padding: 24px;
+                      border: 3px solid #29b6f6;
+                      border-radius: 20px;
+                      color: #fff;
+                      background: #0277bd;
+                      font-size: 36px;
+                      font-weight: 800;
+                    }
+                    .kitchen-detail-safe-state {
+                      color: #b9f6ca;
+                      background: rgba(76,175,80,0.16);
+                    }
+                    .kitchen-detail-hot-water { text-align: center; }
+                    .kitchen-detail-hot-percent {
+                      margin-top: 4px;
+                      font-size: 170px;
+                      font-weight: 750;
+                      line-height: 0.92;
+                    }
+                    .kitchen-detail-hot-percent span { font-size: 78px; }
+                    .kitchen-detail-hot-label { margin: 8px 0 24px; }
+                    .kitchen-detail-message {
+                      display: grid;
+                      place-items: center;
+                      height: 100%;
+                      font-size: 38px;
+                      font-weight: 700;
+                    }
                   </style>
-                  <div class="kitchen-ambient-rotator">
+                  <div class="kitchen-ambient-rotator" @click=${handleAmbientTap}>
                     ${items.map((item, index) => html`
                       <div
                         class="kitchen-ambient-slide ${items.length === 1 ? 'single' : ''}"
-                        style="--accent:${item.accent};animation-duration:${duration}s;animation-delay:${index * secondsPerSlide - phase}s"
+                        style="--accent:${item.accent};--title-size:${String(item.title || '').length > 58 ? '40px' : String(item.title || '').length > 38 ? '46px' : '52px'};animation-duration:${duration}s;animation-delay:${index * secondsPerSlide - phase}s"
                       >
                         <div class="kitchen-ambient-icon"><ha-icon .icon=${item.icon}></ha-icon></div>
                         <div class="kitchen-ambient-copy">
@@ -545,11 +1076,13 @@
                       </div>
                     `)}
                   </div>
+                  ${detailActive ? renderDetail() : ''}
                 `;
               ]]]
           styles:
             card:
-              - height: 185px
+              - height: 235px
+              - padding: 0
               - overflow: hidden
               - border-radius: 18px
               - background: linear-gradient(120deg, rgba(33, 150, 243, 0.08), rgba(103, 58, 183, 0.08))
@@ -561,5 +1094,40 @@
               ambient:
                 - width: 100%
                 - height: 100%
+                - pointer-events: auto
           view_layout:
             grid-area: ambient
+
+        # NOAA is the single radar path; native Kiosk Satellite camera overlays retain priority.
+        - type: conditional
+          conditions:
+            - entity: binary_sensor.kiosk_rain_radar_active
+              state: "on"
+          card:
+            type: custom:weather-radar-card
+            data_source: NOAA
+            map_style: Dark
+            zoom_level: 7
+            past_minutes: 20
+            frame_stride_minutes: 5
+            frame_delay: 650
+            restart_delay: 1400
+            smooth_animation: true
+            smooth_overlap: 0
+            motion_compensation: false
+            static_map: true
+            double_tap_action: none
+            show_zoom: false
+            show_playback: false
+            show_recenter: false
+            show_scale: true
+            show_range: false
+            show_color_bar: true
+            show_progress_bar: true
+            show_loading_spinner: true
+            show_alerts: false
+            show_lightning: false
+            height: 560px
+            width: 100%
+          view_layout:
+            grid-area: 1 / 1 / 4 / 3

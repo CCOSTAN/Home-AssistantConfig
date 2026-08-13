@@ -53,7 +53,12 @@
       icon: mdi:monitor-dashboard
       variables:
         ok_state: 'off'
+        critical_entity_ids:
+          - binary_sensor.kitchen_kiosk_needs_attention
+        warning_entity_ids:
+          - update.kitchen_show_update
         healthy_text: ONLINE
+        warning_text: UPDATE AVAILABLE
         alert_text: NEEDS ATTENTION
       state_display: >
         [[[ return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase(); ]]]
