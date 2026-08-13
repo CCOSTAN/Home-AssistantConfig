@@ -181,12 +181,6 @@
       variables:
         ok_state: ok
         healthy_text: HEALTHY
-        warning_text: RESET SOON
-        critical_text: RESET URGENT
-        warning_entity_ids:
-        - binary_sensor.codex_reset_credit_expiring_soon
-        critical_entity_ids:
-        - binary_sensor.codex_reset_credit_expiring_critical
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/joanna
@@ -489,37 +483,6 @@
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/network
-
-      - type: custom:button-card
-        template: bearstone_infra_alert_row
-        entity: binary_sensor.codex_reset_credit_expiring_soon
-        name: Codex reset expires soon
-        icon: mdi:calendar-alert
-        variables:
-          alert_kind: binary_on
-          warning_entity_ids:
-          - binary_sensor.codex_reset_credit_expiring_soon
-          critical_entity_ids:
-          - binary_sensor.codex_reset_credit_expiring_critical
-          exception_detail: >
-            [[[
-              const raw = states['sensor.codex_reset_credit_next_expiration']?.state;
-              const days = Number(states['sensor.codex_reset_credit_min_days_remaining']?.state);
-              if (!raw || ['unknown', 'unavailable'].includes(String(raw).toLowerCase())) return 'EXPIRATION DATE UNAVAILABLE';
-              const when = new Date(raw).toLocaleString('en-US', {
-                month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
-              });
-              return `${when} · ${Number.isFinite(days) ? days.toFixed(1) + ' DAYS' : 'DAYS UNKNOWN'}`;
-            ]]]
-        state_display: >
-          [[[
-            return states['binary_sensor.codex_reset_credit_expiring_critical']?.state === 'on'
-              ? 'RESET URGENT'
-              : 'RESET SOON';
-          ]]]
-        tap_action:
-          action: navigate
-          navigation_path: /dashboard-infrastructure/joanna
 
       - type: custom:button-card
         template: bearstone_infra_alert_row

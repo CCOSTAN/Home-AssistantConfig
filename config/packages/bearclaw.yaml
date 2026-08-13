@@ -18,10 +18,6 @@
 # Notes: Status telemetry includes the latest 12 dispatches in the rolling 24-hour window for the Joanna Activity drill-down.
 # Notes: Status telemetry also exposes compact, user-keyed step trends and personal records for the Health dashboard.
 # Notes: Retired QMD health telemetry is no longer imported or materialized in Home Assistant.
-# Notes: Codex reset-credit expiry telemetry is sourced from the appliance `codexUsage` status field.
-# Notes: Reset-credit urgency is dashboard-only: warning within 7 days and critical within 3 days; no Repair is created.
-# Notes: Codex reset walkthrough: https://youtu.be/7wKhtrvtyiI
-# Notes: Codex reset companion post: https://www.vcloudinfo.com/2026/06/track-codex-resets-home-assistant.html
 # Notes: TeslaMate road-trip walkthrough: https://youtu.be/9-9T6v17NEw
 # Notes: TeslaMate road-trip companion post: https://www.vcloudinfo.com/2026/07/teslamate-road-trip-reports-codex.html
 # Notes: Nightly Duplicati verification calls a codex_appliance admin endpoint and returns structured health to HA via response_variable.
@@ -148,7 +144,6 @@ sensor:
       - platform
       - transports
       - followups
-      - codexUsage
       - memoryIndex
       - healthInsights
 
@@ -254,70 +249,6 @@ template:
           {% set active = state_attr('sensor.bearclaw_status_telemetry', 'active') | default({}, true) %}
           {% set elapsed_ms = active.get('elapsedMs', 0) | int(0) %}
           {{ (elapsed_ms / 60000) | round(1) }}
-
-      - name: Codex Reset Credits Available
-        unique_id: codex_reset_credits_available
-        icon: mdi:backup-restore
-        unit_of_measurement: resets
-        state_class: measurement
-        state: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {{ usage.get('availableCount', 0) | int(0) }}
-
-      - name: Codex Reset Credits Expiring Soon
-        unique_id: codex_reset_credits_expiring_soon
-        icon: mdi:alert-clock
-        unit_of_measurement: resets
-        state_class: measurement
-        state: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {{ usage.get('warningCount', 0) | int(0) }}
-
-      - name: Codex Reset Credit Min Days Remaining
-        unique_id: codex_reset_credit_min_days_remaining
-        icon: mdi:timer-sand
-        unit_of_measurement: d
-        state_class: measurement
-        availability: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {{ usage.get('minDaysRemaining') not in [none, 'unknown', 'unavailable', ''] }}
-        state: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {{ usage.get('minDaysRemaining', 0) | float(0) | round(1) }}
-
-      - name: Codex Reset Credit Next Expiration
-        unique_id: codex_reset_credit_next_expiration
-        icon: mdi:calendar-clock
-        device_class: timestamp
-        availability: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {{ usage.get('soonestExpiresAt') not in [none, 'unknown', 'unavailable', ''] }}
-        state: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {{ usage.get('soonestExpiresAt') }}
-
-      - name: Codex Reset Credit Status
-        unique_id: codex_reset_credit_status
-        icon: mdi:clipboard-pulse-outline
-        state: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {{ usage.get('status', 'unknown') }}
-        attributes:
-          ok: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('ok', false) }}
-          last_check_at: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('lastCheckAt') }}
-          next_check_at: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('nextCheckAt') }}
-          last_error: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('lastError') }}
-          credits: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('credits', []) }}
 
       - name: Joanna Minutes Since HA Dispatch
         unique_id: joanna_minutes_since_ha_dispatch
@@ -503,37 +434,6 @@ template:
           {% set memory = state_attr('sensor.bearclaw_status_telemetry', 'memoryIndex') | default({}, true) %}
           {{ memory.get('stale', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
 
-      - name: Codex Reset Credit Expiring Soon
-        unique_id: codex_reset_credit_expiring_soon
-        icon: mdi:alert-clock
-        state: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {{ usage.get('issueActive', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
-        attributes:
-          warn_days: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('warnDays', 7) }}
-          warning_count: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('warningCount', 0) }}
-          soonest_expires_at: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('soonestExpiresAt') }}
-
-      - name: Codex Reset Credit Expiring Critical
-        unique_id: codex_reset_credit_expiring_critical
-        device_class: problem
-        icon: mdi:calendar-alert
-        state: >-
-          {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-          {% set available = usage.get('availableCount', 0) | int(0) %}
-          {% set min_days = usage.get('minDaysRemaining') %}
-          {{ available > 0 and min_days not in [none, 'unknown', 'unavailable', ''] and min_days | float(99) <= 3 }}
-        attributes:
-          critical_days: 3
-          min_days_remaining: >-
-            {% set usage = state_attr('sensor.bearclaw_status_telemetry', 'codexUsage') | default({}, true) %}
-            {{ usage.get('minDaysRemaining') }}
 automation:
   - id: bearclaw_lifecycle_webhook
     alias: BearClaw Lifecycle Webhook
