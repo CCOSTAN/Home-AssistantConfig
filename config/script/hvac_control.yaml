@@ -36,7 +36,7 @@ set_downstairs_target_temp_based_on_conditions:
             target_temp: >-
               {% if outside_temp is none %}
                 80
-              {% elif outside_temp < 78 or outside_temp > 92 %}
+              {% elif outside_temp > 90 %}
                 78
               {% else %}
                 80

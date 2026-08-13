@@ -523,7 +523,12 @@ automation:
         at: "08:00:00"
       - platform: numeric_state
         entity_id: sensor.pirateweather_temperature
-        above: 92
+        above: 90
+        for: "01:00:00"
+      - platform: numeric_state
+        entity_id: sensor.pirateweather_temperature
+        below: 90
+        for: "01:00:00"
     condition:
       - condition: and
         conditions:
