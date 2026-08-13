@@ -4,8 +4,10 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Sunset Trigger - evening lighting kickoff
-#  Turns on interior/exterior accents around sunset with safety checks.
+#  Turns on evening accents; speaks only for package or security exceptions.
 # -------------------------------------------------------------------
+# Notes: Normal sunset lighting is silent. Speech is reserved for an actionable
+#  package, unlocked front door, open garage door, or open entry point.
 ######################################################################
 
 - alias: 'Sunset Stuff on'
@@ -43,11 +45,19 @@
                 - condition: state
                   entity_id: input_boolean.house_sitter_present
                   state: 'on'
+            - condition: template
+              value_template: >-
+                {{
+                  is_state('binary_sensor.front_door_packages_present', 'on')
+                  or is_state('lock.front_door', 'unlocked')
+                  or is_state('group.entry_points', 'on')
+                  or is_state('cover.large_garage_door', 'open')
+                  or is_state('cover.small_garage_door', 'open')
+                }}
           sequence:
             - service: script.speech_engine
               data:
-                call_dark_outside: 1
-                call_window_check: 1
+                call_no_announcement: 1
     - service: homeassistant.turn_on
       entity_id:
         - switch.front_landscaping

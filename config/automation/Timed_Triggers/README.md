@@ -27,7 +27,7 @@ Time-based routines for wake/sleep cycles, sunrise/sunset shifts, and nightly wa
 | File | Why it matters |
 | --- | --- |
 | [![YAML source: sunrise_turn_off](https://img.shields.io/static/v1?label=YAML&message=sunrise_turn_off&color=lightgrey&logo=github&logoColor=181717)](sunrise_turn_off.yaml) | Shut down overnight lights as the sun comes up. |
-| [![YAML source: sunset_turn_on](https://img.shields.io/static/v1?label=YAML&message=sunset_turn_on&color=lightgrey&logo=github&logoColor=181717)](sunset_turn_on.yaml) | Evening exterior/interior light kickoff. |
+| [![YAML source: sunset_turn_on](https://img.shields.io/static/v1?label=YAML&message=sunset_turn_on&color=lightgrey&logo=github&logoColor=181717)](sunset_turn_on.yaml) | Evening lighting kickoff with speech only for package or security exceptions. |
 | [![YAML source: night_watchdog](https://img.shields.io/static/v1?label=YAML&message=night_watchdog&color=lightgrey&logo=github&logoColor=181717)](night_watchdog.yaml) | Late-night checks that everything is closed and safe. |
 | [![YAML source: wake_up](https://img.shields.io/static/v1?label=YAML&message=wake_up&color=lightgrey&logo=github&logoColor=181717)](wake_up.yaml) | Morning scene starter that eases into the day. |
 
