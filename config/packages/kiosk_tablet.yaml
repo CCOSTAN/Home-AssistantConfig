@@ -13,7 +13,7 @@
 # Notes: Fully controls apply only to the legacy Bedroom tablet.
 # Notes: Kitchen Show uses Kiosk Satellite discovery entities; no screensaver helper is required.
 # Notes: Kitchen Show stays dark while the house is empty or asleep and wakes only for occupied-house events.
-# Notes: Garage takes over while either door is moving/open; Front Door takes over while unlocked.
+# Notes: Garage takes over while either door is moving/open and remains for three minutes after both close; Front Door takes over while unlocked.
 # Notes: At 07:00, a pending new Kiosk Satellite release dispatches Joanna once for install and verification.
 # Notes: Wake events only restore brightness/focus; URL reloads require page drift.
 # Notes: Fully auto-reload on screen-on/screensaver-stop is disabled to avoid motion wake reload loops.
@@ -390,11 +390,7 @@ template:
         unique_id: kiosk_active_camera_view
         icon: mdi:camera-switch
         state: >-
-          {% set garage_states = [
-            states('cover.large_garage_door'),
-            states('cover.small_garage_door')
-          ] %}
-          {% if garage_states | select('in', ['opening', 'open', 'closing']) | list | count > 0 %}
+          {% if is_state('binary_sensor.kiosk_garage_camera_active', 'on') %}
             garage
           {% elif is_state('lock.front_door', 'unlocked') %}
             front_door
@@ -514,6 +510,14 @@ template:
             {% endif %}
 
   - binary_sensor:
+      - name: "Kiosk Garage Camera Active"
+        unique_id: kiosk_garage_camera_active
+        icon: mdi:garage-alert
+        delay_off: "00:03:00"
+        state: >-
+          {{ states('cover.large_garage_door') in ['opening', 'open', 'closing']
+             or states('cover.small_garage_door') in ['opening', 'open', 'closing'] }}
+
       - name: "Kiosk Rain Radar Weather Event"
         unique_id: kiosk_rain_radar_weather_event
         icon: mdi:radar

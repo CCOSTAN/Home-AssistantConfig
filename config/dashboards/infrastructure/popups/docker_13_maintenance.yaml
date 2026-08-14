@@ -1,0 +1,49 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Popup - docker_13 maintenance
+#  Codex appliance host APT status and maintenance history.
+# -------------------------------------------------------------------
+# Notes: docker_13 is the codex-appliance host; its reboot remains last in the host sequence.
+# Notes: No destructive host controls are exposed here because appliance maintenance is host-owned.
+######################################################################
+
+type: custom:bubble-card
+card_type: pop-up
+hash: '#infra-docker-13'
+entity: sensor.docker_13_apt_status
+button_type: state
+name: docker_13 maintenance
+icon: mdi:server
+show_header: true
+show_state: true
+width_desktop: 520px
+bg_opacity: '35'
+cards:
+- type: grid
+  columns: 1
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_tile
+    entity: sensor.docker_13_apt_last_update
+    name: Last Update
+    icon: mdi:update
+    variables:
+      label: Most recent package update
+  - type: custom:button-card
+    template: bearstone_infra_tile
+    entity: sensor.docker_13_apt_last_check
+    name: Last Check
+    icon: mdi:calendar-check
+    variables:
+      label: Most recent apt check
+  - type: custom:button-card
+    template: bearstone_infra_tile
+    entity: sensor.docker_13_apt_status
+    name: Apt Status
+    icon: mdi:package-up
+    variables:
+      label: Pending package summary

@@ -8,6 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: Healthy stacks and containers live in the hidden Docker Inventory subview.
 # Notes: Host maintenance controls remain in the existing confirmed popups.
+# Notes: Portainer `_2` entities are the live split-device telemetry; unsuffixed duplicates are unavailable.
 # Notes: Synology NAS/NVR temperatures stay with their storage telemetry, not household temperature cards.
 # Notes: Storage Health includes the persisted nightly Duplicati verification result and last successful backup time.
 ######################################################################
@@ -105,37 +106,135 @@
         template: bearstone_infra_panel_header
         name: Host Updates
 
-      - type: custom:button-card
-        template: bearstone_infra_update_row
-        entity: sensor.docker_10_apt_status
-        name: docker_10
-        tap_action:
-          action: navigate
-          navigation_path: '#infra-docker-10'
+      - type: grid
+        columns: 3
+        square: false
+        cards:
+        - type: custom:button-card
+          template: bearstone_infra_update_tile
+          entity: sensor.docker_10_apt_status
+          name: docker_10
+          tap_action:
+            action: navigate
+            navigation_path: '#infra-docker-10'
+
+        - type: custom:button-card
+          template: bearstone_infra_update_tile
+          entity: sensor.docker_13_apt_status
+          name: docker_13
+          tap_action:
+            action: navigate
+            navigation_path: '#infra-docker-13'
+
+        - type: custom:button-card
+          template: bearstone_infra_update_tile
+          entity: sensor.docker_14_apt_status
+          name: docker_14
+          tap_action:
+            action: navigate
+            navigation_path: '#infra-docker-14'
+
+        - type: custom:button-card
+          template: bearstone_infra_update_tile
+          entity: sensor.docker_17_apt_status
+          name: docker_17
+          tap_action:
+            action: navigate
+            navigation_path: '#infra-docker-17'
+
+        - type: custom:button-card
+          template: bearstone_infra_update_tile
+          entity: sensor.docker_69_apt_status
+          name: docker_69
+          tap_action:
+            action: navigate
+            navigation_path: '#infra-docker-69'
+
+        - type: custom:button-card
+          template: bearstone_infra_update_tile
+          entity: input_text.infra_duplicati_backup_verification_status
+          name: Docker Config Backup
+          icon: mdi:backup-restore
+          variables:
+            apt_severity: >
+              [[[
+                const status = String(entity?.state ?? 'unverified').toLowerCase();
+                if (status === 'verified') return 'healthy';
+                if (status === 'failed') return 'overdue';
+                return 'scheduled';
+              ]]]
+          state_display: >
+            [[[
+              const status = String(entity?.state ?? 'unverified').toLowerCase();
+              if (status === 'verified') return 'SUCCESS';
+              if (status === 'failed') return 'FAILED';
+              return 'UNVERIFIED';
+            ]]]
+          label: >
+            [[[
+              const raw = String(states['input_datetime.infra_duplicati_backup_last_success']?.state ?? '');
+              const parsed = raw ? new Date(raw.replace(' ', 'T')) : null;
+              return parsed instanceof Date && !Number.isNaN(parsed.getTime())
+                ? parsed.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                  }).toUpperCase()
+                : 'NO SUCCESS TIME';
+            ]]]
 
       - type: custom:button-card
-        template: bearstone_infra_update_row
-        entity: sensor.docker_17_apt_status
-        name: docker_17
-        tap_action:
-          action: navigate
-          navigation_path: '#infra-docker-17'
+        template: bearstone_infra_panel_header
+        name: Portainer Telemetry
 
-      - type: custom:button-card
-        template: bearstone_infra_update_row
-        entity: sensor.docker_69_apt_status
-        name: docker_69
-        tap_action:
-          action: navigate
-          navigation_path: '#infra-docker-69'
+      - type: grid
+        columns: 3
+        square: false
+        cards:
+        - type: custom:button-card
+          template: bearstone_infra_status_kpi
+          entity: binary_sensor.portainer_status_2
+          name: Portainer
+          icon: mdi:docker
+          variables:
+            ok_state: 'on'
+            healthy_text: HEALTHY
+            raw_suffix: STATUS
 
-      - type: custom:button-card
-        template: bearstone_infra_update_row
-        entity: sensor.docker_14_apt_status
-        name: docker_14
-        tap_action:
-          action: navigate
-          navigation_path: '#infra-docker-14'
+        - type: custom:button-card
+          template: bearstone_infra_status_kpi
+          entity: binary_sensor.portainer_agent_status_2
+          name: Portainer Agent
+          icon: mdi:lan-connect
+          variables:
+            ok_state: 'on'
+            healthy_text: HEALTHY
+            raw_suffix: STATUS
+
+        - type: custom:button-card
+          template: bearstone_infra_kpi
+          entity: sensor.portainer_cpu_usage_total_2
+          name: Portainer CPU
+          icon: mdi:cpu-64-bit
+
+        - type: custom:button-card
+          template: bearstone_infra_kpi
+          entity: sensor.portainer_memory_usage_percentage_2
+          name: Portainer Memory
+          icon: mdi:memory
+
+        - type: custom:button-card
+          template: bearstone_infra_kpi
+          entity: sensor.portainer_agent_cpu_usage_total_2
+          name: Agent CPU
+          icon: mdi:cpu-64-bit
+
+        - type: custom:button-card
+          template: bearstone_infra_kpi
+          entity: sensor.portainer_agent_memory_usage_percentage_2
+          name: Agent Memory
+          icon: mdi:memory
 
     - type: custom:vertical-stack-in-card
       card_mod:
@@ -150,41 +249,16 @@
         square: false
         cards:
         - type: custom:button-card
-          template: bearstone_infra_list_row
+          template: bearstone_infra_kpi
           entity: sensor.carlo_nas01_temperature
           name: NAS Temperature
           icon: mdi:nas
 
         - type: custom:button-card
-          template: bearstone_infra_list_row
+          template: bearstone_infra_kpi
           entity: sensor.carlo_nvr_temperature
           name: NVR Temperature
           icon: mdi:video-box
-
-      - type: custom:button-card
-        template: bearstone_infra_status_kpi
-        entity: input_text.infra_duplicati_backup_verification_status
-        name: Docker Config Backup
-        icon: mdi:backup-restore
-        variables:
-          ok_state: verified
-        state_display: >
-          [[[
-            const status = String(entity?.state ?? 'unverified').toLowerCase();
-            const raw = String(states['input_datetime.infra_duplicati_backup_last_success']?.state ?? '');
-            const parsed = raw ? new Date(raw.replace(' ', 'T')) : null;
-            const when = parsed instanceof Date && !Number.isNaN(parsed.getTime())
-              ? parsed.toLocaleString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit'
-                }).toUpperCase()
-              : 'NO SUCCESS TIME';
-            if (status === 'verified') return `SUCCESS · ${when}`;
-            if (status === 'failed') return `FAILED · LAST SUCCESS ${when}`;
-            return `UNVERIFIED · LAST SUCCESS ${when}`;
-          ]]]
 
       # Core statistics-graph is required because mini-graph-card can only read
       # the 180-day recorder window, while long-term statistics retain 12 months.
@@ -301,3 +375,4 @@
   - !include /config/dashboards/infrastructure/popups/docker_17_maintenance.yaml
   - !include /config/dashboards/infrastructure/popups/docker_69_maintenance.yaml
   - !include /config/dashboards/infrastructure/popups/docker_14_maintenance.yaml
+  - !include /config/dashboards/infrastructure/popups/docker_13_maintenance.yaml

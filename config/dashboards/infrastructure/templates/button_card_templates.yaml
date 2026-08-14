@@ -5,11 +5,12 @@
 # -------------------------------------------------------------------
 # Infrastructure Templates - custom:button-card
 # Related Issue: 1560
-#  Shared `button_card_templates` used across Infrastructure views.
+#  Shared `button_card_templates` used across Infrastructure and Overview views.
 # -------------------------------------------------------------------
 # Notes: Keep templates generic; view-specific tuning stays in the view partials.
 # Notes: The compact ribbon template supports Overview status and daily controls.
 # Notes: Mobile templates extend the ribbon with larger accessible tap targets and text.
+# Notes: Named cards keep the icon beside the name; icons never consume a decorative row.
 ######################################################################
 
 bearstone_infra_base:
@@ -668,6 +669,26 @@ bearstone_infra_panel_header:
     - text-transform: uppercase
     - justify-self: start
 
+bearstone_infra_panel_header_icon:
+  template: bearstone_infra_panel_header
+  show_icon: true
+  show_name: true
+  icon: mdi:view-dashboard-outline
+  styles:
+    card:
+    - padding: 6px 2px 10px 2px
+    grid:
+    - grid-template-areas: '"i n"'
+    - grid-template-columns: 20px minmax(0, auto)
+    - column-gap: 6px
+    - justify-content: start
+    icon:
+    - width: 18px
+    - color: var(--primary-color)
+    - justify-self: start
+    name:
+    - justify-self: start
+
 bearstone_infra_list_row:
   show_icon: true
   show_name: true
@@ -682,7 +703,6 @@ bearstone_infra_list_row:
     - box-shadow: none
     - border: 1px solid rgba(0,0,0,0.03)
     - background: rgba(0,0,0,0.02)
-    - width: 100%
     - box-sizing: border-box
     grid:
     - grid-template-areas: "\"i n s\""
@@ -871,24 +891,29 @@ bearstone_infra_kpi:
     - border: 1px solid rgba(0,0,0,0.03)
     - background: rgba(0,0,0,0.02)
     grid:
-    - grid-template-areas: "\"i\" \"n\" \"s\""
-    - grid-template-rows: 22px min-content min-content
-    - row-gap: 6px
-    - justify-items: center
+    - grid-template-areas: '"i n" "s s"'
+    - grid-template-columns: 18px minmax(0, auto)
+    - grid-template-rows: 20px min-content
+    - column-gap: 6px
+    - row-gap: 5px
+    - justify-content: center
     icon:
     - width: 18px
     - color: var(--primary-color)
+    - justify-self: end
     name:
     - font-size: 11px
     - font-weight: 800
     - opacity: 0.65
     - text-transform: uppercase
-    - text-align: center
+    - text-align: left
     - letter-spacing: 0.6px
+    - justify-self: start
     state:
     - font-size: 16px
     - font-weight: 800
     - opacity: 0.9
+    - justify-self: center
 
 bearstone_infra_status_kpi:
   template: bearstone_infra_kpi
@@ -1056,21 +1081,24 @@ bearstone_overview_ribbon_control:
         ]]]
     grid:
     - grid-template-areas: >
-        [[[ return variables?.mobile_compact ? '"i" "n" "s"' : '"i n" "i s"'; ]]]
+        [[[ return variables?.mobile_compact ? '"i n" "s s"' : '"i n" "i s"'; ]]]
     - grid-template-columns: >
-        [[[ return variables?.mobile_compact ? '1fr' : '28px 1fr'; ]]]
+        [[[ return variables?.mobile_compact ? '18px minmax(0, auto)' : '28px 1fr'; ]]]
     - grid-template-rows: >
-        [[[ return variables?.mobile_compact ? '18px 24px 12px' : 'min-content min-content'; ]]]
-    - column-gap: 0
+        [[[ return variables?.mobile_compact ? '18px 12px' : 'min-content min-content'; ]]]
+    - column-gap: >
+        [[[ return variables?.mobile_compact ? '5px' : '0'; ]]]
     - row-gap: >
-        [[[ return variables?.mobile_compact ? '1px' : '0'; ]]]
+        [[[ return variables?.mobile_compact ? '3px' : '0'; ]]]
+    - justify-content: >
+        [[[ return variables?.mobile_compact ? 'center' : 'stretch'; ]]]
     icon:
     - display: >
         [[[ return 'block'; ]]]
     - width: >
         [[[ return '18px'; ]]]
     - justify-self: >
-        [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
+        [[[ return variables?.mobile_compact ? 'end' : 'start'; ]]]
     - color: >
         [[[
           const severity = String(variables?.status_severity ?? 'critical');
@@ -1095,7 +1123,7 @@ bearstone_overview_ribbon_control:
     - line-height: >
         [[[ return variables?.mobile_compact ? '12px' : 'normal'; ]]]
     - justify-self: >
-        [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
+        [[[ return 'start'; ]]]
     - white-space: >
         [[[ return variables?.mobile_compact ? 'normal' : 'nowrap'; ]]]
     - overflow: >
@@ -1103,7 +1131,7 @@ bearstone_overview_ribbon_control:
     - text-overflow: >
         [[[ return variables?.mobile_compact ? 'clip' : 'ellipsis'; ]]]
     - text-align: >
-        [[[ return variables?.mobile_compact ? 'center' : 'left'; ]]]
+        [[[ return 'left'; ]]]
     - opacity: 1
     state:
     - color: >
@@ -1125,7 +1153,7 @@ bearstone_overview_ribbon_control:
     - opacity: 1
 
 bearstone_mobile_header:
-  template: bearstone_infra_panel_header
+  template: bearstone_infra_panel_header_icon
   styles:
     card:
     - padding: 10px 2px 8px 2px
@@ -1159,17 +1187,19 @@ bearstone_mobile_control:
     - padding: 12px 10px
     - border-radius: 20px
     grid:
-    - grid-template-areas: '"i" "n" "s"'
-    - grid-template-columns: 1fr
-    - grid-template-rows: 34px min-content min-content
+    - grid-template-areas: '"i n" "s s"'
+    - grid-template-columns: 28px minmax(0, auto)
+    - grid-template-rows: 32px min-content
+    - column-gap: 8px
     - row-gap: 6px
+    - justify-content: center
     icon:
-    - width: 32px
-    - justify-self: center
+    - width: 28px
+    - justify-self: end
     name:
     - font-size: 18px
     - line-height: 22px
-    - justify-self: center
+    - justify-self: start
     - white-space: normal
     - overflow: visible
     - text-overflow: clip
@@ -1182,8 +1212,8 @@ bearstone_mobile_control:
 
 bearstone_overview_sleep_summary:
   template: bearstone_infra_kpi
-  show_icon: false
   show_label: true
+  show_icon: true
   variables:
     score_attribute: ''
     green_threshold: 88
@@ -1193,9 +1223,16 @@ bearstone_overview_sleep_summary:
     - min-height: 62px
     - padding: 8px 12px
     grid:
-    - grid-template-areas: '"n" "s" "l"'
-    - grid-template-rows: min-content min-content 14px
+    - grid-template-areas: '"i n" "s s" "l l"'
+    - grid-template-columns: 18px minmax(0, auto)
+    - grid-template-rows: 20px min-content 14px
+    - column-gap: 6px
     - row-gap: 1px
+    - justify-content: center
+    icon:
+    - width: 18px
+    - color: var(--primary-color)
+    - justify-self: end
     name:
     - font-size: 12px
     - font-weight: 900
@@ -1229,22 +1266,24 @@ bearstone_health_kpi:
     - grid-template-areas: >
         [[[
           return variables?.detail_layout
-            ? '"i" "n" "s" "l"'
-            : '"i" "n" "s"';
+            ? '"i n" "s s" "l l"'
+            : '"i n" "s s"';
         ]]]
-    - grid-template-columns: minmax(0, 1fr)
+    - grid-template-columns: 18px minmax(0, auto)
     - grid-template-rows: >
         [[[
           return variables?.detail_layout
-            ? '22px min-content min-content minmax(18px, auto)'
-            : '22px min-content min-content';
+            ? '20px min-content minmax(18px, auto)'
+            : '20px min-content';
         ]]]
+    - column-gap: 6px
+    - justify-content: center
     name:
     - font-size: 12px
     - font-weight: 900
     - opacity: 0.8
-    - justify-self: stretch
-    - width: 100%
+    - justify-self: start
+    - width: auto
     - min-width: 0
     - white-space: normal
     - overflow: visible
@@ -1261,6 +1300,7 @@ bearstone_health_kpi:
     - overflow: visible
     - text-overflow: clip
     - line-height: 22px
+    - text-align: center
     label:
     - font-size: 12px
     - font-weight: 600
@@ -1375,3 +1415,35 @@ bearstone_infra_update_row:
           if (variables.apt_severity === 'healthy') return 'rgba(46,125,50,1)';
           return 'var(--secondary-text-color)';
         ]]]
+
+bearstone_infra_update_tile:
+  template: bearstone_infra_update_row
+  styles:
+    card:
+    - min-height: 96px
+    - padding: 10px
+    grid:
+    - grid-template-areas: '"i n" "s s" "l l"'
+    - grid-template-columns: 18px minmax(0, auto)
+    - grid-template-rows: 20px min-content min-content
+    - column-gap: 6px
+    - row-gap: 3px
+    - justify-content: center
+    icon:
+    - width: 18px
+    - justify-self: end
+    name:
+    - justify-self: start
+    - text-align: left
+    - white-space: normal
+    state:
+    - justify-self: start
+    - padding-left: 0
+    - text-align: center
+    - white-space: normal
+    - line-height: 16px
+    label:
+    - justify-self: center
+    - padding-top: 0
+    - text-align: left
+    - line-height: 14px

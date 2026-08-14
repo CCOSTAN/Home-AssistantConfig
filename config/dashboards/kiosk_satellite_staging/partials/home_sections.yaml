@@ -12,7 +12,7 @@
 # Notes: Nearby rain or lightning starts a five-minute NOAA radar view only while the sun is above the horizon.
 # Notes: After radar returns to the ambient wall, Storms Approaching offers another five-minute replay from the lower banner.
 # Notes: Actionable banner slides open one shared full-screen detail surface and return automatically to the ambient wall.
-# Notes: Family detail centers only the selected person; Phyn detail includes a confirmed main-valve restore action.
+# Notes: Family detail centers only the selected person and includes the prior 24-hour trail; Phyn detail includes a confirmed main-valve restore action.
 # Notes: The large-format lower panel otherwise mirrors read-only household fact entities.
 # Notes: The clock uses oversized time text and places live conditions beneath the current-weather icon.
 ######################################################################
@@ -639,24 +639,14 @@
                       'person.justin': 'sensor.justin_location_display',
                       'person.paige': 'sensor.paige_location_display'
                     }[detailSubject];
-                    const latitude = Number(person?.attributes?.latitude);
-                    const longitude = Number(person?.attributes?.longitude);
                     const personName = person?.attributes?.friendly_name || pretty(detailSubject.split('.')[1]);
                     const rawLocation = pretty(state(locationEntityId));
                     const withoutName = rawLocation.replace(new RegExp(`^${personName}\s+`, 'i'), '');
                     const location = withoutName.replace(/\s*\(since\s+[^)]+\)\s*$/i, '').trim();
-                    const mapUrl = Number.isFinite(latitude) && Number.isFinite(longitude)
-                      ? `https://www.openstreetmap.org/export/embed.html?bbox=${longitude - 0.018}%2C${latitude - 0.012}%2C${longitude + 0.018}%2C${latitude + 0.012}&layer=mapnik&marker=${latitude}%2C${longitude}`
-                      : '';
                     kicker = 'FAMILY LOCATION';
                     title = `${personName} · ${location || pretty(person?.state)}`;
                     icon = 'mdi:map-marker-account-outline';
-                    body = mapUrl ? html`
-                      <div class="kitchen-detail-map">
-                        <iframe src="${mapUrl}" title="${personName} location map"></iframe>
-                        <div class="kitchen-detail-map-caption">Updated ${formatSince(person)}</div>
-                      </div>
-                    ` : html`<div class="kitchen-detail-message">Location coordinates are unavailable.</div>`;
+                    body = html`<div class="kitchen-detail-map-caption">Updated ${formatSince(person)} · 24-hour trail</div>`;
                   } else if (detailType === 'entry_points') {
                     const openEntries = (states['group.entry_points']?.attributes?.entity_id || [])
                       .map((entityId) => states[entityId])
@@ -740,7 +730,7 @@
                   }
 
                   return html`
-                    <div class="kitchen-detail-overlay" @click=${(event) => event.stopPropagation()}>
+                    <div class="kitchen-detail-overlay ${detailType === 'family' ? 'family' : ''}" @click=${(event) => event.stopPropagation()}>
                       <div class="kitchen-detail-header">
                         <div class="kitchen-detail-header-icon"><ha-icon .icon=${icon}></ha-icon></div>
                         <div class="kitchen-detail-header-copy">
@@ -864,6 +854,21 @@
                       background: radial-gradient(circle at top right, #172235 0%, #080e16 55%);
                       overflow: hidden;
                       text-align: left;
+                    }
+                    .kitchen-detail-overlay.family {
+                      background: transparent;
+                      pointer-events: none;
+                    }
+                    .kitchen-detail-overlay.family .kitchen-detail-header {
+                      padding: 12px 18px;
+                      border: 1px solid rgba(255,255,255,0.18);
+                      border-radius: 20px;
+                      background: rgba(8,14,22,0.92);
+                      box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+                      pointer-events: auto;
+                    }
+                    .kitchen-detail-overlay.family .kitchen-detail-body {
+                      pointer-events: none;
                     }
                     .kitchen-detail-header {
                       display: grid;
@@ -996,8 +1001,7 @@
                       font-size: 38px;
                       line-height: 1.05;
                     }
-                    .kitchen-detail-camera,
-                    .kitchen-detail-map {
+                    .kitchen-detail-camera {
                       position: relative;
                       width: 100%;
                       height: 100%;
@@ -1022,11 +1026,9 @@
                       font-size: 26px;
                       font-weight: 700;
                     }
-                    .kitchen-detail-map iframe {
-                      width: 100%;
-                      height: 100%;
-                      border: 0;
-                      filter: brightness(0.84) contrast(1.08);
+                    .kitchen-detail-map-caption {
+                      z-index: 10002;
+                      pointer-events: none;
                     }
                     .kitchen-detail-water-button {
                       display: block;
@@ -1097,6 +1099,91 @@
                 - pointer-events: auto
           view_layout:
             grid-area: ambient
+
+        # Core map cards are required because only HA's history subscription can render Recorder-backed trails.
+        - type: conditional
+          conditions:
+            - &kitchen_family_detail_timer_active
+              entity: timer.kitchen_kiosk_detail_display
+              state: active
+            - entity: input_text.kitchen_kiosk_detail_view
+              state: "family|person.carlo"
+          card:
+            type: map
+            entities:
+              - person.carlo
+            hours_to_show: 24
+            theme_mode: dark
+            card_mod:
+              style: &kitchen_family_history_map_style |
+                ha-card {
+                  position: fixed !important;
+                  inset: 0 !important;
+                  z-index: 9999 !important;
+                  width: 100vw !important;
+                  height: 100vh !important;
+                  margin: 0 !important;
+                  border: 0 !important;
+                  border-radius: 0 !important;
+                  background: #03070b !important;
+                }
+                #root {
+                  height: 100vh !important;
+                  padding-bottom: 0 !important;
+                }
+                #buttons {
+                  top: 145px !important;
+                }
+          view_layout:
+            grid-area: 1 / 1 / 4 / 3
+
+        - type: conditional
+          conditions:
+            - *kitchen_family_detail_timer_active
+            - entity: input_text.kitchen_kiosk_detail_view
+              state: "family|person.stacey"
+          card:
+            type: map
+            entities:
+              - person.stacey
+            hours_to_show: 24
+            theme_mode: dark
+            card_mod:
+              style: *kitchen_family_history_map_style
+          view_layout:
+            grid-area: 1 / 1 / 4 / 3
+
+        - type: conditional
+          conditions:
+            - *kitchen_family_detail_timer_active
+            - entity: input_text.kitchen_kiosk_detail_view
+              state: "family|person.justin"
+          card:
+            type: map
+            entities:
+              - person.justin
+            hours_to_show: 24
+            theme_mode: dark
+            card_mod:
+              style: *kitchen_family_history_map_style
+          view_layout:
+            grid-area: 1 / 1 / 4 / 3
+
+        - type: conditional
+          conditions:
+            - *kitchen_family_detail_timer_active
+            - entity: input_text.kitchen_kiosk_detail_view
+              state: "family|person.paige"
+          card:
+            type: map
+            entities:
+              - person.paige
+            hours_to_show: 24
+            theme_mode: dark
+            card_mod:
+              style: *kitchen_family_history_map_style
+          view_layout:
+            grid-area: 1 / 1 / 4 / 3
 
         # NOAA is the single radar path; native Kiosk Satellite camera overlays retain priority.
         - type: conditional
