@@ -9,11 +9,11 @@
 # Video: https://youtu.be/aceV7ObKJVA
 # Blog: https://www.vcloudinfo.com/2026/07/using-codex-clean-up-home-assistant-entities.html
 # -------------------------------------------------------------------
-# Notes: Hosts run daily read-only APT pending checks plus staggered Mon/Thu overnight APT jobs.
-# Notes: All Docker hosts use America/New_York; maintenance starts at 00:30 and is sequenced by host.
+# Notes: Hosts run daily APT pending checks plus staggered daily overnight APT jobs.
+# Notes: All Docker hosts use America/New_York; maintenance starts at 00:30 daily and is sequenced by host.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Boot reports reuse the registered APT webhook and retry while Home Assistant starts.
-# Notes: Reboot order: docker_14, docker_69, docker_17, docker_10; codex-appliance follows after its SMB dependencies recover.
+# Notes: Reboot order: docker_14, docker_69, docker_17, docker_10; docker_13 (codex-appliance) follows after its SMB dependencies recover.
 # Notes: Per-host action-due helpers preserve overdue state across daily checks and HA restarts.
 # Notes: Monitored workload count deduplicates Portainer `_container_2` companion entities.
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
@@ -81,6 +81,18 @@ input_datetime:
     name: "docker_69 APT action due"
     has_date: true
     has_time: true
+  apt_docker_13_last_check:
+    name: "docker_13 APT last check"
+    has_date: true
+    has_time: true
+  apt_docker_13_last_update:
+    name: "docker_13 APT last update"
+    has_date: true
+    has_time: true
+  apt_docker_13_action_due:
+    name: "docker_13 APT action due"
+    has_date: true
+    has_time: true
   docker_container_alerts_snooze_until:
     name: "Docker container alerts snooze until"
     has_date: true
@@ -98,6 +110,9 @@ input_text:
     max: 255
   apt_docker_69_last_result:
     name: "docker_69 APT last result"
+    max: 255
+  apt_docker_13_last_result:
+    name: "docker_13 APT last result"
     max: 255
 
 switch:
@@ -279,6 +294,26 @@ template:
         device_class: timestamp
         state: >-
           {% set stamp = states('input_datetime.apt_docker_69_last_update') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
+      - name: "docker_13 APT status"
+        unique_id: apt_docker_13_status
+        icon: mdi:package-up
+        state: "{{ states('input_text.apt_docker_13_last_result') }}"
+      - name: "docker_13 APT last check"
+        unique_id: apt_docker_13_last_check
+        device_class: timestamp
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_13_last_check') %}
+          {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
+            {{ as_local(as_datetime(stamp)) }}
+          {% endif %}
+      - name: "docker_13 APT last update"
+        unique_id: apt_docker_13_last_update
+        device_class: timestamp
+        state: >-
+          {% set stamp = states('input_datetime.apt_docker_13_last_update') %}
           {% if stamp not in ['unknown', 'unavailable', 'none', ''] %}
             {{ as_local(as_datetime(stamp)) }}
           {% endif %}
@@ -949,6 +984,12 @@ automation:
         allowed_methods:
           - POST
         local_only: true
+      - platform: webhook
+        webhook_id: !secret apt_webhook_docker_13
+        id: docker_13
+        allowed_methods:
+          - POST
+        local_only: true
     variables:
       host_id: "{{ trigger.id }}"
       payload: "{{ trigger.json | default({}) }}"
@@ -988,6 +1029,13 @@ automation:
           action_due: input_datetime.apt_docker_69_action_due
           reboot_delay: 10
           maintenance_offset: 15
+        docker_13:
+          last_check: input_datetime.apt_docker_13_last_check
+          last_update: input_datetime.apt_docker_13_last_update
+          last_result: input_text.apt_docker_13_last_result
+          action_due: input_datetime.apt_docker_13_action_due
+          reboot_delay: 35
+          maintenance_offset: 65
       host_helpers: "{{ helpers[host_id] if host_id in helpers else none }}"
       previous_result: "{{ states(host_helpers.last_result) | upper }}"
       previous_actionable: >-
@@ -1003,18 +1051,15 @@ automation:
            (not previous_actionable or due_missing or previous_reboot != reboot_required) }}
       action_due: >-
         {% set maintenance_at = today_at('00:30') + timedelta(minutes=host_helpers.maintenance_offset | int(0)) %}
-        {% set weekday = now().weekday() %}
         {% set maintenance_report = event_kind == 'maintenance' %}
-        {% set current_window = maintenance_report and weekday in [0, 3]
+        {% set current_window = maintenance_report
             and now() >= maintenance_at and now() < maintenance_at + timedelta(hours=4) %}
         {% if current_window %}
           {% set offset = 0 %}
-        {% elif weekday in [0, 3] and now() < maintenance_at %}
+        {% elif now() < maintenance_at %}
           {% set offset = 0 %}
-        {% elif weekday < 3 %}
-          {% set offset = 3 - weekday %}
         {% else %}
-          {% set offset = 7 - weekday %}
+          {% set offset = 1 %}
         {% endif %}
         {% set delay = host_helpers.reboot_delay if reboot_required else 0 %}
         {{ (maintenance_at + timedelta(days=offset, minutes=delay)).strftime('%Y-%m-%d %H:%M:%S') }}

@@ -12,6 +12,7 @@ case "$HOST_NAME" in
   docker14) HOST_NAME="docker_14" ;;
   docker17) HOST_NAME="docker_17" ;;
   docker69) HOST_NAME="docker_69" ;;
+  docker13|codex-appliance) HOST_NAME="docker_13" ;;
 esac
 
 if [[ "$WEBHOOK_SOURCE" == "--from-apt-weekly" ]]; then

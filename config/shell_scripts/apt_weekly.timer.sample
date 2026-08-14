@@ -1,9 +1,9 @@
 [Unit]
-Description=Run APT maintenance twice weekly overnight
+Description=Run APT maintenance daily overnight
 
 [Timer]
-# Deploy host-specific overnight slots from docs/agent_ops_baselines.md.
-OnCalendar=Mon,Thu *-*-* 00:30:00
+# Deploy host-specific daily overnight slots from docs/agent_ops_baselines.md.
+OnCalendar=*-*-* 00:30:00
 Persistent=true
 Unit=apt_weekly.service
 
