@@ -28,7 +28,7 @@ Longer-running shell helpers referenced by automations, packages, or cron. Anyth
 | --- | --- |
 | [HAUpdate.sh](HAUpdate.sh) | One-command Home Assistant update helper. |
 | [apt_pending_check.sh](apt_pending_check.sh) | Read-only APT pending-count reporter for the Docker host maintenance dashboard. |
-| [apt_weekly.sh](apt_weekly.sh) | Twice-weekly APT updater that posts webhook status and can schedule reboot when needed. |
+| [apt_weekly.sh](apt_weekly.sh) | Daily APT updater that posts webhook status and can schedule reboot when needed. |
 | [apt_reboot_report.sh](apt_reboot_report.sh) | Boot-time status reporter that reuses the registered APT webhook, retries while HA starts, and clears/keeps reboot-required state. |
 | [gitupdate.sh](gitupdate.sh) | Pull the latest config changes on demand. |
 | [![YAML source: basketball](https://img.shields.io/static/v1?label=YAML&message=basketball&color=lightgrey&logo=github&logoColor=181717)](basketball.yaml) | ESPN stat scraping helper used by sensors. |
