@@ -12,14 +12,15 @@
 # Notes: Shared camera, header, and alert sensors keep both Bedroom renderers DRY.
 # Notes: Fully controls apply only to the legacy Bedroom tablet.
 # Notes: Kitchen Show uses Kiosk Satellite discovery entities; no screensaver helper is required.
+# Notes: Kiosk Satellite 2026.8.49+ owns HA kiosk-mode hiding and connection recovery; no kiosk-mode custom resource is loaded.
 # Notes: Kitchen Show stays dark while the house is empty or asleep and wakes only for occupied-house events.
 # Notes: Garage takes over while either door is moving/open and remains for three minutes after both close; Front Door takes over while unlocked.
-# Notes: At 07:00, a pending new Kiosk Satellite release dispatches Joanna once for install and verification.
+# Notes: At 07:00, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
 # Notes: Wake events only restore brightness/focus; URL reloads require page drift.
 # Notes: Fully auto-reload on screen-on/screensaver-stop is disabled to avoid motion wake reload loops.
 # Notes: Startup recovery waits for HA's initial websocket state burst to settle.
 # Notes: Brightness recovery only runs when both SleepIQ in-bed sensors are off.
-# Notes: Fully availability/page/app/power plus Kitchen last-seen/update/screenshot freshness feed Systems telemetry.
+# Notes: Fully availability/page/app/power plus Kitchen connectivity, last-seen/update/screenshot freshness feed Systems telemetry.
 # Notes: Kitchen updates are advisory telemetry and do not raise kiosk or Systems fault rollups.
 # Notes: Kiosk attention sensors expose only their stable status attribute so recorder preserves problem transitions without heartbeat churn.
 # Notes: Nearby daytime rain or lightning starts a five-minute NOAA radar view; the ambient banner offers daylight replay while the event remains active.
@@ -29,9 +30,6 @@
 ######################################################################
 
 input_text:
-  kitchen_show_kiosk_satellite_last_dispatched_version:
-    name: "Kitchen Show Kiosk Satellite Last Dispatched Version"
-    max: 32
   kitchen_kiosk_detail_view:
     name: "Kitchen Kiosk Detail View"
     initial: none
@@ -313,7 +311,7 @@ automation:
 
   - alias: "Kitchen Kiosk Satellite - Update Joanna Dispatch"
     id: 199e30f0-e28c-4842-953d-a65bc4b4e1d3
-    description: "At 07:00, dispatch Joanna once when a new Kiosk Satellite release is pending for the Kitchen Show."
+    description: "At 07:00, stage and dispatch Joanna daily while a Kiosk Satellite release remains pending for the Kitchen Show."
     mode: single
     max_exceeded: silent
     trigger:
@@ -330,8 +328,7 @@ automation:
           {% set latest = state_attr('update.kitchen_show_update', 'latest_version') | default('', true) | string %}
           {{ installed not in ['', 'unknown', 'unavailable']
              and latest not in ['', 'unknown', 'unavailable']
-             and installed != latest
-             and latest != states('input_text.kitchen_show_kiosk_satellite_last_dispatched_version') }}
+             and installed != latest }}
 
     action:
       - variables:
@@ -349,14 +346,22 @@ automation:
             target_version={{ latest_version }}
             release_url={{ release_url }}
             authorization=This dispatch authorizes installing the pending Kiosk Satellite application update on the Kitchen Show only. Do not update LineageOS, Home Assistant, or unrelated applications and do not factory-reset or re-enroll the tablet.
-            required_action=Inspect the live update entity and device availability, invoke the supported Home Assistant update.install action, and observe whether installation actually begins. If Android does not finish the installation, use the pre-authorized Joanna ops helper /opt/codex/bin/kitchen-kiosk-update --expected-version {{ latest_version }} to complete this same signed Kiosk Satellite update over the existing LAN-only management path.
+            required_action=Home Assistant already invoked update.install and allowed two minutes for the signed installer payload to stage. If the update is still pending, use the pre-authorized Joanna ops helper /opt/codex/bin/kitchen-kiosk-update --expected-version {{ latest_version }} to complete this Kiosk Satellite update over the existing LAN-only management path.
             required_verification=Do not stop at a successful service call. Verify update.kitchen_show_update reports installed_version equal to latest_version, in_progress is false, the Kitchen Show returns online, sensor.kitchen_show_current_page is the expected kiosk dashboard, sensor.kitchen_show_remote_admin is available, and a fresh screenshot can be requested.
             failure_policy=If the signed release cannot be installed safely or the device does not recover, stop without changing unrelated software and report the blocking evidence.
+      - service: update.install
+        continue_on_error: true
+        target:
+          entity_id: update.kitchen_show_update
+      - delay: "00:02:00"
+      - condition: state
+        entity_id: update.kitchen_show_update
+        state: "on"
       - service: script.send_to_logbook
         data:
           topic: "KIOSK"
           message: >-
-            Joanna dispatched to update Kitchen Show Kiosk Satellite from
+            Home Assistant staged and Joanna dispatched Kitchen Show Kiosk Satellite from
             {{ installed_version }} to {{ latest_version }}.
       - service: script.joanna_dispatch
         data:
@@ -378,12 +383,6 @@ automation:
             last_seen={{ states('sensor.kitchen_show_last_seen') }};
             current_page={{ states('sensor.kitchen_show_current_page') }};
             remote_admin={{ states('sensor.kitchen_show_remote_admin') }}
-      - service: input_text.set_value
-        target:
-          entity_id: input_text.kitchen_show_kiosk_satellite_last_dispatched_version
-        data:
-          value: "{{ latest_version }}"
-
 template:
   - sensor:
       - name: "Kiosk Active Camera View"
@@ -626,14 +625,14 @@ template:
         delay_off: "00:00:30"
         state: >-
           {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
-          {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen'), 0) %}
           {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot'), 0) %}
           {% set page = states('sensor.kitchen_show_current_page') %}
           {% set remote_admin = states('sensor.kitchen_show_remote_admin') %}
+          {% set connectivity = states('binary_sensor.kitchen_show_connectivity') %}
           {% set battery = states('sensor.kitchen_show_battery') | float(0) %}
-          {% set offline = last_seen == 0 or (as_timestamp(now()) - last_seen) > 300 %}
+          {% set device_offline = connectivity != 'on' %}
           {% set screenshot_stale = screenshot == 0 or (as_timestamp(now()) - screenshot) > 2700 %}
-          {{ offline
+          {{ device_offline
              or page in invalid
              or remote_admin in invalid
              or '/dashboard-kiosk-satellite-staging/home' not in page
@@ -646,9 +645,12 @@ template:
             {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot'), 0) %}
             {% set page = states('sensor.kitchen_show_current_page') %}
             {% set remote_admin = states('sensor.kitchen_show_remote_admin') %}
+            {% set connectivity = states('binary_sensor.kitchen_show_connectivity') %}
             {% set battery = states('sensor.kitchen_show_battery') | float(0) %}
-            {% if last_seen == 0 or (as_timestamp(now()) - last_seen) > 300 %}
+            {% if connectivity != 'on' %}
               offline
+            {% elif last_seen == 0 or (as_timestamp(now()) - last_seen) > 300 %}
+              telemetry stale
             {% elif page in invalid or remote_admin in invalid %}
               telemetry unavailable
             {% elif '/dashboard-kiosk-satellite-staging/home' not in page %}
