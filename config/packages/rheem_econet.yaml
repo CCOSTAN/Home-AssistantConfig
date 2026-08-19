@@ -6,6 +6,7 @@
 # Rheem EcoNet Water Heater - Monitoring and control
 # Related Issue: 1550
 # Related Issue: 1820
+# Related Issue: 1890
 #  Logs hot-water availability alerts to Activity feed; keeps announcements.
 # -------------------------------------------------------------------
 # Docs: https://www.home-assistant.io/integrations/econet/ | Existing notes: Issue #892
@@ -17,6 +18,32 @@
 ##############################################################################
 
 automation:
+  # Temporary safeguard for Rheem case CAS-2816630-Z7T2M6 / issue #1890.
+  # Remove after the evaporator thermistor is replaced and compressor operation
+  # has been verified. Off remains allowed for Powerwall outage load shedding.
+  - alias: "Rheem Temporary Warranty Repair - Enforce Electric Mode"
+    id: rheem_temporary_warranty_repair_enforce_electric_mode
+    description: "Keep the failed compressor disabled until the evaporator thermistor repair is verified"
+    mode: restart
+    trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id: water_heater.rheem_wh
+      - platform: time_pattern
+        minutes: "/15"
+    condition:
+      - condition: template
+        value_template: >-
+          {{ states('water_heater.rheem_wh') not in
+             ['electric', 'off', 'unknown', 'unavailable'] }}
+    action:
+      - service: water_heater.set_operation_mode
+        target:
+          entity_id: water_heater.rheem_wh
+        data:
+          state: electric
+
   - alias: "Rheem Water Heater Health Monitoring"
     id: rheem_water_heater_health_monitoring
     mode: single

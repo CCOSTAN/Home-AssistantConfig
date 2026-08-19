@@ -330,7 +330,7 @@ automation:
 
   - alias: "Powerwall outage - Rheem WH mode control"
     id: d686f650-65ad-4cc6-8e27-8b5ee76b5338
-    description: "During outages, switch Rheem mode by time-of-day and battery reserve"
+    description: "During outages, switch Rheem between off and electric mode while the compressor is under warranty repair"
     mode: single
     trigger:
       - id: sunrise
@@ -386,7 +386,7 @@ automation:
                 target:
                   entity_id: water_heater.rheem_wh
                 data:
-                  state: heat_pump
+                  state: electric
 
   - alias: "Restore Docker hosts and camera PoE when grid returns"
     id: 1ae8b5c5-8627-4a44-8c8a-5bf8ca5e1bf5
