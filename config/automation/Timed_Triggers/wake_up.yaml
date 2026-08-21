@@ -17,6 +17,11 @@
 
   condition:
     - condition: state
+      entity_id:
+        - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      state: 'off'
+    - condition: state
       entity_id: group.family
       state: home
     - condition: state

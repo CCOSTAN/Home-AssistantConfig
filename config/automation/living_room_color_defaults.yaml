@@ -4,47 +4,10 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Living Room Color Defaults - cool white by day, amber by evening
-#  Restores after entry/garage secure and when lights are turned on.
+#  Restores after entry/garage secure; manual late-night turns use the guard.
 # -------------------------------------------------------------------
 # Notes: Returns to defaults after entry points close; keeps prior off states.
 ######################################################################
-
-- alias: 'Living Room Defaults on Turn-On'
-  id: living_room_defaults_on_turn_on
-  mode: single
-  trigger:
-    - platform: state
-      entity_id:
-        - light.living_room_lights
-      from: 'off'
-      to: 'on'
-  condition:
-    - condition: state
-      entity_id: group.entry_points
-      state: 'off'
-    - condition: state
-      entity_id: group.garage_doors
-      state: 'closed'
-  action:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: sun.sun
-              state: 'above_horizon'
-          sequence:
-            - service: light.turn_on
-              target:
-                entity_id: light.living_room_lights
-              data:
-                color_temp_kelvin: 5500
-                brightness: 255
-      default:
-        - service: light.turn_on
-          target:
-            entity_id: light.living_room_lights
-          data:
-            color_temp_kelvin: 2700
-            brightness: 200
 
 - alias: 'Restore Living Room After Entry Secured'
   id: restore_living_room_after_entry_secured

@@ -6,6 +6,8 @@
 # Good Night Routine - bedtime shutdown and bed presence actions
 #  Powers down interior accents when the household is in bed.
 # -------------------------------------------------------------------
+# Notes: SleepIQ recovery from `unavailable` is not treated as a bed entry;
+#        amp wake-up requires both bed sensors to report explicit `off`.
 ######################################################################
 
 - alias: 'Good Night Trigger'
@@ -21,6 +23,7 @@
       entity_id:
         - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
         - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      from: 'off'
       to: 'on'
 
   condition:
@@ -77,6 +80,7 @@
       entity_id:
         - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
         - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      from: 'off'
       to: 'on'
       id: "in_bed"
     - platform: state
@@ -109,6 +113,11 @@
             data:
               value: 0
     default:
+      - condition: state
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        state: 'off'
       - service: homeassistant.turn_on
         target:
           entity_id: switch.lr_amp

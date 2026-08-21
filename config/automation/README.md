@@ -32,6 +32,7 @@ Event-driven automations that sit outside the self-contained packages. These tie
 | [![YAML source: dark_rainy_day](https://img.shields.io/static/v1?label=YAML&message=dark_rainy_day&color=lightgrey&logo=github&logoColor=181717)](dark_rainy_day.yaml) | Weather-aware lighting helper that also confirms the occupied first floor is actually dim through Kitchen Show illuminance. |
 | [![YAML source: dash_buttons](https://img.shields.io/static/v1?label=YAML&message=dash_buttons&color=lightgrey&logo=github&logoColor=181717)](dash_buttons.yaml) | Amazon Dash buttons repurposed as quick triggers. |
 | [![YAML source: good_night](https://img.shields.io/static/v1?label=YAML&message=good_night&color=lightgrey&logo=github&logoColor=181717)](good_night.yaml) | Whole-house shutdown and lock-up routine. |
+| [![YAML source: late_night_brightness_guard](https://img.shields.io/static/v1?label=YAML&message=late_night_brightness_guard&color=lightgrey&logo=github&logoColor=181717)](late_night_brightness_guard.yaml) | Scoped 20:00-06:00 brightness cap for direct user-activated living-room and outdoor front-light groups; nested scene and automation contexts are excluded. |
 
 ### Tips
 - Use these as patterns if you are migrating UI-created automations out of `automations.yaml`.

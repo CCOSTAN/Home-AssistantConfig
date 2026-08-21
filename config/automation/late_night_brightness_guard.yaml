@@ -1,0 +1,46 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Late-Night Brightness Guard - cap manual room/exterior group turn-ons.
+#  Protects late-night viewing and entry lighting from full-brightness jumps.
+# -------------------------------------------------------------------
+# Related Issue: 1879
+# Notes: Allowlist is limited to living-room groups and outdoor front lights.
+# Notes: Only direct user-context activations are capped; nested scenes and automations skip.
+# Notes: Tune max_brightness_pct here; the 25% cap is intentionally local.
+######################################################################
+- alias: 'Late-Night Brightness Guard'
+  id: late_night_brightness_guard
+  mode: parallel
+  max: 3
+  variables:
+    max_brightness_pct: 25
+  trigger:
+    - platform: state
+      entity_id:
+        - light.living_room_lights
+        - light.living_room_accents
+        - light.outdoor_front_lights
+      from: 'off'
+      to: 'on'
+  condition:
+    - condition: time
+      after: '20:00:00'
+      before: '06:00:00'
+    - condition: template
+      value_template: >-
+        {{ trigger.to_state is not none
+           and (trigger.to_state.context.user_id | default('', true) | string | trim) != ''
+           and (trigger.to_state.context.parent_id | default('', true) | string | trim) == '' }}
+    - condition: template
+      value_template: >-
+        {{ trigger.entity_id == 'light.outdoor_front_lights'
+           or not is_state('media_player.living_room_ultra', 'playing') }}
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: '{{ trigger.entity_id }}'
+      data:
+        brightness_pct: '{{ max_brightness_pct }}'
