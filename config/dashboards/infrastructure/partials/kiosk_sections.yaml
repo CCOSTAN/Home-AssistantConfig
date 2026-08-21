@@ -61,7 +61,11 @@
         warning_text: UPDATE AVAILABLE
         alert_text: NEEDS ATTENTION
       state_display: >
-        [[[ return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase(); ]]]
+        [[[
+          const updateAvailable = states['update.kitchen_show_update']?.state === 'on';
+          if (entity?.state === 'off') return updateAvailable ? 'UPDATE AVAILABLE' : 'ONLINE';
+          return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase();
+        ]]]
       tap_action:
         action: navigate
         navigation_path: /dashboard-kiosk-satellite-staging/home

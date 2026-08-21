@@ -7,17 +7,350 @@
 # Related Issue: 1550
 # Related Issue: 1820
 # Related Issue: 1890
-#  Logs hot-water availability alerts to Activity feed; keeps announcements.
+#  Normalizes EcoNet alerts, telemetry health, Repairs, and diagnostic snapshots.
 # -------------------------------------------------------------------
 # Docs: https://www.home-assistant.io/integrations/econet/ | Existing notes: Issue #892
 # Powerwall outage control for Rheem WH lives in config/packages/powerwall.yaml
+# Notes: EcoNet exposes an alert count but not the vendor error code or message.
+# Notes: New alert-count increases notify once; state changes and 15-minute reconciliation keep Repairs durable.
+# Notes: A 10-minute EcoNet data gap is telemetry stale, not proof of a water-heater fault.
 ######################################################################
+
+##############################################################################
+###  Normalized alert and telemetry entities
+##############################################################################
+
+template:
+  - binary_sensor:
+      - name: "Rheem WH Active Alert"
+        unique_id: rheem_wh_active_alert
+        device_class: problem
+        availability: "{{ is_number(states('sensor.rheem_wh_alert_count')) }}"
+        state: "{{ states('sensor.rheem_wh_alert_count') | int(0) > 0 }}"
+        attributes:
+          alert_count: "{{ states('sensor.rheem_wh_alert_count') | int(0) }}"
+          source: "econet_counter"
+          detail_level: "counter_only"
+
+      - name: "Rheem WH Telemetry Stale"
+        unique_id: rheem_wh_telemetry_stale
+        device_class: problem
+        delay_on: "00:10:00"
+        delay_off: "00:01:00"
+        state: >-
+          {{ states('water_heater.rheem_wh') in ['unknown', 'unavailable']
+             or states('sensor.rheem_wh_alert_count') in ['unknown', 'unavailable'] }}
+        attributes:
+          evaluation_window: "10 minutes"
+          monitored_entities: >-
+            {{ ['water_heater.rheem_wh', 'sensor.rheem_wh_alert_count'] }}
+
+      - name: "Rheem WH Problem"
+        unique_id: rheem_wh_problem
+        device_class: problem
+        state: >-
+          {% set compressor = states('sensor.rheem_wh_compressor_health') %}
+          {% set tank = states('sensor.rheem_wh_tank_health') %}
+          {{ is_state('binary_sensor.rheem_wh_active_alert', 'on')
+             or is_state('binary_sensor.rheem_wh_telemetry_stale', 'on')
+             or (is_number(compressor) and compressor | float(100) < 90)
+             or (is_number(tank) and tank | float(100) < 90) }}
+        attributes:
+          reasons: >-
+            {% set compressor = states('sensor.rheem_wh_compressor_health') %}
+            {% set tank = states('sensor.rheem_wh_tank_health') %}
+            {% set ns = namespace(items=[]) %}
+            {% if is_state('binary_sensor.rheem_wh_active_alert', 'on') %}
+              {% set ns.items = ns.items + ['active_alert'] %}
+            {% endif %}
+            {% if is_state('binary_sensor.rheem_wh_telemetry_stale', 'on') %}
+              {% set ns.items = ns.items + ['telemetry_stale'] %}
+            {% endif %}
+            {% if is_number(compressor) and compressor | float(100) < 90 %}
+              {% set ns.items = ns.items + ['compressor_health'] %}
+            {% endif %}
+            {% if is_number(tank) and tank | float(100) < 90 %}
+              {% set ns.items = ns.items + ['tank_health'] %}
+            {% endif %}
+            {{ ns.items }}
+
+    sensor:
+      - name: "Rheem WH Diagnostic Status"
+        unique_id: rheem_wh_diagnostic_status
+        icon: mdi:water-boiler-alert
+        state: >-
+          {% set alert_count = states('sensor.rheem_wh_alert_count') %}
+          {% set heater = states('water_heater.rheem_wh') %}
+          {% set compressor = states('sensor.rheem_wh_compressor_health') %}
+          {% set tank = states('sensor.rheem_wh_tank_health') %}
+          {% if is_state('binary_sensor.rheem_wh_telemetry_stale', 'on') %}
+            telemetry_stale
+          {% elif alert_count in ['unknown', 'unavailable'] or heater in ['unknown', 'unavailable'] %}
+            telemetry_pending
+          {% elif is_state('binary_sensor.rheem_wh_active_alert', 'on') %}
+            alert
+          {% elif (is_number(compressor) and compressor | float(100) < 90)
+             or (is_number(tank) and tank | float(100) < 90) %}
+            degraded
+          {% else %}
+            ok
+          {% endif %}
+        attributes:
+          alert_count: "{{ states('sensor.rheem_wh_alert_count') | int(0) }}"
+          compressor_health: "{{ states('sensor.rheem_wh_compressor_health') }}"
+          tank_health: "{{ states('sensor.rheem_wh_tank_health') }}"
+          active_since: >-
+            {{ states.binary_sensor.rheem_wh_active_alert.last_changed.isoformat()
+               if is_state('binary_sensor.rheem_wh_active_alert', 'on') else none }}
+          last_alert_at: "{{ states('sensor.rheem_wh_last_alert_snapshot') }}"
+          last_alert_count: >-
+            {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'alert_count') }}
+          last_alert_operation_mode: >-
+            {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'operation_mode') }}
+          last_alert_running_state: >-
+            {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'running_state') }}
+          last_alert_available_hot_water: >-
+            {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'available_hot_water') }}
+          vendor_error_code: >-
+            {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'vendor_error_code')
+               | default('not_exposed_by_econet', true) }}
+          vendor_error_message: >-
+            {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'vendor_error_message')
+               | default('not_exposed_by_econet', true) }}
+
+  - triggers:
+      - trigger: state
+        entity_id: sensor.rheem_wh_alert_count
+    conditions:
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state is not none
+             and trigger.to_state is not none
+             and is_number(trigger.from_state.state)
+             and is_number(trigger.to_state.state)
+             and trigger.to_state.state | int(0) > trigger.from_state.state | int(0) }}
+    sensor:
+      - name: "Rheem WH Last Alert Snapshot"
+        unique_id: rheem_wh_last_alert_snapshot
+        device_class: timestamp
+        icon: mdi:alert-decagram-outline
+        state: "{{ now().isoformat() }}"
+        attributes:
+          source: "econet_counter"
+          alert_count: "{{ trigger.to_state.state | int(0) }}"
+          previous_alert_count: "{{ trigger.from_state.state | int(0) }}"
+          operation_mode: "{{ states('water_heater.rheem_wh') }}"
+          running_state: "{{ states('sensor.rheem_wh_running_state') }}"
+          available_hot_water: "{{ states('sensor.rheem_wh_available_hot_water') }}"
+          compressor_health: "{{ states('sensor.rheem_wh_compressor_health') }}"
+          tank_health: "{{ states('sensor.rheem_wh_tank_health') }}"
+          wifi_signal: "{{ states('sensor.rheem_wh_wifi_signal') }}"
+          vendor_error_code: "not_exposed_by_econet"
+          vendor_error_message: "not_exposed_by_econet"
 
 ##############################################################################
 ###  Automations
 ##############################################################################
 
 automation:
+  - alias: "Rheem Water Heater Alert Incident"
+    id: rheem_water_heater_alert_incident
+    description: "Notify and dispatch one diagnostic snapshot when the native EcoNet alert count increases"
+    mode: queued
+    max: 5
+    trigger:
+      - platform: state
+        entity_id: sensor.rheem_wh_last_alert_snapshot
+    condition:
+      - condition: template
+        value_template: >-
+          {% set detected = as_timestamp(trigger.to_state.state, 0) %}
+          {% set age = as_timestamp(now()) - detected %}
+          {{ detected > 0 and 0 <= age <= 120 }}
+    action:
+      - variables:
+          alert_count: >-
+            {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'alert_count') | int(0) }}
+          snapshot_summary: >-
+            Alert count {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'alert_count') | int(0) }};
+            mode {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'operation_mode') | default('unknown', true) }};
+            running {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'running_state') | default('unknown', true) }};
+            hot water {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'available_hot_water') | default('unknown', true) }}%;
+            compressor health {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'compressor_health') | default('unknown', true) }}%;
+            tank health {{ state_attr('sensor.rheem_wh_last_alert_snapshot', 'tank_health') | default('unknown', true) }}%.
+      - service: script.send_to_logbook
+        data:
+          topic: "WATER"
+          message: "Rheem reported a new active alert. {{ snapshot_summary }}"
+      - service: script.notify_engine
+        data:
+          title: "Rheem water heater alert"
+          value1: >-
+            Rheem now reports {{ alert_count }} active {{ 'alert' if alert_count == 1 else 'alerts' }}.
+          value2: "{{ snapshot_summary }}"
+          value3: "Home Assistant Repairs contains the durable incident."
+          who: "parents"
+          group: "water_heater"
+          level: "time-sensitive"
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "HA automation rheem_water_heater_alert_incident (Rheem Water Heater Alert Incident)"
+          source: "home_assistant_automation.rheem_water_heater_alert_incident"
+          summary: "Rheem EcoNet reported a new active water-heater alert"
+          request: >-
+            Correlate this alert with Home Assistant history and recommend safe next steps.
+            Do not change the water-heater mode, reset the unit, or dismiss the Repair automatically.
+          entity_ids:
+            - sensor.rheem_wh_alert_count
+            - sensor.rheem_wh_diagnostic_status
+            - sensor.rheem_wh_last_alert_snapshot
+            - water_heater.rheem_wh
+          diagnostics:
+            alert_count: "{{ alert_count }}"
+            snapshot: "{{ snapshot_summary }}"
+            native_error_detail: "counter_only"
+
+  - alias: "Rheem Water Heater Incident Reconcile"
+    id: rheem_water_heater_incident_reconcile
+    description: "Keep Rheem fault and telemetry-loss Repairs synchronized with normalized telemetry"
+    mode: restart
+    trigger:
+      - platform: time_pattern
+        minutes: "/15"
+        seconds: 2
+        id: periodic
+      - platform: state
+        entity_id: sensor.rheem_wh_alert_count
+        id: alert_count
+      - platform: state
+        entity_id:
+          - sensor.rheem_wh_compressor_health
+          - sensor.rheem_wh_tank_health
+        id: health
+      - platform: state
+        entity_id: binary_sensor.rheem_wh_telemetry_stale
+        id: telemetry_state
+      - platform: state
+        entity_id: binary_sensor.rheem_wh_problem
+        id: problem_state
+    condition:
+      - condition: template
+        value_template: "{{ states('binary_sensor.rheem_wh_problem') in ['on', 'off'] }}"
+    action:
+      - variables:
+          alert_count: "{{ states('sensor.rheem_wh_alert_count') | int(0) }}"
+          diagnostic_status: "{{ states('sensor.rheem_wh_diagnostic_status') }}"
+          incident_title: >-
+            {% if is_state('binary_sensor.rheem_wh_active_alert', 'on') %}
+              Rheem water heater alert
+            {% elif is_state('binary_sensor.rheem_wh_telemetry_stale', 'on') %}
+              Rheem telemetry unavailable
+            {% else %}
+              Rheem water heater health degraded
+            {% endif %}
+          incident_description: |-
+            Home Assistant detected a Rheem water-heater problem.
+
+            Status: {{ states('sensor.rheem_wh_diagnostic_status') }}
+            Active alert count: {{ states('sensor.rheem_wh_alert_count') }}
+            Operation mode: {{ states('water_heater.rheem_wh') }}
+            Running state: {{ states('sensor.rheem_wh_running_state') }}
+            Available hot water: {{ states('sensor.rheem_wh_available_hot_water') }}%
+            Compressor health: {{ states('sensor.rheem_wh_compressor_health') }}%
+            Tank health: {{ states('sensor.rheem_wh_tank_health') }}%
+            Last new-alert snapshot: {{ states('sensor.rheem_wh_last_alert_snapshot') }}
+
+            EcoNet exposes the number of alerts but not the vendor error code or message.
+            Check the Rheem app or vendor email for the exact diagnostic wording.
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ trigger.id == 'telemetry_state'
+                     and trigger.from_state is not none
+                     and trigger.to_state is not none
+                     and trigger.from_state.state == 'off'
+                     and trigger.to_state.state == 'on' }}
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "WATER"
+                  message: "Rheem EcoNet telemetry has been unavailable for 10 minutes."
+              - service: script.joanna_dispatch
+                data:
+                  trigger_context: "HA automation rheem_water_heater_incident_reconcile (telemetry stale)"
+                  source: "home_assistant_automation.rheem_water_heater_incident_reconcile.telemetry_stale"
+                  summary: "Rheem EcoNet telemetry has been unavailable for 10 minutes"
+                  request: >-
+                    Investigate EcoNet connectivity and Home Assistant logs.
+                    Do not reset credentials, change heater mode, or restart Home Assistant automatically.
+                  entity_ids:
+                    - binary_sensor.rheem_wh_telemetry_stale
+                    - sensor.rheem_wh_diagnostic_status
+                    - water_heater.rheem_wh
+                  diagnostics:
+                    status: "{{ diagnostic_status }}"
+                    alert_count: "{{ states('sensor.rheem_wh_alert_count') }}"
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ trigger.id == 'telemetry_state'
+                     and trigger.from_state is not none
+                     and trigger.to_state is not none
+                     and trigger.from_state.state == 'on'
+                     and trigger.to_state.state == 'off' }}
+            sequence:
+              - service: script.send_to_logbook
+                data:
+                  topic: "WATER"
+                  message: "Rheem EcoNet telemetry recovered."
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.rheem_wh_problem
+                state: "on"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: "rheem_water_heater_problem"
+                  domain: "econet"
+                  title: "{{ incident_title }}"
+                  severity: >-
+                    {{ 'warning'
+                       if is_state('binary_sensor.rheem_wh_telemetry_stale', 'on')
+                       and not is_state('binary_sensor.rheem_wh_active_alert', 'on')
+                       else 'error' }}
+                  persistent: true
+                  description: "{{ incident_description }}"
+              - service: persistent_notification.create
+                data:
+                  notification_id: "rheem_water_heater_problem"
+                  title: "{{ incident_title }}"
+                  message: "{{ incident_description }}"
+        default:
+          - service: repairs.remove
+            continue_on_error: true
+            data:
+              issue_id: "rheem_water_heater_problem"
+          - service: persistent_notification.dismiss
+            continue_on_error: true
+            data:
+              notification_id: "rheem_water_heater_problem"
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >-
+                      {{ trigger.id == 'problem_state'
+                         and trigger.from_state is not none
+                         and trigger.to_state is not none
+                         and trigger.from_state.state == 'on'
+                         and trigger.to_state.state == 'off' }}
+                sequence:
+                  - service: script.send_to_logbook
+                    data:
+                      topic: "WATER"
+                      message: "Rheem water-heater problem cleared."
+
   # Temporary safeguard for Rheem case CAS-2816630-Z7T2M6 / issue #1890.
   # Remove after the evaporator thermistor is replaced and compressor operation
   # has been verified. Off remains allowed for Powerwall outage load shedding.
@@ -32,6 +365,7 @@ automation:
         entity_id: water_heater.rheem_wh
       - platform: time_pattern
         minutes: "/15"
+        seconds: 7
     condition:
       - condition: template
         value_template: >-
@@ -120,11 +454,18 @@ automation:
 # Available Rheem entities snapshot (for reference)
 # automation.rheem_water_heater_health_monitoring
 # automation.rheem_water_heater_hot_water_availability_alert
+# automation.rheem_water_heater_alert_incident
+# automation.rheem_water_heater_incident_reconcile
+# binary_sensor.rheem_wh_active_alert
+# binary_sensor.rheem_wh_problem
 # binary_sensor.rheem_wh_running
 # binary_sensor.rheem_wh_shutoff_valve
+# binary_sensor.rheem_wh_telemetry_stale
 # sensor.rheem_wh_alert_count
 # sensor.rheem_wh_available_hot_water
 # sensor.rheem_wh_compressor_health
+# sensor.rheem_wh_diagnostic_status
+# sensor.rheem_wh_last_alert_snapshot
 # sensor.rheem_wh_override_status
 # sensor.rheem_wh_power_usage_today
 # sensor.rheem_wh_running_state

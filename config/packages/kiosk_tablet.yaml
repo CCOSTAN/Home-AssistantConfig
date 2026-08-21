@@ -7,12 +7,14 @@
 #  Keeps the Bedroom tablet stable and drives state-based Kitchen Show camera views.
 # -------------------------------------------------------------------
 # Related Issue: 1875
+# Related Issue: 1890
+# Related Issue: 1895
 # Notes: `/dashboard-bedroom/home` remains the canonical desktop/future-hardware route.
 # Notes: The Android 5 Fully tablet uses `/local/bedroom-kiosk.html`, a lightweight renderer.
 # Notes: Shared camera, header, and alert sensors keep both Bedroom renderers DRY.
 # Notes: Fully controls apply only to the legacy Bedroom tablet.
 # Notes: Kitchen Show uses Kiosk Satellite discovery entities; no screensaver helper is required.
-# Notes: Kiosk Satellite 2026.8.49+ owns HA kiosk-mode hiding and connection recovery; no kiosk-mode custom resource is loaded.
+# Notes: Kiosk Satellite 2026.8.65+ owns HA kiosk-mode hiding, connection recovery, HA camera import, and HLS-first playback; no kiosk-mode custom resource is loaded.
 # Notes: Kitchen Show stays dark while the house is empty or asleep and wakes only for occupied-house events.
 # Notes: Garage takes over while either door is moving/open and remains for three minutes after both close; Front Door takes over while unlocked.
 # Notes: At 07:00, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
@@ -20,12 +22,13 @@
 # Notes: Fully auto-reload on screen-on/screensaver-stop is disabled to avoid motion wake reload loops.
 # Notes: Startup recovery waits for HA's initial websocket state burst to settle.
 # Notes: Brightness recovery only runs when both SleepIQ in-bed sensors are off.
-# Notes: Fully availability/page/app/power plus Kitchen connectivity, last-seen/update/screenshot freshness feed Systems telemetry.
+# Notes: Fully availability/page/app/power plus Kitchen connectivity, current-page/screenshot freshness, and update state feed Systems telemetry.
 # Notes: Kitchen updates are advisory telemetry and do not raise kiosk or Systems fault rollups.
 # Notes: Kiosk attention sensors expose only their stable status attribute so recorder preserves problem transitions without heartbeat churn.
 # Notes: Nearby daytime rain or lightning starts a five-minute NOAA radar view; the ambient banner offers daylight replay while the event remains active.
 # Notes: Actionable Kitchen banner slides open one shared short-lived detail surface; camera events retain priority.
 # Notes: Phyn detail can restore a closed main valve only after an explicit on-screen confirmation.
+# Notes: Rheem faults outrank low-hot-water reminders and reuse the hot-water diagnostic detail surface.
 # Video: https://youtu.be/ChgEu0IDWzc
 ######################################################################
 
@@ -426,6 +429,7 @@ template:
         state: >-
           {% set alerts = state_attr('sensor.nws_alerts_alerts', 'Alerts') | default([], true) %}
           {% set hot_water = states('sensor.rheem_wh_available_hot_water') | float(100) %}
+          {% set rheem_alert_count = states('sensor.rheem_wh_alert_count') | int(0) %}
           {% set tomorrow = (now() + timedelta(days=1)).strftime('%Y-%m-%d') %}
           {% set battery = states('sensor.spaceship_battery_level') | float(100) %}
           {% set ns = namespace(name='', raw='') %}
@@ -448,6 +452,8 @@ template:
             ENTRY POINT OPEN
           {% elif states('group.locks') not in ['locked', 'unknown', 'unavailable'] %}
             CHECK THE FRONT DOOR LOCK
+          {% elif rheem_alert_count > 0 %}
+            WATER HEATER ALERT - {{ rheem_alert_count }} ACTIVE
           {% elif hot_water < 30 %}
             HOT WATER IS RUNNING LOW
           {% elif now().strftime('%a') in ['Wed', 'Sun']
@@ -468,6 +474,7 @@ template:
           detail: >-
             {% set alerts = state_attr('sensor.nws_alerts_alerts', 'Alerts') | default([], true) %}
             {% set hot_water = states('sensor.rheem_wh_available_hot_water') | float(100) %}
+            {% set rheem_alert_count = states('sensor.rheem_wh_alert_count') | int(0) %}
             {% set tomorrow = (now() + timedelta(days=1)).strftime('%Y-%m-%d') %}
             {% set battery = states('sensor.spaceship_battery_level') | float(100) %}
             {% set ns = namespace(name='', raw='') %}
@@ -491,6 +498,10 @@ template:
               Check the exterior doors and windows.
             {% elif states('group.locks') not in ['locked', 'unknown', 'unavailable'] %}
               Lock status is {{ states('group.locks') | replace('_', ' ') }}.
+            {% elif rheem_alert_count > 0 %}
+              Rheem reports {{ rheem_alert_count }} active {{ 'alert' if rheem_alert_count == 1 else 'alerts' }}.
+              Status is {{ states('sensor.rheem_wh_diagnostic_status') | replace('_', ' ') }}.
+              Check Home Assistant Repairs for the diagnostic snapshot.
             {% elif hot_water < 30 %}
               {{ hot_water | round(0) }}% is available - keep showers short.
             {% elif now().strftime('%a') in ['Wed', 'Sun']
@@ -641,7 +652,6 @@ template:
         attributes:
           status: >-
             {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
-            {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen'), 0) %}
             {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot'), 0) %}
             {% set page = states('sensor.kitchen_show_current_page') %}
             {% set remote_admin = states('sensor.kitchen_show_remote_admin') %}
@@ -649,8 +659,6 @@ template:
             {% set battery = states('sensor.kitchen_show_battery') | float(0) %}
             {% if connectivity != 'on' %}
               offline
-            {% elif last_seen == 0 or (as_timestamp(now()) - last_seen) > 300 %}
-              telemetry stale
             {% elif page in invalid or remote_admin in invalid %}
               telemetry unavailable
             {% elif '/dashboard-kiosk-satellite-staging/home' not in page %}
@@ -857,7 +865,10 @@ script:
              or (normalized_type == 'phyn'
                  and (phyn_alert or states('valve.phyn_shutoff_valve') != 'open'))
              or (normalized_type == 'hot_water'
-                 and states('sensor.rheem_wh_available_hot_water') | float(100) < 30)
+                 and (
+                   is_state('binary_sensor.rheem_wh_problem', 'on')
+                   or states('sensor.rheem_wh_available_hot_water') | float(100) < 30
+                 ))
            ) }}
       detail_duration: >-
         {{ '00:05:00' if normalized_type in ['weather', 'phyn'] else '00:03:00' }}

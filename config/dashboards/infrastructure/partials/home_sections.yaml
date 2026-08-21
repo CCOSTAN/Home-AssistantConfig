@@ -6,12 +6,14 @@
 # Systems Partial - operations summary
 #  House-system health strip, active issues, and datacenter status.
 # -------------------------------------------------------------------
+# Related Issue: 1890
 # Notes: The health ribbon mirrors the visible dashboard navigation order and labels.
 # Notes: DNS and external-monitoring faults roll up under Network instead of duplicating it.
 # Notes: Network trend panels live on Network so Overview stays focused on broad house status.
 # Notes: Power & Solar shows realtime flow; accumulated history remains in Energy.
 # Notes: Scheduled Proxmox maintenance and sustained WAN quality/reset warnings render amber; critical conditions remain red.
 # Notes: Active Issue rows enumerate faults, scheduled maintenance, and reset urgency so drill-down is optional for initial triage.
+# Notes: Home Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
 # Notes: Back to Overview is the first control in the landing-view navigation strip.
 ######################################################################
 
@@ -59,22 +61,31 @@
         raw_suffix: ACTIVE
         warning_entity_ids:
         - binary_sensor.infra_wan_sustained_degradation
+        - binary_sensor.rheem_wh_telemetry_stale
         critical_entity_ids:
         - binary_sensor.infra_wan_critical
         - binary_sensor.infra_dns_pihole_degraded
         - binary_sensor.infra_compute_degraded
         - binary_sensor.infra_storage_degraded
         - binary_sensor.infra_external_monitoring_degraded
+        - binary_sensor.rheem_wh_active_alert
+        - binary_sensor.garage_phyn_leak_alert
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: binary_sensor.garage_phyn_leak_alert
+      entity: binary_sensor.home_water_problem
       name: Home Water
       icon: mdi:shield-water-outline
       variables:
         ok_state: 'off'
         healthy_text: CLEAR
-        alert_text: LEAK
+        warning_text: TELEMETRY
+        alert_text: CHECK
+        critical_entity_ids:
+        - binary_sensor.rheem_wh_active_alert
+        - binary_sensor.garage_phyn_leak_alert
+        warning_entity_ids:
+        - binary_sensor.rheem_wh_telemetry_stale
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/home-water

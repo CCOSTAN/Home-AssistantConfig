@@ -6,13 +6,17 @@
 # Kiosk Satellite Partial - Ambient kitchen display
 #  Enlarged camera feeds plus rotating household reminders, cruise countdown, and locations.
 # -------------------------------------------------------------------
+# Related Issue: 1890
+# Related Issue: 1895
 # Notes: Three-row landscape layout uses full-width clock and alert banners around the camera row.
 # Notes: Camera cards use automatic streaming to limit idle tablet load.
 # Notes: Native Garage and Front Door views take over for their matching live states.
+# Notes: Kitchen Show Kiosk Satellite imports the HA camera sources and prefers HLS for native camera playback on Fire/WebView displays.
 # Notes: Nearby rain or lightning starts a five-minute NOAA radar view only while the sun is above the horizon.
 # Notes: After radar returns to the ambient wall, Storms Approaching offers another five-minute replay from the lower banner.
 # Notes: Actionable banner slides open one shared full-screen detail surface and return automatically to the ambient wall.
 # Notes: Family detail centers only the selected person and includes the prior 24-hour trail; Phyn detail includes a confirmed main-valve restore action.
+# Notes: Rheem problem telemetry adds a red/amber water-heater slide and enriches the existing hot-water detail.
 # Notes: The large-format lower panel otherwise mirrors read-only household fact entities.
 # Notes: The clock uses oversized time text and places live conditions beneath the current-weather icon.
 ######################################################################
@@ -184,6 +188,11 @@
             - group.locks
             - binary_sensor.front_door_packages_present
             - sensor.rheem_wh_available_hot_water
+            - sensor.rheem_wh_alert_count
+            - sensor.rheem_wh_diagnostic_status
+            - binary_sensor.rheem_wh_problem
+            - binary_sensor.rheem_wh_active_alert
+            - binary_sensor.rheem_wh_telemetry_stale
             - binary_sensor.rheem_wh_running
             - sensor.rheem_wh_tank_health
             - sensor.rheem_wh_compressor_health
@@ -426,8 +435,31 @@
                   });
                 }
 
+                const rheemAlertCount = Number.parseInt(state('sensor.rheem_wh_alert_count'), 10);
+                const rheemStatus = state('sensor.rheem_wh_diagnostic_status');
+                const rheemProblem = state('binary_sensor.rheem_wh_problem') === 'on';
+                if (rheemProblem) {
+                  const activeAlert = state('binary_sensor.rheem_wh_active_alert') === 'on';
+                  const telemetryStale = state('binary_sensor.rheem_wh_telemetry_stale') === 'on';
+                  items.push({
+                    kicker: telemetryStale && !activeAlert ? 'WATER HEATER TELEMETRY' : 'WATER HEATER ALERT',
+                    title: activeAlert && Number.isFinite(rheemAlertCount)
+                      ? `${rheemAlertCount} active ${rheemAlertCount === 1 ? 'alert' : 'alerts'}`
+                      : `Rheem status: ${pretty(rheemStatus)}`,
+                    detail: telemetryStale
+                      ? 'EcoNet data has been unavailable for 10 minutes · Tap for diagnostics'
+                      : 'Home Assistant Repairs has the diagnostic snapshot · Tap for details',
+                    icon: 'mdi:water-boiler-alert',
+                    accent: telemetryStale && !activeAlert ? '#ef6c00' : '#c62828',
+                    action: {
+                      service: 'kitchen_kiosk_show_detail',
+                      data: {detail_type: 'hot_water'}
+                    }
+                  });
+                }
+
                 const hotWater = Number.parseFloat(state('sensor.rheem_wh_available_hot_water'));
-                if (Number.isFinite(hotWater) && hotWater < 30) {
+                if (!rheemProblem && Number.isFinite(hotWater) && hotWater < 30) {
                   items.push({
                     kicker: 'HOT WATER',
                     title: 'Hot water is running low',
@@ -706,15 +738,20 @@
                     `;
                   } else if (detailType === 'hot_water') {
                     const available = Number.parseFloat(state('sensor.rheem_wh_available_hot_water'));
+                    const alertCount = Number.parseInt(state('sensor.rheem_wh_alert_count'), 10);
+                    const diagnosticStatus = state('sensor.rheem_wh_diagnostic_status');
+                    const rheemProblem = state('binary_sensor.rheem_wh_problem') === 'on';
                     const heater = states['water_heater.rheem_wh'];
                     const running = state('binary_sensor.rheem_wh_running') === 'on';
                     const target = Number.parseFloat(heater?.attributes?.temperature);
                     const mode = pretty(heater?.attributes?.operation_mode || heater?.state);
                     const tankHealth = Number.parseFloat(state('sensor.rheem_wh_tank_health'));
                     const compressorHealth = Number.parseFloat(state('sensor.rheem_wh_compressor_health'));
-                    kicker = 'HOT WATER RECOVERY';
-                    title = running ? 'Heating now' : 'Standing by';
-                    icon = 'mdi:water-boiler';
+                    kicker = rheemProblem ? 'WATER HEATER ALERT' : 'HOT WATER RECOVERY';
+                    title = rheemProblem && Number.isFinite(alertCount) && alertCount > 0
+                      ? `${alertCount} active ${alertCount === 1 ? 'alert' : 'alerts'}`
+                      : (running ? 'Heating now' : 'Standing by');
+                    icon = rheemProblem ? 'mdi:water-boiler-alert' : 'mdi:water-boiler';
                     body = html`
                       <div class="kitchen-detail-hot-water">
                         <div class="kitchen-detail-hot-percent">${Number.isFinite(available) ? Math.round(available) : '--'}<span>%</span></div>
@@ -725,6 +762,11 @@
                           <div class="kitchen-detail-metric"><span>TANK HEALTH</span><strong>${Number.isFinite(tankHealth) ? `${Math.round(tankHealth)}%` : 'Unknown'}</strong></div>
                           <div class="kitchen-detail-metric"><span>COMPRESSOR</span><strong>${Number.isFinite(compressorHealth) ? `${Math.round(compressorHealth)}%` : 'Unknown'}</strong></div>
                         </div>
+                        ${rheemProblem ? html`
+                          <div class="kitchen-detail-alert-list">
+                            STATUS: ${pretty(diagnosticStatus)} · ACTIVE ALERTS: ${Number.isFinite(alertCount) ? alertCount : 'Unknown'} · Check Repairs or the Rheem message for the vendor error text.
+                          </div>
+                        ` : ''}
                       </div>
                     `;
                   }

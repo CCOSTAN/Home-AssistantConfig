@@ -6,9 +6,11 @@
 # Systems Partial - Home Water
 #  Protection, live use, hot water, maintenance, outdoor water, and trends.
 # -------------------------------------------------------------------
+# Related Issue: 1890
 # Notes: NAS, NVR, and unrelated house-temperature cards are omitted; refrigerator temperature stays with home safety.
 # Notes: Maintenance rows reuse existing reset scripts through safe more-info flows.
 # Notes: Active Phyn leak alerts are shown; the integration's stale latest-test leak flag is not an operator alert.
+# Notes: Rheem alert, health, and telemetry faults render as an exception row backed by durable Repairs.
 # Notes: Daily usage uses change on the same sum-only statistic configured in Energy.
 # Notes: The overview ribbon prioritizes the next maintenance action and frequent controls without hidden grid placeholders.
 # Notes: Refrigerator temperature remains a temporary Home Maintenance overview item until a better permanent view is chosen.
@@ -452,6 +454,30 @@
         name: Hot Water System
 
       - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.rheem_wh_problem
+        name: Rheem Needs Attention
+        icon: mdi:water-boiler-alert
+        variables:
+          alert_kind: binary_on
+          critical_entity_ids:
+          - binary_sensor.rheem_wh_active_alert
+          warning_entity_ids:
+          - binary_sensor.rheem_wh_telemetry_stale
+          exception_detail: >
+            [[[
+              const status = states['sensor.rheem_wh_diagnostic_status']?.state ?? 'unknown';
+              const count = states['sensor.rheem_wh_alert_count']?.state ?? 'unknown';
+              return `Status: ${String(status).replaceAll('_', ' ')} · Active alerts: ${count}`;
+            ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rheem_wh_diagnostic_status
+        name: Diagnostic Status
+        icon: mdi:stethoscope
+
+      - type: custom:button-card
         template: bearstone_infra_list_row
         entity: sensor.rheem_wh_available_hot_water
         name: Available Hot Water
@@ -484,6 +510,12 @@
         entity: sensor.rheem_wh_alert_count
         name: Active Alerts
         icon: mdi:alert-circle-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.rheem_wh_last_alert_snapshot
+        name: Last New Alert
+        icon: mdi:alert-decagram-outline
 
       - type: custom:button-card
         template: bearstone_infra_list_row

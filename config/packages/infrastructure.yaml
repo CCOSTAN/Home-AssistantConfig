@@ -9,6 +9,7 @@
 # Blog: https://www.vcloudinfo.com/2026/08/home-assistant-internet-speed-monitoring-ookla.html
 # -------------------------------------------------------------------
 # Related Issue: 1584
+# Related Issue: 1890
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
 # Notes: WAN outages require all four independent ICMP/HTTPS probes to fail continuously for 2 minutes.
 # Notes: Continuous latency/loss determine WAN quality; Ookla throughput is a separate twice-daily capacity snapshot and never declares an outage.
@@ -27,6 +28,7 @@
 # Notes: Garage compute health uses the same 145 F threshold as the existing temperature notification.
 # Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
 # Notes: Dashboard aggregate issue count is live-only; its underlying degraded sensors retain actionable history.
+# Notes: Home Water rollup includes Rheem faults/telemetry loss plus active Phyn alerts and valve closure.
 ######################################################################
 
 input_text:
@@ -236,6 +238,7 @@ template:
             'binary_sensor.infra_compute_degraded',
             'binary_sensor.infra_storage_degraded',
             'binary_sensor.infra_external_monitoring_degraded',
+            'binary_sensor.home_water_problem',
             'binary_sensor.kiosk_devices_need_attention'
           ] %}
           {{ expand(categories) | selectattr('state', 'eq', 'on') | list | count }}
@@ -247,11 +250,51 @@ template:
               'binary_sensor.infra_compute_degraded',
               'binary_sensor.infra_storage_degraded',
               'binary_sensor.infra_external_monitoring_degraded',
+              'binary_sensor.home_water_problem',
               'binary_sensor.kiosk_devices_need_attention'
             ] %}
             {{ expand(categories) | selectattr('state', 'eq', 'on') | map(attribute='entity_id') | list }}
 
   - binary_sensor:
+      - name: "Home Water Problem"
+        unique_id: home_water_problem
+        device_class: problem
+        state: >-
+          {% set phyn_alerts = [
+            'binary_sensor.garage_phyn_battery_alert',
+            'binary_sensor.garage_phyn_freeze_warning_alert',
+            'binary_sensor.garage_phyn_high_pressure_alert',
+            'binary_sensor.garage_phyn_leak_alert',
+            'binary_sensor.garage_phyn_offline_leak_shutoff_alert',
+            'binary_sensor.garage_phyn_pinhole_leak_alert',
+            'binary_sensor.garage_phyn_recurring_flow_alert',
+            'binary_sensor.garage_phyn_temperature_alert'
+          ] %}
+          {{ is_state('binary_sensor.rheem_wh_problem', 'on')
+             or expand(phyn_alerts) | selectattr('state', 'eq', 'on') | list | count > 0
+             or states('valve.phyn_shutoff_valve') in ['closed', 'closing'] }}
+        attributes:
+          active_entities: >-
+            {% set monitored = [
+              'binary_sensor.rheem_wh_problem',
+              'binary_sensor.garage_phyn_battery_alert',
+              'binary_sensor.garage_phyn_freeze_warning_alert',
+              'binary_sensor.garage_phyn_high_pressure_alert',
+              'binary_sensor.garage_phyn_leak_alert',
+              'binary_sensor.garage_phyn_offline_leak_shutoff_alert',
+              'binary_sensor.garage_phyn_pinhole_leak_alert',
+              'binary_sensor.garage_phyn_recurring_flow_alert',
+              'binary_sensor.garage_phyn_temperature_alert'
+            ] %}
+            {% set active = expand(monitored)
+               | selectattr('state', 'eq', 'on')
+               | map(attribute='entity_id') | list %}
+            {% if states('valve.phyn_shutoff_valve') in ['closed', 'closing'] %}
+              {{ active + ['valve.phyn_shutoff_valve'] }}
+            {% else %}
+              {{ active }}
+            {% endif %}
+
       - name: "Infra WAN Outage"
         unique_id: infra_wan_outage
         device_class: problem
