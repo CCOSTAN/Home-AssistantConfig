@@ -73,6 +73,8 @@ Current automations that kick off automated resolutions (via `script.joanna_disp
 | `proxmox_disk_pressure_repairs` | Proxmox Disk Pressure Repair Issues | [![YAML source: proxmox](https://img.shields.io/static/v1?label=YAML&message=proxmox&color=lightgrey&logo=github&logoColor=181717)](../packages/proxmox.yaml) |
 | `synology_dsm_open_repair_and_dispatch` | Synology DSM - Open Repair And Dispatch | [![YAML source: synology_dsm](https://img.shields.io/static/v1?label=YAML&message=synology_dsm&color=lightgrey&logo=github&logoColor=181717)](../packages/synology_dsm.yaml) |
 | `processmonitor_disk_use_joanna_review` | Self Heal Disk Use Joanna Review | [![YAML source: processmonitor](https://img.shields.io/static/v1?label=YAML&message=processmonitor&color=lightgrey&logo=github&logoColor=181717)](../packages/processmonitor.yaml) |
+| `rheem_water_heater_alert_incident` | Rheem Water Heater Alert Incident | [![YAML source: rheem_econet](https://img.shields.io/static/v1?label=YAML&message=rheem_econet&color=lightgrey&logo=github&logoColor=181717)](../packages/rheem_econet.yaml) |
+| `rheem_water_heater_incident_reconcile` | Rheem Water Heater Incident Reconcile | [![YAML source: rheem_econet](https://img.shields.io/static/v1?label=YAML&message=rheem_econet&color=lightgrey&logo=github&logoColor=181717)](../packages/rheem_econet.yaml) |
 | `1ce3cb43-0e27-4c53-acdd-d672396f3559` | Disk Use Alarm | [![YAML source: processmonitor](https://img.shields.io/static/v1?label=YAML&message=processmonitor&color=lightgrey&logo=github&logoColor=181717)](../packages/processmonitor.yaml) |
 
 ### Tips

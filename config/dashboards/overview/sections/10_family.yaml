@@ -6,7 +6,8 @@
 # Overview Section - family presence and compact maps
 #  Special-home overlays stay visible while Bear Stone home stays clean.
 # -------------------------------------------------------------------
-# Notes: Core picture and map cards preserve person images and route history.
+# Notes: Home maps show current positions only while high-frequency Life360 history is remediated.
+# Notes: Historical routes remain available from the dedicated Family Locator view.
 # Notes: Mobile search sits before maps so entity lookup remains near the top.
 ######################################################################
 
@@ -175,11 +176,11 @@ cards:
   double_tap_action:
     action: none
 
-# Fallback cards: map preserves each person's 24-hour location path.
+# Fallback cards: map preserves current person positions without loading route history.
 - type: map
   entities:
   - person.justin
-  hours_to_show: 24
+  hours_to_show: 0
   aspect_ratio: '16:9'
   theme_mode: auto
   card_mod: &person_location_map_style
@@ -199,7 +200,7 @@ cards:
 - type: map
   entities:
   - person.paige
-  hours_to_show: 24
+  hours_to_show: 0
   aspect_ratio: '16:9'
   theme_mode: auto
   card_mod: *person_location_map_style
@@ -208,7 +209,7 @@ cards:
   entities:
   - person.carlo
   - person.stacey
-  hours_to_show: 24
+  hours_to_show: 0
   aspect_ratio: '16:9'
   theme_mode: auto
   card_mod: *person_location_map_style
