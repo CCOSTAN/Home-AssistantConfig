@@ -102,6 +102,31 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 - Video companion: [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/KKOWSKuF5jA) and [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html).
 ![Dreame Automations](../www/custom_ui/floorplan/images/branding/Dreame%20Automations.png)
 
+### X post action
+
+The disabled [Xquik package](xquik.yaml.disabled) restores an opt-in Home Assistant action for posting to X. It replaces the reusable action removed after X changed its API pricing. The package adds no schedules and reads no household entities.
+
+1. Connect the target X account in Xquik.
+2. Create an API key.
+3. Add `xquik_api_key: xq_YOUR_KEY_HERE` to `secrets.yaml`.
+4. Remove `.disabled` from the package filename.
+5. Restart Home Assistant.
+
+Call the action with explicit public text:
+
+```yaml
+action: script.xquik_post
+data:
+  account: "@BearStoneHA"
+  message: "Home Assistant configuration checks passed."
+```
+
+The action uses Xquik's [Twitter post API](https://docs.xquik.com/api-reference/x-write/create-tweet). It assigns one idempotency key per script run and polls pending writes. Xquik charges credits for writes.
+
+Do not repeat a post after a transport error with a new key. For an exact retry, copy `write_key` from the original script trace into the optional `idempotency_key` field. Keep the account and message unchanged.
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
+
 ### Blog & video deep dives
 When a package has a dedicated blog post or video, I link it right inside the YAML comments. Here are the same references for quick browsing:
 

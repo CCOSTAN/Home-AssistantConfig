@@ -1,0 +1,122 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Xquik Posting - Opt-in Home Assistant action for X posts.
+#  Posts caller-supplied text and polls the durable write status.
+# -------------------------------------------------------------------
+# Setup: Add xquik_api_key to secrets.yaml, then remove .disabled.
+# API: https://docs.xquik.com/api-reference/x-write/create-tweet
+# History: https://github.com/CCOSTAN/Home-AssistantConfig/commit/7954ee4c7c30963b20c40c166bf102ba4d2a0464
+# Xquik is an independent third-party service. Not affiliated with X Corp.
+######################################################################
+
+rest_command:
+  xquik_create_post:
+    url: "https://xquik.com/api/v1/x/tweets"
+    method: post
+    timeout: 30
+    content_type: application/json
+    headers:
+      x-api-key: !secret xquik_api_key
+      Idempotency-Key: "{{ idempotency_key }}"
+    payload: >
+      {
+        "account": {{ account | tojson }},
+        "text": {{ message | tojson }}
+      }
+
+  xquik_get_write_action:
+    url: "https://xquik.com{{ status_url }}"
+    method: get
+    timeout: 30
+    headers:
+      x-api-key: !secret xquik_api_key
+
+script:
+  xquik_post:
+    alias: "Xquik - Post to X"
+    description: "Post one explicit message and wait for a terminal Xquik write state."
+    mode: parallel
+    max: 5
+    fields:
+      account:
+        name: X account
+        description: Connected X account username, with or without @.
+        required: true
+        selector:
+          text:
+      message:
+        name: Message
+        description: Public text to post.
+        required: true
+        selector:
+          text:
+            multiline: true
+      idempotency_key:
+        name: Retry key
+        description: Reuse the original key only when retrying the exact same post.
+        required: false
+        selector:
+          text:
+    sequence:
+      - variables:
+          write_key: >-
+            {{ idempotency_key
+               | default('home-assistant-' ~ context.id, true) }}
+
+      - action: rest_command.xquik_create_post
+        data:
+          account: "{{ account }}"
+          message: "{{ message }}"
+          idempotency_key: "{{ write_key }}"
+        response_variable: xquik_response
+
+      - if:
+          - condition: template
+            value_template: "{{ xquik_response.status not in [200, 202] }}"
+        then:
+          - stop: "Xquik rejected the post. Open the script trace for its HTTP status."
+            error: true
+
+      - if:
+          - condition: template
+            value_template: >-
+              {{ not (xquik_response.content.terminal | default(false)) }}
+        then:
+          - repeat:
+              sequence:
+                - variables:
+                    poll_after_ms: >-
+                      {{ xquik_response.content.pollAfterMs
+                         | default(2000)
+                         | int(2000) }}
+                - delay:
+                    milliseconds: >-
+                      {{ [[poll_after_ms | int(2000), 500] | max, 5000] | min }}
+                - action: rest_command.xquik_get_write_action
+                  data:
+                    status_url: "{{ xquik_response.content.statusUrl }}"
+                  response_variable: xquik_response
+              until:
+                - condition: template
+                  value_template: >-
+                    {{ xquik_response.status != 202
+                       or xquik_response.content.terminal | default(false)
+                       or repeat.index >= 15 }}
+
+      - if:
+          - condition: template
+            value_template: "{{ xquik_response.status not in [200, 202] }}"
+        then:
+          - stop: "Xquik could not confirm the post. Open the script trace for its HTTP status."
+            error: true
+
+      - if:
+          - condition: template
+            value_template: >-
+              {{ not (xquik_response.content.terminal | default(false)) }}
+        then:
+          - stop: "Xquik is still confirming the post. Do not retry this message."
+            error: true
