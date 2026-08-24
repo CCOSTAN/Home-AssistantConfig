@@ -3,7 +3,7 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Kiosk Tablets - Fully recovery and Kiosk Satellite camera policy
+# Kiosk Tablets - Fully recovery and Kiosk Satellite display policy
 #  Keeps the Bedroom tablet stable and drives state-based Kitchen Show camera views.
 # -------------------------------------------------------------------
 # Related Issue: 1875
@@ -13,9 +13,10 @@
 # Notes: The Android 5 Fully tablet uses `/local/bedroom-kiosk.html`, a lightweight renderer.
 # Notes: Shared camera, header, and alert sensors keep both Bedroom renderers DRY.
 # Notes: Fully controls apply only to the legacy Bedroom tablet.
-# Notes: Kitchen Show uses Kiosk Satellite discovery entities; no screensaver helper is required.
-# Notes: Kiosk Satellite 2026.8.65+ owns HA kiosk-mode hiding, connection recovery, HA camera import, and HLS-first playback; no kiosk-mode custom resource is loaded.
-# Notes: Kitchen Show stays dark while the house is empty or asleep and wakes only for occupied-house events.
+# Notes: Kitchen Show uses Kiosk Satellite's native ESPHome entities; `_2` is the live set while legacy MQTT registry entries coexist.
+# Notes: Kiosk Satellite owns HA kiosk-mode hiding, connection recovery, HA camera import, and HLS-first playback; no kiosk-mode custom resource is loaded.
+# Notes: Kitchen Show uses the Dim screensaver while empty/asleep; true panel-off is disabled because this Crown build naps Wi-Fi and cannot accept a remote wake.
+# Notes: Kitchen Show volume is corrected to 13% at 08:00 and after HA or kiosk startup; manual changes otherwise persist.
 # Notes: Garage takes over while either door is moving/open and remains for three minutes after both close; Front Door takes over while unlocked.
 # Notes: At 07:00, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
 # Notes: Wake events only restore brightness/focus; URL reloads require page drift.
@@ -185,58 +186,88 @@ automation:
     id: 99d8d43b-9448-4916-b313-8117a038baaf
     mode: restart
     trigger:
+      - platform: time
+        at: "08:00:00"
+        id: daily_volume
+      - platform: homeassistant
+        event: start
+        id: startup_volume
       - platform: state
         entity_id: binary_sensor.kitchen_kiosk_should_be_on
         to: "on"
       - platform: state
-        entity_id: light.kitchen_show_screen
+        entity_id: light.kitchen_show_screen_2
         to: "on"
+      - platform: state
+        entity_id: light.kitchen_show_screen_2
+        to: "off"
+      - platform: state
+        entity_id: binary_sensor.kitchen_show_connectivity_2
+        to: "on"
+        id: startup_volume
+      - platform: state
+        entity_id: switch.kitchen_show_keep_screen_on_2
+        to: "off"
       - platform: state
         entity_id: binary_sensor.kitchen_kiosk_should_be_on
         to: "off"
 
     action:
-      - condition: template
-        value_template: >-
-          {{ states('binary_sensor.kitchen_kiosk_should_be_on') in ['on', 'off'] }}
-      - variables:
-          desired_volume: >-
-            {{ 10 if is_state('binary_sensor.kitchen_kiosk_should_be_on', 'on') else 0 }}
-      # Android reports the nearest hardware volume step (13% for a 10% request).
       - if:
           - condition: template
             value_template: >-
-              {{ (states('number.kitchen_show_volume') | int(-1)
-                  - desired_volume | int(-1)) | abs > 3 }}
+              {{ trigger is defined
+                 and trigger.id in ['daily_volume', 'startup_volume'] }}
+          - condition: template
+            value_template: >-
+              {% set volume = states('number.kitchen_show_volume_2') %}
+              {{ volume not in ['unknown', 'unavailable', 'none', '']
+                 and (volume | float(-1)) != 13.0 }}
         then:
           - service: number.set_value
             target:
-              entity_id: number.kitchen_show_volume
+              entity_id: number.kitchen_show_volume_2
             data:
-              value: "{{ desired_volume | int(0) }}"
+              value: 13
+      - condition: template
+        value_template: >-
+          {{ states('binary_sensor.kitchen_kiosk_should_be_on') in ['on', 'off'] }}
       - choose:
           - conditions:
               - condition: state
                 entity_id: binary_sensor.kitchen_kiosk_should_be_on
                 state: "on"
             sequence:
-              # Kiosk Satellite owns idle dimming. This event-driven dismiss
-              # wakes to the dashboard without a poller repeatedly forcing the
-              # panel on during an occupied day.
+              # Keep Android from entering true panel-off and napping Wi-Fi.
+              # Kiosk Satellite's Dim screensaver still owns idle brightness.
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.kitchen_show_keep_screen_on_2
+              - service: light.turn_on
+                target:
+                  entity_id: light.kitchen_show_screen_2
               - service: button.press
                 target:
-                  entity_id: button.kitchen_show_postpone_screensaver
+                  entity_id: button.kitchen_show_postpone_screensaver_2
               - service: script.kitchen_kiosk_apply_camera_policy
         default:
+          # This Crown build drops Wi-Fi in true panel-off, so preserve the
+          # reachable display session and let the Dim screensaver go dark.
+          - service: switch.turn_on
+            target:
+              entity_id: switch.kitchen_show_keep_screen_on_2
           - service: timer.cancel
             target:
               entity_id: timer.kitchen_kiosk_detail_display
           - service: button.press
             target:
-              entity_id: button.kitchen_show_close_camera_view
-          - service: light.turn_off
+              entity_id: button.kitchen_show_close_camera_view_2
+          - service: light.turn_on
             target:
-              entity_id: light.kitchen_show_screen
+              entity_id: light.kitchen_show_screen_2
+          - service: switch.turn_on
+            target:
+              entity_id: switch.kitchen_show_screensaver_active_2
 
   - alias: "Kitchen Kiosk Satellite - Daylight Radar Trigger"
     id: 411dc0c0-a291-48e7-a493-2481a8d9477d
@@ -306,11 +337,11 @@ automation:
                   skip_condition: false
       - condition: template
         value_template: >-
-          {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen'), 0) %}
+          {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen_2'), 0) %}
           {{ last_seen > 0 and (as_timestamp(now()) - last_seen) < 300 }}
       - service: button.press
         target:
-          entity_id: button.kitchen_show_take_screenshot
+          entity_id: button.kitchen_show_take_screenshot_2
 
   - alias: "Kitchen Kiosk Satellite - Update Joanna Dispatch"
     id: 199e30f0-e28c-4842-953d-a65bc4b4e1d3
@@ -323,12 +354,12 @@ automation:
 
     condition:
       - condition: state
-        entity_id: update.kitchen_show_update
+        entity_id: update.kitchen_show_update_2
         state: "on"
       - condition: template
         value_template: >-
-          {% set installed = state_attr('update.kitchen_show_update', 'installed_version') | default('', true) | string %}
-          {% set latest = state_attr('update.kitchen_show_update', 'latest_version') | default('', true) | string %}
+          {% set installed = state_attr('update.kitchen_show_update_2', 'installed_version') | default('', true) | string %}
+          {% set latest = state_attr('update.kitchen_show_update_2', 'latest_version') | default('', true) | string %}
           {{ installed not in ['', 'unknown', 'unavailable']
              and latest not in ['', 'unknown', 'unavailable']
              and installed != latest }}
@@ -336,29 +367,29 @@ automation:
     action:
       - variables:
           installed_version: >-
-            {{ state_attr('update.kitchen_show_update', 'installed_version') | default('unknown', true) }}
+            {{ state_attr('update.kitchen_show_update_2', 'installed_version') | default('unknown', true) }}
           latest_version: >-
-            {{ state_attr('update.kitchen_show_update', 'latest_version') | default('unknown', true) }}
+            {{ state_attr('update.kitchen_show_update_2', 'latest_version') | default('unknown', true) }}
           release_url: >-
-            {{ state_attr('update.kitchen_show_update', 'release_url') | default('not provided', true) }}
+            {{ state_attr('update.kitchen_show_update_2', 'release_url') | default('not provided', true) }}
           structured_request: |-
             KITCHEN_KIOSK_SATELLITE_UPDATE_REQUEST
             target_device=Kitchen Show
-            update_entity=update.kitchen_show_update
+            update_entity=update.kitchen_show_update_2
             installed_version={{ installed_version }}
             target_version={{ latest_version }}
             release_url={{ release_url }}
             authorization=This dispatch authorizes installing the pending Kiosk Satellite application update on the Kitchen Show only. Do not update LineageOS, Home Assistant, or unrelated applications and do not factory-reset or re-enroll the tablet.
             required_action=Home Assistant already invoked update.install and allowed two minutes for the signed installer payload to stage. If the update is still pending, use the pre-authorized Joanna ops helper /opt/codex/bin/kitchen-kiosk-update --expected-version {{ latest_version }} to complete this Kiosk Satellite update over the existing LAN-only management path.
-            required_verification=Do not stop at a successful service call. Verify update.kitchen_show_update reports installed_version equal to latest_version, in_progress is false, the Kitchen Show returns online, sensor.kitchen_show_current_page is the expected kiosk dashboard, sensor.kitchen_show_remote_admin is available, and a fresh screenshot can be requested.
+            required_verification=Do not stop at a successful service call. Verify update.kitchen_show_update_2 reports installed_version equal to latest_version, in_progress is false, the Kitchen Show returns online, sensor.kitchen_show_current_page_2 is the expected kiosk dashboard, sensor.kitchen_show_remote_admin_2 is available, and a fresh screenshot can be requested.
             failure_policy=If the signed release cannot be installed safely or the device does not recover, stop without changing unrelated software and report the blocking evidence.
       - service: update.install
         continue_on_error: true
         target:
-          entity_id: update.kitchen_show_update
+          entity_id: update.kitchen_show_update_2
       - delay: "00:02:00"
       - condition: state
-        entity_id: update.kitchen_show_update
+        entity_id: update.kitchen_show_update_2
         state: "on"
       - service: script.send_to_logbook
         data:
@@ -375,17 +406,17 @@ automation:
             installed version is {{ installed_version }}.
           request: "{{ structured_request }}"
           entity_ids:
-            - update.kitchen_show_update
-            - sensor.kitchen_show_last_seen
-            - sensor.kitchen_show_current_page
-            - sensor.kitchen_show_remote_admin
-            - button.kitchen_show_take_screenshot
+            - update.kitchen_show_update_2
+            - sensor.kitchen_show_last_seen_2
+            - sensor.kitchen_show_current_page_2
+            - sensor.kitchen_show_remote_admin_2
+            - button.kitchen_show_take_screenshot_2
           diagnostics: >-
-            update_state={{ states('update.kitchen_show_update') }};
-            in_progress={{ state_attr('update.kitchen_show_update', 'in_progress') }};
-            last_seen={{ states('sensor.kitchen_show_last_seen') }};
-            current_page={{ states('sensor.kitchen_show_current_page') }};
-            remote_admin={{ states('sensor.kitchen_show_remote_admin') }}
+            update_state={{ states('update.kitchen_show_update_2') }};
+            in_progress={{ state_attr('update.kitchen_show_update_2', 'in_progress') }};
+            last_seen={{ states('sensor.kitchen_show_last_seen_2') }};
+            current_page={{ states('sensor.kitchen_show_current_page_2') }};
+            remote_admin={{ states('sensor.kitchen_show_remote_admin_2') }}
 template:
   - sensor:
       - name: "Kiosk Active Camera View"
@@ -636,38 +667,38 @@ template:
         delay_off: "00:00:30"
         state: >-
           {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
-          {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot'), 0) %}
-          {% set page = states('sensor.kitchen_show_current_page') %}
-          {% set remote_admin = states('sensor.kitchen_show_remote_admin') %}
-          {% set connectivity = states('binary_sensor.kitchen_show_connectivity') %}
-          {% set battery = states('sensor.kitchen_show_battery') | float(0) %}
+          {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot_2'), 0) %}
+          {% set page = states('sensor.kitchen_show_current_page_2') %}
+          {% set remote_admin = states('sensor.kitchen_show_remote_admin_2') %}
+          {% set connectivity = states('binary_sensor.kitchen_show_connectivity_2') %}
+          {% set battery = states('sensor.kitchen_show_battery_2') | float(0) %}
           {% set device_offline = connectivity != 'on' %}
           {% set screenshot_stale = screenshot == 0 or (as_timestamp(now()) - screenshot) > 2700 %}
           {{ device_offline
              or page in invalid
              or remote_admin in invalid
              or '/dashboard-kiosk-satellite-staging/home' not in page
-             or (battery < 20 and not is_state('binary_sensor.kitchen_show_charging', 'on'))
+             or (battery < 20 and not is_state('binary_sensor.kitchen_show_charging_2', 'on'))
              or screenshot_stale }}
         attributes:
           status: >-
             {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
-            {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot'), 0) %}
-            {% set page = states('sensor.kitchen_show_current_page') %}
-            {% set remote_admin = states('sensor.kitchen_show_remote_admin') %}
-            {% set connectivity = states('binary_sensor.kitchen_show_connectivity') %}
-            {% set battery = states('sensor.kitchen_show_battery') | float(0) %}
+            {% set screenshot = as_timestamp(states('sensor.kitchen_show_last_screenshot_2'), 0) %}
+            {% set page = states('sensor.kitchen_show_current_page_2') %}
+            {% set remote_admin = states('sensor.kitchen_show_remote_admin_2') %}
+            {% set connectivity = states('binary_sensor.kitchen_show_connectivity_2') %}
+            {% set battery = states('sensor.kitchen_show_battery_2') | float(0) %}
             {% if connectivity != 'on' %}
               offline
             {% elif page in invalid or remote_admin in invalid %}
               telemetry unavailable
             {% elif '/dashboard-kiosk-satellite-staging/home' not in page %}
               page drift
-            {% elif battery < 20 and not is_state('binary_sensor.kitchen_show_charging', 'on') %}
+            {% elif battery < 20 and not is_state('binary_sensor.kitchen_show_charging_2', 'on') %}
               low battery
             {% elif screenshot == 0 or (as_timestamp(now()) - screenshot) > 2700 %}
               screenshot stale
-            {% elif is_state('update.kitchen_show_update', 'on') %}
+            {% elif is_state('update.kitchen_show_update_2', 'on') %}
               update available
             {% else %}
               online
@@ -712,9 +743,9 @@ script:
         {{ {'garage': 'Garage', 'front_door': 'Front Door'}.get(
              states('sensor.kiosk_active_camera_view'), 'none') }}
       desired_button: >-
-        {{ 'button.kitchen_show_show_garage'
+        {{ 'button.kitchen_show_show_garage_2'
            if desired_view == 'Garage'
-           else 'button.kitchen_show_show_front_door' }}
+           else 'button.kitchen_show_show_front_door_2' }}
     sequence:
       - choose:
           - conditions:
@@ -723,7 +754,7 @@ script:
             sequence:
               - condition: template
                 value_template: >-
-                  {{ states('sensor.kitchen_show_active_camera_view') != desired_view }}
+                  {{ states('sensor.kitchen_show_active_camera_view_2') != desired_view }}
               - service: script.kitchen_kiosk_show_event
                 data:
                   event_type: camera
@@ -733,15 +764,15 @@ script:
               - conditions:
                   - condition: template
                     value_template: >-
-                      {{ states('sensor.kitchen_show_active_camera_view')
+                      {{ states('sensor.kitchen_show_active_camera_view_2')
                          not in ['none', 'unknown', 'unavailable'] }}
                 sequence:
                   - service: button.press
                     target:
-                      entity_id: button.kitchen_show_close_camera_view
+                      entity_id: button.kitchen_show_close_camera_view_2
           - service: button.press
             target:
-              entity_id: button.kitchen_show_bring_to_front
+              entity_id: button.kitchen_show_bring_to_front_2
 
   kitchen_kiosk_show_event:
     alias: "Kitchen Kiosk - Show Display Event"
@@ -776,13 +807,13 @@ script:
              ) }}
       - service: light.turn_on
         target:
-          entity_id: light.kitchen_show_screen
+          entity_id: light.kitchen_show_screen_2
       - service: button.press
         target:
-          entity_id: button.kitchen_show_postpone_screensaver
+          entity_id: button.kitchen_show_postpone_screensaver_2
       - service: button.press
         target:
-          entity_id: button.kitchen_show_bring_to_front
+          entity_id: button.kitchen_show_bring_to_front_2
       - choose:
           - conditions:
               - condition: template

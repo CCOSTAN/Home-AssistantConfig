@@ -56,13 +56,13 @@
         critical_entity_ids:
           - binary_sensor.kitchen_kiosk_needs_attention
         warning_entity_ids:
-          - update.kitchen_show_update
+          - update.kitchen_show_update_2
         healthy_text: ONLINE
         warning_text: UPDATE AVAILABLE
         alert_text: NEEDS ATTENTION
       state_display: >
         [[[
-          const updateAvailable = states['update.kitchen_show_update']?.state === 'on';
+          const updateAvailable = states['update.kitchen_show_update_2']?.state === 'on';
           if (entity?.state === 'off') return updateAvailable ? 'UPDATE AVAILABLE' : 'ONLINE';
           return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase();
         ]]]
@@ -95,8 +95,8 @@
     image: https://demo.home-assistant.io/stub_config/kitchen.png
     entities:
     - entity: binary_sensor.kitchen_kiosk_needs_attention
-    - entity: sensor.kitchen_show_last_screenshot
-    camera_image: camera.kitchen_show_screenshot
+    - entity: sensor.kitchen_show_last_screenshot_2
+    camera_image: camera.kitchen_show_screenshot_2
     tap_action:
       action: navigate
       navigation_path: /dashboard-kiosk-satellite-staging/home
@@ -160,19 +160,19 @@
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_battery
+      entity: sensor.kitchen_show_battery_2
       name: Battery
       icon: mdi:battery
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_last_seen
+      entity: sensor.kitchen_show_last_seen_2
       name: Last Seen
       icon: mdi:clock-check-outline
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_current_page
+      entity: sensor.kitchen_show_current_page_2
       name: Dashboard
       icon: mdi:web
       state_display: >
@@ -183,7 +183,7 @@
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: update.kitchen_show_update
+      entity: update.kitchen_show_update_2
       name: Kiosk Satellite
       icon: mdi:update
       state_display: >
@@ -195,7 +195,7 @@
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_remote_admin
+      entity: sensor.kitchen_show_remote_admin_2
       name: Remote Admin
       icon: mdi:remote-desktop
       state_display: AVAILABLE
