@@ -1,0 +1,19 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Roku Remote Finder Reset - clear the shared remote-finder helper.
+# -------------------------------------------------------------------
+######################################################################
+roku_remote_finder_reset:
+  alias: Roku Remote Finder Reset
+  mode: parallel
+  fields:
+    reason:
+      description: Why the remote-finder prompt ended.
+      example: found
+  sequence:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.living_room_remote_finder

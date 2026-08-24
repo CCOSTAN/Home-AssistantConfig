@@ -54,8 +54,9 @@ automation:
                 authenticationRequired: false
                 destructive: true
 
-      - service: input_boolean.turn_off
-        entity_id: input_boolean.living_room_remote_finder
+      - service: script.roku_remote_finder_reset
+        data:
+          reason: not_found
 
   - alias: "Living Room Remote Found"
     id: 1f295bb8-ROKU-4b22-8f75-9fe079b295a8
@@ -65,8 +66,9 @@ automation:
       event_data:
         action: LR_REMOTE_FOUND
     action:
-      - service: input_boolean.turn_off
-        entity_id: input_boolean.living_room_remote_finder
+      - service: script.roku_remote_finder_reset
+        data:
+          reason: found
 
       - service: script.notify_engine
         data:
