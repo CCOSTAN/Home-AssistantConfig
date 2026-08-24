@@ -29,7 +29,7 @@
       entity_id: sensor.blitzortung_lightning_counter
       above: 1
     - platform: numeric_state
-      entity_id: sensor.kitchen_show_ambient_light
+      entity_id: sensor.kitchen_show_ambient_light_2
       below: 30
       for: "00:05:00"
     - platform: state
@@ -54,7 +54,7 @@
             above: 1
       - condition: template
         value_template: >-
-          {% set lux = states('sensor.kitchen_show_ambient_light') %}
+          {% set lux = states('sensor.kitchen_show_ambient_light_2') %}
           {{ lux in ['unknown', 'unavailable', 'none', '']
              or lux | float(0) < 35 }}
       - condition: state
@@ -91,7 +91,7 @@
                   {% set reason_map = {
                     'sensor.pirateweather_precip': 'rain',
                     'sensor.pirateweather_precip_intensity': 'heavy rain',
-                    'sensor.kitchen_show_ambient_light': 'rain and clouds',
+                    'sensor.kitchen_show_ambient_light_2': 'rain and clouds',
                     'group.family': 'rain and clouds',
                     'binary_sensor.sleepnumber_carlo_carlo_is_in_bed': 'rain and clouds'
                   } %}

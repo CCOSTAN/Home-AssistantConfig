@@ -62,7 +62,7 @@
       minutes: "/30"
       id: tune
     - platform: numeric_state
-      entity_id: sensor.kitchen_show_ambient_light
+      entity_id: sensor.kitchen_show_ambient_light_2
       below: 30
       for: "00:05:00"
       id: tune
@@ -90,7 +90,7 @@
         working_active: >-
           {{ is_state('switch.office_lamp_switch', 'on') }}
         ambient_dark: >-
-          {% set lux = states('sensor.kitchen_show_ambient_light') %}
+          {% set lux = states('sensor.kitchen_show_ambient_light_2') %}
           {{ lux in ['unknown', 'unavailable', 'none', '']
              or lux | float(0) < 35 }}
         target_kelvin: >-
