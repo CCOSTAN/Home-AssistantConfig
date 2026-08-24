@@ -9,7 +9,8 @@
 # Related Issue: 793
 # Related Issue: 1791
 # Related Issue: 1792
-# Notes: Vacation mode auto-enables after 24 hours of family absence or 24 hours without bed use while the family is away.
+# Notes: Vacation mode auto-enables from an active Tesla road trip while the family is away, or after the existing 24-hour absence/bed-inactivity checks.
+# Notes: Vacation mode restores its prior state after Home Assistant restarts; a 5-minute reconciliation also clears a restored mode when the family is already home.
 # Notes: General vacation speech uses Chromecast only; the garage Alexa welcome is the one local-device exception.
 # Notes: Visit analytics use recorder-backed visit counts plus arrival/departure helpers for accurate durations.
 # Notes: Dorm zones are reported as away locations, not Bear Stone home.
@@ -27,7 +28,6 @@ input_boolean:
   vacation_mode:
     name: Vacation Mode
     icon: mdi:palm-tree
-    initial: off
   house_sitter_present:
     name: House Sitter Present
     icon: mdi:account-key
@@ -404,6 +404,9 @@ automation:
         event: start
       - platform: time_pattern
         hours: "/1"
+      - platform: event
+        event_type: tesla_road_trip_active
+        id: tesla_road_trip
 
     condition:
       - condition: state
@@ -414,7 +417,9 @@ automation:
           {% set family_away = is_state('group.family', 'not_home') %}
           {% set family_away_seconds = as_timestamp(now()) - as_timestamp(states.group.family.last_changed, 0) %}
           {% set bed_unused_seconds = as_timestamp(now()) - as_timestamp(states.group.bed.last_changed, 0) %}
-          {{ (family_away and family_away_seconds >= 86400)
+          {% set road_trip_signal = trigger.id | default('', true) == 'tesla_road_trip' %}
+          {{ (family_away and road_trip_signal)
+             or (family_away and family_away_seconds >= 86400)
              or (family_away and is_state('group.bed', 'off') and bed_unused_seconds >= 86400) }}
 
     action:
@@ -422,7 +427,9 @@ automation:
           vacation_reason: >-
             {% set family_away_seconds = as_timestamp(now()) - as_timestamp(states.group.family.last_changed, 0) %}
             {% set bed_unused_seconds = as_timestamp(now()) - as_timestamp(states.group.bed.last_changed, 0) %}
-            {% if is_state('group.bed', 'off') and bed_unused_seconds >= 86400 and family_away_seconds < 86400 %}
+            {% if trigger.id | default('', true) == 'tesla_road_trip' %}
+              Active Tesla road trip while the family remained away
+            {% elif is_state('group.bed', 'off') and bed_unused_seconds >= 86400 and family_away_seconds < 86400 %}
               Bed inactivity while the family remained away
             {% elif is_state('group.bed', 'off') and bed_unused_seconds >= 86400 %}
               Family absence and no bed use
@@ -442,7 +449,7 @@ automation:
         data:
           topic: VACATION MODE
           message: >-
-            Vacation mode enabled after 24 hours based on {{ vacation_reason | lower }}.
+            Vacation mode enabled based on {{ vacation_reason | lower }}.
 
   - alias: 'Vacation Mode Reset'
     id: d7d33f43-22f6-4db4-8a7d-c38f3c6d0c65
@@ -453,13 +460,18 @@ automation:
         entity_id: group.family
         to: 'home'
         for: "00:02:00"
+        id: family_home
+      - platform: time_pattern
+        minutes: "/5"
+        id: reconcile_home
 
     condition:
       - condition: template
         value_template: >-
+          {% set family_home_seconds = as_timestamp(now()) - as_timestamp(states.group.family.last_changed, 0) %}
           {{ is_state('input_boolean.vacation_mode', 'on')
-             and trigger.from_state is not none
-             and trigger.from_state.state == 'not_home' }}
+             and is_state('group.family', 'home')
+             and (trigger.id == 'family_home' or family_home_seconds >= 120) }}
 
     action:
       - service: input_boolean.turn_off

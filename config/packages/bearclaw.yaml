@@ -13,7 +13,8 @@
 # Notes: GitHub capture behavior (issue creation/labels/research flow) belongs in codex_appliance, not HA YAML.
 # Notes: Shared script helper `script.joanna_dispatch` lives in config/script/joanna_dispatch.yaml.
 # Notes: The callback webhook writes JOANNA activity entries to logbook for traceability and optional HA alerts.
-# Notes: Hourly TeslaMate road-trip milestone/final callbacks become compact family mobile summaries; Joanna sends full reports to Carlo and Stacey.
+# Notes: Adaptive TeslaMate road-trip milestone/arrival/final callbacks become compact family mobile summaries; Joanna sends destination/date reports and a private final route map to Carlo and Stacey.
+# Notes: Progress and destination-arrival callbacks emit tesla_road_trip_active so Vacation Mode can use the signal when the whole family is away.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
 # Notes: Status telemetry includes the latest 12 dispatches in the rolling 24-hour window for the Joanna Activity drill-down.
 # Notes: Status telemetry also exposes compact, user-keyed step trends and personal records for the Health dashboard.
@@ -471,12 +472,18 @@ automation:
               - condition: template
                 value_template: >-
                   {{ source == 'scheduler_tesla_road_trip'
-                     and status in ['progress', 'completed'] }}
+                     and status in ['progress', 'arrival', 'completed'] }}
             sequence:
               - service: script.notify_engine
                 data:
                   title: >-
-                    {{ 'Tesla road-trip update' if status == 'progress' else 'Tesla road trip complete' }}
+                    {% if status == 'progress' %}
+                      Tesla road-trip update
+                    {% elif status == 'arrival' %}
+                      Arrived at road-trip destination
+                    {% else %}
+                      Tesla road trip complete
+                    {% endif %}
                   value1: >-
                     {% set compact = (message if message | trim != '' else summary) | replace('\r', ' ') | replace('\n', ' ') | trim %}
                     {% if compact | length > 180 %}
@@ -487,6 +494,16 @@ automation:
                   who: family
                   group: Tesla_Model_Y
                   level: active
+              - if:
+                  - condition: template
+                    value_template: "{{ status in ['progress', 'arrival'] }}"
+                then:
+                  - event: tesla_road_trip_active
+                    event_data:
+                      report_id: "{{ trigger.json.report_id | default('', true) }}"
+                      trip_name: "{{ trigger.json.trip_name | default('', true) }}"
+                      trip_destination: "{{ trigger.json.trip_destination | default('', true) }}"
+                      milestone_miles: "{{ trigger.json.milestone_miles | default(0, true) | int(0) }}"
           - conditions:
               - condition: template
                 value_template: >-
