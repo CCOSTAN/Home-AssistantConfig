@@ -3,9 +3,11 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Late Night lights Section - Home Assistant automation behavior.
-#  Defines the Late Night lights Section triggers, conditions, and actions.
+# Late Night Arrival Lighting - dim arrival helper after dark.
+#  Turns on a small arrival path without waking the room at full brightness.
+# Related Issue: 1901
 # -------------------------------------------------------------------
+# Notes: The living-room M1 front-right arrival light is capped at 25 percent.
 ######################################################################
 - alias: 'Late Night Helper'
   id: acacc9b4-b66d-46d2-bf6d-47b75afddb57
@@ -30,9 +32,13 @@
         - light.main_slider
         - light.foyer
         - light.fridge
-        - light.M1_front_right
         - light.S1
         - light.S4
+    - service: light.turn_on
+      target:
+        entity_id: light.m1_front_right
+      data:
+        brightness_pct: 25
     - service: light.turn_on
       entity_id:
         - light.outdoor_bathroom
