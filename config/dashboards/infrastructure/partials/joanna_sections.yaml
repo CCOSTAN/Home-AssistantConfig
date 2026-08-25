@@ -4,11 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - Joanna
-#  Focused dispatch health, latest activity, rolling volume, and diagnostics.
+#  Focused dispatch health, latest activity, runtime issues, and memory-system freshness.
 # -------------------------------------------------------------------
 # Notes: BearClaw Admin provides the detailed runtime drill-down while this page stays summary-focused.
 # Notes: This view changes HA presentation only; BearClaw runtime behavior is untouched.
-# Notes: Reset expiry is amber within 7 days and red within 3 days; the four reset slots remain visible.
+# Notes: Compact scheduled-job health provides an HA-visible failure summary with Admin as the detailed source of truth.
+# Notes: BearClaw working memory and the federated OneNote KB are separate indexes and render separately.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -63,7 +64,7 @@
         raw_suffix: ERRORS
 
 # -------------------------------------------------------------------
-# Trend, latest state, and reset summary
+# Trend, latest activity, and runtime health
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -108,16 +109,6 @@
       entity: sensor.joanna_ha_dispatches_30d
       name: HA Dispatches 30D
       icon: mdi:calendar-month
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.bearclaw_status_telemetry
-      name: BearClaw Admin
-      icon: mdi:shield-crown-outline
-      state_display: OPEN ADMIN
-      tap_action:
-        action: url
-        url_path: http://192.168.10.13:8124/admin
 
   - type: custom:vertical-stack-in-card
     card_mod:
@@ -165,6 +156,89 @@
       name: All Dispatches 30D
       icon: mdi:calendar-month
 
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Runtime & Memory
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.bearclaw_scheduled_job_health
+      name: Scheduled Jobs
+      icon: mdi:calendar-alert
+      variables:
+        ok_state: ok
+        warning_state: warning
+        healthy_text: HEALTHY
+        warning_text: JOB WARNING
+        critical_text: JOB ERROR
+      state_display: >
+        [[[
+          const count = Number.parseInt(entity?.attributes?.issue_count ?? '0', 10);
+          if (entity?.state === 'ok') return 'HEALTHY';
+          return `${Number.isFinite(count) ? count : '?'} ${String(entity?.state ?? 'unknown').toUpperCase()}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_alert_row
+      entity: sensor.bearclaw_scheduled_job_health
+      name: >
+        [[[
+          const issue = Array.isArray(entity?.attributes?.issues) ? entity.attributes.issues[0] : null;
+          return issue?.label || 'Scheduled job needs attention';
+        ]]]
+      icon: mdi:alert-circle-outline
+      variables:
+        alert_kind: state_not
+        ok_state: ok
+        alert_severity: >
+          [[[ return entity?.state === 'warning' ? 'warning' : 'critical'; ]]]
+        exception_detail: >
+          [[[
+            const issue = Array.isArray(entity?.attributes?.issues) ? entity.attributes.issues[0] : null;
+            return String(issue?.detail || entity?.attributes?.summary || 'SCHEDULED JOB STATUS REQUIRES REVIEW').toUpperCase();
+          ]]]
+      state_display: >
+        [[[ return entity?.state === 'warning' ? 'WARNING' : 'ERROR'; ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.joanna_memory_docs
+      name: BearClaw Working Memory
+      icon: mdi:database-search
+      variables:
+        status_severity: >
+          [[[ return states['binary_sensor.joanna_memory_index_stale']?.state === 'on' ? 'critical' : 'healthy'; ]]]
+      state_display: >
+        [[[
+          const docs = entity?.state ?? '0';
+          const chunks = states['sensor.joanna_memory_chunks']?.state ?? '0';
+          const status = states['binary_sensor.joanna_memory_index_stale']?.state === 'on' ? 'STALE' : 'CURRENT';
+          return `${status} · ${docs} DOCS · ${chunks} CHUNKS`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.joanna_onenote_kb_health
+      name: Federated OneNote KB
+      icon: mdi:notebook-multiple
+      variables:
+        ok_state: ok
+        warning_state: warning
+        healthy_text: CURRENT
+        warning_text: SYNC STALE
+        critical_text: INDEX ERROR
+      state_display: >
+        [[[
+          const docs = Number(entity?.attributes?.docs ?? 0).toLocaleString();
+          const chunks = Number(entity?.attributes?.chunks ?? 0).toLocaleString();
+          const status = entity?.state === 'ok' ? 'CURRENT' : String(entity?.state ?? 'unknown').toUpperCase();
+          return `${status} · ${docs} DOCS · ${chunks} CHUNKS`;
+        ]]]
+
     - type: custom:button-card
       template: bearstone_infra_list_row
       entity: sensor.openai_response
@@ -177,13 +251,10 @@
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.joanna_memory_docs
-      name: Memory Index
-      icon: mdi:database-search
-      state_display: >
-        [[[
-          const docs = entity?.state ?? '0';
-          const chunks = states['sensor.joanna_memory_chunks']?.state ?? '0';
-          const stale = states['binary_sensor.joanna_memory_index_stale']?.state === 'on';
-          return `${docs} docs | ${chunks} chunks${stale ? ' | STALE' : ''}`;
-        ]]]
+      entity: sensor.bearclaw_status_telemetry
+      name: BearClaw Admin
+      icon: mdi:shield-crown-outline
+      state_display: OPEN ADMIN
+      tap_action:
+        action: url
+        url_path: http://192.168.10.13:8124/admin

@@ -17,6 +17,9 @@
 # Notes: Progress and destination-arrival callbacks emit tesla_road_trip_active so Vacation Mode can use the signal when the whole family is away.
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
 # Notes: Status telemetry includes the latest 12 dispatches in the rolling 24-hour window for the Joanna Activity drill-down.
+# Notes: Status telemetry exposes compact scheduled-job warning/error health for the Systems dashboard.
+# Notes: Status telemetry distinguishes the compact BearClaw working-memory index from the federated OneNote KB.
+# Notes: sensor.joanna_onenote_kb_health marks the federated KB warning after 90 minutes without a successful sync.
 # Notes: Status telemetry also exposes compact, user-keyed step trends and personal records for the Health dashboard.
 # Notes: Retired QMD health telemetry is no longer imported or materialized in Home Assistant.
 # Notes: TeslaMate road-trip walkthrough: https://youtu.be/9-9T6v17NEw
@@ -146,10 +149,87 @@ sensor:
       - transports
       - followups
       - memoryIndex
+      - oneNoteKb
       - healthInsights
+      - scheduledJobsHealth
 
 template:
   - sensor:
+      - name: BearClaw Scheduled Job Health
+        unique_id: bearclaw_scheduled_job_health
+        icon: mdi:calendar-alert
+        availability: >-
+          {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') %}
+          {{ health is mapping and health.get('status') in ['ok', 'warning', 'error'] }}
+        state: >-
+          {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+          {{ health.get('status', 'unknown') }}
+        attributes:
+          issue_count: >-
+            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {{ health.get('issueCount', 0) | int(0) }}
+          error_count: >-
+            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {{ health.get('errorCount', 0) | int(0) }}
+          warning_count: >-
+            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {{ health.get('warningCount', 0) | int(0) }}
+          summary: >-
+            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {{ health.get('summary', 'Scheduled-job health unavailable') }}
+          issues: >-
+            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {{ health.get('issues', []) }}
+          generated_at: >-
+            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {{ health.get('generatedAt') }}
+
+      - name: Joanna OneNote KB Health
+        unique_id: joanna_onenote_kb_health
+        icon: mdi:notebook-check-outline
+        availability: >-
+          {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') %}
+          {{ kb is mapping }}
+        state: >-
+          {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+          {% set last_sync_ts = as_timestamp(kb.get('lastSyncAt'), 0) %}
+          {% set age_minutes = ((as_timestamp(now()) - last_sync_ts) / 60) if last_sync_ts > 0 else 999999 %}
+          {% if not kb.get('ok', false) or kb.get('lastSyncError') not in [none, ''] or kb.get('lastSchedulerError') not in [none, ''] %}
+            error
+          {% elif age_minutes > 90 %}
+            warning
+          {% else %}
+            ok
+          {% endif %}
+        attributes:
+          docs: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('docs', 0) | int(0) }}
+          chunks: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('chunks', 0) | int(0) }}
+          last_sync_at: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('lastSyncAt') }}
+          last_modified_at: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('lastModifiedAt') }}
+          source_accounts: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('sourceAccounts', []) }}
+          pending_digest: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('pendingDigest', 0) | int(0) }}
+          pending_synthesis: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('pendingSynthesisAll', 0) | int(0) }}
+          carlo_docs: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('sources', {}).get('carlo', {}).get('docs', 0) | int(0) }}
+          stacey_docs: >-
+            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
+            {{ kb.get('sources', {}).get('stacey', {}).get('docs', 0) | int(0) }}
+
       - name: Joanna HA Dispatches 24h
         unique_id: joanna_ha_dispatches_24h
         icon: mdi:calendar-clock

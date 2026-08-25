@@ -13,6 +13,7 @@
 # Notes: Power & Solar shows realtime flow; accumulated history remains in Energy.
 # Notes: Scheduled Proxmox maintenance and sustained WAN quality/reset warnings render amber; critical conditions remain red.
 # Notes: Active Issue rows enumerate faults, scheduled maintenance, and reset urgency so drill-down is optional for initial triage.
+# Notes: BearClaw scheduled-job warnings/errors roll up under Joanna and appear as an exceptions-only Active Issue row.
 # Notes: Home Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
 # Notes: Back to Overview is the first control in the landing-view navigation strip.
 ######################################################################
@@ -186,12 +187,15 @@
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: sensor.bearclaw_status_telemetry
+      entity: sensor.bearclaw_scheduled_job_health
       name: Joanna
       icon: mdi:robot-outline
       variables:
         ok_state: ok
+        warning_state: warning
         healthy_text: HEALTHY
+        warning_text: JOB WARNING
+        critical_text: JOB ERROR
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/joanna
@@ -338,6 +342,24 @@
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/kiosks
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.bearclaw_scheduled_job_health
+        name: BearClaw scheduled job needs attention
+        icon: mdi:calendar-alert
+        variables:
+          alert_kind: state_not
+          ok_state: ok
+          alert_severity: >
+            [[[ return entity?.state === 'warning' ? 'warning' : 'critical'; ]]]
+          exception_detail: >
+            [[[ return String(entity?.attributes?.summary ?? 'SCHEDULED JOB STATUS REQUIRES REVIEW').toUpperCase(); ]]]
+        state_display: >
+          [[[ return entity?.state === 'warning' ? 'WARNING' : 'ERROR'; ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/joanna
 
       - type: custom:button-card
         template: bearstone_infra_alert_row

@@ -28,6 +28,7 @@
 # Notes: Garage compute health uses the same 145 F threshold as the existing temperature notification.
 # Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
 # Notes: Dashboard aggregate issue count is live-only; its underlying degraded sensors retain actionable history.
+# Notes: Dashboard aggregate issue count includes compact BearClaw scheduled-job warning/error health.
 # Notes: Home Water rollup includes Rheem faults/telemetry loss plus active Phyn alerts and valve closure.
 ######################################################################
 
@@ -241,7 +242,9 @@ template:
             'binary_sensor.home_water_problem',
             'binary_sensor.kiosk_devices_need_attention'
           ] %}
-          {{ expand(categories) | selectattr('state', 'eq', 'on') | list | count }}
+          {% set category_count = expand(categories) | selectattr('state', 'eq', 'on') | list | count %}
+          {% set bearclaw_issue = states('sensor.bearclaw_scheduled_job_health') in ['warning', 'error'] %}
+          {{ category_count + (1 if bearclaw_issue else 0) }}
         attributes:
           active_entities: >-
             {% set categories = [
@@ -253,7 +256,11 @@ template:
               'binary_sensor.home_water_problem',
               'binary_sensor.kiosk_devices_need_attention'
             ] %}
-            {{ expand(categories) | selectattr('state', 'eq', 'on') | map(attribute='entity_id') | list }}
+            {% set active = expand(categories) | selectattr('state', 'eq', 'on') | map(attribute='entity_id') | list %}
+            {% if states('sensor.bearclaw_scheduled_job_health') in ['warning', 'error'] %}
+              {% set active = active + ['sensor.bearclaw_scheduled_job_health'] %}
+            {% endif %}
+            {{ active }}
 
   - binary_sensor:
       - name: "Home Water Problem"
