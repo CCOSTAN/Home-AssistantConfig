@@ -784,6 +784,10 @@ bearstone_infra_alert_row:
             const okState = String(variables?.ok_state ?? '').toLowerCase();
             show = stateStr.toLowerCase() !== okState;
           }
+          else if (kind === 'state_is') {
+            const alertState = String(variables?.alert_state ?? '').toLowerCase();
+            show = Boolean(alertState) && stateStr.toLowerCase() === alertState;
+          }
           else if (kind === 'ap_zero') show = (stateStr === '0' && ageS >= minAge);
           else if (kind === 'disk_high' || kind === 'numeric_high') {
             const v = parseFloat(stateStr);

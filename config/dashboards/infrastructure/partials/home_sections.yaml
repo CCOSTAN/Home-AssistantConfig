@@ -192,9 +192,13 @@
       icon: mdi:robot-outline
       variables:
         ok_state: ok
-        warning_state: warning
+        status_severity: >
+          [[[
+            const raw = String(entity?.state ?? '').toLowerCase();
+            if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'unknown';
+            return raw === 'error' ? 'critical' : 'healthy';
+          ]]]
         healthy_text: HEALTHY
-        warning_text: JOB WARNING
         critical_text: JOB ERROR
       tap_action:
         action: navigate
@@ -349,14 +353,12 @@
         name: BearClaw scheduled job needs attention
         icon: mdi:calendar-alert
         variables:
-          alert_kind: state_not
-          ok_state: ok
-          alert_severity: >
-            [[[ return entity?.state === 'warning' ? 'warning' : 'critical'; ]]]
+          alert_kind: state_is
+          alert_state: error
+          alert_severity: critical
           exception_detail: >
             [[[ return String(entity?.attributes?.summary ?? 'SCHEDULED JOB STATUS REQUIRES REVIEW').toUpperCase(); ]]]
-        state_display: >
-          [[[ return entity?.state === 'warning' ? 'WARNING' : 'ERROR'; ]]]
+        state_display: ERROR
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/joanna

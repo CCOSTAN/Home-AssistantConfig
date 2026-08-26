@@ -243,7 +243,7 @@ template:
             'binary_sensor.kiosk_devices_need_attention'
           ] %}
           {% set category_count = expand(categories) | selectattr('state', 'eq', 'on') | list | count %}
-          {% set bearclaw_issue = states('sensor.bearclaw_scheduled_job_health') in ['warning', 'error'] %}
+          {% set bearclaw_issue = is_state('sensor.bearclaw_scheduled_job_health', 'error') %}
           {{ category_count + (1 if bearclaw_issue else 0) }}
         attributes:
           active_entities: >-
@@ -257,7 +257,7 @@ template:
               'binary_sensor.kiosk_devices_need_attention'
             ] %}
             {% set active = expand(categories) | selectattr('state', 'eq', 'on') | map(attribute='entity_id') | list %}
-            {% if states('sensor.bearclaw_scheduled_job_health') in ['warning', 'error'] %}
+            {% if is_state('sensor.bearclaw_scheduled_job_health', 'error') %}
               {% set active = active + ['sensor.bearclaw_scheduled_job_health'] %}
             {% endif %}
             {{ active }}

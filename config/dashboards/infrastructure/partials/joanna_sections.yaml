@@ -177,9 +177,13 @@
         critical_text: JOB ERROR
       state_display: >
         [[[
-          const count = Number.parseInt(entity?.attributes?.issue_count ?? '0', 10);
           if (entity?.state === 'ok') return 'HEALTHY';
-          return `${Number.isFinite(count) ? count : '?'} ${String(entity?.state ?? 'unknown').toUpperCase()}`;
+          const errors = Number.parseInt(entity?.attributes?.error_count ?? '0', 10);
+          const warnings = Number.parseInt(entity?.attributes?.warning_count ?? '0', 10);
+          const parts = [];
+          if (Number.isFinite(errors) && errors > 0) parts.push(`${errors} ERROR${errors === 1 ? '' : 'S'}`);
+          if (Number.isFinite(warnings) && warnings > 0) parts.push(`${warnings} WARN`);
+          return parts.join(' · ') || 'STATUS UNKNOWN';
         ]]]
 
     - type: custom:button-card
