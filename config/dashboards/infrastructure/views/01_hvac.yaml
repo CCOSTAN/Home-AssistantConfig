@@ -3,19 +3,20 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Systems View - Water
-#  Leak protection, current use, hot water, maintenance, and trends.
+# Systems HVAC View - Filter and condenser maintenance
+#  Runtime, completion dates, and safe reset-script access.
 # -------------------------------------------------------------------
-# Notes: Promoted from the approved Water pilot.
+# Related Issue: 1817
+# Notes: Production view at `/dashboard-infrastructure/hvac`; promoted after live staging review.
 ######################################################################
 
-title: Water
-path: home-water
+title: HVAC
+path: hvac
 type: sections
-icon: mdi:home-flood
+icon: mdi:hvac
 theme: default
 max_columns: 4
 dense_section_placement: true
 badges: []
-sections: !include /config/dashboards/infrastructure/partials/home_water_sections.yaml
+sections: !include /config/dashboards/infrastructure/partials/hvac_sections.yaml
 cards: []

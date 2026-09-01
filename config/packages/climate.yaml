@@ -6,9 +6,11 @@
 # Climate Control - Seasonal HVAC automations and sensors.
 #  Thermostat helpers for upstairs/downstairs comfort.
 # -------------------------------------------------------------------
-# Related Issue: 1571, 273
-# Notes: Filter due alerts use 350h downstairs/450h upstairs runtime thresholds, a 9-month hard limit, 3-day snooze, and Filter Changed push actions.
+# Related Issue: 1571, 273, 1817
+# Notes: Filter due alerts use 550h downstairs/450h upstairs runtime thresholds, a 9-month hard limit, 3-day snooze, and Filter Changed push actions.
 # Notes: Condenser line cleanout uses a single 360-day reminder for both HVAC systems.
+# Notes: Native NFC tag triggers call the per-unit reset scripts; a short single-run guard suppresses duplicate phone scans.
+# Notes: Filter history helpers restore across restarts; reset scripts seed the prior input_datetime when history is empty.
 # Notes: The snooze notification pattern is also covered at https://youtu.be/y47KSflS1aw.
 # Video: https://youtu.be/nScl2JxYSB8
 ######################################################################
@@ -83,6 +85,18 @@ template:
               and current > target
             )
           }}
+      - name: "HVAC Maintenance Due"
+        unique_id: hvac_maintenance_due
+        device_class: problem
+        icon: mdi:hvac
+        availability: >-
+          {{ has_value('sensor.downstairs_ac_runtime_since_last_filter_change')
+             and has_value('sensor.upstairs_ac_runtime_since_last_filter_change')
+             and has_value('sensor.hvac_condenser_lines_days_since_cleaned') }}
+        state: >-
+          {{ states('sensor.downstairs_ac_runtime_since_last_filter_change') | float(0) >= 550
+             or states('sensor.upstairs_ac_runtime_since_last_filter_change') | float(0) >= 450
+             or states('sensor.hvac_condenser_lines_days_since_cleaned') | float(0) >= 360 }}
 
     sensor:
       - name: "Downstairs AC Cooling Numeric"
@@ -106,6 +120,133 @@ template:
           {% else %}
             0
           {% endif %}
+
+      - name: "Downstairs AC Filter Days Since Last Change"
+        unique_id: downstairs_ac_filter_days_since_last_change
+        unit_of_measurement: d
+        state_class: measurement
+        icon: mdi:calendar-clock
+        availability: >-
+          {% set raw = states('input_datetime.downstairs_last_filter_change') %}
+          {{ raw not in ['unknown', 'unavailable', 'none', ''] and as_timestamp(as_datetime(raw), default=none) is not none }}
+        state: >-
+          {% set raw = states('input_datetime.downstairs_last_filter_change') %}
+          {% set changed_ts = as_timestamp(as_datetime(raw), default=none) %}
+          {% if changed_ts is not none %}
+            {{ [((as_timestamp(now()) - changed_ts) / 86400) | int(0), 0] | max }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Upstairs AC Filter Days Since Last Change"
+        unique_id: upstairs_ac_filter_days_since_last_change
+        unit_of_measurement: d
+        state_class: measurement
+        icon: mdi:calendar-clock
+        availability: >-
+          {% set raw = states('input_datetime.upstairs_last_filter_change') %}
+          {{ raw not in ['unknown', 'unavailable', 'none', ''] and as_timestamp(as_datetime(raw), default=none) is not none }}
+        state: >-
+          {% set raw = states('input_datetime.upstairs_last_filter_change') %}
+          {% set changed_ts = as_timestamp(as_datetime(raw), default=none) %}
+          {% if changed_ts is not none %}
+            {{ [((as_timestamp(now()) - changed_ts) / 86400) | int(0), 0] | max }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Downstairs AC Filter Average Days Between Changes"
+        unique_id: downstairs_ac_filter_average_days_between_changes
+        unit_of_measurement: d
+        state_class: measurement
+        icon: mdi:calendar-range
+        availability: >-
+          {% set raw = states('input_text.downstairs_filter_change_history') %}
+          {{ raw not in ['unknown', 'unavailable', 'none', ''] and '||' in raw }}
+        state: >-
+          {% set raw = states('input_text.downstairs_filter_change_history') %}
+          {% if raw in ['unknown', 'unavailable', 'none', ''] %}
+            unknown
+          {% else %}
+            {% set entries = raw.split('||') %}
+            {% set ns = namespace(previous_ts=none, total_days=0, sample_count=0) %}
+            {% for entry in entries %}
+              {% set dt = as_datetime(entry | default('', true) | trim, default=none) %}
+              {% set ts = as_timestamp(dt, default=none) if dt is not none else none %}
+              {% if ts is not none %}
+                {% if ns.previous_ts is not none and ns.previous_ts > ts %}
+                  {% set ns.total_days = ns.total_days + ((ns.previous_ts - ts) / 86400) %}
+                  {% set ns.sample_count = ns.sample_count + 1 %}
+                {% endif %}
+                {% set ns.previous_ts = ts %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.sample_count > 0 %}
+              {{ (ns.total_days / ns.sample_count) | round(1) }}
+            {% else %}
+              0
+            {% endif %}
+          {% endif %}
+
+      - name: "Upstairs AC Filter Average Days Between Changes"
+        unique_id: upstairs_ac_filter_average_days_between_changes
+        unit_of_measurement: d
+        state_class: measurement
+        icon: mdi:calendar-range
+        availability: >-
+          {% set raw = states('input_text.upstairs_filter_change_history') %}
+          {{ raw not in ['unknown', 'unavailable', 'none', ''] and '||' in raw }}
+        state: >-
+          {% set raw = states('input_text.upstairs_filter_change_history') %}
+          {% if raw in ['unknown', 'unavailable', 'none', ''] %}
+            unknown
+          {% else %}
+            {% set entries = raw.split('||') %}
+            {% set ns = namespace(previous_ts=none, total_days=0, sample_count=0) %}
+            {% for entry in entries %}
+              {% set dt = as_datetime(entry | default('', true) | trim, default=none) %}
+              {% set ts = as_timestamp(dt, default=none) if dt is not none else none %}
+              {% if ts is not none %}
+                {% if ns.previous_ts is not none and ns.previous_ts > ts %}
+                  {% set ns.total_days = ns.total_days + ((ns.previous_ts - ts) / 86400) %}
+                  {% set ns.sample_count = ns.sample_count + 1 %}
+                {% endif %}
+                {% set ns.previous_ts = ts %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.sample_count > 0 %}
+              {{ (ns.total_days / ns.sample_count) | round(1) }}
+            {% else %}
+              0
+            {% endif %}
+          {% endif %}
+
+      - name: "Downstairs AC Filter Change Count"
+        unique_id: downstairs_ac_filter_change_count
+        unit_of_measurement: changes
+        state_class: total
+        icon: mdi:counter
+        state: "{{ states('counter.downstairs_filter_change_count') | int(0) }}"
+
+      - name: "Upstairs AC Filter Change Count"
+        unique_id: upstairs_ac_filter_change_count
+        unit_of_measurement: changes
+        state_class: total
+        icon: mdi:counter
+        state: "{{ states('counter.upstairs_filter_change_count') | int(0) }}"
+
+counter:
+  downstairs_filter_change_count:
+    name: Downstairs Filter Change Count
+    initial: 1
+    step: 1
+    icon: mdi:counter
+
+  upstairs_filter_change_count:
+    name: Upstairs Filter Change Count
+    initial: 1
+    step: 1
+    icon: mdi:counter
 
 input_datetime:
   downstairs_last_filter_change:
@@ -134,6 +275,17 @@ input_datetime:
     has_date: true
     has_time: true
     initial: "2026-06-28 00:00:00"
+
+input_text:
+  downstairs_filter_change_history:
+    name: Downstairs Filter Change History
+    max: 255
+    icon: mdi:history
+
+  upstairs_filter_change_history:
+    name: Upstairs Filter Change History
+    max: 255
+    icon: mdi:history
 
 # ---------------------------------------------------------------------------
 #  Integration sensors tally runtime based on compressor state
@@ -165,11 +317,24 @@ script:
   reset_downstairs_filter:
     alias: Reset Downstairs Filter
     mode: queued
+    variables:
+      occurred_at: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      previous_change: "{{ states('input_datetime.downstairs_last_filter_change') }}"
+      next_history: >-
+        {% set current = states('input_text.downstairs_filter_change_history') | default('', true) | string %}
+        {% set ns = namespace(items=[occurred_at]) %}
+        {% for raw in current.split('||') + [previous_change] %}
+          {% set value = raw | trim %}
+          {% if value and value not in ['unknown', 'unavailable', 'none'] and value not in ns.items and (ns.items | count) < 10 %}
+            {% set ns.items = ns.items + [value] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items | join('||') }}
     sequence:
       - service: input_datetime.set_datetime
         data:
           entity_id: input_datetime.downstairs_last_filter_change
-          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+          datetime: "{{ occurred_at }}"
       - service: input_datetime.set_datetime
         data:
           entity_id: input_datetime.downstairs_filter_snooze_until
@@ -177,15 +342,36 @@ script:
       - service: utility_meter.reset
         target:
           entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
+      - service: counter.increment
+        target:
+          entity_id: counter.downstairs_filter_change_count
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.downstairs_filter_change_history
+        data:
+          value: "{{ next_history | truncate(255, true, '') }}"
 
   reset_upstairs_filter:
     alias: Reset Upstairs Filter
     mode: queued
+    variables:
+      occurred_at: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      previous_change: "{{ states('input_datetime.upstairs_last_filter_change') }}"
+      next_history: >-
+        {% set current = states('input_text.upstairs_filter_change_history') | default('', true) | string %}
+        {% set ns = namespace(items=[occurred_at]) %}
+        {% for raw in current.split('||') + [previous_change] %}
+          {% set value = raw | trim %}
+          {% if value and value not in ['unknown', 'unavailable', 'none'] and value not in ns.items and (ns.items | count) < 10 %}
+            {% set ns.items = ns.items + [value] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items | join('||') }}
     sequence:
       - service: input_datetime.set_datetime
         data:
           entity_id: input_datetime.upstairs_last_filter_change
-          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+          datetime: "{{ occurred_at }}"
       - service: input_datetime.set_datetime
         data:
           entity_id: input_datetime.upstairs_filter_snooze_until
@@ -193,6 +379,14 @@ script:
       - service: utility_meter.reset
         target:
           entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
+      - service: counter.increment
+        target:
+          entity_id: counter.upstairs_filter_change_count
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.upstairs_filter_change_history
+        data:
+          value: "{{ next_history | truncate(255, true, '') }}"
 
   reset_hvac_condenser_lines_cleaned:
     alias: Reset HVAC Condenser Lines Cleaned
@@ -226,13 +420,47 @@ script:
 ### There are also some automations in the POWERWALL.yaml package when the grid is down.
 ##############################################################################
 automation:
+  - alias: HVAC Filter NFC Stickers
+    id: hvac_filter_nfc_stickers
+    description: Log the unit whose bound HVAC filter NFC sticker was scanned
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: tag
+        tag_id: fcf8bb30-2887-406b-8f9d-b6048e6ac196
+        id: upstairs
+      - platform: tag
+        tag_id: 356ba9c3-312b-433a-975f-3f46a09ab33e
+        id: downstairs
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: upstairs
+            sequence:
+              - service: script.reset_upstairs_filter
+              - service: script.send_to_logbook
+                data:
+                  topic: "MAINTENANCE"
+                  message: "Upstairs HVAC filter change logged from NFC sticker."
+          - conditions:
+              - condition: trigger
+                id: downstairs
+            sequence:
+              - service: script.reset_downstairs_filter
+              - service: script.send_to_logbook
+                data:
+                  topic: "MAINTENANCE"
+                  message: "Downstairs HVAC filter change logged from NFC sticker."
+      - delay: "00:00:10"
+
   - alias: Notify Climate Filter Change Due
     id: notify_climate_filter_change_due
     description: Notify when HVAC filter runtime exceeds the location threshold or age reaches 9 months
     trigger:
       - platform: numeric_state
         entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
-        above: 350
+        above: 550
         id: downstairs_runtime
       - platform: time
         at: "09:00:00"
@@ -251,7 +479,7 @@ automation:
       last_filter_entity: "input_datetime.{{ location }}_last_filter_change"
       snooze_entity: "input_datetime.{{ location }}_filter_snooze_until"
       runtime_hours: "{{ states(runtime_sensor) | float(0) }}"
-      runtime_threshold_hours: "{{ 450 if location == 'upstairs' else 350 }}"
+      runtime_threshold_hours: "{{ 450 if location == 'upstairs' else 550 }}"
       last_filter_ts: "{{ as_timestamp(states(last_filter_entity), 0) }}"
       filter_age_days: "{{ ((as_timestamp(now()) - (last_filter_ts | float(0))) / 86400) | round(0) }}"
       due_reason: >-

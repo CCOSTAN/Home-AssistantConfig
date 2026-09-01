@@ -6,15 +6,15 @@
 # Systems Partial - operations summary
 #  House-system health strip, active issues, and datacenter status.
 # -------------------------------------------------------------------
-# Related Issue: 1890
+# Related Issue: 1890, 1817
 # Notes: The health ribbon mirrors the visible dashboard navigation order and labels.
 # Notes: DNS and external-monitoring faults roll up under Network instead of duplicating it.
 # Notes: Network trend panels live on Network so Overview stays focused on broad house status.
 # Notes: Power & Solar shows realtime flow; accumulated history remains in Energy.
-# Notes: Scheduled Proxmox maintenance and sustained WAN quality/reset warnings render amber; critical conditions remain red.
+# Notes: Scheduled Proxmox, Docker host, and HVAC maintenance plus sustained WAN quality/reset warnings render amber; critical conditions remain red.
 # Notes: Active Issue rows enumerate faults, scheduled maintenance, and reset urgency so drill-down is optional for initial triage.
 # Notes: BearClaw scheduled-job warnings/errors roll up under Joanna and appear as an exceptions-only Active Issue row.
-# Notes: Home Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
+# Notes: Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
 # Notes: Back to Overview is the first control in the landing-view navigation strip.
 ######################################################################
 
@@ -31,7 +31,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(10, minmax(0, 1fr))
+      grid-template-columns: repeat(6, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -58,11 +58,19 @@
       variables:
         ok_state: '0'
         healthy_text: ALL CLEAR
-        warning_text: WARNING
+        warning_text: >
+          [[[
+            return states['binary_sensor.hvac_maintenance_due']?.state === 'on'
+              || states['binary_sensor.docker_host_maintenance_attention']?.state === 'on'
+              ? 'MAINTENANCE'
+              : 'WARNING';
+          ]]]
         raw_suffix: ACTIVE
         warning_entity_ids:
         - binary_sensor.infra_wan_sustained_degradation
         - binary_sensor.rheem_wh_telemetry_stale
+        - binary_sensor.docker_host_maintenance_attention
+        - binary_sensor.hvac_maintenance_due
         critical_entity_ids:
         - binary_sensor.infra_wan_critical
         - binary_sensor.infra_dns_pihole_degraded
@@ -75,7 +83,7 @@
     - type: custom:button-card
       template: bearstone_infra_status_kpi
       entity: binary_sensor.home_water_problem
-      name: Home Water
+      name: Water
       icon: mdi:shield-water-outline
       variables:
         ok_state: 'off'
@@ -90,6 +98,21 @@
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/home-water
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.hvac_maintenance_due
+      name: HVAC
+      icon: mdi:hvac
+      variables:
+        ok_state: 'off'
+        healthy_text: CLEAR
+        warning_text: MAINTENANCE
+        warning_entity_ids:
+        - binary_sensor.hvac_maintenance_due
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/hvac
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -125,6 +148,11 @@
       icon: mdi:docker
       variables:
         ok_state: 'off'
+        warning_text: MAINTENANCE
+        warning_entity_ids:
+        - binary_sensor.docker_host_maintenance_attention
+        critical_entity_ids:
+        - binary_sensor.docker_container_telemetry_degraded
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/docker
@@ -309,7 +337,70 @@
         state_display: '[[[ return "LEAK"; ]]]'
         tap_action:
           action: navigate
-          navigation_path: /dashboard-infrastructure/home-water
+          navigation_path: /dashboard-infrastructure/hvac
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.downstairs_ac_runtime_since_last_filter_change
+        name: Downstairs HVAC filter maintenance due
+        icon: mdi:air-filter
+        variables:
+          alert_kind: numeric_high
+          threshold: 550
+          warning_only: true
+          exception_detail: >
+            [[[
+              const value = Number(entity?.state);
+              return Number.isFinite(value)
+                ? `RUNTIME ${value.toFixed(0)} / 550 H · FILTER CHANGE DUE`
+                : 'FILTER RUNTIME TELEMETRY UNAVAILABLE';
+            ]]]
+        state_display: MAINTENANCE
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/hvac
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.upstairs_ac_runtime_since_last_filter_change
+        name: Upstairs HVAC filter maintenance due
+        icon: mdi:air-filter
+        variables:
+          alert_kind: numeric_high
+          threshold: 450
+          warning_only: true
+          exception_detail: >
+            [[[
+              const value = Number(entity?.state);
+              return Number.isFinite(value)
+                ? `RUNTIME ${value.toFixed(0)} / 450 H · FILTER CHANGE DUE`
+                : 'FILTER RUNTIME TELEMETRY UNAVAILABLE';
+            ]]]
+        state_display: MAINTENANCE
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/hvac
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.hvac_condenser_lines_days_since_cleaned
+        name: HVAC condenser line maintenance due
+        icon: mdi:pipe-wrench
+        variables:
+          alert_kind: numeric_high
+          threshold: 360
+          warning_only: true
+          exception_detail: >
+            [[[
+              const value = Number(entity?.state);
+              return Number.isFinite(value)
+                ? `ELAPSED ${value.toFixed(0)} / 360 DAYS · LINE CLEANING DUE`
+                : 'CONDENSER MAINTENANCE TELEMETRY UNAVAILABLE';
+            ]]]
+        state_display: MAINTENANCE
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/hvac
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
@@ -440,6 +531,57 @@
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.docker_host_maintenance_attention
+        name: Docker host maintenance needs attention
+        icon: mdi:package-up
+        variables:
+          alert_kind: binary_on
+          warning_only: true
+          exception_detail: >
+            [[[
+              const hosts = [
+                ['docker_10', 'sensor.docker_10_apt_status'],
+                ['docker_13', 'sensor.docker_13_apt_status'],
+                ['docker_14', 'sensor.docker_14_apt_status'],
+                ['docker_17', 'sensor.docker_17_apt_status'],
+                ['docker_69', 'sensor.docker_69_apt_status'],
+              ];
+              const needsAttention = (raw) => {
+                const status = String(raw ?? '').toUpperCase();
+                return ['UNKNOWN', 'UNAVAILABLE', 'NONE', ''].includes(status)
+                  || status.includes('PENDING')
+                  || status.includes('REBOOT REQ')
+                  || status.startsWith('ERROR');
+              };
+              return hosts
+                .filter(([, id]) => needsAttention(states[id]?.state))
+                .map(([host, id]) => `${host} ${String(states[id]?.state ?? 'unknown').toUpperCase()}`)
+                .join(' · ');
+            ]]]
+        state_display: >
+          [[[
+            const ids = [
+              'sensor.docker_10_apt_status',
+              'sensor.docker_13_apt_status',
+              'sensor.docker_14_apt_status',
+              'sensor.docker_17_apt_status',
+              'sensor.docker_69_apt_status',
+            ];
+            const count = ids.filter((id) => {
+              const status = String(states[id]?.state ?? '').toUpperCase();
+              return ['UNKNOWN', 'UNAVAILABLE', 'NONE', ''].includes(status)
+                || status.includes('PENDING')
+                || status.includes('REBOOT REQ')
+                || status.startsWith('ERROR');
+            }).length;
+            return `${count} HOST${count === 1 ? '' : 'S'}`;
+          ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/docker
 
       - type: custom:button-card
         template: bearstone_infra_alert_row

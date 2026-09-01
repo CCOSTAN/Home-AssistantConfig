@@ -1,0 +1,262 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Systems HVAC Partial - Maintenance overview and details
+#  Production HVAC maintenance, completion history, and reset access.
+# -------------------------------------------------------------------
+# Related Issue: 1817
+# Notes: Downstairs filter maintenance is due at 550 runtime hours; upstairs remains 450 hours.
+# Notes: Reset actions reuse the existing HVAC maintenance scripts; no staging helpers are introduced.
+######################################################################
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_nav_back
+      name: Back to Systems
+      icon: mdi:arrow-left
+      view_layout:
+        grid-column: 1 / -1
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/home
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.downstairs_ac_runtime_since_last_filter_change
+      name: Next Maintenance
+      icon: mdi:calendar-clock
+      variables:
+        default_severity: healthy
+        numeric_warning_checks:
+        - entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
+          threshold: 550
+        - entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
+          threshold: 450
+        - entity_id: sensor.hvac_condenser_lines_days_since_cleaned
+          threshold: 360
+        next_maintenance: >
+          [[[
+            const candidates = [];
+            const addCandidate = (entityId, label, current, limit, unit) => {
+              if (!Number.isFinite(current) || !Number.isFinite(limit) || limit <= 0) return;
+              const remaining = Math.ceil(limit - current);
+              candidates.push({
+                entity: entityId,
+                progress: current / limit,
+                text: remaining <= 0 ? `DUE · ${label}` : `${label} · ${remaining}${unit}`,
+              });
+            };
+            addCandidate(
+              'sensor.downstairs_ac_runtime_since_last_filter_change',
+              'DOWNSTAIRS',
+              Number(states['sensor.downstairs_ac_runtime_since_last_filter_change']?.state),
+              550,
+              'H',
+            );
+            addCandidate(
+              'sensor.upstairs_ac_runtime_since_last_filter_change',
+              'UPSTAIRS',
+              Number(states['sensor.upstairs_ac_runtime_since_last_filter_change']?.state),
+              450,
+              'H',
+            );
+            addCandidate(
+              'sensor.hvac_condenser_lines_days_since_cleaned',
+              'CONDENSER',
+              Number(states['sensor.hvac_condenser_lines_days_since_cleaned']?.state),
+              360,
+              'D',
+            );
+            candidates.sort((a, b) => b.progress - a.progress);
+            return candidates[0] ?? { entity: entity.entity_id, text: 'NO DATA' };
+          ]]]
+      state_display: >
+        [[[
+          return String(variables?.next_maintenance?.text ?? 'NO DATA')
+            .replace('DOWNSTAIRS', 'DOWN')
+            .replace('UPSTAIRS', 'UP')
+            .replace('CONDENSER', 'COND');
+        ]]]
+      tap_action:
+        action: more-info
+        entity: >
+          [[[
+            return variables?.next_maintenance?.entity ?? entity.entity_id;
+          ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.downstairs_ac_runtime_since_last_filter_change
+      name: Downstairs Filter
+      icon: mdi:air-filter
+      variables:
+        ok_state: never
+        default_severity: healthy
+        numeric_warning_checks:
+        - entity_id: sensor.downstairs_ac_runtime_since_last_filter_change
+          threshold: 550
+        warning_text: DUE
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value) ? `${value.toFixed(0)} / 550 H` : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.upstairs_ac_runtime_since_last_filter_change
+      name: Upstairs Filter
+      icon: mdi:air-filter
+      variables:
+        ok_state: never
+        default_severity: healthy
+        numeric_warning_checks:
+        - entity_id: sensor.upstairs_ac_runtime_since_last_filter_change
+          threshold: 450
+        warning_text: DUE
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value) ? `${value.toFixed(0)} / 450 H` : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.hvac_condenser_lines_days_since_cleaned
+      name: Condenser Lines
+      icon: mdi:pipe-wrench
+      variables:
+        ok_state: never
+        default_severity: healthy
+        numeric_warning_checks:
+        - entity_id: sensor.hvac_condenser_lines_days_since_cleaned
+          threshold: 360
+        warning_text: DUE
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value) ? `${value.toFixed(0)} / 360 D` : 'NO DATA';
+        ]]]
+
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Filter Maintenance
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.downstairs_ac_runtime_since_last_filter_change
+        name: Downstairs Filter Runtime
+        icon: mdi:air-filter
+        variables:
+          numeric_warning_threshold: 550
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} / 550 h` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_datetime.downstairs_last_filter_change
+        name: Downstairs Filter Changed
+        icon: mdi:calendar-check-outline
+        tap_action:
+          action: more-info
+          entity: script.reset_downstairs_filter
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.upstairs_ac_runtime_since_last_filter_change
+        name: Upstairs Filter Runtime
+        icon: mdi:air-filter
+        variables:
+          numeric_warning_threshold: 450
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} / 450 h` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_datetime.upstairs_last_filter_change
+        name: Upstairs Filter Changed
+        icon: mdi:calendar-check-outline
+        tap_action:
+          action: more-info
+          entity: script.reset_upstairs_filter
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Outdoor Condenser
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.hvac_condenser_lines_days_since_cleaned
+        name: Days Since Line Cleaning
+        icon: mdi:pipe-wrench
+        variables:
+          numeric_warning_threshold: 360
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} / 360 DAYS` : 'NO DATA';
+          ]]]
+        tap_action:
+          action: more-info
+          entity: script.reset_hvac_condenser_lines_cleaned
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_datetime.hvac_condenser_lines_last_cleaned
+        name: Last Line Cleaning
+        icon: mdi:calendar-check-outline
+        tap_action:
+          action: more-info
+          entity: script.reset_hvac_condenser_lines_cleaned

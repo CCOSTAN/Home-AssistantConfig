@@ -5,10 +5,10 @@
 # -------------------------------------------------------------------
 # Tugtainer Updates - Container update notifications via webhook
 # Related Issue: 1561
-#  Receives Apprise JSON payloads from Tugtainer and posts HA alerts.
+#  Receives Apprise JSON payloads from Tugtainer and posts outcome alerts.
 # -------------------------------------------------------------------
 # Notes: Expects JSON with title/message/type from the Tugtainer template.
-# Notes: Creates persistent notifications and stamps last-update time.
+# Notes: Available-only reports stay silent in HA; Updated, Failed, and Rolled-back reports remain visible.
 # Notes: Fires update events independently when a report has both Available and Updated sections.
 # Notes: Fires `tugtainer_home_assistant_core_updated` when `### Updated:` includes Home Assistant.
 # Notes: Every Available report dispatches Joanna; Tugtainer owns report scheduling and de-duplication.
@@ -78,7 +78,7 @@ automation:
 
   - alias: "Tugtainer Update Report"
     id: tugtainer_update_report
-    description: "Receive Tugtainer reports, post persistent alerts, and dispatch failed updates."
+    description: "Receive Tugtainer reports, suppress Available-only alerts, and dispatch update work."
     mode: queued
     trigger:
       - platform: webhook
@@ -99,6 +99,8 @@ automation:
         {% set sections = message | regex_findall('(?is)###\\s*updated:\\s*(.*?)(?:\\n###\\s|$)') %}
         {{ sections[0] if sections | count > 0 else '' }}
       has_updated_section: "{{ updated_section | trim != '' }}"
+      show_persistent_notification: >-
+        {{ not has_available_section or has_updated_section or has_failure_section }}
       ha_updated_line: >-
         {% set matches = updated_section | regex_findall('(?im)^.*(?:home-assistant|ghcr\\.io/home-assistant/home-assistant).*$') %}
         {{ matches[0] if matches | count > 0 else '' }}
@@ -140,10 +142,14 @@ automation:
           entity_id: input_datetime.tugtainer_last_update
         data:
           datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-      - service: persistent_notification.create
-        data:
-          title: "{{ title }}"
-          message: "{{ full_message }}"
+      - if:
+          - condition: template
+            value_template: "{{ show_persistent_notification }}"
+        then:
+          - service: persistent_notification.create
+            data:
+              title: "{{ title }}"
+              message: "{{ full_message }}"
       - if:
           - condition: template
             value_template: "{{ has_available_section }}"

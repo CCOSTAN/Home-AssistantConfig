@@ -4,7 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Overview Section - priority ribbon and daily controls
-# Related Issue: 1843
+# Related Issue: 1843, 1817
 #  Systems first, then frequent entry points, climate, and vacuum access.
 # -------------------------------------------------------------------
 # Notes: Equal-width pills keep the whole ribbon compact and consistent.
@@ -47,6 +47,9 @@ cards:
       raw_suffix: ACTIVE
       warning_entity_ids:
       - binary_sensor.infra_wan_sustained_degradation
+      - binary_sensor.rheem_wh_telemetry_stale
+      - binary_sensor.docker_host_maintenance_attention
+      - binary_sensor.hvac_maintenance_due
       critical_entity_ids:
       - binary_sensor.infra_wan_critical
       - binary_sensor.infra_dns_pihole_degraded

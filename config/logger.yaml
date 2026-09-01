@@ -11,6 +11,7 @@
 # Notes: adjusting the severity levels for each component
 # Notes: Log Severities (in order of increasing severity):
 # Notes: notset, debug, info, warn, warning, error, fatal, critical
+# Notes: Portainer image-distribution checks are update-only noise; Tugtainer owns update reporting.
 ######################################################################
 default: info
 logs:
@@ -56,6 +57,7 @@ logs:
   homeassistant.loader: warn
   homeassistant.components.websocket_api: error
   pubnub: critical
+  pyportainer.watcher: error
   py.warnings: error
   pyhap.hap_server: warn
   queueman: error

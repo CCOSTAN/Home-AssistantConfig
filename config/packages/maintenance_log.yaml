@@ -4,11 +4,13 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Maintenance Logging - webhook ingest + graphable HA history
+# Related Issue: 1816
 #  Stores water softener salt maintenance events in recorder-backed helpers.
 # -------------------------------------------------------------------
 # Video: https://youtu.be/_OqTv9i-jAs
 # Blog: https://www.vcloudinfo.com/2026/07/home-assistant-water-softener-salt-automation.html
-# Notes: Webhook id is bearclaw_maintenance_log_v1; payloads can come from agents, NFC tags, QR codes, or dashboard buttons.
+# Notes: Webhook id is bearclaw_maintenance_log_v1; internal maintenance_log events reuse the same queued processor.
+# Notes: The water-softener NFC tag uses a short single-run guard to suppress duplicate phone scans.
 # Notes: Duplicate event_id values are ignored to prevent double-count totals.
 # Notes: Recent event history string format is "YYYY-MM-DD HH:MM:SS|amount|note||...".
 # Notes: Long-term stats live on template sensors; helpers are internal state for restore/calculation.
@@ -147,21 +149,58 @@ template:
         state: "{{ states('input_number.water_softener_salt_total_added_lb') | float(0) | round(1) }}"
 
 automation:
+  - alias: "Maintenance Log - Water Softener Salt NFC"
+    id: water_softener_salt_nfc_refill
+    description: Log one 80 lb salt refill when the bound water-softener NFC sticker is scanned
+    mode: single
+    max_exceeded: silent
+
+    trigger:
+      - platform: tag
+        tag_id: 21d5898a49e64903911f1dbaac931cb4
+
+    action:
+      - event: maintenance_log
+        event_data:
+          item_key: water_softener_salt
+          action: add
+          amount_value: 80
+          amount_unit: lb
+          event_id: "nfc_water_softener_salt_{{ trigger.event.context.id }}"
+          occurred_at: "{{ now().isoformat() }}"
+          actor: home_assistant_nfc
+          raw_text: "Water softener salt refill NFC sticker scanned."
+          parse_confidence: deterministic
+
+      - delay: "00:00:10"
+
   - alias: "Maintenance Log - Joanna Webhook Ingest"
     id: 1c9fba4f-fef5-4da9-82d4-4049deff17cf
+    description: Process webhook and internal maintenance events through one deduplicated recorder-backed path
     mode: queued
     max: 30
 
     trigger:
       - platform: webhook
+        id: webhook
         webhook_id: bearclaw_maintenance_log_v1
         allowed_methods:
           - POST
           - PUT
         local_only: false
+      - platform: event
+        id: internal_event
+        event_type: maintenance_log
 
     variables:
-      payload: "{{ trigger.json if trigger.json is mapping else dict() }}"
+      payload: >-
+        {% if trigger.id == 'webhook' and trigger.json is mapping %}
+          {{ trigger.json }}
+        {% elif trigger.id == 'internal_event' and trigger.event.data is mapping %}
+          {{ trigger.event.data }}
+        {% else %}
+          {{ dict() }}
+        {% endif %}
       source_item: "{{ payload.item_key | default('', true) | string | trim | lower }}"
       item_key: >-
         {% set aliases = {

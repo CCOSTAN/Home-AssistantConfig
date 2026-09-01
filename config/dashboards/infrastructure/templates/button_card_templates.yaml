@@ -11,6 +11,7 @@
 # Notes: The compact ribbon template supports Overview status and daily controls.
 # Notes: Mobile templates extend the ribbon with larger accessible tap targets and text.
 # Notes: Named cards keep the icon beside the name; icons never consume a decorative row.
+# Notes: Status KPIs support optional numeric warning checks for threshold-based summaries.
 ######################################################################
 
 bearstone_infra_base:
@@ -694,6 +695,20 @@ bearstone_infra_list_row:
   show_name: true
   show_state: true
   show_label: false
+  variables:
+    numeric_warning_threshold: ''
+    numeric_warning_active: >
+      [[[
+        const thresholdRaw = variables?.numeric_warning_threshold;
+        const threshold = Number(thresholdRaw);
+        const value = Number(entity?.state);
+        return thresholdRaw !== undefined
+          && thresholdRaw !== null
+          && String(thresholdRaw).trim() !== ''
+          && Number.isFinite(threshold)
+          && Number.isFinite(value)
+          && value >= threshold;
+      ]]]
   tap_action:
     action: more-info
   styles:
@@ -701,8 +716,18 @@ bearstone_infra_list_row:
     - border-radius: 14px
     - padding: 12px 12px
     - box-shadow: none
-    - border: 1px solid rgba(0,0,0,0.03)
-    - background: rgba(0,0,0,0.02)
+    - border: >
+        [[[
+          return variables?.numeric_warning_active
+            ? '1px solid rgba(245,124,0,0.35)'
+            : '1px solid rgba(0,0,0,0.03)';
+        ]]]
+    - background: >
+        [[[
+          return variables?.numeric_warning_active
+            ? 'rgba(255,243,224,0.75)'
+            : 'rgba(0,0,0,0.02)';
+        ]]]
     - box-sizing: border-box
     grid:
     - grid-template-areas: "\"i n s\""
@@ -711,7 +736,12 @@ bearstone_infra_list_row:
     - column-gap: 10px
     icon:
     - width: 18px
-    - color: var(--primary-color)
+    - color: >
+        [[[
+          return variables?.numeric_warning_active
+            ? 'rgba(230,81,0,1)'
+            : 'var(--primary-color)';
+        ]]]
     name:
     - font-weight: 700
     - font-size: 14px
@@ -725,7 +755,14 @@ bearstone_infra_list_row:
     - justify-self: end
     - font-weight: 700
     - font-size: 13px
-    - opacity: 0.8
+    - color: >
+        [[[
+          return variables?.numeric_warning_active
+            ? 'rgba(230,81,0,1)'
+            : 'var(--primary-text-color)';
+        ]]]
+    - opacity: >
+        [[[ return variables?.numeric_warning_active ? 1 : 0.8; ]]]
     - padding-left: 8px
     - white-space: nowrap
 
@@ -935,10 +972,23 @@ bearstone_infra_status_kpi:
         const anyOn = (ids) => ids.some((id) => String(states[id]?.state ?? '').toLowerCase() === 'on');
         const critical = anyOn(normalizeIds(variables?.critical_entity_ids));
         const warning = anyOn(normalizeIds(variables?.warning_entity_ids));
+        const numericWarning = (Array.isArray(variables?.numeric_warning_checks)
+          ? variables.numeric_warning_checks
+          : []).some((check) => {
+            const entityId = String(check?.entity_id ?? '').trim();
+            const thresholdEntityId = String(check?.threshold_entity_id ?? '').trim();
+            const value = Number(states[entityId]?.state);
+            const threshold = thresholdEntityId
+              ? Number(states[thresholdEntityId]?.state)
+              : Number(check?.threshold);
+            return entityId && Number.isFinite(value) && Number.isFinite(threshold) && value >= threshold;
+          });
         const warningState = String(variables?.warning_state ?? '').toLowerCase();
         const okState = String(variables?.ok_state ?? 'off').toLowerCase();
         if (critical) return 'critical';
-        if (warning || (warningState && raw === warningState)) return 'warning';
+        if (warning || numericWarning || (warningState && raw === warningState)) return 'warning';
+        const defaultSeverity = String(variables?.default_severity ?? '').toLowerCase();
+        if (['healthy', 'warning', 'critical'].includes(defaultSeverity)) return defaultSeverity;
         return raw === okState ? 'healthy' : 'critical';
       ]]]
   state_display: >

@@ -27,8 +27,10 @@
 # Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
 # Notes: Garage compute health uses the same 145 F threshold as the existing temperature notification.
 # Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
+# Notes: Bear Stone and website outages dispatch Joanna quietly; no direct phone alerts are sent.
 # Notes: Dashboard aggregate issue count is live-only; its underlying degraded sensors retain actionable history.
 # Notes: Dashboard aggregate issue count includes compact BearClaw scheduled-job warning/error health.
+# Notes: Docker host maintenance is counted separately from container runtime health so pending packages and stale host reports surface on Systems.
 # Notes: Home Water rollup includes Rheem faults/telemetry loss plus active Phyn alerts and valve closure.
 ######################################################################
 
@@ -188,6 +190,7 @@ template:
         icon: mdi:counter
         state: >-
           {% set ids = [
+            'binary_sensor.bear_stone',
             'binary_sensor.vcloudinfo_com',
             'binary_sensor.ipmer_com',
             'binary_sensor.fordst_com',
@@ -206,6 +209,7 @@ template:
         attributes:
           monitored_entities: >-
             {{ [
+              'binary_sensor.bear_stone',
               'binary_sensor.vcloudinfo_com',
               'binary_sensor.ipmer_com',
               'binary_sensor.fordst_com',
@@ -213,6 +217,7 @@ template:
             ] }}
           down_entities: >-
             {% set ids = [
+              'binary_sensor.bear_stone',
               'binary_sensor.vcloudinfo_com',
               'binary_sensor.ipmer_com',
               'binary_sensor.fordst_com',
@@ -239,6 +244,8 @@ template:
             'binary_sensor.infra_compute_degraded',
             'binary_sensor.infra_storage_degraded',
             'binary_sensor.infra_external_monitoring_degraded',
+            'binary_sensor.docker_host_maintenance_attention',
+            'binary_sensor.hvac_maintenance_due',
             'binary_sensor.home_water_problem',
             'binary_sensor.kiosk_devices_need_attention'
           ] %}
@@ -253,6 +260,8 @@ template:
               'binary_sensor.infra_compute_degraded',
               'binary_sensor.infra_storage_degraded',
               'binary_sensor.infra_external_monitoring_degraded',
+              'binary_sensor.docker_host_maintenance_attention',
+              'binary_sensor.hvac_maintenance_due',
               'binary_sensor.home_water_problem',
               'binary_sensor.kiosk_devices_need_attention'
             ] %}
@@ -423,19 +432,13 @@ template:
         state: >-
           {% set dns_state = states('sensor.infra_nebula_sync_dns_consistency') | lower %}
           {% set portainer_known = [
-            expand('binary_sensor.nebula_sync_status') | count > 0,
             expand('binary_sensor.nebula_sync_status_2') | count > 0,
-            expand('sensor.nebula_sync_state') | count > 0,
             expand('sensor.nebula_sync_state_2') | count > 0,
-            expand('switch.nebula_sync_container') | count > 0,
             expand('switch.nebula_sync_container_2') | count > 0
           ] | select('equalto', true) | list | count > 0 %}
           {% set portainer_ok = [
-            is_state('binary_sensor.nebula_sync_status', 'on'),
             is_state('binary_sensor.nebula_sync_status_2', 'on'),
-            (states('sensor.nebula_sync_state') | lower) == 'running',
             (states('sensor.nebula_sync_state_2') | lower) == 'running',
-            is_state('switch.nebula_sync_container', 'on'),
             is_state('switch.nebula_sync_container_2', 'on')
           ] | select('equalto', true) | list | count > 0 %}
           {{ dns_state != 'ok' or (portainer_known and not portainer_ok) }}
@@ -449,12 +452,9 @@ template:
           secondary_fqdn: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_fqdn') }}"
           primary_reverse: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_reverse') }}"
           secondary_reverse: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_reverse') }}"
-          nebula_status: "{{ states('binary_sensor.nebula_sync_status') }}"
-          nebula_status_2: "{{ states('binary_sensor.nebula_sync_status_2') }}"
-          nebula_state: "{{ states('sensor.nebula_sync_state') }}"
-          nebula_state_2: "{{ states('sensor.nebula_sync_state_2') }}"
-          pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status') }}"
-          pihole_secondary_status_2: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
+          nebula_status: "{{ states('binary_sensor.nebula_sync_status_2') }}"
+          nebula_state: "{{ states('sensor.nebula_sync_state_2') }}"
+          pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
 
       - name: "Infra Pihole IoT DNS Degraded"
         unique_id: infra_pihole_iot_dns_degraded
@@ -617,12 +617,16 @@ automation:
                   entity_ids:
                     - binary_sensor.infra_website_degraded
                     - sensor.infra_website_down_count
+                    - binary_sensor.bear_stone
+                    - sensor.bear_stone
                     - binary_sensor.vcloudinfo_com
                     - sensor.vcloudinfo_com
                     - sensor.wordpress_wp_state_2
                     - switch.wordpress_wp_container_2
                   diagnostics: >-
                     down_entities={{ down_summary }};
+                    bear_stone_sensor={{ states('sensor.bear_stone') }};
+                    bear_stone_binary={{ states('binary_sensor.bear_stone') }};
                     vcloudinfo_sensor={{ states('sensor.vcloudinfo_com') }};
                     vcloudinfo_binary={{ states('binary_sensor.vcloudinfo_com') }};
                     wordpress_state={{ states('sensor.wordpress_wp_state_2') }};
@@ -630,6 +634,8 @@ automation:
                     cloudflared_wp={{ states('switch.cloudflared_wp_container_2') }}.
                   request: >-
                     Investigate and resolve the monitored website outage. For
+                    Bear Stone, start with public HTTPS reachability and the
+                    Home Assistant/Cloudflare path. For
                     vcloudinfo.com, start with public HTTPS reachability,
                     wordpress_wp, wordpress_db, and cloudflared_wp telemetry.
                     Verify public HTTP 200 recovery before closing out. Do not
@@ -726,12 +732,9 @@ automation:
       dns_state: "{{ states('sensor.infra_nebula_sync_dns_consistency') }}"
       previous_band: "{{ states('input_text.infra_nebula_sync_health_band') | lower }}"
       degraded: "{{ is_state('binary_sensor.infra_nebula_sync_degraded', 'on') }}"
-      nebula_status: "{{ states('binary_sensor.nebula_sync_status') }}"
-      nebula_status_alt: "{{ states('binary_sensor.nebula_sync_status_2') }}"
-      nebula_state: "{{ states('sensor.nebula_sync_state') }}"
-      nebula_state_alt: "{{ states('sensor.nebula_sync_state_2') }}"
-      pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status') }}"
-      pihole_secondary_status_alt: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
+      nebula_status: "{{ states('binary_sensor.nebula_sync_status_2') }}"
+      nebula_state: "{{ states('sensor.nebula_sync_state_2') }}"
+      pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
     action:
       - choose:
           - conditions: "{{ degraded and previous_band != 'warning' }}"
@@ -748,11 +751,8 @@ automation:
                   entity_ids:
                     - sensor.infra_nebula_sync_dns_consistency
                     - binary_sensor.infra_nebula_sync_degraded
-                    - binary_sensor.nebula_sync_status
                     - binary_sensor.nebula_sync_status_2
-                    - sensor.nebula_sync_state
                     - sensor.nebula_sync_state_2
-                    - binary_sensor.pihole_secondary_status
                     - binary_sensor.pihole_secondary_status_2
                   diagnostics: >-
                     issue_id={{ issue_id }},
@@ -766,11 +766,8 @@ automation:
                     primary_reverse={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'primary_reverse') }},
                     secondary_reverse={{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_reverse') }},
                     nebula_status={{ nebula_status }},
-                    nebula_status_2={{ nebula_status_alt }},
                     nebula_state={{ nebula_state }},
-                    nebula_state_2={{ nebula_state_alt }},
                     pihole_secondary_status={{ pihole_secondary_status }},
-                    pihole_secondary_status_2={{ pihole_secondary_status_alt }},
                     primary_dns=192.168.10.10,
                     backup_dns=192.168.10.14
                   request: >-

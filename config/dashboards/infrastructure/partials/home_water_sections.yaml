@@ -3,17 +3,17 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Systems Partial - Home Water
-#  Protection, live use, hot water, maintenance, outdoor water, and trends.
+# Systems Partial - Water
+#  Protection, live use, hot water, salt, outdoor water, and trends.
 # -------------------------------------------------------------------
-# Related Issue: 1890
+# Related Issue: 1890, 1817
 # Notes: NAS, NVR, and unrelated house-temperature cards are omitted; refrigerator temperature stays with home safety.
-# Notes: Maintenance rows reuse existing reset scripts through safe more-info flows.
+# Notes: HVAC maintenance has moved to the dedicated production HVAC view.
 # Notes: Active Phyn leak alerts are shown; the integration's stale latest-test leak flag is not an operator alert.
 # Notes: Rheem alert, health, and telemetry faults render as an exception row backed by durable Repairs.
 # Notes: Daily usage uses change on the same sum-only statistic configured in Energy.
-# Notes: The overview ribbon prioritizes the next maintenance action and frequent controls without hidden grid placeholders.
-# Notes: Refrigerator temperature remains a temporary Home Maintenance overview item until a better permanent view is chosen.
+# Notes: The overview ribbon keeps water-softener salt maintenance visible and amber when due.
+# Notes: Refrigerator temperature remains a temporary Home Safety overview item until a better permanent view is chosen.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -39,70 +39,25 @@
           grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
     - type: custom:button-card
-      template: bearstone_infra_kpi
-      entity: sensor.downstairs_ac_runtime_since_last_filter_change
-      name: Next Maintenance
-      icon: mdi:calendar-clock
+      template: bearstone_infra_status_kpi
+      entity: sensor.water_softener_salt_days_since_last_add
+      name: Salt Maintenance
+      icon: mdi:shaker-outline
       variables:
-        next_maintenance: >
-          [[[
-            const candidates = [];
-            const addCandidate = (entityId, label, current, limit, unit) => {
-              if (!Number.isFinite(current) || !Number.isFinite(limit) || limit <= 0) return;
-              const remaining = Math.ceil(limit - current);
-              candidates.push({
-                entity: entityId,
-                progress: current / limit,
-                text: remaining <= 0 ? `DUE · ${label}` : `${label} · ${remaining}${unit}`,
-              });
-            };
-
-            addCandidate(
-              'sensor.downstairs_ac_runtime_since_last_filter_change',
-              'DOWNSTAIRS',
-              Number(states['sensor.downstairs_ac_runtime_since_last_filter_change']?.state),
-              350,
-              'H',
-            );
-            addCandidate(
-              'sensor.upstairs_ac_runtime_since_last_filter_change',
-              'UPSTAIRS',
-              Number(states['sensor.upstairs_ac_runtime_since_last_filter_change']?.state),
-              450,
-              'H',
-            );
-            addCandidate(
-              'sensor.hvac_condenser_lines_days_since_cleaned',
-              'CONDENSER',
-              Number(states['sensor.hvac_condenser_lines_days_since_cleaned']?.state),
-              360,
-              'D',
-            );
-            addCandidate(
-              'sensor.water_softener_salt_days_since_last_add',
-              'SALT',
-              Number(states['sensor.water_softener_salt_days_since_last_add']?.state),
-              Number(states['sensor.water_softener_salt_average_days_between_refills']?.state),
-              'D',
-            );
-
-            candidates.sort((a, b) => b.progress - a.progress);
-            return candidates[0] ?? { entity: entity.entity_id, text: 'NO DATA' };
-          ]]]
+        default_severity: healthy
+        numeric_warning_checks:
+        - entity_id: sensor.water_softener_salt_days_since_last_add
+          threshold_entity_id: sensor.water_softener_salt_average_days_between_refills
       state_display: >
         [[[
-          const text = variables?.next_maintenance?.text ?? 'NO DATA';
-          return text
-            .replace('DOWNSTAIRS', 'DOWN')
-            .replace('UPSTAIRS', 'UP')
-            .replace('CONDENSER', 'COND');
+          const current = Number(entity?.state);
+          const limit = Number(states['sensor.water_softener_salt_average_days_between_refills']?.state);
+          if (!Number.isFinite(current) || !Number.isFinite(limit) || limit <= 0) return 'NO DATA';
+          const remaining = Math.ceil(limit - current);
+          return remaining <= 0 ? 'DUE · SALT' : `${remaining}D LEFT`;
         ]]]
       tap_action:
         action: more-info
-        entity: >
-          [[[
-            return variables?.next_maintenance?.entity ?? entity.entity_id;
-          ]]]
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -175,7 +130,7 @@
         url_path: https://www.readyrefresh.com/en/login
 
 # -------------------------------------------------------------------
-# Home maintenance and outdoor water
+# Home safety and outdoor water
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -202,7 +157,7 @@
       cards:
       - type: custom:button-card
         template: bearstone_infra_panel_header
-        name: Home Maintenance
+        name: Home Safety
 
       - type: custom:button-card
         template: bearstone_infra_list_row
@@ -221,60 +176,6 @@
             state:
             - color: rgba(198,40,40,1)
             - opacity: 1
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: sensor.downstairs_ac_runtime_since_last_filter_change
-        name: Downstairs Filter Runtime
-        icon: mdi:air-filter
-        state_display: >
-          [[[
-            const value = Number(entity?.state);
-            return Number.isFinite(value) ? `${value.toFixed(0)} / 350 h` : 'NO DATA';
-          ]]]
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: input_datetime.downstairs_last_filter_change
-        name: Downstairs Filter Changed
-        icon: mdi:calendar-check-outline
-        tap_action:
-          action: more-info
-          entity: script.reset_downstairs_filter
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: sensor.upstairs_ac_runtime_since_last_filter_change
-        name: Upstairs Filter Runtime
-        icon: mdi:air-filter
-        state_display: >
-          [[[
-            const value = Number(entity?.state);
-            return Number.isFinite(value) ? `${value.toFixed(0)} / 450 h` : 'NO DATA';
-          ]]]
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: input_datetime.upstairs_last_filter_change
-        name: Upstairs Filter Changed
-        icon: mdi:calendar-check-outline
-        tap_action:
-          action: more-info
-          entity: script.reset_upstairs_filter
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: sensor.hvac_condenser_lines_days_since_cleaned
-        name: Condenser Lines
-        icon: mdi:pipe-wrench
-        state_display: >
-          [[[
-            const value = Number(entity?.state);
-            return Number.isFinite(value) ? `${value.toFixed(0)} / 360 DAYS` : 'NO DATA';
-          ]]]
-        tap_action:
-          action: more-info
-          entity: script.reset_hvac_condenser_lines_cleaned
 
     - type: custom:vertical-stack-in-card
       card_mod:
