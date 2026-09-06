@@ -1,0 +1,39 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Driveway Parked Car Alert - notify when a car remains in the driveway zone.
+#  Sends a camera-backed parent alert and an LLM-processed announcement.
+# Video: https://youtu.be/X9qrywP3XS0
+# Blog: https://www.vcloudinfo.com/2026/09/home-assistant-frigate-driveway-car-alert.html
+# -------------------------------------------------------------------
+# Notes: Frigate's driveway-zone applies a 30-second loitering time before
+#  this occupancy sensor turns on.
+######################################################################
+
+- alias: 'Driveway Parked Car Alert'
+  id: a80df6e2-fba8-44a6-b9ee-bd8c7d83a8a5
+  description: >-
+    Notify Carlo and Stacey and announce when Frigate confirms a car has
+    remained in the driveway-zone for at least 30 seconds.
+  mode: single
+  triggers:
+    - trigger: occupancy.detected
+      target:
+        entity_id: binary_sensor.driveway_zone_car_occupancy
+
+  actions:
+    - action: script.notify_engine
+      continue_on_error: true
+      data:
+        title: 'Driveway Alert'
+        value1: "Hey, there's a car parked in your driveway. Please check."
+        who: 'parents'
+        group: 'information'
+        level: 'active'
+        camera_entity: camera.driveway
+
+    - service: script.speech_engine
+      data:
+        value1: "Hey, there's a car parked in your driveway. Please check."
