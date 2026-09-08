@@ -8,6 +8,8 @@
 # -------------------------------------------------------------------
 # Notes: Debounces garage door open/close triggers to reduce noisy
 #  state flapping from spamming lights, speech, and Alexa displays.
+# Notes: Owns the restart-safe garbage reminder snooze timer shared by
+#  the garage reminder and household speech paths.
 # Setup: https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
 # Token fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 # Video: https://youtu.be/wFO0H5zgnzk
@@ -76,6 +78,13 @@ input_text:
   last_person_home:
     name: Last Person Home
     initial: 'Carlo'
+
+timer:
+  garbage_reminder_snooze:
+    name: Garbage Reminder Snooze
+    duration: "00:30:00"
+    restore: true
+    icon: mdi:timer-pause-outline
 
 group:
   garage_doors:     # This group is used to check if doors are open or Closed.

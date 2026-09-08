@@ -25,6 +25,8 @@
 #  requested, or when safety thresholds make it relevant.
 # Notes: Household context macros stay quiet unless current state adds action
 #  or abnormal status worth announcing.
+# Notes: Garbage-day speech honors timer.garbage_reminder_snooze so Carlo's
+#  phone action suppresses the reminder across every speech entry point.
 ######################################################################
 
 
@@ -35,7 +37,7 @@
 
   {%- macro garbage_day() -%}
     {% set day_of_week = now().strftime('%a') %}
-    {% if day_of_week in ['Wed', 'Sun'] %}
+    {% if day_of_week in ['Wed', 'Sun'] and is_state('timer.garbage_reminder_snooze', 'idle') %}
     Today is garbage day.
     {% if day_of_week == 'Wed' %}
     Both Recycling and regular Garbage goes out. 

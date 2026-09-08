@@ -3,16 +3,22 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Garage Garbage Day Reminders - staggered reminders after door opens
-#  On garbage days, announce at 30s/90s/180s if the garage stays open.
+# Garage Garbage Day Reminders - actionable, snoozable garage alerts
+#  Notify Carlo and announce at 30s/90s/180s if the garage stays open.
 # -------------------------------------------------------------------
-# Notes: Uses Alexa announce in the garage for local playback; also sends
+# Notes: Carlo's push offers 30-minute and 2-hour snooze actions. The
+#  shared timer suppresses new runs, staggered Alexa repeats, and the
+#  garbage-day speech macro until the snooze expires.
+# Notes: Uses Alexa announce in the garage for local playback and sends
 #  one inside reminder via `script.speech_engine` (Chromecasts).
 # Notes: Debounced garage door open trigger to avoid restarts if the
 #  garage door state flaps (noisy sensors/reflection).
 ######################################################################
 - alias: 'Garage Garbage Day Reminders'
   id: 3f97f3be-3d0a-4d2d-9100-5b9c0dbfd5c3
+  description: >-
+    Remind Carlo to handle garbage day, with phone actions that silence
+    all related speech for 30 minutes or 2 hours.
   mode: restart
 
   trigger:
@@ -21,24 +27,83 @@
       from: 'closed'
       to: 'open'
       for: "00:00:20"
-
-  condition:
-    # Only run on garbage days (Wed/Sun)
-    - condition: template
-      value_template: >-
-        {% set day = now().strftime('%a') %}
-        {{ day in ['Wed', 'Sun'] }}
+      id: garage_open
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: SNOOZE_GARBAGE_REMINDERS_30M
+      id: snooze_30m
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: SNOOZE_GARBAGE_REMINDERS_2H
+      id: snooze_2h
 
   action:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id:
+                - snooze_30m
+                - snooze_2h
+          sequence:
+            - variables:
+                snooze_duration: >-
+                  {{ '00:30:00' if trigger.id == 'snooze_30m' else '02:00:00' }}
+                snooze_label: >-
+                  {{ '30 minutes' if trigger.id == 'snooze_30m' else '2 hours' }}
+            - service: timer.start
+              target:
+                entity_id: timer.garbage_reminder_snooze
+              data:
+                duration: "{{ snooze_duration }}"
+            - service: script.send_to_logbook
+              data:
+                topic: "GARBAGE"
+                message: "Garbage reminders snoozed for {{ snooze_label }} from Carlo's phone."
+            - stop: "Garbage reminder snooze saved."
 
-      # One inside reminder via Chromecasts (speech_engine targets living room)
-    - service: script.speech_engine
-      data:
-        call_garbage_day: 1
-        value1: >-
-          Reminder: it's garbage day. Please take the cans to the curb before you leave.
+    - condition: trigger
+      id: garage_open
+
+    # Only run on garbage days (Wed/Sun) while the shared snooze is idle.
+    - condition: time
+      weekday:
+        - wed
+        - sun
+    - condition: state
+      entity_id: timer.garbage_reminder_snooze
+      state: 'idle'
+
     - variables:
         reminder_delays: [30, 60, 90]  # cumulative delays to hit 30s, 90s, 180s
+        reminder_message: >-
+          Reminder: it's garbage day.
+          {% if now().strftime('%a') == 'Wed' %}
+          Both recycling and regular garbage go out today.
+          {% endif %}
+          Please take the cans to the curb before you leave.
+
+    # Make the phone actions available immediately while the first speech runs.
+    - parallel:
+        - service: script.notify_engine_two_button
+          data:
+            title: "Garbage Day Reminder"
+            value1: "{{ reminder_message }}"
+            who: 'carlo'
+            group: 'Garbage_Reminders'
+            level: 'active'
+            title1: "Snooze 30m"
+            action1: "SNOOZE_GARBAGE_REMINDERS_30M"
+            icon1: "sfsymbols:clock"
+            title2: "Snooze 2h"
+            action2: "SNOOZE_GARBAGE_REMINDERS_2H"
+            icon2: "sfsymbols:clock.badge.checkmark"
+
+        # One inside reminder via Chromecasts (speech_engine targets living room).
+        - service: script.speech_engine
+          data:
+            value1: "{{ reminder_message }}"
 
     - repeat:
         for_each: "{{ reminder_delays }}"
@@ -46,21 +111,23 @@
           - delay:
               seconds: "{{ repeat.item }}"
 
-          # Skip if the doors closed during the wait or it's no longer garbage day
+          # Stop if the door closed, the day changed, or Carlo snoozed the alert.
           - condition: state
             entity_id: group.garage_doors
             state: 'open'
 
-          - condition: template
-            value_template: >-
-              {% set day = now().strftime('%a') %}
-              {{ day in ['Wed', 'Sun'] }}
+          - condition: time
+            weekday:
+              - wed
+              - sun
+
+          - condition: state
+            entity_id: timer.garbage_reminder_snooze
+            state: 'idle'
 
           - service: notify.alexa_media_garage
             data:
-              message: >-
-                {% set day = now().strftime('%a') %}
-                Reminder: it's garbage day. {% if day == 'Wed' %}Both recycling and regular garbage go out today. {% endif %}Please take the cans to the curb before you leave.
+              message: "{{ reminder_message }}"
               data:
                 type: announce
 
