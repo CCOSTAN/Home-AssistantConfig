@@ -55,6 +55,10 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
 - Primary actions cover garage doors, the front-door lock, thermostats, household alerts, and entry-point status.
 - Packages opens the doorbell camera; Systems opens the desktop control center; destination views place a large Back to Home control at the top.
 
+### Camera Overview
+
+The Camera tab keeps the doorbell and pool on the left, three exterior cameras across the upper right, and Kids Gate, Bedroom Gate, Filter Gate, and Conico Wireless across the second right-hand row. A full-width grid prevents the camera group from wrapping below the doorbell on desktop; narrow screens reflow into two columns. Recent Frigate events remain below the camera rows.
+
 ### Event-Driven Kiosk Dashboards
 - Logic and recovery package: [![YAML source: kiosk_tablet](https://img.shields.io/static/v1?label=YAML&message=kiosk_tablet&color=lightgrey&logo=github&logoColor=181717)](../packages/kiosk_tablet.yaml)
 - Bedroom dashboard: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=bedroom&color=lightgrey&logo=github&logoColor=181717)](bedroom/dashboard.yaml)

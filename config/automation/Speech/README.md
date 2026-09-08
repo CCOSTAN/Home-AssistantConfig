@@ -28,6 +28,7 @@ Speech-first automations: contextual announcements, stats briefings, guest mode 
 | --- | --- |
 | [![YAML source: announcements](https://img.shields.io/static/v1?label=YAML&message=announcements&color=lightgrey&logo=github&logoColor=181717)](announcements.yaml) | Family and tracked Life360 arrival greetings plus daily/occasional broadcast messages. |
 | [![YAML source: home_stats](https://img.shields.io/static/v1?label=YAML&message=home_stats&color=lightgrey&logo=github&logoColor=181717)](home_stats.yaml) | Voice summary of house status and interesting stats. |
+| [![YAML source: garbage_day_garage](https://img.shields.io/static/v1?label=YAML&message=garbage_day_garage&color=lightgrey&logo=github&logoColor=181717)](garbage_day_garage.yaml) | Garage garbage-day speech plus a Carlo-only phone alert with 30-minute and 2-hour snooze actions. |
 | [![YAML source: guest_mode](https://img.shields.io/static/v1?label=YAML&message=guest_mode&color=lightgrey&logo=github&logoColor=181717)](guest_mode.yaml) | Adjust announcements and behaviors while guests are over. |
 | [![YAML source: High_Wind_Speed_Check](https://img.shields.io/static/v1?label=YAML&message=High_Wind_Speed_Check&color=lightgrey&logo=github&logoColor=181717)](High_Wind_Speed_Check.yaml) | Tier 30/40/60 mph alerts and include any open garage doors in one warning path. |
 
