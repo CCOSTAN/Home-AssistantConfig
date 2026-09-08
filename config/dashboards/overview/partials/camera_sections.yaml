@@ -7,6 +7,8 @@
 #  Standardized access ribbon followed by live exterior cameras.
 # -------------------------------------------------------------------
 # Notes: Entry controls reuse the same shared template as the Home ribbon.
+# Notes: Desktop keeps three upper cameras and four second-row cameras beside the doorbell.
+# Notes: A full-width responsive grid prevents section wrapping; narrow screens use two columns.
 ######################################################################
 
 - type: grid
@@ -62,48 +64,97 @@
         ok_states:
         - locked
 
+# Picture-glance supplies camera previews and tap-to-open video; button-card cannot.
 - type: grid
+  column_span: 4
   cards:
-  - type: picture-glance
-    camera_image: camera.frontdoorbell
-    camera_view: auto
-    entities: []
+  - type: custom:layout-card
     grid_options:
-      columns: 12
-      rows: 7
-  - type: picture-glance
-    camera_image: camera.poolcam
-    camera_view: auto
-    entities: []
-- type: grid
-  column_span: 3
-  cards:
-  - type: picture-glance
-    camera_image: camera.garagecam
-    camera_view: auto
-    entities: []
-  - type: picture-glance
-    camera_image: camera.frontlawn
-    camera_view: auto
-    entities: []
-  - type: picture-glance
-    camera_image: camera.driveway
-    camera_view: auto
-    entities: []
-  - type: picture-glance
-    camera_image: camera.kidsgate
-    camera_view: auto
-    entities: []
-  - type: picture-glance
-    camera_image: camera.bedroomgate
-    camera_view: auto
-    entities: []
-  - type: picture-glance
-    camera_image: camera.filtergate
-    camera_view: auto
-    entities: []
-  - type: custom:frigate-events-card
-    frigate_client_id: frigate
-    event_count: 3
-    video: true
-    video_on_hover: true
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(16, minmax(0, 1fr))
+      grid-template-areas: |
+        "door door door door garage garage garage garage lawn lawn lawn lawn drive drive drive drive"
+        "door door door door kids kids kids bedroom bedroom bedroom filter filter filter conico conico conico"
+        "pool pool pool pool events events events events events events events events events events events events"
+      grid-template-rows: min-content min-content min-content
+      align-items: start
+      grid-gap: 8px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+          grid-template-areas: |
+            "door garage"
+            "pool lawn"
+            "drive kids"
+            "bedroom filter"
+            "conico conico"
+            "events events"
+    cards:
+    - type: picture-glance
+      camera_image: camera.frontdoorbell
+      camera_view: auto
+      aspect_ratio: '4:5'
+      entities: []
+      view_layout:
+        grid-area: door
+    - type: picture-glance
+      camera_image: camera.poolcam
+      camera_view: auto
+      aspect_ratio: '16:9'
+      entities: []
+      view_layout:
+        grid-area: pool
+        place-self: start stretch
+    - type: picture-glance
+      camera_image: camera.garagecam
+      camera_view: auto
+      entities: []
+      view_layout:
+        grid-area: garage
+    - type: picture-glance
+      camera_image: camera.frontlawn
+      camera_view: auto
+      entities: []
+      view_layout:
+        grid-area: lawn
+    - type: picture-glance
+      camera_image: camera.driveway
+      camera_view: auto
+      entities: []
+      view_layout:
+        grid-area: drive
+    - type: picture-glance
+      camera_image: camera.kidsgate
+      camera_view: auto
+      entities: []
+      view_layout:
+        grid-area: kids
+    - type: picture-glance
+      camera_image: camera.bedroomgate
+      camera_view: auto
+      entities: []
+      view_layout:
+        grid-area: bedroom
+    - type: picture-glance
+      camera_image: camera.filtergate
+      camera_view: auto
+      entities: []
+      view_layout:
+        grid-area: filter
+    - type: picture-glance
+      camera_image: camera.conico_wireless
+      camera_view: auto
+      entities: []
+      view_layout:
+        grid-area: conico
+    # Preserve the existing Frigate event previews below the camera rows.
+    - type: custom:frigate-events-card
+      frigate_client_id: frigate
+      event_count: 3
+      video: true
+      video_on_hover: true
+      view_layout:
+        grid-area: events

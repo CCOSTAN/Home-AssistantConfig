@@ -1118,7 +1118,7 @@ automation:
           trigger_source: "{{ trigger.id if trigger is defined and trigger.id is defined else 'manual' }}"
           verifier_reason: "{{ 'ha_failure_followup' if trigger_source == 'recovery_poll' else 'ha_nightly' }}"
           trigger_context: "HA automation infra_backup_nightly_verification (Infrastructure - Backup Nightly Verification)"
-          duplicati_state: "{{ states('switch.duplicati_container') }}"
+          duplicati_state: "{{ states('switch.duplicati_container_2') }}"
       - action: rest_command.bearclaw_duplicati_verify
         data:
           reason: "{{ verifier_reason }}"
@@ -1211,7 +1211,7 @@ automation:
                       source: "home_assistant_automation.infra_backup_nightly_verification"
                       summary: "Nightly Duplicati backup verification failed"
                       entity_ids:
-                        - "switch.duplicati_container"
+                        - "switch.duplicati_container_2"
                       diagnostics: >-
                         scheduled_time=08:00:00,
                         duplicati_container={{ duplicati_state }},

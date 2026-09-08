@@ -3,8 +3,8 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Tesla Model Y - Arrival and nightly plug-in reminders
-#  Garage speech + parents push reminders when the Tesla comes home low.
+# Tesla Model Y - Plug-in and tire-pressure reminders
+#  Garage plug-in prompts plus actionable low-tire alerts and briefings.
 # -------------------------------------------------------------------
 # Related Issue: 1279
 # Notes: Expects Tesla Fleet UI entities `sensor.spaceship_battery_level`
@@ -17,8 +17,11 @@
 # Notes: Parents push reminders include a 24-hour snooze action.
 # Notes: Plug-in reminders only fire when both `person.carlo` and
 #  `person.stacey` are home.
-# Video: https://youtu.be/wFO0H5zgnzk
-# Companion post: https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html
+# Notes: Tire alerts use the four Tesla Fleet PSI sensors, trigger below
+#  40 PSI, and share a 1-day/3-day snooze with Joanna's morning briefing.
+# Tire-pressure video: https://youtu.be/hDNyZfTfTtE
+# Related garage video: https://youtu.be/wFO0H5zgnzk
+# Related garage post: https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html
 ######################################################################
 
 input_datetime:
@@ -28,6 +31,10 @@ input_datetime:
     has_time: true
   tesla_model_y_plug_in_snooze_until:
     name: Tesla Model Y Plug In Snooze Until
+    has_date: true
+    has_time: true
+  tesla_tire_pressure_snooze_until:
+    name: Tesla Tire Pressure Snooze Until
     has_date: true
     has_time: true
 
@@ -155,3 +162,140 @@ automation:
         data:
           topic: "TESLA"
           message: "Tesla plug-in reminders snoozed for 24 hours (until {{ snooze_until }})."
+
+  - alias: "Tesla Model Y - Low Tire Pressure Alert"
+    id: 99e546aa-a6c0-4154-9c30-f901f81d1b40
+    mode: restart
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.tire_pressure_front_left
+          - sensor.tire_pressure_front_right
+          - sensor.tire_pressure_rear_left
+          - sensor.tire_pressure_rear_right
+        below: 40
+        id: pressure_low
+      - platform: time
+        at: input_datetime.tesla_tire_pressure_snooze_until
+        id: snooze_expired
+    action:
+      - delay: '00:00:10'
+      - condition: or
+        conditions:
+          - condition: numeric_state
+            entity_id: sensor.tire_pressure_front_left
+            below: 40
+          - condition: numeric_state
+            entity_id: sensor.tire_pressure_front_right
+            below: 40
+          - condition: numeric_state
+            entity_id: sensor.tire_pressure_rear_left
+            below: 40
+          - condition: numeric_state
+            entity_id: sensor.tire_pressure_rear_right
+            below: 40
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states('input_datetime.tesla_tire_pressure_snooze_until'), 0) %}
+          {{ snooze_until <= as_timestamp(now()) }}
+      - variables:
+          low_tires: >-
+            {% set tire_names = {
+              'sensor.tire_pressure_front_left': 'front left',
+              'sensor.tire_pressure_front_right': 'front right',
+              'sensor.tire_pressure_rear_left': 'rear left',
+              'sensor.tire_pressure_rear_right': 'rear right'
+            } %}
+            {% set ns = namespace(items=[]) %}
+            {% for entity_id, tire_name in tire_names.items() %}
+              {% set pressure = states(entity_id) %}
+              {% if has_value(entity_id) and (pressure | float(100)) < 40 %}
+                {% set ns.items = ns.items + [tire_name ~ ' ' ~ (pressure | float(0) | round(1)) ~ ' PSI'] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.items | join('; ') }}
+      - service: script.notify_engine_two_button
+        data:
+          title: "Tesla Tire Pressure"
+          value1: >-
+            {{ low_tires }}. Fill any Tesla tire below 40 PSI.
+          who: 'parents'
+          group: 'Tesla_Tire_Pressure'
+          title1: "Snooze 1d"
+          action1: "SNOOZE_TESLA_TIRE_PRESSURE_1D"
+          icon1: "sfsymbols:clock"
+          title2: "Snooze 3d"
+          action2: "SNOOZE_TESLA_TIRE_PRESSURE_3D"
+          icon2: "sfsymbols:calendar"
+      - service: script.send_to_logbook
+        data:
+          topic: "TESLA"
+          message: "Low tire pressure alert sent: {{ low_tires }}."
+
+  - alias: "Tesla Model Y - Tire Pressure Snooze"
+    id: 59da708d-be6f-422a-9478-090cb5087524
+    mode: queued
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_TESLA_TIRE_PRESSURE_1D
+        id: one_day
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_TESLA_TIRE_PRESSURE_3D
+        id: three_days
+    variables:
+      snooze_days: "{{ 1 if trigger.id == 'one_day' else 3 }}"
+      snooze_until: "{{ (now() + timedelta(days=snooze_days | int)).strftime('%Y-%m-%d %H:%M:%S') }}"
+      snooze_label: "{{ '1 day' if trigger.id == 'one_day' else '3 days' }}"
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.tesla_tire_pressure_snooze_until
+        data:
+          datetime: "{{ snooze_until }}"
+      - service: script.send_to_logbook
+        data:
+          topic: "TESLA"
+          message: "Tesla tire pressure alert snoozed for {{ snooze_label }} (until {{ snooze_until }})."
+
+  - alias: "Tesla Model Y - Clear Tire Pressure Snooze"
+    id: 5c4c6362-0123-4360-ade1-beae49241165
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.tire_pressure_front_left
+          - sensor.tire_pressure_front_right
+          - sensor.tire_pressure_rear_left
+          - sensor.tire_pressure_rear_right
+        above: 39.999
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.tire_pressure_front_left
+        above: 39.999
+      - condition: numeric_state
+        entity_id: sensor.tire_pressure_front_right
+        above: 39.999
+      - condition: numeric_state
+        entity_id: sensor.tire_pressure_rear_left
+        above: 39.999
+      - condition: numeric_state
+        entity_id: sensor.tire_pressure_rear_right
+        above: 39.999
+      - condition: template
+        value_template: >-
+          {% set snooze_until = as_timestamp(states('input_datetime.tesla_tire_pressure_snooze_until'), 0) %}
+          {{ snooze_until > as_timestamp(now()) }}
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.tesla_tire_pressure_snooze_until
+        data:
+          datetime: "2000-01-01 00:00:00"
+      - service: script.send_to_logbook
+        data:
+          topic: "TESLA"
+          message: "Tesla tire pressure returned to 40 PSI or higher; the tire alert snooze was cleared."

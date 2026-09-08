@@ -10,6 +10,7 @@
 # Related Issue: 1791
 # Related Issue: 1792
 # Notes: Vacation mode auto-enables from an active Tesla road trip while the family is away, or after the existing 24-hour absence/bed-inactivity checks.
+# Notes: Family-away and bed-unused timestamps restore across Home Assistant restarts so long absences are not reset by a restart or brief unavailable state.
 # Notes: Vacation mode restores its prior state after Home Assistant restarts; a 5-minute reconciliation also clears a restored mode when the family is already home.
 # Notes: General vacation speech uses Chromecast only; the garage Alexa welcome is the one local-device exception.
 # Notes: Visit analytics use recorder-backed visit counts plus arrival/departure helpers for accurate durations.
@@ -34,6 +35,14 @@ input_boolean:
     initial: off
 
 input_datetime:
+  vacation_family_away_since:
+    name: Vacation Family Away Since
+    has_date: true
+    has_time: true
+  vacation_bed_unused_since:
+    name: Vacation Bed Unused Since
+    has_date: true
+    has_time: true
   vacation_house_sitter_last_arrival:
     name: Vacation House Sitter Last Arrival
     has_date: true
@@ -387,6 +396,80 @@ template:
             {% endif %}
 
 automation:
+  - alias: 'Vacation Mode Track Absence Evidence'
+    id: e0c7bc2c-57b4-4e91-8caf-1f666979037b
+    mode: queued
+
+    trigger:
+      - platform: state
+        entity_id: group.family
+        from: 'home'
+        to: 'not_home'
+        id: family_transition
+      - platform: state
+        entity_id: group.family
+        from: 'not_home'
+        to: 'home'
+        id: family_transition
+      - platform: state
+        entity_id: group.bed
+        from: 'on'
+        to: 'off'
+        id: bed_transition
+      - platform: state
+        entity_id: group.bed
+        from: 'off'
+        to: 'on'
+        id: bed_transition
+      - platform: homeassistant
+        event: start
+        id: initialize
+
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: family_transition
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vacation_family_away_since
+                data:
+                  timestamp: "{{ now().timestamp() }}"
+          - conditions:
+              - condition: trigger
+                id: bed_transition
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vacation_bed_unused_since
+                data:
+                  timestamp: "{{ now().timestamp() }}"
+          - conditions:
+              - condition: trigger
+                id: initialize
+            sequence:
+              - if:
+                  - condition: template
+                    value_template: >-
+                      {{ as_timestamp(states('input_datetime.vacation_family_away_since'), 0) <= 0 }}
+                then:
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.vacation_family_away_since
+                    data:
+                      timestamp: "{{ now().timestamp() }}"
+              - if:
+                  - condition: template
+                    value_template: >-
+                      {{ as_timestamp(states('input_datetime.vacation_bed_unused_since'), 0) <= 0 }}
+                then:
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.vacation_bed_unused_since
+                    data:
+                      timestamp: "{{ now().timestamp() }}"
+
   - alias: 'Vacation Mode Enable'
     id: 163f4434-2a2f-4528-a53c-8fc6e1fd8e14
     mode: single
@@ -415,8 +498,10 @@ automation:
       - condition: template
         value_template: >-
           {% set family_away = is_state('group.family', 'not_home') %}
-          {% set family_away_seconds = as_timestamp(now()) - as_timestamp(states.group.family.last_changed, 0) %}
-          {% set bed_unused_seconds = as_timestamp(now()) - as_timestamp(states.group.bed.last_changed, 0) %}
+          {% set family_away_since = as_timestamp(states('input_datetime.vacation_family_away_since'), 0) %}
+          {% set bed_unused_since = as_timestamp(states('input_datetime.vacation_bed_unused_since'), 0) %}
+          {% set family_away_seconds = as_timestamp(now()) - family_away_since if family_away_since > 0 else 0 %}
+          {% set bed_unused_seconds = as_timestamp(now()) - bed_unused_since if bed_unused_since > 0 else 0 %}
           {% set road_trip_signal = trigger.id | default('', true) == 'tesla_road_trip' %}
           {{ (family_away and road_trip_signal)
              or (family_away and family_away_seconds >= 86400)
@@ -425,8 +510,10 @@ automation:
     action:
       - variables:
           vacation_reason: >-
-            {% set family_away_seconds = as_timestamp(now()) - as_timestamp(states.group.family.last_changed, 0) %}
-            {% set bed_unused_seconds = as_timestamp(now()) - as_timestamp(states.group.bed.last_changed, 0) %}
+            {% set family_away_since = as_timestamp(states('input_datetime.vacation_family_away_since'), 0) %}
+            {% set bed_unused_since = as_timestamp(states('input_datetime.vacation_bed_unused_since'), 0) %}
+            {% set family_away_seconds = as_timestamp(now()) - family_away_since if family_away_since > 0 else 0 %}
+            {% set bed_unused_seconds = as_timestamp(now()) - bed_unused_since if bed_unused_since > 0 else 0 %}
             {% if trigger.id | default('', true) == 'tesla_road_trip' %}
               Active Tesla road trip while the family remained away
             {% elif is_state('group.bed', 'off') and bed_unused_seconds >= 86400 and family_away_seconds < 86400 %}

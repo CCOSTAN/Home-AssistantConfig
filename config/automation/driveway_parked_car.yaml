@@ -9,7 +9,9 @@
 # Blog: https://www.vcloudinfo.com/2026/09/home-assistant-frigate-driveway-car-alert.html
 # -------------------------------------------------------------------
 # Notes: Frigate's driveway-zone applies a 30-second loitering time before
-#  this occupancy sensor turns on.
+#  this occupancy sensor turns on. Configure the driveway camera's review
+#  alerts and detections with required_zones: [driveway-zone] so street
+#  traffic does not create camera-wide review items.
 ######################################################################
 
 - alias: 'Driveway Parked Car Alert'
