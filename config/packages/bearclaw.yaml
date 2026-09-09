@@ -21,6 +21,7 @@
 # Notes: Status telemetry distinguishes the compact BearClaw working-memory index from the federated OneNote KB.
 # Notes: sensor.joanna_onenote_kb_health marks the federated KB warning after 90 minutes without a successful sync.
 # Notes: Status telemetry also exposes compact, user-keyed step trends and personal records for the Health dashboard.
+# Notes: Status telemetry exposes 48-hour Carlo/Stacey bowling highlights for the Kitchen Show rotation.
 # Notes: Retired QMD health telemetry is no longer imported or materialized in Home Assistant.
 # Notes: TeslaMate road-trip walkthrough: https://youtu.be/9-9T6v17NEw
 # Notes: TeslaMate road-trip companion post: https://www.vcloudinfo.com/2026/07/teslamate-road-trip-reports-codex.html
@@ -151,6 +152,7 @@ sensor:
       - memoryIndex
       - oneNoteKb
       - healthInsights
+      - bowlingHighlights
       - scheduledJobsHealth
 
 template:
