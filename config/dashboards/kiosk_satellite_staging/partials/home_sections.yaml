@@ -4,7 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Kiosk Satellite Partial - Ambient kitchen display
-#  Enlarged camera feeds plus rotating household reminders, cruise countdown, and locations.
+#  Enlarged camera feeds plus rotating household reminders, bowling results, cruise countdown, and locations.
 # -------------------------------------------------------------------
 # Related Issue: 1890
 # Related Issue: 1895
@@ -17,6 +17,7 @@
 # Notes: Actionable banner slides open one shared full-screen detail surface and return automatically to the ambient wall.
 # Notes: Family detail centers only the selected person and includes the prior 24-hour trail; Phyn detail includes a confirmed main-valve restore action.
 # Notes: Rheem problem telemetry adds a red/amber water-heater slide and enriches the existing hot-water detail.
+# Notes: New LeagueSecretary results add Carlo and Stacey slides for 48 hours; other bowlers stay out of the kiosk payload.
 # Notes: The large-format lower panel otherwise mirrors read-only household fact entities.
 # Notes: The clock uses oversized time text and places live conditions beneath the current-weather icon.
 ######################################################################
@@ -206,6 +207,7 @@
             - input_datetime.tesla_model_y_last_garage_close
             - input_datetime.tesla_model_y_plug_in_snooze_until
             - sensor.next_booked_cruise_countdown
+            - sensor.bearclaw_status_telemetry
             - person.carlo
             - person.stacey
             - person.justin
@@ -526,6 +528,39 @@
                     detail: `${Math.round(saltDays)} days since the last refill`,
                     icon: 'mdi:shaker-outline',
                     accent: '#00838f'
+                  });
+                }
+
+                const bowlingHighlights = states['sensor.bearclaw_status_telemetry']?.attributes?.bowlingHighlights;
+                if (bowlingHighlights?.active && Array.isArray(bowlingHighlights.items)) {
+                  bowlingHighlights.items.forEach((highlight) => {
+                    const expiresAt = new Date(highlight?.expiresAt || '');
+                    const games = (Array.isArray(highlight?.games) ? highlight.games : [])
+                      .map((score) => Number.parseInt(score, 10))
+                      .filter(Number.isFinite);
+                    const highGame = Number.parseInt(highlight?.highGame, 10);
+                    const seriesTotal = Number.parseInt(highlight?.seriesTotal, 10);
+                    if (!Number.isFinite(expiresAt.getTime()) || expiresAt <= now || !games.length || !Number.isFinite(highGame)) return;
+                    const records = new Set(Array.isArray(highlight?.personalBestIds) ? highlight.personalBestIds : []);
+                    const highGameRecord = records.has('bowling_high_game');
+                    const highSeriesRecord = records.has('bowling_high_series') && Number.isFinite(seriesTotal);
+                    const title = highGameRecord
+                      ? `${highlight.displayName}'s new high game: ${highGame}`
+                      : (highSeriesRecord
+                        ? `${highlight.displayName}'s new high series: ${seriesTotal}`
+                        : `${highlight.displayName}'s high game: ${highGame}`);
+                    const detail = [
+                      games.join(' / '),
+                      Number.isFinite(seriesTotal) ? `${seriesTotal} series` : '',
+                      Number.isFinite(Number(highlight?.weekNum)) ? `Week ${highlight.weekNum}` : ''
+                    ].filter(Boolean).join(' · ');
+                    items.push({
+                      kicker: highGameRecord || highSeriesRecord ? 'BOWLING PERSONAL BEST' : 'TUESDAY BOWLING',
+                      title,
+                      detail,
+                      icon: 'mdi:bowling',
+                      accent: '#7e57c2'
+                    });
                   });
                 }
 
