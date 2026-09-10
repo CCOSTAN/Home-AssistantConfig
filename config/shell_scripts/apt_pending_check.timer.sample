@@ -1,8 +1,9 @@
 [Unit]
-Description=Run APT pending check daily
+Description=Optional pre-maintenance APT pending check
 
 [Timer]
-OnCalendar=*-*-* 07:30:00
+# Optional only. The standard daily updater performs its own check at 06:00.
+OnCalendar=*-*-* 05:30:00
 Persistent=true
 RandomizedDelaySec=10m
 Unit=apt_pending_check.service

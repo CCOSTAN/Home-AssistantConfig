@@ -9,8 +9,8 @@
 # Video: https://youtu.be/aceV7ObKJVA
 # Blog: https://www.vcloudinfo.com/2026/07/using-codex-clean-up-home-assistant-entities.html
 # -------------------------------------------------------------------
-# Notes: Hosts run daily APT pending checks plus staggered daily overnight APT jobs.
-# Notes: All Docker hosts use America/New_York; maintenance starts at 00:30 daily and is sequenced by host.
+# Notes: Each daily APT job checks first, then applies available upgrades; the read-only pending check remains on demand.
+# Notes: All Docker hosts use America/New_York; maintenance starts at 06:00 daily and is sequenced by host.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Boot reports reuse the registered APT webhook and retry while Home Assistant starts.
 # Notes: Reboot order: docker_14, docker_69, docker_17, docker_10; docker_13 (codex-appliance) follows after its SMB dependencies recover.
@@ -1037,7 +1037,7 @@ automation:
         {{ actionable and
            (not previous_actionable or due_missing or previous_reboot != reboot_required) }}
       action_due: >-
-        {% set maintenance_at = today_at('00:30') + timedelta(minutes=host_helpers.maintenance_offset | int(0)) %}
+        {% set maintenance_at = today_at('06:00') + timedelta(minutes=host_helpers.maintenance_offset | int(0)) %}
         {% set maintenance_report = event_kind == 'maintenance' %}
         {% set current_window = maintenance_report
             and now() >= maintenance_at and now() < maintenance_at + timedelta(hours=4) %}
