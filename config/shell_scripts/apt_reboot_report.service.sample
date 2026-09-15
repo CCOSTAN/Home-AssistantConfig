@@ -9,7 +9,8 @@ Type=oneshot
 ExecStart=/usr/local/sbin/apt_reboot_report.sh --from-apt-weekly
 User=root
 Group=root
-TimeoutStartSec=330
+# Allows docker_10's initial retry, 120-second HA startup settle, and confirmation retry.
+TimeoutStartSec=600
 
 [Install]
 WantedBy=multi-user.target
