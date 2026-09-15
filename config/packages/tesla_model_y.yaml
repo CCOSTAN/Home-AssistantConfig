@@ -3,11 +3,12 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Tesla Model Y - Plug-in and tire-pressure reminders
-#  Garage plug-in prompts plus actionable low-tire alerts and briefings.
+# Tesla Model Y - Reminders and durable vehicle telemetry
+#  Garage prompts, tire alerts, and last-valid dashboard snapshots.
 # -------------------------------------------------------------------
 # Related Issue: 1279
 # Related Issue: 1666
+# Related Issue: 1944
 # Notes: Expects Tesla Fleet UI entities `sensor.spaceship_battery_level`
 #  and `switch.spaceship_charge`.
 # Notes: Uses `cover.large_garage_door` closing as the arrival proxy so
@@ -20,11 +21,32 @@
 #  `person.stacey` are home.
 # Notes: Tire alerts use the four Tesla Fleet PSI sensors, trigger below
 #  40 PSI, and share a 1-day/3-day snooze with Joanna's morning briefing.
+# Notes: Trigger-based snapshot sensors reject unknown/unavailable updates
+#  and restore useful battery, odometer, location, tire, and JuiceBox values.
+# Notes: `event_car_telemetry_snapshot_seed` accepts verified source snapshots;
+#  live Tesla Fleet and JuiceBox reports remain the normal update path.
+# Notes: Snapshot sensors intentionally omit state_class; TeslaMate remains the
+#  long-term vehicle source while raw JuiceBox energy owns charge statistics.
+# Notes: Home charging is intentionally limited to 16 A in the Tesla; this
+#  package observes JuiceBox current but never changes the vehicle or EVSE limit.
+# Notes: The 30 A home EVSE circuit's EEPROM-backed offline wire rating was set
+#  to 24 A during unplugged commissioning. JuicePassProxy is a passive sensor-only
+#  monitor that sends no charger or former-cloud UDP traffic and exposes no
+#  limit controls. Transient online/offline max-current fields are ignored.
+# Notes: Persisted JuiceBox current reaching 20 A sends one critical parents
+#  push plus an exact garage announcement; a restoring latch prevents repeats.
+# Notes: JuicePassProxy must remain running and healthy. Five continuous minutes
+#  degraded creates a Systems problem and tells the garage and parents not to charge.
 # Tire-pressure video: https://youtu.be/hDNyZfTfTtE
 # Tire-pressure post: https://www.vcloudinfo.com/2026/09/home-assistant-tesla-tire-pressure-alerts.html
 # Related garage video: https://youtu.be/wFO0H5zgnzk
 # Related garage post: https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html
 ######################################################################
+
+input_boolean:
+  tesla_high_charge_rate_alert_active:
+    name: Tesla High Charge Rate Alert Active
+    icon: mdi:car-electric-alert
 
 input_datetime:
   tesla_model_y_last_garage_close:
@@ -40,7 +62,347 @@ input_datetime:
     has_date: true
     has_time: true
 
+template:
+  - binary_sensor:
+      - name: "JuicePassProxy Monitoring Degraded"
+        unique_id: juicepassproxy_monitoring_degraded
+        device_class: problem
+        delay_on: "00:05:00"
+        state: >-
+          {{ states('sensor.juicepassproxy_state') != 'running' or
+             states('sensor.juicepassproxy_health') != 'healthy' }}
+        attributes:
+          source_state: "{{ states('sensor.juicepassproxy_state') }}"
+          source_health: "{{ states('sensor.juicepassproxy_health') }}"
+          guidance: "Do not charge until JuicePassProxy is running and healthy."
+
+  - triggers:
+      - trigger: state
+        entity_id:
+          - sensor.spaceship_battery_level
+          - sensor.odometer
+          - device_tracker.spaceship_location
+          - sensor.spaceship_charging
+          - binary_sensor.spaceship_charge_cable
+          - sensor.tire_pressure_front_left
+          - sensor.tire_pressure_front_right
+          - sensor.tire_pressure_rear_left
+          - sensor.tire_pressure_rear_right
+          - sensor.juicebox_status
+          - sensor.juicebox_current
+          - sensor.juicebox_current_rating
+          - sensor.juicebox_frequency
+          - sensor.juicebox_energy_lifetime
+          - sensor.juicebox_energy_session
+          - sensor.juicebox_temperature
+          - sensor.juicebox_voltage
+          - sensor.juicebox_power
+          - sensor.juicebox_power_factor
+        not_to:
+          - "unknown"
+          - "unavailable"
+      - trigger: event
+        event_type: event_car_telemetry_snapshot_seed
+    variables:
+      snapshot_source_entity: >-
+        {% if trigger.platform == 'event' %}
+          {{ trigger.event.data.entity_id | default('', true) }}
+        {% else %}
+          {{ trigger.entity_id }}
+        {% endif %}
+      snapshot_state: >-
+        {% if trigger.platform == 'event' %}
+          {{ trigger.event.data.state | default(none) }}
+        {% else %}
+          {{ trigger.to_state.state }}
+        {% endif %}
+    sensor:
+      - name: "Car Battery Last Known"
+        unique_id: car_battery_last_known
+        device_class: battery
+        unit_of_measurement: "%"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.spaceship_battery_level' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "Car Odometer Last Known"
+        unique_id: car_odometer_last_known
+        device_class: distance
+        unit_of_measurement: "mi"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.odometer' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "Car Location Last Known"
+        unique_id: car_location_last_known
+        conditions:
+          - "{{ snapshot_source_entity == 'device_tracker.spaceship_location' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "Car Charging Last Known"
+        unique_id: car_charging_last_known
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.spaceship_charging' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "Car Charge Cable Last Known"
+        unique_id: car_charge_cable_last_known
+        conditions:
+          - "{{ snapshot_source_entity == 'binary_sensor.spaceship_charge_cable' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "Car Tire Pressure Front Left Last Known"
+        unique_id: car_tire_pressure_front_left_last_known
+        device_class: pressure
+        unit_of_measurement: "psi"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.tire_pressure_front_left' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "Car Tire Pressure Front Right Last Known"
+        unique_id: car_tire_pressure_front_right_last_known
+        device_class: pressure
+        unit_of_measurement: "psi"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.tire_pressure_front_right' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "Car Tire Pressure Rear Left Last Known"
+        unique_id: car_tire_pressure_rear_left_last_known
+        device_class: pressure
+        unit_of_measurement: "psi"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.tire_pressure_rear_left' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "Car Tire Pressure Rear Right Last Known"
+        unique_id: car_tire_pressure_rear_right_last_known
+        device_class: pressure
+        unit_of_measurement: "psi"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.tire_pressure_rear_right' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Status Last Known"
+        unique_id: juicebox_status_last_known
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_status' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Current Last Known"
+        unique_id: juicebox_current_last_known
+        device_class: current
+        unit_of_measurement: "A"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_current' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Current Rating Last Known"
+        unique_id: juicebox_current_rating_last_known
+        device_class: current
+        unit_of_measurement: "A"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_current_rating' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Frequency Last Known"
+        unique_id: juicebox_frequency_last_known
+        device_class: frequency
+        unit_of_measurement: "Hz"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_frequency' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Lifetime Energy Last Known"
+        unique_id: juicebox_lifetime_energy_last_known
+        device_class: energy
+        unit_of_measurement: "Wh"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_energy_lifetime' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Session Energy Last Known"
+        unique_id: juicebox_session_energy_last_known
+        device_class: energy
+        unit_of_measurement: "Wh"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_energy_session' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Temperature Last Known"
+        unique_id: juicebox_temperature_last_known
+        device_class: temperature
+        unit_of_measurement: "\u00b0F"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_temperature' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Voltage Last Known"
+        unique_id: juicebox_voltage_last_known
+        device_class: voltage
+        unit_of_measurement: "V"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_voltage' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Power Last Known"
+        unique_id: juicebox_power_last_known
+        device_class: power
+        unit_of_measurement: "W"
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_power' }}"
+        state: "{{ snapshot_state }}"
+
+      - name: "JuiceBox Power Factor Last Known"
+        unique_id: juicebox_power_factor_last_known
+        device_class: power_factor
+        conditions:
+          - "{{ snapshot_source_entity == 'sensor.juicebox_power_factor' }}"
+        state: "{{ snapshot_state }}"
+
 automation:
+  - alias: "Tesla Model Y - High Home Charge Rate Alert"
+    id: f4f013f9-74e7-492e-8400-ae84897086ef
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.juicebox_current_last_known
+        above: 19.99
+        id: juicebox_current
+      - platform: homeassistant
+        event: start
+        id: startup
+    condition:
+      - condition: state
+        entity_id: input_boolean.tesla_high_charge_rate_alert_active
+        state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.juicebox_current_last_known
+        above: 19.99
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.tesla_high_charge_rate_alert_active
+      - variables:
+          observed_current: >-
+            {{ states('sensor.juicebox_current_last_known') | float(0) | round(1) }}
+      - parallel:
+          - service: notify.alexa_media_garage
+            continue_on_error: true
+            data:
+              message: >-
+                Warning. The JuiceBox reports the Tesla charging at
+                {{ observed_current }} amps, at or above the twenty amp safety
+                threshold. Unplug the Tesla now.
+              data:
+                type: announce
+          - service: script.notify_engine
+            continue_on_error: true
+            data:
+              title: "URGENT: Unplug Tesla"
+              value1: >-
+                The JuiceBox reports {{ observed_current }} A, at or above the
+                20 A safety threshold. Unplug the Tesla now.
+              who: 'parents'
+              group: 'Tesla_Charge_Rate_Alarm'
+              level: 'critical'
+      - service: script.send_to_logbook
+        data:
+          topic: "JUICEBOX"
+          message: >-
+            High charge-rate alarm sent at {{ observed_current }} A; garage and
+            parents were told to unplug the Tesla.
+
+  - alias: "Tesla Model Y - Reset High Charge Rate Alert"
+    id: ccb67406-4ac1-41de-8f47-a3a76e6d8762
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.juicebox_current_last_known
+      - platform: homeassistant
+        event: start
+    condition:
+      - condition: state
+        entity_id: input_boolean.tesla_high_charge_rate_alert_active
+        state: 'on'
+      - condition: numeric_state
+        entity_id: sensor.juicebox_current_last_known
+        below: 20
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.tesla_high_charge_rate_alert_active
+      - service: script.send_to_logbook
+        data:
+          topic: "JUICEBOX"
+          message: >-
+            High charge-rate alarm reset; JuiceBox current is below 20 A.
+
+  - alias: "Tesla Model Y - JuicePassProxy Monitoring Alert"
+    id: e4b6bf07-4760-4e7c-b2da-6db234a46df8
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.juicepassproxy_monitoring_degraded
+        to: 'on'
+        id: offline
+      - platform: state
+        entity_id: binary_sensor.juicepassproxy_monitoring_degraded
+        from: 'on'
+        to: 'off'
+        id: restored
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: offline
+            sequence:
+              - parallel:
+                  - service: notify.alexa_media_garage
+                    continue_on_error: true
+                    data:
+                      message: >-
+                        Warning. JuiceBox monitoring has been offline for five
+                        minutes. Do not charge. If the Tesla is connected or
+                        charging, check it and unplug it until monitoring returns.
+                      data:
+                        type: announce
+                  - service: script.notify_engine
+                    continue_on_error: true
+                    data:
+                      title: "URGENT: JuiceBox Monitor Offline"
+                      value1: >-
+                        JuicePassProxy has been offline for five minutes. Do not
+                        charge. If the Tesla is connected or charging, check it
+                        and unplug it until JuiceBox monitoring returns.
+                      who: 'parents'
+                      group: 'JuiceBox_Proxy_Offline'
+                      level: 'critical'
+              - service: script.send_to_logbook
+                data:
+                  topic: "JUICEBOX"
+                  message: >-
+                    JuicePassProxy remained offline for five minutes; garage and
+                    parents were told not to charge and to check or unplug the Tesla.
+          - conditions:
+              - condition: trigger
+                id: restored
+            sequence:
+              - service: script.notify_engine
+                continue_on_error: true
+                data:
+                  title: "JuiceBox Monitor Restored"
+                  value1: >-
+                    JuicePassProxy is running and healthy again. JuiceBox charging
+                    telemetry and the 20 A safety alert are available.
+                  who: 'parents'
+                  group: 'JuiceBox_Proxy_Offline'
+              - service: script.send_to_logbook
+                data:
+                  topic: "JUICEBOX"
+                  message: "JuicePassProxy monitoring returned to running and healthy."
+
   - alias: "Tesla Model Y - Plug In Reminder"
     id: 6a873341-c823-4d5d-9d42-fc2df52b93db
     mode: restart

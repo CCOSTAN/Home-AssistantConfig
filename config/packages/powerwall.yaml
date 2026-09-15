@@ -14,8 +14,8 @@
 # Blog: https://www.vcloudinfo.com/2026/06/tesla-powerwall-home-assistant-watchdog.html
 # Notes: Read more https://www.vcloudinfo.com/2018/01/going-green-to-save-some-green-in-2018.html | Existing Issue #272
 # Tesla Powerwall added via UI Integration
-# Notes: Live outage tracking derives its chronometer anchor from binary_sensor.powerwall_grid_status.last_changed.
-# Notes: Docker host and camera PoE restore requires grid online for 10 minutes and Powerwall charge at least 50%.
+# Notes: Home Assistant owns staged resilience policy; recommendations remain monitor-only until coordinated actions are approved.
+# Notes: The outage anchor uses one restoring input_datetime so stage timing survives Home Assistant restarts.
 ######################################################################
 # Binary Sensors:
 #  - binary_sensor.powerwall_charging ............. battery_charging (on=charging)
@@ -45,6 +45,66 @@
 # Switches:
 #  - switch.powerwall_off_grid_operation .......... island mode toggle
 ######################################################################
+
+input_datetime:
+  power_resilience_outage_started:
+    name: Power Resilience Outage Started
+    icon: mdi:transmission-tower-off
+    has_date: true
+    has_time: true
+
+template:
+  - sensor:
+      - name: "Power Resilience Recommended Stage"
+        unique_id: power_resilience_recommended_stage
+        icon: mdi:home-assistant
+        state: >-
+          {% set grid = states('binary_sensor.powerwall_grid_status') %}
+          {% set charge_raw = states('sensor.powerwall_charge') %}
+          {% set anchor_raw = states('input_datetime.power_resilience_outage_started') %}
+          {% set anchor_valid = anchor_raw not in ['unknown', 'unavailable', 'none', ''] and anchor_raw != '2000-01-01 00:00:00' %}
+          {% set outage_seconds = (as_timestamp(now()) - as_timestamp(anchor_raw, as_timestamp(now()))) if anchor_valid else 0 %}
+          {% if grid not in ['on', 'off'] or not is_number(charge_raw) %}
+            TELEMETRY_UNAVAILABLE
+          {% elif grid == 'on' %}
+            NORMAL
+          {% elif not anchor_valid %}
+            TELEMETRY_UNAVAILABLE
+          {% elif outage_seconds < 600 %}
+            OBSERVE
+          {% elif charge_raw | float(0) <= 25 %}
+            PRESERVE
+          {% elif charge_raw | float(0) <= 50 %}
+            SHED_2
+          {% elif charge_raw | float(0) <= 75 %}
+            SHED_1
+          {% else %}
+            OBSERVE
+          {% endif %}
+        attributes:
+          control_owner: Home Assistant
+          execution_mode: monitor_only
+          actions_armed: "{{ false }}"
+          grid_status: "{{ states('binary_sensor.powerwall_grid_status') }}"
+          powerwall_charge: >-
+            {% set charge = states('sensor.powerwall_charge') %}
+            {{ charge | float if is_number(charge) else none }}
+          outage_started_at: >-
+            {% set anchor = states('input_datetime.power_resilience_outage_started') %}
+            {{ anchor if is_state('binary_sensor.powerwall_grid_status', 'off') and anchor not in ['unknown', 'unavailable', 'none', '', '2000-01-01 00:00:00'] else none }}
+          outage_elapsed_seconds: >-
+            {% set anchor = states('input_datetime.power_resilience_outage_started') %}
+            {% if is_state('binary_sensor.powerwall_grid_status', 'off') and anchor not in ['unknown', 'unavailable', 'none', '', '2000-01-01 00:00:00'] %}
+              {{ [0, as_timestamp(now()) - as_timestamp(anchor, as_timestamp(now()))] | max | round(0) | int }}
+            {% else %}
+              0
+            {% endif %}
+          observation_seconds: "{{ 600 }}"
+          shed_1_threshold: "{{ 75 }}"
+          shed_2_threshold: "{{ 50 }}"
+          preserve_threshold: "{{ 25 }}"
+          garage_ups_status: "{{ states('sensor.garage_ups_status') }}"
+          office_ups_status: "{{ states('sensor.office_ups_eaton_550_status') }}"
 
 #-------------------------------------------
 script:
@@ -102,6 +162,60 @@ script:
           when_relative: false
 
 automation:
+  - alias: "Power Resilience - Track Outage Anchor"
+    id: 0d2400c4-6e2e-4f17-9ca5-b899ad80f056
+    description: Persist the active grid outage start for restart-safe, Home Assistant-owned stage recommendations.
+    mode: queued
+    max: 3
+    triggers:
+      - trigger: homeassistant
+        event: start
+        id: startup
+      - trigger: state
+        entity_id: binary_sensor.powerwall_grid_status
+        to: "off"
+        id: grid_off
+      - trigger: state
+        entity_id: binary_sensor.powerwall_grid_status
+        to: "on"
+        id: grid_on
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.powerwall_grid_status
+                state: "off"
+              - condition: or
+                conditions:
+                  - condition: template
+                    value_template: >-
+                      {{ trigger.id == 'grid_off' and trigger.from_state is not none and
+                         trigger.from_state.state == 'on' }}
+                  - condition: template
+                    value_template: >-
+                      {{ states('input_datetime.power_resilience_outage_started') in
+                         ['unknown', 'unavailable', 'none', '', '2000-01-01 00:00:00'] }}
+            sequence:
+              - action: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.power_resilience_outage_started
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+          - conditions:
+              - condition: trigger
+                id:
+                  - startup
+                  - grid_on
+              - condition: state
+                entity_id: binary_sensor.powerwall_grid_status
+                state: "on"
+            sequence:
+              - action: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.power_resilience_outage_started
+                data:
+                  datetime: "2000-01-01 00:00:00"
+
   - alias: "Powerwall outage - Refresh live activity"
     id: 5b5fb370-c6cb-4c74-95d4-264737e4456f
     description: Start the tagged outage live activity when the grid drops and refresh it when charge changes.
@@ -293,41 +407,6 @@ automation:
                   topic: "POWER"
                   message: "Powerwall charge recovered above 60%. Cleared repair issue."
 
-  - alias: "Shut down Docker hosts and camera PoE at 75% Powerwall"
-    id: 25b3d3d8-92fa-454a-9f1c-6d3fd0f3af58
-    description: "Protect battery by shutting down non-essentials when Powerwall drops below 75%"
-    mode: single
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.powerwall_charge
-        below: 75
-        for:
-          minutes: 3
-    condition:
-      - condition: template
-        value_template: "{{ is_state('binary_sensor.powerwall_grid_status', 'off') }}"
-      - condition: numeric_state
-        entity_id: sensor.powerwall_charge
-        above: 0
-        below: 75
-    action:
-      - service: script.send_to_logbook
-        data:
-          topic: "POWER"
-          message: "Powerwall outage load-shed started at {{ states('sensor.powerwall_charge') }}% charge."
-      - service: button.press
-        target:
-          entity_id:
-            - button.qemu_docker2_101_shutdown
-            - button.qemu_docker69_169_shutdown
-      - service: switch.turn_off
-        target:
-          entity_id:
-            - switch.poe_garage_port_3_poe
-            - switch.poe_garage_port_4_poe
-            - switch.poe_garage_port_5_poe
-            - switch.poe_garage_port_6_poe
-
   - alias: "Powerwall outage - Rheem WH mode control"
     id: d686f650-65ad-4cc6-8e27-8b5ee76b5338
     description: "During outages, switch Rheem between off and electric mode while the compressor is under warranty repair"
@@ -387,72 +466,6 @@ automation:
                   entity_id: water_heater.rheem_wh
                 data:
                   state: electric
-
-  - alias: "Restore Docker hosts and camera PoE when grid returns"
-    id: 1ae8b5c5-8627-4a44-8c8a-5bf8ca5e1bf5
-    description: "Start Docker hosts and turn camera PoE ports back on after grid has returned and battery is at least 50%"
-    mode: single
-    trigger:
-      - platform: template
-        value_template: "{{ is_state('binary_sensor.powerwall_grid_status', 'on') }}"
-        for:
-          minutes: 10
-      - platform: numeric_state
-        entity_id: sensor.powerwall_charge
-        above: 49.9
-
-    condition:
-      - condition: state
-        entity_id: binary_sensor.powerwall_grid_status
-        state: 'on'
-        for:
-          minutes: 10
-      - condition: numeric_state
-        entity_id: sensor.powerwall_charge
-        above: 49.9
-      - condition: template
-        value_template: >-
-          {{ not is_state('binary_sensor.qemu_docker2_101_status', 'on')
-             or not is_state('binary_sensor.qemu_docker69_169_status', 'on')
-             or not is_state('switch.poe_garage_port_3_poe', 'on')
-             or not is_state('switch.poe_garage_port_4_poe', 'on')
-             or not is_state('switch.poe_garage_port_5_poe', 'on')
-             or not is_state('switch.poe_garage_port_6_poe', 'on') }}
-    action:
-      - service: script.send_to_logbook
-        data:
-          topic: "POWER"
-          message: "Grid has been online for 10 minutes at {{ states('sensor.powerwall_charge') }}% charge. Restoring Docker hosts and camera PoE."
-      - if:
-          - condition: template
-            value_template: "{{ not is_state('binary_sensor.qemu_docker2_101_status', 'on') }}"
-        then:
-          - service: button.press
-            continue_on_error: true
-            target:
-              entity_id: button.qemu_docker2_101_start
-      - if:
-          - condition: template
-            value_template: "{{ not is_state('binary_sensor.qemu_docker69_169_status', 'on') }}"
-        then:
-          - service: button.press
-            continue_on_error: true
-            target:
-              entity_id: button.qemu_docker69_169_start
-      - service: switch.turn_on
-        continue_on_error: true
-        target:
-          entity_id:
-            - switch.poe_garage_port_3_poe
-            - switch.poe_garage_port_4_poe
-            - switch.poe_garage_port_5_poe
-            - switch.poe_garage_port_6_poe
-      - service: script.notify_engine
-        data:
-          title: "Grid restored - environment recovery started"
-          value1: "Grid is online and Powerwall charge is at least 50%. Docker hosts 101/169 were started if needed, and camera PoE ports 3-6 were turned back on automatically."
-          who: 'family'
-          group: 'information'
 
 # https://github.com/CCOSTAN/Home-AssistantConfig/issues/547
   - alias: Turn off the Nest Thermostats during a Power Outage
