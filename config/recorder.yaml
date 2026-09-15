@@ -11,6 +11,8 @@
 # Notes: Keeps 180 days (1/2 year); excludes vcloudinfo pings, noisy connectivity telemetry, countdown-style alarm helpers, low-value script/button/scene history, MariaDB snapshot helpers, raw Docker/Proxmox/Glances host telemetry including dynamic Docker veth sensors, PoE live power, and other high-churn entities; MariaDB via recorder_db_url.
 # Notes: L10s status/room telemetry is live-only; keep curated VACUUM logbook entries plus error/run context instead.
 # Notes: Tesla Fleet Spaceship telemetry is live-only in HA; TeslaMate is the historical car database.
+# Notes: Persisted vehicle/JuiceBox measurements stay useful without synthetic
+#  last-report timestamps or transient max-current snapshot history.
 # Notes: Life360 trackers are explicitly included for map/history queries despite the broad device_tracker exclusion.
 # Notes: Raw Portainer container/stack status telemetry is live-only; keep Docker aggregate outage sensors, Repairs, and curated logbook events instead.
 # Notes: Mobile app phone telemetry is live-only except daily pedometer metrics for Carlo and Stacey, retained for fitness history; Life360 keeps location history and notify services remain available.
@@ -89,6 +91,7 @@ exclude:
     - number.spaceship_*
     - select.spaceship_*
     - sensor.spaceship_*
+    - sensor.odometer
     - switch.spaceship_*
     - update.spaceship_*
     - select.sleepnumber_*
@@ -216,7 +219,6 @@ exclude:
     # BEGIN generated Portainer recorder/logbook noise exclusions
     # Current retained Portainer telemetry is live-only; aggregate Docker history remains recorded.
     - binary_sensor.nebula_sync_status_2
-    - binary_sensor.pihole_secondary_status_2
     - binary_sensor.portainer_agent_status_2
     - binary_sensor.portainer_status_2
     - sensor.nebula_sync_state_2
@@ -273,6 +275,10 @@ exclude:
     - sensor.pi_hole_dns_queries_today
     - sensor.rachio_watering_time
     - sensor.time
+    - sensor.juicebox_max_current_offline_device
+    - sensor.juicebox_max_current_online_device
+    - sensor.juicepassproxy_health
+    - sensor.juicepassproxy_state
     - sensor.vcloudinfo_com
     - switch.bear_stone
     - switch.alarm_panel_1_screensaver

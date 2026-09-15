@@ -1,0 +1,476 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Systems Partial - Car
+#  Read-only vehicle, tire, odometer, and JuiceBox charging summary.
+# -------------------------------------------------------------------
+# Related Issue: 1944
+# Notes: No cards expose Tesla or JuiceBox controls.
+# Notes: TeslaMate retains detailed drive, charge, and mileage history.
+# Notes: Useful tiles use restored last-valid values without timestamp churn.
+# Notes: Raw JuiceBox energy retains long-term history; power is session-only.
+# Notes: The Tesla's Home location charge-current setting is intentionally 16 A.
+# Notes: JuicePassProxy shows OFFLINE immediately and becomes a Systems fault
+#  after five continuous minutes; neither dashboard exposes writable controls.
+######################################################################
+
+# -------------------------------------------------------------------
+# Vehicle health strip (mandatory first full-width wrapper)
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_nav_back
+      name: Back to Systems
+      icon: mdi:arrow-left
+      view_layout:
+        grid-column: 1 / -1
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/home
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.car_battery_last_known
+      name: Battery
+      icon: mdi:car-electric
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value) ? `${value.toFixed(0)}%` : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.car_odometer_last_known
+      name: Odometer
+      icon: mdi:counter
+      state_display: >
+        [[[
+          const value = Number(entity?.state);
+          return Number.isFinite(value)
+            ? `${value.toLocaleString(undefined, {maximumFractionDigits: 0})} mi`
+            : 'NO DATA';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.car_charging_last_known
+      name: Charging
+      icon: mdi:ev-station
+      state_display: >
+        [[[
+          const raw = String(entity?.state ?? '').toUpperCase();
+          if (['UNKNOWN', 'UNAVAILABLE', ''].includes(raw)) return 'NO DATA';
+          const live = String(states['sensor.spaceship_charging']?.state ?? '').toLowerCase();
+          const prefix = ['unknown', 'unavailable', ''].includes(live) ? 'LAST ' : '';
+          return `${prefix}${raw}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.car_tire_pressure_front_left_last_known
+      name: Tires
+      icon: mdi:car-tire-alert
+      variables:
+        status_severity: >
+          [[[
+            const ids = [
+              'sensor.car_tire_pressure_front_left_last_known',
+              'sensor.car_tire_pressure_front_right_last_known',
+              'sensor.car_tire_pressure_rear_left_last_known',
+              'sensor.car_tire_pressure_rear_right_last_known'
+            ];
+            const values = ids.map((id) => Number(states[id]?.state)).filter(Number.isFinite);
+            if (values.length !== ids.length) return 'unknown';
+            return Math.min(...values) < 40 ? 'critical' : 'healthy';
+          ]]]
+      state_display: >
+        [[[
+          const ids = [
+            'sensor.car_tire_pressure_front_left_last_known',
+            'sensor.car_tire_pressure_front_right_last_known',
+            'sensor.car_tire_pressure_rear_left_last_known',
+            'sensor.car_tire_pressure_rear_right_last_known'
+          ];
+          const values = ids.map((id) => Number(states[id]?.state)).filter(Number.isFinite);
+          if (values.length !== ids.length) return 'NO DATA';
+          const minimum = Math.min(...values);
+          return `${minimum < 40 ? 'LOW' : 'MIN'} ${minimum.toFixed(1)} psi`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.juicebox_status_last_known
+      name: JuiceBox
+      icon: mdi:ev-plug-type1
+      variables:
+        status_severity: >
+          [[[
+            const raw = String(entity?.state ?? '').toLowerCase();
+            return ['unknown', 'unavailable', 'none', ''].includes(raw) ? 'unknown' : 'healthy';
+          ]]]
+      state_display: >
+        [[[
+          const raw = String(entity?.state ?? '').toUpperCase();
+          if (['UNKNOWN', 'UNAVAILABLE', 'NONE', ''].includes(raw)) return 'WAITING';
+          const live = String(states['sensor.juicebox_status']?.state ?? '').toLowerCase();
+          const prefix = ['unknown', 'unavailable', 'none', ''].includes(live) ? 'LAST ' : '';
+          return `${prefix}${raw}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.juicepassproxy_state
+      name: Proxy
+      icon: mdi:shield-check
+      variables:
+        status_severity: >
+          [[[
+            if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'critical';
+            const running = String(entity?.state ?? '').toLowerCase() === 'running';
+            const healthy = String(states['sensor.juicepassproxy_health']?.state ?? '').toLowerCase() === 'healthy';
+            return running && healthy ? 'healthy' : 'warning';
+          ]]]
+      state_display: >
+        [[[
+          const running = String(entity?.state ?? '').toLowerCase() === 'running';
+          const healthy = String(states['sensor.juicepassproxy_health']?.state ?? '').toLowerCase() === 'healthy';
+          return running && healthy ? 'ONLINE' : 'OFFLINE';
+        ]]]
+
+# -------------------------------------------------------------------
+# Current vehicle, tires, and charging telemetry
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: Spaceship
+        icon: mdi:car-electric
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.car_location_last_known
+        name: Location
+        icon: mdi:map-marker
+        state_display: >
+          [[[ return String(entity?.state ?? 'NO DATA').replaceAll('_', ' ').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.car_battery_last_known
+        name: Battery
+        icon: mdi:battery-high
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)}%` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.car_odometer_last_known
+        name: Odometer
+        icon: mdi:counter
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value)
+              ? `${value.toLocaleString(undefined, {maximumFractionDigits: 0})} mi`
+              : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.car_charge_cable_last_known
+        name: Charge Cable
+        icon: mdi:ev-plug-type1
+        state_display: >
+          [[[
+            const raw = String(entity?.state ?? '').toLowerCase();
+            if (['unknown', 'unavailable', ''].includes(raw)) return 'NO DATA';
+            return raw === 'on' ? 'CONNECTED' : 'DISCONNECTED';
+          ]]]
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: Tire Pressure
+        icon: mdi:car-tire-alert
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.car_tire_pressure_front_left_last_known
+        name: Front Left
+        icon: mdi:circle-double
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} psi` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.car_tire_pressure_front_right_last_known
+        name: Front Right
+        icon: mdi:circle-double
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} psi` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.car_tire_pressure_rear_left_last_known
+        name: Rear Left
+        icon: mdi:circle-double
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} psi` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.car_tire_pressure_rear_right_last_known
+        name: Rear Right
+        icon: mdi:circle-double
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} psi` : 'NO DATA';
+          ]]]
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: Charging Session
+        icon: mdi:battery-charging-high
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_session_energy_last_known
+        name: JuiceBox Session
+        icon: mdi:counter
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${(value / 1000).toFixed(2)} kWh` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_power_last_known
+        name: JuiceBox Power
+        icon: mdi:flash
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${(value / 1000).toFixed(1)} kW` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_current_last_known
+        name: JuiceBox Current
+        icon: mdi:current-ac
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(1)} A` : 'NO DATA';
+          ]]]
+
+# -------------------------------------------------------------------
+# JuiceBox electrical detail
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: JuiceBox Electrical
+        icon: mdi:ev-station
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_voltage_last_known
+        name: Voltage
+        icon: mdi:sine-wave
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_frequency_last_known
+        name: Frequency
+        icon: mdi:waveform
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_power_factor_last_known
+        name: Power Factor
+        icon: mdi:chart-bell-curve-cumulative
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_temperature_last_known
+        name: Temperature
+        icon: mdi:thermometer
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: JuiceBox Capacity
+        icon: mdi:gauge
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_current_rating_last_known
+        name: Hardware Rating
+        icon: mdi:current-ac
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_current_rating_last_known
+        name: Stored Circuit Limit
+        icon: mdi:shield-check
+        state_display: 24 A
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.juicebox_lifetime_energy_last_known
+        name: Lifetime Energy
+        icon: mdi:transmission-tower-export
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${(value / 1000).toFixed(1)} kWh` : 'NO DATA';
+          ]]]
+
+# -------------------------------------------------------------------
+# Charging trends
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: minmax(0, 1fr)
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: Energy Delivered - 30 Days
+        icon: mdi:chart-bar
+
+      - type: conditional
+        conditions:
+        - entity: sensor.juicebox_energy_lifetime
+          state_not: unavailable
+        card:
+          type: statistics-graph
+          chart_type: bar
+          days_to_show: 30
+          period: day
+          stat_types:
+          - change
+          entities:
+          - entity: sensor.juicebox_energy_lifetime
+            name: JuiceBox Energy
+
+      - type: conditional
+        conditions:
+        - entity: sensor.juicebox_energy_lifetime
+          state: unavailable
+        card:
+          type: custom:button-card
+          template: bearstone_infra_list_row
+          entity: sensor.juicebox_status
+          name: Energy history starts with first report
+          icon: mdi:chart-timeline-variant-shimmer
+          state_display: PENDING

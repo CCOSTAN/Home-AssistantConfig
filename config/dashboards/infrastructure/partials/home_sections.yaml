@@ -6,7 +6,7 @@
 # Systems Partial - operations summary
 #  House-system health strip, active issues, and datacenter status.
 # -------------------------------------------------------------------
-# Related Issue: 1890, 1817
+# Related Issue: 1890, 1817, 1944
 # Notes: The health ribbon mirrors the visible dashboard navigation order and labels.
 # Notes: DNS and external-monitoring faults roll up under Network instead of duplicating it.
 # Notes: Network trend panels live on Network so Overview stays focused on broad house status.
@@ -16,6 +16,9 @@
 # Notes: BearClaw scheduled-job warnings/errors roll up under Joanna and appear as an exceptions-only Active Issue row.
 # Notes: Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
 # Notes: Back to Overview is the first control in the landing-view navigation strip.
+# Notes: UPS health covers both Garage and Office NUT servers and drills into the shared UPS view.
+# Notes: A JuicePassProxy outage becomes a critical Systems issue after five
+#  continuous minutes and drills into the Car view.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -74,9 +77,11 @@
         critical_entity_ids:
         - binary_sensor.infra_wan_critical
         - binary_sensor.infra_dns_pihole_degraded
+        - binary_sensor.infra_ups_on_battery
         - binary_sensor.infra_compute_degraded
         - binary_sensor.infra_storage_degraded
         - binary_sensor.infra_external_monitoring_degraded
+        - binary_sensor.juicepassproxy_monitoring_degraded
         - binary_sensor.rheem_wh_active_alert
         - binary_sensor.garage_phyn_leak_alert
 
@@ -128,6 +133,37 @@
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
+      entity: sensor.car_battery_last_known
+      name: Car
+      icon: mdi:car-electric
+      variables:
+        status_severity: >
+          [[[
+            const tireIds = [
+              'sensor.car_tire_pressure_front_left_last_known',
+              'sensor.car_tire_pressure_front_right_last_known',
+              'sensor.car_tire_pressure_rear_left_last_known',
+              'sensor.car_tire_pressure_rear_right_last_known'
+            ];
+            const battery = Number(entity?.state);
+            const tires = tireIds.map((id) => Number(states[id]?.state)).filter(Number.isFinite);
+            if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'critical';
+            if (!Number.isFinite(battery) || tires.length !== tireIds.length) return 'unknown';
+            return Math.min(...tires) < 40 ? 'critical' : 'healthy';
+          ]]]
+      state_display: >
+        [[[
+          if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'PROXY OFFLINE';
+          const battery = Number(entity?.state);
+          if (!Number.isFinite(battery)) return 'NO DATA';
+          return `${battery.toFixed(0)}%`;
+        ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/car
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
       entity: binary_sensor.infra_compute_degraded
       name: ProxMox
       icon: mdi:server-network
@@ -174,6 +210,19 @@
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/network
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_ups_on_battery
+      name: UPS Power
+      icon: mdi:battery-heart-variant
+      variables:
+        ok_state: 'off'
+        healthy_text: UTILITY POWER
+        alert_text: ON BATTERY
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/ups
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -328,6 +377,24 @@
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
+        entity: binary_sensor.infra_ups_on_battery
+        name: UPS running on battery
+        icon: mdi:battery-alert-variant-outline
+        variables:
+          alert_kind: binary_on
+          exception_detail: >
+            [[[
+              const garage = String(entity?.attributes?.garage_status ?? 'UNKNOWN').toUpperCase();
+              const office = String(entity?.attributes?.office_status ?? 'UNKNOWN').toUpperCase();
+              return `GARAGE ${garage} · OFFICE ${office}`;
+            ]]]
+        state_display: ON BATTERY
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/ups
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
         entity: binary_sensor.garage_phyn_leak_alert
         name: Active water leak
         icon: mdi:pipe-leak
@@ -453,6 +520,19 @@
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/joanna
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.juicepassproxy_monitoring_degraded
+        name: JuiceBox charging monitor offline
+        icon: mdi:ev-station-off
+        variables:
+          alert_kind: binary_on
+          exception_detail: DO NOT CHARGE - CHECK OR UNPLUG THE TESLA
+        state_display: '[[[ return "OFFLINE"; ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/car
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
@@ -710,46 +790,38 @@
           style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
 
       - type: custom:button-card
-        template: bearstone_infra_list_row_running
+        template: bearstone_infra_list_row
         entity: sensor.garage_ups_status
-        name: UPS Status
+        name: Garage UPS
         icon: mdi:battery-heart-variant
+        state_display: >
+          [[[
+            const charge = Number(states['sensor.garage_ups_battery_charge']?.state);
+            const seconds = Number(states['sensor.garage_ups_battery_runtime']?.state);
+            const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
+            const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} · ${battery} · ${runtime}`;
+          ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/ups
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.garage_ups_battery_charge
-        name: UPS Battery
-        icon: mdi:battery-70
+        entity: sensor.office_ups_eaton_550_status
+        name: Office Eaton 3S 550
+        icon: mdi:battery-heart-variant
         state_display: >
           [[[
-            const value = Number(entity?.state);
-            return Number.isFinite(value) ? `${value.toFixed(0)}%` : 'NO DATA';
+            const charge = Number(states['sensor.office_ups_eaton_550_battery_charge']?.state);
+            const seconds = Number(states['sensor.office_ups_eaton_550_battery_runtime']?.state);
+            const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
+            const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} · ${battery} · ${runtime}`;
           ]]]
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: sensor.garage_ups_battery_runtime
-        name: Runtime Remaining
-        icon: mdi:timer-outline
-        state_display: >
-          [[[
-            const seconds = Number(entity?.state);
-            if (!Number.isFinite(seconds)) return 'NO DATA';
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-          ]]]
-
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: sensor.garage_ups_status
-        name: On Battery
-        icon: mdi:battery-alert-variant-outline
-        state_display: >
-          [[[
-            const status = String(entity?.state ?? '').toUpperCase();
-            return status ? (status.includes('OB') ? 'YES' : 'NO') : 'NO DATA';
-          ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/ups
 
     - type: custom:vertical-stack-in-card
       card_mod:

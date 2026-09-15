@@ -1,0 +1,22 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure View - UPS Power
+#  Garage and Office backup-power status, capacity, and recent trends.
+# -------------------------------------------------------------------
+# Notes: The Office Eaton 3S 550 is served by the headless office-pi NUT host.
+# Notes: All graphs use a consistent 24-hour window.
+######################################################################
+
+title: UPS Power
+path: ups
+type: sections
+icon: mdi:battery-heart-variant
+theme: default
+max_columns: 4
+dense_section_placement: true
+badges: []
+sections: !include /config/dashboards/infrastructure/partials/ups_sections.yaml
+cards: []

@@ -23,7 +23,7 @@
 # Notes: Docker host root disk usage uses Glances-backed normalized sensors; raw Glances sensors are recorder/logbook-filtered.
 # Notes: Disk-pressure dispatch allows bounded safe cleanup of disposable caches and old generated backup artifacts, but not live data or restarts.
 # Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
-# Notes: Nebula Sync DNS consistency compares primary/backup Pi-hole answers and dispatches Joanna on sustained drift or container loss.
+# Notes: Nebula Sync compares the docker_10 primary with the physical office-pi DNS replica and dispatches Joanna on sustained drift or endpoint loss.
 # Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
 # Notes: Garage compute health uses the same 145 F threshold as the existing temperature notification.
 # Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
@@ -32,6 +32,7 @@
 # Notes: Dashboard aggregate issue count includes compact BearClaw scheduled-job warning/error health.
 # Notes: Docker host maintenance is counted separately from container runtime health so pending packages and stale host reports surface on Systems.
 # Notes: Home Water rollup includes Rheem faults/telemetry loss plus active Phyn alerts and valve closure.
+# Notes: UPS outage status aggregates the Garage and Office NUT servers from their raw status-data entities.
 ######################################################################
 
 input_text:
@@ -121,7 +122,7 @@ command_line:
       name: Infra Nebula Sync DNS Consistency
       unique_id: infra_nebula_sync_dns_consistency
       command: >-
-        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.14; host=GTG-PF45FK6F; fqdn=GTG-PF45FK6F.fordst.com; ip=192.168.10.117; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; r(){ dig +time=2 +tries=1 +short @"$1" -x "$2" 2>/dev/null | tr -d "\r" | sed "s/\.$//" | sort | tr "\n" "," | sed "s/,$//"; }; p_short=$(q "$primary" "$host"); s_short=$(q "$secondary" "$host"); p_fqdn=$(q "$primary" "$fqdn"); s_fqdn=$(q "$secondary" "$fqdn"); p_rev=$(r "$primary" "$ip"); s_rev=$(r "$secondary" "$ip"); status=mismatch; if [ "$p_short" = "$ip" ] && [ "$s_short" = "$ip" ] && [ "$p_fqdn" = "$ip" ] && [ "$s_fqdn" = "$ip" ] && [ -n "$p_rev" ] && [ "$p_rev" = "$s_rev" ]; then status=ok; fi; printf "{\"status\":\"%s\",\"host\":\"%s\",\"expected_ip\":\"%s\",\"primary_short\":\"%s\",\"secondary_short\":\"%s\",\"primary_fqdn\":\"%s\",\"secondary_fqdn\":\"%s\",\"primary_reverse\":\"%s\",\"secondary_reverse\":\"%s\"}\n" "$status" "$host" "$ip" "$p_short" "$s_short" "$p_fqdn" "$s_fqdn" "$p_rev" "$s_rev"'
+        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.100; host=GTG-PF45FK6F; fqdn=GTG-PF45FK6F.fordst.com; ip=192.168.10.117; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; r(){ dig +time=2 +tries=1 +short @"$1" -x "$2" 2>/dev/null | tr -d "\r" | sed "s/\.$//" | sort | tr "\n" "," | sed "s/,$//"; }; p_short=$(q "$primary" "$host"); s_short=$(q "$secondary" "$host"); p_fqdn=$(q "$primary" "$fqdn"); s_fqdn=$(q "$secondary" "$fqdn"); p_rev=$(r "$primary" "$ip"); s_rev=$(r "$secondary" "$ip"); status=mismatch; if [ "$p_short" = "$ip" ] && [ "$s_short" = "$ip" ] && [ "$p_fqdn" = "$ip" ] && [ "$s_fqdn" = "$ip" ] && [ -n "$p_rev" ] && [ "$p_rev" = "$s_rev" ]; then status=ok; fi; printf "{\"status\":\"%s\",\"host\":\"%s\",\"expected_ip\":\"%s\",\"primary_short\":\"%s\",\"secondary_short\":\"%s\",\"primary_fqdn\":\"%s\",\"secondary_fqdn\":\"%s\",\"primary_reverse\":\"%s\",\"secondary_reverse\":\"%s\"}\n" "$status" "$host" "$ip" "$p_short" "$s_short" "$p_fqdn" "$s_fqdn" "$p_rev" "$s_rev"'
       scan_interval: 300
       value_template: "{{ value_json.status | default('unknown') }}"
       json_attributes:
@@ -138,7 +139,7 @@ command_line:
       name: Infra Pihole IoT DNS Consistency
       unique_id: infra_pihole_iot_dns_consistency
       command: >-
-        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.14; records="rachio.fordst.com=192.168.10.73 econet.fordst.com=192.168.10.92 dreame-vacuum.fordst.com=192.168.10.93 carlo-bed.fordst.com=192.168.10.95 lg-smart-fridge.fordst.com=192.168.10.96 tesla-blackbox-gw.fordst.com=192.168.10.97 bgw210.fordst.com=192.168.10.98"; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; status=ok; checked=0; mismatch_count=0; mismatches=""; for record in $records; do host=${record%%=*}; ip=${record#*=}; p=$(q "$primary" "$host"); s=$(q "$secondary" "$host"); checked=$((checked+1)); if [ "$p" != "$ip" ] || [ "$s" != "$ip" ]; then status=mismatch; mismatch_count=$((mismatch_count+1)); mismatches="${mismatches}${host}:expected=${ip},primary=${p:-none},secondary=${s:-none};"; fi; done; if [ -z "$mismatches" ]; then mismatches=none; fi; printf "{\"status\":\"%s\",\"checked_records\":%s,\"mismatch_count\":%s,\"mismatches\":\"%s\",\"primary_dns\":\"%s\",\"backup_dns\":\"%s\"}\n" "$status" "$checked" "$mismatch_count" "$mismatches" "$primary" "$secondary"'
+        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.100; records="rachio.fordst.com=192.168.10.73 econet.fordst.com=192.168.10.92 dreame-vacuum.fordst.com=192.168.10.93 carlo-bed.fordst.com=192.168.10.95 lg-smart-fridge.fordst.com=192.168.10.96 tesla-blackbox-gw.fordst.com=192.168.10.97 bgw210.fordst.com=192.168.10.98"; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; status=ok; checked=0; mismatch_count=0; mismatches=""; for record in $records; do host=${record%%=*}; ip=${record#*=}; p=$(q "$primary" "$host"); s=$(q "$secondary" "$host"); checked=$((checked+1)); if [ "$p" != "$ip" ] || [ "$s" != "$ip" ]; then status=mismatch; mismatch_count=$((mismatch_count+1)); mismatches="${mismatches}${host}:expected=${ip},primary=${p:-none},secondary=${s:-none};"; fi; done; if [ -z "$mismatches" ]; then mismatches=none; fi; printf "{\"status\":\"%s\",\"checked_records\":%s,\"mismatch_count\":%s,\"mismatches\":\"%s\",\"primary_dns\":\"%s\",\"backup_dns\":\"%s\"}\n" "$status" "$checked" "$mismatch_count" "$mismatches" "$primary" "$secondary"'
       scan_interval: 300
       value_template: "{{ value_json.status | default('unknown') }}"
       json_attributes:
@@ -242,8 +243,10 @@ template:
             'binary_sensor.infra_wan_quality_degraded',
             'binary_sensor.infra_dns_pihole_degraded',
             'binary_sensor.infra_compute_degraded',
-            'binary_sensor.infra_storage_degraded',
-            'binary_sensor.infra_external_monitoring_degraded',
+             'binary_sensor.infra_storage_degraded',
+             'binary_sensor.infra_external_monitoring_degraded',
+             'binary_sensor.juicepassproxy_monitoring_degraded',
+             'binary_sensor.infra_ups_on_battery',
             'binary_sensor.docker_host_maintenance_attention',
             'binary_sensor.hvac_maintenance_due',
             'binary_sensor.home_water_problem',
@@ -258,8 +261,10 @@ template:
               'binary_sensor.infra_wan_quality_degraded',
               'binary_sensor.infra_dns_pihole_degraded',
               'binary_sensor.infra_compute_degraded',
-              'binary_sensor.infra_storage_degraded',
-              'binary_sensor.infra_external_monitoring_degraded',
+             'binary_sensor.infra_storage_degraded',
+             'binary_sensor.infra_external_monitoring_degraded',
+             'binary_sensor.juicepassproxy_monitoring_degraded',
+             'binary_sensor.infra_ups_on_battery',
               'binary_sensor.docker_host_maintenance_attention',
               'binary_sensor.hvac_maintenance_due',
               'binary_sensor.home_water_problem',
@@ -454,7 +459,7 @@ template:
           secondary_reverse: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'secondary_reverse') }}"
           nebula_status: "{{ states('binary_sensor.nebula_sync_status_2') }}"
           nebula_state: "{{ states('sensor.nebula_sync_state_2') }}"
-          pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
+          pihole_secondary_status: "{{ states('binary_sensor.pi_hole_status_2') }}"
 
       - name: "Infra Pihole IoT DNS Degraded"
         unique_id: infra_pihole_iot_dns_degraded
@@ -473,8 +478,20 @@ template:
         unique_id: infra_ups_on_battery
         device_class: problem
         state: >-
-          {% set status = states('sensor.garage_ups_status') | upper %}
-          {{ 'OB' in status }}
+          {% set statuses = [
+            states('sensor.garage_ups_status_data') | upper,
+            states('sensor.office_ups_eaton_550_status_data') | upper
+          ] %}
+          {% set ns = namespace(on_battery=false) %}
+          {% for status in statuses %}
+            {% if 'OB' in status.split() %}
+              {% set ns.on_battery = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.on_battery }}
+        attributes:
+          garage_status: "{{ states('sensor.garage_ups_status') }}"
+          office_status: "{{ states('sensor.office_ups_eaton_550_status') }}"
 
       - name: "Infra Website Degraded"
         unique_id: infra_website_degraded
@@ -734,7 +751,7 @@ automation:
       degraded: "{{ is_state('binary_sensor.infra_nebula_sync_degraded', 'on') }}"
       nebula_status: "{{ states('binary_sensor.nebula_sync_status_2') }}"
       nebula_state: "{{ states('sensor.nebula_sync_state_2') }}"
-      pihole_secondary_status: "{{ states('binary_sensor.pihole_secondary_status_2') }}"
+      pihole_secondary_status: "{{ states('binary_sensor.pi_hole_status_2') }}"
     action:
       - choose:
           - conditions: "{{ degraded and previous_band != 'warning' }}"
@@ -753,7 +770,7 @@ automation:
                     - binary_sensor.infra_nebula_sync_degraded
                     - binary_sensor.nebula_sync_status_2
                     - sensor.nebula_sync_state_2
-                    - binary_sensor.pihole_secondary_status_2
+                    - binary_sensor.pi_hole_status_2
                   diagnostics: >-
                     issue_id={{ issue_id }},
                     dns_consistency={{ dns_state }},
@@ -769,9 +786,9 @@ automation:
                     nebula_state={{ nebula_state }},
                     pihole_secondary_status={{ pihole_secondary_status }},
                     primary_dns=192.168.10.10,
-                    backup_dns=192.168.10.14
+                    backup_dns=192.168.10.100
                   request: >-
-                    Investigate Nebula Sync on docker_14 and the backup Pi-hole sync path.
+                    Investigate Nebula Sync on docker_14 and the physical backup Pi-hole on office-pi.
                     Verify both Pi-holes answer the GTG-PF45FK6F short name, FQDN, and reverse lookup consistently.
                     Check nebula_sync container status, Docker health, recent sync logs, and primary/replica Pi-hole API reachability.
                     If confidence is high, perform safe remediation such as a one-time Nebula Sync run or restarting only the nebula_sync container.

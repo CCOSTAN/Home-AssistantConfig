@@ -7,6 +7,7 @@
 #  Full interactive Dreame map for zone, point, and room cleaning.
 # -------------------------------------------------------------------
 # Notes: Specialized map card is retained because native cards do not expose interactive vacuum-map cleaning.
+# Notes: Use the saved BearStone map and its explicit calibration because the current-map camera can omit both.
 # Notes: Panel view is intentional so the single interactive map can use the full available canvas.
 ######################################################################
 
@@ -23,9 +24,27 @@ cards:
   grid_options:
     columns: full
   map_source:
-    camera: camera.l10s_vacuum_map
+    camera: camera.l10s_vacuum_map_1
   calibration_source:
-    camera: true
+    calibration_points:
+    - vacuum:
+        x: 0
+        y: 0
+      map:
+        x: 870
+        y: 1093
+    - vacuum:
+        x: 1000
+        y: 0
+      map:
+        x: 950
+        y: 1093
+    - vacuum:
+        x: 0
+        y: 1000
+      map:
+        x: 870
+        y: 1013
   entity: vacuum.l10s_vacuum
   vacuum_platform: Tasshack/dreame-vacuum
   map_modes:

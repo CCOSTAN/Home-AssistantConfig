@@ -1,0 +1,457 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Partial - UPS Power
+#  Garage and Office NUT status with current readings and trends.
+# -------------------------------------------------------------------
+# Notes: Raw NUT status data drives the shared on-battery rollup.
+# Notes: All graphs use 24-hour windows and explicit threshold colors.
+######################################################################
+
+# -------------------------------------------------------------------
+# Current UPS health (mandatory first full-width wrapper)
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_nav_back
+      name: Back to Systems
+      icon: mdi:arrow-left
+      view_layout:
+        grid-column: 1 / -1
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/home
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.garage_ups_status
+      name: Garage UPS
+      icon: mdi:garage-variant
+      variables:
+        ok_state: Online
+        healthy_text: ONLINE
+        alert_text: CHECK
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.office_ups_eaton_550_status
+      name: Office Eaton 3S 550
+      icon: mdi:desk
+      variables:
+        ok_state: Online
+        healthy_text: ONLINE
+        alert_text: CHECK
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.infra_ups_on_battery
+      name: Utility State
+      icon: mdi:transmission-tower
+      variables:
+        ok_state: 'off'
+        healthy_text: UTILITY POWER
+        alert_text: ON BATTERY
+
+# -------------------------------------------------------------------
+# Current readings
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: Garage UPS
+        icon: mdi:garage-variant
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_ups_status
+        name: Status
+        icon: mdi:battery-heart-variant
+        state_display: >
+          [[[ return String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_ups_battery_charge
+        name: Battery
+        icon: mdi:battery-high
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)}%` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_ups_battery_runtime
+        name: Runtime
+        icon: mdi:timer-outline
+        state_display: >
+          [[[
+            const seconds = Number(entity?.state);
+            if (!Number.isFinite(seconds)) return 'NO DATA';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_ups_load
+        name: Load
+        icon: mdi:gauge
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)}%` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_ups_input_voltage
+        name: Input Voltage
+        icon: mdi:sine-wave
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} V` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_ups_output_voltage
+        name: Output Voltage
+        icon: mdi:flash-outline
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} V` : 'NO DATA';
+          ]]]
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: Office Eaton 3S 550
+        icon: mdi:desk
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_ups_eaton_550_status
+        name: Status
+        icon: mdi:battery-heart-variant
+        state_display: >
+          [[[ return String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_ups_eaton_550_battery_charge
+        name: Battery
+        icon: mdi:battery-high
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)}%` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_ups_eaton_550_battery_runtime
+        name: Runtime
+        icon: mdi:timer-outline
+        state_display: >
+          [[[
+            const seconds = Number(entity?.state);
+            if (!Number.isFinite(seconds)) return 'NO DATA';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_ups_eaton_550_load
+        name: Load
+        icon: mdi:gauge
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)}%` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_ups_eaton_550_real_power
+        name: Real Power
+        icon: mdi:flash
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} W` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_ups_eaton_550_output_voltage
+        name: Output Voltage
+        icon: mdi:flash-outline
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value.toFixed(0)} V` : 'NO DATA';
+          ]]]
+
+# -------------------------------------------------------------------
+# Battery and load trends
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:mini-graph-card
+      name: Garage Battery
+      icon: mdi:battery-high
+      hours_to_show: 24
+      points_per_hour: 2
+      line_width: 2
+      smoothing: true
+      height: 80
+      show:
+        legend: false
+        labels: false
+        name: true
+        icon: true
+        state: true
+      color_thresholds:
+      - value: 0
+        color: '#c0392b'
+      - value: 20
+        color: '#f39c12'
+      - value: 50
+        color: '#43a047'
+      entities:
+      - entity: sensor.garage_ups_battery_charge
+        name: Battery
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:mini-graph-card
+      name: Office Battery
+      icon: mdi:battery-high
+      hours_to_show: 24
+      points_per_hour: 2
+      line_width: 2
+      smoothing: true
+      height: 80
+      show:
+        legend: false
+        labels: false
+        name: true
+        icon: true
+        state: true
+      color_thresholds:
+      - value: 0
+        color: '#c0392b'
+      - value: 20
+        color: '#f39c12'
+      - value: 50
+        color: '#43a047'
+      entities:
+      - entity: sensor.office_ups_eaton_550_battery_charge
+        name: Battery
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:mini-graph-card
+      name: Garage Load
+      icon: mdi:gauge
+      hours_to_show: 24
+      points_per_hour: 2
+      line_width: 2
+      smoothing: true
+      height: 80
+      show:
+        legend: false
+        labels: false
+        name: true
+        icon: true
+        state: true
+      color_thresholds:
+      - value: 0
+        color: '#43a047'
+      - value: 60
+        color: '#f39c12'
+      - value: 85
+        color: '#c0392b'
+      entities:
+      - entity: sensor.garage_ups_load
+        name: Load
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:mini-graph-card
+      name: Office Load
+      icon: mdi:gauge
+      hours_to_show: 24
+      points_per_hour: 2
+      line_width: 2
+      smoothing: true
+      height: 80
+      show:
+        legend: false
+        labels: false
+        name: true
+        icon: true
+        state: true
+      color_thresholds:
+      - value: 0
+        color: '#43a047'
+      - value: 60
+        color: '#f39c12'
+      - value: 85
+        color: '#c0392b'
+      entities:
+      - entity: sensor.office_ups_eaton_550_load
+        name: Load
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+# -------------------------------------------------------------------
+# Home Assistant power resilience dry run
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(1, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header_icon
+        name: Power Resilience - Home Assistant
+        icon: mdi:home-assistant
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.power_resilience_recommended_stage
+        name: Recommended Stage
+        icon: mdi:signal
+        state_display: >
+          [[[ return String(entity?.state ?? 'NO DATA').replaceAll('_', ' '); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.power_resilience_recommended_stage
+        name: Control Owner
+        icon: mdi:brain
+        state_display: >
+          [[[
+            const owner = String(entity?.attributes?.control_owner ?? 'NO DATA');
+            const mode = String(entity?.attributes?.execution_mode ?? 'NO DATA');
+            return `${owner.toUpperCase()} / ${mode.replaceAll('_', ' ').toUpperCase()}`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.power_resilience_recommended_stage
+        name: Safety State
+        icon: mdi:shield-lock-outline
+        state_display: >
+          [[[ return entity?.attributes?.actions_armed === true ? 'ACTIONS ARMED' : 'NO SHUTDOWN ACTIONS'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.power_resilience_recommended_stage
+        name: Powerwall Inputs
+        icon: mdi:home-battery-outline
+        state_display: >
+          [[[
+            const grid = String(entity?.attributes?.grid_status ?? 'NO DATA').toUpperCase();
+            const charge = Number(entity?.attributes?.powerwall_charge);
+            return Number.isFinite(charge) ? `GRID ${grid} / ${charge.toFixed(0)}%` : `GRID ${grid} / NO DATA`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.power_resilience_recommended_stage
+        name: Outage Elapsed
+        icon: mdi:timer-sand
+        state_display: >
+          [[[
+            const seconds = Number(entity?.attributes?.outage_elapsed_seconds);
+            if (!Number.isFinite(seconds)) return 'NO DATA';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+          ]]]

@@ -1,0 +1,23 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Systems View - Car
+#  Read-only Tesla, tire-pressure, mileage, and JuiceBox charging telemetry.
+# -------------------------------------------------------------------
+# Related Issue: 1944
+# Notes: TeslaMate remains the source of truth for long-term vehicle history.
+# Notes: JuiceBox cards stay unavailable until the charger sends real telemetry.
+######################################################################
+
+title: Car
+path: car
+type: sections
+icon: mdi:car-electric
+theme: default
+max_columns: 4
+dense_section_placement: true
+badges: []
+sections: !include /config/dashboards/infrastructure/partials/car_sections.yaml
+cards: []
