@@ -13,9 +13,14 @@ flowchart TD
         Wyze[Wyze Bridge]
     end
 
-    subgraph D14[docker14 - Cameras and DNS standby]
+    subgraph D14[docker14 - Cameras and DNS sync]
         Frigate[Frigate NVR]
-        DNS2[Secondary Pi-hole and Nebula Sync]
+        Sync[Nebula Sync]
+    end
+
+    subgraph Office[office-pi - Office resilience]
+        DNS2[Secondary Pi-hole]
+        NUT[Office Eaton NUT]
     end
 
     subgraph CX[codex-appliance - Codex runtime]
@@ -46,6 +51,9 @@ flowchart TD
     Internet --> Tunnel
     Tunnel --> PublicApps
     HA --> Core
+    Core -->|Pi-hole config| Sync
+    Sync -->|replicate| DNS2
+    NUT -->|UPS telemetry| HA
     Wyze -->|RTSP| Frigate
     Frigate --> HA
     HA --> Runtime
