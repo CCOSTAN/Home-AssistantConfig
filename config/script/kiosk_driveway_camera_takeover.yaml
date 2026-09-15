@@ -1,0 +1,113 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Kiosk Driveway Camera Takeover - Wake and coordinate both displays
+#  Shows the live Driveway feed for the shorter of occupancy or ten minutes.
+# -------------------------------------------------------------------
+# Notes: Garage and Front Door remain higher-priority camera states.
+# Notes: Repeated activity keeps each kiosk visible without changing its idle settings.
+######################################################################
+
+kiosk_driveway_camera_takeover:
+  alias: "Kiosks - Show Driveway Camera"
+  description: >-
+    Show the Driveway camera on Kitchen and Bedroom until Frigate occupancy
+    clears or ten minutes elapse, while preserving higher-priority cameras.
+  mode: restart
+  variables:
+    bedroom_screen_was_on: "{{ is_state('switch.alarm_panel_1_screen', 'on') }}"
+    bedroom_screensaver_was_active: >-
+      {{ is_state('switch.alarm_panel_1_screensaver', 'on') }}
+    kitchen_screensaver_was_active: >-
+      {{ is_state('switch.kitchen_show_screensaver_active_2', 'on') }}
+  sequence:
+    - service: timer.start
+      target:
+        entity_id: timer.kiosk_driveway_camera_display
+      data:
+        duration: "00:10:00"
+    - delay: "00:00:01"
+    - parallel:
+        - sequence:
+            - if:
+                - condition: state
+                  entity_id: binary_sensor.driveway_zone_car_occupancy
+                  state: "on"
+              then:
+                - wait_for_trigger:
+                    - platform: state
+                      entity_id: binary_sensor.driveway_zone_car_occupancy
+                      to: "off"
+                  timeout: "00:10:00"
+                  continue_on_timeout: true
+            - service: timer.cancel
+              target:
+                entity_id: timer.kiosk_driveway_camera_display
+        - sequence:
+            - repeat:
+                while:
+                  - condition: state
+                    entity_id: timer.kiosk_driveway_camera_display
+                    state: active
+                sequence:
+                  - parallel:
+                      - service: automation.trigger
+                        continue_on_error: true
+                        target:
+                          entity_id: automation.kitchen_kiosk_satellite_show_garage_camera
+                        data:
+                          skip_condition: true
+                      - service: switch.turn_on
+                        continue_on_error: true
+                        target:
+                          entity_id: switch.alarm_panel_1_screen
+                      - service: switch.turn_off
+                        continue_on_error: true
+                        target:
+                          entity_id: switch.alarm_panel_1_screensaver
+                      - service: button.press
+                        continue_on_error: true
+                        target:
+                          entity_id: button.alarm_panel_1_trigger_motion_activity
+                      - service: button.press
+                        continue_on_error: true
+                        target:
+                          entity_id: button.alarm_panel_1_bring_to_foreground
+                  - delay: "00:00:45"
+    - service: automation.trigger
+      continue_on_error: true
+      target:
+        entity_id: automation.kitchen_kiosk_satellite_show_garage_camera
+      data:
+        skip_condition: true
+    - if:
+        - condition: state
+          entity_id: sensor.kiosk_active_camera_view
+          state: none
+      then:
+        - if:
+            - condition: template
+              value_template: "{{ kitchen_screensaver_was_active | bool }}"
+          then:
+            - service: switch.turn_on
+              continue_on_error: true
+              target:
+                entity_id: switch.kitchen_show_screensaver_active_2
+        - if:
+            - condition: template
+              value_template: "{{ bedroom_screensaver_was_active | bool }}"
+          then:
+            - service: switch.turn_on
+              continue_on_error: true
+              target:
+                entity_id: switch.alarm_panel_1_screensaver
+        - if:
+            - condition: template
+              value_template: "{{ not (bedroom_screen_was_on | bool) }}"
+          then:
+            - service: switch.turn_off
+              continue_on_error: true
+              target:
+                entity_id: switch.alarm_panel_1_screen

@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Bedroom wall-tablet renderer: distance-readable status, cameras, and event takeovers. -->
+<!-- Bedroom wall-tablet renderer: fixed-dark status, cameras, and event takeovers. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -7,7 +7,7 @@
   <title>Bedroom Kiosk</title>
   <style>
     :root {
-      color-scheme: light dark;
+      color-scheme: dark;
       --background: #eef1f5;
       --surface: #ffffff;
       --text: #111827;
@@ -120,7 +120,7 @@
     }
   </style>
 </head>
-<body>
+<body class="dark">
   <div id="connection">Connecting to Home Assistant…</div>
   <main id="default-view">
     <section class="band">
@@ -160,12 +160,6 @@
       var imageUrls = {};
       var stateRefreshRunning = false;
       var imageRefreshRunning = false;
-
-      function setTheme() {
-        var hour = new Date().getHours();
-        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.body.classList.toggle('dark', prefersDark || hour >= 20 || hour < 7);
-      }
 
       function getTokens() {
         try {
@@ -248,11 +242,13 @@
         var eventView = document.getElementById('event-view');
         var defaultView = document.getElementById('default-view');
 
-        if (mode === 'garage' || mode === 'front_door') {
+        if (mode === 'garage' || mode === 'front_door' || mode === 'driveway') {
           defaultView.style.display = 'none';
           eventView.style.display = 'block';
           eventView.className = mode === 'front_door' ? 'front-door' : '';
-          document.getElementById('event-label').textContent = mode === 'garage' ? 'Garage' : 'Front Door';
+          document.getElementById('event-label').textContent = mode === 'garage'
+            ? 'Garage'
+            : mode === 'front_door' ? 'Front Door' : 'Driveway Alert';
         } else {
           eventView.style.display = 'none';
           defaultView.style.display = 'grid';
@@ -312,6 +308,8 @@
           requests = [updateImage('event-image', 'camera.garagecam')];
         } else if (mode === 'front_door') {
           requests = [updateImage('event-image', 'camera.frontdoorbell')];
+        } else if (mode === 'driveway') {
+          requests = [updateImage('event-image', 'camera.driveway')];
         } else {
           requests = [
             updateImage('front-lawn', 'camera.frontlawn'),
@@ -325,12 +323,10 @@
         });
       }
 
-      setTheme();
       refreshStates();
       window.setTimeout(refreshImages, 1000);
       window.setInterval(refreshStates, 5000);
       window.setInterval(refreshImages, 4000);
-      window.setInterval(setTheme, 60000);
     }());
   </script>
 </body>

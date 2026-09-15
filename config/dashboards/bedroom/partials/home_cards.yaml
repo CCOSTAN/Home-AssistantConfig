@@ -9,6 +9,7 @@
 # Related Issue: 1875
 # Notes: No current-time clock; both nightstands already provide visible clocks.
 # Notes: Full-screen event cameras replace the default status/camera/alert bands.
+# Notes: Driveway alerts clear with occupancy or after ten minutes, whichever is first.
 # Video: https://youtu.be/ChgEu0IDWzc
 ######################################################################
 
@@ -35,6 +36,18 @@
         title: Front Door
         camera_image: camera.frontdoorbell
         camera_view: auto
+        aspect_ratio: "2:1"
+        entities: []
+
+    - type: conditional
+      conditions:
+        - entity: sensor.kiosk_active_camera_view
+          state: driveway
+      card:
+        type: picture-glance
+        title: Driveway Alert
+        camera_image: camera.driveway
+        camera_view: live
         aspect_ratio: "2:1"
         entities: []
 

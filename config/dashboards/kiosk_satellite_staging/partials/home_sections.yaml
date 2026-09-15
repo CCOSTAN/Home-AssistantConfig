@@ -11,6 +11,7 @@
 # Notes: Three-row landscape layout uses full-width clock and alert banners around the camera row.
 # Notes: Camera cards use automatic streaming to limit idle tablet load.
 # Notes: Native Garage and Front Door views take over for their matching live states.
+# Notes: Driveway alerts use a full-view live card until occupancy clears or ten minutes elapse.
 # Notes: Kitchen Show Kiosk Satellite imports the HA camera sources and prefers HLS for native camera playback on Fire/WebView displays.
 # Notes: Nearby rain or lightning starts a five-minute NOAA radar view only while the sun is above the horizon.
 # Notes: After radar returns to the ambient wall, Storms Approaching offers another five-minute replay from the lower banner.
@@ -1293,5 +1294,21 @@
             show_lightning: false
             height: 560px
             width: 100%
+          view_layout:
+            grid-area: 1 / 1 / 4 / 3
+
+        # A core conditional picture card is required for the Driveway source,
+        # which is not configured as a native Kiosk Satellite camera shortcut.
+        - type: conditional
+          conditions:
+            - entity: sensor.kiosk_active_camera_view
+              state: driveway
+          card:
+            type: picture-glance
+            title: Driveway Alert
+            camera_image: camera.driveway
+            camera_view: live
+            aspect_ratio: "16:10"
+            entities: []
           view_layout:
             grid-area: 1 / 1 / 4 / 3

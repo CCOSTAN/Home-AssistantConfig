@@ -17,7 +17,7 @@
 # Notes: Kiosk Satellite owns HA kiosk-mode hiding, connection recovery, HA camera import, and HLS-first playback; no kiosk-mode custom resource is loaded.
 # Notes: Kitchen Show uses the Dim screensaver while empty/asleep; true panel-off is disabled because this Crown build naps Wi-Fi and cannot accept a remote wake.
 # Notes: Kitchen Show volume is corrected to 13% at 08:00 and after HA or kiosk startup; manual changes otherwise persist.
-# Notes: Garage takes over while either door is moving/open and remains for three minutes after both close; Front Door takes over while unlocked.
+# Notes: Garage and Front Door retain priority; a Driveway alert takes over both kiosks until occupancy clears or ten minutes elapse.
 # Notes: At 07:00, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
 # Notes: Wake events only restore brightness/focus; URL reloads require page drift.
 # Notes: Fully auto-reload on screen-on/screensaver-stop is disabled to avoid motion wake reload loops.
@@ -50,6 +50,11 @@ timer:
     duration: "00:03:00"
     restore: false
     icon: mdi:card-text-outline
+  kiosk_driveway_camera_display:
+    name: "Kiosk Driveway Camera Display"
+    duration: "00:10:00"
+    restore: false
+    icon: mdi:car-search
 
 automation:
   - alias: "Bedroom Kiosk Tablet - Return to Kiosk View"
@@ -427,6 +432,8 @@ template:
             garage
           {% elif is_state('lock.front_door', 'unlocked') %}
             front_door
+          {% elif is_state('timer.kiosk_driveway_camera_display', 'active') %}
+            driveway
           {% else %}
             none
           {% endif %}
@@ -740,7 +747,7 @@ script:
     mode: restart
     variables:
       desired_view: >-
-        {{ {'garage': 'Garage', 'front_door': 'Front Door'}.get(
+        {{ {'garage': 'Garage', 'front_door': 'Front Door', 'driveway': 'Driveway'}.get(
              states('sensor.kiosk_active_camera_view'), 'none') }}
       desired_button: >-
         {{ 'button.kitchen_show_show_garage_2'
@@ -759,6 +766,23 @@ script:
                 data:
                   event_type: camera
                   show_button: "{{ desired_button }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ desired_view == 'Driveway' }}"
+            sequence:
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: >-
+                          {{ states('sensor.kitchen_show_active_camera_view_2')
+                             not in ['none', 'unknown', 'unavailable'] }}
+                    sequence:
+                      - service: button.press
+                        target:
+                          entity_id: button.kitchen_show_close_camera_view_2
+              - service: script.kitchen_kiosk_show_event
+                data:
+                  event_type: detail
         default:
           - choose:
               - conditions:
