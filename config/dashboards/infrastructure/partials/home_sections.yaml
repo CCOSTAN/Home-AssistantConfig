@@ -6,7 +6,7 @@
 # Systems Partial - operations summary
 #  House-system health strip, active issues, and datacenter status.
 # -------------------------------------------------------------------
-# Related Issue: 1890, 1817, 1944
+# Related Issue: 1890, 1817, 1936, 1944
 # Notes: The health ribbon mirrors the visible dashboard navigation order and labels.
 # Notes: DNS and external-monitoring faults roll up under Network instead of duplicating it.
 # Notes: Network trend panels live on Network so Overview stays focused on broad house status.
@@ -815,6 +815,23 @@
           [[[
             const charge = Number(states['sensor.office_ups_eaton_550_battery_charge']?.state);
             const seconds = Number(states['sensor.office_ups_eaton_550_battery_runtime']?.state);
+            const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
+            const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} · ${battery} · ${runtime}`;
+          ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/ups
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_ups_cyberpower_status
+        name: Office CyberPower ST Series
+        icon: mdi:battery-heart-variant
+        state_display: >
+          [[[
+            const charge = Number(states['sensor.office_ups_cyberpower_battery_charge']?.state);
+            const seconds = Number(states['sensor.office_ups_cyberpower_battery_runtime']?.state);
             const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
             const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
             return `${String(entity?.state ?? 'NO DATA').toUpperCase()} · ${battery} · ${runtime}`;

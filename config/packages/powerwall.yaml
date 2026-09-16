@@ -8,6 +8,7 @@
 # Related Issue: 1550
 # Related Issue: 1571
 # Related Issue: 1598
+# Related Issue: 1936
 #  Powerwall status sensors, outage alerting, and load-shedding helpers.
 # -------------------------------------------------------------------
 # Video: https://youtu.be/hR_0lFEE2bA
@@ -105,6 +106,7 @@ template:
           preserve_threshold: "{{ 25 }}"
           garage_ups_status: "{{ states('sensor.garage_ups_status') }}"
           office_ups_status: "{{ states('sensor.office_ups_eaton_550_status') }}"
+          office_cyberpower_ups_status: "{{ states('sensor.office_ups_cyberpower_status') }}"
 
 #-------------------------------------------
 script:

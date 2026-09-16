@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure - Observability, disk pressure, and Joanna review workflows
+# Related Issue: 1936
 #  WAN/DNS/website/Docker host state normalized for dashboards, plus scheduled infrastructure reviews.
 # Video: https://youtu.be/F-PpsKkzcrM
 # Blog: https://www.vcloudinfo.com/2026/08/home-assistant-internet-speed-monitoring-ookla.html
@@ -32,7 +33,7 @@
 # Notes: Dashboard aggregate issue count includes compact BearClaw scheduled-job warning/error health.
 # Notes: Docker host maintenance is counted separately from container runtime health so pending packages and stale host reports surface on Systems.
 # Notes: Home Water rollup includes Rheem faults/telemetry loss plus active Phyn alerts and valve closure.
-# Notes: UPS outage status aggregates the Garage and Office NUT servers from their raw status-data entities.
+# Notes: UPS outage status aggregates the Garage plus both Office NUT devices from their raw status-data entities.
 ######################################################################
 
 input_text:
@@ -480,7 +481,8 @@ template:
         state: >-
           {% set statuses = [
             states('sensor.garage_ups_status_data') | upper,
-            states('sensor.office_ups_eaton_550_status_data') | upper
+            states('sensor.office_ups_eaton_550_status_data') | upper,
+            states('sensor.office_ups_cyberpower_status_data') | upper
           ] %}
           {% set ns = namespace(on_battery=false) %}
           {% for status in statuses %}
@@ -492,6 +494,7 @@ template:
         attributes:
           garage_status: "{{ states('sensor.garage_ups_status') }}"
           office_status: "{{ states('sensor.office_ups_eaton_550_status') }}"
+          office_cyberpower_status: "{{ states('sensor.office_ups_cyberpower_status') }}"
 
       - name: "Infra Website Degraded"
         unique_id: infra_website_degraded
