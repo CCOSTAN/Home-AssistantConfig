@@ -7,7 +7,7 @@
 # Related Issue: 1894
 #  Special-home overlays stay visible while Bear Stone home stays clean.
 # -------------------------------------------------------------------
-# Notes: Home maps show current positions only; bounded route-history retest is deferred until September 23, 2026.
+# Notes: Home maps show 24 hours of route history; restored September 16, 2026 after a healthy bounded retest.
 # Notes: Historical routes remain available from the dedicated Family Locator view.
 # Notes: Mobile search sits before maps so entity lookup remains near the top.
 ######################################################################
@@ -177,11 +177,11 @@ cards:
   double_tap_action:
     action: none
 
-# Fallback cards: map preserves current person positions without loading route history.
+# Fallback cards: native maps show current positions plus the prior 24 hours of route history.
 - type: map
   entities:
   - person.justin
-  hours_to_show: 0
+  hours_to_show: 24
   aspect_ratio: '16:9'
   theme_mode: auto
   card_mod: &person_location_map_style
@@ -201,7 +201,7 @@ cards:
 - type: map
   entities:
   - person.paige
-  hours_to_show: 0
+  hours_to_show: 24
   aspect_ratio: '16:9'
   theme_mode: auto
   card_mod: *person_location_map_style
@@ -210,7 +210,7 @@ cards:
   entities:
   - person.carlo
   - person.stacey
-  hours_to_show: 0
+  hours_to_show: 24
   aspect_ratio: '16:9'
   theme_mode: auto
   card_mod: *person_location_map_style
