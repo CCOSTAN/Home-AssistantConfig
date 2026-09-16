@@ -1,0 +1,157 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# BGW Gateway Monitoring - Read-only broadband gateway telemetry
+#  Pulls the allowlisted BGW Probe API and exposes recorder-friendly entities.
+# -------------------------------------------------------------------
+# Project: https://github.com/CCOSTAN/bgw-probe
+# Notes: The raw REST payload is excluded from recorder/logbook; curated numeric sensors retain useful history.
+# Notes: BGW Probe intentionally omits serial, MAC, IP, DNS, Wi-Fi, log, and credential data.
+######################################################################
+
+sensor:
+  - platform: rest
+    name: BGW Probe Payload
+    unique_id: bgw_probe_payload
+    resource: !secret bgw_probe_status_url
+    method: GET
+    scan_interval: 60
+    timeout: 10
+    value_template: >-
+      {% if value_json is mapping %}
+        {{ value_json.status | default('error') }}
+      {% else %}
+        error
+      {% endif %}
+    json_attributes:
+      - schema_version
+      - collected_at
+      - age_seconds
+      - gateway
+      - broadband
+      - firewall
+      - collector
+
+template:
+  - sensor:
+      - name: BGW Gateway Status
+        unique_id: bgw_gateway_status
+        icon: mdi:router-network
+        availability: "{{ has_value('sensor.bgw_probe_payload') }}"
+        state: "{{ states('sensor.bgw_probe_payload') }}"
+        attributes:
+          model: >-
+            {% set gateway = state_attr('sensor.bgw_probe_payload', 'gateway') or {} %}
+            {{ gateway.get('model') if gateway is mapping else none }}
+          firmware: >-
+            {% set gateway = state_attr('sensor.bgw_probe_payload', 'gateway') or {} %}
+            {{ gateway.get('firmware') if gateway is mapping else none }}
+          network_type: >-
+            {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+            {{ broadband.get('network_type') if broadband is mapping else none }}
+
+      - name: BGW Gateway Firmware
+        unique_id: bgw_gateway_firmware
+        icon: mdi:chip
+        availability: >-
+          {% set gateway = state_attr('sensor.bgw_probe_payload', 'gateway') or {} %}
+          {{ gateway is mapping and gateway.get('firmware') is not none }}
+        state: >-
+          {% set gateway = state_attr('sensor.bgw_probe_payload', 'gateway') or {} %}
+          {{ gateway.get('firmware') if gateway is mapping else none }}
+
+      - name: BGW Gateway Uptime
+        unique_id: bgw_gateway_uptime
+        icon: mdi:timer-outline
+        device_class: duration
+        state_class: measurement
+        unit_of_measurement: s
+        availability: >-
+          {% set gateway = state_attr('sensor.bgw_probe_payload', 'gateway') or {} %}
+          {{ gateway is mapping and gateway.get('uptime_seconds') is not none }}
+        state: >-
+          {% set gateway = state_attr('sensor.bgw_probe_payload', 'gateway') or {} %}
+          {{ gateway.get('uptime_seconds') if gateway is mapping else none }}
+
+      - name: BGW Broadband Speed
+        unique_id: bgw_broadband_speed
+        icon: mdi:ethernet
+        device_class: data_rate
+        state_class: measurement
+        unit_of_measurement: Mbit/s
+        availability: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband is mapping and broadband.get('speed_mbps') is not none }}
+        state: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband.get('speed_mbps') if broadband is mapping else none }}
+
+      - name: BGW Broadband Receive Bytes
+        unique_id: bgw_broadband_receive_bytes
+        icon: mdi:download-network-outline
+        device_class: data_size
+        state_class: total_increasing
+        unit_of_measurement: B
+        availability: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband is mapping and broadband.get('rx_bytes') is not none }}
+        state: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband.get('rx_bytes') if broadband is mapping else none }}
+
+      - name: BGW Broadband Transmit Bytes
+        unique_id: bgw_broadband_transmit_bytes
+        icon: mdi:upload-network-outline
+        device_class: data_size
+        state_class: total_increasing
+        unit_of_measurement: B
+        availability: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband is mapping and broadband.get('tx_bytes') is not none }}
+        state: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband.get('tx_bytes') if broadband is mapping else none }}
+
+      - name: BGW Broadband Error Total
+        unique_id: bgw_broadband_error_total
+        icon: mdi:alert-circle-outline
+        state_class: total_increasing
+        availability: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband is mapping and broadband.get('rx_errors') is not none and broadband.get('tx_errors') is not none }}
+        state: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ (broadband.get('rx_errors', 0) | int(0)) + (broadband.get('tx_errors', 0) | int(0)) }}
+
+      - name: BGW Broadband Drop Total
+        unique_id: bgw_broadband_drop_total
+        icon: mdi:package-down
+        state_class: total_increasing
+        availability: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband is mapping and broadband.get('rx_drops') is not none and broadband.get('tx_drops') is not none }}
+        state: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ (broadband.get('rx_drops', 0) | int(0)) + (broadband.get('tx_drops', 0) | int(0)) }}
+
+  - binary_sensor:
+      - name: BGW Gateway Reachable
+        unique_id: bgw_gateway_reachable
+        icon: mdi:router-wireless
+        device_class: connectivity
+        availability: "{{ has_value('sensor.bgw_probe_payload') }}"
+        state: >-
+          {{ states('sensor.bgw_probe_payload') in ['ok', 'degraded'] }}
+
+      - name: BGW Broadband Connection
+        unique_id: bgw_broadband_connection
+        icon: mdi:wan
+        device_class: connectivity
+        availability: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband is mapping and broadband.get('connection') is not none and broadband.get('line_state') is not none }}
+        state: >-
+          {% set broadband = state_attr('sensor.bgw_probe_payload', 'broadband') or {} %}
+          {{ broadband.get('connection') == 'up' and broadband.get('line_state') == 'up' }}

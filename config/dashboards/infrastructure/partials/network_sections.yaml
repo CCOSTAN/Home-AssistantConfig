@@ -8,7 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: Pi-hole blocking controls are mirrored by pihole_ha.yaml.
 # Notes: Detailed WAN, Pi-hole, and website telemetry live in hidden drill-down views.
-# Notes: The ribbon is status-only; Internet metrics remain in the trend panel.
+# Notes: The ribbon is status-only; Internet and gateway metrics remain in their panels.
 # Notes: Ookla capacity snapshots use a 7-day window; continuous latency/loss determine WAN quality.
 # Notes: WAN status is green when clear, amber for sustained quality degradation, and red only for corroborated outage or severe quality.
 ######################################################################
@@ -26,7 +26,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-template-columns: repeat(4, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -55,6 +55,16 @@
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
+      entity: binary_sensor.bgw_broadband_connection
+      name: Gateway
+      icon: mdi:router-network
+      variables:
+        ok_state: 'on'
+        healthy_text: CONNECTED
+        alert_text: DOWN
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
       entity: binary_sensor.pi_hole_status
       name: Primary DNS
       icon: mdi:pi-hole
@@ -80,7 +90,7 @@
         navigation_path: /dashboard-infrastructure/pihole
 
 # -------------------------------------------------------------------
-# Trends, Wi-Fi, Pi-hole controls, and website health
+# Trends, gateway, Pi-hole controls, and website health
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -92,7 +102,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-template-columns: repeat(4, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -175,6 +185,79 @@
           name: Garage
         card_mod:
           style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: BGW Gateway
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: sensor.bgw_gateway_status
+        name: Probe Status
+        icon: mdi:router-network
+        state_display: >
+          [[[
+            const value = String(entity?.state ?? 'NO DATA').toUpperCase();
+            return value === 'OK' ? 'HEALTHY' : value;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row_running
+        entity: binary_sensor.bgw_broadband_connection
+        name: WAN Link
+        icon: mdi:wan
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'CONNECTED' : 'DOWN'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.bgw_broadband_speed
+        name: Link Speed
+        icon: mdi:ethernet
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? `${value} MBIT/S` : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.bgw_gateway_uptime
+        name: Gateway Uptime
+        icon: mdi:timer-outline
+        state_display: >
+          [[[
+            const seconds = Number(entity?.state);
+            if (!Number.isFinite(seconds)) return 'NO DATA';
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            return `${days}D ${hours}H`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.bgw_gateway_firmware
+        name: Firmware
+        icon: mdi:chip
+        state_display: >
+          [[[ return String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.bgw_broadband_error_total
+        name: Errors / Drops
+        icon: mdi:counter
+        state_display: >
+          [[[
+            const errors = Number(entity?.state);
+            const drops = Number(states['sensor.bgw_broadband_drop_total']?.state);
+            if (!Number.isFinite(errors) || !Number.isFinite(drops)) return 'NO DATA';
+            return `${errors} ERR | ${drops} DROP`;
+          ]]]
 
     - type: custom:vertical-stack-in-card
       card_mod:
