@@ -15,7 +15,7 @@
 # Notes: Fully controls apply only to the legacy Bedroom tablet.
 # Notes: Kitchen Show uses Kiosk Satellite's native ESPHome entities; `_2` is the live set while legacy MQTT registry entries coexist.
 # Notes: Kiosk Satellite owns HA kiosk-mode hiding, connection recovery, HA camera import, and HLS-first playback; no kiosk-mode custom resource is loaded.
-# Notes: Kitchen Show uses the Dim screensaver while empty/asleep; true panel-off is disabled because this Crown build naps Wi-Fi and cannot accept a remote wake.
+# Notes: Kitchen Show uses the Dim screensaver while empty or `group.bed` is on; true panel-off is disabled because this Crown build naps Wi-Fi and cannot accept a remote wake.
 # Notes: Kitchen Show volume is corrected to 13% at 08:00 and after HA or kiosk startup; manual changes otherwise persist.
 # Notes: Garage and Front Door retain priority; a Driveway alert takes over both kiosks until occupancy clears or ten minutes elapse.
 # Notes: At 07:00, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
@@ -605,11 +605,7 @@ template:
           {% set guest = is_state('input_boolean.guest_mode', 'on') %}
           {% set sitter = is_state('input_boolean.house_sitter_present', 'on') %}
           {% set family_home = is_state('group.family', 'home') %}
-          {% set carlo_bed = is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'on') %}
-          {% set stacey_bed = is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'on') %}
-          {% set bedtime = (carlo_bed or stacey_bed)
-             and (carlo_bed or is_state('person.carlo', 'not_home'))
-             and (stacey_bed or is_state('person.stacey', 'not_home')) %}
+          {% set bedtime = is_state('group.bed', 'on') %}
           {{ guest or sitter or (family_home and not bedtime) }}
         attributes:
           reason: >-
@@ -619,15 +615,8 @@ template:
               house sitter present
             {% elif not is_state('group.family', 'home') %}
               nobody home
-            {% elif is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'on')
-               and is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'on') %}
-              household asleep
-            {% elif is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'on')
-               and is_state('person.stacey', 'not_home') %}
-              Carlo asleep and Stacey away
-            {% elif is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'on')
-               and is_state('person.carlo', 'not_home') %}
-              Stacey asleep and Carlo away
+            {% elif is_state('group.bed', 'on') %}
+              bed occupied
             {% else %}
               household active
             {% endif %}

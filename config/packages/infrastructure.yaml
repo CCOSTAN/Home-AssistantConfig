@@ -728,7 +728,7 @@ automation:
 
   - alias: "Infrastructure - Nebula Sync Health Dispatch"
     id: infra_nebula_sync_health_dispatch
-    description: "Dispatch Joanna when Nebula Sync DNS consistency or container telemetry stays degraded."
+    description: "Dispatch Joanna when Nebula Sync stays degraded outside planned Docker maintenance."
     mode: queued
     trigger:
       - platform: state
@@ -757,7 +757,12 @@ automation:
       pihole_secondary_status: "{{ states('binary_sensor.pi_hole_status_2') }}"
     action:
       - choose:
-          - conditions: "{{ degraded and previous_band != 'warning' }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ degraded and previous_band != 'warning' }}"
+              - condition: state
+                entity_id: binary_sensor.docker_container_alerts_snoozed
+                state: "off"
             sequence:
               - service: repairs.remove
                 continue_on_error: true
@@ -795,6 +800,8 @@ automation:
                     Verify both Pi-holes answer the GTG-PF45FK6F short name, FQDN, and reverse lookup consistently.
                     Check nebula_sync container status, Docker health, recent sync logs, and primary/replica Pi-hole API reachability.
                     If confidence is high, perform safe remediation such as a one-time Nebula Sync run or restarting only the nebula_sync container.
+                    Docker14 VM 101 power and placement are out of scope: do not start, stop, reboot, or migrate the VM.
+                    If docker_14 is unreachable or VM 101 is stopped, report that blocker instead of changing VM power state.
                     Do not restart Pi-hole or change DHCP/custom DNS records unless diagnostics prove data drift and the action is safe.
                     Reply with resolved=true/false, root_cause, action_taken, verification, and next_action_required=true/false.
                   domain_hint: ops

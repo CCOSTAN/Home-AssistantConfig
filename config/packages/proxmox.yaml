@@ -13,6 +13,7 @@
 # Notes: Joanna dispatch handles overnight Proxmox updates plus sustained runtime/disk degradations.
 # Notes: Docker14 must be confirmed stopped before either Proxmox node reboots and restored after recovery.
 # Notes: Return migrations are sequential; Docker14 startup waits for expected placement and capacity headroom.
+# Notes: Overnight maintenance uses a four-hour fail-safe alert lease and releases its own lease after verified recovery.
 # Notes: Normalized disk usage sensors expose state_class for long-term trend rollups.
 ######################################################################
 template:
@@ -158,6 +159,17 @@ automation:
               {% endif %}
             {% endfor %}
             {{ ns.items | join('; ') if ns.items | count > 0 else 'none detected' }}
+          previous_maintenance_snooze_until: "{{ states('input_datetime.docker_container_alerts_snooze_until') }}"
+          previous_maintenance_snooze_timestamp: >-
+            {{ state_attr('input_datetime.docker_container_alerts_snooze_until', 'timestamp') | float(0) }}
+          requested_maintenance_snooze_timestamp: "{{ (now() + timedelta(hours=4)).timestamp() }}"
+          maintenance_snooze_timestamp: >-
+            {{ [previous_maintenance_snooze_timestamp | float(0),
+                requested_maintenance_snooze_timestamp | float(0)] | max }}
+          maintenance_snooze_until: >-
+            {{ maintenance_snooze_timestamp | float(0) | timestamp_custom('%Y-%m-%d %H:%M:%S', true) }}
+          maintenance_snooze_lease_owned: >-
+            {{ requested_maintenance_snooze_timestamp | float(0) > previous_maintenance_snooze_timestamp | float(0) }}
           structured_request: |-
             PROXMOX_HOST_UPGRADE_REQUEST
             tracking_issue=https://github.com/CCOSTAN/Home-AssistantConfig/issues/1798
@@ -175,15 +187,26 @@ automation:
             proxmox02_updates={{ proxmox02_updates_summary }}
             kernel_update_detected={{ (kernel_update_packages | trim) != 'none detected' }}
             kernel_update_packages={{ kernel_update_packages | trim }}
+            maintenance_snooze_previous_until={{ previous_maintenance_snooze_until }}
+            maintenance_snooze_previous_timestamp={{ previous_maintenance_snooze_timestamp }}
+            maintenance_snooze_applied_until={{ maintenance_snooze_until }}
+            maintenance_snooze_lease_owned={{ maintenance_snooze_lease_owned }}
+            maintenance_alert_policy=The applied deadline is a four-hour fail-safe lease, not a fixed quiet period. Before stopping Docker14, verify binary_sensor.docker_container_alerts_snoozed is on and input_datetime.docker_container_alerts_snooze_until equals maintenance_snooze_applied_until. Keep it active through all return migrations, placement and capacity checks, Docker14 startup, and dependent-service verification.
+            maintenance_snooze_cleanup_policy=After successful final verification, read input_datetime.docker_container_alerts_snooze_until again. If maintenance_snooze_lease_owned is true and its live value still exactly equals maintenance_snooze_applied_until, restore maintenance_snooze_previous_until only when that previous deadline is still in the future; otherwise set the helper to the current time so the snooze clears immediately. If the live value differs, is later, or maintenance_snooze_lease_owned is false, preserve it because another operator or automation owns it. Verify binary_sensor.docker_container_alerts_snoozed is off when this task cleared the lease, or explicitly report the preserved owner deadline. If maintenance or verification fails, do not clear the lease; leave the fail-safe deadline in place and report it.
             required_policy=This dispatch is Carlo's authorization to install pending same-release Proxmox package updates after live preflight passes; do not stop after read-only validation. Inspect live Proxmox cluster health, storage, VM placement, node status, and destination memory headroom before changing anything. Patch hosts one node at a time during the overnight window and verify each node remains healthy before moving to the next. Do not perform major-version upgrades, repository migrations, destructive cleanup, or force operations from this request. If the live preflight is unhealthy, pause and report instead of patching. If kernel packages are present or a reboot is required after kernel updates, use the $kernel-refresh skill and follow its ordered node-cycling workflow; if that skill is unavailable, stop before any reboot and report the blocker.
             migration_policy=Capture each running VM's expected final node before evacuation. Migrate exactly one VM at a time and wait for task success plus running/unlocked/HA-started state before starting another. If any return migration fails or any non-Docker14 VM remains on ProxMox02, recover the expected placement and recheck memory headroom before continuing; do not start Docker14 while placement is incomplete.
             docker14_policy=Verify the live placement of Frigate/Docker14 VM 101, gracefully shut it down before rebooting either Proxmox node even when VM 101 is hosted on the other node, confirm Proxmox reports it stopped, and start it only after the final host cycle, sequential return migrations, and capacity checks are complete. Starting the existing stopped VM 101 for this authorized recovery does not require separate confirmation. Never issue a Proxmox reboot while Docker14 is running.
-            completion_policy=After each host, verify package versions and the update list. Final success requires expected VM placement, no locks, HA resources started, Docker14 and dependent services healthy, and enough host memory headroom; report progress, failures, resume state, package versions, and final verification.
+            completion_policy=After each host, verify package versions and the update list. Final success requires expected VM placement, no locks, HA resources started, Docker14 and dependent services healthy, enough host memory headroom, and verified cleanup or preservation of the maintenance snooze lease; report progress, failures, resume state, package versions, snooze disposition, and final verification.
       - choose:
           - conditions:
               - condition: trigger
                 id: overnight
             sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.docker_container_alerts_snooze_until
+                data:
+                  datetime: "{{ maintenance_snooze_until }}"
               - service: script.send_to_logbook
                 data:
                   topic: "PROXMOX"
@@ -209,7 +232,10 @@ automation:
                     proxmox1_updates_count={{ proxmox1_updates_count }},
                     proxmox02_updates_count={{ proxmox02_updates_count }},
                     kernel_update_detected={{ (kernel_update_packages | trim) != 'none detected' }},
-                    kernel_update_packages={{ kernel_update_packages | trim }}
+                    kernel_update_packages={{ kernel_update_packages | trim }},
+                    container_alerts_snooze_previous_until={{ previous_maintenance_snooze_until }},
+                    container_alerts_snooze_applied_until={{ maintenance_snooze_until }},
+                    container_alerts_snooze_lease_owned={{ maintenance_snooze_lease_owned }}
                   request: "{{ structured_request }}"
         default:
           - service: script.send_to_logbook

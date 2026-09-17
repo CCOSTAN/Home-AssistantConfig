@@ -1101,8 +1101,8 @@ automation:
 
   - alias: "Docker State Sync - Repairs (Dynamic)"
     id: docker_state_sync_repairs_dynamic
-    description: "Detect Docker container/stack state transitions and delegate Repairs sync."
-    mode: queued
+    description: "Detect Docker container/stack state transitions and delegate independent Repairs sync runs."
+    mode: parallel
     max: 50
     max_exceeded: silent
     trigger:
