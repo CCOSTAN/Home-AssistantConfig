@@ -16,7 +16,7 @@ if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
   $BaseUrl = 'http://192.168.10.10:8123'
 }
 if ([string]::IsNullOrWhiteSpace($OutputDir)) {
-  $OutputDir = Join-Path $repoRoot 'output/playwright/ha-ui-smoke'
+  $OutputDir = Join-Path ([IO.Path]::GetTempPath()) 'Codex/homeassistant/ha-ui-smoke'
 }
 
 if ([string]::IsNullOrWhiteSpace($NodePath)) {

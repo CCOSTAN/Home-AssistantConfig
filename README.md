@@ -38,7 +38,7 @@ This walkthrough turns the read-only status pages on an AT&T gateway into a smal
 
 ### Repo layout and files you won't see
 - Reusable config lives under `config/` (see the quick navigation paths above).
-- Runtime artifacts are hidden by `.gitignore` and won't show up on GitHub (e.g., `home-assistant_v2.db*`, logs, `deps/`, `.venv/`, backups). Look at the YAML and scripts for the actual logic and regenerate your own `secrets.yaml`.
+- Runtime and agent-generated artifacts are hidden by `.gitignore` and blocked by CI (e.g., `home-assistant_v2.db*`, logs, `deps/`, `.venv/`, backups, `output/`, and `.playwright-cli/`). Private agent instructions and editor workspace files also stay local. Look at the YAML and scripts for the actual logic and regenerate your own `secrets.yaml`.
 
 ### Platform
 - Runs on Docker/compose today; this README is a browsing guide, not a how-to-install. Current HA version is tracked in `config/.HA_VERSION` (see the badge above).

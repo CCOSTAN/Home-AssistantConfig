@@ -4,7 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Config Validation - Deterministic repository validation gate.
-#  Runs mutation-sensitive tests plus strict dashboard and holiday checks.
+#  Blocks private/generated artifacts, then runs strict repository checks.
 # -------------------------------------------------------------------
 ######################################################################
 name: Config Validation
@@ -29,6 +29,10 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+
+      - name: Reject private or generated artifacts
+        shell: pwsh
+        run: ./tools/check_public_repo_safety.ps1
 
       - name: Set up Python
         uses: actions/setup-python@v7
