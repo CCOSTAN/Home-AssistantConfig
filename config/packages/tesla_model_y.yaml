@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Tesla Model Y - Reminders and durable vehicle telemetry
+# Related Issue: 1953
 #  Garage prompts, tire alerts, and last-valid dashboard snapshots.
 # -------------------------------------------------------------------
 # Related Issue: 1279
@@ -20,7 +21,7 @@
 # Notes: Plug-in reminders only fire when both `person.carlo` and
 #  `person.stacey` are home.
 # Notes: Tire alerts use the four Tesla Fleet PSI sensors, trigger below
-#  40 PSI, and share a 1-day/3-day snooze with Joanna's morning briefing.
+#  38.5 PSI, and share a 1-day/3-day snooze with Joanna's morning briefing.
 # Notes: Trigger-based snapshot sensors reject unknown/unavailable updates
 #  and restore useful battery, odometer, location, tire, and JuiceBox values.
 # Notes: `event_car_telemetry_snapshot_seed` accepts verified source snapshots;
@@ -537,7 +538,7 @@ automation:
           - sensor.tire_pressure_front_right
           - sensor.tire_pressure_rear_left
           - sensor.tire_pressure_rear_right
-        below: 40
+        below: 38.5
         id: pressure_low
       - platform: time
         at: input_datetime.tesla_tire_pressure_snooze_until
@@ -548,16 +549,16 @@ automation:
         conditions:
           - condition: numeric_state
             entity_id: sensor.tire_pressure_front_left
-            below: 40
+            below: 38.5
           - condition: numeric_state
             entity_id: sensor.tire_pressure_front_right
-            below: 40
+            below: 38.5
           - condition: numeric_state
             entity_id: sensor.tire_pressure_rear_left
-            below: 40
+            below: 38.5
           - condition: numeric_state
             entity_id: sensor.tire_pressure_rear_right
-            below: 40
+            below: 38.5
       - condition: template
         value_template: >-
           {% set snooze_until = as_timestamp(states('input_datetime.tesla_tire_pressure_snooze_until'), 0) %}
@@ -573,7 +574,7 @@ automation:
             {% set ns = namespace(items=[]) %}
             {% for entity_id, tire_name in tire_names.items() %}
               {% set pressure = states(entity_id) %}
-              {% if has_value(entity_id) and (pressure | float(100)) < 40 %}
+              {% if has_value(entity_id) and (pressure | float(100)) < 38.5 %}
                 {% set ns.items = ns.items + [tire_name ~ ' ' ~ (pressure | float(0) | round(1)) ~ ' PSI'] %}
               {% endif %}
             {% endfor %}
@@ -582,7 +583,7 @@ automation:
         data:
           title: "Tesla Tire Pressure"
           value1: >-
-            {{ low_tires }}. Fill any Tesla tire below 40 PSI.
+            {{ low_tires }}. Fill any Tesla tire below 38.5 PSI.
           who: 'parents'
           group: 'Tesla_Tire_Pressure'
           title1: "Snooze 1d"
@@ -635,20 +636,20 @@ automation:
           - sensor.tire_pressure_front_right
           - sensor.tire_pressure_rear_left
           - sensor.tire_pressure_rear_right
-        above: 39.999
+        above: 38.499
     condition:
       - condition: numeric_state
         entity_id: sensor.tire_pressure_front_left
-        above: 39.999
+        above: 38.499
       - condition: numeric_state
         entity_id: sensor.tire_pressure_front_right
-        above: 39.999
+        above: 38.499
       - condition: numeric_state
         entity_id: sensor.tire_pressure_rear_left
-        above: 39.999
+        above: 38.499
       - condition: numeric_state
         entity_id: sensor.tire_pressure_rear_right
-        above: 39.999
+        above: 38.499
       - condition: template
         value_template: >-
           {% set snooze_until = as_timestamp(states('input_datetime.tesla_tire_pressure_snooze_until'), 0) %}
@@ -662,4 +663,4 @@ automation:
       - service: script.send_to_logbook
         data:
           topic: "TESLA"
-          message: "Tesla tire pressure returned to 40 PSI or higher; the tire alert snooze was cleared."
+          message: "Tesla tire pressure returned to 38.5 PSI or higher; the tire alert snooze was cleared."

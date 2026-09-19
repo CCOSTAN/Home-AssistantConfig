@@ -102,7 +102,7 @@
             ];
             const values = ids.map((id) => Number(states[id]?.state)).filter(Number.isFinite);
             if (values.length !== ids.length) return 'unknown';
-            return Math.min(...values) < 40 ? 'critical' : 'healthy';
+            return Math.min(...values) < 38.5 ? 'critical' : 'healthy';
           ]]]
       state_display: >
         [[[
@@ -115,7 +115,7 @@
           const values = ids.map((id) => Number(states[id]?.state)).filter(Number.isFinite);
           if (values.length !== ids.length) return 'NO DATA';
           const minimum = Math.min(...values);
-          return `${minimum < 40 ? 'LOW' : 'MIN'} ${minimum.toFixed(1)} psi`;
+          return `${minimum < 38.5 ? 'LOW' : 'MIN'} ${minimum.toFixed(1)} psi`;
         ]]]
 
     - type: custom:button-card

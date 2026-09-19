@@ -149,7 +149,7 @@
             const tires = tireIds.map((id) => Number(states[id]?.state)).filter(Number.isFinite);
             if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'critical';
             if (!Number.isFinite(battery) || tires.length !== tireIds.length) return 'unknown';
-            return Math.min(...tires) < 40 ? 'critical' : 'healthy';
+            return Math.min(...tires) < 38.5 ? 'critical' : 'healthy';
           ]]]
       state_display: >
         [[[
