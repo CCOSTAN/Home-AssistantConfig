@@ -39,6 +39,8 @@ Live collection of plug-and-play Home Assistant packages. Each YAML file in this
 
 Kitchen Show note: `kiosk_tablet.yaml` uses Kiosk Satellite's native ESPHome entity set for display control, health, screenshots, and updates. The policy keeps the panel reachable and corrects master volume to 13% at 08:00 and after Home Assistant or kiosk startup; while `group.bed` is on or the family is away, the Dim screensaver goes dark instead of using unreliable true panel-off. A Frigate Driveway alert wakes both kiosks and holds the live Driveway feed until occupancy clears or the ten-minute safety limit expires, below Garage and Front Door in camera priority.
 
+After Home Assistant starts, Kitchen Show waits three minutes for the initial state burst to settle, reloads its dashboard page once if the device is reachable, then captures a fresh screenshot. Periodic screenshot refreshes do not reload the page.
+
 ### Featured packages (live today)
 | Package | What it unlocks | Notable entities / services |
 | --- | --- | --- |

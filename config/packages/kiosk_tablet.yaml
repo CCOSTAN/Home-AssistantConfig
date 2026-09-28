@@ -19,9 +19,9 @@
 # Notes: Kitchen Show volume is corrected to 13% at 08:00 and after HA or kiosk startup; manual changes otherwise persist.
 # Notes: Garage and Front Door retain priority; a Driveway alert takes over both kiosks until occupancy clears or ten minutes elapse.
 # Notes: At 07:00, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
-# Notes: Wake events only restore brightness/focus; URL reloads require page drift.
+# Notes: Bedroom wake events only restore brightness/focus; URL reloads require page drift.
 # Notes: Fully auto-reload on screen-on/screensaver-stop is disabled to avoid motion wake reload loops.
-# Notes: Startup recovery waits for HA's initial websocket state burst to settle.
+# Notes: Startup recovery waits for HA's initial websocket state burst, then reloads the Kitchen page once.
 # Notes: Brightness recovery only runs when both SleepIQ in-bed sensors are off.
 # Notes: Fully availability/page/app/power plus Kitchen connectivity, current-page/screenshot freshness, and update state feed Systems telemetry.
 # Notes: Kitchen updates are advisory telemetry and do not raise kiosk or Systems fault rollups.
@@ -318,7 +318,7 @@ automation:
 
   - alias: "Kitchen Kiosk Satellite - Refresh Systems Snapshot"
     id: e920cab1-59d3-4d45-8aad-67170127504f
-    description: "Reconcile an active startup storm, then refresh the Systems dashboard screenshot."
+    description: "Recover the Kitchen page after HA startup and refresh the Systems screenshot."
     mode: single
     max_exceeded: silent
     trigger:
@@ -344,6 +344,15 @@ automation:
         value_template: >-
           {% set last_seen = as_timestamp(states('sensor.kitchen_show_last_seen_2'), 0) %}
           {{ last_seen > 0 and (as_timestamp(now()) - last_seen) < 300 }}
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: startup
+            sequence:
+              - service: button.press
+                target:
+                  entity_id: button.kitchen_show_reload_page_2
+              - delay: "00:00:25"
       - service: button.press
         target:
           entity_id: button.kitchen_show_take_screenshot_2
