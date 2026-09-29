@@ -30,6 +30,7 @@
 # Notes: Actionable Kitchen banner slides open one shared short-lived detail surface; camera events retain priority.
 # Notes: Phyn detail can restore a closed main valve only after an explicit on-screen confirmation.
 # Notes: Rheem faults outrank low-hot-water reminders and reuse the hot-water diagnostic detail surface.
+# Notes: Verified Health Coach personal bests rotate for seven days; Bedroom safety and reminders retain priority.
 # Video: https://youtu.be/ChgEu0IDWzc
 ######################################################################
 
@@ -470,6 +471,37 @@ template:
             {{ 'House secured' if secure else 'Check house security' }} ·
             {{ temperature | round(0) if temperature is number else '--' }}° · {{ weather }}
 
+      - name: "Kiosk Recent Personal Records"
+        unique_id: kiosk_recent_personal_records
+        icon: mdi:trophy-outline
+        availability: >-
+          {% set insights = state_attr('sensor.bearclaw_status_telemetry', 'healthInsights') %}
+          {% set generated = as_timestamp(insights.get('generatedAt'), none) if insights is mapping else none %}
+          {{ is_state('sensor.bearclaw_status_telemetry', 'ok')
+             and generated is not none
+             and 0 <= as_timestamp(now()) - generated <= 3600 }}
+        state: ready
+        attributes:
+          items: >-
+            {% set insights = state_attr('sensor.bearclaw_status_telemetry', 'healthInsights') %}
+            {% set users = insights.get('users', {}) if insights is mapping else {} %}
+            {% set current = as_timestamp(now()) %}
+            {% set ns = namespace(items=[]) %}
+            {% for key, person in [('carlo', 'Carlo'), ('stacey', 'Stacey')] %}
+              {% set user = users.get(key, {}) if users is mapping else {} %}
+              {% set personal = user.get('personalRecords', {}) if user is mapping else {} %}
+              {% for record in personal.get('records', []) if record is mapping %}
+                {% set occurred = as_timestamp(record.get('occurredAt'), none) %}
+                {% if occurred is not none and 0 <= current - occurred <= 604800
+                      and record.get('label') and record.get('displayValue') %}
+                  {% set ns.items = ns.items + [dict(person=person, label=record.label,
+                    displayValue=record.displayValue, activityType=record.get('activityType'),
+                    dayKey=record.get('dayKey'), occurredAt=record.occurredAt)] %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            {{ ns.items | sort(attribute='occurredAt', reverse=true) | list }}
+
       - name: "Kiosk Household Alert"
         unique_id: kiosk_household_alert
         icon: mdi:message-alert-outline
@@ -479,6 +511,9 @@ template:
           {% set rheem_alert_count = states('sensor.rheem_wh_alert_count') | int(0) %}
           {% set tomorrow = (now() + timedelta(days=1)).strftime('%Y-%m-%d') %}
           {% set battery = states('sensor.spaceship_battery_level') | float(100) %}
+          {% set records = (state_attr('sensor.kiosk_recent_personal_records', 'items') | default([], true))
+             if is_state('sensor.kiosk_recent_personal_records', 'ready') else [] %}
+          {% set record_slot = (now().minute // 2) % (records | count + 1) %}
           {% set ns = namespace(name='', raw='') %}
           {% for name, person, location in [
              ('Carlo', 'person.carlo', 'sensor.carlo_location_display'),
@@ -511,6 +546,8 @@ template:
           {% elif battery < 50 and is_state('switch.spaceship_charge', 'off')
              and is_state('person.carlo', 'home') and is_state('person.stacey', 'home') %}
             PLUG IN THE TESLA
+          {% elif record_slot > 0 %}
+            {{ records[record_slot - 1].person | upper }}'S PERSONAL BEST
           {% elif ns.name %}
             {% set location = ns.raw | replace(ns.name ~ ' ', '') %}
             {{ ns.name }} - {{ location.split(' (since ')[0] }}
@@ -524,6 +561,9 @@ template:
             {% set rheem_alert_count = states('sensor.rheem_wh_alert_count') | int(0) %}
             {% set tomorrow = (now() + timedelta(days=1)).strftime('%Y-%m-%d') %}
             {% set battery = states('sensor.spaceship_battery_level') | float(100) %}
+            {% set records = (state_attr('sensor.kiosk_recent_personal_records', 'items') | default([], true))
+               if is_state('sensor.kiosk_recent_personal_records', 'ready') else [] %}
+            {% set record_slot = (now().minute // 2) % (records | count + 1) %}
             {% set ns = namespace(name='', raw='') %}
             {% for name, person, location in [
                ('Carlo', 'person.carlo', 'sensor.carlo_location_display'),
@@ -559,6 +599,10 @@ template:
             {% elif battery < 50 and is_state('switch.spaceship_charge', 'off')
                and is_state('person.carlo', 'home') and is_state('person.stacey', 'home') %}
               Model Y battery is {{ battery | round(0) }}%.
+            {% elif record_slot > 0 %}
+              {% set record = records[record_slot - 1] %}
+              {{ record.label }}: {{ record.displayValue }}{% if record.activityType %}
+              · {{ record.activityType }}{% endif %} · {{ record.dayKey }}
             {% elif ns.name %}
               {% set parts = ns.raw.split(' (since ') %}
               {{ 'Since ' ~ (parts[1] | replace(')', '')) if parts | count > 1 else 'Away from home' }}

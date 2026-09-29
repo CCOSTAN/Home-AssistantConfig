@@ -19,6 +19,7 @@
 # Notes: Family detail centers only the selected person and includes the prior 24-hour trail; Phyn detail includes a confirmed main-valve restore action.
 # Notes: Rheem problem telemetry adds a red/amber water-heater slide and enriches the existing hot-water detail.
 # Notes: New LeagueSecretary results add Carlo and Stacey slides for 48 hours; other bowlers stay out of the kiosk payload.
+# Notes: Verified Health Coach personal bests add Carlo and Stacey slides for seven days.
 # Notes: The large-format lower panel otherwise mirrors read-only household fact entities.
 # Notes: The clock uses oversized time text and places live conditions beneath the current-weather icon.
 ######################################################################
@@ -209,6 +210,7 @@
             - input_datetime.tesla_model_y_plug_in_snooze_until
             - sensor.next_booked_cruise_countdown
             - sensor.bearclaw_status_telemetry
+            - sensor.kiosk_recent_personal_records
             - person.carlo
             - person.stacey
             - person.justin
@@ -561,6 +563,24 @@
                       detail,
                       icon: 'mdi:bowling',
                       accent: '#7e57c2'
+                    });
+                  });
+                }
+
+                const recordFeed = states['sensor.kiosk_recent_personal_records'];
+                const personalRecords = recordFeed?.state === 'ready' ? recordFeed.attributes?.items : null;
+                if (Array.isArray(personalRecords)) {
+                  personalRecords.forEach((record) => {
+                    const occurredAt = new Date(record?.occurredAt || '');
+                    if (!Number.isFinite(occurredAt.getTime()) ||
+                        occurredAt > now || now - occurredAt > 7 * 24 * 60 * 60 * 1000 ||
+                        !record?.person || !record?.label || !record?.displayValue) return;
+                    items.push({
+                      kicker: 'NEW PERSONAL BEST',
+                      title: `${record.person}: ${record.label}`,
+                      detail: [record.displayValue, record.activityType, record.dayKey].filter(Boolean).join(' · '),
+                      icon: 'mdi:trophy-outline',
+                      accent: '#2e7d32'
                     });
                   });
                 }
