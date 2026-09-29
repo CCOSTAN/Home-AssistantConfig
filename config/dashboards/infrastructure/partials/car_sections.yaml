@@ -12,8 +12,9 @@
 # Notes: Useful tiles use restored last-valid values without timestamp churn.
 # Notes: Raw JuiceBox energy retains long-term history; power is session-only.
 # Notes: The Tesla's Home location charge-current setting is intentionally 16 A.
-# Notes: JuicePassProxy shows OFFLINE immediately and becomes a Systems fault
-#  after five continuous minutes; neither dashboard exposes writable controls.
+# Notes: Proxy health follows live MQTT reports rather than Portainer state;
+#  three missing minutes dispatch Joanna and five become a Systems fault.
+# Notes: Neither dashboard exposes writable controls.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -140,22 +141,20 @@
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: sensor.juicepassproxy_state
+      entity: sensor.juicepassproxy_mqtt_heartbeat
       name: Proxy
       icon: mdi:shield-check
       variables:
         status_severity: >
           [[[
             if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'critical';
-            const running = String(entity?.state ?? '').toLowerCase() === 'running';
-            const healthy = String(states['sensor.juicepassproxy_health']?.state ?? '').toLowerCase() === 'healthy';
-            return running && healthy ? 'healthy' : 'warning';
+            return entity?.state === 'online' ? 'healthy' : 'warning';
           ]]]
       state_display: >
         [[[
-          const running = String(entity?.state ?? '').toLowerCase() === 'running';
-          const healthy = String(states['sensor.juicepassproxy_health']?.state ?? '').toLowerCase() === 'healthy';
-          return running && healthy ? 'ONLINE' : 'OFFLINE';
+          if (entity?.state === 'online') return 'REPORTING';
+          return states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on'
+            ? 'NO REPORTS' : 'VERIFYING';
         ]]]
 
 # -------------------------------------------------------------------

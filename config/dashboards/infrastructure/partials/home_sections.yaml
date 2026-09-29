@@ -17,8 +17,8 @@
 # Notes: Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
 # Notes: Back to Overview is the first control in the landing-view navigation strip.
 # Notes: UPS health covers both Garage and Office NUT servers and drills into the shared UPS view.
-# Notes: A JuicePassProxy outage becomes a critical Systems issue after five
-#  continuous minutes and drills into the Car view.
+# Notes: Missing JuiceBox MQTT reports become a critical Systems issue after
+#  five minutes; fresh reports clear it and restore the Car view.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -153,7 +153,7 @@
           ]]]
       state_display: >
         [[[
-          if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'PROXY OFFLINE';
+          if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'MONITOR CHECK';
           const battery = Number(entity?.state);
           if (!Number.isFinite(battery)) return 'NO DATA';
           return `${battery.toFixed(0)}%`;
@@ -524,12 +524,12 @@
       - type: custom:button-card
         template: bearstone_infra_alert_row
         entity: binary_sensor.juicepassproxy_monitoring_degraded
-        name: JuiceBox charging monitor offline
+        name: JuiceBox monitoring unavailable
         icon: mdi:ev-station-off
         variables:
           alert_kind: binary_on
-          exception_detail: DO NOT CHARGE - CHECK OR UNPLUG THE TESLA
-        state_display: '[[[ return "OFFLINE"; ]]]'
+          exception_detail: NO LIVE REPORTS - CHECK THE TESLA AND CHARGER
+        state_display: '[[[ return "NO DATA"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/car

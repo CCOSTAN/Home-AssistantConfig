@@ -36,8 +36,10 @@
 #  limit controls. Transient online/offline max-current fields are ignored.
 # Notes: Persisted JuiceBox current reaching 20 A sends one critical parents
 #  push plus an exact garage announcement; a restoring latch prevents repeats.
-# Notes: JuicePassProxy must remain running and healthy. Five continuous minutes
-#  degraded creates a Systems problem and tells the garage and parents not to charge.
+# Notes: Missing proxy MQTT reports dispatch Joanna after three minutes and
+#  alert the household after five; fresh reports clear the Systems problem.
+# Notes: Portainer state remains diagnostic and cannot by itself mark the
+#  charger monitor offline.
 # Tire-pressure video: https://youtu.be/hDNyZfTfTtE
 # Tire-pressure post: https://www.vcloudinfo.com/2026/09/home-assistant-tesla-tire-pressure-alerts.html
 # Related garage video: https://youtu.be/wFO0H5zgnzk
@@ -48,6 +50,15 @@ input_boolean:
   tesla_high_charge_rate_alert_active:
     name: Tesla High Charge Rate Alert Active
     icon: mdi:car-electric-alert
+
+mqtt:
+  sensor:
+    - name: "JuicePassProxy MQTT Heartbeat"
+      unique_id: juicepassproxy_mqtt_heartbeat
+      state_topic: "hmd/sensor/JuiceBox/Frequency/state"
+      value_template: "{{ 'online' }}"
+      expire_after: 60
+      icon: mdi:heart-pulse
 
 input_datetime:
   tesla_model_y_last_garage_close:
@@ -65,17 +76,22 @@ input_datetime:
 
 template:
   - binary_sensor:
+      - name: "JuicePassProxy Investigation Needed"
+        unique_id: juicepassproxy_investigation_needed
+        device_class: problem
+        delay_on: "00:02:00"
+        state: "{{ not is_state('sensor.juicepassproxy_mqtt_heartbeat', 'online') }}"
+
       - name: "JuicePassProxy Monitoring Degraded"
         unique_id: juicepassproxy_monitoring_degraded
         device_class: problem
-        delay_on: "00:05:00"
-        state: >-
-          {{ states('sensor.juicepassproxy_state') != 'running' or
-             states('sensor.juicepassproxy_health') != 'healthy' }}
+        delay_on: "00:04:00"
+        state: "{{ not is_state('sensor.juicepassproxy_mqtt_heartbeat', 'online') }}"
         attributes:
+          mqtt_heartbeat: "{{ states('sensor.juicepassproxy_mqtt_heartbeat') }}"
           source_state: "{{ states('sensor.juicepassproxy_state') }}"
           source_health: "{{ states('sensor.juicepassproxy_health') }}"
-          guidance: "Do not charge until JuicePassProxy is running and healthy."
+          guidance: "Verify charger monitoring before relying on the high-current alert."
 
   - triggers:
       - trigger: state
@@ -342,12 +358,17 @@ automation:
 
   - alias: "Tesla Model Y - JuicePassProxy Monitoring Alert"
     id: e4b6bf07-4760-4e7c-b2da-6db234a46df8
-    mode: single
+    mode: parallel
+    max: 3
     trigger:
+      - platform: state
+        entity_id: binary_sensor.juicepassproxy_investigation_needed
+        to: 'on'
+        id: investigate
       - platform: state
         entity_id: binary_sensor.juicepassproxy_monitoring_degraded
         to: 'on'
-        id: offline
+        id: critical
       - platform: state
         entity_id: binary_sensor.juicepassproxy_monitoring_degraded
         from: 'on'
@@ -357,26 +378,64 @@ automation:
       - choose:
           - conditions:
               - condition: trigger
-                id: offline
+                id: investigate
+            sequence:
+              - service: script.joanna_dispatch
+                continue_on_error: true
+                data:
+                  trigger_context: "HA automation e4b6bf07-4760-4e7c-b2da-6db234a46df8 (JuicePassProxy Monitoring Alert)"
+                  source: "home_assistant_automation.juicepassproxy_monitoring_alert"
+                  summary: "JuiceBox MQTT reports have been absent for three minutes"
+                  entity_ids:
+                    - sensor.juicepassproxy_mqtt_heartbeat
+                    - binary_sensor.juicepassproxy_investigation_needed
+                    - binary_sensor.juicepassproxy_monitoring_degraded
+                    - sensor.juicepassproxy_state
+                    - sensor.juicepassproxy_health
+                    - sensor.juicebox_status
+                    - sensor.juicebox_current
+                    - sensor.spaceship_charging
+                  diagnostics: >-
+                    mqtt_heartbeat={{ states('sensor.juicepassproxy_mqtt_heartbeat') }},
+                    proxy_state={{ states('sensor.juicepassproxy_state') }},
+                    proxy_health={{ states('sensor.juicepassproxy_health') }},
+                    juicebox_status={{ states('sensor.juicebox_status') }},
+                    juicebox_current={{ states('sensor.juicebox_current') }} A,
+                    tesla_charging={{ states('sensor.spaceship_charging') }}
+                  request: >-
+                    Verify the owning JuicePassProxy container and recent MQTT reports.
+                    Restore the failed monitoring path when safe; check for an active
+                    deployment before restarting a container. Do not alter charger
+                    limits or interrupt vehicle charging. Report verified recovery.
+              - service: script.send_to_logbook
+                data:
+                  topic: "JUICEBOX"
+                  message: >-
+                    JuiceBox MQTT reports were missing for three minutes; Joanna
+                    investigation was requested before alerting the household.
+          - conditions:
+              - condition: trigger
+                id: critical
             sequence:
               - parallel:
                   - service: notify.alexa_media_garage
                     continue_on_error: true
                     data:
                       message: >-
-                        Warning. JuiceBox monitoring has been offline for five
-                        minutes. Do not charge. If the Tesla is connected or
-                        charging, check it and unplug it until monitoring returns.
+                        Warning. JuiceBox monitoring reports are still missing
+                        after five minutes. Check the Tesla and charger before
+                        relying on the high-current alert.
                       data:
                         type: announce
                   - service: script.notify_engine
                     continue_on_error: true
                     data:
-                      title: "URGENT: JuiceBox Monitor Offline"
+                      title: "URGENT: Check JuiceBox Monitoring"
                       value1: >-
-                        JuicePassProxy has been offline for five minutes. Do not
-                        charge. If the Tesla is connected or charging, check it
-                        and unplug it until JuiceBox monitoring returns.
+                        JuiceBox MQTT reports are still missing after five
+                        minutes. Joanna was dispatched to investigate. Check the
+                        Tesla and charger; do not rely on the high-current alert
+                        until monitoring returns.
                       who: 'parents'
                       group: 'JuiceBox_Proxy_Offline'
                       level: 'critical'
@@ -384,8 +443,8 @@ automation:
                 data:
                   topic: "JUICEBOX"
                   message: >-
-                    JuicePassProxy remained offline for five minutes; garage and
-                    parents were told not to charge and to check or unplug the Tesla.
+                    JuiceBox MQTT reports were still missing after five minutes;
+                    the garage and parents were alerted after Joanna dispatch.
           - conditions:
               - condition: trigger
                 id: restored
@@ -395,14 +454,14 @@ automation:
                 data:
                   title: "JuiceBox Monitor Restored"
                   value1: >-
-                    JuicePassProxy is running and healthy again. JuiceBox charging
-                    telemetry and the 20 A safety alert are available.
+                    Fresh JuiceBox reports have resumed. Charging telemetry and
+                    the 20 A high-current alert are available again.
                   who: 'parents'
                   group: 'JuiceBox_Proxy_Offline'
               - service: script.send_to_logbook
                 data:
                   topic: "JUICEBOX"
-                  message: "JuicePassProxy monitoring returned to running and healthy."
+                  message: "Fresh JuiceBox MQTT reports resumed; the monitoring alert cleared."
 
   - alias: "Tesla Model Y - Plug In Reminder"
     id: 6a873341-c823-4d5d-9d42-fc2df52b93db
