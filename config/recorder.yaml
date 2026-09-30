@@ -197,6 +197,8 @@ exclude:
 
   entities:
     - automation.update_garage_get_status
+    # Source verification is live-only; critical/attention sensors and curated incidents remain recorded.
+    - sensor.tesla_home_charge_guard
     - automation.docker_telemetry_template_refresh
     - sensor.bgw_probe_payload
     - sensor.infra_dashboard_active_issue_count
@@ -290,3 +292,4 @@ exclude:
 
   event_types:
     - alexa_smart_home
+    - tesla_charge_guard_report

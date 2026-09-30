@@ -11,6 +11,7 @@
 # Notes: Filters vcloudinfo availability chatter plus location/weather noise and raw Glances host telemetry.
 # Notes: L10s status/room telemetry is hidden; curated VACUUM logbook entries remain visible.
 # Notes: Tesla Fleet Spaceship telemetry is hidden; TeslaMate keeps the historical car record.
+# Notes: Charging source snapshots stay hidden; curated JUICEBOX incident events remain visible.
 # Notes: Person/location changes and Life360 online status stay out of Activity; recorder keeps location history.
 # Notes: Raw Portainer container/stack status telemetry is hidden; Docker aggregate outage sensors and curated DOCKER events remain.
 # Notes: Mobile app phone telemetry stays out of Activity; phone notify services are unaffected.
@@ -86,6 +87,7 @@ exclude:
     - "*alarm_panel_2*"
   entities:
     - automation.cuckoo_clock
+    - sensor.tesla_home_charge_guard
     - automation.detect_lights_and_adjust_the_brightness_when_turned_on_based_on_time
     - automation.docker_state_sync_repairs_dynamic
     - automation.docker_telemetry_template_refresh

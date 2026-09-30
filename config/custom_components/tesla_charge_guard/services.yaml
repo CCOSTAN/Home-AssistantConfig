@@ -1,0 +1,18 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Tesla Home Charge Verification - Read-only source snapshot
+# -------------------------------------------------------------------
+######################################################################
+snapshot:
+  name: Verify home charging
+  description: Check source timestamps and measured current. Does not wake the car or change charging.
+  fields:
+    refresh:
+      name: Refresh Tesla data
+      description: Request a bounded Tesla Fleet refresh; cached responses remain unverified.
+      default: false
+      selector:
+        boolean:

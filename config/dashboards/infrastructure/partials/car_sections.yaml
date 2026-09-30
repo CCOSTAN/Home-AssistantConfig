@@ -147,7 +147,8 @@
       variables:
         status_severity: >
           [[[
-            if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'critical';
+            if (states['binary_sensor.tesla_home_charge_critical']?.state === 'on') return 'critical';
+            if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'warning';
             return entity?.state === 'online' ? 'healthy' : 'warning';
           ]]]
       state_display: >
@@ -156,6 +157,22 @@
           return states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on'
             ? 'NO REPORTS' : 'VERIFYING';
         ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: input_boolean.tesla_home_charge_restart_required
+      name: Charging review
+      icon: mdi:shield-car
+      variables:
+        status_severity: >
+          [[[
+            if (states['binary_sensor.tesla_home_charge_critical']?.state === 'on') return 'critical';
+            return entity?.state === 'on' ? 'warning' : 'healthy';
+          ]]]
+      state_display: >
+        [[[ return entity?.state === 'on' ? 'REVIEW BEFORE RESUME' : 'CLEAR'; ]]]
+      tap_action:
+        action: more-info
 
 # -------------------------------------------------------------------
 # Current vehicle, tires, and charging telemetry

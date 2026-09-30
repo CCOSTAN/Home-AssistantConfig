@@ -6,6 +6,8 @@
 # Notification Engine Scripts - Flexible push helpers for family devices.
 #  Compose messages from value1/value2/value3 with optional actions.
 # -------------------------------------------------------------------
+# Notes: Optional notification tags let recovery actions target a specific push.
+#  Untagged callers retain their existing payload; groups are only visual.
 # Video Tutorial: https://youtu.be/mK1wdpxhLbM
 ######################################################################
 ### Script for Sending Notifications to Mobile Phones
@@ -24,6 +26,7 @@
 #   - 'who': Recipient identifier (e.g., 'stacey', 'carlo', 'paige', 'family', 'parents').
 #   - 'camera_entity': Camera entity ID for snapshots (optional).
 #   - 'group': Notification group (optional, defaults to 'information').
+#   - 'tag': Stable notification identity for replacement or clearing (optional).
 #   - 'level': Interruption level for the notification (optional, defaults to 'active').
 
 # The 'notify_engine_two_button' variant includes additional parameters for two interactive buttons:
@@ -61,6 +64,14 @@ notify_engine:
         has_actions: >-
           {{ action1 | default('', true) | length > 0
              or action2 | default('', true) | length > 0 }}
+        notify_data: >-
+          {% set payload = {
+            'group': group | default('information', true),
+            'entity_id': camera_entity | default('', true),
+            'push': {'interruption-level': level | default('active', true)}
+          } %}
+          {% set notification_tag = tag | default('', true) | string | trim %}
+          {{ dict(payload, tag=notification_tag) if notification_tag else payload }}
     - choose:
         - conditions: "{{ has_actions }}"
           sequence:
@@ -68,30 +79,27 @@ notify_engine:
               data:
                 title: "{{ title | default('', true) }}"
                 message: "{{ notify_message }}"
-                data:
-                  actions:
-                    - title: "{{ title1 | default('', true) }}"
-                      action: "{{ action1 | default('', true) }}"
-                      icon: "{{ icon1 | default('sfsymbols:house.circle', true) }}"
-                      destructive: "{{ destructive1 | default(false, true) }}"
-                    - title: "{{ title2 | default('', true) }}"
-                      action: "{{ action2 | default('', true) }}"
-                      icon: "{{ icon2 | default('sfsymbols:house.circle', true) }}"
-                      destructive: "{{ destructive2 | default(false, true) }}"
-                  group: "{{ group | default('information', true) }}"
-                  entity_id: "{{ camera_entity | default('', true) }}"
-                  push:
-                    interruption-level: "{{ level | default('active', true) }}"
+                data: >-
+                  {{ dict(notify_data, actions=[
+                    {
+                      'title': title1 | default('', true),
+                      'action': action1 | default('', true),
+                      'icon': icon1 | default('sfsymbols:house.circle', true),
+                      'destructive': destructive1 | default(false, true)
+                    },
+                    {
+                      'title': title2 | default('', true),
+                      'action': action2 | default('', true),
+                      'icon': icon2 | default('sfsymbols:house.circle', true),
+                      'destructive': destructive2 | default(false, true)
+                    }
+                  ]) }}
       default:
         - service: "{{ notify_service }}"
           data:
             title: "{{ title | default('', true) }}"
             message: "{{ notify_message }}"
-            data:
-              group: "{{ group | default('information', true) }}"
-              entity_id: "{{ camera_entity | default('', true) }}"
-              push:
-                interruption-level: "{{ level | default('active', true) }}"
+            data: "{{ notify_data }}"
 
 notify_engine_two_button:
   alias: Notify Engine Two Button
@@ -106,6 +114,7 @@ notify_engine_two_button:
         value3: "{{ value3 | default('', true) }}"
         who: "{{ who | default('family', true) }}"
         group: "{{ group | default('information', true) }}"
+        tag: "{{ tag | default('', true) }}"
         level: "{{ level | default('active', true) }}"
         camera_entity: "{{ camera_entity | default('', true) }}"
         title1: "{{ title1 | default('', true) }}"

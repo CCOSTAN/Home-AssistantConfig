@@ -28,16 +28,21 @@
 #  live Tesla Fleet and JuiceBox reports remain the normal update path.
 # Notes: Snapshot sensors intentionally omit state_class; TeslaMate remains the
 #  long-term vehicle source while raw JuiceBox energy owns charge statistics.
-# Notes: Home charging is intentionally limited to 16 A in the Tesla; this
-#  package observes JuiceBox current but never changes the vehicle or EVSE limit.
+# Notes: Home charging is intentionally limited to 16 A in the Tesla. Fresh
+#  actual draw above 18 A requests a native Tesla stop; current limits are unchanged.
 # Notes: The 30 A home EVSE circuit's EEPROM-backed offline wire rating was set
 #  to 24 A during unplugged commissioning. JuicePassProxy is a passive sensor-only
 #  monitor that sends no charger or former-cloud UDP traffic and exposes no
 #  limit controls. Transient online/offline max-current fields are ignored.
-# Notes: Persisted JuiceBox current reaching 20 A sends one critical parents
-#  push plus an exact garage announcement; a restoring latch prevents repeats.
-# Notes: Missing proxy MQTT reports dispatch Joanna after three minutes and
-#  alert the household after five; fresh reports clear the Systems problem.
+# Notes: Source verification ignores retained MQTT and cached Tesla timestamps.
+#  Tesla samples expire after 120 seconds; live JuiceBox reports after 60 seconds.
+# Notes: Missing reports dispatch Joanna at three minutes. At five minutes,
+#  unverified home sessions request a protective stop; verified safe/stopped
+#  sessions get a quiet monitoring warning only if the outage persists 15 minutes.
+# Notes: Stops require home/AC context and fresh post-command zero-current proof.
+#  A restoring review latch blocks home charging resumption until manually cleared.
+#  No automatic start commands are issued. Tagged incident pushes clear only after
+#  their own recovery checks. Older untagged alerts require dismissal on the phone.
 # Notes: Portainer state remains diagnostic and cannot by itself mark the
 #  charger monitor offline.
 # Tire-pressure video: https://youtu.be/hDNyZfTfTtE
@@ -48,8 +53,19 @@
 
 input_boolean:
   tesla_high_charge_rate_alert_active:
-    name: Tesla High Charge Rate Alert Active
+    name: Tesla Home Charging Incident Active
     icon: mdi:car-electric-alert
+  tesla_home_charge_restart_required:
+    name: Tesla Home Charging Restart Review Required
+    icon: mdi:car-electric-outline
+  tesla_home_charge_session_active:
+    name: Tesla Home Charging Session Active
+    icon: mdi:ev-plug-type1
+
+tesla_charge_guard:
+  entity_id: sensor.spaceship_charger_current
+  mqtt_prefix: hmd/sensor/JuiceBox
+  current_limit: 18
 
 mqtt:
   sensor:
@@ -91,7 +107,50 @@ template:
           mqtt_heartbeat: "{{ states('sensor.juicepassproxy_mqtt_heartbeat') }}"
           source_state: "{{ states('sensor.juicepassproxy_state') }}"
           source_health: "{{ states('sensor.juicepassproxy_health') }}"
-          guidance: "Verify charger monitoring before relying on the high-current alert."
+          guidance: "{{ state_attr('sensor.tesla_home_charge_guard', 'reason') }}"
+
+      - name: "JuicePassProxy Monitoring Persistent"
+        unique_id: juicepassproxy_monitoring_persistent
+        device_class: problem
+        delay_on: "00:14:00"
+        state: "{{ not is_state('sensor.juicepassproxy_mqtt_heartbeat', 'online') }}"
+
+      - name: "Tesla Home Charge Critical"
+        unique_id: tesla_home_charge_critical
+        device_class: problem
+        state: >-
+          {{ is_state('input_boolean.tesla_high_charge_rate_alert_active', 'on')
+             or (is_state('binary_sensor.juicepassproxy_monitoring_degraded', 'on')
+                 and is_state('sensor.tesla_home_charge_guard', 'unverified')
+                 and state_attr('sensor.tesla_home_charge_guard', 'home_session') == true) }}
+
+      - name: "Tesla Home Charge Attention"
+        unique_id: tesla_home_charge_attention
+        device_class: problem
+        state: >-
+          {{ is_state('binary_sensor.juicepassproxy_monitoring_degraded', 'on')
+             or is_state('binary_sensor.tesla_home_charge_critical', 'on')
+             or is_state('input_boolean.tesla_home_charge_restart_required', 'on') }}
+
+  - triggers:
+      - trigger: event
+        event_type: tesla_charge_guard_report
+    sensor:
+      - name: "Tesla Home Charge Guard"
+        unique_id: tesla_home_charge_guard
+        icon: mdi:shield-car
+        state: "{{ trigger.event.data.status }}"
+        attributes:
+          actual_current: "{{ trigger.event.data.actual_current }}"
+          source: "{{ trigger.event.data.source }}"
+          sample_time: "{{ trigger.event.data.sample_time }}"
+          checked_at: "{{ trigger.event.data.checked_at }}"
+          tesla_fresh: "{{ trigger.event.data.tesla_fresh }}"
+          juicebox_fresh: "{{ trigger.event.data.juicebox_fresh }}"
+          home_session: "{{ trigger.event.data.home_session }}"
+          session_observed: "{{ trigger.event.data.session_observed }}"
+          stop_allowed: "{{ trigger.event.data.stop_allowed }}"
+          reason: "{{ trigger.event.data.reason }}"
 
   - triggers:
       - trigger: state
@@ -277,89 +336,277 @@ template:
           - "{{ snapshot_source_entity == 'sensor.juicebox_power_factor' }}"
         state: "{{ snapshot_state }}"
 
-automation:
-  - alias: "Tesla Model Y - High Home Charge Rate Alert"
-    id: f4f013f9-74e7-492e-8400-ae84897086ef
+script:
+  tesla_home_charge_dispatch:
+    alias: Tesla Home Charge - Joanna Investigation
+    mode: queued
+    max: 3
+    fields:
+      summary:
+        description: Verified incident summary
+      request:
+        description: Investigation scope
+    sequence:
+      - service: script.joanna_dispatch
+        data:
+          trigger_context: "HA Tesla home charging protection"
+          source: "home_assistant_automation.juicepassproxy_monitoring_alert"
+          summary: "{{ summary }}"
+          entity_ids:
+            - sensor.tesla_home_charge_guard
+            - sensor.juicepassproxy_mqtt_heartbeat
+            - binary_sensor.tesla_home_charge_critical
+            - sensor.juicepassproxy_state
+            - sensor.juicepassproxy_health
+            - sensor.spaceship_charger_current
+            - sensor.spaceship_charging
+            - switch.spaceship_charge
+            - input_boolean.tesla_home_charge_restart_required
+          diagnostics: >-
+            assessment={{ states('sensor.tesla_home_charge_guard') }},
+            actual_current={{ state_attr('sensor.tesla_home_charge_guard', 'actual_current') }},
+            source={{ state_attr('sensor.tesla_home_charge_guard', 'source') }},
+            sample_time={{ state_attr('sensor.tesla_home_charge_guard', 'sample_time') }},
+            home_session={{ state_attr('sensor.tesla_home_charge_guard', 'home_session') }},
+            mqtt_heartbeat={{ states('sensor.juicepassproxy_mqtt_heartbeat') }}
+          request: "{{ request }}"
+
+  tesla_home_charge_protect:
+    alias: Tesla Home Charge - Protective Stop
     mode: single
     max_exceeded: silent
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.juicebox_current_last_known
-        above: 19.99
-        id: juicebox_current
-      - platform: homeassistant
-        event: start
-        id: startup
-    condition:
-      - condition: state
-        entity_id: input_boolean.tesla_high_charge_rate_alert_active
-        state: 'off'
-      - condition: numeric_state
-        entity_id: sensor.juicebox_current_last_known
-        above: 19.99
-    action:
+    fields:
+      reason:
+        description: Why home charging needs to be paused
+    sequence:
+      - service: tesla_charge_guard.snapshot
+        data:
+          refresh: true
+        response_variable: guard
+      - condition: template
+        value_template: >-
+          {{ guard.status == 'excessive'
+             or (guard.status == 'unverified' and guard.home_session)
+             or (guard.status == 'charging_safe'
+                 and is_state('input_boolean.tesla_home_charge_restart_required', 'on')) }}
+      - variables:
+          stop_requested_at: "{{ as_timestamp(now()) }}"
+          incident_reason: "{{ reason | default(guard.reason, true) }}"
       - service: input_boolean.turn_on
         target:
-          entity_id: input_boolean.tesla_high_charge_rate_alert_active
-      - variables:
-          observed_current: >-
-            {{ states('sensor.juicebox_current_last_known') | float(0) | round(1) }}
+          entity_id:
+            - input_boolean.tesla_high_charge_rate_alert_active
+            - input_boolean.tesla_home_charge_restart_required
       - parallel:
+          - sequence:
+              - condition: template
+                value_template: "{{ guard.stop_allowed }}"
+              - service: switch.turn_off
+                continue_on_error: true
+                target:
+                  entity_id: switch.spaceship_charge
+          - service: script.notify_engine
+            continue_on_error: true
+            data:
+              title: "URGENT: Tesla Home Charging"
+              value1: >-
+                {{ incident_reason }}
+                {{ 'A Tesla stop was requested; verification is pending.' if guard.stop_allowed
+                   else 'A vehicle stop is blocked because home AC charging cannot be established. Check the charger.' }}
+              who: parents
+              group: Tesla_Charge_Rate_Alarm
+              tag: Tesla_Charge_Rate_Alarm
+              level: critical
           - service: notify.alexa_media_garage
             continue_on_error: true
             data:
               message: >-
-                Warning. The JuiceBox reports the Tesla charging at
-                {{ observed_current }} amps, at or above the twenty amp safety
-                threshold. Unplug the Tesla now.
+                Warning. {{ incident_reason }}
+                {{ 'A charging stop was requested. Check the Tesla if charging continues.' if guard.stop_allowed
+                   else 'Check the charger. The vehicle location could not be verified for a stop.' }}
               data:
                 type: announce
+          - service: script.tesla_home_charge_dispatch
+            continue_on_error: true
+            data:
+              summary: "{{ incident_reason }}"
+              request: >-
+                Home Assistant owns the protective stop and restart-review latch.
+                Verify fresh actual-current reports and the owning monitoring path.
+                Repair monitoring when safe; check for an active deployment before
+                restarting a container. Do not change current limits, clear the review
+                latch, or start charging. Report verified results and any stop failure.
+      - repeat:
+          count: 2
+          sequence:
+            - if:
+                - condition: template
+                  value_template: >-
+                    {{ not (is_state('sensor.tesla_home_charge_guard', 'stopped')
+                            and state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) > stop_requested_at | float(0)) }}
+              then:
+                - delay: "00:00:05"
+                - service: tesla_charge_guard.snapshot
+                  continue_on_error: true
+                  data:
+                    refresh: true
+                  response_variable: verification
+                - wait_template: >-
+                    {{ is_state('sensor.tesla_home_charge_guard', 'stopped')
+                       and state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) > stop_requested_at | float(0) }}
+                  timeout: "00:00:25"
+                  continue_on_timeout: true
+                - if:
+                    - condition: template
+                      value_template: >-
+                        {{ not wait.completed and repeat.index == 1
+                           and state_attr('sensor.tesla_home_charge_guard', 'stop_allowed') == true }}
+                  then:
+                    - service: switch.turn_off
+                      continue_on_error: true
+                      target:
+                        entity_id: switch.spaceship_charge
+      - variables:
+          stop_verified: >-
+            {{ is_state('sensor.tesla_home_charge_guard', 'stopped')
+               and state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) > stop_requested_at | float(0) }}
+      - if:
+          - condition: template
+            value_template: "{{ not stop_verified }}"
+        then:
           - service: script.notify_engine
             continue_on_error: true
             data:
-              title: "URGENT: Unplug Tesla"
+              title: "URGENT: Tesla Stop Unverified"
               value1: >-
-                The JuiceBox reports {{ observed_current }} A, at or above the
-                20 A safety threshold. Unplug the Tesla now.
-              who: 'parents'
-              group: 'Tesla_Charge_Rate_Alarm'
-              level: 'critical'
+                {{ incident_reason }} Fresh zero-current confirmation did not arrive.
+                Check the Tesla and unplug it if charging continues. Home charging
+                requires your review before resuming.
+              who: parents
+              group: Tesla_Charge_Rate_Alarm
+              tag: Tesla_Charge_Rate_Alarm
+              level: critical
       - service: script.send_to_logbook
         data:
-          topic: "JUICEBOX"
+          topic: JUICEBOX
           message: >-
-            High charge-rate alarm sent at {{ observed_current }} A; garage and
-            parents were told to unplug the Tesla.
+            {{ incident_reason }} Stop {{ 'verified by a fresh zero-current report' if stop_verified else 'unverified after bounded attempts' }}.
+            Home charging restart review remains required; no start command was issued.
+
+automation:
+  - alias: "Tesla Model Y - Refresh Home Charge Verification"
+    id: 7602df3d-20b6-448d-bbcd-b00a774e6dd9
+    mode: single
+    max_exceeded: silent
+    trigger:
+      - platform: homeassistant
+        event: start
+        id: startup
+      - platform: time_pattern
+        minutes: "/1"
+        id: periodic
+      - platform: state
+        entity_id:
+          - sensor.spaceship_charger_current
+          - sensor.spaceship_charging
+          - device_tracker.spaceship_location
+          - input_boolean.tesla_home_charge_restart_required
+        id: vehicle
+    action:
+      - service: tesla_charge_guard.snapshot
+        continue_on_error: true
+        data:
+          refresh: >-
+            {{ trigger.id == 'periodic'
+               and (is_state('binary_sensor.juicepassproxy_investigation_needed', 'on')
+                    or (is_state('sensor.tesla_home_charge_guard', 'unverified')
+                        and state_attr('sensor.tesla_home_charge_guard', 'juicebox_fresh') == true)) }}
+
+  - alias: "Tesla Model Y - High Home Charge Rate Alert"
+    id: f4f013f9-74e7-492e-8400-ae84897086ef
+    mode: queued
+    max: 5
+    max_exceeded: silent
+    trigger:
+      - platform: event
+        event_type: tesla_charge_guard_report
+    action:
+      - if:
+          - condition: template
+            value_template: >-
+              {{ trigger.event.data.session_observed is not none
+                 and is_state('input_boolean.tesla_home_charge_session_active', 'on') != trigger.event.data.session_observed }}
+        then:
+          - service: >-
+              {{ 'input_boolean.turn_on' if trigger.event.data.session_observed else 'input_boolean.turn_off' }}
+            target:
+              entity_id: input_boolean.tesla_home_charge_session_active
+      - if:
+          - condition: state
+            entity_id: input_boolean.tesla_high_charge_rate_alert_active
+            state: 'off'
+          - condition: template
+            value_template: >-
+              {{ trigger.event.data.status == 'excessive'
+                 or (trigger.event.data.status == 'charging_safe'
+                     and is_state('input_boolean.tesla_home_charge_restart_required', 'on')) }}
+        then:
+          - service: script.turn_on
+            target:
+              entity_id: script.tesla_home_charge_protect
+            data:
+              variables:
+                reason: >-
+                  {{ 'Home charging resumed while restart review was still required.' if trigger.event.data.status == 'charging_safe'
+                     else 'Fresh home charging draw is ' ~ trigger.event.data.actual_current ~ ' A, above the 18 A guardrail.' }}
 
   - alias: "Tesla Model Y - Reset High Charge Rate Alert"
     id: ccb67406-4ac1-41de-8f47-a3a76e6d8762
-    mode: single
+    mode: queued
+    max: 3
     trigger:
       - platform: state
-        entity_id: sensor.juicebox_current_last_known
-      - platform: homeassistant
-        event: start
+        entity_id: sensor.tesla_home_charge_guard
+        to: stopped
+      - platform: state
+        entity_id: script.tesla_home_charge_protect
+        to: 'off'
     condition:
       - condition: state
         entity_id: input_boolean.tesla_high_charge_rate_alert_active
         state: 'on'
-      - condition: numeric_state
-        entity_id: sensor.juicebox_current_last_known
-        below: 20
+      - condition: state
+        entity_id: script.tesla_home_charge_protect
+        state: 'off'
+      - condition: state
+        entity_id: sensor.tesla_home_charge_guard
+        state: stopped
+      - condition: template
+        value_template: >-
+          {% set sample = state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) %}
+          {{ sample > as_timestamp(states.input_boolean.tesla_high_charge_rate_alert_active.last_changed)
+             and -5 <= as_timestamp(now()) - sample <= 60 }}
     action:
       - service: input_boolean.turn_off
         target:
           entity_id: input_boolean.tesla_high_charge_rate_alert_active
+      - service: notify.ios_parents
+        continue_on_error: true
+        data:
+          message: clear_notification
+          data:
+            tag: Tesla_Charge_Rate_Alarm
       - service: script.send_to_logbook
         data:
-          topic: "JUICEBOX"
+          topic: JUICEBOX
           message: >-
-            High charge-rate alarm reset; JuiceBox current is below 20 A.
+            Fresh post-incident zero current verified; the critical charging incident
+            cleared. Restart review stays enabled until a person clears it.
 
   - alias: "Tesla Model Y - JuicePassProxy Monitoring Alert"
     id: e4b6bf07-4760-4e7c-b2da-6db234a46df8
-    mode: parallel
-    max: 3
+    mode: queued
+    max: 5
     trigger:
       - platform: state
         entity_id: binary_sensor.juicepassproxy_investigation_needed
@@ -368,100 +615,122 @@ automation:
       - platform: state
         entity_id: binary_sensor.juicepassproxy_monitoring_degraded
         to: 'on'
-        id: critical
+        id: assess
       - platform: state
-        entity_id: binary_sensor.juicepassproxy_monitoring_degraded
-        from: 'on'
-        to: 'off'
+        entity_id: binary_sensor.tesla_home_charge_critical
+        to: 'on'
+        id: risk
+      - platform: state
+        entity_id: binary_sensor.juicepassproxy_monitoring_persistent
+        to: 'on'
+        id: persistent
+      - platform: state
+        entity_id: sensor.juicepassproxy_mqtt_heartbeat
+        to: online
+        id: restored
+      - platform: state
+        entity_id: sensor.tesla_home_charge_guard
+        attribute: juicebox_fresh
+        to: true
         id: restored
     action:
       - choose:
           - conditions:
               - condition: trigger
                 id: investigate
+              - condition: state
+                entity_id: binary_sensor.juicepassproxy_investigation_needed
+                state: 'on'
             sequence:
-              - service: script.joanna_dispatch
+              - service: tesla_charge_guard.snapshot
                 continue_on_error: true
                 data:
-                  trigger_context: "HA automation e4b6bf07-4760-4e7c-b2da-6db234a46df8 (JuicePassProxy Monitoring Alert)"
-                  source: "home_assistant_automation.juicepassproxy_monitoring_alert"
+                  refresh: true
+              - service: script.tesla_home_charge_dispatch
+                continue_on_error: true
+                data:
                   summary: "JuiceBox MQTT reports have been absent for three minutes"
-                  entity_ids:
-                    - sensor.juicepassproxy_mqtt_heartbeat
-                    - binary_sensor.juicepassproxy_investigation_needed
-                    - binary_sensor.juicepassproxy_monitoring_degraded
-                    - sensor.juicepassproxy_state
-                    - sensor.juicepassproxy_health
-                    - sensor.juicebox_status
-                    - sensor.juicebox_current
-                    - sensor.spaceship_charging
-                  diagnostics: >-
-                    mqtt_heartbeat={{ states('sensor.juicepassproxy_mqtt_heartbeat') }},
-                    proxy_state={{ states('sensor.juicepassproxy_state') }},
-                    proxy_health={{ states('sensor.juicepassproxy_health') }},
-                    juicebox_status={{ states('sensor.juicebox_status') }},
-                    juicebox_current={{ states('sensor.juicebox_current') }} A,
-                    tesla_charging={{ states('sensor.spaceship_charging') }}
                   request: >-
-                    Verify the owning JuicePassProxy container and recent MQTT reports.
-                    Restore the failed monitoring path when safe; check for an active
-                    deployment before restarting a container. Do not alter charger
-                    limits or interrupt vehicle charging. Report verified recovery.
+                    Verify the owning JuicePassProxy container and recent live MQTT
+                    reports. Restore the failed path when safe; check for an active
+                    deployment before restarting a container. Home Assistant owns
+                    charging protection. Do not change limits, start charging, or
+                    clear the restart-review latch. Report verified recovery.
               - service: script.send_to_logbook
                 data:
-                  topic: "JUICEBOX"
-                  message: >-
-                    JuiceBox MQTT reports were missing for three minutes; Joanna
-                    investigation was requested before alerting the household.
+                  topic: JUICEBOX
+                  message: "Missing reports for three minutes; Joanna dispatched with source verification."
           - conditions:
               - condition: trigger
-                id: critical
+                id:
+                  - assess
+                  - risk
+              - condition: state
+                entity_id: binary_sensor.juicepassproxy_monitoring_degraded
+                state: 'on'
+              - condition: state
+                entity_id: input_boolean.tesla_high_charge_rate_alert_active
+                state: 'off'
             sequence:
-              - parallel:
-                  - service: notify.alexa_media_garage
-                    continue_on_error: true
-                    data:
-                      message: >-
-                        Warning. JuiceBox monitoring reports are still missing
-                        after five minutes. Check the Tesla and charger before
-                        relying on the high-current alert.
-                      data:
-                        type: announce
-                  - service: script.notify_engine
-                    continue_on_error: true
-                    data:
-                      title: "URGENT: Check JuiceBox Monitoring"
-                      value1: >-
-                        JuiceBox MQTT reports are still missing after five
-                        minutes. Joanna was dispatched to investigate. Check the
-                        Tesla and charger; do not rely on the high-current alert
-                        until monitoring returns.
-                      who: 'parents'
-                      group: 'JuiceBox_Proxy_Offline'
-                      level: 'critical'
-              - service: script.send_to_logbook
+              - service: tesla_charge_guard.snapshot
                 data:
-                  topic: "JUICEBOX"
-                  message: >-
-                    JuiceBox MQTT reports were still missing after five minutes;
-                    the garage and parents were alerted after Joanna dispatch.
+                  refresh: true
+                response_variable: guard
+              - if:
+                  - condition: template
+                    value_template: "{{ guard.status == 'unverified' and guard.home_session }}"
+                then:
+                  - service: script.tesla_home_charge_protect
+                    data:
+                      reason: "Both charging sources are unverified during a home charging session after five minutes without JuiceBox reports."
+                else:
+                  - service: script.send_to_logbook
+                    data:
+                      topic: JUICEBOX
+                      message: >-
+                        Five-minute monitoring assessment: {{ guard.status }}.
+                        No charging critical alert was sent; persistent monitoring
+                        faults receive a quiet warning at 15 minutes.
           - conditions:
               - condition: trigger
-                id: restored
+                id: persistent
+              - condition: state
+                entity_id: binary_sensor.juicepassproxy_monitoring_persistent
+                state: 'on'
+              - condition: state
+                entity_id: binary_sensor.tesla_home_charge_critical
+                state: 'off'
             sequence:
               - service: script.notify_engine
                 continue_on_error: true
                 data:
-                  title: "JuiceBox Monitor Restored"
+                  title: JuiceBox Monitoring Needs Review
                   value1: >-
-                    Fresh JuiceBox reports have resumed. Charging telemetry and
-                    the 20 A high-current alert are available again.
-                  who: 'parents'
-                  group: 'JuiceBox_Proxy_Offline'
+                    JuiceBox reports have been missing for 15 minutes. Joanna was
+                    dispatched. Charging assessment: {{ states('sensor.tesla_home_charge_guard') }}.
+                  who: parents
+                  group: JuiceBox_Proxy_Offline
+                  tag: JuiceBox_Proxy_Offline
+                  level: passive
+          - conditions:
+              - condition: trigger
+                id: restored
+              - condition: state
+                entity_id: sensor.juicepassproxy_mqtt_heartbeat
+                state: online
+              - condition: template
+                value_template: "{{ state_attr('sensor.tesla_home_charge_guard', 'juicebox_fresh') == true }}"
+            sequence:
+              - service: notify.ios_parents
+                continue_on_error: true
+                data:
+                  message: clear_notification
+                  data:
+                    tag: JuiceBox_Proxy_Offline
               - service: script.send_to_logbook
                 data:
-                  topic: "JUICEBOX"
-                  message: "Fresh JuiceBox MQTT reports resumed; the monitoring alert cleared."
+                  topic: JUICEBOX
+                  message: "Live JuiceBox reports verified; matching monitoring notification cleared."
 
   - alias: "Tesla Model Y - Plug In Reminder"
     id: 6a873341-c823-4d5d-9d42-fc2df52b93db

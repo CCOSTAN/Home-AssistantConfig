@@ -70,6 +70,7 @@
           ]]]
         raw_suffix: ACTIVE
         warning_entity_ids:
+        - binary_sensor.tesla_home_charge_attention
         - binary_sensor.infra_wan_sustained_degradation
         - binary_sensor.rheem_wh_telemetry_stale
         - binary_sensor.docker_host_maintenance_attention
@@ -81,7 +82,7 @@
         - binary_sensor.infra_compute_degraded
         - binary_sensor.infra_storage_degraded
         - binary_sensor.infra_external_monitoring_degraded
-        - binary_sensor.juicepassproxy_monitoring_degraded
+        - binary_sensor.tesla_home_charge_critical
         - binary_sensor.rheem_wh_active_alert
         - binary_sensor.garage_phyn_leak_alert
 
@@ -147,12 +148,15 @@
             ];
             const battery = Number(entity?.state);
             const tires = tireIds.map((id) => Number(states[id]?.state)).filter(Number.isFinite);
-            if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'critical';
+            if (states['binary_sensor.tesla_home_charge_critical']?.state === 'on') return 'critical';
+            if (states['binary_sensor.tesla_home_charge_attention']?.state === 'on') return 'warning';
             if (!Number.isFinite(battery) || tires.length !== tireIds.length) return 'unknown';
             return Math.min(...tires) < 38.5 ? 'critical' : 'healthy';
           ]]]
       state_display: >
         [[[
+          if (states['binary_sensor.tesla_home_charge_critical']?.state === 'on') return 'CHECK CHARGING';
+          if (states['input_boolean.tesla_home_charge_restart_required']?.state === 'on') return 'RESTART REVIEW';
           if (states['binary_sensor.juicepassproxy_monitoring_degraded']?.state === 'on') return 'MONITOR CHECK';
           const battery = Number(entity?.state);
           if (!Number.isFinite(battery)) return 'NO DATA';
@@ -523,13 +527,24 @@
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
-        entity: binary_sensor.juicepassproxy_monitoring_degraded
-        name: JuiceBox monitoring unavailable
+        entity: binary_sensor.tesla_home_charge_attention
+        name: Home charging needs attention
         icon: mdi:ev-station-off
         variables:
           alert_kind: binary_on
-          exception_detail: NO LIVE REPORTS - CHECK THE TESLA AND CHARGER
-        state_display: '[[[ return "NO DATA"; ]]]'
+          warning_only: true
+          critical_entity_ids:
+            - binary_sensor.tesla_home_charge_critical
+          exception_detail: >
+            [[[
+              if (states['binary_sensor.tesla_home_charge_critical']?.state === 'on')
+                return 'CHECK THE TESLA - CHARGING STOP NOT YET VERIFIED';
+              if (states['input_boolean.tesla_home_charge_restart_required']?.state === 'on')
+                return 'CHARGING PAUSED - REVIEW BEFORE RESUMING';
+              return 'MONITORING REPORTS MISSING - INVESTIGATION REQUESTED';
+            ]]]
+        state_display: >
+          [[[ return states['binary_sensor.tesla_home_charge_critical']?.state === 'on' ? 'CHECK' : 'REVIEW'; ]]]
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/car
