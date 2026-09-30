@@ -1,6 +1,5 @@
 """Adapter contracts, run inside an HA environment with upstream I/O isolated."""
 
-import asyncio
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
@@ -9,12 +8,44 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
+import yaml
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "config"))
 from custom_components.tesla_charge_guard import async_setup
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.template import Template
 
 
 class AdapterContractTests(unittest.IsolatedAsyncioTestCase):
+    async def test_cached_zero_with_clock_skew_cannot_clear_a_new_incident(self):
+        package = yaml.safe_load((Path(__file__).resolve().parents[1]
+                                  / "config/packages/tesla_model_y.yaml").read_text())
+        steps = package["script"]["tesla_home_charge_protect"]["sequence"]
+        boundary_source = next(step["variables"]["verification_after"]
+                               for step in steps if "verification_after" in step.get("variables", {}))
+        proof_source = next(sensor["state"] for group in package["template"]
+                            for sensor in group.get("binary_sensor", [])
+                            if sensor["unique_id"] == "tesla_home_charge_stop_verified")
+        with TemporaryDirectory() as directory:
+            hass = HomeAssistant(directory)
+            cached_sample = time() + 2
+            boundary = Template(boundary_source, hass).async_render({"guard": dict(
+                tesla_sample_time=cached_sample, juicebox_sample_time=0)})
+            hass.states.async_set("input_datetime.tesla_home_charge_verify_after", "fixture",
+                                  {"timestamp": boundary})
+            hass.states.async_set("input_boolean.tesla_high_charge_rate_alert_active", "on")
+            hass.states.async_set("sensor.tesla_home_charge_guard", "stopped", {"sample_time": cached_sample})
+            proof = Template(proof_source, hass)
+            self.assertIs(proof.async_render(), False)
+            hass.states.async_set("sensor.tesla_home_charge_guard", "stopped", {"sample_time": boundary + 1})
+            self.assertIs(proof.async_render(), True)
+            hass.states.async_set("input_boolean.tesla_high_charge_rate_alert_active", "off")
+            self.assertIs(proof.async_render(), False)
+            invalid_boundary = Template(boundary_source, hass).async_render({"guard": dict(
+                tesla_sample_time=time() + 1000, juicebox_sample_time=0)})
+            self.assertLessEqual(invalid_boundary, time() + 1)
+            await hass.async_stop(force=True)
+
     async def test_retained_reports_and_successful_cached_refresh_do_not_prove_safety(self):
         with TemporaryDirectory() as directory:
             hass = HomeAssistant(directory)

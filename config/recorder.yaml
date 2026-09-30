@@ -199,6 +199,8 @@ exclude:
     - automation.update_garage_get_status
     # Source verification is live-only; critical/attention sensors and curated incidents remain recorded.
     - sensor.tesla_home_charge_guard
+    - binary_sensor.juicepassproxy_live_reports_missing
+    - binary_sensor.tesla_home_charge_stop_verified
     - automation.docker_telemetry_template_refresh
     - sensor.bgw_probe_payload
     - sensor.infra_dashboard_active_issue_count

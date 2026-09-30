@@ -27,6 +27,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Expose coordinator sample times without adding credentials or controls."""
     settings = config[DOMAIN]
     juicebox = {}
+    observation_started = time()
     refresh_lock = asyncio.Lock()
 
     def vehicle():
@@ -57,12 +58,15 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 "location_time": (number(data.get("drive_state_timestamp")) or 0) / 1000,
                 "at_home": at_home,
                 "dc": data.get("charge_state_fast_charger_present"),
-                "plugged": charging in {"charging", "starting", "stopped", "complete", "no_power"},
+                "plugged": charging in {"charging", "starting", "stopped", "complete", "no_power", "nopower"},
             }
         except (ServiceValidationError, AttributeError, TypeError, ValueError):
             pass
         session = hass.states.is_state("input_boolean.tesla_home_charge_session_active", "on")
-        return classify(tesla, juicebox, time(), settings["current_limit"], session)
+        now = time()
+        result = classify(tesla, juicebox, now, settings["current_limit"], session)
+        result["mqtt_observation_ready"] = now - observation_started >= 60
+        return result
 
     @callback
     def publish():
@@ -93,7 +97,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         error = None
         if call.data["refresh"]:
             try:
-                async with refresh_lock, asyncio.timeout(25):
+                async with asyncio.timeout(25), refresh_lock:
                     await vehicle().coordinator.async_refresh()
             except (ServiceValidationError, TimeoutError) as err:
                 error = type(err).__name__

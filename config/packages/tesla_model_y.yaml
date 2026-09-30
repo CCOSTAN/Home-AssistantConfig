@@ -40,6 +40,7 @@
 #  unverified home sessions request a protective stop; verified safe/stopped
 #  sessions get a quiet monitoring warning only if the outage persists 15 minutes.
 # Notes: Stops require home/AC context and fresh post-command zero-current proof.
+#  The restoring verification timestamp rejects older samples across restarts.
 #  A restoring review latch blocks home charging resumption until manually cleared.
 #  No automatic start commands are issued. Tagged incident pushes clear only after
 #  their own recovery checks. Older untagged alerts require dismissal on the phone.
@@ -77,6 +78,10 @@ mqtt:
       icon: mdi:heart-pulse
 
 input_datetime:
+  tesla_home_charge_verify_after:
+    name: Tesla Home Charge Verify After
+    has_date: true
+    has_time: true
   tesla_model_y_last_garage_close:
     name: Tesla Model Y Last Garage Close
     has_date: true
@@ -92,17 +97,24 @@ input_datetime:
 
 template:
   - binary_sensor:
+      - name: "JuicePassProxy Live Reports Missing"
+        unique_id: juicepassproxy_live_reports_missing
+        state: >-
+          {{ not is_state('sensor.juicepassproxy_mqtt_heartbeat', 'online')
+             or (state_attr('sensor.tesla_home_charge_guard', 'mqtt_observation_ready') == true
+                 and state_attr('sensor.tesla_home_charge_guard', 'juicebox_fresh') == false) }}
+
       - name: "JuicePassProxy Investigation Needed"
         unique_id: juicepassproxy_investigation_needed
         device_class: problem
         delay_on: "00:02:00"
-        state: "{{ not is_state('sensor.juicepassproxy_mqtt_heartbeat', 'online') }}"
+        state: "{{ is_state('binary_sensor.juicepassproxy_live_reports_missing', 'on') }}"
 
       - name: "JuicePassProxy Monitoring Degraded"
         unique_id: juicepassproxy_monitoring_degraded
         device_class: problem
         delay_on: "00:04:00"
-        state: "{{ not is_state('sensor.juicepassproxy_mqtt_heartbeat', 'online') }}"
+        state: "{{ is_state('binary_sensor.juicepassproxy_live_reports_missing', 'on') }}"
         attributes:
           mqtt_heartbeat: "{{ states('sensor.juicepassproxy_mqtt_heartbeat') }}"
           source_state: "{{ states('sensor.juicepassproxy_state') }}"
@@ -113,13 +125,23 @@ template:
         unique_id: juicepassproxy_monitoring_persistent
         device_class: problem
         delay_on: "00:14:00"
-        state: "{{ not is_state('sensor.juicepassproxy_mqtt_heartbeat', 'online') }}"
+        state: "{{ is_state('binary_sensor.juicepassproxy_live_reports_missing', 'on') }}"
+
+      - name: "Tesla Home Charge Stop Verified"
+        unique_id: tesla_home_charge_stop_verified
+        state: >-
+          {% set sample = state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) %}
+          {% set boundary = state_attr('input_datetime.tesla_home_charge_verify_after', 'timestamp') | float(0) %}
+          {{ is_state('input_boolean.tesla_high_charge_rate_alert_active', 'on')
+             and is_state('sensor.tesla_home_charge_guard', 'stopped')
+             and sample > boundary and -5 <= as_timestamp(now()) - sample <= 60 }}
 
       - name: "Tesla Home Charge Critical"
         unique_id: tesla_home_charge_critical
         device_class: problem
         state: >-
-          {{ is_state('input_boolean.tesla_high_charge_rate_alert_active', 'on')
+          {{ is_state('sensor.tesla_home_charge_guard', 'excessive')
+             or is_state('input_boolean.tesla_high_charge_rate_alert_active', 'on')
              or (is_state('binary_sensor.juicepassproxy_monitoring_degraded', 'on')
                  and is_state('sensor.tesla_home_charge_guard', 'unverified')
                  and state_attr('sensor.tesla_home_charge_guard', 'home_session') == true) }}
@@ -147,6 +169,7 @@ template:
           checked_at: "{{ trigger.event.data.checked_at }}"
           tesla_fresh: "{{ trigger.event.data.tesla_fresh }}"
           juicebox_fresh: "{{ trigger.event.data.juicebox_fresh }}"
+          mqtt_observation_ready: "{{ trigger.event.data.mqtt_observation_ready }}"
           home_session: "{{ trigger.event.data.home_session }}"
           session_observed: "{{ trigger.event.data.session_observed }}"
           stop_allowed: "{{ trigger.event.data.stop_allowed }}"
@@ -390,8 +413,16 @@ script:
              or (guard.status == 'charging_safe'
                  and is_state('input_boolean.tesla_home_charge_restart_required', 'on')) }}
       - variables:
-          stop_requested_at: "{{ as_timestamp(now()) }}"
+          verification_after: >-
+            {% set requested = as_timestamp(now()) %}
+            {{ [requested, guard.tesla_sample_time | float(0), guard.juicebox_sample_time | float(0)]
+               | select('le', requested + 5) | max | round(0, 'ceil') | int }}
           incident_reason: "{{ reason | default(guard.reason, true) }}"
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.tesla_home_charge_verify_after
+        data:
+          timestamp: "{{ verification_after }}"
       - service: input_boolean.turn_on
         target:
           entity_id:
@@ -434,16 +465,16 @@ script:
                 Home Assistant owns the protective stop and restart-review latch.
                 Verify fresh actual-current reports and the owning monitoring path.
                 Repair monitoring when safe; check for an active deployment before
-                restarting a container. Do not change current limits, clear the review
-                latch, or start charging. Report verified results and any stop failure.
+                restarting a container. Do not change current limits, charging helpers,
+                or the verification timestamp, or start charging. Report verified results
+                and any stop failure.
       - repeat:
           count: 2
           sequence:
             - if:
                 - condition: template
                   value_template: >-
-                    {{ not (is_state('sensor.tesla_home_charge_guard', 'stopped')
-                            and state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) > stop_requested_at | float(0)) }}
+                    {{ not is_state('binary_sensor.tesla_home_charge_stop_verified', 'on') }}
               then:
                 - delay: "00:00:05"
                 - service: tesla_charge_guard.snapshot
@@ -452,8 +483,7 @@ script:
                     refresh: true
                   response_variable: verification
                 - wait_template: >-
-                    {{ is_state('sensor.tesla_home_charge_guard', 'stopped')
-                       and state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) > stop_requested_at | float(0) }}
+                    {{ is_state('binary_sensor.tesla_home_charge_stop_verified', 'on') }}
                   timeout: "00:00:25"
                   continue_on_timeout: true
                 - if:
@@ -468,8 +498,7 @@ script:
                         entity_id: switch.spaceship_charge
       - variables:
           stop_verified: >-
-            {{ is_state('sensor.tesla_home_charge_guard', 'stopped')
-               and state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) > stop_requested_at | float(0) }}
+            {{ is_state('binary_sensor.tesla_home_charge_stop_verified', 'on') }}
       - if:
           - condition: template
             value_template: "{{ not stop_verified }}"
@@ -566,8 +595,8 @@ automation:
     max: 3
     trigger:
       - platform: state
-        entity_id: sensor.tesla_home_charge_guard
-        to: stopped
+        entity_id: binary_sensor.tesla_home_charge_stop_verified
+        to: 'on'
       - platform: state
         entity_id: script.tesla_home_charge_protect
         to: 'off'
@@ -579,13 +608,8 @@ automation:
         entity_id: script.tesla_home_charge_protect
         state: 'off'
       - condition: state
-        entity_id: sensor.tesla_home_charge_guard
-        state: stopped
-      - condition: template
-        value_template: >-
-          {% set sample = state_attr('sensor.tesla_home_charge_guard', 'sample_time') | float(0) %}
-          {{ sample > as_timestamp(states.input_boolean.tesla_high_charge_rate_alert_active.last_changed)
-             and -5 <= as_timestamp(now()) - sample <= 60 }}
+        entity_id: binary_sensor.tesla_home_charge_stop_verified
+        state: 'on'
     action:
       - service: input_boolean.turn_off
         target:
@@ -649,7 +673,7 @@ automation:
               - service: script.tesla_home_charge_dispatch
                 continue_on_error: true
                 data:
-                  summary: "JuiceBox MQTT reports have been absent for three minutes"
+                  summary: "Live JuiceBox charging reports are missing or incomplete"
                   request: >-
                     Verify the owning JuicePassProxy container and recent live MQTT
                     reports. Restore the failed path when safe; check for an active
@@ -682,7 +706,7 @@ automation:
                 then:
                   - service: script.tesla_home_charge_protect
                     data:
-                      reason: "Both charging sources are unverified during a home charging session after five minutes without JuiceBox reports."
+                      reason: "Both charging sources are unverified during a home charging session after the five-minute monitoring assessment."
                 else:
                   - service: script.send_to_logbook
                     data:
@@ -706,7 +730,7 @@ automation:
                 data:
                   title: JuiceBox Monitoring Needs Review
                   value1: >-
-                    JuiceBox reports have been missing for 15 minutes. Joanna was
+                    JuiceBox reports have been missing or incomplete for 15 minutes. Joanna was
                     dispatched. Charging assessment: {{ states('sensor.tesla_home_charge_guard') }}.
                   who: parents
                   group: JuiceBox_Proxy_Offline

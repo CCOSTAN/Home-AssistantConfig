@@ -23,9 +23,21 @@ ignored. Fresh away/DC reports veto home stop commands. Source data with missing
 current, invalid current, unknown charging state, or a future timestamp is not
 accepted as evidence of stopped charging.
 
+Missing current/status fields also start the monitoring dwell even when the
+Frequency heartbeat keeps arriving. The first minute after setup allows live
+reports to arrive. A fresh excessive-current reading still triggers protection
+when its status field is missing; a fresh positive reading cannot be overridden
+by another source's zero. A fresh `NoPower` plus zero confirms stopped charging
+without forgetting that the vehicle remains plugged in.
+
 The operational guardrail is 18 A around the intended 16 A home rate. This is
 not a replacement for electrical protection. A successful stop command is not
 proof of a stopped vehicle; the package requires a fresh zero-current report.
+Its restoring verification timestamp records the request and existing source
+timestamps, allowing up to five seconds of clock skew. A later source sample
+must exceed that boundary, including after HA restarts. Invalid future samples
+cannot move the boundary indefinitely. Successful verification clears the
+critical incident and its matching notification; human restart review remains.
 
 The adapter uses the installed Tesla Fleet runtime coordinator, so its contract
 must be checked after Home Assistant upgrades. If the vehicle cannot be found,

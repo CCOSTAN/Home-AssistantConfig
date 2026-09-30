@@ -26,8 +26,8 @@ def classify(tesla, juicebox, now, limit=18, session_active=False):
     js = str(juicebox.get("status", "")).lower()
     tesla_sample_fresh = fresh(tesla.get("sample_time"), now, 120)
     tf = tesla_sample_fresh and tc is not None
-    jf = (fresh(juicebox.get("current_time"), now, 60)
-          and fresh(juicebox.get("status_time"), now, 60) and jc is not None)
+    current_fresh = fresh(juicebox.get("current_time"), now, 60) and jc is not None
+    jf = current_fresh and fresh(juicebox.get("status_time"), now, 60)
     location_fresh = fresh(tesla.get("location_time"), now, 120)
     at_home = tesla.get("at_home")
     dc = tesla.get("dc")
@@ -51,7 +51,7 @@ def classify(tesla, juicebox, now, limit=18, session_active=False):
         "juicebox_sample_time": juicebox.get("current_time", 0),
         "reason": "No fresh charging report; cached values cannot verify safety.",
     }
-    if away and not (jf and jc > limit):
+    if away and not (current_fresh and jc > limit):
         result.update(status="away", stop_allowed=False, home_session=False, session_observed=False,
                       reason="Fresh away or DC charging report; home stop commands blocked.")
         # Charging elsewhere must not prevent a recovered home charger from
@@ -63,23 +63,23 @@ def classify(tesla, juicebox, now, limit=18, session_active=False):
         return result
     # Either live source can expose excessive draw; a lower reading cannot mask it.
     excessive = []
-    if jf and jc > limit:
+    if current_fresh and jc > limit:
         excessive.append((jc, "juicebox", juicebox["current_time"]))
-    if tf and home and ts in {"charging", "starting"} and tc > limit:
+    if tf and home and tc > limit:
         excessive.append((tc, "tesla", tesla["sample_time"]))
     if excessive:
         current, source, timestamp = max(excessive)
         result.update(status="excessive", actual_current=current, source=source,
                       sample_time=timestamp, stop_allowed=home, home_session=True,
-                      session_observed=True if home else None,
+                      session_observed=False if away else True if home else None,
                       reason=f"Fresh measured home current exceeds {limit:g} A.")
         return result
-    if jf and jc == 0 and tf and ts in {"charging", "starting"} and tc > 0:
+    if jf and jc == 0 and tf and tc > 0:
         result.update(home_session=home, stop_allowed=home,
                       reason="Fresh sources disagree about whether charging is active.")
         return result
     # A fresh active report prevents an older/fresh conflicting zero from clearing.
-    if (jf and jc > 0) or (tf and ts in {"charging", "starting"}):
+    if (current_fresh and jc > 0) or (tf and tc > 0) or (tf and ts in {"charging", "starting"}):
         if home and ((jf and 0 < jc <= limit) or
                      (tf and ts in {"charging", "starting"} and 0 < tc <= limit)):
             source = "juicebox" if jf and jc > 0 else "tesla"
@@ -90,7 +90,7 @@ def classify(tesla, juicebox, now, limit=18, session_active=False):
                           reason="Fresh home charging current is within the guardrail.")
         return result
     if ((jf and jc == 0 and js in {"unplugged", "plugged in", "plugged", "connected", "standby", "ready"}) or
-            (tf and tc == 0 and ts in {"stopped", "complete", "disconnected", "no_power"})):
+            (tf and tc == 0 and ts in {"stopped", "complete", "disconnected", "no_power", "nopower"})):
         source = "juicebox" if jf and jc == 0 else "tesla"
         result.update(status="stopped", actual_current=0, source=source,
                       sample_time=juicebox["current_time"] if source == "juicebox" else tesla["sample_time"],

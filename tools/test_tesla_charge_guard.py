@@ -31,6 +31,23 @@ class ChargePolicyTests(unittest.TestCase):
                 source["current"] = 18
                 self.assertEqual(self.assess()["status"], "charging_safe")
 
+    def test_missing_status_does_not_mask_fresh_excessive_current(self):
+        self.juicebox.update(current=24, status_time=self.now - 61)
+        result = self.assess()
+        self.assertEqual(result["status"], "excessive")
+        self.assertFalse(result["juicebox_fresh"])
+        self.juicebox["current"] = 16
+        self.tesla.update(current=24, charging="unknown")
+        self.assertEqual(self.assess()["status"], "excessive")
+
+    def test_fresh_no_power_and_zero_is_stopped_without_ending_connection(self):
+        self.juicebox["current_time"] = self.now - 61
+        for state in ("NoPower", "no_power"):
+            self.tesla.update(current=0, charging=state)
+            result = self.assess()
+            self.assertEqual(result["status"], "stopped")
+            self.assertTrue(result["session_observed"])
+
     def test_cached_zero_and_missing_values_never_prove_stopped(self):
         self.tesla.update(current=0, charging="stopped", sample_time=self.now - 121)
         self.juicebox.update(current=0, status="Unplugged", current_time=self.now - 61)
@@ -50,6 +67,11 @@ class ChargePolicyTests(unittest.TestCase):
         self.tesla["current"] = None
         result = policy.classify(self.tesla, self.juicebox, self.now, session_active=True)
         self.assertFalse(result["stop_allowed"])
+        self.juicebox["status_time"] = self.now - 61
+        result = policy.classify(self.tesla, self.juicebox, self.now, session_active=True)
+        self.assertEqual(result["status"], "excessive")
+        self.assertFalse(result["stop_allowed"])
+        self.assertFalse(result["session_observed"])
 
     def test_home_charger_activity_without_vehicle_scope_requires_investigation(self):
         result = policy.classify({}, self.juicebox, self.now)
@@ -101,6 +123,14 @@ class ChargePolicyTests(unittest.TestCase):
         self.assertNotEqual(self.assess()["status"], "stopped")
         self.tesla.update(current=0, charging="unknown")
         self.juicebox["status"] = "unknown"
+        self.assertEqual(self.assess()["status"], "unverified")
+
+    def test_positive_current_with_missing_status_prevents_zero_confirmation(self):
+        self.tesla.update(current=0, charging="stopped")
+        self.juicebox.update(current=16, status_time=self.now - 61)
+        self.assertEqual(self.assess()["status"], "unverified")
+        self.tesla.update(current=16, charging="unknown")
+        self.juicebox.update(current=0, status="Unplugged", status_time=self.now)
         self.assertEqual(self.assess()["status"], "unverified")
 
     def test_future_samples_and_old_status_cannot_prove_safe(self):
