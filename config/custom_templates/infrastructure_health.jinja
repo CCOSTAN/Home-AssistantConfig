@@ -1,0 +1,96 @@
+{# Shared UPS interpretation and dashboard health-source inventory. #}
+{% macro eaton_low_voltage_policy(returns) -%}
+  {% set raw = states('sensor.office_ups_eaton_550_status_data') | upper | trim %}
+  {% set tokens = raw.split() %}
+  {% set alarm = states('sensor.office_office_ups_eaton_3s_550_alarms') | trim %}
+  {% set grid = states('binary_sensor.powerwall_grid_status') %}
+  {% set missing = raw | lower in ['', 'unknown', 'unavailable', 'none'] %}
+  {% set alarm_known = alarm | lower not in ['unknown', 'unavailable'] %}
+  {% set warning = alarm == 'Battery voltage too low!' %}
+  {# NUT usbhid-ups maps NeedReplacement to RB/Replace battery! and
+     InternalFailure to Internal UPS fault!. Exact single-alarm matching
+     excludes both, as well as any other fault. These are mapped flags,
+     not a direct battery-health measurement. #}
+  {% set other_tokens = tokens | reject('in', ['OL', 'CHRG', 'ALARM']) | list %}
+  {% set other_alarm = alarm_known and alarm | lower not in ['', 'none', 'no alarms', 'no alarm'] and not warning %}
+  {% set flags_known = not missing and alarm_known and ('ALARM' not in tokens or alarm != '') %}
+  {% set replacement = 'RB' in tokens or 'Replace battery!' in alarm %}
+  {% set internal_failure = 'Internal UPS fault!' in alarm %}
+  {% set eligible = grid == 'on' and 'OL' in tokens and 'ALARM' in tokens and
+      other_tokens | count == 0 and warning and flags_known and not replacement and not internal_failure %}
+  {% set started = states('input_text.infra_eaton_low_voltage_since') %}
+  {% set started_ts = as_timestamp(started, none) %}
+  {% set elapsed = as_timestamp(now()) - started_ts if started_ts is not none else -1 %}
+  {% set healthy = not missing and 'OL' in tokens and 'ALARM' not in tokens and
+      other_tokens | count == 0 and not warning and not other_alarm %}
+  {% do returns({
+    'eligible': eligible, 'ignored': eligible and elapsed >= 86400,
+    'warning_present': warning, 'mains_power': grid == 'on',
+    'replace_battery': replacement if flags_known else none,
+    'internal_failure': internal_failure if flags_known else none,
+    'flag_source': 'NUT status and alarm mapping',
+    'first_seen': started if started_ts is not none else none,
+    'age_seconds': elapsed | int if elapsed >= 0 else none,
+    'reset_required': grid == 'off' or (not missing and other_tokens | count > 0) or other_alarm,
+    'healthy': healthy, 'raw_status': raw, 'raw_alarm': alarm
+  }) %}
+{%- endmacro %}
+
+{% macro ups_issues(returns) -%}
+  {% set devices = [
+    ('Garage UPS', 'sensor.garage_ups_status_data', 'sensor.garage_ups_status', none),
+    ('Office Eaton 3S 550', 'sensor.office_ups_eaton_550_status_data', 'sensor.office_ups_eaton_550_status', 'sensor.office_office_ups_eaton_3s_550_alarms'),
+    ('Office CyberPower ST Series', 'sensor.office_ups_cyberpower_status_data', 'sensor.office_ups_cyberpower_status', none)
+  ] %}
+  {% set policy = (eaton_low_voltage_policy | as_function)() %}
+  {% set ns = namespace(issues=[]) %}
+  {% for name, raw_id, display_id, alarm_id in devices %}
+    {% set raw = states(raw_id) | upper | trim %}
+    {% set tokens = raw.split() %}
+    {% set alarm = states(alarm_id) if alarm_id else '' %}
+    {% set has_alarm = alarm | lower not in ['', 'none', 'unknown', 'unavailable', 'no alarms', 'no alarm'] %}
+    {% set ignored = raw_id == 'sensor.office_ups_eaton_550_status_data' and policy.ignored %}
+    {% if not ignored and ('OL' not in tokens or tokens | reject('in', ['OL', 'CHRG']) | list | count > 0 or has_alarm) %}
+      {% set ns.issues = ns.issues + [{
+        'name': name, 'entity_id': raw_id, 'status': states(display_id),
+        'status_data': raw, 'alarm': alarm if has_alarm else '',
+        'telemetry_missing': raw | lower in ['unknown', 'unavailable', 'none', '']
+      }] %}
+    {% endif %}
+  {% endfor %}
+  {% do returns(ns.issues) %}
+{%- endmacro %}
+
+{% macro dashboard_active_entities(returns) -%}
+  {# Add new category health sources here so count and details stay aligned. #}
+  {% set monitored = {
+    'binary_sensor.infra_wan_quality_degraded': 'off',
+    'binary_sensor.infra_dns_pihole_degraded': 'off',
+    'binary_sensor.infra_nebula_sync_degraded': 'off',
+    'binary_sensor.infra_pihole_iot_dns_degraded': 'off',
+    'binary_sensor.infra_compute_degraded': 'off',
+    'binary_sensor.node_proxmox1_updates_packages': 'off',
+    'binary_sensor.node_proxmox02_updates_packages': 'off',
+    'binary_sensor.infra_storage_degraded': 'off',
+    'binary_sensor.infra_external_monitoring_degraded': 'off',
+    'binary_sensor.tesla_home_charge_attention': 'off',
+    'binary_sensor.infra_ups_problem': 'off',
+    'binary_sensor.docker_host_maintenance_attention': 'off',
+    'binary_sensor.hvac_maintenance_due': 'off',
+    'binary_sensor.home_water_problem': 'off',
+    'binary_sensor.kiosk_devices_need_attention': 'off',
+    'sensor.l10s_vacuum_error': 'no_error',
+    'binary_sensor.powerwall_status': 'on',
+    'sensor.mariadb_status': 'running',
+    'sensor.bearclaw_scheduled_job_health': 'ok',
+    'sensor.joanna_onenote_kb_health': 'ok',
+    'binary_sensor.joanna_memory_index_stale': 'off'
+  } %}
+  {% set ns = namespace(active=[]) %}
+  {% for entity_id, healthy in monitored.items() %}
+    {% if states(entity_id) != healthy %}
+      {% set ns.active = ns.active + [entity_id] %}
+    {% endif %}
+  {% endfor %}
+  {% do returns(ns.active) %}
+{%- endmacro %}

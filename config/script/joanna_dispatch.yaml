@@ -11,6 +11,7 @@
 # Notes: Automation dispatches are async_only by default so HA calls return quickly while BearClaw works in queue.
 # Notes: Automation dispatches default to domain_hint=ops and lane_hint=joanna.ops.
 # Notes: HA is a dispatcher/integration here; Telegram transport ownership lives in the dedicated codex_appliance VM.
+# Notes: notify_telegram opts an investigation into a private reply to the configured user.
 ######################################################################
 
 joanna_dispatch:
@@ -32,6 +33,11 @@ joanna_dispatch:
       description: Extra troubleshooting context.
     user:
       description: BearClaw user identity.
+    notify_telegram:
+      description: Also deliver the investigation result to this user's configured private Telegram recipient.
+      default: false
+      selector:
+        boolean:
     domain_hint:
       description: BearClaw domain hint.
     lane_hint:
@@ -71,6 +77,7 @@ joanna_dispatch:
           Diagnostics: {{ normalized_diagnostics }}.
           Request: {{ normalized_request }}
         user: "{{ normalized_user }}"
+        notify_telegram: "{{ notify_telegram | default(false) | bool }}"
         source: "{{ normalized_source }}"
         context: "{{ normalized_context }}"
         domain_hint: "{{ normalized_domain_hint }}"

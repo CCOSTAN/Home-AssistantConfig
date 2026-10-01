@@ -29,6 +29,7 @@
 # Notes: v2 intake is the primary HA contract; legacy command/ingest routes remain appliance-side shims.
 # Notes: Command payload supports async_only for automation-first queueing when immediate inline handling is not required.
 # Notes: Command payload supports optional metadata for HA dispatch context snapshots.
+# Notes: notify_telegram adds an actor-scoped private reply alongside the HA lifecycle callback.
 # Notes: HA automation dispatches default to BearClaw's ops domain so wording like NAS "health" cannot route to the health coach.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
@@ -67,6 +68,12 @@ rest_command:
             "type": "ha",
             "callbackEventType": "lifecycle"
           }
+          {% if notify_telegram | default(false) | bool %}
+          ,{
+            "type": "telegram",
+            "notifyPolicy": {"recipient": "actor"}
+          }
+          {% endif %}
         ],
         "metadata": {{ metadata | default({}, true) | tojson }},
         "priority": {{ priority | default(none) | tojson }},

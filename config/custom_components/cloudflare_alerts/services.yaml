@@ -1,0 +1,31 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Cloudflare Alert Actions - Delivery status and verified incident closure
+# -------------------------------------------------------------------
+create_cloudhook:
+  name: Create cloud webhook
+  description: Return the private Nabu Casa delivery URL. Treat the response as a secret.
+get_status:
+  name: Get delivery status
+  description: Return accepted delivery counts and current incidents without credentials.
+refresh:
+  name: Refresh notification history
+  description: Perform an immediate read-only history check and return delivery status.
+resolve:
+  name: Resolve verified incident
+  description: Clear a bridge-owned alert only after verifying recovery or completing human review.
+  fields:
+    issue_id:
+      name: Issue ID
+      required: true
+      selector:
+        text:
+    verification:
+      name: Recovery evidence
+      required: true
+      selector:
+        text:
+          multiline: true

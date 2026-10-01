@@ -964,6 +964,13 @@ bearstone_infra_status_kpi:
         const raw = String(entity?.state ?? '').toLowerCase();
         const unavailable = ['unknown', 'unavailable', 'none', ''].includes(raw);
         if (unavailable) return 'unknown';
+        const problemEntityId = String(variables?.problem_entity_id ?? '').trim();
+        if (problemEntityId) {
+          const issues = states[problemEntityId]?.attributes?.issues;
+          if (!Array.isArray(issues)) return 'unknown';
+          const issue = issues.find((item) => item.entity_id === variables?.problem_source_entity_id);
+          return issue ? (issue.telemetry_missing ? 'unknown' : 'critical') : 'healthy';
+        }
         const normalizeIds = (value) => {
           if (Array.isArray(value)) return value.map(String);
           if (typeof value === 'string' && value.trim()) return [value.trim()];

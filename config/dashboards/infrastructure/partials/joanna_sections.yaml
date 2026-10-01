@@ -9,6 +9,7 @@
 # Notes: BearClaw Admin provides the detailed runtime drill-down while this page stays summary-focused.
 # Notes: This view changes HA presentation only; BearClaw runtime behavior is untouched.
 # Notes: Compact scheduled-job health provides an HA-visible failure summary with Admin as the detailed source of truth.
+# Notes: Reset expiry warnings use the appliance countdown and reminder alongside real collector errors.
 # Notes: BearClaw working memory and the federated OneNote KB are separate indexes and render separately.
 ######################################################################
 
@@ -203,7 +204,7 @@
         exception_detail: >
           [[[
             const issue = Array.isArray(entity?.attributes?.issues) ? entity.attributes.issues[0] : null;
-            return String(issue?.detail || entity?.attributes?.summary || 'SCHEDULED JOB STATUS REQUIRES REVIEW').toUpperCase();
+            return String(issue?.detail || entity?.attributes?.summary || 'SCHEDULED JOB STATUS REQUIRES REVIEW');
           ]]]
       state_display: >
         [[[ return entity?.state === 'warning' ? 'WARNING' : 'ERROR'; ]]]

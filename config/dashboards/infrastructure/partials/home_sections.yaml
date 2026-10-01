@@ -17,6 +17,7 @@
 # Notes: Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
 # Notes: Back to Overview is the first control in the landing-view navigation strip.
 # Notes: UPS health covers both Garage and Office NUT servers and drills into the shared UPS view.
+# Notes: UPS alarms and telemetry loss roll up alongside utility outages; other submenu faults and Repairs gate Systems all-clear.
 # Notes: Missing JuiceBox MQTT reports become a critical Systems issue after
 #  five minutes; fresh reports clear it and restore the Car view.
 ######################################################################
@@ -78,7 +79,7 @@
         critical_entity_ids:
         - binary_sensor.infra_wan_critical
         - binary_sensor.infra_dns_pihole_degraded
-        - binary_sensor.infra_ups_on_battery
+        - binary_sensor.infra_ups_problem
         - binary_sensor.infra_compute_degraded
         - binary_sensor.infra_storage_degraded
         - binary_sensor.infra_external_monitoring_degraded
@@ -217,13 +218,16 @@
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: binary_sensor.infra_ups_on_battery
+      entity: binary_sensor.infra_ups_problem
       name: UPS Power
       icon: mdi:battery-heart-variant
       variables:
         ok_state: 'off'
         healthy_text: UTILITY POWER
-        alert_text: ON BATTERY
+        alert_text: CHECK
+      state_display: >
+        [[[ return entity?.state === 'off' ? 'UTILITY POWER'
+          : states['binary_sensor.infra_ups_on_battery']?.state === 'on' ? 'ON BATTERY' : 'CHECK'; ]]]
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/ups
@@ -277,9 +281,11 @@
           [[[
             const raw = String(entity?.state ?? '').toLowerCase();
             if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'unknown';
-            return raw === 'error' ? 'critical' : 'healthy';
+            if (raw === 'error') return 'critical';
+            return raw === 'warning' ? 'warning' : 'healthy';
           ]]]
         healthy_text: HEALTHY
+        warning_text: JOB WARNING
         critical_text: JOB ERROR
       tap_action:
         action: navigate
@@ -381,18 +387,18 @@
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
-        entity: binary_sensor.infra_ups_on_battery
-        name: UPS running on battery
+        entity: binary_sensor.infra_ups_problem
+        name: UPS requires attention
         icon: mdi:battery-alert-variant-outline
         variables:
           alert_kind: binary_on
           exception_detail: >
             [[[
-              const garage = String(entity?.attributes?.garage_status ?? 'UNKNOWN').toUpperCase();
-              const office = String(entity?.attributes?.office_status ?? 'UNKNOWN').toUpperCase();
-              return `GARAGE ${garage} · OFFICE ${office}`;
+              const issues = Array.isArray(entity?.attributes?.issues) ? entity.attributes.issues : [];
+              return issues.map((issue) => `${issue.name}: ${issue.alarm || issue.status}`).join(' · ');
             ]]]
-        state_display: ON BATTERY
+        state_display: >
+          [[[ return states['binary_sensor.infra_ups_on_battery']?.state === 'on' ? 'ON BATTERY' : 'CHECK'; ]]]
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/ups
@@ -512,15 +518,24 @@
       - type: custom:button-card
         template: bearstone_infra_alert_row
         entity: sensor.bearclaw_scheduled_job_health
-        name: BearClaw scheduled job needs attention
+        name: >
+          [[[
+            const issues = entity?.attributes?.issues;
+            return Array.isArray(issues) && issues.length === 1
+              ? issues[0].label : 'BearClaw scheduled jobs need attention';
+          ]]]
         icon: mdi:calendar-alert
         variables:
-          alert_kind: state_is
-          alert_state: error
-          alert_severity: critical
+          alert_kind: state_not
+          ok_state: ok
+          alert_severity: '[[[ return entity?.state === "warning" ? "warning" : "critical"; ]]]'
           exception_detail: >
-            [[[ return String(entity?.attributes?.summary ?? 'SCHEDULED JOB STATUS REQUIRES REVIEW').toUpperCase(); ]]]
-        state_display: ERROR
+            [[[
+              const issues = entity?.attributes?.issues;
+              const detail = Array.isArray(issues) && issues.length === 1 ? issues[0].detail : null;
+              return String(detail || entity?.attributes?.summary || 'SCHEDULED JOB STATUS REQUIRES REVIEW');
+            ]]]
+        state_display: '[[[ return entity?.state === "warning" ? "WARNING" : "ERROR"; ]]]'
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/joanna
@@ -770,6 +785,92 @@
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
 
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.infra_nebula_sync_degraded
+        name: DNS replica sync requires attention
+        icon: mdi:dns-outline
+        variables:
+          alert_kind: binary_on
+          exception_detail: '[[[ return String(entity?.attributes?.dns_consistency || "DNS replica health is degraded"); ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/network
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.infra_pihole_iot_dns_degraded
+        name: IoT DNS consistency requires attention
+        icon: mdi:dns-outline
+        variables:
+          alert_kind: binary_on
+          exception_detail: '[[[ return `${entity?.attributes?.mismatch_count || 0} DNS record mismatches`; ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/network
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.powerwall_status
+        name: Powerwall requires attention
+        icon: mdi:home-battery-outline
+        variables:
+          alert_kind: state_not
+          ok_state: 'on'
+        tap_action:
+          action: navigate
+          navigation_path: /energy/overview
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.mariadb_status
+        name: Database requires attention
+        icon: mdi:database
+        variables:
+          alert_kind: state_not
+          ok_state: running
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/mariadb
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.joanna_onenote_kb_health
+        name: Joanna knowledge index requires attention
+        icon: mdi:notebook-alert-outline
+        variables:
+          alert_kind: state_not
+          ok_state: ok
+          alert_severity: '[[[ return entity?.state === "warning" ? "warning" : "critical"; ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/joanna
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.joanna_memory_index_stale
+        name: Joanna memory index is stale
+        icon: mdi:database-alert-outline
+        variables:
+          alert_kind: binary_on
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/joanna
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.active_issues
+        name: Home Assistant Repairs
+        icon: mdi:wrench-outline
+        variables:
+          alert_kind: numeric_high
+          threshold: 0
+          exception_detail: OPEN REPAIRS REQUIRE REVIEW
+        state_display: '[[[ return `${entity?.state || "0"} OPEN`; ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /config/repairs
+
     - type: custom:vertical-stack-in-card
       card_mod:
         style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
@@ -823,7 +924,7 @@
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.office_ups_eaton_550_status
+        entity: sensor.infra_eaton_display_status
         name: Office Eaton 3S 550
         icon: mdi:battery-heart-variant
         state_display: >

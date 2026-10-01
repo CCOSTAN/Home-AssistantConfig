@@ -9,6 +9,7 @@
 # -------------------------------------------------------------------
 # Notes: Raw NUT status data drives the shared on-battery rollup.
 # Notes: All graphs use 24-hour windows and explicit threshold colors.
+# Notes: Eaton display follows the guarded 24-hour acknowledgment policy; raw alarms remain in its diagnostic attributes.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -47,18 +48,27 @@
       template: bearstone_infra_status_kpi
       entity: sensor.garage_ups_status
       name: Garage UPS
+      triggers_update:
+      - binary_sensor.infra_ups_problem
       icon: mdi:garage-variant
       variables:
+        problem_entity_id: binary_sensor.infra_ups_problem
+        problem_source_entity_id: sensor.garage_ups_status_data
         ok_state: Online
         healthy_text: ONLINE
         alert_text: CHECK
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
-      entity: sensor.office_ups_eaton_550_status
+      entity: sensor.infra_eaton_display_status
       name: Office Eaton 3S 550
+      triggers_update:
+      - binary_sensor.infra_ups_problem
+      - sensor.office_office_ups_eaton_3s_550_alarms
       icon: mdi:desk
       variables:
+        problem_entity_id: binary_sensor.infra_ups_problem
+        problem_source_entity_id: sensor.office_ups_eaton_550_status_data
         ok_state: Online
         healthy_text: ONLINE
         alert_text: CHECK
@@ -67,8 +77,12 @@
       template: bearstone_infra_status_kpi
       entity: sensor.office_ups_cyberpower_status
       name: Office CyberPower ST Series
+      triggers_update:
+      - binary_sensor.infra_ups_problem
       icon: mdi:battery-heart-variant
       variables:
+        problem_entity_id: binary_sensor.infra_ups_problem
+        problem_source_entity_id: sensor.office_ups_cyberpower_status_data
         ok_state: Online
         healthy_text: ONLINE
         alert_text: CHECK
@@ -191,11 +205,19 @@
 
       - type: custom:button-card
         template: bearstone_infra_list_row
-        entity: sensor.office_ups_eaton_550_status
+        entity: sensor.infra_eaton_display_status
         name: Status
         icon: mdi:battery-heart-variant
         state_display: >
           [[[ return String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.infra_eaton_display_status
+        name: Alarm
+        icon: mdi:battery-alert-variant-outline
+        state_display: >
+          [[[ return entity?.attributes?.active_alarm || 'No active alarms'; ]]]
 
       - type: custom:button-card
         template: bearstone_infra_list_row
