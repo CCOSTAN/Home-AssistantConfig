@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Kiosk Satellite Partial - Ambient kitchen display
+# Related Issue: 1926
 #  Enlarged camera feeds plus rotating household reminders, bowling results, cruise countdown, and locations.
 # -------------------------------------------------------------------
 # Related Issue: 1890
@@ -20,6 +21,7 @@
 # Notes: Rheem problem telemetry adds a red/amber water-heater slide and enriches the existing hot-water detail.
 # Notes: New LeagueSecretary results add Carlo and Stacey slides for 48 hours; other bowlers stay out of the kiosk payload.
 # Notes: Verified Health Coach personal bests add Carlo and Stacey slides for seven days.
+# Notes: Sink unavailable adds a wall-switch reminder that clears when the light reconnects.
 # Notes: The large-format lower panel otherwise mirrors read-only household fact entities.
 # Notes: The clock uses oversized time text and places live conditions beneath the current-weather icon.
 ######################################################################
@@ -200,6 +202,7 @@
             - sensor.rheem_wh_tank_health
             - sensor.rheem_wh_compressor_health
             - water_heater.rheem_wh
+            - light.sink
             - input_boolean.garbage_cans_out
             - input_datetime.water_delivery_date
             - sensor.water_softener_salt_days_since_last_add
@@ -516,6 +519,16 @@
                     detail: `${Math.round(battery)}% battery after the latest garage arrival`,
                     icon: 'mdi:ev-plug-tesla',
                     accent: '#c62828'
+                  });
+                }
+
+                if (state('light.sink') === 'unavailable') {
+                  items.push({
+                    kicker: 'CHECK WALL SWITCH',
+                    title: 'Kitchen sink light',
+                    detail: 'Please turn its physical switch back on.',
+                    icon: 'mdi:lightbulb-alert-outline',
+                    accent: '#ef6c00'
                   });
                 }
 
