@@ -16,7 +16,7 @@
 # Notes: Kitchen Show uses Kiosk Satellite's native ESPHome entities; `_2` is the live set while legacy MQTT registry entries coexist.
 # Notes: Kiosk Satellite owns HA kiosk-mode hiding, connection recovery, HA camera import, and HLS-first playback; no kiosk-mode custom resource is loaded.
 # Notes: Kitchen Show uses the Dim screensaver while empty or `group.bed` is on; true panel-off is disabled because this Crown build naps Wi-Fi and cannot accept a remote wake.
-# Notes: Kitchen Show volume is corrected to 13% at 08:00 and after HA or kiosk startup; manual changes otherwise persist.
+# Notes: Kitchen Show master volume is 13% while either bed is occupied and 75% once both are empty; bed changes, 08:00, and startup reconcile it.
 # Notes: Garage and Front Door retain priority; a Driveway alert takes over both kiosks until occupancy clears or ten minutes elapse.
 # Notes: At 07:00, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
 # Notes: Bedroom wake events only restore brightness/focus; URL reloads require page drift.
@@ -188,16 +188,48 @@ automation:
     action:
       - service: script.kitchen_kiosk_apply_camera_policy
 
+  - alias: "Kitchen Kiosk Satellite - Volume Policy"
+    id: cd67758d-88fd-4b57-bd50-3ab9c08c6dc0
+    mode: restart
+    variables:
+      kitchen_volume: "{{ 13 if is_state('group.bed', 'on') else 75 }}"
+    trigger:
+      - platform: time
+        at: "08:00:00"
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id: group.bed
+        to: null
+      - platform: state
+        entity_id: binary_sensor.kitchen_show_connectivity_2
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: group.bed
+        state:
+          - "on"
+          - "off"
+      - condition: template
+        value_template: >-
+          {% set volume = states('number.kitchen_show_volume_2') %}
+          {{ is_number(volume)
+             and (volume | float(-1)) != (kitchen_volume | float) }}
+    action:
+      - service: number.set_value
+        target:
+          entity_id: number.kitchen_show_volume_2
+        data:
+          value: "{{ kitchen_volume }}"
+
   - alias: "Kitchen Kiosk Satellite - Screen Policy"
     id: 99d8d43b-9448-4916-b313-8117a038baaf
     mode: restart
     trigger:
       - platform: time
         at: "08:00:00"
-        id: daily_volume
       - platform: homeassistant
         event: start
-        id: startup_volume
       - platform: state
         entity_id: binary_sensor.kitchen_kiosk_should_be_on
         to: "on"
@@ -210,7 +242,6 @@ automation:
       - platform: state
         entity_id: binary_sensor.kitchen_show_connectivity_2
         to: "on"
-        id: startup_volume
       - platform: state
         entity_id: switch.kitchen_show_keep_screen_on_2
         to: "off"
@@ -219,22 +250,6 @@ automation:
         to: "off"
 
     action:
-      - if:
-          - condition: template
-            value_template: >-
-              {{ trigger is defined
-                 and trigger.id in ['daily_volume', 'startup_volume'] }}
-          - condition: template
-            value_template: >-
-              {% set volume = states('number.kitchen_show_volume_2') %}
-              {{ volume not in ['unknown', 'unavailable', 'none', '']
-                 and (volume | float(-1)) != 13.0 }}
-        then:
-          - service: number.set_value
-            target:
-              entity_id: number.kitchen_show_volume_2
-            data:
-              value: 13
       - condition: template
         value_template: >-
           {{ states('binary_sensor.kitchen_kiosk_should_be_on') in ['on', 'off'] }}
