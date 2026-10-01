@@ -7,6 +7,8 @@
 #  Current state, today's cleaning plan, controls, and maintenance health.
 # -------------------------------------------------------------------
 # Notes: Full interactive map remains available as a production drill-down.
+# Notes: Robot opens native controls; Current Room opens the interactive map.
+# Notes: Room names come from the selected device map; an inactive on-demand cycle shows Idle.
 # Notes: Monotonic cleaning totals are shown as facts, not misleading trends.
 # Notes: Consumable rows require a confirmed hold before the native reset button is pressed.
 ######################################################################
@@ -42,6 +44,8 @@
         [[[
           return String(entity?.state ?? 'NO DATA').replaceAll('_', ' ').toUpperCase();
         ]]]
+      tap_action:
+        action: more-info
 
     - type: custom:button-card
       template: bearstone_infra_kpi
@@ -61,16 +65,21 @@
             ? 'NO DATA'
             : raw.replaceAll('-', ' ');
         ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/vacuum-map
 
     - type: custom:button-card
       template: bearstone_infra_kpi
       entity: input_text.l10s_vacuum_room_queue
-      name: Remaining
+      name: Room Queue
       icon: mdi:playlist-play
       state_display: >
         [[[
-          const ids = String(entity?.state ?? '').match(/\d+/g) ?? [];
-          return ids.length ? `${ids.length} ROOMS` : 'COMPLETE';
+          const raw = String(entity?.state ?? '').toLowerCase();
+          if (['unknown', 'unavailable'].includes(raw)) return 'NO DATA';
+          const ids = raw.match(/\d+/g) ?? [];
+          return ids.length ? `${ids.length} ROOMS` : 'NONE QUEUED';
         ]]]
 
     - type: custom:button-card
@@ -148,28 +157,36 @@
         entity: input_select.l10s_vacuum_phase
         name: Current Phase
         icon: mdi:playlist-check
+        triggers_update:
+        - input_boolean.l10s_vacuum_on_demand
         state_display: >
           [[[
+            const active = states['input_boolean.l10s_vacuum_on_demand']?.state;
+            if (active === 'off') return 'IDLE';
+            if (active !== 'on') return 'NO DATA';
             return String(entity?.state ?? 'NO DATA').replaceAll('_', ' ').toUpperCase();
           ]]]
 
       - type: custom:button-card
         template: bearstone_infra_list_row
         entity: input_text.l10s_vacuum_room_queue
-        name: Rooms Remaining
+        name: Queued Rooms
         icon: mdi:format-list-numbered
+        triggers_update:
+        - vacuum.l10s_vacuum
         state_display: >
           [[[
-            const roomNames = {
-              '1': 'Pool Bath', '2': 'Office', '3': 'Kids Bath', '4': 'Primary Bath',
-              '6': 'Paige', '7': 'Primary Bed', '8': 'Justin', '9': 'Stacey Office',
-              '10': 'Living', '12': 'Dining', '13': 'Hallway', '14': 'Kitchen',
-              '15': 'Foyer', '17': 'Formal Dining'
-            };
-            const ids = String(entity?.state ?? '').match(/\d+/g) ?? [];
-            if (!ids.length) return 'COMPLETE';
-            const names = ids.map((id) => roomNames[id] ?? id);
-            return names.length > 3 ? `${names.slice(0, 3).join(', ')} +${names.length - 3}` : names.join(', ');
+            const raw = String(entity?.state ?? '').toLowerCase();
+            if (['unknown', 'unavailable'].includes(raw)) return 'NO DATA';
+            const robot = states['vacuum.l10s_vacuum'];
+            const rooms = robot?.attributes?.rooms?.[robot?.attributes?.selected_map] ?? [];
+            const roomNames = Object.fromEntries(rooms.map((room) => [String(room.id), room.name]));
+            const ids = raw.match(/\d+/g) ?? [];
+            if (!ids.length) return 'NONE QUEUED';
+            const names = ids.map((id) => String(roomNames[id] ?? `Room ${id}`).replaceAll('-', ' ').replaceAll('_', ' '));
+            const compact = names.map((name) => name.replace(/\bBedroom\b/g, 'Bed').replace(/\bBathroom\b/g, 'Bath'));
+            const visible = compact.slice(0, compact.slice(0, 2).join(', ').length <= 24 ? 2 : 1);
+            return `${visible.join(', ')}${compact.length > visible.length ? ` +${compact.length - visible.length}` : ''}`;
           ]]]
 
       - type: custom:button-card
@@ -186,7 +203,7 @@
       - type: custom:button-card
         template: bearstone_infra_list_row
         entity: camera.l10s_vacuum_map
-        name: Open Full Vacuum Map
+        name: Live Map & Room Cleaning
         icon: mdi:map-outline
         state_display: OPEN
         tap_action:
@@ -246,7 +263,7 @@
       cards:
       - type: custom:button-card
         template: bearstone_infra_panel_header
-        name: Consumables - Hold a Row to Reset
+        name: Consumables - Hold to Reset
 
       - type: custom:button-card
         template: bearstone_infra_list_row
