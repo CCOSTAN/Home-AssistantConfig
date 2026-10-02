@@ -3,17 +3,16 @@
 Receives Cloudflare Notifications through a Nabu Casa cloud webhook and validates
 the `cf-webhook-auth` header and account identity before producing a
 `cloudflare_alert` event. A webhook URL alone cannot launch an investigation.
-When webhook destinations are unavailable, an optional read-only `api_token`
-polls notification delivery history every five minutes. The token needs
-Notifications Read; history-derived notifications never dispatch machine jobs.
-Removing this optional token disables polling when direct webhooks are configured.
+Delivery is webhook-only. The receiver does not request Cloudflare notification
+history, register periodic timers, or require a Cloudflare API token.
 
 The infrastructure package presents each incident as a persistent Repair and HA
 notification. Incidents are deduplicated by alert type and resource, survive
 restarts, reject older events, and reopen on a later failure. Successful tunnel
 and certificate events clear the corresponding incident. For mapped origins,
-fresh existing public-website observations can confirm recovery after five
-minutes. Unmapped incidents remain open for operator review.
+reports from existing public-website probes can confirm recovery after five
+minutes. Recovery reacts to state changes and repeated healthy reports without
+starting another poll. Unmapped incidents remain open for operator review.
 
 Only explicitly configured `ops_hostnames` and `ops_tunnel_ids` can dispatch an
 origin/tunnel investigation through the existing machine dispatch script.
@@ -25,11 +24,13 @@ has already dispatched, avoiding a second job from Cloudflare.
 Configure the following keys in ignored `secrets.yaml`, then validate configuration
 and restart Home Assistant:
 
+When upgrading an existing installation, remove the previous `api_token` entry
+from the integration configuration and its unused secret before restarting.
+
 ```yaml
 cloudflare_alert_webhook_id: <random identifier of at least 32 characters>
 cloudflare_alert_webhook_secret: <separate random secret of at least 32 characters>
 cloudflare_alert_account_id: <Cloudflare account identifier>
-cloudflare_alert_read_token: <read-only Cloudflare API token>
 cloudflare_alert_ops_hostnames: [www.example.com]
 cloudflare_alert_ops_tunnel_ids: [<owned tunnel identifier>]
 cloudflare_alert_recovery_entities:
@@ -41,20 +42,21 @@ response to obtain the private delivery URL. Keep that URL and the shared secret
 out of logs and documentation. Configure a generic Cloudflare webhook destination
 with that URL and secret. Attach it to Passive Origin Monitoring, Tunnel Health,
 and Universal SSL policies; omit zone/tunnel filters when future resources should
-also receive notification-only coverage. Retain existing email destinations.
+also receive notification-only coverage. Use only the authenticated webhook
+destination for delivery; email is not needed by this integration.
 
 Use `cloudflare_alerts.get_status` for delivery counts and open incident metadata.
-The administrator action `cloudflare_alerts.refresh` performs an immediate history
-check and returns the same status. Both status actions require a service response.
+The status action requires a service response.
 Cloudflare destination tests increment the test count without creating Repairs
-or machine jobs. After independently verifying recovery or completing operator
+or machine jobs. Policy tests use sample data and may carry a different account
+identity; the receiver deliberately rejects a mismatching account ID. To verify
+incident handling, use an authenticated synthetic certificate payload with the
+configured account ID, confirm the Repair, then resolve only that test incident.
+After independently verifying recovery or completing operator
 review, call the administrator action `cloudflare_alerts.resolve` with `issue_id`
 and `verification` evidence. It only clears incidents created by this receiver.
-History polling reports its last success and read failures in delivery status;
-a persistent delivery Repair appears on failure and clears only after a
-successful API read. The initial window covers the most recent ten minutes,
-not historical outages. Successful checkpoints survive restarts; overlapping
-reads are deduplicated by delivery identity.
+Existing incident records and delivery counts survive the webhook-only upgrade;
+obsolete history checkpoints are removed through Home Assistant's storage API.
 
 Alerts never authorize browser interaction, DNS/security/account changes, host
 reboots, or new public exposure. No dynamic DNS update integration is installed.

@@ -14,7 +14,7 @@ sys.path.insert(0, str(config_path))
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util.aiohttp import MockRequest
-from custom_components.cloudflare_alerts import AlertReceiver, EVENT
+from custom_components.cloudflare_alerts import AlertReceiver, DOMAIN, EVENT, async_setup
 
 
 class ReceiverTests(unittest.IsolatedAsyncioTestCase):
@@ -111,66 +111,42 @@ class ReceiverTests(unittest.IsolatedAsyncioTestCase):
         await self.receiver.resolve(record["issue_id"], "Earlier probe snapshot", newer["received_ts"] - 1)
         self.assertEqual(self.receiver.state["incidents"][record["issue_id"]]["action"], "open")
 
-    async def test_notification_history_is_read_only_notification_only_and_durable(self):
-        self.receiver.config["api_token"] = "fixture-read-token"
-        sent = datetime.now(UTC).isoformat()
-        records = [{"id": "delivery-1", "alert_type": "real_origin_monitoring", "sent": sent,
-                    "alert_body": json.dumps({"unreachable_zones": [{"host": "example.com", "zone_name": "example.com"}]})},
-                   {"id": "delivery-2", "alert_type": "tunnel_health_event", "sent": sent,
-                    "alert_body": json.dumps({"tunnel_id": "owned-tunnel", "tunnel_name": "example-tunnel",
-                                              "new_status": "TUNNEL_STATUS_TYPE_DEGRADED"})},
-                   {"id": "delivery-3", "alert_type": "universal_ssl_event_type", "sent": sent,
-                    "alert_body": json.dumps({"data": {"id": "certificate-1", "hosts": ["example.com"], "status": ""},
-                                              "metadata": {"event": {"type": "ssl.certificate.validation.failed"}}})},
-                   {"id": "delivery-4", "alert_type": "tunnel_health_event", "sent": sent,
-                    "alert_body": "A tunnel needs review"}]
+    async def test_webhook_only_upgrade_preserves_incidents_and_recovers_from_probe_events(self):
+        await self.send(self.payload())
+        record = next(iter(self.receiver.state["incidents"].values()))
+        record["received_ts"] = time.time() - 400
+        self.receiver.state.update(history_seen=["old-delivery"], history_since=100,
+                                   history_error="", last_history_success=200)
+        await self.receiver.store.async_save(self.receiver.state)
+        with patch("custom_components.cloudflare_alerts.webhook.async_register"):
+            await async_setup(self.hass, {DOMAIN: {**self.config, "webhook_id": "fixture-hook"}})
+        self.receiver = self.hass.data[DOMAIN]
+        self.assertEqual(self.receiver.state["received"], 1)
+        self.assertEqual(len(self.receiver.state["incidents"]), 1)
+        saved = await self.receiver.store.async_load()
+        self.assertEqual(set(saved), {"incidents", "received", "tests", "last_received",
+                                     "last_alert_type", "last_data_fields"})
+        self.assertFalse(self.hass.services.has_service(DOMAIN, "refresh"))
 
-        class Response:
-            async def __aenter__(self): return self
-            async def __aexit__(self, *args): pass
-            def raise_for_status(self): pass
-            async def json(self): return {"success": True, "result": records}
+        # Changes from unrelated probes cannot close an owned incident.
+        self.hass.states.async_set("binary_sensor.unrelated_website", "on")
+        await self.hass.async_block_till_done()
+        self.assertEqual(len(self.events), 1)
+        self.hass.states.async_set("binary_sensor.example_website", "on")
+        await self.hass.async_block_till_done()
+        self.assertEqual(self.events[-1]["action"], "resolve")
 
-        calls = []
-        class Session:
-            def get(self, url, **kwargs):
-                calls.append((url, kwargs))
-                return Response()
-
-        with patch("custom_components.cloudflare_alerts.async_get_clientsession", return_value=Session()):
-            await self.receiver.poll_history()
-            await self.hass.async_block_till_done()
-            self.receiver.state = await self.receiver.store.async_load()
-            await self.receiver.poll_history()
-            await self.hass.async_block_till_done()
-        self.assertEqual(len(self.events), 4)
-        self.assertEqual([(event["resource"], event["status"]) for event in self.events[:3]],
-                         [("example.com", "unreachable"), ("owned-tunnel", "degraded"),
-                          ("certificate-1", "validation.failed")])
-        self.assertFalse(any(event["dispatch"] for event in self.events))
-        self.assertEqual(len(self.receiver.state["history_seen"]), 4)
-        self.assertTrue(all(url.endswith("/alerting/v3/history") for url, _ in calls))
-        self.assertIn("since", calls[0][1]["params"])
-
-    async def test_history_delivery_failure_remains_visible_until_successful_read(self):
-        self.receiver.config["api_token"] = "fixture-read-token"
-        healthy = False
-        class Response:
-            async def __aenter__(self): return self
-            async def __aexit__(self, *args): pass
-            def raise_for_status(self):
-                if not healthy: raise ValueError("Read failed")
-            async def json(self): return {"success": True, "result": []}
-        class Session:
-            def get(self, *args, **kwargs): return Response()
-        with patch("custom_components.cloudflare_alerts.async_get_clientsession", return_value=Session()):
-            await self.receiver.poll_history()
-            await self.receiver.poll_history()
-            healthy = True
-            await self.receiver.poll_history()
-            await self.hass.async_block_till_done()
-        self.assertEqual([event["action"] for event in self.events], ["open", "resolve"])
-        self.assertTrue(all(event["issue_id"] == "cloudflare_alert_delivery" for event in self.events))
+        # An unchanged healthy report still observes the minimum recovery delay.
+        await self.send(self.payload())
+        self.hass.states.async_set("binary_sensor.example_website", "on")
+        await self.hass.async_block_till_done()
+        self.assertEqual(self.events[-1]["action"], "open")
+        record = self.receiver.state["incidents"][record["issue_id"]]
+        record["received_ts"] = time.time() - 400
+        self.hass.states.async_set("binary_sensor.example_website", "on")
+        await self.hass.async_block_till_done()
+        self.assertEqual([event["action"] for event in self.events],
+                         ["open", "resolve", "open", "resolve"])
 
 
 if __name__ == "__main__":
