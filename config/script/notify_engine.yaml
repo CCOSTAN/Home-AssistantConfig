@@ -4,10 +4,15 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Notification Engine Scripts - Flexible push helpers for family devices.
+# Related Issue: 1773
 #  Compose messages from value1/value2/value3 with optional actions.
 # -------------------------------------------------------------------
 # Notes: Optional notification tags let recovery actions target a specific push.
-#  Untagged callers retain their existing payload; groups are only visual.
+#  Tags control replacement; groups remain visual notification categories.
+# Notes: Known groups receive colored MDI icons; other callers retain their payload.
+#  Explicit notification_icon/icon_url overrides are shared by both helpers.
+#  An empty notification_icon disables the group preset; iOS icons require a title.
+# Docs: https://companion.home-assistant.io/docs/notifications/notifications-basic/#notification-icon-and-color
 # Video Tutorial: https://youtu.be/mK1wdpxhLbM
 ######################################################################
 ### Script for Sending Notifications to Mobile Phones
@@ -28,6 +33,13 @@
 #   - 'group': Notification group (optional, defaults to 'information').
 #   - 'tag': Stable notification identity for replacement or clearing (optional).
 #   - 'level': Interruption level for the notification (optional, defaults to 'active').
+#   - 'notification_icon': MDI icon override (optional; empty disables the group preset).
+#   - 'icon_url': Public or /local/ icon image (optional; takes precedence over MDI).
+#   - 'notification_icon_color': MDI glyph hex color (optional; app defaults to white).
+#   - 'color': MDI background hex color (optional; defaults to the group's color).
+# Known groups: Medicine, Garbage_Reminders, Welcome_Home, maintenance, Phyn,
+#  Tesla_Model_Y, Tesla_Tire_Pressure, Printer, vacation, royal_caribbean_price_drop.
+# clear_notification commands do not receive icon fields.
 
 # The 'notify_engine_two_button' variant includes additional parameters for two interactive buttons:
 #   - 'title1', 'title2': Titles for the action buttons.
@@ -71,7 +83,41 @@ notify_engine:
             'push': {'interruption-level': level | default('active', true)}
           } %}
           {% set notification_tag = tag | default('', true) | string | trim %}
-          {{ dict(payload, tag=notification_tag) if notification_tag else payload }}
+          {% set payload = dict(payload, tag=notification_tag) if notification_tag else payload %}
+          {% set styles = {
+            'medicine': {'notification_icon': 'mdi:pill', 'color': '#6A1B9A'},
+            'garbage_reminders': {'notification_icon': 'mdi:trash-can-outline', 'color': '#2E7D32'},
+            'welcome_home': {'notification_icon': 'mdi:home-heart', 'color': '#00796B'},
+            'maintenance': {'notification_icon': 'mdi:tools', 'color': '#455A64'},
+            'phyn': {'notification_icon': 'mdi:water-alert', 'color': '#C62828'},
+            'tesla_model_y': {'notification_icon': 'mdi:car-electric', 'color': '#1565C0'},
+            'tesla_tire_pressure': {'notification_icon': 'mdi:car-tire-alert', 'color': '#C2410C'},
+            'printer': {'notification_icon': 'mdi:printer', 'color': '#455A64'},
+            'vacation': {'notification_icon': 'mdi:palm-tree', 'color': '#00796B'},
+            'royal_caribbean_price_drop': {'notification_icon': 'mdi:ferry', 'color': '#0277BD'}
+          } %}
+          {% set style = styles.get(group | default('information', true) | string | lower | trim, {}) %}
+          {% set icon = (notification_icon if notification_icon is defined and notification_icon is not none
+                         else style.get('notification_icon', '')) | default('', true) | string | trim %}
+          {% set image_icon = icon_url | default('', true) | string | trim %}
+          {% if (icon or image_icon) and title | default('', true) | string | trim
+                and notify_message != 'clear_notification' %}
+            {% if icon %}
+              {% set payload = dict(payload, notification_icon=icon) %}
+              {% set glyph_color = notification_icon_color | default('', true) | string | trim %}
+              {% set background_color = color | default(style.get('color', ''), true) | string | trim %}
+              {% if glyph_color %}
+                {% set payload = dict(payload, notification_icon_color=glyph_color) %}
+              {% endif %}
+              {% if background_color %}
+                {% set payload = dict(payload, color=background_color) %}
+              {% endif %}
+            {% endif %}
+            {% if image_icon %}
+              {% set payload = dict(payload, icon_url=image_icon) %}
+            {% endif %}
+          {% endif %}
+          {{ payload }}
     - choose:
         - conditions: "{{ has_actions }}"
           sequence:
@@ -117,6 +163,10 @@ notify_engine_two_button:
         tag: "{{ tag | default('', true) }}"
         level: "{{ level | default('active', true) }}"
         camera_entity: "{{ camera_entity | default('', true) }}"
+        notification_icon: "{{ notification_icon | default(none) }}"
+        icon_url: "{{ icon_url | default('', true) }}"
+        notification_icon_color: "{{ notification_icon_color | default('', true) }}"
+        color: "{{ color | default('', true) }}"
         title1: "{{ title1 | default('', true) }}"
         action1: "{{ action1 | default('', true) }}"
         icon1: "{{ icon1 | default('sfsymbols:house.circle', true) }}"

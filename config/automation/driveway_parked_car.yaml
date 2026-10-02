@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Driveway Parked Car Alert - notify when a car remains in the driveway zone.
+# Related Issue: 1773
 #  Sends alerts and starts the shared ten-minute kiosk camera takeover.
 # Video: https://youtu.be/X9qrywP3XS0
 # Blog: https://www.vcloudinfo.com/2026/09/home-assistant-frigate-driveway-car-alert.html
@@ -38,6 +39,8 @@
       continue_on_error: true
       data:
         title: 'Driveway Alert'
+        notification_icon: mdi:car
+        color: '#1565C0'
         value1: "Hey, there's a car parked in your driveway. Please check."
         who: 'parents'
         group: 'information'

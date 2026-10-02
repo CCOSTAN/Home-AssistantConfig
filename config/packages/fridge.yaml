@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # LG Fridge - SmartThinQ appliance monitoring - Fridge/freezer sensors via ThinQ integration. https://amzn.to/3lOYTCv.
+# Related Issue: 1773
 #  Centralizes the LG Fridge - SmartThinQ appliance monitoring package configuration and helpers.
 # -------------------------------------------------------------------
 # Notes: Door-open alerts use the raw SmartThinQ door sensor after 6 minutes, avoiding one-poll false opens without a helper entity.
@@ -26,6 +27,8 @@ automation:
       - service: script.notify_engine
         data:
           title: 'Fridge Door Open'
+          notification_icon: mdi:fridge-alert
+          color: '#C2410C'
           value1: >
             The fridge door has been open for more than 6 minutes. Please check and close the fridge door to avoid temperature issues.
           who: 'family'

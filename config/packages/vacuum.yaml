@@ -4,7 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Dreame Vacuum Orchestration - Continuous phased sweep/mop with away/on-demand
-# Related Issue: 1550, 1553
+# Related Issue: 1550, 1553, 1773
 #  Phases: sweep main, sweep baths, mop main, mop baths; notifications + idle auto-start
 #  Video: https://youtu.be/KKOWSKuF5jA
 #  Blog: https://www.vcloudinfo.com/2026/05/home-assistant-vacuum-automations-dreame-2026.html
@@ -781,6 +781,8 @@ automation:
               - service: script.notify_engine
                 data:
                   title: 'Help vacuum'
+                  notification_icon: mdi:robot-vacuum-alert
+                  color: '#C2410C'
                   value1: "{{ states('sensor.l10s_vacuum_error') }} - {{ states('sensor.l10s_vacuum_current_room') }}"
                   who: 'parents'
                   ios_category: 'camera'

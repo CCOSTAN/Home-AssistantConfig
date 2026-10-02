@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # LLM Vision - garage cans and front-door package checks
+# Related Issue: 1773
 #  Trigger with input_button.llmvision_garbage_check, input_button.llmvision_front_door_package_check, or front door person activity to update vision-backed package sensors.
 # -------------------------------------------------------------------
 # Notes: LLMVision analyzes camera.garagecam; expects strict "on"/"off" output.
@@ -255,6 +256,8 @@ automation:
               - service: script.notify_engine
                 data:
                   title: Front door package test
+                  notification_icon: mdi:package-variant-closed-check
+                  color: '#6A1B9A'
                   value1: >-
                     LLM Vision returned {{ llmvision_result.response_text | default(states('input_boolean.front_door_packages_present')) | lower }}
                     for the front door package check.
@@ -284,6 +287,8 @@ automation:
       - service: script.notify_engine
         data:
           title: Package check
+          notification_icon: mdi:package-variant-closed-check
+          color: '#6A1B9A'
           value1: "{{ package_message }}"
           who: "{{ notify_target }}"
           group: information
