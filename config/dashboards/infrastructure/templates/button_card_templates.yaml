@@ -964,6 +964,9 @@ bearstone_infra_status_kpi:
         const raw = String(entity?.state ?? '').toLowerCase();
         const unavailable = ['unknown', 'unavailable', 'none', ''].includes(raw);
         if (unavailable) return 'unknown';
+        const severityAttribute = String(variables?.severity_attribute ?? '').trim();
+        const rollupSeverity = String(entity?.attributes?.[severityAttribute] ?? '').toLowerCase();
+        if (['healthy', 'warning', 'critical'].includes(rollupSeverity)) return rollupSeverity;
         const problemEntityId = String(variables?.problem_entity_id ?? '').trim();
         if (problemEntityId) {
           const issues = states[problemEntityId]?.attributes?.issues;
@@ -1090,6 +1093,9 @@ bearstone_overview_ribbon_control:
         const ok = Array.isArray(variables?.ok_states) ? variables.ok_states.map(String) : [];
         const active = Array.isArray(variables?.active_states) ? variables.active_states.map(String) : [];
         const warning = Array.isArray(variables?.warning_states) ? variables.warning_states.map(String) : [];
+        const severityAttribute = String(variables?.severity_attribute ?? '').trim();
+        const rollupSeverity = String(entity?.attributes?.[severityAttribute] ?? '').toLowerCase();
+        if (['healthy', 'warning', 'critical'].includes(rollupSeverity)) return rollupSeverity;
         if (anyOn(normalizeIds(variables?.critical_entity_ids))) return 'critical';
         if (anyOn(normalizeIds(variables?.warning_entity_ids))) return 'warning';
         if (variables?.cooling_active || active.includes(raw)) return 'active';

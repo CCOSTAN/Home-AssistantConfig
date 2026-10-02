@@ -1,4 +1,4 @@
-{# Shared UPS interpretation and dashboard health-source inventory. #}
+{# Shared UPS interpretation and dashboard health-source inventory/severity. #}
 {% macro eaton_low_voltage_policy(returns) -%}
   {% set raw = states('sensor.office_ups_eaton_550_status_data') | upper | trim %}
   {% set tokens = raw.split() %}
@@ -34,6 +34,45 @@
     'reset_required': grid == 'off' or (not missing and other_tokens | count > 0) or other_alarm,
     'healthy': healthy, 'raw_status': raw, 'raw_alarm': alarm
   }) %}
+{%- endmacro %}
+
+{% macro dashboard_severity(returns) -%}
+  {# Match the Active Issue rows; an unrelated warning must never mask a fault. #}
+  {% set active = (dashboard_active_entities | as_function)() %}
+  {% set maintenance = [
+    'binary_sensor.node_proxmox1_updates_packages',
+    'binary_sensor.node_proxmox02_updates_packages',
+    'binary_sensor.docker_host_maintenance_attention',
+    'binary_sensor.hvac_maintenance_due'
+  ] %}
+  {% set health_sensors = [
+    'sensor.bearclaw_scheduled_job_health',
+    'sensor.joanna_onenote_kb_health'
+  ] %}
+  {% set ns = namespace(severity='critical' if states('sensor.active_issues') | int(0) > 0 else 'healthy') %}
+  {% for entity_id in active %}
+    {% set severity = 'critical' %}
+    {% if entity_id in maintenance and states(entity_id) == 'on' %}
+      {% set severity = 'warning' %}
+    {% elif entity_id in health_sensors and states(entity_id) == 'warning' %}
+      {% set severity = 'warning' %}
+    {% elif entity_id == 'binary_sensor.infra_wan_quality_degraded' and states(entity_id) == 'on' and
+            states('binary_sensor.infra_wan_critical') != 'on' %}
+      {% set severity = 'warning' %}
+    {% elif entity_id == 'binary_sensor.tesla_home_charge_attention' and states(entity_id) == 'on' and
+            states('binary_sensor.tesla_home_charge_critical') != 'on' %}
+      {% set severity = 'warning' %}
+    {% elif entity_id == 'binary_sensor.home_water_problem' and states(entity_id) == 'on' and
+            state_attr(entity_id, 'active_entities') == ['binary_sensor.rheem_wh_problem'] and
+            states('binary_sensor.rheem_wh_telemetry_stale') == 'on' and
+            states('binary_sensor.rheem_wh_active_alert') != 'on' %}
+      {% set severity = 'warning' %}
+    {% endif %}
+    {% if severity == 'critical' or ns.severity == 'healthy' %}
+      {% set ns.severity = severity %}
+    {% endif %}
+  {% endfor %}
+  {% do returns(ns.severity) %}
 {%- endmacro %}
 
 {% macro ups_issues(returns) -%}

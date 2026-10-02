@@ -18,6 +18,7 @@
 # Notes: Back to Overview is the first control in the landing-view navigation strip.
 # Notes: UPS health covers both Garage and Office NUT servers and drills into the shared UPS view.
 # Notes: UPS alarms and telemetry loss roll up alongside utility outages; other submenu faults and Repairs gate Systems all-clear.
+# Notes: Systems color follows the shared highest severity, with warnings amber and any critical issue red.
 # Notes: Missing JuiceBox MQTT reports become a critical Systems issue after
 #  five minutes; fresh reports clear it and restore the Car view.
 ######################################################################
@@ -62,30 +63,9 @@
       variables:
         ok_state: '0'
         healthy_text: ALL CLEAR
-        warning_text: >
-          [[[
-            return states['binary_sensor.hvac_maintenance_due']?.state === 'on'
-              || states['binary_sensor.docker_host_maintenance_attention']?.state === 'on'
-              ? 'MAINTENANCE'
-              : 'WARNING';
-          ]]]
+        warning_text: '[[[ return `${entity.state} ACTIVE`; ]]]'
         raw_suffix: ACTIVE
-        warning_entity_ids:
-        - binary_sensor.tesla_home_charge_attention
-        - binary_sensor.infra_wan_sustained_degradation
-        - binary_sensor.rheem_wh_telemetry_stale
-        - binary_sensor.docker_host_maintenance_attention
-        - binary_sensor.hvac_maintenance_due
-        critical_entity_ids:
-        - binary_sensor.infra_wan_critical
-        - binary_sensor.infra_dns_pihole_degraded
-        - binary_sensor.infra_ups_problem
-        - binary_sensor.infra_compute_degraded
-        - binary_sensor.infra_storage_degraded
-        - binary_sensor.infra_external_monitoring_degraded
-        - binary_sensor.tesla_home_charge_critical
-        - binary_sensor.rheem_wh_active_alert
-        - binary_sensor.garage_phyn_leak_alert
+        severity_attribute: severity
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi

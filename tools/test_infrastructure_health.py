@@ -51,6 +51,8 @@ class InfrastructureHealthTest(unittest.TestCase):
                                extensions=["jinja2.ext.do"])
         self.env.filters["as_function"] = as_function
         self.env.globals["states"] = lambda entity_id: self.states.get(entity_id, "unknown")
+        self.attributes = {}
+        self.env.globals["state_attr"] = lambda entity_id, name: self.attributes.get(entity_id, {}).get(name)
         self.clock = datetime(2026, 10, 1, 21, tzinfo=timezone.utc)
         self.env.globals["now"] = lambda: self.clock
         self.env.globals["as_timestamp"] = self.timestamp
@@ -228,6 +230,72 @@ class InfrastructureHealthTest(unittest.TestCase):
         self.assertEqual(self.count(), 2)
         self.states["sensor.office_ups_eaton_550_status_data"] = "ALARM OL"
         self.assertEqual(self.count(), 2)
+
+    def severity(self):
+        return self.env.from_string(self.counter["attributes"]["severity"]).render().strip()
+
+    def test_warning_only_rollup_stays_warning_and_counts_all_sources(self):
+        self.assertEqual(self.severity(), "healthy")
+        self.states.update({
+            "sensor.bearclaw_scheduled_job_health": "warning",
+            "sensor.joanna_onenote_kb_health": "warning",
+            "binary_sensor.node_proxmox1_updates_packages": "on",
+        })
+        self.assertEqual(self.count(), 3)
+        self.assertEqual(self.severity(), "warning")
+
+    def test_critical_overrides_warning_then_recovers_through_warning_to_clear(self):
+        self.states["sensor.bearclaw_scheduled_job_health"] = "warning"
+        self.states["binary_sensor.infra_nebula_sync_degraded"] = "on"
+        self.assertEqual(self.count(), 2)
+        self.assertEqual(self.severity(), "critical")
+        self.states["binary_sensor.infra_nebula_sync_degraded"] = "off"
+        self.assertEqual(self.count(), 1)
+        self.assertEqual(self.severity(), "warning")
+        self.states["sensor.bearclaw_scheduled_job_health"] = "error"
+        self.assertEqual(self.severity(), "critical")
+        self.states["sensor.bearclaw_scheduled_job_health"] = "ok"
+        self.assertEqual(self.count(), 0)
+        self.assertEqual(self.severity(), "healthy")
+
+    def test_category_escalation_changes_severity_without_changing_issue_count(self):
+        for attention, critical in [
+            ("binary_sensor.infra_wan_quality_degraded", "binary_sensor.infra_wan_critical"),
+            ("binary_sensor.tesla_home_charge_attention", "binary_sensor.tesla_home_charge_critical"),
+        ]:
+            with self.subTest(attention=attention):
+                self.states[attention] = "on"
+                self.states[critical] = "off"
+                self.assertEqual(self.count(), 1)
+                self.assertEqual(self.severity(), "warning")
+                self.states[critical] = "on"
+                self.assertEqual(self.count(), 1)
+                self.assertEqual(self.severity(), "critical")
+                self.states[attention] = "off"
+                self.states[critical] = "off"
+
+    def test_water_telemetry_warning_cannot_mask_a_water_fault(self):
+        self.states.update({
+            "binary_sensor.home_water_problem": "on",
+            "binary_sensor.rheem_wh_telemetry_stale": "on",
+            "binary_sensor.rheem_wh_active_alert": "off",
+        })
+        self.attributes["binary_sensor.home_water_problem"] = {
+            "active_entities": ["binary_sensor.rheem_wh_problem"]}
+        self.assertEqual(self.severity(), "warning")
+        self.attributes["binary_sensor.home_water_problem"]["active_entities"].append(
+            "binary_sensor.garage_phyn_leak_alert")
+        self.assertEqual(self.severity(), "critical")
+
+    def test_open_repairs_and_missing_health_never_become_warning_only_or_clear(self):
+        self.states["sensor.bearclaw_scheduled_job_health"] = "warning"
+        self.states["sensor.active_issues"] = "2"
+        self.assertEqual(self.count(), 2)
+        self.assertEqual(self.severity(), "critical")
+        self.states["sensor.active_issues"] = "0"
+        self.states["sensor.bearclaw_scheduled_job_health"] = "unavailable"
+        self.assertEqual(self.count(), 1)
+        self.assertEqual(self.severity(), "critical")
 
 
 if __name__ == "__main__":

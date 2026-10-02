@@ -12,9 +12,10 @@
 # Related Issue: 1584
 # Related Issue: 1890
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
+# Notes: Systems uses the highest active severity: critical overrides warning; no issues is healthy.
 # Notes: Cloudflare alerts use an authenticated Nabu Casa webhook, persistent Repairs, and owned-resource-only Joanna dispatch.
 # Notes: Certificate and unowned-domain alerts require human review; no Cloudflare DNS or security writes are authorized by an alert.
-# Notes: Five-minute read-only Cloudflare notification-history polling provides notification-only coverage when webhook destinations are unavailable.
+# Notes: Cloudflare delivery is webhook-only; origin recovery reuses reports from existing website probes.
 # Notes: WAN outages require all four independent ICMP/HTTPS probes to fail continuously for 2 minutes.
 # Notes: Continuous latency/loss determine WAN quality; Ookla throughput is a separate twice-daily capacity snapshot and never declares an outage.
 # Notes: Severe quality turns critical after 30 minutes above 250 ms or 25% loss; moderate quality degradation requires 6 hours above 80 ms or 5% loss.
@@ -29,6 +30,7 @@
 # Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
 # Notes: Nebula Sync compares the docker_10 primary with the physical office-pi DNS replica and dispatches Joanna on sustained drift or endpoint loss.
 # Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
+# Notes: DNS probes retry brief resolver interruptions and filter transport diagnostics; timeout budgets also cover persistent resolver loss.
 # Notes: Garage compute health uses the same 145 F threshold as the existing temperature notification.
 # Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
 # Notes: Bear Stone and website outages dispatch Joanna quietly; no direct phone alerts are sent.
@@ -138,8 +140,9 @@ command_line:
   - sensor:
       name: Infra Nebula Sync DNS Consistency
       unique_id: infra_nebula_sync_dns_consistency
+      command_timeout: 40
       command: >-
-        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.100; host=GTG-PF45FK6F; fqdn=GTG-PF45FK6F.fordst.com; ip=192.168.10.117; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; r(){ dig +time=2 +tries=1 +short @"$1" -x "$2" 2>/dev/null | tr -d "\r" | sed "s/\.$//" | sort | tr "\n" "," | sed "s/,$//"; }; p_short=$(q "$primary" "$host"); s_short=$(q "$secondary" "$host"); p_fqdn=$(q "$primary" "$fqdn"); s_fqdn=$(q "$secondary" "$fqdn"); p_rev=$(r "$primary" "$ip"); s_rev=$(r "$secondary" "$ip"); status=mismatch; if [ "$p_short" = "$ip" ] && [ "$s_short" = "$ip" ] && [ "$p_fqdn" = "$ip" ] && [ "$s_fqdn" = "$ip" ] && [ -n "$p_rev" ] && [ "$p_rev" = "$s_rev" ]; then status=ok; fi; printf "{\"status\":\"%s\",\"host\":\"%s\",\"expected_ip\":\"%s\",\"primary_short\":\"%s\",\"secondary_short\":\"%s\",\"primary_fqdn\":\"%s\",\"secondary_fqdn\":\"%s\",\"primary_reverse\":\"%s\",\"secondary_reverse\":\"%s\"}\n" "$status" "$host" "$ip" "$p_short" "$s_short" "$p_fqdn" "$s_fqdn" "$p_rev" "$s_rev"'
+        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.100; host=GTG-PF45FK6F; fqdn=GTG-PF45FK6F.fordst.com; ip=192.168.10.117; q(){ dig +time=2 +tries=3 +short @"$1" "$2" A 2>/dev/null | sed "/^;/d" | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; r(){ dig +time=2 +tries=3 +short @"$1" -x "$2" 2>/dev/null | sed "/^;/d" | tr -d "\r" | sed "s/\.$//" | sort | tr "\n" "," | sed "s/,$//"; }; p_short=$(q "$primary" "$host"); s_short=$(q "$secondary" "$host"); p_fqdn=$(q "$primary" "$fqdn"); s_fqdn=$(q "$secondary" "$fqdn"); p_rev=$(r "$primary" "$ip"); s_rev=$(r "$secondary" "$ip"); status=mismatch; if [ "$p_short" = "$ip" ] && [ "$s_short" = "$ip" ] && [ "$p_fqdn" = "$ip" ] && [ "$s_fqdn" = "$ip" ] && [ -n "$p_rev" ] && [ "$p_rev" = "$s_rev" ]; then status=ok; fi; printf "{\"status\":\"%s\",\"host\":\"%s\",\"expected_ip\":\"%s\",\"primary_short\":\"%s\",\"secondary_short\":\"%s\",\"primary_fqdn\":\"%s\",\"secondary_fqdn\":\"%s\",\"primary_reverse\":\"%s\",\"secondary_reverse\":\"%s\"}\n" "$status" "$host" "$ip" "$p_short" "$s_short" "$p_fqdn" "$s_fqdn" "$p_rev" "$s_rev"'
       scan_interval: 300
       value_template: "{{ value_json.status | default('unknown') }}"
       json_attributes:
@@ -155,8 +158,9 @@ command_line:
   - sensor:
       name: Infra Pihole IoT DNS Consistency
       unique_id: infra_pihole_iot_dns_consistency
+      command_timeout: 90
       command: >-
-        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.100; records="rachio.fordst.com=192.168.10.73 econet.fordst.com=192.168.10.92 dreame-vacuum.fordst.com=192.168.10.93 carlo-bed.fordst.com=192.168.10.95 lg-smart-fridge.fordst.com=192.168.10.96 tesla-blackbox-gw.fordst.com=192.168.10.97 bgw210.fordst.com=192.168.10.98"; q(){ dig +time=2 +tries=1 +short @"$1" "$2" A 2>/dev/null | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; status=ok; checked=0; mismatch_count=0; mismatches=""; for record in $records; do host=${record%%=*}; ip=${record#*=}; p=$(q "$primary" "$host"); s=$(q "$secondary" "$host"); checked=$((checked+1)); if [ "$p" != "$ip" ] || [ "$s" != "$ip" ]; then status=mismatch; mismatch_count=$((mismatch_count+1)); mismatches="${mismatches}${host}:expected=${ip},primary=${p:-none},secondary=${s:-none};"; fi; done; if [ -z "$mismatches" ]; then mismatches=none; fi; printf "{\"status\":\"%s\",\"checked_records\":%s,\"mismatch_count\":%s,\"mismatches\":\"%s\",\"primary_dns\":\"%s\",\"backup_dns\":\"%s\"}\n" "$status" "$checked" "$mismatch_count" "$mismatches" "$primary" "$secondary"'
+        /bin/bash -c 'primary=192.168.10.10; secondary=192.168.10.100; records="rachio.fordst.com=192.168.10.73 econet.fordst.com=192.168.10.92 dreame-vacuum.fordst.com=192.168.10.93 carlo-bed.fordst.com=192.168.10.95 lg-smart-fridge.fordst.com=192.168.10.96 tesla-blackbox-gw.fordst.com=192.168.10.97 bgw210.fordst.com=192.168.10.98"; q(){ dig +time=2 +tries=3 +short @"$1" "$2" A 2>/dev/null | sed "/^;/d" | tr -d "\r" | sort | tr "\n" "," | sed "s/,$//"; }; status=ok; checked=0; mismatch_count=0; mismatches=""; for record in $records; do host=${record%%=*}; ip=${record#*=}; p=$(q "$primary" "$host"); s=$(q "$secondary" "$host"); checked=$((checked+1)); if [ "$p" != "$ip" ] || [ "$s" != "$ip" ]; then status=mismatch; mismatch_count=$((mismatch_count+1)); mismatches="${mismatches}${host}:expected=${ip},primary=${p:-none},secondary=${s:-none};"; fi; done; if [ -z "$mismatches" ]; then mismatches=none; fi; printf "{\"status\":\"%s\",\"checked_records\":%s,\"mismatch_count\":%s,\"mismatches\":\"%s\",\"primary_dns\":\"%s\",\"backup_dns\":\"%s\"}\n" "$status" "$checked" "$mismatch_count" "$mismatches" "$primary" "$secondary"'
       scan_interval: 300
       value_template: "{{ value_json.status | default('unknown') }}"
       json_attributes:
@@ -282,6 +286,9 @@ template:
             {% set active = dashboard_active_entities | as_function %}
             {{ active() }}
           repair_count: "{{ states('sensor.active_issues') | int(0) }}"
+          severity: >-
+            {% from 'infrastructure_health.jinja' import dashboard_severity %}
+            {{ (dashboard_severity | as_function)() }}
           count_policy: "Maximum of active health sources and Repairs; overlapping Repairs are not added twice."
 
   - binary_sensor:
@@ -1569,7 +1576,6 @@ cloudflare_alerts:
   webhook_id: !secret cloudflare_alert_webhook_id
   secret: !secret cloudflare_alert_webhook_secret
   account_id: !secret cloudflare_alert_account_id
-  api_token: !secret cloudflare_alert_read_token
   ops_hostnames: !secret cloudflare_alert_ops_hostnames
   ops_tunnel_ids: !secret cloudflare_alert_ops_tunnel_ids
   recovery_entities: !secret cloudflare_alert_recovery_entities
