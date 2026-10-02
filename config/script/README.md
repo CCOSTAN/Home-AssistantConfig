@@ -27,7 +27,7 @@ Reusable scripts that other automations call for notifications, lighting, safety
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [![YAML source: notify_engine](https://img.shields.io/static/v1?label=YAML&message=notify_engine&color=lightgrey&logo=github&logoColor=181717)](notify_engine.yaml) | Single entrypoint for rich push notifications, with optional tags for clearing and shared colored notification icons for household alerts. |
+| [![YAML source: notify_engine](https://img.shields.io/static/v1?label=YAML&message=notify_engine&color=lightgrey&logo=github&logoColor=181717)](notify_engine.yaml) | Single entrypoint for rich push notifications, with optional tags for clearing and shared colored notification icons for household alerts. | [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/TMfdxv-WprM) [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/home-assistant-ios-notification-icons.html)
 | [![YAML source: hvac_control](https://img.shields.io/static/v1?label=YAML&message=hvac_control&color=lightgrey&logo=github&logoColor=181717)](hvac_control.yaml) | Single reconciler for grid, entry-point, occupancy, and target-temperature HVAC policy. |
 | [![YAML source: notify_live_activity](https://img.shields.io/static/v1?label=YAML&message=notify_live_activity&color=lightgrey&logo=github&logoColor=181717)](notify_live_activity.yaml) | Shared helper for tagged live activity/live update pushes and clear commands. |
 | [![YAML source: kiosk_driveway_camera_takeover](https://img.shields.io/static/v1?label=YAML&message=kiosk_driveway_camera_takeover&color=lightgrey&logo=github&logoColor=181717)](kiosk_driveway_camera_takeover.yaml) | Coordinates the bounded Driveway camera takeover and wake behavior across both household kiosks. |
@@ -38,6 +38,8 @@ Reusable scripts that other automations call for notifications, lighting, safety
 | [![YAML source: interior_off](https://img.shields.io/static/v1?label=YAML&message=interior_off&color=lightgrey&logo=github&logoColor=181717)](interior_off.yaml) | One-call "all interior lights off" helper. |
 
 ### Household notification icons
+[![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/TMfdxv-WprM) [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/home-assistant-ios-notification-icons.html)
+
 Both `script.notify_engine` and `script.notify_engine_two_button` accept `notification_icon` (an `mdi:` name), `icon_url` (a public or `/local/` image), `notification_icon_color` (glyph hex color), and `color` (background hex color). On supported iOS apps, these appear as rounded sender icons and require a nonempty notification title. `icon_url` takes precedence over the MDI icon; colors apply only to MDI icons. See the [Companion App documentation](https://companion.home-assistant.io/docs/notifications/notifications-basic/#notification-icon-and-color) and [issue #1773](https://github.com/CCOSTAN/Home-AssistantConfig/issues/1773).
 
 The shared helper gives existing notification groups a consistent palette without changing their grouping, recipients, action buttons, tags, or interruption levels:
