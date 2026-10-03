@@ -13,6 +13,7 @@
 #  one inside reminder via `script.speech_engine` (Chromecasts).
 # Notes: Debounced garage door open trigger to avoid restarts if the
 #  garage door state flaps (noisy sensors/reflection).
+# Notes: A stable garbage_day_reminder tag replaces the previous phone reminder.
 ######################################################################
 - alias: 'Garage Garbage Day Reminders'
   id: 3f97f3be-3d0a-4d2d-9100-5b9c0dbfd5c3
@@ -92,6 +93,7 @@
             value1: "{{ reminder_message }}"
             who: 'carlo'
             group: 'Garbage_Reminders'
+            tag: 'garbage_day_reminder'
             level: 'active'
             title1: "Snooze 30m"
             action1: "SNOOZE_GARBAGE_REMINDERS_30M"

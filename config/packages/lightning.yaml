@@ -11,6 +11,7 @@
 # Guide: https://www.vcloudinfo.com/2020/08/adding-a-lightning-sensor-to-home-assistant.html | Existing Issue #392
 # Notes: Lightning Notification owns lightning safety speech and intentionally
 #  holds a 60-minute cooldown; duplicate triggers are silenced.
+# Notes: A stable lightning_warning tag replaces the previous phone warning.
 # Notes: Wait briefly for numeric distance data, then fall back to "nearby"
 #  rather than aborting when the distance sensor is unavailable.
 ######################################################################
@@ -82,6 +83,7 @@ automation:
           icon1: 'sfsymbols:arrow.up.circle'
           who: "Family"
           group: 'Information'
+          tag: 'lightning_warning'
 
       - service: script.speech_engine
         data:
