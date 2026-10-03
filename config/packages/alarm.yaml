@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Alarm Package - Arming helpers, sensors, and alerting.
+# Related Issue: 1773
 # Related Issue: 1550
 # Related Issue: 1571
 #  Alarm sensors, customization, and automations for home security.
@@ -342,6 +343,9 @@ automation:
           message: "Alarm panel door opened."
       - service: script.notify_engine
         data:
+          title: "Alarm Panel Door"
+          notification_icon: "mdi:shield-alert"
+          color: "#C62828"
           value1: 'Someone has opened up the Alarm Panel Door!'
           who: 'carlo'
           group: 'information'

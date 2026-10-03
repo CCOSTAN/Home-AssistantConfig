@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Roku - Presence detection and remote finder - Roku media sensors and utility helpers. https://amzn.to/2Ctp8cr.
+# Related Issue: 1773
 #  Centralizes the Roku - Presence detection and remote finder package configuration and helpers.
 # -------------------------------------------------------------------
 ######################################################################
@@ -41,6 +42,8 @@ automation:
           title: Living Room Remote Finder
           message: Have you found the Remote?
           data:
+            notification_icon: "mdi:remote"
+            color: "#6A1B9A"
             actions:
               - action: LR_REMOTE_FOUND
                 title: Remote Found

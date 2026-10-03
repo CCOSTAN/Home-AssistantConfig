@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # BearClaw Integration - Home Assistant dispatch + lifecycle callbacks
+# Related Issue: 1773
 #  Home Assistant dispatches jobs to codex_appliance and receives structured lifecycle callbacks.
 # -------------------------------------------------------------------
 # Related Issue: 1797
@@ -618,6 +619,8 @@ automation:
             sequence:
               - service: script.notify_engine
                 data:
+                  notification_icon: "mdi:robot"
+                  color: "#C2410C"
                   title: Joanna Alert
                   value1: >-
                     {{ summary }}

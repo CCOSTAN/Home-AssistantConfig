@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Vacation Mode - house-sitter arrival, analytics, and security checks.
+# Related Issue: 1773
 #  Detects long absences, tracks sitter visits, and delivers vacation-specific reminders.
 # -------------------------------------------------------------------
 # Related Issue: 793
@@ -898,6 +899,8 @@ automation:
 
       - service: script.notify_engine
         data:
+          notification_icon: "mdi:home-import-outline"
+          color: "#00796B"
           title: House sitter arrival
           value1: "{{ push_message }}"
           who: carlo
@@ -987,6 +990,8 @@ automation:
 
       - service: script.notify_engine
         data:
+          notification_icon: "mdi:account-question"
+          color: "#C2410C"
           title: House sitter departure unconfirmed
           value1: >-
             No departure was detected while the visit was active. Presence tracking was cleared after {{ visit_minutes_numeric }} minutes; the actual departure time is unknown.
@@ -1047,6 +1052,8 @@ automation:
 
       - service: script.notify_engine
         data:
+          notification_icon: "mdi:home-export-outline"
+          color: "#1565C0"
           title: House sitter left
           value1: >-
             House sitter presence was cleared after the {{ exit_label }} closed about {{ visit_duration }} into visit number {{ visit_count }}.
@@ -1103,6 +1110,8 @@ automation:
             sequence:
               - service: script.notify_engine
                 data:
+                  notification_icon: "mdi:shield-home-outline"
+                  color: "#C62828"
                   title: Vacation secure-house alert
                   value1: >-
                     After the sitter left, {{ unsecured_message }}. Last visit was {{ visit_minutes | round(1) }} minutes.
@@ -1173,6 +1182,8 @@ automation:
 
       - service: script.notify_engine_two_button
         data:
+          notification_icon: "mdi:calendar-alert"
+          color: "#C2410C"
           title: Vacation missed visit alert
           value1: "{{ alert_message }}"
           who: carlo

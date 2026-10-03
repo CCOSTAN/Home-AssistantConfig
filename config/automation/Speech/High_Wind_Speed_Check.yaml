@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # High Wind Alerts - Tiered wind and open-garage safety warnings.
+# Related Issue: 1773
 # Related Issue: 1550
 #  Coalesces 30/40/60 mph crossings so the highest current tier owns the alert.
 # -------------------------------------------------------------------
@@ -58,6 +59,8 @@
         message: "{{ wind_message }}"
     - service: script.notify_engine
       data:
+        notification_icon: "mdi:weather-windy"
+        color: "#C2410C"
         title: "{{ wind_severity | upper }} WIND ALERT"
         value1: "{{ wind_message }}"
         who: 'family'

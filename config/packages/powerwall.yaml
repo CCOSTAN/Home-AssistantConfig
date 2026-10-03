@@ -4,6 +4,8 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Tesla Powerwall - Monitoring and outage automations
+# Related Issue: 1773
+# Notes: Grid alerts use red/green outage/recovery icons; load shedding uses amber.
 # Related Issue: 1490
 # Related Issue: 1550
 # Related Issue: 1571
@@ -292,6 +294,8 @@ automation:
             Grid status is {{ (trigger.to_state.state)|replace('on', 'up')|replace('off', 'down') }}.
       - service: script.notify_engine
         data:
+          notification_icon: "{{ 'mdi:transmission-tower' if trigger.to_state.state == 'on' else 'mdi:transmission-tower-off' }}"
+          color: "{{ '#2E7D32' if trigger.to_state.state == 'on' else '#C62828' }}"
           title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('on', 'up')|replace('off', 'down') }}."
           value1: "Please verify with the Tesla App."
           who: 'parents'
@@ -331,7 +335,9 @@ automation:
                   sequence:
                     - service: script.notify_engine
                       data:
-                        title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+                        notification_icon: "mdi:battery-arrow-down"
+                        color: "#C2410C"
+                        title: "Electrical Grid Status {{ 'up' if trigger.to_state.state == 'on' else 'down' }}."
                         value1: "Taking actions to turning off the House Lights to preserve Battery Power."
                         who: 'family'
                         group: 'information'
@@ -392,6 +398,8 @@ automation:
                     Current charge: {{ states('sensor.powerwall_charge') }}%.
               - service: script.notify_engine
                 data:
+                  notification_icon: "mdi:battery-alert-variant-outline"
+                  color: "#C2410C"
                   title: "Powerwall Low Charge Alert - Current Charge: {{ states('sensor.powerwall_charge') }}"
                   value1: "The Powerwall has been below 50% charge for more than 24 hours while the grid is online. This may indicate an issue."
                   who: 'parents'
@@ -491,7 +499,9 @@ automation:
 
       - service: script.notify_engine
         data:
-          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+          notification_icon: "mdi:hvac-off"
+          color: "#C2410C"
+          title: "Electrical Grid Status {{ 'up' if trigger.to_state.state == 'on' else 'down' }}."
           value1: "Taking actions to turning off the AC units to preserve Battery Power."
           who: 'family'
           group: 'information'
@@ -514,7 +524,9 @@ automation:
 
       - service: script.notify_engine
         data:
-          title: "Electrical Grid Status {{ (trigger.to_state.state)|replace('True', 'up')|replace('False', 'down') }}."
+          notification_icon: "mdi:hvac"
+          color: "#2E7D32"
+          title: "Electrical Grid Status {{ 'up' if trigger.to_state.state == 'on' else 'down' }}."
           value1: "HVAC settings were reconciled with grid, entry-point, and occupancy conditions."
           who: 'family'
           group: 'information'

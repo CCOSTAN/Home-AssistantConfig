@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Lightning Alerts - Nearby strike warnings and snooze workflow
+# Related Issue: 1773
 # Related Issue: 1550
 #  Keeps push alerts but also logs to Activity feed.
 # -------------------------------------------------------------------
@@ -72,6 +73,8 @@ automation:
           message: "Lightning detected {{ lightning_location }}."
       - service: script.notify_engine_two_button
         data:
+          notification_icon: "mdi:weather-lightning"
+          color: "#C2410C"
           title: 'Lightning Warning!'
           value1: "Lightning has been detected {{ lightning_location }}. Be careful if outdoors."
           title1: 'Snooze Alerts until tomorrow'

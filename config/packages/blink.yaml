@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Blink Cameras - Motion snapshots and alerts via Blink integration - Blink camera monitoring and notifications. https://amzn.to/3lOYTCv.
+# Related Issue: 1773
 #  Centralizes the Blink Cameras - Motion snapshots and alerts via Blink integration package configuration and helpers.
 # -------------------------------------------------------------------
 # Notes: Automations
@@ -36,6 +37,8 @@ automation:
     action:
       - service: script.notify_engine
         data:
+          notification_icon: "mdi:fridge-alert"
+          color: "#C62828"
           title: 'Check Fridge'
           value1: >
             {% set door = states.binary_sensor.refrigerator_door_open %}

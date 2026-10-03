@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Door Open Announcements - Home Assistant automation behavior.
+# Related Issue: 1773
 #  Defines the Door Open Announcements triggers, conditions, and actions.
 # -------------------------------------------------------------------
 ######################################################################
@@ -30,6 +31,9 @@
   action:
     - service: script.notify_engine
       data:
+        title: "Door Opened"
+        notification_icon: "mdi:door-open"
+        color: "#C62828"
         who: 'parents'
         value1: "The {{ trigger.to_state.attributes.friendly_name }} has been {{ (trigger.to_state.state)|replace('_', ' ') }}."
         group: 'information'

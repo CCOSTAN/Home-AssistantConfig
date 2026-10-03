@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Glances - ProxMox/server stats via Glances integration.
+# Related Issue: 1773
 #  CPU, memory, and disk sensors from Glances API.
 # -------------------------------------------------------------------
 # Notes: Garage temperature ignores unavailable legacy thermal sensors so the average does not fall to 0 F.
@@ -88,7 +89,9 @@ automation:
     action:
       - service: script.notify_engine
         data:
-          title: "?? Proxmox Garage Alert!"
+          notification_icon: "mdi:thermometer-alert"
+          color: "#C62828"
+          title: "Garage Server Temperature"
           value1: "The average temperature of your Proxmox servers is above 145\u00B0F!"
           who: 'carlo'
           group: 'information'

@@ -49,15 +49,25 @@ The shared helper gives existing notification groups a consistent palette withou
 | `Medicine` | `mdi:pill` | Purple |
 | `Garbage_Reminders` | `mdi:trash-can-outline` | Green |
 | `Welcome_Home` | `mdi:home-heart` | Teal |
+| `360_alerts` | `mdi:map-marker-radius` (arrival/departure callers override it) | Blue |
+| `Battery_Alert` | `mdi:battery-alert-variant-outline` | Orange |
 | `maintenance` | `mdi:tools` | Slate |
 | `Phyn` | `mdi:water-alert` | Red |
 | `Tesla_Model_Y` | `mdi:car-electric` | Blue |
 | `Tesla_Tire_Pressure` | `mdi:car-tire-alert` | Orange |
+| `Tesla_Charge_Rate_Alarm` | `mdi:ev-station` | Red |
+| `JuiceBox_Proxy_Offline` | `mdi:ev-station` | Orange |
+| `water_heater` | `mdi:water-boiler-alert` | Orange |
+| `RemoteLR` | `mdi:remote` | Purple |
 | `Printer` | `mdi:printer` | Slate |
 | `vacation` | `mdi:palm-tree` | Teal |
 | `royal_caribbean_price_drop` | `mdi:ferry` | Blue |
 
 Group lookup ignores case. An explicit icon overrides the preset; `notification_icon: ''` disables it. Other groups keep their existing payload unless a caller supplies an icon. Driveway, fridge-door, front-door package, and vacuum-help alerts supply their own icons while retaining their existing camera attachments where applicable. Untitled notifications and `clear_notification` commands receive no icon fields. Older apps or push paths that do not support custom icons retain the normal app icon.
+
+Arrival alerts use a teal home-entry icon at home or a checked map pin at other monitored places; driving departures use a blue home-exit icon. The existing presence rules and notification groups stay in place. Grid status uses a red disconnected tower for outages and a green tower for restoration, with separate battery/HVAC icons for load shedding and recovery.
+
+Lightning and high-wind warnings, open doors/garages, alarm-panel access, fridge temperature, server temperature, storage space, kitchen power, water-heater maintenance, house-sitter visits, and secure-house checks also pass explicit icons. Previously untitled door, alarm-panel, and storage alerts now have short titles so iOS can display their icons. The direct Roku remote-finder notification keeps its existing action payload and adds the same purple remote icon as its confirmation.
 
 ### Joanna + BearClaw AGENT engineer handoff
 `script.joanna_dispatch` is the shared handoff contract from Home Assistant automations into Joanna/BearClaw when Home Assistant detects something worth investigating or fixing.

@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Rheem EcoNet Water Heater - Monitoring and control
+# Related Issue: 1773
 # Related Issue: 1550
 # Related Issue: 1820
 # Related Issue: 1890
@@ -399,6 +400,8 @@ automation:
             sequence:
               - service: script.notify_engine
                 data:
+                  notification_icon: "mdi:water-boiler-alert"
+                  color: "#C2410C"
                   title: "Maintenance Alert"
                   value1: "Rheem Water Tank Compressor Health below recommended level."
                   who: 'carlo'
@@ -409,6 +412,8 @@ automation:
             sequence:
               - service: script.notify_engine
                 data:
+                  notification_icon: "mdi:water-boiler-alert"
+                  color: "#C2410C"
                   title: "Maintenance Alert"
                   value1: "Rheem Water Tank Health below recommended level."
                   who: 'carlo'

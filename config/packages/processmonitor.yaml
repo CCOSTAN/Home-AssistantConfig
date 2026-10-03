@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Process Monitor - Disk pressure alerting + Joanna dispatch
+# Related Issue: 1773
 #  Tracks Home Assistant root filesystem usage from the System Monitor integration.
 # -------------------------------------------------------------------
 # - Blog: https://www.vcloudinfo.com/2026/04/joanna-agent-engineer-home-assistant-infrastructure-dispatch.html
@@ -80,6 +81,9 @@ automation:
         below: 90
       - service: script.notify_engine
         data:
+          title: "Storage Space Warning"
+          notification_icon: "mdi:harddisk"
+          color: "#C2410C"
           value1: "Hard Drive Monitor:"
           value2: "Joanna is reviewing sustained Home Assistant disk usage at {{ mount_path }}:{{ states('sensor.disk_use_percent') | float(0) | round(1) }}%."
           value3: "No phone alert was sent until the issue stayed unresolved."
@@ -138,6 +142,9 @@ automation:
         above: 90
       - service: script.notify_engine
         data:
+          title: "Critical Storage Space"
+          notification_icon: "mdi:harddisk"
+          color: "#C62828"
           value1: "Hard Drive Monitor:"
           value2: "Critical Home Assistant disk usage is still active at {{ mount_path }}:{{ states('sensor.disk_use_percent') | float(0) | round(1) }}%."
           value3: "Joanna has already been dispatched to investigate."

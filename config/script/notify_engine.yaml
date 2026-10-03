@@ -41,6 +41,8 @@
 #   - 'color': MDI background hex color (optional; defaults to the group's color).
 # Known groups: Medicine, Garbage_Reminders, Welcome_Home, maintenance, Phyn,
 #  Tesla_Model_Y, Tesla_Tire_Pressure, Printer, vacation, royal_caribbean_price_drop.
+#  Also: 360_alerts, Battery_Alert, water_heater, RemoteLR,
+#  Tesla_Charge_Rate_Alarm, JuiceBox_Proxy_Offline.
 # clear_notification commands do not receive icon fields.
 
 # The 'notify_engine_two_button' variant includes additional parameters for two interactive buttons:
@@ -87,6 +89,12 @@ notify_engine:
           {% set notification_tag = tag | default('', true) | string | trim %}
           {% set payload = dict(payload, tag=notification_tag) if notification_tag else payload %}
           {% set styles = {
+            '360_alerts': {'notification_icon': 'mdi:map-marker-radius', 'color': '#1565C0'},
+            'battery_alert': {'notification_icon': 'mdi:battery-alert-variant-outline', 'color': '#C2410C'},
+            'water_heater': {'notification_icon': 'mdi:water-boiler-alert', 'color': '#C2410C'},
+            'remotelr': {'notification_icon': 'mdi:remote', 'color': '#6A1B9A'},
+            'tesla_charge_rate_alarm': {'notification_icon': 'mdi:ev-station', 'color': '#C62828'},
+            'juicebox_proxy_offline': {'notification_icon': 'mdi:ev-station', 'color': '#C2410C'},
             'medicine': {'notification_icon': 'mdi:pill', 'color': '#6A1B9A'},
             'garbage_reminders': {'notification_icon': 'mdi:trash-can-outline', 'color': '#2E7D32'},
             'welcome_home': {'notification_icon': 'mdi:home-heart', 'color': '#00796B'},

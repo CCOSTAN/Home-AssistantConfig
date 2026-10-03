@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Detect when things are on and forgotten about. Like any Good Watchdog - Home Assistant automation behavior.
+# Related Issue: 1773
 #  Defines the Detect when things are on and forgotten about. Like any Good Watchdog triggers, conditions, and actions.
 # -------------------------------------------------------------------
 ######################################################################
@@ -83,6 +84,8 @@
   action:
     - service: script.notify_engine
       data:
+        notification_icon: "mdi:power-plug-off"
+        color: "#C2410C"
         title: "Kitchen Accent Power"
         value1: "The Kitchen Accent plug was switched off. Please turn it back on."
         who: 'parents'

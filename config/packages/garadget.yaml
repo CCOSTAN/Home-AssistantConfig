@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Garadget Garage Doors - MQTT cover control and monitoring
+# Related Issue: 1773
 #  Open/close commands, status polling, and notifications.
 # -------------------------------------------------------------------
 # Notes: Debounces garage door open/close triggers to reduce noisy
@@ -315,6 +316,8 @@ automation:
     action:
       - service: script.notify_engine
         data:
+          notification_icon: "mdi:garage-open"
+          color: "#C2410C"
           title: 'Check Garage Doors:'
           value1: >
             {% set open = [
