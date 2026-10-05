@@ -46,11 +46,28 @@
 #  their own recovery checks. Older untagged alerts require dismissal on the phone.
 # Notes: Portainer state remains diagnostic and cannot by itself mark the
 #  charger monitor offline.
+# Notes: The visited-map camera uses a private daily Grafana PNG. An hourly
+#  command checks the cache; the first check after 06:00 refreshes it.
+#  Failed renders retain the previous image and retry at the next check.
 # Tire-pressure video: https://youtu.be/hDNyZfTfTtE
 # Tire-pressure post: https://www.vcloudinfo.com/2026/09/home-assistant-tesla-tire-pressure-alerts.html
 # Related garage video: https://youtu.be/wFO0H5zgnzk
 # Related garage post: https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html
 ######################################################################
+
+command_line:
+  - sensor:
+      name: Tesla Visited Map Updated
+      unique_id: tesla_visited_map_updated
+      command: "python3 /config/shell_scripts/teslamate_visited_snapshot.py"
+      scan_interval: 3600
+      command_timeout: 180
+      device_class: timestamp
+      value_template: "{{ value_json.updated_at }}"
+      availability: "{{ value_json.updated_at is not none }}"
+      json_attributes:
+        - last_error
+        - stale
 
 input_boolean:
   tesla_high_charge_rate_alert_active:

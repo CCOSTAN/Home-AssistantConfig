@@ -9,6 +9,7 @@
 # Related Issue: 1944
 # Notes: No cards expose Tesla or JuiceBox controls.
 # Notes: TeslaMate retains detailed drive, charge, and mileage history.
+# Notes: Tap either Odometer tile for the daily visited-map image; hold for details.
 # Notes: Useful tiles use restored last-valid values without timestamp churn.
 # Notes: Raw JuiceBox energy retains long-term history; power is session-only.
 # Notes: The Tesla's Home location charge-current setting is intentionally 16 A.
@@ -65,6 +66,11 @@
       entity: sensor.car_odometer_last_known
       name: Odometer
       icon: mdi:counter
+      tap_action:
+        action: more-info
+        entity: camera.tesla_visited_map
+      hold_action:
+        action: more-info
       state_display: >
         [[[
           const value = Number(entity?.state);
@@ -229,6 +235,11 @@
         entity: sensor.car_odometer_last_known
         name: Odometer
         icon: mdi:counter
+        tap_action:
+          action: more-info
+          entity: camera.tesla_visited_map
+        hold_action:
+          action: more-info
         state_display: >
           [[[
             const value = Number(entity?.state);
