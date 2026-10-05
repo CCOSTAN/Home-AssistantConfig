@@ -11,6 +11,8 @@
 #  state flapping from spamming lights, speech, and Alexa displays.
 # Notes: Owns the restart-safe garbage reminder snooze timer shared by
 #  the garage reminder and household speech paths.
+# Notes: Garage door reminders share a one-hour phone/speech snooze. It
+#  resets when both doors close and does not survive Home Assistant restarts.
 # Setup: https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
 # Token fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 # Video: https://youtu.be/wFO0H5zgnzk
@@ -81,6 +83,12 @@ input_text:
     initial: 'Carlo'
 
 timer:
+  garage_door_reminder_snooze:
+    name: Garage Door Reminder Snooze
+    duration: "01:00:00"
+    restore: false
+    icon: mdi:timer-pause-outline
+
   garbage_reminder_snooze:
     name: Garbage Reminder Snooze
     duration: "00:30:00"
@@ -276,6 +284,10 @@ automation:
 
   - alias: Is the Garage door Open at night - Checks every 30 minutes or 5 minutes after we drive away.
     id: 4eb3e83e-4484-4102-a4ca-6bacd5b3cbdd
+    description: >-
+      Remind the family about open garage doors at night or while away.
+      A shared one-hour snooze pauses phone and spoken reminders.
+    mode: restart
 
     trigger:
       - platform: time_pattern
@@ -286,34 +298,66 @@ automation:
         to: not_home
         for: 00:05:00
 
-    condition:
-      condition: or
-      conditions:
-        - condition: and
-          conditions:
-            - condition: state
-              entity_id: group.family
-              state: not_home
-              for: 00:05:00
-            - condition: or
-              conditions:
-                - condition: template
-                  value_template: "{{ states('cover.large_garage_door') == 'open' }}"
-                - condition: template
-                  value_template: "{{ states('cover.small_garage_door') == 'open' }}"
-        - condition: and
-          conditions:
-            - condition: state
-              entity_id: sun.sun
-              state: 'below_horizon'
-            - condition: or
-              conditions:
-                - condition: template
-                  value_template: "{{ states('cover.large_garage_door') == 'open' }}"
-                - condition: template
-                  value_template: "{{ states('cover.small_garage_door') == 'open'}}"
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_GARAGE_DOOR_REMINDERS_1H
+        id: snooze
+
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.garage_door_reminder_snooze
+
+      - platform: state
+        entity_id: group.garage_doors
+        to: 'closed'
+        for: "00:00:20"
+        id: doors_closed
 
     action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: doors_closed
+            sequence:
+              - service: timer.cancel
+                target:
+                  entity_id: timer.garage_door_reminder_snooze
+              - stop: "Both garage doors closed; clear the reminder snooze."
+
+      # Ignore old phone actions once the garage is closed.
+      - condition: state
+        entity_id: group.garage_doors
+        state: 'open'
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: snooze
+            sequence:
+              - service: timer.start
+                target:
+                  entity_id: timer.garage_door_reminder_snooze
+              - service: script.send_to_logbook
+                data:
+                  topic: "GARAGE"
+                  message: "Garage door phone and spoken reminders snoozed for 1 hour."
+              - stop: "Garage door reminder snooze started."
+
+      - condition: state
+        entity_id: timer.garage_door_reminder_snooze
+        state: 'idle'
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: 'below_horizon'
+          - condition: state
+            entity_id: group.family
+            state: not_home
+            for: 00:05:00
+
       - service: script.notify_engine
         data:
           notification_icon: "mdi:garage-open"
@@ -334,6 +378,9 @@ automation:
           who: "family"
           camera_entity: "camera.garagecam"
           group: 'information'
+          title1: "Snooze 1 hour"
+          action1: "SNOOZE_GARAGE_DOOR_REMINDERS_1H"
+          icon1: "sfsymbols:clock"
 
       - service: script.speech_engine
         data:

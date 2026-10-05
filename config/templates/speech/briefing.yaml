@@ -27,6 +27,7 @@
 #  or abnormal status worth announcing.
 # Notes: Garbage-day speech honors timer.garbage_reminder_snooze so Carlo's
 #  phone action suppresses the reminder across every speech entry point.
+# Notes: Garage-door speech honors the shared one-hour reminder snooze.
 ######################################################################
 
 
@@ -160,7 +161,7 @@
   {%- endmacro -%}
 
   {%- macro garage_check() -%}
-  {% if not is_state('group.garage_doors', 'closed') -%}
+  {% if is_state('timer.garage_door_reminder_snooze', 'idle') and not is_state('group.garage_doors', 'closed') -%}
       The
       {%- for state in states.cover -%}
       {%- endfor %}

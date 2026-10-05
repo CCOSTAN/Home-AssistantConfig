@@ -12,6 +12,7 @@
 # Notes: Known groups receive colored MDI icons; other callers retain their payload.
 #  Explicit notification_icon/icon_url overrides are shared by both helpers.
 #  An empty notification_icon disables the group preset; iOS icons require a title.
+# Notes: Only supplied actions become buttons; one-button callers omit the second.
 # Docs: https://companion.home-assistant.io/docs/notifications/notifications-basic/#notification-icon-and-color
 # Video Tutorial: https://youtu.be/mK1wdpxhLbM
 # Notification icons video: https://youtu.be/TMfdxv-WprM
@@ -149,7 +150,7 @@ notify_engine:
                       'icon': icon2 | default('sfsymbols:house.circle', true),
                       'destructive': destructive2 | default(false, true)
                     }
-                  ]) }}
+                  ] | rejectattr('action', 'eq', '') | list) }}
       default:
         - service: "{{ notify_service }}"
           data:
