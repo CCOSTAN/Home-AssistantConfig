@@ -11,10 +11,12 @@
 # Notes: Compact scheduled-job health provides an HA-visible failure summary with Admin as the detailed source of truth.
 # Notes: Reset expiry warnings use the appliance countdown and reminder alongside real collector errors.
 # Notes: BearClaw working memory and the federated OneNote KB are separate indexes and render separately.
+# Notes: Mini App serving health leads the top strip; local/public failures retain details in Runtime & Memory.
+# Notes: AI Diagnostics closes Latest Activity with the most recent AI instructions and response.
 ######################################################################
 
 # -------------------------------------------------------------------
-# Dispatch health strip (mandatory first full-width wrapper)
+# Service and dispatch health strip (mandatory first full-width wrapper)
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -36,16 +38,28 @@
           grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
     - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.joanna_mini_app_problem
+      name: Mini App
+      icon: mdi:web-check
+      variables:
+        ok_state: 'off'
+        healthy_text: ONLINE
+        critical_text: CHECK APP
+      state_display: >
+        [[[
+          const origin = entity?.attributes?.origin === 'ok' ? 'OK' : 'CHECK';
+          const edge = entity?.attributes?.public === 'ok' ? 'OK' : 'CHECK';
+          if (origin === 'OK' && edge === 'OK') return 'LOCAL / PUBLIC OK';
+          if (origin === 'CHECK' && edge === 'CHECK') return 'CHECK BOTH';
+          return origin === 'CHECK' ? 'CHECK LOCAL' : 'CHECK PUBLIC';
+        ]]]
+
+    - type: custom:button-card
       template: bearstone_infra_kpi
       entity: sensor.joanna_ha_dispatches_24h
       name: HA 24H
       icon: mdi:home-automation
-
-    - type: custom:button-card
-      template: bearstone_infra_kpi
-      entity: sensor.joanna_all_dispatches_24h
-      name: All 24H
-      icon: mdi:robot
 
     - type: custom:button-card
       template: bearstone_infra_kpi
@@ -121,6 +135,12 @@
 
     - type: custom:button-card
       template: bearstone_infra_list_row
+      entity: sensor.joanna_all_dispatches_24h
+      name: All Dispatches 24H
+      icon: mdi:robot
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
       entity: sensor.bearclaw_status_telemetry
       name: Latest HA Dispatch
       icon: mdi:robot
@@ -157,6 +177,16 @@
       name: All Dispatches 30D
       icon: mdi:calendar-month
 
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.openai_response
+      name: AI Diagnostics
+      icon: mdi:message-text-outline
+      state_display: OPEN RESPONSE
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-infrastructure/ai-diagnostics
+
   - type: custom:vertical-stack-in-card
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
@@ -164,6 +194,17 @@
     - type: custom:button-card
       template: bearstone_infra_panel_header
       name: Runtime & Memory
+
+    - type: custom:button-card
+      template: bearstone_infra_alert_row
+      entity: binary_sensor.joanna_mini_app_problem
+      name: Mini App needs attention
+      icon: mdi:web-cancel
+      variables:
+        alert_kind: state_not
+        ok_state: 'off'
+        exception_detail: >
+          [[[ return entity?.attributes?.summary || 'MINI APP MONITOR UNAVAILABLE'; ]]]
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -243,16 +284,6 @@
           const status = entity?.state === 'ok' ? 'CURRENT' : String(entity?.state ?? 'unknown').toUpperCase();
           return `${status} · ${docs} DOCS · ${chunks} CHUNKS`;
         ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.openai_response
-      name: AI Diagnostics
-      icon: mdi:message-text-outline
-      state_display: OPEN RESPONSE
-      tap_action:
-        action: navigate
-        navigation_path: /dashboard-infrastructure/ai-diagnostics
 
     - type: custom:button-card
       template: bearstone_infra_list_row

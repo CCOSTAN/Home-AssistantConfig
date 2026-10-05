@@ -38,6 +38,7 @@ class InfrastructureHealthTest(unittest.TestCase):
             "sensor.mariadb_status": "running",
             "sensor.bearclaw_scheduled_job_health": "ok",
             "sensor.joanna_onenote_kb_health": "ok",
+            "binary_sensor.joanna_mini_app_problem": "off",
             "sensor.active_issues": "0",
             "sensor.garage_ups_status_data": "OL",
             "sensor.garage_ups_status": "Online",
@@ -216,6 +217,7 @@ class InfrastructureHealthTest(unittest.TestCase):
                                  ("sensor.mariadb_status", "stopped"),
                                  ("sensor.bearclaw_scheduled_job_health", "warning"),
                                  ("sensor.joanna_onenote_kb_health", "warning"),
+                                 ("binary_sensor.joanna_mini_app_problem", "on"),
                                  ("binary_sensor.infra_nebula_sync_degraded", "on"),
                                  ("binary_sensor.node_proxmox1_updates_packages", "on")]:
             with self.subTest(entity_id=entity_id):

@@ -20,6 +20,8 @@
 # Notes: Status telemetry includes the latest 12 dispatches in the rolling 24-hour window for the Joanna Activity drill-down.
 # Notes: Status telemetry exposes compact scheduled-job warning/error health for the Systems dashboard.
 # Notes: Status telemetry distinguishes the compact BearClaw working-memory index from the federated OneNote KB.
+# Notes: Independent Mini App origin/public probes run every minute; sustained failures create Repairs and HA mobile alerts.
+# Notes: The Mini App incident latch survives restarts to avoid duplicate outage notifications; recovery clears its owned Repair.
 # Notes: sensor.joanna_onenote_kb_health marks the federated KB warning after 90 minutes without a successful sync.
 # Notes: Status telemetry exposes user-keyed step trends for Health and personal records for briefings and kiosks.
 # Notes: Status telemetry exposes 48-hour Carlo/Stacey bowling highlights for the Kitchen Show rotation.
@@ -34,6 +36,26 @@
 # Notes: HA automation dispatches default to BearClaw's ops domain so wording like NAS "health" cannot route to the health coach.
 # Notes: Blog: https://www.vcloudinfo.com/2026/03/joanna-dispatch-telemetry-home-assistant-infrastructure-dashboard/
 ######################################################################
+
+command_line:
+  - sensor:
+      name: Joanna Mini App Probe
+      unique_id: joanna_mini_app_probe
+      command: "python3 /config/shell_scripts/joanna_mini_app_health.py"
+      scan_interval: 60
+      command_timeout: 25
+      value_template: "{{ value_json.status | default('error') }}"
+      json_attributes:
+        - origin
+        - public
+        - summary
+        - checks
+        - checked_at
+
+input_boolean:
+  joanna_mini_app_incident_active:
+    name: Joanna Mini App Incident Active
+    icon: mdi:web-cancel
 
 rest_command:
   bearclaw_command:
@@ -510,6 +532,23 @@ template:
             {{ health.get('users', {}).get('stacey', {}).get('personalRecords', {}).get('count', 0) | int(0) }}
 
   - binary_sensor:
+      - name: Joanna Mini App Problem
+        unique_id: joanna_mini_app_problem
+        device_class: problem
+        icon: mdi:web-check
+        delay_on: "00:03:00"
+        delay_off: "00:01:00"
+        state: >-
+          {% set checked = as_timestamp(state_attr('sensor.joanna_mini_app_probe', 'checked_at'), 0) %}
+          {{ not is_state('sensor.joanna_mini_app_probe', 'ok') or as_timestamp(now()) - checked > 180 }}
+        attributes:
+          origin: "{{ state_attr('sensor.joanna_mini_app_probe', 'origin') }}"
+          public: "{{ state_attr('sensor.joanna_mini_app_probe', 'public') }}"
+          summary: >-
+            {% set checked = as_timestamp(state_attr('sensor.joanna_mini_app_probe', 'checked_at'), 0) %}
+            {{ 'Mini App probe is stale or unavailable' if as_timestamp(now()) - checked > 180
+               else state_attr('sensor.joanna_mini_app_probe', 'summary') }}
+
       - name: Joanna Session Source Indexed
         unique_id: joanna_session_source_indexed
         icon: mdi:message-text-clock-outline
@@ -526,6 +565,110 @@ template:
           {{ memory.get('stale', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
 
 automation:
+  - id: joanna_mini_app_health_monitor
+    alias: Joanna Mini App Health Monitor
+    description: Independent origin/edge monitoring, durable incident deduplication, and recovery cleanup.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.joanna_mini_app_problem
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.joanna_mini_app_problem
+        to: "off"
+      - platform: homeassistant
+        event: start
+      - platform: time_pattern
+        minutes: "/5"
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.joanna_mini_app_problem
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.joanna_mini_app_incident_active
+                state: "off"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: joanna_mini_app_unavailable
+                  title: Joanna Mini App unavailable
+                  severity: error
+                  persistent: true
+                  description: >-
+                    The independent Mini App checks have failed for at least three minutes.
+                    {{ state_attr('binary_sensor.joanna_mini_app_problem', 'summary') }}.
+                    Open Systems > Joanna for current local-server and public-route status.
+                    Check the app listener when origin fails; check the public route when only public fails.
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.joanna_mini_app_incident_active
+              - service: script.notify_engine
+                continue_on_error: true
+                data:
+                  who: carlo
+                  title: Joanna Mini App needs attention
+                  value1: "{{ state_attr('binary_sensor.joanna_mini_app_problem', 'summary') }}. Open Systems > Joanna."
+                  group: infrastructure
+                  tag: joanna_mini_app_health
+                  level: active
+              - service: script.send_to_logbook
+                continue_on_error: true
+                data:
+                  topic: JOANNA
+                  message: "Mini App Repair opened: {{ state_attr('binary_sensor.joanna_mini_app_problem', 'summary') }}"
+              - if:
+                  - condition: state
+                    entity_id: sensor.bearclaw_status_telemetry
+                    state: ok
+                  - condition: template
+                    value_template: "{{ as_timestamp(now()) - as_timestamp(states.sensor.bearclaw_status_telemetry.last_reported, 0) < 180 }}"
+                then:
+                  - service: script.joanna_dispatch
+                    continue_on_error: true
+                    data:
+                      source: home_assistant_automation.joanna_mini_app_health_monitor
+                      trigger_context: Mini App origin/public health failed for three minutes
+                      summary: Joanna Mini App needs investigation
+                      entity_ids:
+                        - sensor.joanna_mini_app_probe
+                        - binary_sensor.joanna_mini_app_problem
+                      diagnostics: "{{ state_attr('sensor.joanna_mini_app_probe', 'checks') }}"
+                      request: >-
+                        Diagnose the failed Mini App hop from current listener, container, and public-route evidence.
+                        Report the cause and the smallest recovery action. Preserve any active deployment.
+                        This monitor authorizes diagnosis only, not restarts, rebuilds, DNS, tunnel, Access, or firewall changes.
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.joanna_mini_app_problem
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.joanna_mini_app_incident_active
+                state: "on"
+            sequence:
+              - service: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: joanna_mini_app_unavailable
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.joanna_mini_app_incident_active
+              - service: script.send_to_logbook
+                continue_on_error: true
+                data:
+                  topic: JOANNA
+                  message: Mini App local server and public route recovered; Repair cleared.
+              - service: script.notify_engine
+                continue_on_error: true
+                data:
+                  who: carlo
+                  title: Joanna Mini App recovered
+                  value1: Local server and public route checks are healthy again.
+                  group: infrastructure
+                  tag: joanna_mini_app_health
+                  level: passive
+
   - id: bearclaw_lifecycle_webhook
     alias: BearClaw Lifecycle Webhook
     description: Receives structured BearClaw lifecycle callbacks for HA-triggered work.

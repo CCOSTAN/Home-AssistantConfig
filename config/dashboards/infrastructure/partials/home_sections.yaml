@@ -255,11 +255,16 @@
       entity: sensor.bearclaw_scheduled_job_health
       name: Joanna
       icon: mdi:robot-outline
+      triggers_update:
+        - binary_sensor.joanna_mini_app_problem
       variables:
         ok_state: ok
         status_severity: >
           [[[
             const raw = String(entity?.state ?? '').toLowerCase();
+            const app = states['binary_sensor.joanna_mini_app_problem']?.state;
+            if (app === 'on') return 'critical';
+            if (app !== 'off') return 'unknown';
             if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'unknown';
             if (raw === 'error') return 'critical';
             return raw === 'warning' ? 'warning' : 'healthy';
@@ -267,6 +272,13 @@
         healthy_text: HEALTHY
         warning_text: JOB WARNING
         critical_text: JOB ERROR
+      state_display: >
+        [[[
+          const app = states['binary_sensor.joanna_mini_app_problem']?.state;
+          if (app === 'on') return 'MINI APP ERROR';
+          if (app !== 'off') return 'MINI APP UNKNOWN';
+          return ({ ok: 'HEALTHY', warning: 'JOB WARNING', error: 'JOB ERROR' })[entity?.state] || 'UNKNOWN';
+        ]]]
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/joanna
@@ -822,6 +834,20 @@
           alert_kind: state_not
           ok_state: ok
           alert_severity: '[[[ return entity?.state === "warning" ? "warning" : "critical"; ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/joanna
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.joanna_mini_app_problem
+        name: Joanna Mini App requires attention
+        icon: mdi:web-cancel
+        variables:
+          alert_kind: state_not
+          ok_state: 'off'
+          exception_detail: >
+            [[[ return entity?.attributes?.summary || 'MINI APP MONITOR UNAVAILABLE'; ]]]
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/joanna
