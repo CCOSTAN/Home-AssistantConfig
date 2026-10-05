@@ -31,10 +31,14 @@ Longer-running shell helpers referenced by automations, packages, or cron. Anyth
 | [apt_weekly.sh](apt_weekly.sh) | Daily APT check-then-update workflow that posts webhook status and can schedule reboot when needed. |
 | [apt_reboot_report.sh](apt_reboot_report.sh) | Boot-time status reporter that reuses the registered APT webhook, retries while HA starts, and confirms docker_10 again after a startup-settle delay so its co-hosted HA reboot state clears reliably. |
 | [gitupdate.sh](gitupdate.sh) | Pull the latest config changes on demand. |
+| [joanna_mini_app_health.py](joanna_mini_app_health.py) | Probe the local and public Mini App page, assets, and unsigned API rejection without personal data or Telegram credentials. |
+| [teslamate_visited_snapshot.py](teslamate_visited_snapshot.py) | Cache a daily Grafana visited-map PNG for Home Assistant's Local file camera, retaining the last good image on failure. |
 | [![YAML source: basketball](https://img.shields.io/static/v1?label=YAML&message=basketball&color=lightgrey&logo=github&logoColor=181717)](basketball.yaml) | ESPN stat scraping helper used by sensors. |
 | [Jinja Code.py](Jinja Code.py) | Reference Jinja snippets for templating. |
 
 ### Tips
+
+- The TeslaMate snapshot helper reads its private Grafana render URL and authentication data from local secrets. Grafana must have an image renderer configured. The `Tesla Visited Map` Local file camera points to `image/teslamate_visited.png` under the Home Assistant configuration directory. The hourly sensor checks the cache and refreshes after 06:00 America/New_York; its timestamp and `stale`/`last_error` attributes expose refresh health. Cached images and credentials remain outside source control.
 - Make scripts executable and test them manually before wiring into HA.
 - Document expected env vars or secrets at the top of each script.
 

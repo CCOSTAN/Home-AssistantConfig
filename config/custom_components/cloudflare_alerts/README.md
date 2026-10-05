@@ -1,5 +1,7 @@
 # Cloudflare alert receiver
 
+[![Watch Cloudflare walkthrough](https://img.shields.io/badge/Watch-Cloudflare%20Webhooks-FF0000?logo=youtube&logoColor=white)](https://youtu.be/-v1JkKwDrI8) [![Cloudflare blog guide](https://img.shields.io/static/v1?label=vCloudInfo&message=Cloudflare%20Guide&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/cloudflare-free-webhooks-home-assistant-website-alerts.html)
+
 Receives Cloudflare Notifications through a Nabu Casa cloud webhook and validates
 the `cf-webhook-auth` header and account identity before producing a
 `cloudflare_alert` event. A webhook URL alone cannot launch an investigation.
