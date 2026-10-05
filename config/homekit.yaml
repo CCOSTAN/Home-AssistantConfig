@@ -3,9 +3,11 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# HomeKit Configuration - Multi-bridge (currently disabled)
-#  Kept for reference; `homekit: !include homekit.yaml` is commented out in `configuration.yaml`.
+# HomeKit Configuration - Main bridge entity filter
+#  Updates the existing imported main bridge; accessory bridges retain their stored configuration.
 # -------------------------------------------------------------------
+# Notes: YAML owns this imported bridge's filter; apply changes with homekit.reload.
+# Notes: The retired Den light group is excluded from HomeKit and Alexa exports.
 ######################################################################
 
 # Main bridge (everything except cameras + front door lock)
@@ -28,7 +30,6 @@
     include_entities:
       - light.bedroom
       - light.bedroom_lights
-      - light.den_lights
       - light.dinette_lights
       - light.dining_room_lights
       - light.foyer

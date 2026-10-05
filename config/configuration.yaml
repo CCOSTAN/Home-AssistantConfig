@@ -85,7 +85,6 @@ cloud:
         - group.kitchen_lights
         - light.bedroom
         - light.bedroom_lights
-        - light.den_lights
         - light.dinette_lights
         - light.dining_room_lights
         - light.foyer
@@ -168,7 +167,7 @@ recorder: !include recorder.yaml
 
 tts:
 
-# homekit: !include homekit.yaml
+homekit: !include homekit.yaml
 group: !include_dir_merge_named group
 # device_tracker: !include_dir_merge_list device_tracker - All trackers have been moved to the UI.
 sensor: !include_dir_merge_list sensor
