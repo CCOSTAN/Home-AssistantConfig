@@ -28,6 +28,8 @@
 # Notes: Garbage-day speech honors timer.garbage_reminder_snooze so Carlo's
 #  phone action suppresses the reminder across every speech entry point.
 # Notes: Garage-door speech honors the shared one-hour reminder snooze.
+# Notes: Humidity and NWS alerts use the current sensor IDs; missing alert
+#  attributes are treated as an empty alert list.
 ######################################################################
 
 
@@ -48,7 +50,7 @@
 
   {%- macro inside_weather() -%}
     {% set temp = state_attr('climate.downstairs', 'current_temperature') | default('unknown') %}
-    {% set humidity = states('sensor.downstairs_thermostat_humidity') %}
+    {% set humidity = states('sensor.downstairs_humidity') %}
     Inside the house, it is {{ temp }} degrees{% if humidity not in ['unknown','unavailable','none'] %} with {{ humidity }} percent humidity{% endif %}. [Only mention humidity if it seems unusually high]
   {%- endmacro -%}
 
@@ -105,8 +107,8 @@
         [Give a helpful suggestion based on the current UV index or weather conditions]
     {% endif %}
 
-      {%- if states('sensor.nws_alerts') | int(0) > 0 -%}
-        {%- set alert_description = state_attr('sensor.nws_alerts', 'Alerts') | default('') %}
+      {%- if states('sensor.nws_alerts_alerts') | int(0) > 0 -%}
+        {%- set alert_description = state_attr('sensor.nws_alerts_alerts', 'Alerts') | default([], true) %}
         [Summarize the included weather alert and give overall details on any storms relevant to the residents of the home. Use the Situation Overview Section to best understand what is going on - Be sure to highlight any impacts to Seminole County or Tallahassee] 
         {{ alert_description }}
         [END of Weather Alert]
@@ -236,7 +238,7 @@
   {% set downstairs_target = state_attr('climate.downstairs', 'temperature') | float(none) %}
   {% set upstairs_current = state_attr('climate.upstairs', 'current_temperature') | float(none) %}
   {% set upstairs_target = state_attr('climate.upstairs', 'temperature') | float(none) %}
-  {% set downstairs_humidity = states('sensor.downstairs_thermostat_humidity') | float(none) %}
+  {% set downstairs_humidity = states('sensor.downstairs_humidity') | float(none) %}
   {% if downstairs_humidity is none %}
     {% set downstairs_humidity = state_attr('climate.downstairs', 'current_humidity') | float(none) %}
   {% endif %}
@@ -408,7 +410,7 @@
     {% set daytime_weather_context = is_state('sun.sun', 'above_horizon') and sunset_ts > 0 and as_timestamp(now()) < (sunset_ts - 7200) %}
     {% set lightning_close = states('sensor.blitzortung_lightning_counter') | int(0) > 0 and (states('sensor.blitzortung_lightning_distance') | float(9999) / 1.609344) <= 10 %}
     {% set weather_safety_context = (
-      states('sensor.nws_alerts') | int(0) > 0
+      states('sensor.nws_alerts_alerts') | int(0) > 0
       or states('sensor.pirateweather_wind_speed') | float(0) >= 30
       or states('sensor.bear_stone_common_air_quality_index') | float(0) >= 50
       or states('sensor.pirateweather_air_quality_index') | int(0) >= 101
