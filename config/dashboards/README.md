@@ -84,7 +84,7 @@ This folder is referenced from `config/configuration.yaml` via:
   - `dashboard-kiosk-satellite-staging` is the hidden validation surface for the shared Kiosk Satellite camera view.
   - Systems' visible Kiosks tab sits immediately before Joanna and combines attention telemetry with the latest Bedroom Tablet and Kitchen Show screenshots; tapping either snapshot opens that display's live dashboard.
   - Mini App local/public health leads Joanna's top status row; total 24-hour dispatches sit in Latest Activity, with AI Diagnostics at the bottom. Runtime & Memory retains failure details. Sustained failures appear in Systems Active Issues and the shared issue count, with persistent Repairs and independent mobile alerts.
-  - The Systems Joanna page links to BearClaw Admin from Dispatch Trend and to a hidden AI Diagnostics subview that shows the latest OpenAI instructions and response together; LLM Vision production diagnostics and retired QMD health telemetry are not shown.
+  - The Systems Joanna page links to BearClaw Admin from Dispatch Trend and to a hidden AI Diagnostics subview that shows the latest OpenAI instructions and response together; package-classification diagnostics and retired QMD health telemetry are not shown.
   - Overview's second visible view is **Mobile**, a phone-first quick-control surface for garage doors, the front-door lock, thermostats, and compact household alerts.
   - Overview Home uses ordered production sections under `overview/sections/`; approved pilot edits now apply directly there.
   - Overview Home's **Windows** ribbon opens a dedicated GPIO entry-point subview with perimeter, MQTT, and individual contact status.

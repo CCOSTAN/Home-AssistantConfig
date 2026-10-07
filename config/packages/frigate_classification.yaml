@@ -1,0 +1,185 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Frigate - local front-door package state classification
+# Related Issue: 1984
+#  Classify the white porch floor locally; keep package reminders shared.
+# -------------------------------------------------------------------
+# Notes: Frigate 0.18 classifies clear/package_present with a trained
+#  custom model, motion checks, a 15-second interval, and 3-state consensus.
+# Notes: Either crop can mark a package present; both must report clear
+#  before clearing it. The second crop covers partial doorstep-edge boxes.
+# Notes: Existing package/cans binary-sensor identities stay compatible.
+#  LLM Vision is removed. Last sync records state updates, not every
+#  inference; the status button reads the last verified state.
+# Notes: Unknown/unavailable classifications never clear a package.
+# Notes: Garage is non-production and disabled. The reflective X is gone;
+#  any future classifier must use the actual bins in the upper-right.
+# Docs: https://docs.frigate.video/configuration/custom_classification/state_classification/
+# Original LLM Vision experiment video: https://youtu.be/nAhCezFetvI
+# Notification icons video: https://youtu.be/TMfdxv-WprM
+# Notification icons blog: https://www.vcloudinfo.com/2026/10/home-assistant-ios-notification-icons.html
+######################################################################
+
+input_button:
+  front_door_package_check:
+    name: "Frigate: Front door package status"
+    icon: mdi:package-variant-closed-check
+
+input_boolean:
+  garbage_cans_out:
+    name: "Garbage Cans Out"
+    icon: mdi:trash-can
+  front_door_packages_present:
+    name: "Front Door Packages Present"
+    icon: mdi:package-variant-closed
+
+input_text:
+  front_door_package_classification:
+    name: "Frigate front door classification"
+    max: 255
+
+input_datetime:
+  front_door_package_last_sync:
+    name: "Frigate front door last state sync"
+    has_date: true
+    has_time: true
+
+template:
+  - binary_sensor:
+      - name: "Garbage Cans Out"
+        unique_id: llmvision_garbage_cans_out
+        device_class: presence
+        state: "{{ is_state('input_boolean.garbage_cans_out', 'on') }}"
+        attributes:
+          classification_status: not_configured
+          source_camera: camera.garagecam
+
+      - name: "Front Door Packages Present"
+        unique_id: llmvision_front_door_packages_present
+        availability: >-
+          {{ states('sensor.frontdoorbell_front_door_packages_classification')
+             in ['clear', 'package_present']
+             and states('sensor.frontdoorbell_front_door_package_edge_classification')
+             in ['clear', 'package_present'] }}
+        device_class: presence
+        state: "{{ is_state('input_boolean.front_door_packages_present', 'on') }}"
+        attributes:
+          last_sync: "{{ states('input_datetime.front_door_package_last_sync') }}"
+          classification: "{{ states('input_text.front_door_package_classification') }}"
+          source_camera: camera.frontdoorbell
+          source_classifier: sensor.frontdoorbell_front_door_packages_classification
+          source_classifier_edge: sensor.frontdoorbell_front_door_package_edge_classification
+          classifier_state: "{{ states('sensor.frontdoorbell_front_door_packages_classification') }}"
+          classifier_edge_state: "{{ states('sensor.frontdoorbell_front_door_package_edge_classification') }}"
+
+automation:
+  - alias: Frigate - Front door packages
+    id: 8647b555-7ba0-41d5-98de-cfd3094e5b4f
+    description: "Sync Frigate's verified local porch state to the existing package helper."
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.frontdoorbell_front_door_packages_classification
+          - sensor.frontdoorbell_front_door_package_edge_classification
+        from: null
+        id: classification
+      - platform: homeassistant
+        event: start
+        id: startup
+      - platform: state
+        entity_id: input_button.front_door_package_check
+        id: manual_check
+    variables:
+      labels: >-
+        {{ [states('sensor.frontdoorbell_front_door_packages_classification'),
+            states('sensor.frontdoorbell_front_door_package_edge_classification')] }}
+      classification: "{{ 'package_present' if 'package_present' in labels else 'clear' }}"
+    condition:
+      - condition: state
+        entity_id:
+          - sensor.frontdoorbell_front_door_packages_classification
+          - sensor.frontdoorbell_front_door_package_edge_classification
+        state:
+          - clear
+          - package_present
+    action:
+      - if:
+          - condition: state
+            entity_id:
+              - sensor.frontdoorbell_front_door_packages_classification
+              - sensor.frontdoorbell_front_door_package_edge_classification
+            state: package_present
+            match: any
+        then:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.front_door_packages_present
+        else:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.front_door_packages_present
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.front_door_package_classification
+        data:
+          value: "{{ classification }}"
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.front_door_package_last_sync
+        data:
+          datetime: "{{ now() }}"
+      - service: script.send_to_logbook
+        data:
+          topic: PACKAGES
+          message: "Local Frigate package state synced: {{ classification }}."
+      - if:
+          - condition: trigger
+            id: manual_check
+        then:
+          - service: script.notify_engine
+            data:
+              title: Front door package status
+              notification_icon: mdi:package-variant-closed-check
+              color: '#6A1B9A'
+              value1: "Frigate's last verified porch state is {{ classification | replace('_', ' ') }}."
+              who: carlo
+              group: information
+              level: active
+              camera_entity: camera.frontdoorbell
+
+  - alias: Frigate - Front door package notify
+    id: 0ddf0fb5-4600-4eff-9236-95b2af3739a6
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.front_door_packages_present
+        to: 'on'
+        for: "00:01:00"
+    action:
+      - variables:
+          package_message: >-
+            Front door camera thinks a package may be waiting at the door.
+          notify_target: >-
+            {% if is_state('group.family', 'home') %}
+              family
+            {% else %}
+              carlo
+            {% endif %}
+      - service: script.notify_engine
+        data:
+          title: Package check
+          notification_icon: mdi:package-variant-closed-check
+          color: '#6A1B9A'
+          value1: "{{ package_message }}"
+          who: "{{ notify_target }}"
+          group: information
+          level: active
+          camera_entity: camera.frontdoorbell
+      - service: script.send_to_logbook
+        data:
+          topic: PACKAGES
+          message: "{{ package_message }}"
