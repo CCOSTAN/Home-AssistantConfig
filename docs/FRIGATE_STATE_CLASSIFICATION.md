@@ -2,6 +2,8 @@
 
 Tracking: [issue #1984](https://github.com/CCOSTAN/Home-AssistantConfig/issues/1984).
 
+[![Watch local package detection](https://img.shields.io/badge/Watch-Local%20Package%20Detection-FF0000?logo=youtube&logoColor=white)](https://youtu.be/KpPYo_Uur7k) [![Local package detection blog](https://img.shields.io/static/v1?label=vCloudInfo&message=Local%20Package%20Detection&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/local-package-detection-frigate-home-assistant.html)
+
 The front-door package flow now uses Frigate 0.18 custom state classification. Two camera crops look at the white porch floor where deliveries are placed. Inference runs locally; this flow makes no LLM Vision or OpenAI calls. The existing Home Assistant package helpers, dashboard references, snapshot notifications, and shared notification engine remain in use.
 
 The source is [frigate_classification.yaml](../config/packages/frigate_classification.yaml). The package/cans binary sensors keep their internal registry identities so existing consumers remain compatible. The package status and diagnostic helpers use neutral names; obsolete LLM Vision helpers and the disabled garage automation are removed.
