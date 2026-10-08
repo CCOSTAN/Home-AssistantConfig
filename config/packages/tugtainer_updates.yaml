@@ -11,7 +11,8 @@
 # Notes: Available-only reports stay silent in HA; Updated, Failed, and Rolled-back reports remain visible.
 # Notes: Fires update events independently when a report has both Available and Updated sections.
 # Notes: Fires `tugtainer_home_assistant_core_updated` when `### Updated:` includes Home Assistant.
-# Notes: Every Available report dispatches Joanna; Tugtainer owns report scheduling and de-duplication.
+# Notes: Every Available report dispatches Joanna; include still-pending available(notified) items in the Tugtainer notification template.
+# Notes: A daily 07:30 check dispatches Joanna on the appliance to verify rollout completion and protected control-plane updates.
 # Notes: Home Assistant changelog dispatch uses core-YYYY.M URL format from parsed/fallback version.
 # Notes: Home Assistant is auto-update eligible after its Tugtainer pre-update config check; no per-release approval is required.
 # Notes: Portainer image-update entities are auto-disabled because Tugtainer/Compose own container rollouts.
@@ -208,44 +209,78 @@ automation:
 
   - alias: "Tugtainer - Dispatch Joanna For Available Updates"
     id: tugtainer_dispatch_joanna_for_available_updates
-    description: "Dispatch Joanna for every Tugtainer Available report."
+    description: "Dispatch appliance Joanna for Available reports and daily post-rollout verification."
     mode: queued
     trigger:
       - platform: event
         event_type: tugtainer_available_detected
+        id: available_report
+      - platform: time
+        at: "07:30:00"
+        id: post_rollout
     variables:
-      title: "{{ trigger.event.data.title | default('Tugtainer update') }}"
-      message: "{{ trigger.event.data.message | default('Update event received') }}"
-      event_type: "{{ trigger.event.data.event_type | default('info') }}"
+      post_rollout: "{{ trigger.id | default('available_report') == 'post_rollout' }}"
+      title: "{{ 'Tugtainer post-rollout verification' if post_rollout else trigger.event.data.title | default('Tugtainer update') }}"
+      message: >-
+        {{ 'Verify the completed 07:00 rollout and every still-pending protected updater component from live inventory.'
+           if post_rollout else trigger.event.data.message | default('Update event received') }}
+      event_type: "{{ 'scheduled_verification' if post_rollout else trigger.event.data.event_type | default('info') }}"
       trigger_context: "HA automation tugtainer_dispatch_joanna_for_available_updates (Tugtainer - Dispatch Joanna For Available Updates)"
     action:
       - service: script.send_to_logbook
         data:
           topic: "DOCKER"
           message: >-
-            Tugtainer reported Available container updates. Joanna dispatch requested.
+            {{ 'Tugtainer daily post-rollout verification' if post_rollout else 'Tugtainer reported Available container updates' }}.
+            Appliance Joanna dispatch requested.
       - service: script.joanna_dispatch
         data:
           trigger_context: "{{ trigger_context }}"
           source: "home_assistant_automation.tugtainer_dispatch_joanna_for_available_updates"
-          summary: "Tugtainer reported container updates scheduled for automatic rollout"
+          summary: >-
+            {{ 'Verify Tugtainer rollout completion and protected updater maintenance'
+               if post_rollout else 'Tugtainer reported container updates scheduled for automatic rollout' }}
           entity_ids:
             - "input_datetime.tugtainer_last_update"
           diagnostics: >-
             title={{ title }},
             event_type={{ event_type }},
+            post_rollout={{ post_rollout }},
             message={{ message }}
           request: >-
-            Review the Tugtainer report for containers listed under Available.
+            Review the report and the complete live Tugtainer inventory, including
+            pending items omitted from the report because they were already announced.
+            Reconcile registered enabled hosts against the current environment's
+            live Docker hosts, including docker_13; identify missing agents or
+            untracked containers rather than checking registered hosts alone.
             Eligible containers, including Home Assistant core, are scheduled for
             Tugtainer's 07:00 automatic rollout and do not require per-release
             approval. When Home Assistant is listed, confirm its pre-update config
             check, HTTP healthcheck, and rollback safeguards remain configured;
             do not race the scheduled rollout with an early manual recreation.
-            Protected Tugtainer control-plane containers cannot self-update; update
-            those one host at a time through their owning Compose definitions when
-            low-risk. Verify the scheduled and manual updates, reconcile Tugtainer's
-            inventory, and report any failures or rollbacks.
+            Protected Tugtainer control-plane containers cannot self-update.
+            Inspect the manager, every agent, and socket proxies independently of
+            report contents; update pending components one host at a time through
+            their owning Compose definitions when low-risk. Retain prior images and
+            verify compatible manager/agent APIs and application health afterward.
+            {% if post_rollout %}
+            This is the daily post-rollout check. Verify the actual terminal update
+            jobs, database readiness, backup exporters, and affected application
+            endpoints. Investigate every remaining pending item; distinguish an
+            intentional opt-out or delay from a failed, rolled-back, or missed
+            rollout. Healthy updates first detected after today's rollout belong
+            to the next scheduled window; do not treat them as missed updates.
+            Recover eligible failed services through their owning Compose
+            definitions when safe, without racing any active update job. Preserve
+            database major versions, volumes, local-build opt-outs, and Home
+            Assistant's config-check, HTTP healthcheck, and rollback gate.
+            {% endif %}
+            Refresh Tugtainer's real inventory after manual updates. If an
+            authenticated refresh API is unavailable, use its native check worker
+            after loading the complete model registry and SettingsStorage, without
+            resending notifications and retriggering this dispatch; do not
+            silently leave stale update flags. Report newly repaired failures and
+            verified blockers; keep unchanged healthy results internal.
 
   - alias: "Tugtainer - Dispatch Joanna For Home Assistant Core Digest"
     id: tugtainer_dispatch_joanna_for_home_assistant_core_digest
