@@ -119,6 +119,10 @@ def transition(previous: dict | None, event: dict) -> tuple[dict, bool, bool]:
         previous and (previous["action"], previous["status"]) != (event["action"], event["status"]))
     record = {**event, "first_received_ts": event["received_ts"] if first_open else
               (previous or event).get("first_received_ts", event["received_ts"])}
+    if previous and not first_open:
+        for key in ("delivery", "last_verification", "verified_at"):
+            if key in previous:
+                record[key] = previous[key]
     return record, changed, first_open
 
 

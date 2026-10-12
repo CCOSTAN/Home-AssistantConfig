@@ -11,6 +11,44 @@ create_cloudhook:
 get_status:
   name: Get delivery status
   description: Return accepted delivery counts and current incidents without credentials.
+reconcile:
+  name: Reconcile open incidents
+  description: Verify current health before closing recovered incidents or retrying undelivered owned failures.
+claim_dispatch:
+  name: Claim incident dispatch
+  description: Internal bridge action that persists a delivery lease after appliance availability is checked.
+  fields:
+    issue_id:
+      required: true
+      selector:
+        text:
+    opening:
+      required: true
+      selector:
+        text:
+delivery_result:
+  name: Record intake receipt
+  description: Internal bridge action. Acceptance does not close an incident; uncertain outcomes require review.
+  fields:
+    issue_id:
+      required: true
+      selector:
+        text:
+    attempt_id:
+      required: true
+      selector:
+        text:
+    status:
+      required: true
+      selector:
+        number:
+          mode: box
+          min: 0
+          max: 599
+    job_id:
+      required: true
+      selector:
+        text:
 resolve:
   name: Resolve verified incident
   description: Clear a bridge-owned alert only after verifying recovery or completing human review.

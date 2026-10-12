@@ -69,6 +69,7 @@ joanna_dispatch:
             n/a
           {% endif %}
     - service: rest_command.bearclaw_command
+      response_variable: intake_response
       data:
         text: >-
           Trigger: {{ normalized_context }}.
@@ -83,3 +84,5 @@ joanna_dispatch:
         domain_hint: "{{ normalized_domain_hint }}"
         lane_hint: "{{ normalized_lane_hint }}"
         async_only: true
+    - stop: "Return the intake receipt to callers that request it."
+      response_variable: intake_response

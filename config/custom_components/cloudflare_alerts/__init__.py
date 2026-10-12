@@ -4,15 +4,19 @@ import asyncio
 import json
 import logging
 import time
+from datetime import timedelta
+from uuid import uuid4
 
-from aiohttp import web
+from aiohttp import ClientError, ClientTimeout, web
 import voluptuous as vol
 
 from homeassistant.components import cloud, webhook
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.event import async_track_state_change_event, async_track_state_report_event
+from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.event import async_track_state_change_event, async_track_state_report_event, async_track_time_interval
 from homeassistant.helpers.service import async_register_admin_service
 from homeassistant.helpers.storage import Store
 
@@ -28,6 +32,8 @@ CONFIG_SCHEMA = vol.Schema({vol.Required(DOMAIN): vol.Schema({
     vol.Optional("ops_hostnames", default=[]): [cv.string],
     vol.Optional("ops_tunnel_ids", default=[]): [cv.string],
     vol.Optional("recovery_entities", default={}): {cv.string: cv.entity_id},
+    vol.Optional("tunnel_api_token", default=""): cv.string,
+    vol.Optional("dispatch_probe_url", default=""): vol.Any("", cv.url),
     vol.Optional("website_dispatch_entity", default="automation.infrastructure_website_down_repair_and_dispatch"): cv.entity_id,
 })}, extra=vol.ALLOW_EXTRA)
 
@@ -40,6 +46,7 @@ class AlertReceiver:
         self.config = config
         self.store = Store(hass, 1, DOMAIN)
         self.lock = asyncio.Lock()
+        self.reconcile_lock = asyncio.Lock()
         self.state = {"incidents": {}, "received": 0, "tests": 0}
 
     async def handle(self, hass, webhook_id, request):
@@ -96,6 +103,7 @@ class AlertReceiver:
                     event["received_ts"] - last.timestamp() < 1800 and
                     self.hass.states.is_state("binary_sensor.infra_website_degraded", "on")):
                 dispatch = False
+                record["delivery"] = {"state": "website_owned", "attempts": 0}
             events.append({**record, "dispatch": bool(dispatch), "first_open": first_open})
         return events
 
@@ -128,6 +136,138 @@ class AlertReceiver:
                 await self.resolve(record["issue_id"], f"Fresh public website probe {entity_id} is healthy.",
                                    state.last_reported.timestamp())
 
+    async def tunnel_health(self, record):
+        """Read only the configured account and allowlisted tunnel, never alert URLs."""
+        token = self.config.get("tunnel_api_token")
+        if not token or record["resource"] not in self.config["ops_tunnel_ids"]:
+            return None
+        url = (f"https://api.cloudflare.com/client/v4/accounts/{self.config['account_id']}"
+               f"/cfd_tunnel/{record['resource']}")
+        try:
+            async with async_get_clientsession(self.hass).get(
+                    url, headers={"Authorization": f"Bearer {token}"},
+                    timeout=ClientTimeout(total=15)) as response:
+                if response.status != 200:
+                    return None
+                body = await response.json()
+            result = body.get("result", {})
+            if (body.get("success") is True and result.get("id") == record["resource"]
+                    and not result.get("deleted_at")):
+                return result.get("status")
+        except (ClientError, TimeoutError, ValueError):
+            pass
+        return None
+
+    async def dispatch_ready(self):
+        """Defer dispatch while the local appliance is unreachable; consume no attempt."""
+        url = self.config.get("dispatch_probe_url")
+        if not url:
+            return True
+        try:
+            async with async_get_clientsession(self.hass).get(
+                    url, timeout=ClientTimeout(total=5)) as response:
+                return response.status == 200
+        except (ClientError, TimeoutError):
+            return False
+
+    async def claim_dispatch(self, issue_id, opening):
+        """Persist a lease before intake; stale/duplicate events cannot launch a job."""
+        if not await self.dispatch_ready():
+            return {"allowed": False, "reason": "appliance_unavailable"}
+        async with self.lock:
+            record = self.state["incidents"].get(issue_id)
+            if (not record or record["first_received_ts"] != opening or
+                    not dispatch_allowed(record, self.config["ops_hostnames"], self.config["ops_tunnel_ids"])):
+                return {"allowed": False, "reason": "closed_or_unowned"}
+            delivery = record.get("delivery", {})
+            if delivery.get("state") == "inflight":
+                if time.time() >= delivery.get("next_attempt_at", 0):
+                    delivery["state"] = "uncertain"
+                    await self.store.async_save(self.state)
+                return {"allowed": False, "reason": "awaiting_or_missing_receipt"}
+            if (delivery.get("state") in {"accepted", "uncertain", "website_owned"} or
+                    delivery.get("attempts", 0) >= 3 or
+                    time.time() < delivery.get("next_attempt_at", 0)):
+                return {"allowed": False, "reason": "already_owned_or_deferred"}
+            attempt_id = uuid4().hex
+            record["delivery"] = {"state": "inflight", "attempt_id": attempt_id,
+                                  "attempts": delivery.get("attempts", 0) + 1,
+                                  "next_attempt_at": time.time() + 300}
+            await self.store.async_save(self.state)
+            return {"allowed": True, "attempt_id": attempt_id}
+
+    async def delivery_result(self, issue_id, attempt_id, status, job_id):
+        """An intake receipt proves acceptance, never recovery; unknown outcomes stop retries."""
+        async with self.lock:
+            record = self.state["incidents"].get(issue_id)
+            if not record or record.get("delivery", {}).get("attempt_id") != attempt_id:
+                return
+            delivery = record["delivery"]
+            accepted = 200 <= status < 300 and bool(job_id)
+            # Explicit client rejection is safe to retry; a timeout/5xx may have accepted work.
+            delivery.update(state="accepted" if accepted else "pending" if 400 <= status < 500 else "uncertain",
+                            http_status=status, job_id=job_id if accepted else "", reported_at=time.time())
+            await self.store.async_save(self.state)
+            self.hass.bus.async_fire(EVENT, {**record, "dispatch": False, "first_open": False})
+
+    async def reconcile(self, event=None):
+        """Verify open incidents after startup and outages before retrying undelivered work."""
+        if self.reconcile_lock.locked():
+            return {"skipped": "already_running"}
+        async with self.reconcile_lock:
+            await self.recover_origins(None)
+            results = []
+            for snapshot in list(self.state["incidents"].values()):
+                if snapshot["action"] != "open":
+                    # A resolve event can be missed during automation setup/reload.
+                    # Replay only a saved resolution whose bridge-owned Repair still exists.
+                    if (snapshot["action"] == "resolve" and
+                            ir.async_get(self.hass).async_get_issue("spook", "user_" + snapshot["issue_id"])):
+                        self.hass.bus.async_fire(EVENT, {**snapshot, "dispatch": False, "first_open": False})
+                        results.append({"issue_id": snapshot["issue_id"], "outcome": "recovery_presentation_replayed"})
+                    continue
+                issue_id = snapshot["issue_id"]
+                owned = dispatch_allowed(snapshot, self.config["ops_hostnames"], self.config["ops_tunnel_ids"])
+                observed_at = time.time()
+                status = None
+                if owned and snapshot["alert_type"] == "tunnel_health_event":
+                    status = await self.tunnel_health(snapshot)
+                    if status == "healthy":
+                        await self.resolve(issue_id, "Cloudflare Tunnel API reports healthy for the configured tunnel.", observed_at)
+                elif owned and snapshot["alert_type"] == "real_origin_monitoring":
+                    entity = self.config["recovery_entities"].get(snapshot["resource"])
+                    state = self.hass.states.get(entity) if entity else None
+                    if state and time.time() - state.last_reported.timestamp() < 600:
+                        status = "down" if state.state == "off" else "healthy" if state.state == "on" else None
+                async with self.lock:
+                    record = self.state["incidents"][issue_id]
+                    # A newer failure arrived during the API read: discard that observation.
+                    if record["received_ts"] > observed_at:
+                        continue
+                    if record["action"] == "resolve":
+                        results.append({"issue_id": issue_id, "outcome": "verified_recovered"})
+                        continue
+                    delivery = record.get("delivery", {})
+                    previous_verification = record.get("last_verification")
+                    previous_delivery_state = delivery.get("state")
+                    if delivery.get("state") == "inflight" and time.time() >= delivery.get("next_attempt_at", 0):
+                        delivery["state"] = "uncertain"
+                    record["last_verification"] = status or "unverified"
+                    record["verified_at"] = observed_at
+                    retry = (owned and status in {"down", "degraded", "inactive"} and
+                             delivery.get("state") not in {"accepted", "uncertain", "inflight", "website_owned"} and
+                             delivery.get("attempts", 0) < 3 and time.time() >= delivery.get("next_attempt_at", 0))
+                    await self.store.async_save(self.state)
+                    if (retry or previous_verification != record["last_verification"] or
+                            previous_delivery_state != delivery.get("state")):
+                        self.hass.bus.async_fire(EVENT, {**record, "dispatch": retry, "first_open": False})
+                    results.append({"issue_id": issue_id, "outcome": "retry_requested" if retry else
+                                    "human_review" if not owned else delivery.get("state", "awaiting_verification")})
+            self.state["last_reconciled"] = time.time()
+            self.state["last_reconciliation"] = results
+            await self.store.async_save(self.state)
+            return {"incidents": results}
+
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Register a narrow authenticated webhook and operator-only support actions."""
@@ -148,11 +288,32 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     async def get_status(call: ServiceCall):
         return {key: value for key, value in receiver.state.items() if key != "incidents"} | {
             "open_incidents": [{"issue_id": record["issue_id"], "alert_type": record["alert_type"],
-                                "resource": record["resource"], "status": record["status"]}
+                                "resource": record["resource"], "status": record["status"],
+                                "delivery": record.get("delivery", {}),
+                                "last_verification": record.get("last_verification", "not_checked")}
                                for record in receiver.state["incidents"].values() if record["action"] == "open"]}
 
     async def resolve(call: ServiceCall):
         await receiver.resolve(call.data["issue_id"], call.data["verification"])
+
+    async def reconcile(call: ServiceCall):
+        return await receiver.reconcile()
+
+    async def claim_dispatch(call: ServiceCall):
+        return await receiver.claim_dispatch(call.data["issue_id"], call.data["opening"])
+
+    async def delivery_result(call: ServiceCall):
+        await receiver.delivery_result(call.data["issue_id"], call.data["attempt_id"],
+                                       call.data["status"], call.data["job_id"])
+
+    async_register_admin_service(hass, DOMAIN, "reconcile", reconcile, supports_response=SupportsResponse.OPTIONAL)
+    async_register_admin_service(hass, DOMAIN, "claim_dispatch", claim_dispatch, schema=vol.Schema({
+        vol.Required("issue_id"): cv.string, vol.Required("opening"): vol.Coerce(float),
+    }), supports_response=SupportsResponse.ONLY)
+    async_register_admin_service(hass, DOMAIN, "delivery_result", delivery_result, schema=vol.Schema({
+        vol.Required("issue_id"): cv.string, vol.Required("attempt_id"): cv.string,
+        vol.Required("status"): vol.Coerce(int), vol.Required("job_id"): cv.string,
+    }))
 
     async_register_admin_service(hass, DOMAIN, "create_cloudhook", create_cloudhook,
                                  supports_response=SupportsResponse.ONLY)
@@ -164,11 +325,12 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     }))
 
     async def restore(event):
-        # Repairs may have outlived automation reloads. Restore presentation only.
+        # Replay saved closures too: a recovery event may have preceded automation setup.
         for record in receiver.state["incidents"].values():
-            if record["action"] == "open":
-                hass.bus.async_fire(EVENT, {**record, "dispatch": False, "first_open": False})
+            hass.bus.async_fire(EVENT, {**record, "dispatch": False, "first_open": False})
+        await receiver.reconcile()
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, restore)
+    async_track_time_interval(hass, receiver.reconcile, timedelta(minutes=5))
     recovery_entities = set(receiver.config["recovery_entities"].values())
     async_track_state_change_event(hass, recovery_entities, receiver.recover_origins)
     async_track_state_report_event(hass, recovery_entities, receiver.recover_origins)

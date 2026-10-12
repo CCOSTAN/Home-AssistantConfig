@@ -7,7 +7,7 @@ import sys
 from tempfile import TemporaryDirectory
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 config_path = Path("/config") if Path("/config/custom_components/cloudflare_alerts").is_dir() else Path(__file__).resolve().parents[1] / "config"
 sys.path.insert(0, str(config_path))
@@ -147,6 +147,127 @@ class ReceiverTests(unittest.IsolatedAsyncioTestCase):
         await self.hass.async_block_till_done()
         self.assertEqual([event["action"] for event in self.events],
                          ["open", "resolve", "open", "resolve"])
+
+    async def open_tunnel(self, resource="owned-tunnel"):
+        await self.send(self.payload(alert_type="tunnel_health_event",
+                                    data={"tunnel_id": resource, "new_status": "down"}))
+        return next(record for record in self.receiver.state["incidents"].values()
+                    if record["resource"] == resource)
+
+    async def test_reconciliation_closes_only_verified_owned_tunnel(self):
+        owned = await self.open_tunnel()
+        await self.open_tunnel("unknown-tunnel")
+        await self.send(self.payload(alert_type="universal_ssl_event_type",
+                                     data={"hostname": "example.com", "status": "expired"}))
+        with patch.object(self.receiver, "tunnel_health", new=AsyncMock(return_value="healthy")) as health:
+            await self.receiver.reconcile()
+            self.assertEqual(health.await_count, 1)
+        await self.hass.async_block_till_done()
+        self.assertEqual(self.receiver.state["incidents"][owned["issue_id"]]["action"], "resolve")
+        remaining = [record for record in self.receiver.state["incidents"].values() if record["action"] == "open"]
+        self.assertEqual(len(remaining), 2)
+        self.assertFalse(any(event["dispatch"] for event in self.events if event["action"] == "resolve"))
+
+    async def test_deferred_delivery_retries_after_appliance_recovery_and_receipt_survives_restart(self):
+        record = await self.open_tunnel()
+        with patch.object(self.receiver, "dispatch_ready", new=AsyncMock(return_value=False)):
+            claim = await self.receiver.claim_dispatch(record["issue_id"], record["first_received_ts"])
+        self.assertFalse(claim["allowed"])
+        self.assertNotIn("delivery", record)
+        with patch.object(self.receiver, "tunnel_health", new=AsyncMock(return_value="down")):
+            await self.receiver.reconcile()
+        await self.hass.async_block_till_done()
+        self.assertTrue(self.events[-1]["dispatch"])
+        with patch.object(self.receiver, "dispatch_ready", new=AsyncMock(return_value=True)):
+            claim = await self.receiver.claim_dispatch(record["issue_id"], record["first_received_ts"])
+            self.assertTrue(claim["allowed"])
+            duplicate = await self.receiver.claim_dispatch(record["issue_id"], record["first_received_ts"])
+            self.assertFalse(duplicate["allowed"])
+        await self.receiver.delivery_result(record["issue_id"], claim["attempt_id"], 202, "fixture-job")
+        self.receiver.state = await self.receiver.store.async_load()
+        await self.send(self.payload(alert_type="tunnel_health_event",
+                                    data={"tunnel_id": "owned-tunnel", "new_status": "degraded"}))
+        record = self.receiver.state["incidents"][record["issue_id"]]
+        self.assertEqual(record["delivery"]["state"], "accepted")
+        with patch.object(self.receiver, "tunnel_health", new=AsyncMock(return_value="down")):
+            await self.receiver.reconcile()
+        await self.hass.async_block_till_done()
+        self.assertFalse(self.events[-1]["dispatch"])
+        self.assertEqual(record["action"], "open", "Acceptance must not imply recovery")
+
+    async def test_unknown_delivery_outcome_and_lost_receipt_do_not_repeat_job(self):
+        record = await self.open_tunnel()
+        claim = await self.receiver.claim_dispatch(record["issue_id"], record["first_received_ts"])
+        await self.receiver.delivery_result(record["issue_id"], "wrong-attempt", 202, "unrelated")
+        self.assertEqual(record["delivery"]["state"], "inflight")
+        record["delivery"]["next_attempt_at"] = time.time() - 1
+        with patch.object(self.receiver, "tunnel_health", new=AsyncMock(return_value="down")):
+            await self.receiver.reconcile()
+        self.assertEqual(record["delivery"]["state"], "uncertain")
+        self.assertFalse((await self.receiver.claim_dispatch(record["issue_id"], record["first_received_ts"]))["allowed"])
+        # A late real receipt may confirm acceptance without resending anything.
+        await self.receiver.delivery_result(record["issue_id"], claim["attempt_id"], 202, "fixture-job")
+        self.assertEqual(record["delivery"]["state"], "accepted")
+
+    async def test_explicit_rejection_has_bounded_retries_and_old_opening_cannot_claim(self):
+        record = await self.open_tunnel()
+        opening = record["first_received_ts"]
+        for index in range(3):
+            claim = await self.receiver.claim_dispatch(record["issue_id"], opening)
+            self.assertTrue(claim["allowed"])
+            await self.receiver.delivery_result(record["issue_id"], claim["attempt_id"], 429, "")
+            record["delivery"]["next_attempt_at"] = time.time() - 1
+        self.assertFalse((await self.receiver.claim_dispatch(record["issue_id"], opening))["allowed"])
+        await self.receiver.resolve(record["issue_id"], "Fixture confirmed healthy")
+        await self.open_tunnel()
+        self.assertFalse((await self.receiver.claim_dispatch(record["issue_id"], opening))["allowed"])
+
+    async def test_failed_health_read_or_new_failure_cannot_clear_incident(self):
+        record = await self.open_tunnel()
+        with patch.object(self.receiver, "tunnel_health", new=AsyncMock(return_value=None)):
+            await self.receiver.reconcile()
+        self.assertEqual(record["action"], "open")
+        async def new_failure(snapshot):
+            self.receiver.ingest([dict(snapshot, status="degraded", event_ts=time.time(), received_ts=time.time())])
+            return "healthy"
+        with patch.object(self.receiver, "tunnel_health", new=new_failure):
+            await self.receiver.reconcile()
+        self.assertEqual(self.receiver.state["incidents"][record["issue_id"]]["action"], "open")
+
+    async def test_saved_recovery_reconciles_repair_when_original_event_was_missed(self):
+        from homeassistant.helpers import issue_registry as ir
+        record = await self.open_tunnel()
+        await self.receiver.resolve(record["issue_id"], "Fixture current health verified")
+        ir.async_create_issue(self.hass, "spook", "user_" + record["issue_id"],
+                              is_fixable=True, severity=ir.IssueSeverity.ERROR,
+                              translation_key="fixture")
+        self.receiver.state = await self.receiver.store.async_load()
+        await self.hass.async_block_till_done()
+        self.events.clear()
+        result = await self.receiver.reconcile()
+        await self.hass.async_block_till_done()
+        self.assertEqual(result["incidents"][0]["outcome"], "recovery_presentation_replayed")
+        self.assertEqual(self.events[0]["action"], "resolve")
+        self.assertFalse(self.events[0]["dispatch"])
+
+    async def test_shared_dispatch_returns_real_intake_receipt_without_changing_legacy_callers(self):
+        import yaml
+        from homeassistant.core import Context, SupportsResponse
+        from homeassistant.helpers import config_validation as cv
+        from homeassistant.helpers.script import Script
+        cfg = yaml.safe_load((config_path / "script/joanna_dispatch.yaml").read_text())
+        async def intake(call):
+            return {"status": 202, "content": {"ok": True, "detail": {"jobId": "fixture-job"}}, "headers": {}}
+        self.hass.services.async_register("rest_command", "bearclaw_command", intake,
+                                           supports_response=SupportsResponse.OPTIONAL)
+        script = Script(self.hass, cv.SCRIPT_SCHEMA(cfg["joanna_dispatch"]["sequence"]),
+                        "Fixture dispatch", "script")
+        data = {"summary": "Fixture only", "request": "No live action",
+                "entity_ids": [], "diagnostics": "Isolated fixture"}
+        result = await script.async_run(data, Context())
+        receipt = result.service_response
+        self.assertEqual(receipt["content"]["detail"]["jobId"], "fixture-job")
+        await script.async_run(data, Context())
 
 
 if __name__ == "__main__":
