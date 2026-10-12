@@ -1,0 +1,173 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Shared Kiosk Events - Family trails, NOAA radar, and Driveway takeover
+#  Native Garage and Front Door camera overlays keep higher priority.
+# Notes: NOAA radar uses the supported OSM basemap to avoid CARTO API-key watermarks.
+######################################################################
+
+# Core map cards are required because only HA's history subscription can render Recorder-backed trails.
+- type: conditional
+  conditions:
+    - &kitchen_family_detail_timer_active
+      entity: timer.kitchen_kiosk_detail_display
+      state: active
+    - &kiosk_no_camera_event
+      entity: sensor.kiosk_active_camera_view
+      state: none
+    - &kiosk_no_radar_event
+      entity: binary_sensor.kiosk_rain_radar_active
+      state: "off"
+    - entity: input_text.kitchen_kiosk_detail_view
+      state: "family|person.carlo"
+  card:
+    type: map
+    entities:
+      - person.carlo
+    hours_to_show: 24
+    theme_mode: dark
+    card_mod:
+      style: &kitchen_family_history_map_style |
+        ha-card {
+          position: fixed !important;
+          inset: 0 !important;
+          z-index: 9999 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          margin: 0 !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          background: #03070b !important;
+          pointer-events: auto !important;
+        }
+        #root {
+          height: 100vh !important;
+          padding-bottom: 0 !important;
+        }
+        #buttons {
+          top: 145px !important;
+        }
+
+- type: conditional
+  conditions:
+    - *kitchen_family_detail_timer_active
+    - *kiosk_no_camera_event
+    - *kiosk_no_radar_event
+    - entity: input_text.kitchen_kiosk_detail_view
+      state: "family|person.stacey"
+  card:
+    type: map
+    entities:
+      - person.stacey
+    hours_to_show: 24
+    theme_mode: dark
+    card_mod:
+      style: *kitchen_family_history_map_style
+
+- type: conditional
+  conditions:
+    - *kitchen_family_detail_timer_active
+    - *kiosk_no_camera_event
+    - *kiosk_no_radar_event
+    - entity: input_text.kitchen_kiosk_detail_view
+      state: "family|person.justin"
+  card:
+    type: map
+    entities:
+      - person.justin
+    hours_to_show: 24
+    theme_mode: dark
+    card_mod:
+      style: *kitchen_family_history_map_style
+
+- type: conditional
+  conditions:
+    - *kitchen_family_detail_timer_active
+    - *kiosk_no_camera_event
+    - *kiosk_no_radar_event
+    - entity: input_text.kitchen_kiosk_detail_view
+      state: "family|person.paige"
+  card:
+    type: map
+    entities:
+      - person.paige
+    hours_to_show: 24
+    theme_mode: dark
+    card_mod:
+      style: *kitchen_family_history_map_style
+
+# NOAA is the single radar path; native Kiosk Satellite camera overlays retain priority.
+- type: conditional
+  conditions:
+    - entity: binary_sensor.kiosk_rain_radar_active
+      state: "on"
+  card:
+    type: custom:weather-radar-card
+    data_source: NOAA
+    map_style: OSM
+    zoom_level: 7
+    past_minutes: 20
+    frame_stride_minutes: 5
+    frame_delay: 650
+    restart_delay: 1400
+    smooth_animation: true
+    smooth_overlap: 0
+    motion_compensation: false
+    static_map: true
+    double_tap_action: none
+    show_zoom: false
+    show_playback: false
+    show_recenter: false
+    show_scale: true
+    show_range: false
+    show_color_bar: true
+    show_progress_bar: true
+    show_loading_spinner: true
+    show_alerts: false
+    show_lightning: false
+    height: 100vh
+    width: 100%
+    card_mod:
+      style: |
+        ha-card {
+          position: fixed !important;
+          inset: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          margin: 0 !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          z-index: 9999 !important;
+          pointer-events: auto !important;
+          background: #03070b !important;
+        }
+
+# A core conditional picture card is required for the Driveway source,
+# which is not configured as a native Kiosk Satellite camera shortcut.
+- type: conditional
+  conditions:
+    - entity: sensor.kiosk_active_camera_view
+      state: driveway
+  card:
+    type: picture-glance
+    title: Driveway Alert
+    camera_image: camera.driveway
+    camera_view: live
+    aspect_ratio: "16:10"
+    entities: []
+    card_mod:
+      style: |
+        ha-card {
+          position: fixed !important;
+          inset: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
+          margin: 0 !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          z-index: 9999 !important;
+          pointer-events: auto !important;
+          background: #03070b !important;
+        }

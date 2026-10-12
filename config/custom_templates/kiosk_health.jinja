@@ -1,0 +1,56 @@
+{#
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Kiosk Health - Shared native Kiosk Satellite health interpretation
+#  Connection, route, foreground app, power, and screenshot freshness.
+# -------------------------------------------------------------------
+# Notes: Available app updates are advisory and do not raise a fault.
+######################################################################
+#}
+{% macro satellite_status(node, expected_path, suffix='', check_foreground=false, include_update=false) -%}
+  {% set invalid = ['unknown', 'unavailable', 'none', ''] %}
+  {% set screenshot = as_timestamp(states('sensor.' ~ node ~ '_last_screenshot' ~ suffix), 0) %}
+  {% set page = states('sensor.' ~ node ~ '_current_page' ~ suffix) %}
+  {% set remote_admin = states('sensor.' ~ node ~ '_remote_admin' ~ suffix) %}
+  {% set app = states('sensor.' ~ node ~ '_foreground_app' ~ suffix) if check_foreground else 'me.jxl.kiosk_satellite' %}
+  {% set battery = states('sensor.' ~ node ~ '_battery' ~ suffix) | float(0) %}
+  {% if not is_state('binary_sensor.' ~ node ~ '_connectivity' ~ suffix, 'on') %}
+    offline
+  {% elif page in invalid or remote_admin in invalid or app in invalid %}
+    telemetry unavailable
+  {% elif expected_path not in page %}
+    page drift
+  {% elif app != 'me.jxl.kiosk_satellite' %}
+    app drift
+  {% elif battery < 20 and not is_state('binary_sensor.' ~ node ~ '_charging' ~ suffix, 'on') %}
+    low battery
+  {% elif screenshot == 0 or (as_timestamp(now()) - screenshot) > 2700 %}
+    screenshot stale
+  {% elif include_update and is_state('update.' ~ node ~ '_update' ~ suffix, 'on') %}
+    update available
+  {% else %}
+    online
+  {% endif %}
+{%- endmacro %}
+
+{% macro attention_devices() -%}
+  {% set ns = namespace(items=[]) %}
+  {% for room in ['Bedroom', 'Kitchen', 'Upstairs', 'Office'] %}
+    {% if is_state('binary_sensor.' ~ (room | lower) ~ '_kiosk_needs_attention', 'on') %}
+      {% set ns.items = ns.items + [room] %}
+    {% endif %}
+  {% endfor %}
+  {{ ns.items | to_json }}
+{%- endmacro %}
+
+{# Followers first; keep the fleet leader available to coordinate updates. #}
+{% macro satellite_devices() -%}
+  {{ [
+    {'key': 'upstairs-show', 'name': 'Upstairs Show', 'manage_volume': false, 'allow_idle_screen_off': true, 'node': 'upstairs_show', 'suffix': '', 'path': '/dashboard-kiosk-satellite-staging/echo-show5'},
+    {'key': 'office-show', 'name': 'Office Show', 'manage_volume': false, 'allow_idle_screen_off': true, 'node': 'office_show', 'suffix': '', 'path': '/dashboard-kiosk-satellite-staging/echo-show5'},
+    {'key': 'kitchen-show', 'name': 'Kitchen Show', 'manage_volume': true, 'allow_idle_screen_off': false, 'node': 'kitchen_show', 'suffix': '_2', 'path': '/dashboard-kiosk-satellite-staging/home'}
+  ] | to_json }}
+{%- endmacro %}

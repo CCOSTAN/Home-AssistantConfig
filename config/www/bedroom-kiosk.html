@@ -154,7 +154,8 @@
       var stateEntities = [
         'sensor.kiosk_active_camera_view',
         'sensor.bedroom_kiosk_header',
-        'sensor.kiosk_household_alert'
+        'sensor.kiosk_household_alert',
+        'sensor.kiosk_recent_phone_notifications'
       ];
       var states = {};
       var imageUrls = {};
@@ -259,8 +260,21 @@
           document.getElementById('header-detail').textContent = header.attributes.detail || '';
         }
         if (alert) {
-          document.getElementById('alert-headline').textContent = alert.state;
-          document.getElementById('alert-detail').textContent = alert.attributes.detail || '';
+          var slides = [{title: alert.state, detail: alert.attributes.detail || ''}];
+          var phoneFeed = states['sensor.kiosk_recent_phone_notifications'];
+          var notifications = phoneFeed && phoneFeed.attributes.items;
+          if (!alert.attributes.urgent && Array.isArray(notifications)) {
+            notifications.forEach(function (notification) {
+              if (Number(notification.expires_at) * 1000 <= Date.now()) return;
+              slides.push({
+                title: notification.title,
+                detail: notification.message + ' · Sent ' + notification.sent_time
+              });
+            });
+          }
+          var slide = slides[Math.floor(Date.now() / 10000) % slides.length];
+          document.getElementById('alert-headline').textContent = slide.title;
+          document.getElementById('alert-detail').textContent = slide.detail;
         }
       }
 

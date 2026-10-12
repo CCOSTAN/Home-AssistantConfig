@@ -1,0 +1,62 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Echo Show 5 View - Clock, household alerts, and cameras
+#  Compact landscape camera wall with a current-weather icon and no forecast.
+# -------------------------------------------------------------------
+# Notes: Kitchen keeps its existing dimensions and interactive details.
+# Notes: Echo Show 5 uses compact alerts with shared full-screen details and minute-updated time.
+######################################################################
+
+title: Echo Show 5
+path: echo-show5
+icon: mdi:tablet-dashboard
+theme: kiosk_satellite_dark
+type: panel
+cards:
+  - type: custom:button-card
+    template: kiosk_echo5_surface
+    custom_fields:
+      clock:
+        card:
+          type: custom:button-card
+          template: kiosk_echo5_clock
+          entity: sensor.time
+          triggers_update:
+            - sensor.date
+            - weather.pirateweather
+          variables:
+            date_entity: sensor.date
+            weather_entity: weather.pirateweather
+      ambient:
+        card:
+          type: custom:button-card
+          template: kiosk_ambient_alerts
+          variables:
+            compact: true
+            read_only: false
+      cameras:
+        card:
+          type: grid
+          columns: 2
+          square: false
+          cards:
+            # Core picture-glance is required for HA camera images; button-card cannot render them.
+            - type: picture-glance
+              title: Front Lawn
+              camera_image: camera.frontlawn
+              camera_view: auto
+              aspect_ratio: "16:10"
+              entities: []
+            - type: picture-glance
+              title: Driveway
+              camera_image: camera.driveway
+              camera_view: auto
+              aspect_ratio: "16:10"
+              entities: []
+      events:
+        card:
+          type: vertical-stack
+          cards: !include /config/dashboards/kiosk_satellite_staging/partials/event_overlays.yaml

@@ -1,0 +1,12 @@
+{
+  "config": {
+    "step": { "user": { "title": "Connect an enrolled Joanna satellite", "description": "Use the device-bound credential supplied by your Joanna server.", "data": { "name": "Name", "base_url": "Joanna server URL", "device_id": "Home Assistant satellite device ID", "token": "Satellite credential" } } },
+    "error": { "cannot_connect": "Cannot validate this server, credential, and device binding.", "invalid_url": "Enter an HTTP or HTTPS server URL without a path or credentials." },
+    "abort": { "already_configured": "This satellite is already configured." }
+  },
+  "options": {
+    "step": { "init": { "title": "Enroll another satellite", "description": "Add a device with its own server-issued credential to this conversation agent and shared Assist pipeline.", "data": { "device_id": "Home Assistant satellite device ID", "token": "Satellite credential" } } },
+    "error": { "cannot_connect": "Cannot validate this credential and device binding." },
+    "abort": { "already_configured": "This satellite is already enrolled on this connection." }
+  }
+}

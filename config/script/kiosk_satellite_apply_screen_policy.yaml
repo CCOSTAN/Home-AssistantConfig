@@ -1,0 +1,55 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Native Kiosk Satellite Fleet - Shared device policy
+#  Enrolled device identity and route come from kiosk_health satellite_devices.
+# -------------------------------------------------------------------
+# Notes: Existing Kitchen script and automation identities remain compatible.
+######################################################################
+
+kiosk_satellite_apply_screen_policy:
+  alias: "Kiosk Satellite - Apply Screen Policy"
+  mode: parallel
+  max: 5
+  sequence:
+    # A motion-capable kiosk owns its idle sleep; reconciliation must not wake it.
+    - condition: template
+      value_template: >-
+        {{ not (allow_idle_screen_off | default(false))
+           or is_state('light.' ~ node ~ '_screen' ~ suffix, 'on') }}
+    - service: switch.turn_on
+      continue_on_error: true
+      target:
+        entity_id: "{{ 'switch.' ~ node ~ '_keep_screen_on' ~ suffix }}"
+    - if:
+        - condition: template
+          value_template: "{{ not (allow_idle_screen_off | default(false)) }}"
+      then:
+        - service: light.turn_on
+          continue_on_error: true
+          target:
+            entity_id: "{{ 'light.' ~ node ~ '_screen' ~ suffix }}"
+    - if:
+        - condition: state
+          entity_id: binary_sensor.kitchen_kiosk_should_be_on
+          state: "on"
+      then:
+        - if:
+            - condition: template
+              value_template: "{{ not (allow_idle_screen_off | default(false)) }}"
+          then:
+            - service: button.press
+              continue_on_error: true
+              target:
+                entity_id: "{{ 'button.' ~ node ~ '_postpone_screensaver' ~ suffix }}"
+      else:
+        - service: button.press
+          continue_on_error: true
+          target:
+            entity_id: "{{ 'button.' ~ node ~ '_close_camera_view' ~ suffix }}"
+        - service: switch.turn_on
+          continue_on_error: true
+          target:
+            entity_id: "{{ 'switch.' ~ node ~ '_screensaver_active' ~ suffix }}"

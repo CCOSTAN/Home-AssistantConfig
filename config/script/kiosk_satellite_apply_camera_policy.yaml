@@ -1,0 +1,71 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Native Kiosk Satellite Fleet - Shared device policy
+#  Enrolled device identity and route come from kiosk_health satellite_devices.
+# -------------------------------------------------------------------
+# Notes: Existing Kitchen script and automation identities remain compatible.
+######################################################################
+
+kiosk_satellite_apply_camera_policy:
+  alias: "Kiosk Satellite - Apply Camera Policy"
+  mode: parallel
+  max: 5
+  variables:
+    desired_view: "{{ {'garage': 'Garage', 'front_door': 'Front Door'}.get(states('sensor.kiosk_active_camera_view'), 'none') }}"
+    current_view: "{{ states('sensor.' ~ node ~ '_active_camera_view' ~ suffix) }}"
+  sequence:
+    - condition: template
+      value_template: >-
+        {{ is_state('light.' ~ node ~ '_screen' ~ suffix, 'on')
+           or states('sensor.kiosk_active_camera_view') in ['garage', 'front_door', 'driveway'] }}
+    - if:
+        - condition: template
+          value_template: "{{ desired_view in ['Garage', 'Front Door'] and current_view != desired_view }}"
+      then:
+        - service: light.turn_on
+          target:
+            entity_id: "{{ 'light.' ~ node ~ '_screen' ~ suffix }}"
+        - service: button.press
+          target:
+            entity_id:
+              - "{{ 'button.' ~ node ~ '_postpone_screensaver' ~ suffix }}"
+              - "{{ 'button.' ~ node ~ '_bring_to_front' ~ suffix }}"
+        - service: timer.cancel
+          target:
+            entity_id: timer.kitchen_kiosk_detail_display
+        - delay: "00:00:01"
+        - service: button.press
+          target:
+            entity_id: "{{ 'button.' ~ node ~ ('_show_garage' if desired_view == 'Garage' else '_show_front_door') ~ suffix }}"
+      else:
+        - if:
+            - condition: template
+              value_template: "{{ desired_view == 'none' and current_view not in ['none', 'unknown', 'unavailable'] }}"
+          then:
+            - service: button.press
+              target:
+                entity_id: "{{ 'button.' ~ node ~ '_close_camera_view' ~ suffix }}"
+        - if:
+            - condition: state
+              entity_id: sensor.kiosk_active_camera_view
+              state: driveway
+          then:
+            - service: light.turn_on
+              target:
+                entity_id: "{{ 'light.' ~ node ~ '_screen' ~ suffix }}"
+            - service: button.press
+              target:
+                entity_id: "{{ 'button.' ~ node ~ '_postpone_screensaver' ~ suffix }}"
+        - if:
+            - condition: template
+              value_template: >-
+                {{ not (allow_idle_screen_off | default(false))
+                   or current_view not in ['none', 'unknown', 'unavailable']
+                   or is_state('sensor.kiosk_active_camera_view', 'driveway') }}
+          then:
+            - service: button.press
+              target:
+                entity_id: "{{ 'button.' ~ node ~ '_bring_to_front' ~ suffix }}"

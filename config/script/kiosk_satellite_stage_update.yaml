@@ -1,0 +1,80 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Native Kiosk Satellite Fleet - Shared device policy
+#  Enrolled device identity and route come from kiosk_health satellite_devices.
+# -------------------------------------------------------------------
+# Notes: Existing Kitchen script and automation identities remain compatible.
+######################################################################
+
+kiosk_satellite_stage_update:
+  alias: "Kiosk Satellite - Stage Update and Dispatch Recovery"
+  description: "One enrolled device per call; Android app updates only."
+  mode: queued
+  max: 5
+  variables:
+    update_entity: "{{ 'update.' ~ kiosk.node ~ '_update' ~ kiosk.suffix }}"
+    installed_version: "{{ state_attr(update_entity, 'installed_version') }}"
+    latest_version: "{{ state_attr(update_entity, 'latest_version') }}"
+    release_url: "{{ state_attr(update_entity, 'release_url') | default('not provided', true) }}"
+  sequence:
+    - condition: template
+      value_template: >-
+        {% from 'kiosk_health.jinja' import satellite_devices %}
+        {{ kiosk in (satellite_devices() | from_json) }}
+    - service: update.install
+      continue_on_error: true
+      target:
+        entity_id: "{{ update_entity }}"
+    - delay: "00:02:00"
+    - service: button.press
+      continue_on_error: true
+      target:
+        entity_id: "{{ 'button.' ~ kiosk.node ~ '_take_screenshot' ~ kiosk.suffix }}"
+    - delay: "00:00:05"
+    - if:
+        - condition: template
+          value_template: >-
+            {{ state_attr(update_entity, 'installed_version') != latest_version
+               or state_attr(update_entity, 'in_progress')
+               or not is_state('binary_sensor.' ~ kiosk.node ~ '_connectivity' ~ kiosk.suffix, 'on')
+               or kiosk.path not in states('sensor.' ~ kiosk.node ~ '_current_page' ~ kiosk.suffix)
+               or states('sensor.' ~ kiosk.node ~ '_remote_admin' ~ kiosk.suffix) in ['unknown', 'unavailable', 'none', '']
+               or states('sensor.' ~ kiosk.node ~ '_voice_satellite') in ['unknown', 'unavailable', 'none', '']
+               or as_timestamp(states('sensor.' ~ kiosk.node ~ '_last_screenshot' ~ kiosk.suffix), 0) < as_timestamp(now()) - 60 }}
+      then:
+        - service: script.send_to_logbook
+          data:
+            topic: "KIOSK"
+            message: "{{ kiosk.name }} update {{ latest_version }} requires Joanna verification or installer recovery."
+        - service: script.joanna_dispatch
+          data:
+            trigger_context: "Daily enrolled Kiosk Satellite update"
+            source: "home_assistant_automation.kiosk_satellite_update_dispatch"
+            summary: "Verify {{ kiosk.name }} Kiosk Satellite update from {{ installed_version }} to {{ latest_version }}."
+            request: |-
+              KIOSK_SATELLITE_UPDATE_REQUEST
+              target_device={{ kiosk.name }}
+              device_key={{ kiosk.key }}
+              update_entity={{ update_entity }}
+              installed_version={{ installed_version }}
+              target_version={{ latest_version }}
+              release_url={{ release_url }}
+              expected_path={{ kiosk.path }}
+              authorization=Install the pending Kiosk Satellite app update on this enrolled device only. Preserve its identity, dashboard, login, fleet membership, local sleep settings and manual volume. No OS or unrelated software updates, factory resets or re-enrollment.
+              required_action=Home Assistant invoked update.install and waited two minutes. If still pending, use the authorized enrolled-device update helper with device_key={{ kiosk.key }} and expected_version={{ latest_version }}.
+              required_verification=Read installed_version, require target_version with in_progress false, device online, expected dashboard path, remote admin available, native voice listening, fleet membership retained and a fresh screenshot. A successful helper exit alone is insufficient.
+              failure_policy=Stop and report blocking evidence if the signed app payload or device cannot be recovered safely.
+            entity_ids:
+              - "{{ update_entity }}"
+              - "{{ 'sensor.' ~ kiosk.node ~ '_last_seen' ~ kiosk.suffix }}"
+              - "{{ 'sensor.' ~ kiosk.node ~ '_current_page' ~ kiosk.suffix }}"
+              - "{{ 'sensor.' ~ kiosk.node ~ '_remote_admin' ~ kiosk.suffix }}"
+              - "{{ 'sensor.' ~ kiosk.node ~ '_voice_satellite' }}"
+              - "{{ 'button.' ~ kiosk.node ~ '_take_screenshot' ~ kiosk.suffix }}"
+            diagnostics: >-
+              update_state={{ states(update_entity) }};
+              in_progress={{ state_attr(update_entity, 'in_progress') }};
+              current_page={{ states('sensor.' ~ kiosk.node ~ '_current_page' ~ kiosk.suffix) }}

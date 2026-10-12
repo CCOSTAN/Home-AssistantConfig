@@ -22,7 +22,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-template-columns: repeat(4, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -70,12 +70,61 @@
         action: navigate
         navigation_path: /dashboard-kiosk-satellite-staging/home
 
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.upstairs_kiosk_needs_attention
+      name: Upstairs Show
+      icon: mdi:monitor-dashboard
+      variables:
+        ok_state: 'off'
+        critical_entity_ids:
+          - binary_sensor.upstairs_kiosk_needs_attention
+        warning_entity_ids:
+          - update.upstairs_show_update
+        healthy_text: ONLINE
+        warning_text: UPDATE AVAILABLE
+        alert_text: NEEDS ATTENTION
+      state_display: >
+        [[[
+          const updateAvailable = states['update.upstairs_show_update']?.state === 'on';
+          if (entity?.state === 'off') return updateAvailable ? 'UPDATE AVAILABLE' : 'ONLINE';
+          return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase();
+        ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.office_kiosk_needs_attention
+      name: Office Show
+      icon: mdi:monitor-dashboard
+      variables:
+        ok_state: 'off'
+        critical_entity_ids:
+          - binary_sensor.office_kiosk_needs_attention
+        warning_entity_ids:
+          - update.office_show_update
+        healthy_text: ONLINE
+        warning_text: UPDATE AVAILABLE
+        alert_text: NEEDS ATTENTION
+      state_display: >
+        [[[
+          const updateAvailable = states['update.office_show_update']?.state === 'on';
+          if (entity?.state === 'off') return updateAvailable ? 'UPDATE AVAILABLE' : 'ONLINE';
+          return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase();
+        ]]]
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
+
 # -------------------------------------------------------------------
 # Latest device screenshots
 # -------------------------------------------------------------------
+# Native picture cards provide live device screenshots; button-card cannot render camera images.
 - type: grid
   column_span: 4
-  columns: 2
+  columns: 4
   square: false
   cards:
   - camera_view: auto
@@ -101,12 +150,36 @@
       action: navigate
       navigation_path: /dashboard-kiosk-satellite-staging/home
 
+  - camera_view: auto
+    type: picture-glance
+    title: Upstairs Show
+    image: https://demo.home-assistant.io/stub_config/kitchen.png
+    entities:
+    - entity: binary_sensor.upstairs_kiosk_needs_attention
+    - entity: sensor.upstairs_show_last_screenshot
+    camera_image: camera.upstairs_show_screenshot
+    tap_action:
+      action: navigate
+      navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
+
+  - camera_view: auto
+    type: picture-glance
+    title: Office Show
+    image: https://demo.home-assistant.io/stub_config/kitchen.png
+    entities:
+    - entity: binary_sensor.office_kiosk_needs_attention
+    - entity: sensor.office_show_last_screenshot
+    camera_image: camera.office_show_screenshot
+    tap_action:
+      action: navigate
+      navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
+
 # -------------------------------------------------------------------
 # Device telemetry
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
-  columns: 2
+  columns: 4
   square: false
   cards:
   - type: custom:vertical-stack-in-card
@@ -199,3 +272,193 @@
       name: Remote Admin
       icon: mdi:remote-desktop
       state_display: AVAILABLE
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.kitchen_show_voice_satellite
+      name: Voice Assistant
+      icon: mdi:microphone
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: select.kitchen_show_assistant
+      name: Assist Pipeline
+      icon: mdi:account-voice
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: select.kitchen_show_wake_word
+      name: Wake Word
+      icon: mdi:ear-hearing
+
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Upstairs Show
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: binary_sensor.upstairs_show_charging
+      name: Power
+      icon: mdi:power-plug
+      state_display: >
+        [[[ return states["binary_sensor.upstairs_show_charging"]?.state === "on" ? "PLUGGED IN" : "ON BATTERY"; ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.upstairs_show_last_seen
+      name: Last Seen
+      icon: mdi:clock-check-outline
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.upstairs_show_current_page
+      name: Dashboard
+      icon: mdi:web
+      state_display: >
+        [[[
+          const page = String(entity?.state ?? '');
+          return page.includes('/dashboard-kiosk-satellite-staging/echo-show5') ? 'PAGE OK' : 'CHECK PAGE';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.upstairs_show_foreground_app
+      name: Foreground App
+      icon: mdi:application-outline
+      state_display: >
+        [[[ return entity?.state === 'me.jxl.kiosk_satellite' ? 'KIOSK SATELLITE' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: light.upstairs_show_screen
+      name: Screen
+      icon: mdi:monitor
+      state_display: >
+        [[[ return String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: update.upstairs_show_update
+      name: Kiosk Satellite
+      icon: mdi:update
+      state_display: >
+        [[[
+          const installed = entity?.attributes?.installed_version ?? 'unknown';
+          const latest = entity?.attributes?.latest_version ?? installed;
+          return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.upstairs_show_remote_admin
+      name: Remote Admin
+      icon: mdi:remote-desktop
+      state_display: AVAILABLE
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.upstairs_show_voice_satellite
+      name: Voice Assistant
+      icon: mdi:microphone
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: select.upstairs_show_assistant
+      name: Assist Pipeline
+      icon: mdi:account-voice
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: select.upstairs_show_wake_word
+      name: Wake Word
+      icon: mdi:ear-hearing
+
+  - type: custom:vertical-stack-in-card
+    card_mod:
+      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_panel_header
+      name: Office Show
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: binary_sensor.office_show_charging
+      name: Power
+      icon: mdi:power-plug
+      state_display: >
+        [[[ return states["binary_sensor.office_show_charging"]?.state === "on" ? "PLUGGED IN" : "ON BATTERY"; ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.office_show_last_seen
+      name: Last Seen
+      icon: mdi:clock-check-outline
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.office_show_current_page
+      name: Dashboard
+      icon: mdi:web
+      state_display: >
+        [[[
+          const page = String(entity?.state ?? '');
+          return page.includes('/dashboard-kiosk-satellite-staging/echo-show5') ? 'PAGE OK' : 'CHECK PAGE';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.office_show_foreground_app
+      name: Foreground App
+      icon: mdi:application-outline
+      state_display: >
+        [[[ return entity?.state === 'me.jxl.kiosk_satellite' ? 'KIOSK SATELLITE' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: light.office_show_screen
+      name: Screen
+      icon: mdi:monitor
+      state_display: >
+        [[[ return String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: update.office_show_update
+      name: Kiosk Satellite
+      icon: mdi:update
+      state_display: >
+        [[[
+          const installed = entity?.attributes?.installed_version ?? 'unknown';
+          const latest = entity?.attributes?.latest_version ?? installed;
+          return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.office_show_remote_admin
+      name: Remote Admin
+      icon: mdi:remote-desktop
+      state_display: AVAILABLE
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: sensor.office_show_voice_satellite
+      name: Voice Assistant
+      icon: mdi:microphone
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: select.office_show_assistant
+      name: Assist Pipeline
+      icon: mdi:account-voice
+
+    - type: custom:button-card
+      template: bearstone_infra_list_row
+      entity: select.office_show_wake_word
+      name: Wake Word
+      icon: mdi:ear-hearing
