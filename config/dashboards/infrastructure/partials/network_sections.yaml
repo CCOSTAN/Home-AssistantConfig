@@ -414,3 +414,205 @@
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/website-health
+
+# -------------------------------------------------------------------
+# Managed switch health and verified physical port map (read-only cards)
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(1, minmax(0, 1fr))
+    cards:
+    - type: vertical-stack
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Garage Switch - GS716TP
+        icon: mdi:lan
+
+      - type: custom:button-card
+        template: bearstone_infra_status_kpi
+        entity: binary_sensor.garage_switch_problem
+        name: Garage core links
+        icon: mdi:lan-check
+        variables:
+          ok_state: 'off'
+          healthy_text: HEALTHY
+          alert_text: CHECK LINKS / POE
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_poe_power
+        name: PoE draw / 180 W budget
+        icon: mdi:lightning-bolt
+        state_display: >
+          [[[ const value = Number(entity?.state); const load = states["sensor.garage_switch_poe_utilization"]?.state; return Number.isFinite(value) ? `${value.toFixed(0)} W / 180 W | ${load || "?"}%` : "NO DATA"; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_firmware
+        name: Firmware
+        icon: mdi:chip
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_1_link
+        name: Port 1 - Office uplink
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_1_speed"]?.state); const poe = states["sensor.garage_switch_port_1_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_2_link
+        name: Port 2 - Proxmox03
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_2_speed"]?.state); const poe = states["sensor.garage_switch_port_2_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_3_link
+        name: Port 3 - Garage AP
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_3_speed"]?.state); const poe = states["sensor.garage_switch_port_3_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_4_link
+        name: Port 4 - ProxMox1
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_4_speed"]?.state); const poe = states["sensor.garage_switch_port_4_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_6_link
+        name: Port 6 - ProxMox02
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_6_speed"]?.state); const poe = states["sensor.garage_switch_port_6_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_5_link
+        name: Port 5 - Front Lawn camera
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_5_speed"]?.state); const poe = states["sensor.garage_switch_port_5_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_7_link
+        name: Port 7 - Driveway camera
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_7_speed"]?.state); const poe = states["sensor.garage_switch_port_7_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_9_link
+        name: Port 9 - Kids Gate camera
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_9_speed"]?.state); const poe = states["sensor.garage_switch_port_9_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_port_15_link
+        name: Port 15 - Garage camera
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.garage_switch_port_15_speed"]?.state); const poe = states["sensor.garage_switch_port_15_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.garage_switch_uptime
+        name: SNMP agent uptime
+        icon: mdi:clock-outline
+        state_display: >
+          [[[ const seconds = Number(entity?.state); return Number.isFinite(seconds) ? `${(seconds / 86400).toFixed(1)} days` : "NO DATA"; ]]]
+
+    - type: vertical-stack
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Office Desk Switch - GS724TPP
+        icon: mdi:lan
+
+      - type: custom:button-card
+        template: bearstone_infra_status_kpi
+        entity: binary_sensor.office_switch_problem
+        name: Office to garage
+        icon: mdi:lan-check
+        variables:
+          ok_state: 'off'
+          healthy_text: HEALTHY
+          alert_text: CHECK LINKS / POE
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_switch_poe_power
+        name: PoE draw / 380 W budget
+        icon: mdi:lightning-bolt
+        state_display: >
+          [[[ const value = Number(entity?.state); const load = states["sensor.office_switch_poe_utilization"]?.state; return Number.isFinite(value) ? `${value.toFixed(0)} W / 380 W | ${load || "?"}%` : "NO DATA"; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_switch_firmware
+        name: Firmware
+        icon: mdi:chip
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_switch_port_9_link
+        name: Port 9 - Garage uplink
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.office_switch_port_9_speed"]?.state); const poe = states["sensor.office_switch_port_9_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_switch_port_10_link
+        name: Port 10 - Desktop
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.office_switch_port_10_speed"]?.state); const poe = states["sensor.office_switch_port_10_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_switch_port_14_link
+        name: Port 14 - PoE device
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.office_switch_port_14_speed"]?.state); const poe = states["sensor.office_switch_port_14_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_switch_port_22_link
+        name: Port 22 - PoE device
+        icon: mdi:lan-connect
+        state_display: >
+          [[[ const link = String(entity?.state || "unknown").toUpperCase(); const speed = Number(states["sensor.office_switch_port_22_speed"]?.state); const poe = states["sensor.office_switch_port_22_poe"]?.state; return [link, link === "UP" && Number.isFinite(speed) ? `${speed} Mbit/s` : "", poe === "delivering_power" ? "POE" : ""].filter(Boolean).join(" | "); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_switch_uptime
+        name: SNMP agent uptime
+        icon: mdi:clock-outline
+        state_display: >
+          [[[ const seconds = Number(entity?.state); return Number.isFinite(seconds) ? `${(seconds / 86400).toFixed(1)} days` : "NO DATA"; ]]]

@@ -7,8 +7,20 @@
 # Related Issue: 1773
 #  CPU, memory, and disk sensors from Glances API.
 # -------------------------------------------------------------------
-# Notes: Garage temperature ignores unavailable legacy thermal sensors so the average does not fall to 0 F.
+# Notes: Garage CPU average and maximum use one CPU package reading per host; SSD temperatures stay separate.
+# Notes: Unavailable readings are excluded; these temperatures are not ambient garage readings.
 ######################################################################
+
+sensor:
+  - platform: min_max
+    name: Proxmox Garage Hottest CPU Temperature
+    unique_id: proxmox_garage_hottest_cpu_temperature
+    type: max
+    round_digits: 1
+    entity_ids:
+      - sensor.proxmox1_package_id_0_temperature
+      - sensor.proxmox2_package_id_0_temperature
+      - sensor.proxmox03_package_id_0_temperature
 
 template:
   - sensor:
@@ -19,24 +31,9 @@ template:
         unit_of_measurement: "\u00B0F"
         availability: >-
           {% set sources = [
-            'sensor.proxmox1_cpu_temperature',
-            'sensor.proxmox2_cpu_temperature',
             'sensor.proxmox1_package_id_0_temperature',
-            'sensor.proxmox1_pch_skylake_1_temperature',
-            'sensor.proxmox1_core_0_temperature',
-            'sensor.proxmox1_core_1_temperature',
-            'sensor.proxmox1_core_2_temperature',
-            'sensor.proxmox1_core_3_temperature',
-            'sensor.proxmox1_acpitz_1_temperature',
-            'sensor.proxmox1_acpitz_2_temperature',
             'sensor.proxmox2_package_id_0_temperature',
-            'sensor.proxmox2_pch_skylake_1_temperature',
-            'sensor.proxmox2_core_0_temperature',
-            'sensor.proxmox2_core_1_temperature',
-            'sensor.proxmox2_core_2_temperature',
-            'sensor.proxmox2_core_3_temperature',
-            'sensor.proxmox2_acpitz_1_temperature',
-            'sensor.proxmox2_acpitz_2_temperature'
+            'sensor.proxmox03_package_id_0_temperature'
           ] %}
           {% set ns = namespace(valid=false) %}
           {% for source in sources %}
@@ -47,24 +44,9 @@ template:
           {{ ns.valid }}
         state: >-
           {% set sources = [
-            'sensor.proxmox1_cpu_temperature',
-            'sensor.proxmox2_cpu_temperature',
             'sensor.proxmox1_package_id_0_temperature',
-            'sensor.proxmox1_pch_skylake_1_temperature',
-            'sensor.proxmox1_core_0_temperature',
-            'sensor.proxmox1_core_1_temperature',
-            'sensor.proxmox1_core_2_temperature',
-            'sensor.proxmox1_core_3_temperature',
-            'sensor.proxmox1_acpitz_1_temperature',
-            'sensor.proxmox1_acpitz_2_temperature',
             'sensor.proxmox2_package_id_0_temperature',
-            'sensor.proxmox2_pch_skylake_1_temperature',
-            'sensor.proxmox2_core_0_temperature',
-            'sensor.proxmox2_core_1_temperature',
-            'sensor.proxmox2_core_2_temperature',
-            'sensor.proxmox2_core_3_temperature',
-            'sensor.proxmox2_acpitz_1_temperature',
-            'sensor.proxmox2_acpitz_2_temperature'
+            'sensor.proxmox03_package_id_0_temperature'
           ] %}
           {% set ns = namespace(values=[]) %}
           {% for source in sources %}

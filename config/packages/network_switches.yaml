@@ -1,0 +1,845 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Network Switches - Authenticated NETGEAR SNMP monitoring.
+#  https://www.home-assistant.io/integrations/snmp/
+# -------------------------------------------------------------------
+# Notes: Standard IF-MIB and POWER-ETHERNET-MIB; poll once per minute.
+# Notes: Link/PoE status covers every physical port; speeds/errors cover key links.
+# Notes: Credentials and management hosts live only in secrets.yaml.
+# Notes: Current firmware exposes no temperature/fan/CPU telemetry over these MIBs.
+# Notes: Camera PoE controls exclude access points, uplinks, and compute hosts.
+# Notes: Stale SNMP data becomes unknown, never a cached healthy state.
+######################################################################
+
+sensor:
+  - <<: &garage_switch_snmp
+      platform: snmp
+      host: !secret garage_netgear_host
+      version: "3"
+      username: !secret netgear_snmp_username
+      auth_key: !secret netgear_snmp_auth_key
+      auth_protocol: hmac-md5
+      accept_errors: true
+      scan_interval: 60
+    name: "Garage Switch Name"
+    unique_id: garage_switch_name
+    baseoid: "1.3.6.1.2.1.1.5.0"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Uptime"
+    unique_id: garage_switch_uptime
+    baseoid: "1.3.6.1.2.1.1.3.0"
+    value_template: "{{ (value | float / 100) | round(0) }}"
+    unit_of_measurement: "s"
+    state_class: measurement
+    device_class: duration
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Firmware"
+    unique_id: garage_switch_firmware
+    baseoid: "1.3.6.1.2.1.1.1.0"
+    value_template: "{{ value.split('Software Version ')[1].split(',')[0] if 'Software Version ' in value else 'unknown' }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch PoE Budget"
+    unique_id: garage_switch_poe_budget
+    baseoid: "1.3.6.1.2.1.105.1.3.1.1.2.1"
+    unit_of_measurement: "W"
+    state_class: measurement
+    device_class: power
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch PoE Power"
+    unique_id: garage_switch_poe_power
+    baseoid: "1.3.6.1.2.1.105.1.3.1.1.4.1"
+    unit_of_measurement: "W"
+    state_class: measurement
+    device_class: power
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch PoE Supply"
+    unique_id: garage_switch_poe_supply
+    baseoid: "1.3.6.1.2.1.105.1.3.1.1.3.1"
+    value_template: "{{ {1: 'on', 2: 'off', 3: 'fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch PoE Alert Threshold"
+    unique_id: garage_switch_poe_alert_threshold
+    baseoid: "1.3.6.1.2.1.105.1.3.1.1.5.1"
+    unit_of_measurement: "%"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 1 Link"
+    unique_id: garage_switch_port_1_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.1"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 2 Link"
+    unique_id: garage_switch_port_2_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.2"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 3 Link"
+    unique_id: garage_switch_port_3_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.3"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 4 Link"
+    unique_id: garage_switch_port_4_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.4"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 5 Link"
+    unique_id: garage_switch_port_5_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.5"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 6 Link"
+    unique_id: garage_switch_port_6_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.6"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 7 Link"
+    unique_id: garage_switch_port_7_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.7"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 8 Link"
+    unique_id: garage_switch_port_8_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.8"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 9 Link"
+    unique_id: garage_switch_port_9_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.9"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 10 Link"
+    unique_id: garage_switch_port_10_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.10"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 11 Link"
+    unique_id: garage_switch_port_11_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.11"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 12 Link"
+    unique_id: garage_switch_port_12_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.12"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 13 Link"
+    unique_id: garage_switch_port_13_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.13"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 14 Link"
+    unique_id: garage_switch_port_14_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.14"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 15 Link"
+    unique_id: garage_switch_port_15_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.15"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 16 Link"
+    unique_id: garage_switch_port_16_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.16"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 17 Link"
+    unique_id: garage_switch_port_17_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.17"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 18 Link"
+    unique_id: garage_switch_port_18_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.18"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 1 Speed"
+    unique_id: garage_switch_port_1_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.1"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 2 Speed"
+    unique_id: garage_switch_port_2_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.2"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 3 Speed"
+    unique_id: garage_switch_port_3_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.3"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 4 Speed"
+    unique_id: garage_switch_port_4_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.4"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 5 Speed"
+    unique_id: garage_switch_port_5_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.5"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 6 Speed"
+    unique_id: garage_switch_port_6_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.6"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 7 Speed"
+    unique_id: garage_switch_port_7_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.7"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 9 Speed"
+    unique_id: garage_switch_port_9_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.9"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 15 Speed"
+    unique_id: garage_switch_port_15_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.15"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 1 PoE"
+    unique_id: garage_switch_port_1_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.1"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 2 PoE"
+    unique_id: garage_switch_port_2_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.2"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 3 PoE"
+    unique_id: garage_switch_port_3_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.3"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 4 PoE"
+    unique_id: garage_switch_port_4_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.4"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 5 PoE"
+    unique_id: garage_switch_port_5_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.5"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 6 PoE"
+    unique_id: garage_switch_port_6_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.6"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 7 PoE"
+    unique_id: garage_switch_port_7_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.7"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 8 PoE"
+    unique_id: garage_switch_port_8_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.8"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 9 PoE"
+    unique_id: garage_switch_port_9_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.9"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 10 PoE"
+    unique_id: garage_switch_port_10_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.10"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 11 PoE"
+    unique_id: garage_switch_port_11_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.11"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 12 PoE"
+    unique_id: garage_switch_port_12_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.12"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 13 PoE"
+    unique_id: garage_switch_port_13_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.13"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 14 PoE"
+    unique_id: garage_switch_port_14_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.14"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 15 PoE"
+    unique_id: garage_switch_port_15_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.15"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 16 PoE"
+    unique_id: garage_switch_port_16_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.16"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 1 RX Errors"
+    unique_id: garage_switch_port_1_rx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.14.1"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 1 TX Errors"
+    unique_id: garage_switch_port_1_tx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.20.1"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 2 RX Errors"
+    unique_id: garage_switch_port_2_rx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.14.2"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 2 TX Errors"
+    unique_id: garage_switch_port_2_tx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.20.2"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 3 RX Errors"
+    unique_id: garage_switch_port_3_rx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.14.3"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 3 TX Errors"
+    unique_id: garage_switch_port_3_tx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.20.3"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 4 RX Errors"
+    unique_id: garage_switch_port_4_rx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.14.4"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 4 TX Errors"
+    unique_id: garage_switch_port_4_tx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.20.4"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 6 RX Errors"
+    unique_id: garage_switch_port_6_rx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.14.6"
+    state_class: total_increasing
+
+  - <<: *garage_switch_snmp
+    name: "Garage Switch Port 6 TX Errors"
+    unique_id: garage_switch_port_6_tx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.20.6"
+    state_class: total_increasing
+
+  - <<: &office_switch_snmp
+      platform: snmp
+      host: !secret office_netgear_host
+      version: "3"
+      username: !secret netgear_snmp_username
+      auth_key: !secret netgear_snmp_auth_key
+      auth_protocol: hmac-md5
+      accept_errors: true
+      scan_interval: 60
+    name: "Office Switch Name"
+    unique_id: office_switch_name
+    baseoid: "1.3.6.1.2.1.1.5.0"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Uptime"
+    unique_id: office_switch_uptime
+    baseoid: "1.3.6.1.2.1.1.3.0"
+    value_template: "{{ (value | float / 100) | round(0) }}"
+    unit_of_measurement: "s"
+    state_class: measurement
+    device_class: duration
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Firmware"
+    unique_id: office_switch_firmware
+    baseoid: "1.3.6.1.2.1.1.1.0"
+    value_template: "{{ value.split('Software Version ')[1].split(',')[0] if 'Software Version ' in value else 'unknown' }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch PoE Budget"
+    unique_id: office_switch_poe_budget
+    baseoid: "1.3.6.1.2.1.105.1.3.1.1.2.1"
+    unit_of_measurement: "W"
+    state_class: measurement
+    device_class: power
+
+  - <<: *office_switch_snmp
+    name: "Office Switch PoE Power"
+    unique_id: office_switch_poe_power
+    baseoid: "1.3.6.1.2.1.105.1.3.1.1.4.1"
+    unit_of_measurement: "W"
+    state_class: measurement
+    device_class: power
+
+  - <<: *office_switch_snmp
+    name: "Office Switch PoE Supply"
+    unique_id: office_switch_poe_supply
+    baseoid: "1.3.6.1.2.1.105.1.3.1.1.3.1"
+    value_template: "{{ {1: 'on', 2: 'off', 3: 'fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch PoE Alert Threshold"
+    unique_id: office_switch_poe_alert_threshold
+    baseoid: "1.3.6.1.2.1.105.1.3.1.1.5.1"
+    unit_of_measurement: "%"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 1 Link"
+    unique_id: office_switch_port_1_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.1"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 2 Link"
+    unique_id: office_switch_port_2_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.2"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 3 Link"
+    unique_id: office_switch_port_3_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.3"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 4 Link"
+    unique_id: office_switch_port_4_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.4"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 5 Link"
+    unique_id: office_switch_port_5_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.5"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 6 Link"
+    unique_id: office_switch_port_6_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.6"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 7 Link"
+    unique_id: office_switch_port_7_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.7"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 8 Link"
+    unique_id: office_switch_port_8_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.8"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 9 Link"
+    unique_id: office_switch_port_9_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.9"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 10 Link"
+    unique_id: office_switch_port_10_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.10"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 11 Link"
+    unique_id: office_switch_port_11_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.11"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 12 Link"
+    unique_id: office_switch_port_12_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.12"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 13 Link"
+    unique_id: office_switch_port_13_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.13"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 14 Link"
+    unique_id: office_switch_port_14_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.14"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 15 Link"
+    unique_id: office_switch_port_15_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.15"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 16 Link"
+    unique_id: office_switch_port_16_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.16"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 17 Link"
+    unique_id: office_switch_port_17_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.17"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 18 Link"
+    unique_id: office_switch_port_18_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.18"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 19 Link"
+    unique_id: office_switch_port_19_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.19"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 20 Link"
+    unique_id: office_switch_port_20_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.20"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 21 Link"
+    unique_id: office_switch_port_21_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.21"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 22 Link"
+    unique_id: office_switch_port_22_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.22"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 23 Link"
+    unique_id: office_switch_port_23_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.23"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 24 Link"
+    unique_id: office_switch_port_24_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.24"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 25 Link"
+    unique_id: office_switch_port_25_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.25"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 26 Link"
+    unique_id: office_switch_port_26_link
+    baseoid: "1.3.6.1.2.1.2.2.1.8.26"
+    value_template: "{{ {1: 'up', 2: 'down', 3: 'testing', 4: 'unknown', 5: 'dormant', 6: 'not_present', 7: 'lower_layer_down'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 9 Speed"
+    unique_id: office_switch_port_9_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.9"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 10 Speed"
+    unique_id: office_switch_port_10_speed
+    baseoid: "1.3.6.1.2.1.31.1.1.1.15.10"
+    unit_of_measurement: "Mbit/s"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 1 PoE"
+    unique_id: office_switch_port_1_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.1"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 2 PoE"
+    unique_id: office_switch_port_2_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.2"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 3 PoE"
+    unique_id: office_switch_port_3_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.3"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 4 PoE"
+    unique_id: office_switch_port_4_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.4"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 5 PoE"
+    unique_id: office_switch_port_5_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.5"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 6 PoE"
+    unique_id: office_switch_port_6_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.6"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 7 PoE"
+    unique_id: office_switch_port_7_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.7"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 8 PoE"
+    unique_id: office_switch_port_8_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.8"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 9 PoE"
+    unique_id: office_switch_port_9_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.9"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 10 PoE"
+    unique_id: office_switch_port_10_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.10"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 11 PoE"
+    unique_id: office_switch_port_11_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.11"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 12 PoE"
+    unique_id: office_switch_port_12_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.12"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 13 PoE"
+    unique_id: office_switch_port_13_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.13"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 14 PoE"
+    unique_id: office_switch_port_14_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.14"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 15 PoE"
+    unique_id: office_switch_port_15_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.15"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 16 PoE"
+    unique_id: office_switch_port_16_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.16"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 17 PoE"
+    unique_id: office_switch_port_17_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.17"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 18 PoE"
+    unique_id: office_switch_port_18_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.18"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 19 PoE"
+    unique_id: office_switch_port_19_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.19"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 20 PoE"
+    unique_id: office_switch_port_20_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.20"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 21 PoE"
+    unique_id: office_switch_port_21_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.21"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 22 PoE"
+    unique_id: office_switch_port_22_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.22"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 23 PoE"
+    unique_id: office_switch_port_23_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.23"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 24 PoE"
+    unique_id: office_switch_port_24_poe
+    baseoid: "1.3.6.1.2.1.105.1.1.1.6.1.24"
+    value_template: "{{ {1: 'disabled', 2: 'searching', 3: 'delivering_power', 4: 'fault', 5: 'test', 6: 'other_fault'}.get(value | int(0), 'unknown') }}"
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 9 RX Errors"
+    unique_id: office_switch_port_9_rx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.14.9"
+    state_class: total_increasing
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 9 TX Errors"
+    unique_id: office_switch_port_9_tx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.20.9"
+    state_class: total_increasing
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 10 RX Errors"
+    unique_id: office_switch_port_10_rx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.14.10"
+    state_class: total_increasing
+
+  - <<: *office_switch_snmp
+    name: "Office Switch Port 10 TX Errors"
+    unique_id: office_switch_port_10_tx_errors
+    baseoid: "1.3.6.1.2.1.2.2.1.20.10"
+    state_class: total_increasing
+
+switch:
+  - <<: &garage_camera_poe
+      platform: snmp
+      host: !secret garage_netgear_host
+      version: "3"
+      username: !secret netgear_snmp_username
+      auth_key: !secret netgear_snmp_auth_key
+      auth_protocol: hmac-md5
+      payload_on: 1
+      payload_off: 2
+      vartype: Integer
+    name: "Garage Switch Front Lawn PoE"
+    baseoid: "1.3.6.1.2.1.105.1.1.1.3.1.5"
+    command_oid: "1.3.6.1.2.1.105.1.1.1.3.1.5"
+
+  - <<: *garage_camera_poe
+    name: "Garage Switch Driveway PoE"
+    baseoid: "1.3.6.1.2.1.105.1.1.1.3.1.7"
+    command_oid: "1.3.6.1.2.1.105.1.1.1.3.1.7"
+
+  - <<: *garage_camera_poe
+    name: "Garage Switch Kids Gate PoE"
+    baseoid: "1.3.6.1.2.1.105.1.1.1.3.1.9"
+    command_oid: "1.3.6.1.2.1.105.1.1.1.3.1.9"
+
+  - <<: *garage_camera_poe
+    name: "Garage Switch Garage Camera PoE"
+    baseoid: "1.3.6.1.2.1.105.1.1.1.3.1.15"
+    command_oid: "1.3.6.1.2.1.105.1.1.1.3.1.15"
+
+template:
+  - sensor:
+      - name: "Garage Switch PoE Utilization"
+        unique_id: garage_switch_poe_utilization
+        unit_of_measurement: "%"
+        state_class: measurement
+        availability: "{{ is_number(states('sensor.garage_switch_poe_power')) and states('sensor.garage_switch_poe_budget') | float(0) > 0 }}"
+        state: "{{ (states('sensor.garage_switch_poe_power') | float(0) / states('sensor.garage_switch_poe_budget') | float(1) * 100) | round(1) }}"
+
+      - name: "Office Switch PoE Utilization"
+        unique_id: office_switch_poe_utilization
+        unit_of_measurement: "%"
+        state_class: measurement
+        availability: "{{ is_number(states('sensor.office_switch_poe_power')) and states('sensor.office_switch_poe_budget') | float(0) > 0 }}"
+        state: "{{ (states('sensor.office_switch_poe_power') | float(0) / states('sensor.office_switch_poe_budget') | float(1) * 100) | round(1) }}"
+
+  - binary_sensor:
+      - name: "Garage Switch Problem"
+        unique_id: garage_switch_problem
+        device_class: problem
+        state: >-
+          {{ not is_state('sensor.garage_switch_poe_supply', 'on') or
+             states('sensor.garage_switch_poe_utilization') | float(100) >= states('sensor.garage_switch_poe_alert_threshold') | float(95) or
+             not is_state('sensor.garage_switch_port_1_link', 'up') or not is_state('sensor.garage_switch_port_2_link', 'up') or not is_state('sensor.garage_switch_port_3_link', 'up') or not is_state('sensor.garage_switch_port_4_link', 'up') or not is_state('sensor.garage_switch_port_6_link', 'up') }}
+
+      - name: "Office Switch Problem"
+        unique_id: office_switch_problem
+        device_class: problem
+        state: >-
+          {{ not is_state('sensor.office_switch_poe_supply', 'on') or
+             states('sensor.office_switch_poe_utilization') | float(100) >= states('sensor.office_switch_poe_alert_threshold') | float(95) or
+             not is_state('sensor.office_switch_port_9_link', 'up') }}

@@ -23,6 +23,7 @@ class InfrastructureHealthTest(unittest.TestCase):
         self.states = {
             **{f"binary_sensor.{name}": "off" for name in [
                 "infra_wan_quality_degraded", "infra_dns_pihole_degraded",
+                "garage_switch_problem", "office_switch_problem",
                 "infra_nebula_sync_degraded", "infra_pihole_iot_dns_degraded",
                 "infra_compute_degraded", "infra_storage_degraded",
                 "node_proxmox1_updates_packages", "node_proxmox02_updates_packages",
@@ -232,6 +233,19 @@ class InfrastructureHealthTest(unittest.TestCase):
         self.assertEqual(self.count(), 2)
         self.states["sensor.office_ups_eaton_550_status_data"] = "ALARM OL"
         self.assertEqual(self.count(), 2)
+
+    def test_switch_faults_and_missing_telemetry_reach_overview_and_recover(self):
+        self.assertEqual(self.count(), 0)
+        for entity_id in ["binary_sensor.garage_switch_problem", "binary_sensor.office_switch_problem"]:
+            for value in ["on", "unknown", "unavailable"]:
+                with self.subTest(entity_id=entity_id, value=value):
+                    self.states[entity_id] = value
+                    self.assertEqual(self.count(), 1)
+                    self.assertEqual(self.severity(), "critical")
+                    self.assertIn(entity_id, as_function(self.module.dashboard_active_entities)())
+                    self.states[entity_id] = "off"
+                    self.assertEqual(self.count(), 0)
+                    self.assertEqual(self.severity(), "healthy")
 
     def severity(self):
         return self.env.from_string(self.counter["attributes"]["severity"]).render().strip()

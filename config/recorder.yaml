@@ -33,6 +33,21 @@ auto_purge: true
 commit_interval: 30
 include:
   entities:
+    # Retain only the final dashboard host utilization and CPU temperature metrics.
+    - sensor.node_proxmox1_cpu_used
+    - sensor.node_proxmox1_memory_used_percentage
+    - sensor.node_proxmox1_disk_used_percentage
+    - sensor.node_proxmox02_cpu_used
+    - sensor.node_proxmox02_memory_used_percentage
+    - sensor.node_proxmox02_disk_used_percentage
+    - sensor.node_proxmox03_cpu_used
+    - sensor.node_proxmox03_memory_used_percentage
+    - sensor.node_proxmox03_disk_used_percentage
+    - sensor.proxmox1_package_id_0_temperature
+    - sensor.proxmox2_package_id_0_temperature
+    - sensor.proxmox03_package_id_0_temperature
+    - sensor.proxmox_garage_average_temperature
+    - sensor.proxmox_garage_hottest_cpu_temperature
     - device_tracker.life360_adriano_costanzo
     - device_tracker.life360_amanda_desantis
     - device_tracker.life360_carlo_costanzo
@@ -146,7 +161,6 @@ exclude:
     - sensor.node_proxmox*_memory_used_percentage
     - sensor.node_proxmox*_total_updates
     - sensor.node_proxmox*_virtual_machines_running
-    - sensor.poe_*_poe_power
     - sensor.proxmox1_cpu_load
     - sensor.proxmox1_cpu_usage
     - sensor.proxmox1_disk_free
@@ -183,6 +197,31 @@ exclude:
     - sensor.proxmox2_swap_*
     - sensor.proxmox2_threads
     - sensor.proxmox2_total
+    - sensor.proxmox03_cpu_load
+    - sensor.proxmox03_cpu_usage
+    - sensor.proxmox03_disk_free
+    - sensor.proxmox03_disk_usage
+    - sensor.proxmox03_disk_used
+    - sensor.proxmox03_*_disk_read
+    - sensor.proxmox03_*_disk_write
+    - sensor.proxmox03_*_rx
+    - sensor.proxmox03_*_tx
+    - sensor.proxmox03_memory_free
+    - sensor.proxmox03_memory_usage
+    - sensor.proxmox03_memory_use
+    - sensor.proxmox03_running
+    - sensor.proxmox03_sleeping
+    - sensor.proxmox03_swap_*
+    - sensor.proxmox03_threads
+    - sensor.proxmox03_total
+    - sensor.garage_switch_uptime
+    - sensor.garage_switch_port_*_speed
+    - sensor.garage_switch_port_*_rx_errors
+    - sensor.garage_switch_port_*_tx_errors
+    - sensor.office_switch_uptime
+    - sensor.office_switch_port_*_speed
+    - sensor.office_switch_port_*_rx_errors
+    - sensor.office_switch_port_*_tx_errors
     - sensor.qemu_*_cpu_used
     - sensor.qemu_*_disk_used_percentage
     - sensor.qemu_*_memory_free

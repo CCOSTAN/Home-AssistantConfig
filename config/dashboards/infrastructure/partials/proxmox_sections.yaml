@@ -4,11 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - Proxmox
-#  Runtime/update status with compact one-metric host and VM trends.
+#  Runtime/update status with compact host utilization and CPU temperature trends.
 # -------------------------------------------------------------------
 # Notes: All graphs use 24-hour windows and explicit threshold colors.
-# Notes: Host graphs use a compact three-column, 70px plot grid; VM graphs retain their larger detail view.
+# Notes: Host utilization uses a shared 0-100 percent scale and 5-minute averages.
 # Notes: Pending updates remain windowed maintenance signals, not runtime failures.
+# Notes: Recorder retains the nine displayed utilization metrics; all three hosts have history.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -24,7 +25,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-template-columns: repeat(3, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -47,6 +48,16 @@
       template: bearstone_infra_status_kpi
       entity: binary_sensor.proxmox02_runtime_healthy
       name: Proxmox02 Runtime
+      icon: mdi:server
+      variables:
+        ok_state: 'on'
+        healthy_text: ONLINE
+        alert_text: OFFLINE
+
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.node_proxmox03_status
+      name: Proxmox03 Runtime
       icon: mdi:server
       variables:
         ok_state: 'on'
@@ -85,6 +96,22 @@
         pending_schedule_hour: 2
         pending_schedule_minute: 15
 
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: binary_sensor.node_proxmox03_updates_packages
+      name: Proxmox03 Updates
+      icon: mdi:package-up
+      variables:
+        ok_state: 'off'
+        warning_state: 'on'
+        healthy_text: CURRENT
+        warning_text: SCHEDULED
+        alert_text: PENDING
+        pending_detail: true
+        pending_count_entity: sensor.node_proxmox03_total_updates
+        pending_schedule_hour: 2
+        pending_schedule_minute: 15
+
 # -------------------------------------------------------------------
 # Host resource trends
 # -------------------------------------------------------------------
@@ -104,6 +131,8 @@
       grid-gap: 12px
       margin: 0
       mediaquery:
+        "(max-width: 600px)":
+          grid-template-columns: minmax(0, 1fr)
         "(max-width: 900px)":
           grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
@@ -111,13 +140,17 @@
       name: Proxmox01 CPU
       icon: mdi:cpu-64-bit
       hours_to_show: 24
-      points_per_hour: 2
+      points_per_hour: 12
       line_width: 2
-      smoothing: true
-      height: 70
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
       show:
         legend: false
-        labels: false
+        labels: true
+        fill: false
         name: true
         icon: true
         state: true
@@ -138,13 +171,17 @@
       name: Proxmox01 Memory
       icon: mdi:memory
       hours_to_show: 24
-      points_per_hour: 2
+      points_per_hour: 12
       line_width: 2
-      smoothing: true
-      height: 70
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
       show:
         legend: false
-        labels: false
+        labels: true
+        fill: false
         name: true
         icon: true
         state: true
@@ -165,13 +202,17 @@
       name: Proxmox01 Disk
       icon: mdi:harddisk
       hours_to_show: 24
-      points_per_hour: 2
+      points_per_hour: 12
       line_width: 2
-      smoothing: true
-      height: 70
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
       show:
         legend: false
-        labels: false
+        labels: true
+        fill: false
         name: true
         icon: true
         state: true
@@ -183,7 +224,7 @@
       - value: 85
         color: '#c0392b'
       entities:
-      - entity: sensor.proxmox1_disk_used_percentage
+      - entity: sensor.node_proxmox1_disk_used_percentage
         name: Disk
       card_mod:
         style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
@@ -192,13 +233,17 @@
       name: Proxmox02 CPU
       icon: mdi:cpu-64-bit
       hours_to_show: 24
-      points_per_hour: 2
+      points_per_hour: 12
       line_width: 2
-      smoothing: true
-      height: 70
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
       show:
         legend: false
-        labels: false
+        labels: true
+        fill: false
         name: true
         icon: true
         state: true
@@ -219,13 +264,17 @@
       name: Proxmox02 Memory
       icon: mdi:memory
       hours_to_show: 24
-      points_per_hour: 2
+      points_per_hour: 12
       line_width: 2
-      smoothing: true
-      height: 70
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
       show:
         legend: false
-        labels: false
+        labels: true
+        fill: false
         name: true
         icon: true
         state: true
@@ -246,13 +295,17 @@
       name: Proxmox02 Disk
       icon: mdi:harddisk
       hours_to_show: 24
-      points_per_hour: 2
+      points_per_hour: 12
       line_width: 2
-      smoothing: true
-      height: 70
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
       show:
         legend: false
-        labels: false
+        labels: true
+        fill: false
         name: true
         icon: true
         state: true
@@ -264,61 +317,174 @@
       - value: 85
         color: '#c0392b'
       entities:
-      - entity: sensor.proxmox02_disk_used_percentage
+      - entity: sensor.node_proxmox02_disk_used_percentage
+        name: Disk
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:mini-graph-card
+      name: Proxmox03 CPU
+      icon: mdi:cpu-64-bit
+      hours_to_show: 24
+      points_per_hour: 12
+      line_width: 2
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
+      show:
+        legend: false
+        labels: true
+        fill: false
+        name: true
+        icon: true
+        state: true
+      color_thresholds:
+      - value: 0
+        color: '#43a047'
+      - value: 60
+        color: '#f39c12'
+      - value: 85
+        color: '#c0392b'
+      entities:
+      - entity: sensor.node_proxmox03_cpu_used
+        name: CPU
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:mini-graph-card
+      name: Proxmox03 Memory
+      icon: mdi:memory
+      hours_to_show: 24
+      points_per_hour: 12
+      line_width: 2
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
+      show:
+        legend: false
+        labels: true
+        fill: false
+        name: true
+        icon: true
+        state: true
+      color_thresholds:
+      - value: 0
+        color: '#43a047'
+      - value: 70
+        color: '#f39c12'
+      - value: 90
+        color: '#c0392b'
+      entities:
+      - entity: sensor.node_proxmox03_memory_used_percentage
+        name: Memory
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:mini-graph-card
+      name: Proxmox03 Disk
+      icon: mdi:harddisk
+      hours_to_show: 24
+      points_per_hour: 12
+      line_width: 2
+      smoothing: false
+      lower_bound: 0
+      upper_bound: 100
+      decimals: 1
+      height: 160
+      show:
+        legend: false
+        labels: true
+        fill: false
+        name: true
+        icon: true
+        state: true
+      color_thresholds:
+      - value: 0
+        color: '#43a047'
+      - value: 70
+        color: '#f39c12'
+      - value: 85
+        color: '#c0392b'
+      entities:
+      - entity: sensor.node_proxmox03_disk_used_percentage
         name: Disk
       card_mod:
         style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
 
 # -------------------------------------------------------------------
-# VM trends (same-unit series only)
+# Garage server CPU package temperatures (hardware, not ambient)
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
-  columns: 2
+  columns: 3
   square: false
   cards:
   - type: custom:mini-graph-card
-    name: VM CPU Utilization
-    icon: mdi:chart-line
+    name: ProxMox1 CPU Temperature
+    icon: mdi:thermometer
     hours_to_show: 24
     points_per_hour: 2
     line_width: 2
-    smoothing: true
+    height: 160
     show:
-      legend: true
+      legend: false
       labels: false
-      name: true
-      icon: true
-      state: false
+      state: true
+    color_thresholds:
+    - value: 0
+      color: "#43a047"
+    - value: 135
+      color: "#f39c12"
+    - value: 145
+      color: "#c0392b"
     entities:
-    - entity: sensor.qemu_docker69_169_cpu_used
-      name: Docker69
-    - entity: sensor.qemu_carlo_hass_105_cpu_used
-      name: Home Assistant
-    - entity: sensor.qemu_docker2_101_cpu_used
-      name: Frigate
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+    - entity: sensor.proxmox1_package_id_0_temperature
+      name: ProxMox1 CPU Temperature
 
   - type: custom:mini-graph-card
-    name: VM Memory Utilization
-    icon: mdi:memory
+    name: ProxMox02 CPU Temperature
+    icon: mdi:thermometer
     hours_to_show: 24
     points_per_hour: 2
     line_width: 2
-    smoothing: true
+    height: 160
     show:
-      legend: true
+      legend: false
       labels: false
-      name: true
-      icon: true
-      state: false
+      state: true
+    color_thresholds:
+    - value: 0
+      color: "#43a047"
+    - value: 135
+      color: "#f39c12"
+    - value: 145
+      color: "#c0392b"
     entities:
-    - entity: sensor.qemu_docker69_169_memory_used_percentage
-      name: Docker69
-    - entity: sensor.qemu_carlo_hass_105_memory_used_percentage
-      name: Home Assistant
-    - entity: sensor.qemu_docker2_101_memory_used_percentage
-      name: Frigate
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+    - entity: sensor.proxmox2_package_id_0_temperature
+      name: ProxMox02 CPU Temperature
+
+  - type: custom:mini-graph-card
+    name: Proxmox03 CPU Temperature
+    icon: mdi:thermometer
+    hours_to_show: 24
+    points_per_hour: 2
+    line_width: 2
+    height: 160
+    show:
+      legend: false
+      labels: false
+      state: true
+    color_thresholds:
+    - value: 0
+      color: "#43a047"
+    - value: 135
+      color: "#f39c12"
+    - value: 145
+      color: "#c0392b"
+    entities:
+    - entity: sensor.proxmox03_package_id_0_temperature
+      name: Proxmox03 CPU Temperature

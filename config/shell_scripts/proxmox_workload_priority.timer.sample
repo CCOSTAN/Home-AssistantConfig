@@ -1,0 +1,11 @@
+[Unit]
+Description=Check optional VM shedding independently of Home Assistant
+
+[Timer]
+OnBootSec=20
+OnUnitInactiveSec=10
+AccuracySec=1
+Unit=proxmox_workload_priority.service
+
+[Install]
+WantedBy=timers.target

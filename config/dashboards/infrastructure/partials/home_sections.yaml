@@ -158,6 +158,7 @@
         warning_entity_ids:
         - binary_sensor.node_proxmox1_updates_packages
         - binary_sensor.node_proxmox02_updates_packages
+        - binary_sensor.node_proxmox03_updates_packages
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/proxmox
@@ -341,7 +342,7 @@
               if ([latency, loss].some((item) => item === null)) issues.push('QUALITY TELEMETRY MISSING');
               if (latency !== null && latency > 80) issues.push(`LATENCY ${latency.toFixed(0)} > 80 ms`);
               if (loss !== null && loss > 5) issues.push(`LOSS ${loss.toFixed(1)}% > 5%`);
-              return issues.join(' · ');
+              return issues.join(' Â· ');
             ]]]
         state_display: >
           [[[
@@ -349,6 +350,30 @@
               ? 'CRITICAL'
               : 'DEGRADED';
           ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/network
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.garage_switch_problem
+        name: Garage switch requires attention
+        icon: mdi:lan-disconnect
+        variables:
+          alert_kind: binary_on
+          exception_detail: CORE LINK / SNMP / POE SUPPLY
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/network
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.office_switch_problem
+        name: Office switch requires attention
+        icon: mdi:lan-disconnect
+        variables:
+          alert_kind: binary_on
+          exception_detail: CORE LINK / SNMP / POE SUPPLY
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/network
@@ -370,7 +395,7 @@
               };
               const raw = entity?.attributes?.problem_entities;
               const ids = Array.isArray(raw) ? raw : [];
-              return ids.map((id) => `${labels[id] || id} ${String(states[id]?.state ?? 'unknown').toUpperCase()}`).join(' · ');
+              return ids.map((id) => `${labels[id] || id} ${String(states[id]?.state ?? 'unknown').toUpperCase()}`).join(' Â· ');
             ]]]
         state_display: '[[[ return "ATTENTION"; ]]]'
         tap_action:
@@ -387,7 +412,7 @@
           exception_detail: >
             [[[
               const issues = Array.isArray(entity?.attributes?.issues) ? entity.attributes.issues : [];
-              return issues.map((issue) => `${issue.name}: ${issue.alarm || issue.status}`).join(' · ');
+              return issues.map((issue) => `${issue.name}: ${issue.alarm || issue.status}`).join(' Â· ');
             ]]]
         state_display: >
           [[[ return states['binary_sensor.infra_ups_on_battery']?.state === 'on' ? 'ON BATTERY' : 'CHECK'; ]]]
@@ -421,7 +446,7 @@
             [[[
               const value = Number(entity?.state);
               return Number.isFinite(value)
-                ? `RUNTIME ${value.toFixed(0)} / 550 H · FILTER CHANGE DUE`
+                ? `RUNTIME ${value.toFixed(0)} / 550 H Â· FILTER CHANGE DUE`
                 : 'FILTER RUNTIME TELEMETRY UNAVAILABLE';
             ]]]
         state_display: MAINTENANCE
@@ -442,7 +467,7 @@
             [[[
               const value = Number(entity?.state);
               return Number.isFinite(value)
-                ? `RUNTIME ${value.toFixed(0)} / 450 H · FILTER CHANGE DUE`
+                ? `RUNTIME ${value.toFixed(0)} / 450 H Â· FILTER CHANGE DUE`
                 : 'FILTER RUNTIME TELEMETRY UNAVAILABLE';
             ]]]
         state_display: MAINTENANCE
@@ -463,7 +488,7 @@
             [[[
               const value = Number(entity?.state);
               return Number.isFinite(value)
-                ? `ELAPSED ${value.toFixed(0)} / 360 DAYS · LINE CLEANING DUE`
+                ? `ELAPSED ${value.toFixed(0)} / 360 DAYS Â· LINE CLEANING DUE`
                 : 'CONDENSER MAINTENANCE TELEMETRY UNAVAILABLE';
             ]]]
         state_display: MAINTENANCE
@@ -497,10 +522,14 @@
             [[[
               const bedroom = states['binary_sensor.bedroom_kiosk_needs_attention']?.attributes?.status;
               const kitchen = states['binary_sensor.kitchen_kiosk_needs_attention']?.attributes?.status;
+              const upstairs = states['binary_sensor.upstairs_kiosk_needs_attention']?.attributes?.status;
+              const office = states['binary_sensor.office_kiosk_needs_attention']?.attributes?.status;
               const issues = [];
               if (states['binary_sensor.bedroom_kiosk_needs_attention']?.state === 'on') issues.push(`BEDROOM: ${String(bedroom ?? 'ATTENTION').toUpperCase()}`);
               if (states['binary_sensor.kitchen_kiosk_needs_attention']?.state === 'on') issues.push(`KITCHEN: ${String(kitchen ?? 'ATTENTION').toUpperCase()}`);
-              return issues.join(' · ') || 'KIOSK TELEMETRY REQUIRES REVIEW';
+              if (states['binary_sensor.upstairs_kiosk_needs_attention']?.state === 'on') issues.push(`UPSTAIRS: ${String(upstairs ?? 'ATTENTION').toUpperCase()}`);
+              if (states['binary_sensor.office_kiosk_needs_attention']?.state === 'on') issues.push(`OFFICE: ${String(office ?? 'ATTENTION').toUpperCase()}`);
+              return issues.join(' Â· ') || 'KIOSK TELEMETRY REQUIRES REVIEW';
             ]]]
         state_display: '[[[ return "ATTENTION"; ]]]'
         tap_action:
@@ -584,6 +613,20 @@
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
+        entity: binary_sensor.node_proxmox03_status
+        name: Proxmox03 runtime unavailable
+        icon: mdi:server-off
+        variables:
+          alert_kind: state_not
+          ok_state: "on"
+          exception_detail: HOST RUNTIME SENSOR IS OFFLINE
+        state_display: '[[[ return "OFFLINE"; ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/proxmox
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
         entity: binary_sensor.node_proxmox1_updates_packages
         name: Proxmox01 maintenance pending
         icon: mdi:package-up
@@ -601,7 +644,7 @@
               if (next <= new Date()) next.setDate(next.getDate() + 1);
               const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
               const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
-              return `${countText} · NEXT CHECK ${dateText} ${timeText}`;
+              return `${countText} Â· NEXT CHECK ${dateText} ${timeText}`;
             ]]]
         state_display: '[[[ return "SCHEDULED"; ]]]'
         tap_action:
@@ -627,7 +670,33 @@
               if (next <= new Date()) next.setDate(next.getDate() + 1);
               const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
               const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
-              return `${countText} · NEXT CHECK ${dateText} ${timeText}`;
+              return `${countText} Â· NEXT CHECK ${dateText} ${timeText}`;
+            ]]]
+        state_display: '[[[ return "SCHEDULED"; ]]]'
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/proxmox
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.node_proxmox03_updates_packages
+        name: Proxmox03 maintenance pending
+        icon: mdi:package-up
+        variables:
+          alert_kind: binary_on
+          warning_only: true
+          exception_detail: >
+            [[[
+              const count = Number.parseInt(states['sensor.node_proxmox03_total_updates']?.state, 10);
+              const countText = Number.isFinite(count)
+                ? `${count} PKG${count === 1 ? '' : 'S'}`
+                : 'PACKAGE COUNT UNKNOWN';
+              const next = new Date();
+              next.setHours(2, 15, 0, 0);
+              if (next <= new Date()) next.setDate(next.getDate() + 1);
+              const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
+              const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
+              return `${countText} Â· NEXT CHECK ${dateText} ${timeText}`;
             ]]]
         state_display: '[[[ return "SCHEDULED"; ]]]'
         tap_action:
@@ -661,7 +730,7 @@
               return hosts
                 .filter(([, id]) => needsAttention(states[id]?.state))
                 .map(([host, id]) => `${host} ${String(states[id]?.state ?? 'unknown').toUpperCase()}`)
-                .join(' · ');
+                .join(' Â· ');
             ]]]
         state_display: >
           [[[
@@ -732,7 +801,7 @@
                   issues.push(`${label} ${value.toFixed(1)}% > ${limit}%`);
                 }
               }
-              return issues.join(' · ');
+              return issues.join(' Â· ');
             ]]]
         state_display: '[[[ return "ATTENTION"; ]]]'
 
@@ -756,7 +825,7 @@
               return items.map((item) => {
                 const [id, state] = String(item).split('=');
                 return `${labels[id] || id} ${String(state || 'down').toUpperCase()}`;
-              }).join(' · ');
+              }).join(' Â· ');
             ]]]
         state_display: '[[[ return "DOWN"; ]]]'
         tap_action:
@@ -772,7 +841,7 @@
           alert_kind: numeric_high
           threshold: 145
         state_display: >
-          [[[ return `${entity.state} °F`; ]]]
+          [[[ return `${entity.state} Â°F`; ]]]
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
@@ -885,8 +954,56 @@
         template: bearstone_infra_panel_header
         name: Datacenter
 
+      - type: custom:button-card
+        template: bearstone_infra_status_kpi
+        entity: binary_sensor.garage_switch_problem
+        name: Garage Switch
+        icon: mdi:lan
+        variables:
+          ok_state: 'off'
+          healthy_text: HEALTHY
+          alert_text: CHECK
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/network
+
+      - type: custom:button-card
+        template: bearstone_infra_status_kpi
+        entity: binary_sensor.office_switch_problem
+        name: Office Desk Switch
+        icon: mdi:lan
+        variables:
+          ok_state: 'off'
+          healthy_text: HEALTHY
+          alert_text: CHECK
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/network
+
+      - type: custom:button-card
+        template: bearstone_infra_kpi
+        entity: sensor.proxmox_garage_hottest_cpu_temperature
+        name: Garage Hottest CPU
+        icon: mdi:thermometer-high
+        state_display: >
+          [[[
+            const sources = [
+              ['Proxmox01', 'sensor.proxmox1_package_id_0_temperature'],
+              ['Proxmox02', 'sensor.proxmox2_package_id_0_temperature'],
+              ['Proxmox03', 'sensor.proxmox03_package_id_0_temperature']
+            ];
+            const valid = sources.map(([name, id]) => ({name, value: Number(states[id]?.state)}))
+              .filter(item => Number.isFinite(item.value) && item.value > 0)
+              .sort((a, b) => b.value - a.value);
+            return valid.length ? `${valid[0].name}: ${valid[0].value.toFixed(1)}°F | ${valid.length}/3 hosts`
+              : 'NO CPU TEMPERATURE DATA';
+          ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/proxmox
+
       - type: custom:mini-graph-card
-        name: Garage Compute Temperature
+        name: Garage CPU Average
         icon: mdi:thermometer
         hours_to_show: 24
         points_per_hour: 2
@@ -907,7 +1024,7 @@
           color: '#c0392b'
         entities:
         - entity: sensor.proxmox_garage_average_temperature
-          name: Garage
+          name: CPU Average
         card_mod:
           style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
 
@@ -922,7 +1039,7 @@
             const seconds = Number(states['sensor.garage_ups_battery_runtime']?.state);
             const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
             const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
-            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} · ${battery} · ${runtime}`;
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} Â· ${battery} Â· ${runtime}`;
           ]]]
         tap_action:
           action: navigate
@@ -939,7 +1056,7 @@
             const seconds = Number(states['sensor.office_ups_eaton_550_battery_runtime']?.state);
             const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
             const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
-            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} · ${battery} · ${runtime}`;
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} Â· ${battery} Â· ${runtime}`;
           ]]]
         tap_action:
           action: navigate
@@ -956,7 +1073,7 @@
             const seconds = Number(states['sensor.office_ups_cyberpower_battery_runtime']?.state);
             const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
             const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
-            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} · ${battery} · ${runtime}`;
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} Â· ${battery} Â· ${runtime}`;
           ]]]
         tap_action:
           action: navigate

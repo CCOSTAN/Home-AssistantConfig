@@ -1,0 +1,11 @@
+[Unit]
+Description=Yield optional VM capacity after a quorate Proxmox node failure
+After=pve-cluster.service pvedaemon.service
+ConditionPathExists=/etc/proxmox-workload-priority.env
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/proxmox-workload-priority.env
+ExecStart=/usr/local/sbin/proxmox_workload_priority.py
+TimeoutStartSec=65
+UMask=0077
