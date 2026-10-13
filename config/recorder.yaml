@@ -86,6 +86,12 @@ exclude:
     - update
     - zone
   entity_globs:
+    # Live display frames and heartbeats; kiosk problem transitions retain history.
+    - sensor.living_room_nest_*
+    - image.living_room_nest_*
+    - binary_sensor.living_room_nest_connectivity
+    - binary_sensor.living_room_nest_screen
+    - binary_sensor.living_room_nest_alert_feed
     - binary_sensor.*_motion
     - binary_sensor.*_motion_*
     - binary_sensor.*is_present
@@ -236,6 +242,8 @@ exclude:
 
   entities:
     - automation.update_garage_get_status
+    # Native thermal guard heartbeat is live-only; final incident and hold retain history.
+    - sensor.proxmox02_thermal_guard
     # Source verification is live-only; critical/attention sensors and curated incidents remain recorded.
     - sensor.tesla_home_charge_guard
     - binary_sensor.juicepassproxy_live_reports_missing

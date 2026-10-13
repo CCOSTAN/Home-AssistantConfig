@@ -22,7 +22,7 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-template-columns: repeat(5, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
@@ -118,6 +118,18 @@
         action: navigate
         navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
 
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.living_room_nest_status
+      name: Living Room Nest
+      icon: mdi:circle-outline
+      variables:
+        ok_state: 'online'
+        healthy_text: ONLINE
+        alert_text: NEEDS ATTENTION
+      state_display: >
+        [[[ return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').replaceAll('_', ' ').toUpperCase(); ]]]
+
 # -------------------------------------------------------------------
 # Latest device screenshots
 # -------------------------------------------------------------------
@@ -173,6 +185,99 @@
     tap_action:
       action: navigate
       navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
+
+# -------------------------------------------------------------------
+# Living Room Nest - actual circular framebuffer preview
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr)
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: minmax(0, 1fr)
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_round_display
+      entity: image.living_room_nest_screen
+      name: Living Room Nest
+      icon: mdi:circle-outline
+      triggers_update:
+        - sensor.living_room_nest_status
+        - sensor.living_room_nest_last_screenshot
+      variables:
+        health_entity: sensor.living_room_nest_status
+        timestamp_entity: sensor.living_room_nest_last_screenshot
+        capture_entity: button.living_room_nest_capture_screen
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Nest Display Health
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.living_room_nest_connectivity
+        name: Device connection
+        icon: mdi:wifi
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.living_room_nest_screen
+        name: Display power
+        icon: mdi:power
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.living_room_nest_alert_feed
+        name: Alert feed
+        icon: mdi:message-check
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.living_room_nest_last_screenshot
+        name: Last requested preview
+        icon: mdi:camera
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.living_room_nest_status
+        name: Rotation
+        icon: mdi:image-multiple
+        state_display: >
+          [[[ const a = entity?.attributes ?? {}; return `${a.photo_count ?? '?'} PHOTOS | ${a.active_notices ?? '?'} NOTICES | ${String(a.portrait_theme ?? 'unknown').toUpperCase()}`; ]]]
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.living_room_nest_uptime
+        name: Device uptime
+        icon: mdi:timer-outline
+        state_display: >
+          [[[ const n = Number(entity?.state); return Number.isFinite(n) ? `${Math.floor(n / 3600)}h ${Math.floor(n % 3600 / 60)}m` : 'UNKNOWN'; ]]]
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.living_room_nest_status
+        name: Recoveries
+        icon: mdi:restore
+        state_display: >
+          [[[ return `${entity?.attributes?.recoveries_last_hour ?? '?'} / 3 THIS HOUR`; ]]]
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: button.living_room_nest_restart_display
+        name: Restart display
+        icon: mdi:restart
+        show_state: false
+        tap_action:
+          action: call-service
+          service: button.press
+          target:
+            entity_id: button.living_room_nest_restart_display
 
 # -------------------------------------------------------------------
 # Device telemetry

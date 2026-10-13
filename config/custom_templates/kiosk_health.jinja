@@ -43,6 +43,9 @@
       {% set ns.items = ns.items + [room] %}
     {% endif %}
   {% endfor %}
+  {% if not is_state('binary_sensor.living_room_nest_kiosk_needs_attention', 'off') %}
+    {% set ns.items = ns.items + ['Living Room Nest'] %}
+  {% endif %}
   {{ ns.items | to_json }}
 {%- endmacro %}
 

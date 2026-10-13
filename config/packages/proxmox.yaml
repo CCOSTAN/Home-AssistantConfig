@@ -16,6 +16,7 @@
 # Notes: HA placement uses preferences across three nodes; the camera workload yields capacity after node failure.
 # Notes: Overnight maintenance uses a four-hour fail-safe alert lease and releases its own lease after verified recovery.
 # Notes: Normalized disk usage sensors expose state_class for long-term trend rollups.
+# Notes: Disk percentages use the integration's native measurement; missing telemetry stays unavailable.
 ######################################################################
 template:
   - sensor:
@@ -25,26 +26,9 @@ template:
         state_class: measurement
         icon: mdi:harddisk
         availability: >-
-          {% set preferred = states('sensor.node_proxmox1_disk_used_percentage') %}
-          {% set used = states('sensor.node_proxmox1_disk') %}
-          {% set total = states('sensor.node_proxmox1_max_disk') %}
-          {{ preferred not in ['unknown', 'unavailable', 'none', ''] or
-             (used not in ['unknown', 'unavailable', 'none', ''] and
-              total not in ['unknown', 'unavailable', 'none', ''] and
-              (total | float(0)) > 0) }}
+          {{ is_number(states('sensor.node_proxmox1_disk_used_percentage')) }}
         state: >-
-          {% set preferred = states('sensor.node_proxmox1_disk_used_percentage') %}
-          {% if preferred not in ['unknown', 'unavailable', 'none', ''] %}
-            {{ preferred | float(0) | round(1) }}
-          {% else %}
-            {% set used = states('sensor.node_proxmox1_disk') | float(0) %}
-            {% set total = states('sensor.node_proxmox1_max_disk') | float(0) %}
-            {% if total > 0 %}
-              {{ ((used / total) * 100) | round(1) }}
-            {% else %}
-              0
-            {% endif %}
-          {% endif %}
+          {{ states('sensor.node_proxmox1_disk_used_percentage') | float(0) | round(1) }}
 
       - name: "Proxmox02 Disk Used Percentage"
         unique_id: proxmox02_disk_used_percentage
@@ -52,26 +36,9 @@ template:
         state_class: measurement
         icon: mdi:harddisk
         availability: >-
-          {% set preferred = states('sensor.node_proxmox02_disk_used_percentage') %}
-          {% set used = states('sensor.node_proxmox02_disk') %}
-          {% set total = states('sensor.node_proxmox02_max_disk') %}
-          {{ preferred not in ['unknown', 'unavailable', 'none', ''] or
-             (used not in ['unknown', 'unavailable', 'none', ''] and
-              total not in ['unknown', 'unavailable', 'none', ''] and
-              (total | float(0)) > 0) }}
+          {{ is_number(states('sensor.node_proxmox02_disk_used_percentage')) }}
         state: >-
-          {% set preferred = states('sensor.node_proxmox02_disk_used_percentage') %}
-          {% if preferred not in ['unknown', 'unavailable', 'none', ''] %}
-            {{ preferred | float(0) | round(1) }}
-          {% else %}
-            {% set used = states('sensor.node_proxmox02_disk') | float(0) %}
-            {% set total = states('sensor.node_proxmox02_max_disk') | float(0) %}
-            {% if total > 0 %}
-              {{ ((used / total) * 100) | round(1) }}
-            {% else %}
-              0
-            {% endif %}
-          {% endif %}
+          {{ states('sensor.node_proxmox02_disk_used_percentage') | float(0) | round(1) }}
 
   - binary_sensor:
       - name: "Proxmox1 Runtime Healthy"

@@ -45,6 +45,61 @@ bearstone_infra_base:
     - opacity: 0.75
     - justify-self: start
 
+bearstone_infra_round_display:
+  template: bearstone_infra_base
+  show_state: false
+  show_label: true
+  variables:
+    health_entity: null
+    timestamp_entity: null
+    capture_entity: null
+  tap_action:
+    action: call-service
+    service: button.press
+    service_data:
+      entity_id: '[[[ return variables.capture_entity; ]]]'
+  hold_action:
+    action: more-info
+  label: >
+    [[[
+      const health = states[variables.health_entity]?.state ?? 'unknown';
+      const timestamp = states[variables.timestamp_entity]?.state;
+      const time = Date.parse(['unknown', 'unavailable'].includes(timestamp) ? entity?.attributes?.captured_at : timestamp);
+      const age = Number.isFinite(time) ? Math.max(0, Math.floor((Date.now() - time) / 1000)) : null;
+      const captured = age === null ? 'No preview yet' : age < 60 ? 'Captured just now' : age < 3600 ? `Captured ${Math.floor(age / 60)}m ago` : `Captured ${Math.floor(age / 3600)}h ago`;
+      return `${health.replaceAll('_', ' ').toUpperCase()} | TAP TO REFRESH\n${captured}`;
+    ]]]
+  custom_fields:
+    preview: >
+      [[[
+        const url = entity?.attributes?.entity_picture;
+        const fresh = states[variables.health_entity]?.state === 'online';
+        const stamp = encodeURIComponent(entity?.state ?? '');
+        const image = url?.startsWith('/api/image_proxy/') ? `<img src="${url}&v=${stamp}" alt="Last requested Nest preview">` : '<span>Tap to capture</span>';
+        return `<div class="nest-bezel ${fresh ? '' : 'nest-stale'}"><div class="nest-face"><div class="nest-brand">nest</div><div class="nest-screen">${image}</div></div></div>`;
+      ]]]
+  styles:
+    grid:
+      - grid-template-areas: '"i n" "preview preview" "l l"'
+      - grid-template-columns: 28px 1fr
+      - grid-template-rows: min-content 1fr min-content
+    label:
+      - white-space: pre-line
+      - font-size: 12px
+      - padding-top: 12px
+      - color: var(--secondary-text-color)
+    custom_fields:
+      preview:
+        - padding-top: 12px
+        - justify-self: center
+  extra_styles: |
+    .nest-bezel { width: 230px; height: 230px; box-sizing: border-box; padding: 10px; border-radius: 50%; background: linear-gradient(145deg,#eee,#898d90 45%,#e8e8e8 70%,#666); box-shadow: 0 3px 10px #0004; }
+    .nest-face { height: 100%; border-radius: 50%; background: #101217; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .nest-brand { color: #d6d8dc; font-size: 18px; line-height: 26px; font-weight: 600; }
+    .nest-screen { width: 160px; height: 160px; border-radius: 50%; overflow: hidden; background: #080808; display: grid; place-items: center; color: #aaa; }
+    .nest-screen img { width: 100%; height: 100%; object-fit: cover; }
+    .nest-stale .nest-screen { opacity: .4; }
+
 bearstone_infra_chip:
   template: bearstone_infra_base
   show_state: true

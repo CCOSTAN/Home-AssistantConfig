@@ -30,12 +30,13 @@
 # Notes: Native Shows share screen, volume, camera, snapshot and 07:00 update policies through satellite_devices.
 # Notes: Updates run followers first; Joanna receives an exact enrolled device key and preserves its route.
 # Notes: Kiosk attention sensors expose only their stable status attribute so recorder preserves problem transitions without heartbeat churn.
+# Notes: The round Nest uses heartbeat/checksum health and bounded scene recovery; preview age is independent.
 # Notes: Nearby daytime rain or lightning starts a five-minute NOAA radar view; the ambient banner offers daylight replay while the event remains active.
 # Notes: Actionable Kitchen banner slides open one shared short-lived detail surface; camera events retain priority.
 # Notes: Phyn detail can restore a closed main valve only after an explicit on-screen confirmation.
 # Notes: Rheem faults outrank low-hot-water reminders and reuse the hot-water diagnostic detail surface.
 # Notes: Verified Health Coach personal bests rotate for seven days; Bedroom safety and reminders retain priority.
-# Notes: Shared parent/family phone pushes rotate for ten minutes; tags replace or clear matching entries.
+# Notes: Shared parent/family phone pushes rotate for five minutes; tags replace or clear matching entries.
 # Notes: The bounded notification feed uses sent timestamps, restores across restart, and prunes every 15 seconds.
 # Notes: Joanna Voice processing plays one cached spoken acknowledgment on the requesting Show; final speech stays in Assist.
 # Notes: joanna_voice_ack_url points to /local/joanna-voice/acknowledgement.mp3 on the local HA server.
@@ -66,6 +67,47 @@ timer:
     icon: mdi:car-search
 
 automation:
+  - alias: "Living Room Nest - Reconcile Display Repair"
+    id: living_room_nest_reconcile_display_repair
+    description: "Keep one durable repair after the device's bounded recovery fails, and clear it on verified recovery."
+    mode: queued
+    max: 3
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.living_room_nest_kiosk_needs_attention
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.living_room_nest_kiosk_needs_attention
+        to: "off"
+      - platform: homeassistant
+        event: start
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.living_room_nest_kiosk_needs_attention
+                state: "on"
+            sequence:
+              - action: repairs.create
+                data:
+                  issue_id: living_room_nest_display
+                  title: "Living Room Nest display needs attention"
+                  description: >-
+                    The display monitor reports {{ state_attr('binary_sensor.living_room_nest_kiosk_needs_attention', 'status') }}.
+                    Check the connection, alert feed and latest round preview on the Systems Kiosks view.
+                    Automatic scene recovery is limited to three restarts per hour; offline hardware requires a power/network check.
+                  severity: warning
+                  persistent: true
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.living_room_nest_kiosk_needs_attention
+                state: "off"
+            sequence:
+              - action: repairs.remove
+                continue_on_error: true
+                data:
+                  issue_id: living_room_nest_display
+
   - alias: "Joanna Voice - Acknowledge Heard Request"
     id: joanna_voice_acknowledge_heard_request
     mode: parallel
@@ -488,7 +530,7 @@ template:
             {% set tag = data.get('tag', '') | default('', true) | string | trim %}
             {% set key = 'tag:' ~ tag if tag else 'message:' ~ title ~ '|' ~ message %}
             {% set clear = message == 'clear_notification' %}
-            {% set publish = trigger.id == 'notification' and message and not clear
+            {% set publish = trigger.id == 'notification' and (title or message) and not clear
                and not message.startswith('command_') %}
             {% set ns = namespace(items=[]) %}
             {% for item in state_attr('sensor.kiosk_recent_phone_notifications', 'items') | default([], true) %}
@@ -501,7 +543,7 @@ template:
               {% set icon = data.get('notification_icon', '') | default('', true) | string %}
               {% set color = data.get('color', '') | default('', true) | string %}
               {% set ns.items = ns.items + [dict(key=key, title=title or 'Household notification',
-                 message=message | truncate(320, true), sent_at=current, expires_at=current + 600,
+                 message=message | truncate(320, true), sent_at=current, expires_at=current + 300,
                  sent_time=now().strftime('%-I:%M %p'),
                  icon=icon if icon.startswith('mdi:') else 'mdi:message-text-outline',
                  color=color if color | regex_match('^#[0-9a-fA-F]{6}$') else '#1565c0')] %}
@@ -837,6 +879,18 @@ template:
           status: >-
             {% from 'kiosk_health.jinja' import satellite_status %}
             {{ satellite_status('office_show', '/dashboard-kiosk-satellite-staging/echo-show5', check_foreground=true, include_update=true) | trim }}
+
+      - name: "Living Room Nest Kiosk Needs Attention"
+        unique_id: living_room_nest_kiosk_needs_attention
+        device_class: problem
+        icon: mdi:circle-outline
+        delay_on: "00:02:00"
+        delay_off: "00:00:30"
+        state: >-
+          {{ not is_state('sensor.living_room_nest_status', 'online') }}
+        attributes:
+          status: >-
+            {{ states('sensor.living_room_nest_status') }}
 
       - name: "Kiosk Devices Need Attention"
         unique_id: kiosk_devices_need_attention

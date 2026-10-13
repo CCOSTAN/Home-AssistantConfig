@@ -529,6 +529,7 @@
               if (states['binary_sensor.kitchen_kiosk_needs_attention']?.state === 'on') issues.push(`KITCHEN: ${String(kitchen ?? 'ATTENTION').toUpperCase()}`);
               if (states['binary_sensor.upstairs_kiosk_needs_attention']?.state === 'on') issues.push(`UPSTAIRS: ${String(upstairs ?? 'ATTENTION').toUpperCase()}`);
               if (states['binary_sensor.office_kiosk_needs_attention']?.state === 'on') issues.push(`OFFICE: ${String(office ?? 'ATTENTION').toUpperCase()}`);
+              if (states['binary_sensor.living_room_nest_kiosk_needs_attention']?.state === 'on') issues.push(`LIVING ROOM NEST: ${String(states['binary_sensor.living_room_nest_kiosk_needs_attention']?.attributes?.status ?? 'ATTENTION').toUpperCase()}`);
               return issues.join(' Â· ') || 'KIOSK TELEMETRY REQUIRES REVIEW';
             ]]]
         state_display: '[[[ return "ATTENTION"; ]]]'
@@ -834,14 +835,13 @@
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
-        entity: sensor.proxmox_garage_average_temperature
-        name: Garage compute temperature high
+        entity: binary_sensor.proxmox_garage_thermal_alert
+        name: Sustained garage CPU heat
         icon: mdi:thermometer-alert
         variables:
-          alert_kind: numeric_high
-          threshold: 145
+          alert_kind: binary_on
         state_display: >
-          [[[ return `${entity.state} Â°F`; ]]]
+          [[[ return `${states['sensor.proxmox_garage_thermal_state']?.state?.toUpperCase()} | ${states['sensor.proxmox_garage_hottest_cpu_temperature']?.state} F`; ]]]
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/proxmox
@@ -1018,9 +1018,9 @@
         color_thresholds:
         - value: 80
           color: '#43a047'
-        - value: 135
+        - value: 176
           color: '#f39c12'
-        - value: 145
+        - value: 194
           color: '#c0392b'
         entities:
         - entity: sensor.proxmox_garage_average_temperature

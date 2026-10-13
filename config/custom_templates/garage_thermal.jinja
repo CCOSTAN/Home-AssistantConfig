@@ -1,0 +1,37 @@
+{# One restored incident policy for notifications and compute-health presentation. #}
+{% macro garage_thermal_policy(previous, previous_band, returns) -%}
+  {% set stamp = as_timestamp(now()) %}
+  {% set sources = ['sensor.proxmox1_package_id_0_temperature',
+                    'sensor.proxmox2_package_id_0_temperature',
+                    'sensor.proxmox03_package_id_0_temperature'] %}
+  {% set ns = namespace(values=[], missing=[], source='') %}
+  {% for source in sources %}
+    {% set entity = states[source] %}
+    {% set value = states(source) | float(none) %}
+    {% set reported = as_timestamp(entity.last_reported, 0) if entity is not none else 0 %}
+    {% if value is not none and 41 <= value <= 230 and 0 <= stamp - reported <= 180 %}
+      {% if not ns.values or value > ns.values | max %}{% set ns.source = source %}{% endif %}
+      {% set ns.values = ns.values + [value] %}
+    {% else %}
+      {% set ns.missing = ns.missing + [source] %}
+    {% endif %}
+  {% endfor %}
+  {% set hottest = ns.values | max if ns.values else none %}
+  {% set continuous = 0 <= stamp - previous.get('observed_at', 0) <= 120 %}
+  {% set warning_since = (previous.get('warning_since', 0) or stamp) if continuous and hottest is not none and hottest >= 176 else (stamp if hottest is not none and hottest >= 176 else 0) %}
+  {% set urgent_since = (previous.get('urgent_since', 0) or stamp) if continuous and hottest is not none and hottest >= 194 else (stamp if hottest is not none and hottest >= 194 else 0) %}
+  {% set cool_since = (previous.get('cool_since', 0) or stamp) if continuous and not ns.missing and hottest is not none and hottest < 167 else (stamp if not ns.missing and hottest is not none and hottest < 167 else 0) %}
+  {% set missing_since = (previous.get('missing_since', 0) or stamp) if ns.missing else 0 %}
+  {% set band = previous_band if previous_band in ['warning', 'urgent'] else 'normal' %}
+  {% if hottest is not none and (hottest >= 203 or (urgent_since and stamp - urgent_since >= 120)) %}
+    {% set band = 'urgent' %}
+  {% elif band == 'normal' and warning_since and stamp - warning_since >= 600 %}
+    {% set band = 'warning' %}
+  {% endif %}
+  {% if cool_since and stamp - cool_since >= 900 %}{% set band = 'normal' %}{% endif %}
+  {% set tracking = band != 'normal' or warning_since or urgent_since or missing_since %}
+  {% do returns({'band': band, 'hottest_f': hottest, 'source': ns.source,
+    'missing': ns.missing, 'telemetry_degraded': missing_since != 0 and stamp - missing_since >= 300,
+    'memory': {'observed_at': stamp if tracking else 0, 'warning_since': warning_since,
+      'urgent_since': urgent_since, 'cool_since': cool_since if band != 'normal' else 0, 'missing_since': missing_since}}) %}
+{%- endmacro %}

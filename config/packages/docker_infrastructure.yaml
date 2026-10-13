@@ -32,6 +32,7 @@
 # Notes: Paige's Bookshelf is a live monitored service and should remain in the group when its discovery switch is present.
 # Notes: Panel Notes and OneNote Indexer use their current `_2` discovery switches after stale registry cleanup.
 # Notes: Retired repair cleanup clears stale legacy codex_appliance and Dozzle repair IDs.
+# Notes: Intentional Frigate thermal shedding suppresses its outage repair and recovery dispatch; the native hold also prevents restarts.
 ######################################################################
 
 input_datetime:
@@ -681,7 +682,10 @@ script:
           issue_id: "docker_container_{{ container_key }}_offline"
           spook_issue_id: "user_docker_container_{{ container_key }}_offline"
       - condition: template
-        value_template: "{{ tracked_container and op in ['create', 'clear'] }}"
+        value_template: >-
+          {{ tracked_container and op in ['create', 'clear'] and
+             (op == 'clear' or container_key != 'frigate' or
+              is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off')) }}
       - choose:
           - conditions: "{{ op == 'create' }}"
             sequence:
@@ -727,6 +731,8 @@ script:
               - condition: state
                 entity_id: binary_sensor.docker_container_alerts_snoozed
                 state: "off"
+              - condition: template
+                value_template: "{{ container_key != 'frigate' or is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off') }}"
               - service: repairs.create
                 data:
                   issue_id: "{{ issue_id }}"
@@ -782,6 +788,8 @@ script:
               - condition: state
                 entity_id: binary_sensor.docker_container_alerts_snoozed
                 state: "off"
+              - condition: template
+                value_template: "{{ container_key != 'frigate' or is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off') }}"
               - service: script.joanna_dispatch
                 data:
                   trigger_context: >-
@@ -802,6 +810,9 @@ script:
                     effective_state_20m={{ persistent_effective_state }}
                   request: >-
                     Troubleshoot and resolve the persistent Docker container outage if possible.
+                    First check binary_sensor.frigate_thermal_recovery_inhibited and sensor.proxmox02_thermal_guard.
+                    If the thermal recovery block is on, unknown, or unavailable, never start Frigate or Docker14/VM 101.
+                    An intentional thermal shutdown requires operator release after verified cooling.
                     Reply with explicit status fields:
                     resolved=true/false,
                     root_cause,

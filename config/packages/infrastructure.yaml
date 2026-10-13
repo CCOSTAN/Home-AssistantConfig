@@ -33,8 +33,9 @@
 # Notes: Nebula Sync compares the docker_10 primary with the physical office-pi DNS replica and dispatches Joanna on sustained drift or endpoint loss.
 # Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
 # Notes: DNS probes retry brief resolver interruptions and filter transport diagnostics; timeout budgets also cover persistent resolver loss.
-# Notes: Garage compute health uses the same 145 F threshold as the existing temperature notification.
+# Notes: Garage compute heat uses the shared sustained hottest-package thermal incident and telemetry health.
 # Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
+# Notes: External IP uses the live ipify probe; website rollups include only configured UptimeRobot monitors.
 # Notes: Bear Stone and website outages dispatch Joanna quietly; no direct phone alerts are sent.
 # Notes: Dashboard aggregate issue count is live-only; its underlying degraded sensors retain actionable history.
 # Notes: Dashboard aggregate issue count includes compact BearClaw scheduled-job warning/error health.
@@ -193,14 +194,7 @@ template:
           warning_since: "{{ states('input_text.infra_eaton_low_voltage_since') }}"
       - name: "Infra External IP"
         unique_id: infra_external_ip
-        state: >-
-          {% set primary = states('sensor.external_ip') | trim %}
-          {% set fallback = states('sensor.infra_external_ip_fallback') | trim %}
-          {% if primary not in ['unknown', 'unavailable', 'none', ''] %}
-            {{ primary }}
-          {% else %}
-            {{ fallback }}
-          {% endif %}
+        state: "{{ states('sensor.infra_external_ip_fallback') | trim }}"
 
       - name: "docker_17 Disk Used Percentage"
         unique_id: docker_17_disk_used_percentage
@@ -233,8 +227,6 @@ template:
           {% set ids = [
             'binary_sensor.bear_stone',
             'binary_sensor.vcloudinfo_com',
-            'binary_sensor.ipmer_com',
-            'binary_sensor.fordst_com',
             'binary_sensor.www_kingcrafthomes_com'
           ] %}
           {% set ns = namespace(count=0) %}
@@ -252,16 +244,12 @@ template:
             {{ [
               'binary_sensor.bear_stone',
               'binary_sensor.vcloudinfo_com',
-              'binary_sensor.ipmer_com',
-              'binary_sensor.fordst_com',
               'binary_sensor.www_kingcrafthomes_com'
             ] }}
           down_entities: >-
             {% set ids = [
               'binary_sensor.bear_stone',
               'binary_sensor.vcloudinfo_com',
-              'binary_sensor.ipmer_com',
-              'binary_sensor.fordst_com',
               'binary_sensor.www_kingcrafthomes_com'
             ] %}
             {% set ns = namespace(items=[]) %}
@@ -577,8 +565,8 @@ template:
              states('binary_sensor.proxmox1_runtime_healthy') != 'on' or
              states('binary_sensor.proxmox02_runtime_healthy') != 'on' or
              states('binary_sensor.node_proxmox03_status') != 'on' or
-             states('sensor.proxmox_garage_average_temperature') in ['unknown', 'unavailable', 'none', ''] or
-             states('sensor.proxmox_garage_average_temperature') | float(0) > 145 }}
+             is_state('binary_sensor.proxmox_garage_thermal_alert', 'on') or
+             is_state('binary_sensor.proxmox_garage_thermal_telemetry_degraded', 'on') }}
 
       - name: "Infra Storage Degraded"
         unique_id: infra_storage_degraded

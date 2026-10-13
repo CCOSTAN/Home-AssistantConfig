@@ -9,6 +9,9 @@
 # -------------------------------------------------------------------
 # Notes: Garage CPU average and maximum use one CPU package reading per host; SSD temperatures stay separate.
 # Notes: Unavailable readings are excluded; these temperatures are not ambient garage readings.
+# Notes: Hottest-package warnings use 80 C/10 min, urgent 90 C/2 min or 95 C immediately, recovery below 75 C/15 min.
+# Notes: Restored trigger-sensor attributes retain the incident; missing telemetry cannot clear it.
+# Notes: The optional camera host has an independent graceful thermal guard and an operator-release hold.
 ######################################################################
 
 sensor:
@@ -61,19 +64,137 @@ template:
             unavailable
           {% endif %}
 
+  - triggers:
+      - trigger: time_pattern
+        seconds: "/30"
+      - trigger: state
+        entity_id: sensor.proxmox_garage_hottest_cpu_temperature
+      - trigger: homeassistant
+        event: start
+    sensor:
+      - name: "Proxmox Garage Thermal State"
+        unique_id: proxmox_garage_thermal_state
+        icon: mdi:thermometer-alert
+        state: >-
+          {% from 'garage_thermal.jinja' import garage_thermal_policy %}
+          {% set policy = garage_thermal_policy | as_function %}
+          {{ policy(this.attributes.get('memory', {}), this.state)['band'] }}
+        attributes:
+          memory: >-
+            {% from 'garage_thermal.jinja' import garage_thermal_policy %}
+            {% set policy = garage_thermal_policy | as_function %}
+            {{ policy(this.attributes.get('memory', {}), this.state)['memory'] }}
+          warning_threshold_f: 176
+          urgent_threshold_f: 194
+          immediate_threshold_f: 203
+          recovery_threshold_f: 167
+          warning_minutes: 10
+          urgent_minutes: 2
+          recovery_minutes: 15
+          telemetry_degraded: >-
+            {% from 'garage_thermal.jinja' import garage_thermal_policy %}
+            {% set policy = garage_thermal_policy | as_function %}
+            {{ policy(this.attributes.get('memory', {}), this.state)['telemetry_degraded'] }}
+
+  - triggers:
+      - trigger: webhook
+        webhook_id: !secret proxmox_thermal_status_webhook
+        allowed_methods: [POST]
+        local_only: true
+    sensor:
+      - name: "Proxmox02 Thermal Guard"
+        unique_id: proxmox02_thermal_guard
+        icon: mdi:shield-thermometer
+        state: "{{ trigger.json.phase }}"
+        attributes:
+          hold: "{{ trigger.json.hold }}"
+          observed_at: "{{ trigger.json.observed_at }}"
+          stage_since: "{{ trigger.json.stage_since | default(0, true) }}"
+          last_action: "{{ trigger.json.last_action | default('', true) }}"
+          error: "{{ trigger.json.error | default('', true) }}"
+
+  - binary_sensor:
+      - name: "Proxmox Garage Thermal Alert"
+        unique_id: proxmox_garage_thermal_alert
+        device_class: problem
+        state: "{{ states('sensor.proxmox_garage_thermal_state') in ['warning', 'urgent'] }}"
+      - name: "Proxmox Garage Thermal Telemetry Degraded"
+        unique_id: proxmox_garage_thermal_telemetry_degraded
+        device_class: problem
+        state: "{{ state_attr('sensor.proxmox_garage_thermal_state', 'telemetry_degraded') == true }}"
+      - name: "Frigate Thermal Recovery Inhibited"
+        unique_id: frigate_thermal_recovery_inhibited
+        device_class: problem
+        state: >-
+          {% set hold = state_attr('sensor.proxmox02_thermal_guard', 'hold') %}
+          {% set stamp = state_attr('sensor.proxmox02_thermal_guard', 'observed_at') | float(0) %}
+          {{ hold != false or as_timestamp(now()) - stamp > 180 }}
+
 automation:
   - alias: "Garage Proxmox High Temperature Warning"
     id: proxmox-garage-high-temp-warning-automation
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.proxmox_garage_average_temperature
-        above: 145  # Adjust threshold as needed
-    action:
-      - service: script.notify_engine
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: sensor.proxmox_garage_thermal_state
+    conditions:
+      - condition: template
+        value_template: >-
+          {{ trigger.to_state is not none and trigger.from_state is not none and
+             trigger.to_state.state != trigger.from_state.state and
+             (trigger.to_state.state in ['warning', 'urgent'] or
+              (trigger.to_state.state == 'normal' and trigger.from_state.state in ['warning', 'urgent'])) }}
+    actions:
+      - action: script.notify_engine
         data:
           notification_icon: "mdi:thermometer-alert"
           color: "#C62828"
           title: "Garage Server Temperature"
-          value1: "The average temperature of your Proxmox servers is above 145\u00B0F!"
+          value1: >-
+            {% set band = trigger.to_state.state %}
+            {% if band == 'normal' %}clear_notification
+            {% else %}
+              {{ 'Urgent CPU heat' if band == 'urgent' else 'Sustained CPU heat' }}:
+              {{ states('sensor.proxmox_garage_hottest_cpu_temperature') }} F on
+              {{ state_attr('sensor.proxmox_garage_hottest_cpu_temperature', 'max_entity_id') | replace('sensor.', '') | replace('_package_id_0_temperature', '') }}.
+              {{ 'The optional camera host has independent staged thermal protection; essential guests are preserved.' if band == 'urgent' else 'The hottest CPU package has remained at or above 176 F for 10 minutes.' }}
+            {% endif %}
           who: 'carlo'
           group: 'information'
+          tag: garage_cpu_heat
+          level: "{{ 'active' if trigger.to_state.state == 'urgent' else 'passive' }}"
+      - action: script.send_to_logbook
+        data:
+          topic: "THERMAL"
+          message: "Garage CPU thermal state changed to {{ trigger.to_state.state }}."
+
+  - alias: "Garage Thermal Protection Status"
+    id: garage-thermal-protection-status
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: sensor.proxmox02_thermal_guard
+    conditions:
+      - condition: template
+        value_template: >-
+          {{ trigger.to_state is not none and trigger.from_state is not none and
+             (trigger.to_state.state != trigger.from_state.state or
+              trigger.to_state.attributes.get('error', '') != trigger.from_state.attributes.get('error', '')) and
+             trigger.to_state.attributes.get('hold', false) }}
+    actions:
+      - action: script.notify_engine
+        data:
+          title: "Garage Thermal Protection"
+          notification_icon: "mdi:shield-thermometer"
+          who: carlo
+          group: information
+          tag: garage_cpu_heat
+          level: "{{ 'active' if trigger.to_state.attributes.get('error') else 'passive' }}"
+          value1: >-
+            Camera-host protection: {{ trigger.to_state.state | replace('_', ' ') }}.
+            {{ trigger.to_state.attributes.get('error', '') }}
+            Frigate recovery is blocked pending operator review; nothing will restart automatically.
+      - action: script.send_to_logbook
+        data:
+          topic: "THERMAL"
+          message: "Camera-host thermal protection: {{ trigger.to_state.state }}. {{ trigger.to_state.attributes.get('error', '') }}"
