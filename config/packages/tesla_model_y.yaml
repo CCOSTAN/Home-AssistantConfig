@@ -72,7 +72,7 @@ command_line:
 input_boolean:
   tesla_high_charge_rate_alert_active:
     name: Tesla Home Charging Incident Active
-    icon: mdi:car-electric-alert
+    icon: mdi:car-electric-outline
   tesla_home_charge_restart_required:
     name: Tesla Home Charging Restart Review Required
     icon: mdi:car-electric-outline
@@ -934,20 +934,8 @@ automation:
           {{ snooze_until <= as_timestamp(now()) }}
       - variables:
           low_tires: >-
-            {% set tire_names = {
-              'sensor.tire_pressure_front_left': 'front left',
-              'sensor.tire_pressure_front_right': 'front right',
-              'sensor.tire_pressure_rear_left': 'rear left',
-              'sensor.tire_pressure_rear_right': 'rear right'
-            } %}
-            {% set ns = namespace(items=[]) %}
-            {% for entity_id, tire_name in tire_names.items() %}
-              {% set pressure = states(entity_id) %}
-              {% if has_value(entity_id) and (pressure | float(100)) < 38.5 %}
-                {% set ns.items = ns.items + [tire_name ~ ' ' ~ (pressure | float(0) | round(1)) ~ ' PSI'] %}
-              {% endif %}
-            {% endfor %}
-            {{ ns.items | join('; ') }}
+            {% from 'tesla_tires.jinja' import low_tires %}
+            {{ low_tires() }}
       - service: script.notify_engine_two_button
         data:
           title: "Tesla Tire Pressure"

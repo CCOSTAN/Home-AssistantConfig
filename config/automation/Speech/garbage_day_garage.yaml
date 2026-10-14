@@ -14,12 +14,17 @@
 # Notes: Debounced garage door open trigger to avoid restarts if the
 #  garage door state flaps (noisy sensors/reflection).
 # Notes: A stable garbage_day_reminder tag replaces the previous phone reminder.
+# Notes: A garage opening also runs the shared briefing when Tesla tires
+#  need air, even outside garbage days or during a garbage-only snooze.
+#  Tire speech uses the existing 1-day/3-day tire-alert snooze.
 ######################################################################
 - alias: 'Garage Garbage Day Reminders'
   id: 3f97f3be-3d0a-4d2d-9100-5b9c0dbfd5c3
   description: >-
     Remind Carlo to handle garbage day, with phone actions that silence
-    all related speech for 30 minutes or 2 hours.
+    all garbage speech for 30 minutes or 2 hours. Include low Tesla tire
+    pressure in the shared briefing and announce tire-only reminders
+    on other days when the garage opens.
   mode: restart
 
   trigger:
@@ -66,6 +71,34 @@
 
     - condition: trigger
       id: garage_open
+
+    # Garbage-day openings already run speech_engine below, which includes tires.
+    # On other openings, speak once only when an unsnoozed tire needs air.
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: >-
+                {% from 'tesla_tires.jinja' import tire_reminder %}
+                {{ tire_reminder() | trim != '' }}
+            - condition: not
+              conditions:
+                - condition: and
+                  conditions:
+                    - condition: time
+                      weekday:
+                        - wed
+                        - sun
+                    - condition: state
+                      entity_id: timer.garbage_reminder_snooze
+                      state: 'idle'
+          sequence:
+            - service: script.speech_engine
+              data:
+                value1: >-
+                  {% from 'tesla_tires.jinja' import tire_reminder %}
+                  {{ tire_reminder() }}
+                call_garbage_day: 1
+            - stop: "Shared garage tire reminder announced."
 
     # Only run on garbage days (Wed/Sun) while the shared snooze is idle.
     - condition: time

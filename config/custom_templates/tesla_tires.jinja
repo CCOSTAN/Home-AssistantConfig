@@ -1,0 +1,39 @@
+{#
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Tesla Tires - Shared low-pressure detail and spoken reminder
+#  Uses current Tesla Fleet readings and the existing tire-alert snooze.
+# -------------------------------------------------------------------
+# Notes: 38.5 PSI is the alert cutoff, not the tire inflation target.
+# Notes: Unknown, unavailable, and nonnumeric readings stay silent.
+######################################################################
+#}
+{% macro low_tires() -%}
+  {%- set tire_names = {
+    'sensor.tire_pressure_front_left': 'front left',
+    'sensor.tire_pressure_front_right': 'front right',
+    'sensor.tire_pressure_rear_left': 'rear left',
+    'sensor.tire_pressure_rear_right': 'rear right'
+  } -%}
+  {%- set ns = namespace(items=[]) -%}
+  {%- for entity_id, tire_name in tire_names.items() -%}
+    {%- set pressure = states(entity_id) | float(none) -%}
+    {%- if pressure is not none and pressure < 38.5 -%}
+      {%- set ns.items = ns.items + [tire_name ~ ' ' ~ (pressure | round(1)) ~ ' PSI'] -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {{- ns.items | join('; ') -}}
+{%- endmacro %}
+
+{% macro tire_reminder() -%}
+  {%- set snooze_until = as_timestamp(states('input_datetime.tesla_tire_pressure_snooze_until'), 0) -%}
+  {%- if snooze_until <= as_timestamp(now()) -%}
+    {%- set tires = low_tires() | trim -%}
+    {%- if tires -%}
+      Tesla tires need air: {{ tires }}. Fill the low tires to the pressure on the driver's door label while you are in the garage.
+    {%- endif -%}
+  {%- endif -%}
+{%- endmacro %}

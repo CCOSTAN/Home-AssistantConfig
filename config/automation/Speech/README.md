@@ -28,7 +28,7 @@ Speech-first automations: contextual announcements, stats briefings, guest mode 
 | --- | --- |
 | [![YAML source: announcements](https://img.shields.io/static/v1?label=YAML&message=announcements&color=lightgrey&logo=github&logoColor=181717)](announcements.yaml) | Family and tracked Life360 arrival greetings plus daily/occasional broadcast messages. |
 | [![YAML source: home_stats](https://img.shields.io/static/v1?label=YAML&message=home_stats&color=lightgrey&logo=github&logoColor=181717)](home_stats.yaml) | Voice summary of house status and interesting stats. |
-| [![YAML source: garbage_day_garage](https://img.shields.io/static/v1?label=YAML&message=garbage_day_garage&color=lightgrey&logo=github&logoColor=181717)](garbage_day_garage.yaml) | Garage garbage-day speech plus a Carlo-only phone alert with 30-minute and 2-hour snooze actions. |
+| [![YAML source: garbage_day_garage](https://img.shields.io/static/v1?label=YAML&message=garbage_day_garage&color=lightgrey&logo=github&logoColor=181717)](garbage_day_garage.yaml) | Garage garbage-day speech plus a Carlo-only phone alert with 30-minute and 2-hour snooze actions. Garage openings also announce low Tesla tire pressure on other days through the shared briefing. |
 | [![YAML source: guest_mode](https://img.shields.io/static/v1?label=YAML&message=guest_mode&color=lightgrey&logo=github&logoColor=181717)](guest_mode.yaml) | Adjust announcements and behaviors while guests are over. |
 | [![YAML source: High_Wind_Speed_Check](https://img.shields.io/static/v1?label=YAML&message=High_Wind_Speed_Check&color=lightgrey&logo=github&logoColor=181717)](High_Wind_Speed_Check.yaml) | Tier 30/40/60 mph alerts and include any open garage doors in one warning path. |
 
@@ -37,6 +37,7 @@ Speech-first automations: contextual announcements, stats briefings, guest mode 
 - Keep announcements natural and action-first; the LLM prompt should avoid previous-message repetition and include weather when requested, safety-relevant, or still useful before late-day context takes over.
 - Airly's nearest-monitor CAQI is the primary local reading and stays silent below medium (50); Pirate Weather US AQI is a safety backstop at 101 or higher. Normal readings are never added to speech. [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/Gjk7z34Qe_4) [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/07/home-assistant-air-quality-airly-pirate-weather.html)
 - Briefing context includes quiet-by-default Tesla, energy, water, comfort, and vacuum checks so routine announcements stay useful without repeating normal status.
+- Tesla tire reminders name each current reading below 38.5 PSI and honor the existing 1-day/3-day tire-alert snooze. The shared [tire macros](../../custom_templates/tesla_tires.jinja) keep phone and speech details aligned. Garbage-only snoozes leave tire reminders available, and tire-only garage openings produce one shared announcement without extra phone alerts or staggered repeats. Inflate to the vehicle's door-label pressure; 38.5 PSI is the alert cutoff.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

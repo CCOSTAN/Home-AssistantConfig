@@ -28,12 +28,15 @@
 # Notes: Garbage-day speech honors timer.garbage_reminder_snooze so Carlo's
 #  phone action suppresses the reminder across every speech entry point.
 # Notes: Garage-door speech honors the shared one-hour reminder snooze.
+# Notes: Low Tesla tire pressure includes affected tires and current PSI,
+#  honoring the existing tire-alert snooze across shared briefings.
 # Notes: Humidity and NWS alerts use the current sensor IDs; missing alert
 #  attributes are treated as an empty alert list.
 ######################################################################
 
 
 >-
+  {%- from 'tesla_tires.jinja' import tire_reminder -%}
   {%- macro dark_outside() -%}
     [Because the sun has set, outside lights have been turned on]
   {%- endmacro -%}
@@ -541,6 +544,8 @@
     {{ front_door_packages() }}
 
     {{ tesla_charge_context() }}
+
+    {{ tire_reminder() }}
 
     {{ energy_context() }}
 
