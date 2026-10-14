@@ -112,7 +112,7 @@ HomeAssistantLoader.add_multi_constructor("!", _construct_tagged)
 
 
 def repo_root() -> Path:
-    return Path(__file__).resolve().parents[1]
+    return Path(__file__).resolve().parents[2]
 
 
 def parse_yaml(path: Path) -> Any:
@@ -409,7 +409,7 @@ def live_entity_catalog(root: Path) -> set[str]:
 
 
 def read_entity_allowlist(root: Path) -> set[str]:
-    path = root / "tools" / "dashboard_entity_allowlist.txt"
+    path = root / ".github" / "scripts" / "dashboard_entity_allowlist.txt"
     if not path.exists():
         return set()
     values: set[str] = set()

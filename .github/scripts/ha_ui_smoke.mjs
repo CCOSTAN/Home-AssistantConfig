@@ -13,7 +13,7 @@ require("node:module").Module._initPaths();
 
 function parseArguments(argv) {
   const values = {
-    baseUrl: process.env.HASS_PLAYWRIGHT_BASE_URL || "http://192.168.10.10:8123",
+    baseUrl: process.env.HASS_PLAYWRIGHT_BASE_URL || "http://localhost:8123",
     outputDir: process.env.HASS_PLAYWRIGHT_OUTPUT_DIR || "output/playwright/ha-ui-smoke",
     routesJson: process.env.HASS_UI_ROUTES_JSON || "[]",
     headed: false,
