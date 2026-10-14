@@ -13,6 +13,7 @@
 #  the garage reminder and household speech paths.
 # Notes: Garage door reminders share a one-hour phone/speech snooze. It
 #  resets when both doors close and does not survive Home Assistant restarts.
+# Notes: The garage_door_reminder tag replaces the previous check-doors push.
 # Setup: https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
 # Token fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 # Video: https://youtu.be/wFO0H5zgnzk
@@ -378,6 +379,7 @@ automation:
           who: "family"
           camera_entity: "camera.garagecam"
           group: 'information'
+          tag: 'garage_door_reminder'
           title1: "Snooze 1 hour"
           action1: "SNOOZE_GARAGE_DOOR_REMINDERS_1H"
           icon1: "sfsymbols:clock"

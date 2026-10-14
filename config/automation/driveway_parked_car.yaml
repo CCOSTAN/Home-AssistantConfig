@@ -15,6 +15,7 @@
 #  traffic does not create camera-wide review items.
 # Notes: The kiosk takeover clears with occupancy or after ten minutes,
 #  whichever happens first; Garage and Front Door keep higher priority.
+# Notes: The driveway_alert tag replaces the previous driveway phone alert.
 # Notification icons video: https://youtu.be/TMfdxv-WprM
 # Notification icons blog: https://www.vcloudinfo.com/2026/10/home-assistant-ios-notification-icons.html
 ######################################################################
@@ -46,6 +47,7 @@
         value1: "Hey, there's a car parked in your driveway. Please check."
         who: 'parents'
         group: 'information'
+        tag: 'driveway_alert'
         level: 'active'
         camera_entity: camera.driveway
 

@@ -38,6 +38,9 @@ Reusable scripts that other automations call for notifications, lighting, safety
 | [![YAML source: interior_off](https://img.shields.io/static/v1?label=YAML&message=interior_off&color=lightgrey&logo=github&logoColor=181717)](interior_off.yaml) | One-call "all interior lights off" helper. |
 
 ### Household notification icons
+
+Driveway alerts, front-door package alerts/status checks, and check-garage-door reminders use separate stable `tag` values so each new notification replaces the previous one of its kind on each recipient's phone. Existing untagged notifications require one-time manual dismissal. The iOS `destructive` action option only colors an action button red; notification replacement uses [tags](https://companion.home-assistant.io/docs/notifications/notifications-basic/#replacing).
+
 Shared phone notifications sent through `notify.ios_parents` or `notify.ios_family` also join the household kiosk rotation for ten minutes. The kiosk feed observes these group calls, including callers outside `notify_engine`, and preserves phone recipients, actions, attachments, and urgency. Each slide shows the notification title, message, and sent time. A repeated tag replaces its earlier slide; `clear_notification` removes the matching tag. Individual phone notifications and device commands stay out of the shared rotation.
 
 [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/TMfdxv-WprM) [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/home-assistant-ios-notification-icons.html)

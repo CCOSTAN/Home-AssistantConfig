@@ -15,6 +15,8 @@
 #  LLM Vision is removed. Last sync records state updates, not every
 #  inference; the status button reads the last verified state.
 # Notes: Unknown/unavailable classifications never clear a package.
+# Notes: Package alerts and manual status checks share front_door_package_check
+#  so each phone keeps only its latest package notification.
 # Notes: Garage is non-production and disabled. The reflective X is gone;
 #  any future classifier must use the actual bins in the upper-right.
 # Docs: https://docs.frigate.video/configuration/custom_classification/state_classification/
@@ -150,6 +152,7 @@ automation:
               value1: "Frigate's last verified porch state is {{ classification | replace('_', ' ') }}."
               who: carlo
               group: information
+              tag: front_door_package_check
               level: active
               camera_entity: camera.frontdoorbell
 
@@ -179,6 +182,7 @@ automation:
           value1: "{{ package_message }}"
           who: "{{ notify_target }}"
           group: information
+          tag: front_door_package_check
           level: active
           camera_entity: camera.frontdoorbell
       - service: script.send_to_logbook
