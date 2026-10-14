@@ -80,6 +80,3 @@ obsolete history checkpoints are removed through Home Assistant's storage API.
 
 Alerts never authorize browser interaction, DNS/security/account changes, host
 reboots, or new public exposure. No dynamic DNS update integration is installed.
-
-Validation: `python tools/test_cloudflare_alerts.py`, the runtime receiver tests,
-the YAML DRY verifier, and the repository's configuration checker.

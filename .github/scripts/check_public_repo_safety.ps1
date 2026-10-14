@@ -11,7 +11,7 @@
 [CmdletBinding()]
 param()
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $blockedPatterns = @(
   '^\.playwright-cli(?:/|$)',
   '^output(?:/|$)',

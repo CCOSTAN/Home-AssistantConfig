@@ -38,11 +38,11 @@ Train local Frigate state classifiers on your own camera examples, keep existing
 
 ### Repo layout and files you won't see
 - Reusable config lives under `config/` (see the quick navigation paths above).
-- Runtime and agent-generated artifacts are hidden by `.gitignore` and blocked by CI (e.g., `home-assistant_v2.db*`, logs, `deps/`, `.venv/`, backups, `output/`, and `.playwright-cli/`). Private agent instructions and editor workspace files also stay local. Look at the YAML and scripts for the actual logic and regenerate your own `secrets.yaml`.
+- Runtime artifacts, local development tools and tests, and detailed internal topology notes stay out of the public tree. GitHub Actions keeps the public YAML examples and dashboards validated. This is a browsing guide, not a turnkey deployment; adapt host-specific helpers, URLs, entities, and secrets before reuse.
 
 ### Platform
 - Runs on Docker/compose today; this README is a browsing guide, not a how-to-install. Current HA version is tracked in `config/.HA_VERSION` (see the badge above).
-- Camera ingest path (current): `wyze-bridge` runs on `docker_10` and Frigate runs on `docker_14`, consuming Wyze RTSP via `192.168.10.10:8554` for stability.
+- Camera and network examples reflect one home installation; replace local endpoints and service names when adapting them.
 
 ### Featured examples to start with
 - Cloudflare website alerts with authenticated webhook delivery and persistent Repairs: [![Python source: cloudflare_alerts](https://img.shields.io/static/v1?label=Python&message=cloudflare_alerts&color=lightgrey&logo=github&logoColor=181717)](config/custom_components/cloudflare_alerts) [![Watch Cloudflare walkthrough](https://img.shields.io/badge/Watch-Cloudflare%20Webhooks-FF0000?logo=youtube&logoColor=white)](https://youtu.be/-v1JkKwDrI8) [![Cloudflare blog guide](https://img.shields.io/static/v1?label=vCloudInfo&message=Cloudflare%20Guide&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/cloudflare-free-webhooks-home-assistant-website-alerts.html)
@@ -74,13 +74,6 @@ Train local Frigate state classifiers on your own camera examples, keep existing
 - Snoozeable maintenance notifications: [![YAML source: climate](https://img.shields.io/static/v1?label=YAML&message=climate&color=lightgrey&logo=github&logoColor=181717)](config/packages/climate.yaml), [![YAML source: printer](https://img.shields.io/static/v1?label=YAML&message=printer&color=lightgrey&logo=github&logoColor=181717)](config/packages/printer.yaml), [![YAML source: vacation_mode](https://img.shields.io/static/v1?label=YAML&message=vacation_mode&color=lightgrey&logo=github&logoColor=181717)](config/packages/vacation_mode.yaml), [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/y47KSflS1aw)
 - Battery and solar awareness: [![YAML source: powerwall](https://img.shields.io/static/v1?label=YAML&message=powerwall&color=lightgrey&logo=github&logoColor=181717)](config/packages/powerwall.yaml), [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/hR_0lFEE2bA), [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/06/tesla-powerwall-home-assistant-watchdog.html)
 - Weather-aware lighting: [![YAML source: dark_rainy_day](https://img.shields.io/static/v1?label=YAML&message=dark_rainy_day&color=lightgrey&logo=github&logoColor=181717)](config/automation/dark_rainy_day.yaml)
-
-### Network diagram
-
-![Home Assistant Docker Ecosystem](config/www/custom_ui/floorplan/images/branding/Bear-Stone-Docker-Ecosystem-2026.png)
-
-Editable topology source: [Mermaid](docs/diagrams/bear-stone-proxmox-docker-topology.mmd) and [notes](docs/diagrams/bear-stone-proxmox-docker-topology.md).
-
 
 **Docker add-ons & utilities**
 | Container | Repo/Docs | Purpose |

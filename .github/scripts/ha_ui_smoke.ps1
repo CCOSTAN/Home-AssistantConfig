@@ -11,9 +11,9 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if ([string]::IsNullOrWhiteSpace($BaseUrl)) {
-  $BaseUrl = 'http://192.168.10.10:8123'
+  $BaseUrl = 'http://localhost:8123'
 }
 if ([string]::IsNullOrWhiteSpace($OutputDir)) {
   $OutputDir = Join-Path ([IO.Path]::GetTempPath()) 'Codex/homeassistant/ha-ui-smoke'
@@ -40,7 +40,7 @@ if (-not $Routes -or $Routes.Count -eq 0) {
   if (-not $python) {
     throw 'Python 3 not found; it is required to generate validated dashboard routes.'
   }
-  $routesJson = & $python.Source @pythonArguments "$repoRoot/tools/validate_dashboards.py" '--routes-json'
+  $routesJson = & $python.Source @pythonArguments "$repoRoot/.github/scripts/validate_dashboards.py" '--routes-json'
   if ($LASTEXITCODE -ne 0) {
     throw 'Dashboard validation failed; refusing to start browser smoke tests.'
   }
@@ -73,7 +73,7 @@ try {
   $env:HASS_UI_ROUTES_JSON = [string]$routesJson
 
   $arguments = @(
-    "$repoRoot/tools/ha_ui_smoke.mjs"
+    "$repoRoot/.github/scripts/ha_ui_smoke.mjs"
     '--base-url'
     $BaseUrl.TrimEnd('/')
     '--output-dir'

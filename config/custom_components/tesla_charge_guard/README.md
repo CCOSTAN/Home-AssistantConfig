@@ -56,8 +56,3 @@ home current limit is 16 A and review the incident before clearing it. The monit
 warning and restart-review warning remain separate from an unresolved critical
 stop. Source snapshot sensors/events are excluded from recorder noise; aggregate
 incident sensors and curated JUICEBOX log entries remain recorded.
-
-Validation: `python tools/test_tesla_charge_guard.py`; run the adapter contract
-test in an environment with Home Assistant installed. Check the full HA config
-before loading the adapter. Loading a new custom integration requires an HA
-restart; subsequent package-only edits can use normal scripts/templates reloads.

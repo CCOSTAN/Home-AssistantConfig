@@ -112,7 +112,7 @@ HomeAssistantLoader.add_multi_constructor("!", _construct_tagged)
 
 
 def repo_root() -> Path:
-    return Path(__file__).resolve().parents[1]
+    return Path(__file__).resolve().parents[2]
 
 
 def parse_yaml(path: Path) -> Any:
