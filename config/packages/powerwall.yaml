@@ -6,6 +6,7 @@
 # Tesla Powerwall - Monitoring and outage automations
 # Related Issue: 1773
 # Notes: Grid alerts use red/green outage/recovery icons; load shedding uses amber.
+# Notes: Grid status notifications require an on/off transition and ignore startup, missing telemetry, and attribute updates.
 # Related Issue: 1490
 # Related Issue: 1550
 # Related Issue: 1571
@@ -278,13 +279,12 @@ automation:
     trigger:
       - platform: state
         entity_id: binary_sensor.powerwall_grid_status
-
-    condition:
-      - condition: template
-       # Check that both current and previous states are not 'unavailable', 'unknown', or 'null'.
-        value_template: >-
-          {{ states('binary_sensor.powerwall_grid_status') not in ['unavailable', 'unknown', 'null'] and
-            trigger.from_state.state not in ['unavailable', 'unknown', 'null'] }}
+        from:
+          - "on"
+          - "off"
+        to:
+          - "on"
+          - "off"
 
     action:
       - service: script.send_to_logbook
