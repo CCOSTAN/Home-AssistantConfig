@@ -27,6 +27,7 @@ Longer-running shell helpers referenced by automations, packages, or cron. Anyth
 | File | Why it matters |
 | --- | --- |
 | [HAUpdate.sh](HAUpdate.sh) | One-command Home Assistant update helper. |
+| [holiday_countdowns.py](holiday_countdowns.py) | Local countdowns and perpetual holiday/flag calendars using weekday rules, python-dateutil for Gregorian Easter, and hdate for 25 Kislev. Reads fixed household dates and optional one-off `dynamic` additions from `www/json_data`; preserves colliding event names. Uses the container's local timezone and installed libraries; no API key or network call. Actual dates are used, rather than substitute workdays. Preview with `python3 holiday_countdowns.py chanukkah --date 2026-10-15`. |
 | [apt_pending_check.sh](apt_pending_check.sh) | On-demand, read-only APT pending-count reporter for the Docker host maintenance dashboard. |
 | [apt_weekly.sh](apt_weekly.sh) | Daily APT check-then-update workflow that posts webhook status and can schedule reboot when needed. |
 | [apt_reboot_report.sh](apt_reboot_report.sh) | Boot-time status reporter that reuses the registered APT webhook, retries while HA starts, and confirms docker_10 again after a startup-settle delay so its co-hosted HA reboot state clears reliably. |
@@ -35,6 +36,8 @@ Longer-running shell helpers referenced by automations, packages, or cron. Anyth
 | [teslamate_visited_snapshot.py](teslamate_visited_snapshot.py) | Cache a daily Grafana visited-map PNG for Home Assistant's Local file camera, retaining the last good image on failure. |
 | [![YAML source: basketball](https://img.shields.io/static/v1?label=YAML&message=basketball&color=lightgrey&logo=github&logoColor=181717)](basketball.yaml) | ESPN stat scraping helper used by sensors. |
 | [Jinja Code.py](Jinja Code.py) | Reference Jinja snippets for templating. |
+
+The holiday calculator uses actual calendar dates, rather than substitute weekdays for work holidays. In `www/json_data/holidays.json` and `www/json_data/flag_days.json`, `static` maps `M/D` to fixed household dates; `dynamic` accepts optional one-off `MM/DD/YYYY` additions. Floating events come from the calculator and appear in the existing sensor attributes. The older `config/json_data` copies are not read at runtime. Calendar, lighting-boundary, and speech checks run in the existing holiday validation gate.
 
 ### Tips
 

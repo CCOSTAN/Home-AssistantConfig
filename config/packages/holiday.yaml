@@ -7,7 +7,10 @@
 # Related Issue: 1774
 #  Centralizes holiday calendar data and the active exterior lighting mode.
 # -------------------------------------------------------------------
-# Notes: /local/json_data is served from config/www/json_data and drives lighting mode coverage.
+# Notes: holiday_countdowns.py calculates floating dates and all nine countdowns locally.
+# Notes: config/www/json_data holds fixed household dates and optional one-off additions.
+# Notes: Existing IDs stay stable; calendars/countdowns refresh at startup and local midnight.
+# Notes: Hanukkah lighting spans eight evenings, beginning before 25 Kislev; flag days retain priority.
 ######################################################################
 # Video breakdown: https://www.vcloudinfo.com/2019/02/breaking-down-the-flag-sensor-in-home-assistant.html
 # Modified for my own fun stuff!
@@ -24,124 +27,100 @@ homeassistant:
       icon: mdi:flag
       friendly_name: Flag Day
 
-###############################################################################
-# Sensor updates once every 4 hours (14400 seconds) & runs 6 times in 24 hours
-#
-# First it checks for holiday in static section, if that doesn't exist,
-# it checks in the dynamic section. If neither exists, the value will be empty.
-###############################################################################
-sensor:
-  - platform: rest
-    resource: http://localhost:8123/local/json_data/holidays.json
-    name: Holiday
-    scan_interval: 14400
-    value_template: >
-      {% set holiday_data = value_json.MAJOR_US if value_json is defined and value_json.MAJOR_US is defined else {} %}
-      {% set static_days = holiday_data.static if holiday_data.static is defined else {} %}
-      {% set dynamic_days = holiday_data.dynamic if holiday_data.dynamic is defined else {} %}
-      {% set today = now().month ~ '/' ~ now().day %}
-      {% set today_full = now().strftime('%m/%d/%Y') %}
-      {% set today_full_alt = now().month ~ '/' ~ now().day ~ '/' ~ now().year %}
-      {% if today in static_days %}
-        {{ static_days[today] }}
-      {% elif today_full in dynamic_days %}
-        {{ dynamic_days[today_full] }}
-      {% elif today_full_alt in dynamic_days %}
-        {{ dynamic_days[today_full_alt] }}
-      {% endif %}
-    json_attributes:
-      - MAJOR_US
+command_line:
+  - sensor:
+      name: Holiday
+      unique_id: holiday_calendar
+      command: "python3 /config/shell_scripts/holiday_countdowns.py holiday"
+      value_template: "{{ value_json.state }}"
+      json_attributes:
+        - MAJOR_US
+      scan_interval: 86400
+  - sensor:
+      name: Flag
+      unique_id: flag_calendar
+      command: "python3 /config/shell_scripts/holiday_countdowns.py flag"
+      value_template: "{{ value_json.state }}"
+      json_attributes:
+        - Flag_Days_US
+      scan_interval: 86400
+  - sensor:
+      name: Halloween Countdown
+      unique_id: halloween_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py halloween"
+      unit_of_measurement: Days
+      scan_interval: 86400
+  - sensor:
+      name: Christmas Countdown
+      unique_id: christmas_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py christmas"
+      unit_of_measurement: Days
+      scan_interval: 86400
+  - sensor:
+      name: Easter Countdown
+      unique_id: easter_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py easter"
+      unit_of_measurement: Days
+      scan_interval: 86400
+  - sensor:
+      name: Mothers Countdown
+      unique_id: mothers_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py mothers"
+      unit_of_measurement: Days
+      scan_interval: 86400
+  - sensor:
+      name: Fathers Countdown
+      unique_id: fathers_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py fathers"
+      unit_of_measurement: Days
+      scan_interval: 86400
+  - sensor:
+      name: Chanukkah Countdown
+      unique_id: chanukkah_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py chanukkah"
+      unit_of_measurement: Days
+      scan_interval: 86400
+  - sensor:
+      name: Labor Day Countdown
+      unique_id: labor_day_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py labor_day"
+      unit_of_measurement: Days
+      scan_interval: 86400
+  - sensor:
+      name: Memorial Day Countdown
+      unique_id: memorial_day_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py memorial_day"
+      unit_of_measurement: Days
+      scan_interval: 86400
+  - sensor:
+      name: Thanksgiving Day Countdown
+      unique_id: thanksgiving_day_countdown
+      command: "python3 /config/shell_scripts/holiday_countdowns.py thanksgiving_day"
+      unit_of_measurement: Days
+      scan_interval: 86400
 
-################################################################################
-# Sensor Uses Flag data generated by AI
-################################################################################
-  - platform: rest
-    resource: http://localhost:8123/local/json_data/flag_days.json
-    name: Flag
-    scan_interval: 14400
-    value_template: >-
-      {% set now_string = now().month ~ '/' ~ now().day %}
-      {% set now_full_string = now().strftime('%m/%d/%Y') %}
-      {% set now_full_alt_string = now().month ~ '/' ~ now().day ~ '/' ~ now().year %}
-      {% set flag_data = value_json.Flag_Days_US if value_json is defined and value_json.Flag_Days_US is defined else {} %}
-      {% set static_days = flag_data.static if flag_data.static is defined else {} %}
-      {% set dynamic_days = flag_data.dynamic if flag_data.dynamic is defined else {} %}
-      {% if now_string in static_days %}
-        True
-      {% elif now_full_string in dynamic_days or now_full_alt_string in dynamic_days %}
-        True
-      {% else %}
-        False
-      {% endif %}
-    json_attributes:
-      - Flag_Days_US
-
-################################################################################
-# Countdown Sensor using WolfRam Alpha Natural language queries
-################################################################################
-
-  - platform: rest
-    name: Halloween Countdown
-    resource: !secret wolframalpha_halloween_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
-
-  - platform: rest
-    name: Christmas Countdown
-    resource: !secret wolframalpha_xmas_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
-
-  - platform: rest
-    name: Easter Countdown
-    resource: !secret wolframalpha_easter_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
-
-  - platform: rest
-    name: Mothers Countdown
-    resource: !secret wolframalpha_mothersday_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
-
-  - platform: rest
-    name: Fathers Countdown
-    resource: !secret wolframalpha_fathersday_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
-
-  - platform: rest
-    name: Chanukkah Countdown
-    resource: !secret wolframalpha_chanukkah_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
-
-  - platform: rest
-    name: Labor Day Countdown
-    resource: !secret wolframalpha_labor_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
-
-  - platform: rest
-    name: Memorial Day Countdown
-    resource: !secret wolframalpha_memorial_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
-
-  - platform: rest
-    name: Thanksgiving Day Countdown
-    resource: !secret wolframalpha_thanksgiving_api
-    value_template: "{{ (value|replace(' days', '')) | int }}"
-    unit_of_measurement: Days
-    scan_interval: 43200
+automation:
+  - alias: Holiday Countdown Midnight Refresh
+    id: holiday_countdown_midnight_refresh
+    mode: single
+    triggers:
+      - trigger: time
+        at: "00:00:05"
+    actions:
+      - action: homeassistant.update_entity
+        target:
+          entity_id:
+            - sensor.holiday
+            - sensor.flag
+            - sensor.halloween_countdown
+            - sensor.christmas_countdown
+            - sensor.easter_countdown
+            - sensor.mothers_countdown
+            - sensor.fathers_countdown
+            - sensor.chanukkah_countdown
+            - sensor.labor_day_countdown
+            - sensor.memorial_day_countdown
+            - sensor.thanksgiving_day_countdown
 
 template:
   - sensor:
@@ -149,75 +128,60 @@ template:
         unique_id: holiday_lighting_mode
         icon: mdi:string-lights
         state: >-
-          {%- set today = today_at('00:00') -%}
+          {%- set today = now().date() -%}
           {%- set mmdd = now().strftime('%m%d') | int -%}
           {%- set holiday_data = state_attr('sensor.holiday', 'MAJOR_US') or {} -%}
-          {%- set flag_data = state_attr('sensor.flag', 'Flag_Days_US') or {} -%}
           {%- set holiday_dynamic = holiday_data.get('dynamic', {}) if holiday_data is mapping else {} -%}
-          {%- set flag_dynamic = flag_data.get('dynamic', {}) if flag_data is mapping else {} -%}
-          {%- set days_to = namespace(easter=9999, mothers=9999, fathers=9999, memorial=9999, labor=9999, thanksgiving=9999) -%}
+          {%- set dates = namespace(mardi_gras=false, hanukkah=false) -%}
           {%- set mode = namespace(value='standard') -%}
-          {%- for date_text, name in holiday_dynamic.items() -%}
-            {%- set event_date = strptime(date_text, '%m/%d/%Y') -%}
-            {%- set days = ((as_timestamp(event_date) - as_timestamp(today)) / 86400) | int -%}
-            {%- if days >= 0 and name == 'Easter Sunday' and days < days_to.easter -%}
-              {%- set days_to.easter = days -%}
-            {%- elif days >= 0 and name == 'Mothers Day' and days < days_to.mothers -%}
-              {%- set days_to.mothers = days -%}
-            {%- elif days >= 0 and name == 'Fathers Day' and days < days_to.fathers -%}
-              {%- set days_to.fathers = days -%}
-            {%- elif days >= 0 and name == 'Thanksgiving Day' and days < days_to.thanksgiving -%}
-              {%- set days_to.thanksgiving = days -%}
+          {%- for date_text, names in holiday_dynamic.items() -%}
+            {%- set event_date = strptime(date_text, '%m/%d/%Y', none) -%}
+            {%- if event_date is not none -%}
+              {%- set days = (event_date.date() - today).days -%}
+              {%- if 'Mardi Gras' in names.split('; ') and days == 0 -%}
+                {%- set dates.mardi_gras = true -%}
+              {%- elif 'Chanukkah' in names.split('; ') and -6 <= days <= 1 -%}
+                {%- set dates.hanukkah = true -%}
+              {%- endif -%}
             {%- endif -%}
           {%- endfor -%}
-          {%- for date_text, name in flag_dynamic.items() -%}
-            {%- set event_date = strptime(date_text, '%m/%d/%Y') -%}
-            {%- set days = ((as_timestamp(event_date) - as_timestamp(today)) / 86400) | int -%}
-            {%- if days >= 0 and name == 'Memorial Day' and days < days_to.memorial -%}
-              {%- set days_to.memorial = days -%}
-            {%- elif days >= 0 and name == 'Labor Day' and days < days_to.labor -%}
-              {%- set days_to.labor = days -%}
-            {%- endif -%}
-          {%- endfor -%}
-          {%- set christmas = strptime(now().year ~ '-12-25', '%Y-%m-%d') -%}
-          {%- set christmas_days = ((as_timestamp(christmas) - as_timestamp(today)) / 86400) | int -%}
           {%- if is_state('sensor.flag', 'True') -%}
             {%- set mode.value = 'RWB' -%}
           {%- elif mmdd == 101 -%}
             {%- set mode.value = 'new_years_day' -%}
+          {%- elif dates.mardi_gras -%}
+            {%- set mode.value = 'mardi_gras' -%}
           {%- elif mmdd >= 210 and mmdd <= 214 -%}
             {%- set mode.value = 'valentine' -%}
-          {%- elif mmdd == 305 -%}
-            {%- set mode.value = 'mardi_gras' -%}
           {%- elif mmdd == 314 -%}
             {%- set mode.value = 'pi' -%}
           {%- elif mmdd >= 315 and mmdd <= 317 -%}
             {%- set mode.value = 'st_patty' -%}
-          {%- elif days_to.easter < 4 -%}
+          {%- elif 0 <= states('sensor.easter_countdown') | int(9999) < 4 -%}
             {%- set mode.value = 'easter' -%}
           {%- elif mmdd == 504 -%}
             {%- set mode.value = 'starwars' -%}
           {%- elif mmdd == 505 -%}
             {%- set mode.value = 'cinco_de_mayo' -%}
-          {%- elif days_to.mothers < 4 -%}
+          {%- elif 0 <= states('sensor.mothers_countdown') | int(9999) < 4 -%}
             {%- set mode.value = 'mothers_day' -%}
-          {%- elif days_to.fathers < 4 -%}
+          {%- elif 0 <= states('sensor.fathers_countdown') | int(9999) < 4 -%}
             {%- set mode.value = 'fathers_day' -%}
-          {%- elif days_to.memorial < 3 -%}
+          {%- elif 0 <= states('sensor.memorial_day_countdown') | int(9999) < 3 -%}
             {%- set mode.value = 'RWB' -%}
           {%- elif mmdd == 704 -%}
             {%- set mode.value = 'RWB' -%}
-          {%- elif days_to.labor < 3 -%}
+          {%- elif 0 <= states('sensor.labor_day_countdown') | int(9999) < 3 -%}
             {%- set mode.value = 'RWB' -%}
           {%- elif mmdd >= 1001 and mmdd <= 1031 -%}
             {%- set mode.value = 'halloween' -%}
           {%- elif mmdd == 1111 -%}
             {%- set mode.value = 'veterans' -%}
-          {%- elif days_to.thanksgiving < 4 -%}
+          {%- elif 0 <= states('sensor.thanksgiving_day_countdown') | int(9999) < 4 -%}
             {%- set mode.value = 'thanksgiving' -%}
-          {%- elif states('sensor.chanukkah_countdown') | int(9999) <= 1 -%}
+          {%- elif dates.hanukkah -%}
             {%- set mode.value = 'hanukkah' -%}
-          {%- elif christmas_days >= 0 and christmas_days <= 25 -%}
+          {%- elif 0 <= states('sensor.christmas_countdown') | int(9999) <= 25 -%}
             {%- set mode.value = 'christmas' -%}
           {%- elif mmdd == 1231 -%}
             {%- set mode.value = 'new_years_day' -%}
@@ -238,4 +202,4 @@ template:
           mode: "{{ states('sensor.holiday_lighting_mode') }}"
           holiday: "{{ states('sensor.holiday') }}"
           flag_day: "{{ states('sensor.flag') }}"
-          source: config/www/json_data holiday and flag calendars
+          source: local calendar rules plus config/www/json_data household dates

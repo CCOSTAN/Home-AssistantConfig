@@ -10,6 +10,7 @@
 #  Generates macro prompts for weather, reminders, and AI-driven speech routines.
 # -------------------------------------------------------------------
 #  Weather, responsibilities, holidays, air quality, and fact prompts parsed by speech_processing/speech_engine.
+# Notes: Holiday countdown zero means today, one means tomorrow; unavailable dates stay silent.
 # Notes: The nearest Airly CAQI is the primary local reading and stays silent
 #  below medium (50). Pirate Weather US AQI is a safety backstop at 101+.
 # Notes: Person state `home` means someone is physically at Bear Stone.
@@ -292,34 +293,37 @@
   {%- endmacro -%}
 
   {%- macro holiday() -%}
-  {% if states('sensor.holiday') != '' %}
+  {% if has_value('sensor.holiday') and states('sensor.holiday') | trim != '' %}
       Today is {{ states('sensor.holiday') }}.
   {% endif %}
   {%- endmacro -%}
 
   {# YOUTUBE VIDEO ********* https://www.vcloudinfo.com/2019/11/adding-days-until-sensor-to-my-home-assistant-speech-routines.html #}
   {%- macro days_until() -%}
-  {%- if states('sensor.mothers_countdown') | int(9999)< 20  -%}
-    and don't forget, there is only {{ states('sensor.mothers_countdown') }} days until Mothers day!
-  {%- elif states('sensor.fathers_countdown') | int(9999)< 20  -%}
-      and don't forget, there are {{ states('sensor.fathers_countdown') }} days until Fathers day!
-  {%- elif states('sensor.easter_countdown') | int(9999)< 15  -%}
-      and don't forget, there are {{ states('sensor.easter_countdown') }} colorful days until Easter Sunday!
-  {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 10 and states('sensor.thanksgiving_day_countdown') | int(9999)> 0  -%}
-      and don't forget, there are {{ states('sensor.thanksgiving_day_countdown') }} thankful days until Thanksgiving
-  {%- elif states('sensor.thanksgiving_day_countdown') | int(9999)< 1  -%}
-      and don't forget, Thanksgiving is tomorrow!
-  {%- elif states('sensor.halloween_countdown') | int(9999)< 30 and states('sensor.halloween_countdown') | int(9999)> 0 -%}
-      and don't forget, there are {{ states('sensor.halloween_countdown') }} Spooky days until Halloween!
-  {%- elif states('sensor.halloween_countdown') | int(9999)< 1  -%}
-      and don't forget, Tomorrow is Halloween!
-  {%- elif states('sensor.chanukkah_countdown') | int(9999)< 15  -%}
-      and don't forget, there are {{ states('sensor.chanukkah_countdown') }} days until Chanukkah!
-  {%- elif states('sensor.christmas_countdown') | int(9999)< 30 and states('sensor.christmas_countdown') | int(9999)> 0  -%}
-      and don't forget, there are {{ states('sensor.christmas_countdown') }} Merry days until Christmas!
-  {%- elif states('sensor.christmas_countdown') | int(9999)< 1  -%}
-      and don't forget, Santa Claus is coming tomorrow!
-  {% endif %}
+  {%- set reminder = namespace(message='') -%}
+  {%- for entity, name, limit, adjective in [
+      ('sensor.mothers_countdown', 'Mothers Day', 20, ''),
+      ('sensor.fathers_countdown', 'Fathers Day', 20, ''),
+      ('sensor.easter_countdown', 'Easter Sunday', 15, 'colorful '),
+      ('sensor.thanksgiving_day_countdown', 'Thanksgiving', 10, 'thankful '),
+      ('sensor.halloween_countdown', 'Halloween', 30, 'Spooky '),
+      ('sensor.chanukkah_countdown', 'Chanukkah', 15, ''),
+      ('sensor.christmas_countdown', 'Christmas', 30, 'Merry ')
+  ] -%}
+    {%- set days = states(entity) | int(9999) -%}
+    {%- if reminder.message == '' and 0 <= days < limit -%}
+      {%- if days == 0 -%}
+        {%- set reminder.message = 'Today is ' ~ name ~ '!' -%}
+      {%- elif days == 1 -%}
+        {%- set reminder.message = name ~ ' is tomorrow!' -%}
+      {%- else -%}
+        {%- set reminder.message = 'there are ' ~ days ~ ' ' ~ adjective ~ 'days until ' ~ name ~ '!' -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if reminder.message != '' %}
+    and don't forget, {{ reminder.message }}
+  {% endif -%}
   {%- endmacro -%}
 
   {# friendly duration/location helper #}
