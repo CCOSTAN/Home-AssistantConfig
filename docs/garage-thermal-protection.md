@@ -45,3 +45,10 @@ host that has shut down requires operator recovery.
 Validate the Home Assistant configuration and affected dashboards before
 rollout. Exercise dwell, stale-telemetry, hold, and graceful-stop cases with
 controlled test fixtures. Do not heat equipment artificially to test the guard.
+
+For operator tests, use checksum-verified snapshots of the installed host and
+camera guards. Import their functions with isolated state and fake command
+adapters; never invoke the installed programs as an operational test. Verify the
+installed checksums again after the run so a stale source copy cannot masquerade as
+current production coverage. The notification template and the independent
+host/guest shutdown guard protect separate boundaries and both need fixtures.
