@@ -5,12 +5,15 @@ from __future__ import annotations
 
 import argparse
 import calendar
+import importlib.util
 import json
 import sys
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Callable, Iterable
+
+from jinja2 import Environment, StrictUndefined
 
 from validate_dashboards import ValidationError as YamlValidationError
 from validate_dashboards import parse_yaml
@@ -93,12 +96,27 @@ def last_weekday(year: int, month: int, weekday: int) -> date:
 
 
 DYNAMIC_RULES = (
+    DynamicRule("MLK Day", "holidays", lambda year: nth_weekday(year, 1, 0, 3)),
+    DynamicRule("Presidents Day", "holidays", lambda year: nth_weekday(year, 2, 0, 3)),
+    DynamicRule("Mardi Gras", "holidays", lambda year: gregorian_easter(year) - timedelta(days=47)),
+    DynamicRule("Ash Wednesday", "holidays", lambda year: gregorian_easter(year) - timedelta(days=46)),
+    DynamicRule("Palm Sunday", "holidays", lambda year: gregorian_easter(year) - timedelta(days=7)),
+    DynamicRule("Good Friday", "holidays", lambda year: gregorian_easter(year) - timedelta(days=2)),
     DynamicRule("Easter Sunday", "holidays", gregorian_easter),
     DynamicRule("Mothers Day", "holidays", lambda year: nth_weekday(year, 5, 6, 2)),
     DynamicRule("Fathers Day", "holidays", lambda year: nth_weekday(year, 6, 6, 3)),
     DynamicRule("Thanksgiving Day", "holidays", lambda year: nth_weekday(year, 11, 3, 4)),
+    DynamicRule("Memorial Day", "holidays", lambda year: last_weekday(year, 5, 0)),
+    DynamicRule("Labor Day", "holidays", lambda year: nth_weekday(year, 9, 0, 1)),
+    DynamicRule("Columbus Day", "holidays", lambda year: nth_weekday(year, 10, 0, 2)),
+    DynamicRule("Martin Luther King Jr. Day", "flag_days", lambda year: nth_weekday(year, 1, 0, 3)),
+    DynamicRule("Washington's Birthday (Presidents Day)", "flag_days", lambda year: nth_weekday(year, 2, 0, 3)),
+    DynamicRule("Armed Forces Day", "flag_days", lambda year: nth_weekday(year, 5, 5, 3)),
     DynamicRule("Memorial Day", "flag_days", lambda year: last_weekday(year, 5, 0)),
     DynamicRule("Labor Day", "flag_days", lambda year: nth_weekday(year, 9, 0, 1)),
+    DynamicRule("National POW/MIA Recognition Day", "flag_days", lambda year: nth_weekday(year, 9, 4, 3)),
+    DynamicRule("Columbus Day", "flag_days", lambda year: nth_weekday(year, 10, 0, 2)),
+    DynamicRule("Election Day", "flag_days", lambda year: nth_weekday(year, 11, 0, 1) + timedelta(days=1)),
 )
 
 
@@ -178,7 +196,7 @@ def validate_dynamic_rule(
     actual = {
         parse_calendar_date(key, rule.source)
         for key, value in dynamic_map.items()
-        if value == rule.name and start <= parse_calendar_date(key, rule.source) < end
+        if rule.name in value.split("; ") and start <= parse_calendar_date(key, rule.source) < end
     }
     if actual != expected:
         missing = sorted(expected - actual)
@@ -239,8 +257,8 @@ def validate_routing_contract(package_path: Path, script_path: Path) -> None:
         raise CoverageError(f"cannot read holiday routing configuration: {exc}") from exc
 
     required_package_fragments = (
-        "resource: http://localhost:8123/local/json_data/holidays.json",
-        "resource: http://localhost:8123/local/json_data/flag_days.json",
+        "unique_id: holiday_calendar",
+        "unique_id: flag_calendar",
         "unique_id: holiday_lighting_mode",
         "unique_id: holiday_lighting_scene",
         "scene.month_{{ mode }}_colors",
@@ -277,10 +295,23 @@ def validate_coverage(root: Path, start: date, months: int) -> dict[str, tuple[d
     holidays = _require_mapping(read_json(holiday_path).get("MAJOR_US"), "MAJOR_US")
     flags = _require_mapping(read_json(flag_path).get("Flag_Days_US"), "Flag_Days_US")
     holiday_static = _require_mapping(holidays.get("static"), "MAJOR_US.static")
-    holiday_dynamic = _require_mapping(holidays.get("dynamic"), "MAJOR_US.dynamic")
-    flag_dynamic = _require_mapping(flags.get("dynamic"), "Flag_Days_US.dynamic")
-    validate_dynamic_map(holiday_dynamic, "holidays")
-    validate_dynamic_map(flag_dynamic, "flag_days")
+    for source, data in (("holidays", holidays), ("flag_days", flags)):
+        additions = _require_mapping(data.get("dynamic"), f"{source}.dynamic")
+        validate_dynamic_map(additions, source)
+        ruled_names = {rule.name for rule in DYNAMIC_RULES if rule.source == source}
+        ruled_names |= {"Chanukkah", "Inauguration Day"}
+        for name in additions.values():
+            if any(event in ruled_names for event in name.split("; ")):
+                raise CoverageError(f"{source}: {name} belongs in perpetual rules, not dated additions")
+
+    calculator = load_calculator(root)
+    holiday_dynamic: dict[str, object] = {}
+    flag_dynamic: dict[str, object] = {}
+    for year in range(start.year, end.year + 1):
+        anchor = date(year, 7, 1)
+        data_dir = holiday_path.parent
+        holiday_dynamic.update(calculator.calendar_data("holiday", anchor, data_dir)["MAJOR_US"]["dynamic"])
+        flag_dynamic.update(calculator.calendar_data("flag", anchor, data_dir)["Flag_Days_US"]["dynamic"])
 
     for key, expected_name in STATIC_REQUIREMENTS.items():
         actual_name = holiday_static.get(key)
@@ -292,7 +323,9 @@ def validate_coverage(root: Path, start: date, months: int) -> dict[str, tuple[d
     dates: dict[str, tuple[date, ...]] = {}
     for rule in DYNAMIC_RULES:
         source_map = holiday_dynamic if rule.source == "holidays" else flag_dynamic
-        dates[rule.name] = validate_dynamic_rule(rule, source_map, start, end)
+        dates[f"{rule.source}: {rule.name}"] = validate_dynamic_rule(rule, source_map, start, end)
+
+    validate_runtime_boundaries(root, calculator)
 
     validate_scenes(scene_path)
     validate_routing_contract(
@@ -300,6 +333,123 @@ def validate_coverage(root: Path, start: date, months: int) -> dict[str, tuple[d
         root / "config" / "script" / "monthly_color_scene.yaml",
     )
     return dates
+
+
+def load_calculator(root: Path):
+    path = root / "config" / "shell_scripts" / "holiday_countdowns.py"
+    spec = importlib.util.spec_from_file_location("holiday_countdowns", path)
+    if spec is None or spec.loader is None:
+        raise CoverageError(f"cannot load local calendar calculator: {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def validate_runtime_boundaries(root: Path, calculator) -> None:
+    """Exercise real templates, including faults the old JSON-only gate missed."""
+    package = parse_yaml(root / "config" / "packages" / "holiday.yaml")
+    sensors = package["template"][0]["sensor"]
+    mode_template = next(sensor["state"] for sensor in sensors if sensor["unique_id"] == "holiday_lighting_mode")
+    env = Environment(undefined=StrictUndefined)
+    data_dir = root / "config" / "www" / "json_data"
+
+    def require(actual, expected, label):
+        if actual != expected:
+            raise CoverageError(f"{label}: expected {expected!r}, got {actual!r}")
+
+    # Independently published 25 Kislev dates, including a late December festival.
+    # https://www.hebcal.com/holidays/chanukah-2026
+    # https://www.hebcal.com/holidays/chanukah-2027
+    for first_day in (date(2026, 12, 5), date(2027, 12, 25)):
+        for offset in (-1, 0, 1):
+            today = first_day + timedelta(days=offset)
+            target = calculator.next_holiday("chanukkah", today)
+            if offset <= 0:
+                require(target, first_day, f"Chanukkah {today}")
+            elif target <= today:
+                raise CoverageError(f"Chanukkah failed annual rollover: {today}")
+
+    countdown_rules = {
+        "halloween": lambda year: date(year, 10, 31),
+        "christmas": lambda year: date(year, 12, 25),
+        "easter": gregorian_easter,
+        "mothers": lambda year: nth_weekday(year, 5, 6, 2),
+        "fathers": lambda year: nth_weekday(year, 6, 6, 3),
+        "memorial_day": lambda year: last_weekday(year, 5, 0),
+        "labor_day": lambda year: nth_weekday(year, 9, 0, 1),
+        "thanksgiving_day": lambda year: nth_weekday(year, 11, 3, 4),
+    }
+    for year in (2026, 2027, 2028, 2031, 2038, 2040):
+        for name, rule in countdown_rules.items():
+            event = rule(year)
+            for offset in (-1, 0, 1):
+                today = event + timedelta(days=offset)
+                expected = event if offset <= 0 else rule(year + 1)
+                require(calculator.next_holiday(name, today), expected, f"{name} rollover {today}")
+
+    cases = {
+        "2026-01-01": "new_years_day", "2026-01-19": "RWB",
+        "2026-02-09": "standard", "2026-02-10": "valentine", "2026-02-12": "RWB",
+        "2026-02-17": "mardi_gras", "2026-03-05": "standard",
+        "2026-03-14": "pi", "2026-03-15": "st_patty",
+        "2026-04-02": "easter", "2026-04-06": "standard", "2026-04-20": "standard",
+        "2026-05-04": "starwars", "2026-05-05": "cinco_de_mayo",
+        "2026-05-07": "mothers_day", "2026-05-10": "mothers_day", "2026-05-11": "standard",
+        "2026-05-23": "RWB", "2026-05-25": "RWB",
+        "2026-06-18": "fathers_day", "2026-06-21": "fathers_day",
+        "2026-09-05": "RWB", "2026-09-07": "RWB",
+        "2026-10-01": "halloween", "2026-10-27": "RWB", "2026-11-11": "RWB",
+        "2026-11-23": "thanksgiving", "2026-11-26": "thanksgiving",
+        "2026-11-27": "standard", "2026-11-30": "christmas", "2026-12-03": "christmas",
+        "2026-12-04": "hanukkah", "2026-12-05": "hanukkah", "2026-12-06": "hanukkah", "2026-12-07": "RWB",
+        "2026-12-08": "hanukkah", "2026-12-09": "hanukkah", "2026-12-10": "hanukkah",
+        "2026-12-11": "hanukkah", "2026-12-12": "christmas",
+        "2026-12-25": "christmas", "2026-12-26": "standard", "2026-12-31": "new_years_day",
+        "2027-02-09": "mardi_gras", "2028-02-29": "mardi_gras", "2029-02-13": "mardi_gras",
+        "2027-12-24": "hanukkah", "2027-12-25": "hanukkah", "2027-12-26": "hanukkah", "2027-12-27": "hanukkah",
+        "2027-12-28": "hanukkah", "2027-12-29": "hanukkah", "2027-12-30": "hanukkah", "2027-12-31": "hanukkah", "2028-01-01": "new_years_day",
+        "2038-04-22": "easter", "2040-05-28": "RWB",
+    }
+    for iso_date, expected in cases.items():
+        today = date.fromisoformat(iso_date)
+        holiday = calculator.calendar_data("holiday", today, data_dir)
+        flag = calculator.calendar_data("flag", today, data_dir)
+        states = {"sensor.holiday": holiday["state"], "sensor.flag": flag["state"]}
+        states.update({f"sensor.{name}_countdown": str((calculator.next_holiday(name, today) - today).days)
+                       for name in [*countdown_rules, "chanukkah"]})
+        env.globals.update(
+            now=lambda: datetime.combine(today, datetime.min.time()),
+            strptime=lambda text, fmt, default=None: datetime.strptime(text, fmt),
+            states=lambda entity: states.get(entity, "unknown"),
+            is_state=lambda entity, value: states.get(entity) == value,
+            state_attr=lambda entity, attr: holiday.get(attr) if entity == "sensor.holiday" else flag.get(attr),
+        )
+        require(env.from_string(mode_template).render().strip(), expected, f"lighting {today}")
+
+    # On Jan 20, 2025 both events must survive the calendar's date-key collision.
+    collision = calculator.calendar_data("flag", date(2025, 1, 20), data_dir)
+    names = collision["Flag_Days_US"]["dynamic"]["01/20/2025"].split("; ")
+    require(set(names), {"Martin Luther King Jr. Day", "Inauguration Day"}, "shared flag date")
+    require(calculator.calendar_data("holiday", date(2027, 5, 31), data_dir)["state"], "Memorial Day", "Memorial name")
+    require(calculator.calendar_data("holiday", date(2027, 4, 19), data_dir)["state"], "", "false April Memorial Day")
+    require(calculator.calendar_data("flag", date(2033, 1, 20), data_dir)["state"], "True", "future inauguration")
+
+    speech = (root / "config" / "templates" / "speech" / "briefing.yaml").read_text(encoding="utf-8")
+    macro_start = speech.index("{%- macro days_until() -%}")
+    macro_end = speech.index("{%- endmacro -%}", macro_start) + len("{%- endmacro -%}")
+    speech_template = env.from_string(speech[macro_start:macro_end] + "{{ days_until() }}")
+    speech_names = {"mothers": "Mothers Day", "fathers": "Fathers Day", "easter": "Easter Sunday",
+                    "thanksgiving_day": "Thanksgiving", "halloween": "Halloween", "chanukkah": "Chanukkah", "christmas": "Christmas"}
+    for name, spoken in speech_names.items():
+        for days in (0, 1, 5):
+            states = {f"sensor.{key}_countdown": "9999" for key in speech_names}
+            states[f"sensor.{name}_countdown"] = str(days)
+            result = speech_template.render().strip()
+            expected = f"Today is {spoken}!" if days == 0 else (f"{spoken} is tomorrow!" if days == 1 else f"days until {spoken}!")
+            if expected not in result:
+                raise CoverageError(f"speech {name}/{days}: missing {expected!r}, got {result!r}")
+    states = {f"sensor.{key}_countdown": "unavailable" for key in speech_names}
+    require(speech_template.render().strip(), "", "unavailable countdown speech")
 
 
 def build_parser() -> argparse.ArgumentParser:
