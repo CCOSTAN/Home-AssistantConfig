@@ -4,8 +4,10 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Medicine Reminders - Take medicine notifications - Medication reminder timers and alerts.
+# Related Issue: 2008
 #  Centralizes the Medicine Reminders - Take medicine notifications package configuration and helpers.
 # -------------------------------------------------------------------
+# Notes: Reminders and completion notifications share a tag so only the latest remains.
 ######################################################################
 input_boolean:
   medicine:
@@ -46,6 +48,7 @@ automation:
           icon1: 'sfsymbols:arrow.up.circle'
           who: "carlo"
           group: 'Medicine'
+          tag: 'medicine_reminder'
 
   - alias: Tablet Already taken
     id: 1f295bb8-8925-4b22-8f75-9fe079b295a8

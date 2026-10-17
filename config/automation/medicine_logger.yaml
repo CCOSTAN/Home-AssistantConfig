@@ -4,8 +4,10 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # LOG Medicine - Home Assistant automation behavior.
+# Related Issue: 2008
 #  Defines the LOG Medicine triggers, conditions, and actions.
 # -------------------------------------------------------------------
+# Notes: Completion replaces the prior reminder using the shared medicine_reminder tag.
 ######################################################################
 - alias: 'Log Medicine Activity'
   mode: single
@@ -39,5 +41,6 @@
         value1: 'Carlo Took his Medicine today.'
         who: 'parents'
         group: 'Medicine'
+        tag: 'medicine_reminder'
     - delay:
         minutes: 1
