@@ -1,0 +1,29 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Private access-code helpers for gym and DeSantis Home reminders.
+# Related Issue: 801
+#  Secret values are loaded from the ignored config/secrets.yaml file.
+# -------------------------------------------------------------------
+# Notes: Password mode obscures helper values in the frontend; initial values
+#  come from secrets.yaml at startup and are excluded from recorder history.
+######################################################################
+
+input_text:
+  adriano_gym_access_code:
+    name: Adriano Gym Access Code
+    min: 0
+    max: 64
+    initial: !secret adriano_gym_access_code
+    mode: password
+    icon: mdi:key-variant
+
+  desantis_home_access_code:
+    name: DeSantis Home Access Code
+    min: 0
+    max: 64
+    initial: !secret desantis_home_access_code
+    mode: password
+    icon: mdi:key-variant

@@ -1,0 +1,87 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Zone Access Code Entry Reminders - private mobile notifications.
+# Related Issue: 801
+#  Notify the entering person's phone with the relevant access code.
+# -------------------------------------------------------------------
+# Notes: Stable per-zone notification tags replace the prior push on that phone.
+# Notes: Codes stay in password-mode input_text helpers sourced from secrets.yaml.
+######################################################################
+
+- alias: 'Zone Access Code Entry Reminders'
+  id: 0d78ce70-4d18-41c9-9a94-b9ce136e3e88
+  description: >-
+    Send Carlo or Stacey a private Home Assistant notification when they enter
+    Adriano Gym or DeSantis Home, replacing the previous notification for that zone.
+  mode: parallel
+  max: 10
+  triggers:
+    - trigger: zone.entered
+      target:
+        entity_id: person.carlo
+      options:
+        zone: zone.gym
+      id: adriano_gym_carlo
+    - trigger: zone.entered
+      target:
+        entity_id: person.stacey
+      options:
+        zone: zone.gym
+      id: adriano_gym_stacey
+    - trigger: zone.entered
+      target:
+        entity_id: person.carlo
+      options:
+        zone: zone.desantis_home
+      id: desantis_home_carlo
+    - trigger: zone.entered
+      target:
+        entity_id: person.stacey
+      options:
+        zone: zone.desantis_home
+      id: desantis_home_stacey
+
+  actions:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id:
+                - adriano_gym_carlo
+                - adriano_gym_stacey
+            - condition: template
+              value_template: >-
+                {{ states('input_text.adriano_gym_access_code') | trim | length > 0 }}
+          sequence:
+            - action: script.notify_engine
+              continue_on_error: true
+              data:
+                who: "{{ 'stacey' if trigger.id == 'adriano_gym_stacey' else 'carlo' }}"
+                title: Adriano Gym Access Code
+                value1: >-
+                  Adriano Gym access code:
+                  {{ states('input_text.adriano_gym_access_code') }}.
+                group: '360_alerts'
+                tag: adriano_gym_access_code
+
+        - conditions:
+            - condition: trigger
+              id:
+                - desantis_home_carlo
+                - desantis_home_stacey
+            - condition: template
+              value_template: >-
+                {{ states('input_text.desantis_home_access_code') | trim | length > 0 }}
+          sequence:
+            - action: script.notify_engine
+              continue_on_error: true
+              data:
+                who: "{{ 'stacey' if trigger.id == 'desantis_home_stacey' else 'carlo' }}"
+                title: DeSantis Home Access Code
+                value1: >-
+                  DeSantis Home access code:
+                  {{ states('input_text.desantis_home_access_code') }}.
+                group: '360_alerts'
+                tag: desantis_home_access_code
