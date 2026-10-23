@@ -1,0 +1,62 @@
+{#
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Garage Bin Reminder - Shared take-out and bring-in wording
+# Related Issue: 2022
+# Related Issue: 2016
+# Video: https://youtu.be/zcCrtwcw-S4
+# Blog: https://www.vcloudinfo.com/2026/10/home-assistant-frigate-garbage-bin-reminders.html
+#  Sunday needs garbage; Wednesday needs garbage and recycling.
+#  Return checks start Monday/Thursday mornings; following days continue
+#  until the next take-out day. Return speech is limited to 08:00-21:00.
+# -------------------------------------------------------------------
+# Notes: Unknown camera/classifier states never establish bins at curb
+#  or a completed return.
+#  Preserve the existing shared garbage snooze across every speech path.
+# Notes: Keep reminder text on one line so phone notifications wrap naturally.
+######################################################################
+#}
+{% macro garbage_takeout_reminder() -%}
+  {%- set day = now().strftime('%a') -%}
+  {%- if day in ['Wed', 'Sun']
+      and is_state('timer.garbage_reminder_snooze', 'idle')
+      and not is_state('binary_sensor.garbage_cans_out', 'on') -%}
+    {%- set ns = namespace(needed=[]) -%}
+    {%- if not is_state('binary_sensor.garage_garbage_at_curb', 'on') -%}
+      {%- set ns.needed = ns.needed + ['garbage pail'] -%}
+    {%- endif -%}
+    {%- if day == 'Wed' and not is_state('binary_sensor.garage_recycling_at_curb', 'on') -%}
+      {%- set ns.needed = ns.needed + ['recycling containers'] -%}
+    {%- endif -%}
+    {%- if ns.needed -%}
+      Today is {{ 'garbage and recycling' if day == 'Wed' else 'garbage' }} day. Please put the {{ ns.needed | join(' and ') }} at the curb.
+    {%- endif -%}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro garbage_reminder() -%}
+  {%- set day = now().strftime('%a') -%}
+  {%- if day in ['Sun', 'Wed'] -%}
+    {{- garbage_takeout_reminder() -}}
+  {%- elif 8 <= now().hour < 21 -%}
+    {{- garbage_return_reminder(include_recycling=day in ['Thu', 'Fri', 'Sat']) -}}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro garbage_return_reminder(include_recycling=true) -%}
+  {%- if is_state('timer.garbage_reminder_snooze', 'idle') -%}
+    {%- set ns = namespace(needed=[]) -%}
+    {%- if not is_state('binary_sensor.garage_garbage_at_curb', 'off') -%}
+      {%- set ns.needed = ns.needed + ['garbage pail'] -%}
+    {%- endif -%}
+    {%- if include_recycling and not is_state('binary_sensor.garage_recycling_at_curb', 'off') -%}
+      {%- set ns.needed = ns.needed + ['recycling containers'] -%}
+    {%- endif -%}
+    {%- if ns.needed -%}
+      Please return the {{ ns.needed | join(' and ') }} to {{ 'its usual spot' if ns.needed == ['garbage pail'] else 'their usual spots' }} in the garage.
+    {%- endif -%}
+  {%- endif -%}
+{%- endmacro %}

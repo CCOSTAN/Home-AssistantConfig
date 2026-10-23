@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Garage Garbage Day Reminders - actionable, snoozable garage alerts
+# Related Issue: 2022
 #  Notify Carlo and announce at 30s/90s/180s if the garage stays open.
 # -------------------------------------------------------------------
 # Notes: Carlo's push offers 30-minute and 2-hour snooze actions. The
@@ -122,7 +123,7 @@
     - parallel:
         - service: script.notify_engine_two_button
           data:
-            title: "Garbage Day Reminder"
+            title: "Garage Bins"
             value1: "{{ reminder_message }}"
             who: 'carlo'
             group: 'Garbage_Reminders'
