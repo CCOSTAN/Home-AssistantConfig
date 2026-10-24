@@ -36,6 +36,21 @@
   {% endif %}
 {%- endmacro %}
 
+{# A sleeping/unreachable photo display is advisory, not a household incident. #}
+{% macro nest_silenced() -%}
+  {% set visitor = is_state('input_boolean.vacation_mode', 'on')
+      and is_state('input_boolean.house_sitter_present', 'on') %}
+  {% set asleep = (is_state('group.bed', 'on') or is_state('group.family', 'not_home')
+      or state_attr('sensor.living_room_nest_status', 'screen_policy') in ['away', 'bedtime', 'configured_off'])
+      and not visitor %}
+  {{ asleep or states('sensor.living_room_nest_status') in ['display_offline', 'unknown', 'unavailable', 'sleeping'] }}
+{%- endmacro %}
+
+{% macro nest_needs_attention() -%}
+  {{ not (nest_silenced() | bool) and states('sensor.living_room_nest_status')
+      in ['controller_stale', 'screen_off', 'rotation_stalled', 'alert_source_offline', 'alert_feed_stale'] }}
+{%- endmacro %}
+
 {% macro attention_devices() -%}
   {% set ns = namespace(items=[]) %}
   {% for room in ['Bedroom', 'Kitchen', 'Upstairs', 'Office'] %}
@@ -43,9 +58,7 @@
       {% set ns.items = ns.items + [room] %}
     {% endif %}
   {% endfor %}
-  {% if not is_state('binary_sensor.living_room_nest_kiosk_needs_attention', 'off') %}
-    {% set ns.items = ns.items + ['Living Room Nest'] %}
-  {% endif %}
+  {# Nest health stays on its detail panel and never raises household alerts. #}
   {{ ns.items | to_json }}
 {%- endmacro %}
 
@@ -54,6 +67,27 @@
   {{ [
     {'key': 'upstairs-show', 'name': 'Upstairs Show', 'manage_volume': false, 'allow_idle_screen_off': true, 'node': 'upstairs_show', 'suffix': '', 'path': '/dashboard-kiosk-satellite-staging/echo-show5'},
     {'key': 'office-show', 'name': 'Office Show', 'manage_volume': false, 'allow_idle_screen_off': true, 'node': 'office_show', 'suffix': '', 'path': '/dashboard-kiosk-satellite-staging/echo-show5'},
-    {'key': 'kitchen-show', 'name': 'Kitchen Show', 'manage_volume': true, 'allow_idle_screen_off': false, 'node': 'kitchen_show', 'suffix': '_2', 'path': '/dashboard-kiosk-satellite-staging/home'}
+    {'key': 'kitchen-show', 'name': 'Kitchen Show', 'manage_volume': true, 'allow_idle_screen_off': false, 'node': 'kitchen_show', 'suffix': '', 'path': '/dashboard-kiosk-satellite-staging/home'}
   ] | to_json }}
+{%- endmacro %}
+
+{# Filter only this display's health notices, retaining every other host/container. #}
+{% macro nest_filter_health_report(title, message) -%}
+  {% if title | trim | lower != 'health monitor alert' %}
+    {{ message }}
+  {% else %}
+    {% set groups = message | regex_findall('(?ms)^(#{1,6}\\s*Host:[^\\n]+)\\n(.*?)(?=^#{1,6}\\s*Host:|\\Z)') %}
+    {% set visible = namespace(groups=[]) %}
+    {% for header, body in groups %}
+      {% if header | regex_match('(?i)^#{1,6}\\s*Host:\\s*Docker_13\\s*$') %}
+        {% set lines = body.splitlines() | reject('match', '(?i)^\\s*-\\s+nest_display(?:\\s|$)') | list %}
+        {% if lines | select('match', '^\\s*-\\s+\\S') | list | count > 0 %}
+          {% set visible.groups = visible.groups + [header ~ '\n' ~ (lines | join('\n') | trim)] %}
+        {% endif %}
+      {% else %}
+        {% set visible.groups = visible.groups + [header ~ '\n' ~ (body | trim)] %}
+      {% endif %}
+    {% endfor %}
+    {{ visible.groups | join('\n\n') if groups else message }}
+  {% endif %}
 {%- endmacro %}

@@ -1,0 +1,164 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Subview - Lighting
+#  Shared lights-only All Off, active lights, everyday controls, and room menus.
+# -------------------------------------------------------------------
+# Notes: Native Back returns to the Home or Mobile view used to enter.
+# Notes: On Now and All Off share custom_templates/lighting.jinja.
+######################################################################
+
+# Auto-entities expands the shared live lighting scope and renders the empty state.
+path: lights
+title: Lights & Switches
+icon: mdi:lightbulb-group
+subview: true
+type: sections
+max_columns: 4
+dense_section_placement: true
+badges: []
+sections:
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        '(max-width: 700px)':
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Lighting
+      icon: mdi:lightbulb-group
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      name: All Lights Off
+      icon: mdi:lightbulb-group-off-outline
+      show_state: false
+      variables:
+        status_severity: active
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.lighting_all_off
+      hold_action:
+        action: none
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      name: Indoor
+      icon: mdi:home-lightbulb-outline
+      show_state: false
+      variables:
+        status_severity: active
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/lights-indoor
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      name: Exterior
+      icon: mdi:outdoor-lamp
+      show_state: false
+      variables:
+        status_severity: active
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/lights-exterior
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: vertical-stack
+    grid_options:
+      columns: full
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: On Now
+      icon: mdi:lightbulb-on-outline
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:auto-entities
+      grid_options:
+        columns: full
+      card:
+        type: custom:layout-card
+        layout_type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(4, minmax(0, 1fr))
+          grid-gap: 12px
+          grid-auto-rows: min-content
+          margin: 0
+          mediaquery:
+            '(max-width: 700px)':
+              grid-template-columns: repeat(2, minmax(0, 1fr))
+      card_param: cards
+      filter:
+        template: |-
+          {% from 'lighting.jinja' import lighting_targets %}
+          {% set cards = namespace(items=[]) %}
+          {% for id in (lighting_targets | as_function)(true) %}
+            {% set cards.items = cards.items + [dict(type='custom:button-card',
+              template='bearstone_mobile_control', entity=id,
+              variables=dict(ok_states=['off'], active_states=['on']),
+              tap_action=dict(action='toggle'), hold_action=dict(action='more-info'))] %}
+          {% endfor %}
+          {{ cards.items | to_json }}
+      else:
+        type: custom:button-card
+        template: bearstone_infra_list_row
+        name: No lights on right now
+        icon: mdi:lightbulb-off-outline
+        show_state: false
+        show_label: true
+        label: Use the controls below to turn a light on.
+        tap_action:
+          action: none
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: vertical-stack
+    grid_options:
+      columns: full
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Everyday Lights
+      icon: mdi:star-outline
+    - type: custom:layout-card
+      grid_options:
+        columns: full
+      layout_type: custom:grid-layout
+      layout:
+        grid-template-columns: repeat(4, minmax(0, 1fr))
+        grid-auto-flow: row
+        grid-auto-rows: min-content
+        align-items: stretch
+        grid-gap: 12px
+        margin: 0
+        mediaquery:
+          '(max-width: 700px)':
+            grid-template-columns: repeat(2, minmax(0, 1fr))
+      cards: !include '/config/dashboards/overview/partials/lighting_everyday_cards.yaml'
+cards: []

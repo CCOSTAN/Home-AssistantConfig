@@ -56,13 +56,13 @@
         critical_entity_ids:
           - binary_sensor.kitchen_kiosk_needs_attention
         warning_entity_ids:
-          - update.kitchen_show_update_2
+          - update.kitchen_show_update
         healthy_text: ONLINE
         warning_text: UPDATE AVAILABLE
         alert_text: NEEDS ATTENTION
       state_display: >
         [[[
-          const updateAvailable = states['update.kitchen_show_update_2']?.state === 'on';
+          const updateAvailable = states['update.kitchen_show_update']?.state === 'on';
           if (entity?.state === 'off') return updateAvailable ? 'UPDATE AVAILABLE' : 'ONLINE';
           return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').toUpperCase();
         ]]]
@@ -156,8 +156,8 @@
     image: https://demo.home-assistant.io/stub_config/kitchen.png
     entities:
     - entity: binary_sensor.kitchen_kiosk_needs_attention
-    - entity: sensor.kitchen_show_last_screenshot_2
-    camera_image: camera.kitchen_show_screenshot_2
+    - entity: sensor.kitchen_show_last_screenshot
+    camera_image: camera.kitchen_show_screenshot
     tap_action:
       action: navigate
       navigation_path: /dashboard-kiosk-satellite-staging/home
@@ -269,6 +269,16 @@
           [[[ return `${entity?.attributes?.recoveries_last_hour ?? '?'} / 3 THIS HOUR`; ]]]
       - type: custom:button-card
         template: bearstone_infra_list_row
+        entity: sensor.living_room_nest_album
+        name: Photo album and Keep selections
+        icon: mdi:image-multiple
+        state_display: >
+          [[[ const a = entity?.attributes || {}; return `${a.personal_count ?? '?'} / ${a.limit ?? 45} PHOTOS | ${a.keep_count ?? 0} / ${a.keep_limit ?? 10} KEEP`; ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/nest-album
+      - type: custom:button-card
+        template: bearstone_infra_list_row
         entity: button.living_room_nest_restart_display
         name: Restart display
         icon: mdi:restart
@@ -338,19 +348,19 @@
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_battery_2
+      entity: sensor.kitchen_show_battery
       name: Battery
       icon: mdi:battery
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_last_seen_2
+      entity: sensor.kitchen_show_last_seen
       name: Last Seen
       icon: mdi:clock-check-outline
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_current_page_2
+      entity: sensor.kitchen_show_current_page
       name: Dashboard
       icon: mdi:web
       state_display: >
@@ -361,7 +371,7 @@
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: update.kitchen_show_update_2
+      entity: update.kitchen_show_update
       name: Kiosk Satellite
       icon: mdi:update
       state_display: >
@@ -373,7 +383,7 @@
 
     - type: custom:button-card
       template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_remote_admin_2
+      entity: sensor.kitchen_show_remote_admin
       name: Remote Admin
       icon: mdi:remote-desktop
       state_display: AVAILABLE

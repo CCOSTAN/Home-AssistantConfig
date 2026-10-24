@@ -409,7 +409,7 @@ def live_entity_catalog(root: Path) -> set[str]:
 
 
 def read_entity_allowlist(root: Path) -> set[str]:
-    path = root / "tools" / "dashboard_entity_allowlist.txt"
+    path = root / ".github" / "scripts" / "dashboard_entity_allowlist.txt"
     if not path.exists():
         return set()
     values: set[str] = set()

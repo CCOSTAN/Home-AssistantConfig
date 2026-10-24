@@ -100,6 +100,49 @@ bearstone_infra_round_display:
     .nest-screen img { width: 100%; height: 100%; object-fit: cover; }
     .nest-stale .nest-screen { opacity: .4; }
 
+# Album thumbnails are served from the bridge cache, never from screen captures.
+bearstone_infra_nest_photo:
+  template: bearstone_infra_base
+  show_state: false
+  show_label: true
+  name: '[[[ return entity?.attributes?.label || "Album photo"; ]]]'
+  icon: '[[[ return entity?.state === "on" ? "mdi:pin" : "mdi:pin-outline"; ]]]'
+  label: >
+    [[[ return entity?.state === 'unavailable' ? 'Unavailable' : entity?.state === 'on' ? 'KEEP | Tap to release' : 'ROTATING | Tap to keep'; ]]]
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+  custom_fields:
+    thumbnail: >
+      [[[ const image = entity?.attributes?.thumbnail || ''; return /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(image) ? `<img class="album-thumbnail" src="${image}" alt="Album photo" loading="lazy">` : 'Refresh photo list'; ]]]
+  styles:
+    grid:
+      - grid-template-areas: '"i n" "thumbnail thumbnail" "l l"'
+      - grid-template-columns: 28px 1fr
+      - grid-template-rows: min-content 1fr min-content
+    name:
+      - white-space: normal
+      - text-align: left
+    label:
+      - white-space: normal
+      - font-size: 12px
+      - padding-top: 10px
+      - justify-self: center
+    custom_fields:
+      thumbnail:
+        - padding-top: 10px
+        - justify-self: center
+  state:
+    - value: 'on'
+      styles:
+        card:
+          - border-color: var(--primary-color)
+        icon:
+          - color: var(--primary-color)
+  extra_styles: |
+    .album-thumbnail { width: 112px; height: 112px; object-fit: cover; border-radius: 50%; display: block; }
+
 bearstone_infra_chip:
   template: bearstone_infra_base
   show_state: true
@@ -1311,7 +1354,7 @@ bearstone_mobile_control:
     grid:
     - grid-template-areas: '"i n" "s s"'
     - grid-template-columns: 28px minmax(0, auto)
-    - grid-template-rows: 32px min-content
+    - grid-template-rows: minmax(32px, min-content) min-content
     - column-gap: 8px
     - row-gap: 6px
     - justify-content: center

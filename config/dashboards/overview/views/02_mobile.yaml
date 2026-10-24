@@ -7,6 +7,7 @@
 #  Mobile-first access, climate, and exception status.
 # -------------------------------------------------------------------
 # Notes: Visible second Overview tab, after Home and before Camera.
+# Notes: Lighting menu and All Lights Off share the first quick-control row.
 # Notes: Tap access and climate tiles for Home Assistant's native controls.
 # Notes: Two-column 112px tiles and large text prioritize use without glasses.
 # Notes: Odd final tiles span both columns to avoid small orphan controls.
@@ -55,6 +56,31 @@ sections:
       tap_action:
         action: navigate
         navigation_path: /lovelace/home
+
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      name: Lights & Switches
+      icon: mdi:lightbulb-group
+      show_state: false
+      variables:
+        status_severity: active
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/lights
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      name: All Lights Off
+      icon: mdi:lightbulb-group-off-outline
+      show_state: false
+      variables:
+        status_severity: active
+      tap_action:
+        action: perform-action
+        perform_action: script.turn_on
+        target:
+          entity_id: script.lighting_all_off
+      hold_action:
+        action: none
 
     - type: custom:button-card
       template: bearstone_mobile_header

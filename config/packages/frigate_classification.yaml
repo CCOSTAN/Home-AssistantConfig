@@ -3,9 +3,9 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Frigate - local front-door package state classification
-# Related Issue: 1984
-#  Classify the white porch floor locally; keep package reminders shared.
+# Frigate - local package and garage bin state classification
+# Related Issue: 1984, 2016
+#  Classify porch packages and the separate garage bin storage positions.
 # -------------------------------------------------------------------
 # Notes: Frigate 0.18 classifies clear/package_present with a trained
 #  custom model, motion checks, a 15-second interval, and 3-state consensus.
@@ -17,10 +17,14 @@
 # Notes: Unknown/unavailable classifications never clear a package.
 # Notes: Package alerts and manual status checks share front_door_package_check
 #  so each phone keeps only its latest package notification.
-# Notes: Garage is non-production and disabled. The reflective X is gone;
-#  any future classifier must use the actual bins in the upper-right.
+# Notes: Garage labels are stored/absent/obstructed. Per household policy,
+#  absent means at the curb. Sunday needs garbage; Wednesday needs both.
+#  Unknown/obstructed/offline views never count as verified bins out.
+#  The legacy cans helper mirrors verified out only for existing kiosks.
 # Docs: https://docs.frigate.video/configuration/custom_classification/state_classification/
 # Video: https://youtu.be/KpPYo_Uur7k
+# Garage bins video: https://youtu.be/zcCrtwcw-S4
+# Garage bins blog: https://www.vcloudinfo.com/2026/10/home-assistant-frigate-garbage-bin-reminders.html
 # Blog: https://www.vcloudinfo.com/2026/10/local-package-detection-frigate-home-assistant.html
 # Original LLM Vision experiment video: https://youtu.be/nAhCezFetvI
 # Notification icons video: https://youtu.be/TMfdxv-WprM
@@ -53,13 +57,49 @@ input_datetime:
 
 template:
   - binary_sensor:
+      - name: "Garage Garbage At Curb"
+        unique_id: garage_garbage_at_curb
+        icon: mdi:trash-can-check
+        availability: >-
+          {{ states('camera.garagecam') in ['recording', 'streaming', 'idle']
+             and states('sensor.garagecam_garage_garbage_storage_classification')
+                 in ['stored', 'absent'] }}
+        state: "{{ is_state('sensor.garagecam_garage_garbage_storage_classification', 'absent') }}"
+        attributes:
+          assumption: absent_from_usual_garage_storage_means_at_curb
+          classifier_state: "{{ states('sensor.garagecam_garage_garbage_storage_classification') }}"
+          source_camera: camera.garagecam
+
+      - name: "Garage Recycling At Curb"
+        unique_id: garage_recycling_at_curb
+        icon: mdi:recycle
+        availability: >-
+          {{ states('camera.garagecam') in ['recording', 'streaming', 'idle']
+             and states('sensor.garagecam_garage_recycling_storage_classification')
+                 in ['stored', 'absent'] }}
+        state: "{{ is_state('sensor.garagecam_garage_recycling_storage_classification', 'absent') }}"
+        attributes:
+          assumption: absent_from_usual_garage_storage_means_at_curb
+          classifier_state: "{{ states('sensor.garagecam_garage_recycling_storage_classification') }}"
+          source_camera: camera.garagecam
+
       - name: "Garbage Cans Out"
         unique_id: llmvision_garbage_cans_out
         device_class: presence
-        state: "{{ is_state('input_boolean.garbage_cans_out', 'on') }}"
+        availability: >-
+          {{ states('binary_sensor.garage_garbage_at_curb') in ['on', 'off']
+             and (now().strftime('%a') != 'Wed'
+                  or states('binary_sensor.garage_recycling_at_curb') in ['on', 'off']) }}
+        state: >-
+          {{ is_state('binary_sensor.garage_garbage_at_curb', 'on')
+             and (now().strftime('%a') != 'Wed'
+                  or is_state('binary_sensor.garage_recycling_at_curb', 'on')) }}
         attributes:
-          classification_status: not_configured
+          classification_status: local_storage_classifiers
           source_camera: camera.garagecam
+          required_bins: "{{ 'garbage_and_recycling' if now().strftime('%a') == 'Wed' else 'garbage' }}"
+          garbage_at_curb: "{{ states('binary_sensor.garage_garbage_at_curb') }}"
+          recycling_at_curb: "{{ states('binary_sensor.garage_recycling_at_curb') }}"
 
       - name: "Front Door Packages Present"
         unique_id: llmvision_front_door_packages_present
@@ -80,6 +120,38 @@ template:
           classifier_edge_state: "{{ states('sensor.frontdoorbell_front_door_package_edge_classification') }}"
 
 automation:
+  - alias: Frigate - Garage bins compatibility state
+    id: frigate_garage_bins_compatibility_state
+    description: "Keep existing kiosk consumers true only when today's required bins are verified out."
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.garbage_cans_out
+        from: null
+      - platform: homeassistant
+        event: start
+    action:
+      - variables:
+          desired_bin_state: "{{ 'on' if is_state('binary_sensor.garbage_cans_out', 'on') else 'off' }}"
+      - condition: template
+        value_template: "{{ states('input_boolean.garbage_cans_out') != desired_bin_state }}"
+      - choose:
+          - conditions: "{{ desired_bin_state == 'on' }}"
+            sequence:
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.garbage_cans_out
+        default:
+          - action: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.garbage_cans_out
+      - action: script.send_to_logbook
+        data:
+          topic: GARBAGE
+          message: >-
+            Required bins verified at curb from garage storage:
+            {{ states('binary_sensor.garbage_cans_out') }}.
+
   - alias: Frigate - Front door packages
     id: 8647b555-7ba0-41d5-98de-cfd3094e5b4f
     description: "Sync Frigate's verified local porch state to the existing package helper."

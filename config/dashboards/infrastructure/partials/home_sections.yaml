@@ -258,17 +258,19 @@
       icon: mdi:robot-outline
       triggers_update:
         - binary_sensor.joanna_mini_app_problem
+        - sensor.joanna_security_updates
       variables:
         ok_state: ok
         status_severity: >
           [[[
             const raw = String(entity?.state ?? '').toLowerCase();
             const app = states['binary_sensor.joanna_mini_app_problem']?.state;
-            if (app === 'on') return 'critical';
+            const security = states['sensor.joanna_security_updates'];
+            if (app === 'on' || raw === 'error' || security?.attributes?.severity === 'critical') return 'critical';
             if (app !== 'off') return 'unknown';
             if (['unknown', 'unavailable', 'none', ''].includes(raw)) return 'unknown';
             if (raw === 'error') return 'critical';
-            return raw === 'warning' ? 'warning' : 'healthy';
+            return raw === 'warning' || security?.state !== 'review' ? 'warning' : 'healthy';
           ]]]
         healthy_text: HEALTHY
         warning_text: JOB WARNING
@@ -277,6 +279,11 @@
         [[[
           const app = states['binary_sensor.joanna_mini_app_problem']?.state;
           if (app === 'on') return 'MINI APP ERROR';
+          if (entity?.state === 'error') return 'JOB ERROR';
+          const security = states['sensor.joanna_security_updates'];
+          if (security?.attributes?.severity === 'critical') return 'CRITICAL REVIEW';
+          if (security?.state === 'waiting_vendor_patch') return 'VENDOR PATCHES';
+          if (security?.state !== 'review') return security?.state === 'needs_attention' ? 'SECURITY REVIEW' : 'SECURITY COVERAGE';
           if (app !== 'off') return 'MINI APP UNKNOWN';
           return ({ ok: 'HEALTHY', warning: 'JOB WARNING', error: 'JOB ERROR' })[entity?.state] || 'UNKNOWN';
         ]]]
@@ -313,6 +320,25 @@
       - type: custom:button-card
         template: bearstone_infra_panel_header
         name: Active Issue
+
+      - type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: sensor.joanna_security_updates
+        name: Security & Updates review
+        icon: mdi:shield-search
+        variables:
+          alert_kind: state_not
+          ok_state: review
+          alert_severity: '[[[ return entity?.attributes?.severity === "critical" ? "critical" : "warning"; ]]]'
+          exception_detail: >
+            [[[ return entity?.state === 'needs_attention'
+              ? `${entity?.attributes?.services_need_review ?? 0} SERVICES TO REVIEW · OPEN JOANNA FOR DETAILS`
+              : 'SCAN COVERAGE NEEDS REVIEW · OPEN JOANNA FOR DETAILS'; ]]]
+        state_display: >
+          [[[ return entity?.attributes?.severity === 'critical' ? 'CRITICAL REVIEW' : 'REVIEW'; ]]]
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/joanna
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
@@ -897,7 +923,7 @@
       - type: custom:button-card
         template: bearstone_infra_alert_row
         entity: sensor.joanna_onenote_kb_health
-        name: Joanna knowledge index requires attention
+        name: Joanna OneNote indexes require attention
         icon: mdi:notebook-alert-outline
         variables:
           alert_kind: state_not

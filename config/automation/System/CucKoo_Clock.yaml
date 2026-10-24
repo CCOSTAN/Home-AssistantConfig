@@ -4,16 +4,20 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Plays the number of cuckoos per hour and 1 on the half hour - Home Assistant automation behavior.
-# Related Issue: 984
+# Related Issue: 2012, 984
 #  Defines the Plays the number of cuckoos per hour and 1 on the half hour triggers, conditions, and actions.
 # -------------------------------------------------------------------
 # Notes: More Info and Video: https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html
 # Notes: Patriotic cuckoos run July 3-4, last Monday in May, and first Monday in September.
 # Notes: Patriotic/fireworks cuckoos are disabled for now; revisit issue 984 before re-enabling.
 # Notes: Clock WAVs are served from /local/sounds so Chromecast fetches them from Home Assistant.
+# Notes: Guest mode keeps scheduled chimes running outside the normal 09:00-22:00 window.
 ######################################################################
 - alias: Cuckoo Clock
   id: 33dcd8e2-e87c-4d18-82bc-c7f9b53a1624
+  description: >-
+    Chime hourly and half-hourly whenever guest mode is on; otherwise only
+    while family is home between 09:00 and 22:00.
   mode: restart
   trigger:
     - platform: time_pattern
@@ -22,17 +26,19 @@
       minutes: 30
 
   condition:
-    - condition: time
-      after: '09:00:00'
-      before: '22:00:00'
-    - condition: or  #Either we are home or Guest_Mode is on.
+    - condition: or
       conditions:
-        - condition: state
-          entity_id: group.family
-          state: 'home'
         - condition: state
           entity_id: input_boolean.guest_mode
           state: 'on'
+        - condition: and
+          conditions:
+            - condition: time
+              after: '09:00:00'
+              before: '22:00:00'
+            - condition: state
+              entity_id: group.family
+              state: 'home'
 
   action:
     - service: script.amp_settings

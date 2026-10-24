@@ -79,6 +79,78 @@
         raw_suffix: ERRORS
 
 # -------------------------------------------------------------------
+# Private Security & Updates summary
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:button-card
+    template: bearstone_infra_panel_header
+    name: Security & Updates
+    icon: mdi:shield-search
+    grid_options:
+      columns: full
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_infra_status_kpi
+      entity: sensor.joanna_security_updates
+      name: Internet-facing apps
+      icon: mdi:shield-search
+      variables:
+        ok_state: review
+        healthy_text: CLEAR
+        severity_attribute: severity
+        warning_text: NEEDS REVIEW
+        critical_text: CRITICAL REVIEW
+      state_display: >
+        [[[ return entity?.attributes?.severity === 'critical' ? 'CRITICAL REVIEW' : entity?.state === 'needs_attention' ? 'NEEDS REVIEW' : entity?.state === 'review' ? 'CLEAR' : String(entity?.state ?? 'unknown').replaceAll('_', ' ').toUpperCase(); ]]]
+      tap_action:
+        action: url
+        url_path: !secret bearclaw_security_admin_url
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.joanna_security_updates
+      name: Services need review
+      icon: mdi:shield-alert-outline
+      tap_action:
+        action: url
+        url_path: !secret bearclaw_security_admin_url
+      state_display: >
+        [[[ return entity?.attributes?.services_need_review ?? '—'; ]]]
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.joanna_security_updates
+      name: Fresh image scans
+      icon: mdi:package-check
+      state_display: >
+        [[[ return `${entity?.attributes?.images_scanned ?? 0} / ${entity?.attributes?.services ?? 0}`; ]]]
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: sensor.joanna_security_updates
+      name: Waiting for vendors
+      icon: mdi:information-outline
+      state_display: >
+        [[[ return `${entity?.attributes?.vendor_wait_services ?? 0} SERVICES`; ]]]
+      tap_action:
+        action: url
+        url_path: !secret bearclaw_security_admin_url
+
+# -------------------------------------------------------------------
 # Trend, latest activity, and runtime health
 # -------------------------------------------------------------------
 - type: grid
@@ -269,7 +341,7 @@
     - type: custom:button-card
       template: bearstone_infra_status_kpi
       entity: sensor.joanna_onenote_kb_health
-      name: Federated OneNote KB
+      name: OneNote account indexes
       icon: mdi:notebook-multiple
       variables:
         ok_state: ok

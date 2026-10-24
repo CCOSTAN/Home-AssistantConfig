@@ -21,7 +21,7 @@ kiosk_driveway_camera_takeover:
     bedroom_screensaver_was_active: >-
       {{ is_state('switch.alarm_panel_1_screensaver', 'on') }}
     kitchen_screensaver_was_active: >-
-      {{ is_state('switch.kitchen_show_screensaver_active_2', 'on') }}
+      {{ is_state('switch.kitchen_show_screensaver_active', 'on') }}
   sequence:
     - service: timer.start
       target:
@@ -94,7 +94,7 @@ kiosk_driveway_camera_takeover:
             - service: switch.turn_on
               continue_on_error: true
               target:
-                entity_id: switch.kitchen_show_screensaver_active_2
+                entity_id: switch.kitchen_show_screensaver_active
         - if:
             - condition: template
               value_template: "{{ bedroom_screensaver_was_active | bool }}"

@@ -8,6 +8,7 @@
 #  Receives Apprise JSON payloads from Tugtainer and posts outcome alerts.
 # -------------------------------------------------------------------
 # Notes: Expects JSON with title/message/type from the Tugtainer template.
+# Notes: Nest container health/recovery entries are removed before notification delivery; other containers remain visible.
 # Notes: Available-only reports stay silent in HA; Updated, Failed, and Rolled-back reports remain visible.
 # Notes: Fires update events independently when a report has both Available and Updated sections.
 # Notes: Fires `tugtainer_home_assistant_core_updated` when `### Updated:` includes Home Assistant.
@@ -90,7 +91,10 @@ automation:
     variables:
       payload: "{{ trigger.json | default({}) }}"
       title: "{{ payload.title | default('Tugtainer update') }}"
-      message: "{{ payload.message | default('Update event received') }}"
+      raw_message: "{{ payload.message | default('Update event received') }}"
+      message: >-
+        {% from 'kiosk_health.jinja' import nest_filter_health_report %}
+        {{ nest_filter_health_report(title, raw_message) | trim }}
       event_type: "{{ payload.type | default('info') }}"
       has_available_section: "{{ '### available:' in (message | lower) }}"
       has_failed_section: "{{ '### failed:' in (message | lower) }}"
@@ -138,6 +142,8 @@ automation:
       full_message: >-
         {{ message }}{% if event_type %} ({{ event_type | upper }}){% endif %}
     action:
+      - condition: template
+        value_template: "{{ message | trim != '' }}"
       - service: input_datetime.set_datetime
         target:
           entity_id: input_datetime.tugtainer_last_update

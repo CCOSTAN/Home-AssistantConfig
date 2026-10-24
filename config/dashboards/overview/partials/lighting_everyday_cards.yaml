@@ -1,0 +1,113 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Lighting - Everyday controls
+#  Shared Home and Lighting-menu cards; existing mobile templates own the styling.
+# -------------------------------------------------------------------
+# Notes: Living Room includes accents; Kitchen includes Sink via existing membership.
+######################################################################
+
+- type: custom:button-card
+  template: bearstone_mobile_control
+  entity: light.living_room_lighting
+  name: Living Room
+  icon: mdi:sofa-outline
+  variables:
+    ok_states:
+    - 'off'
+    active_states:
+    - 'on'
+    state_labels:
+      unavailable: OFFLINE
+      unknown: UNKNOWN
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:button-card
+  template: bearstone_mobile_control
+  entity: light.kitchen_lights
+  name: Kitchen
+  icon: mdi:ceiling-light-outline
+  variables:
+    ok_states:
+    - 'off'
+    active_states:
+    - 'on'
+    state_labels:
+      unavailable: OFFLINE
+      unknown: UNKNOWN
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:button-card
+  template: bearstone_mobile_control
+  entity: group.kitchen_accents
+  name: Kitchen Accents
+  icon: mdi:led-strip-variant
+  variables:
+    ok_states:
+    - 'off'
+    active_states:
+    - 'on'
+    state_labels:
+      unavailable: OFFLINE
+      unknown: UNKNOWN
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:button-card
+  template: bearstone_mobile_control
+  entity: group.master_bathroom_accents
+  name: Bathroom Accents
+  icon: mdi:vanity-light
+  variables:
+    ok_states:
+    - 'off'
+    active_states:
+    - 'on'
+    state_labels:
+      unavailable: OFFLINE
+      unknown: UNKNOWN
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:button-card
+  template: bearstone_mobile_control
+  entity: switch.office_lamp_switch
+  name: Office Lamp
+  icon: mdi:desk-lamp
+  variables:
+    ok_states:
+    - 'off'
+    active_states:
+    - 'on'
+    state_labels:
+      unavailable: OFFLINE
+      unknown: UNKNOWN
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:button-card
+  template: bearstone_mobile_control
+  entity: switch.front_office_lamp
+  name: Front Office Lamp
+  icon: mdi:desk-lamp
+  variables:
+    ok_states:
+    - 'off'
+    active_states:
+    - 'on'
+    state_labels:
+      unavailable: OFFLINE
+      unknown: UNKNOWN
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

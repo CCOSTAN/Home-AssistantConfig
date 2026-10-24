@@ -28,6 +28,8 @@
 #  or abnormal status worth announcing.
 # Notes: Garbage-day speech honors timer.garbage_reminder_snooze so Carlo's
 #  phone action suppresses the reminder across every speech entry point.
+# Notes: Garage bin classification suppresses completed garbage/recycling
+#  take-out and return work through garbage_bins.jinja (Issue #2016).
 # Notes: Garage-door speech honors the shared one-hour reminder snooze.
 # Notes: Low Tesla tire pressure includes affected tires and current PSI,
 #  honoring the existing tire-alert snooze across shared briefings.
@@ -43,13 +45,8 @@
   {%- endmacro -%}
 
   {%- macro garbage_day() -%}
-    {% set day_of_week = now().strftime('%a') %}
-    {% if day_of_week in ['Wed', 'Sun'] and is_state('timer.garbage_reminder_snooze', 'idle') %}
-    Today is garbage day.
-    {% if day_of_week == 'Wed' %}
-    Both Recycling and regular Garbage goes out. 
-    {% endif %}
-    {% endif %}
+    {% from 'garbage_bins.jinja' import garbage_reminder %}
+    {{ garbage_reminder() }}
   {%- endmacro -%}
 
   {%- macro inside_weather() -%}
@@ -474,12 +471,6 @@
     {% else %}
     - Everyone is currently at Bear Stone.
     {% endfor %}
-    ]
-
-    [Household context:
-      {% if range(1, 100) | random <= 25 %}
-      Cat Molly: Always home.
-      {% endif %}
     ]
 
     [Primary event/requested action:

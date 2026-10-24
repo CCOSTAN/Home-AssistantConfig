@@ -28,7 +28,7 @@ Meta automations that keep Home Assistant healthy�watchdogs, diagnostics, and 
 | --- | --- |
 | [![YAML source: watchdog_light](https://img.shields.io/static/v1?label=YAML&message=watchdog_light&color=lightgrey&logo=github&logoColor=181717)](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
 | [![YAML source: trigger_dump](https://img.shields.io/static/v1?label=YAML&message=trigger_dump&color=lightgrey&logo=github&logoColor=181717)](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
-| [![YAML source: CucKoo_Clock](https://img.shields.io/static/v1?label=YAML&message=CucKoo_Clock&color=lightgrey&logo=github&logoColor=181717)](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. |
+| [![YAML source: CucKoo_Clock](https://img.shields.io/static/v1?label=YAML&message=CucKoo_Clock&color=lightgrey&logo=github&logoColor=181717)](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. Guest mode keeps chimes running around the clock; otherwise the family-home and 09:00-22:00 limits apply. |
 | [![YAML source: door_chime](https://img.shields.io/static/v1?label=YAML&message=door_chime&color=lightgrey&logo=github&logoColor=181717)](door_chime.yaml) | Friendly tones for door open/close events. |
 
 ### Tips

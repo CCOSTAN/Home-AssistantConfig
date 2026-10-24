@@ -7,6 +7,7 @@
 #  Defines the When we get out of bed at night, turn on the accent lights in the bathroom triggers, conditions, and actions.
 # -------------------------------------------------------------------
 # Notes: Also turn on the lights sunset comes. (but only if we are home)
+# Notes: Bed exits require on -> off; sensor recovery cannot start the nightlight.
 # Notes: connected to [Etekcity Outlets](https://amzn.to/2efNoBP)
 # Notes: [433Mhz Transmitter and receiver](https://amzn.to/2dceNY2)
 ######################################################################
@@ -19,6 +20,7 @@
       entity_id:
         - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
         - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+      from: 'on'
       to: 'off'
     - platform: state
       entity_id: sun.sun

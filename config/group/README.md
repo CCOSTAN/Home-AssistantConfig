@@ -18,6 +18,8 @@
 
 Logical groupings (doors, locks, media, motion, switches) that make automations and UI cards simpler.
 
+`group.outdoor_seasonal` includes the XMAS Outdoor 2 outlet alongside the other seasonal switches. All members follow the existing sunset routine (15 minutes before sunset plus its random 1-19 minute delay), turn off with Good Night when its existing conditions allow, and share the sunrise shutdown fallback. Add seasonal outlets to this group so those routines stay in sync without separate schedules.
+
 ### Quick navigation
 - [Repo overview](../../README.md) | [Config index](../README.md) | [Packages](../packages) | [Automations](../automation)
 

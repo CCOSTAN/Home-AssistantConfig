@@ -37,6 +37,7 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
 - `resources.yaml`
   - Lovelace JS resources used by custom cards (HACS and local resources).
   - This is used when `lovelace.resource_mode: yaml` is enabled.
+  - Card-mod is also preloaded through `frontend.extra_module_url` so nested kiosk cards receive their styles on cold loads. Keep both card-mod URLs identical and refresh their cache version together when the installed module changes.
 - `SCRATCHPAD.md`
   - Parking lot for multi-step dashboard work and patterns.
 - `<dashboard>/`
@@ -55,11 +56,20 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
 - Primary actions cover garage doors, the front-door lock, thermostats, household alerts, and entry-point status.
 - Packages opens the doorbell camera; Systems opens the desktop control center; destination views place a large Back to Home control at the top.
 
+### Lighting Controls
+- **Home** places lighting beneath Sleep Score in the middle column, keeping family presence and cameras directly below the priority ribbon. On Now, Indoor, Exterior, All Lights Off, and the shared everyday controls use two equal columns.
+- **Mobile** keeps Lights & Switches and All Lights Off together in its first quick-control row. The lighting submenu has the same shutdown action; native Back returns to the view used to enter it.
+- **All Lights Off** calls `script.lighting_all_off`. It targets available household lights and an explicit allowlist of lamp, accent, landscape, and seasonal outlets. Media power, thermostat power, screens, network indicators, and voice routines are outside its scope.
+- **On Now** and the shutdown script share `custom_templates/lighting.jinja`, so their lighting membership stays aligned. The switch allowlist rejects equipment switches even if a broad group later includes one.
+- The shared everyday buttons combine Living Room main lights and accents using the native **Living Room Lighting** Light Group helper (`light.living_room_lighting`, members `light.living_room_lights` and `light.living_room_accents`, any-on state, members visible). The existing Kitchen group already includes Sink. Detailed Indoor controls retain individual light groups.
+- Tap a named light or group to toggle it; hold for native brightness, color, and entity details. **OFFLINE** stays visible on unavailable room controls. Bedtime, guest-mode, motion, sunset, and other lighting automations keep their existing behavior.
+
 ### Camera Overview
 
 The Camera tab keeps the doorbell and pool on the left, three exterior cameras across the upper right, and Kids Gate, Bedroom Gate, Filter Gate, and Conico Wireless across the second right-hand row. A full-width grid prevents the camera group from wrapping below the doorbell on desktop; narrow screens reflow into two columns. Recent Frigate events remain below the camera rows.
 
 ### Event-Driven Kiosk Dashboards
+- Upcycled Nest display: [project guide](../../docs/NEST_DISPLAY.md), [round kiosk preview](infrastructure/partials/kiosk_sections.yaml), [Nest Album submenu](infrastructure/views/05za_nest_album.yaml), [![Watch Nest upcycling](https://img.shields.io/badge/Watch-Nest%20Upcycling-FF0000?logo=youtube&logoColor=white)](https://youtu.be/fuS1voqRznY) [![Nest display blog](https://img.shields.io/static/v1?label=vCloudInfo&message=Nest%20Display&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/repurpose-nest-thermostat-home-assistant-display.html)
 - Logic and recovery package: [![YAML source: kiosk_tablet](https://img.shields.io/static/v1?label=YAML&message=kiosk_tablet&color=lightgrey&logo=github&logoColor=181717)](../packages/kiosk_tablet.yaml)
 - Bedroom dashboard: [![YAML source: dashboard](https://img.shields.io/static/v1?label=YAML&message=bedroom&color=lightgrey&logo=github&logoColor=181717)](bedroom/dashboard.yaml)
 - Bedroom landscape view: [![YAML source: 01_home](https://img.shields.io/static/v1?label=YAML&message=01_home&color=lightgrey&logo=github&logoColor=181717)](bedroom/views/01_home.yaml)
@@ -148,3 +158,13 @@ Kitchen, Upstairs and Office share the event overlays, screen policy, and 15-min
 Upstairs and Office use their available front cameras for motion wake. Each dims after 90 idle seconds, then uses a plain black screen at zero backlight after two more minutes. True panel-off on this build enters Android doze and blocks camera access, so it remains disabled. The Echo Show 5 fleet profile preserves these local sleep settings, and shared policy reconciliation does not restart its idle timer. Kitchen retains idle dimming; its current Android build does not expose the built-in camera.
 
 Systems Network includes managed switch health, PoE capacity, and named physical uplink/server/AP/camera port rows. Switch faults join the shared Systems issue count and Active Issues. The Datacenter summary shows the average CPU package temperature, hottest host, and reporting-host count. These are hardware temperatures, not ambient air readings; SSD readings are not mixed into them. Proxmox has separate 24-hour CPU temperature and host utilization graphs for all three hosts. Utilization uses a fixed 0-100 percent scale with 5-minute averages; hover values describe that historical interval, while the header shows the current reading. Recorder explicitly retains these final dashboard metrics. VM utilization and SSD diagnostic cards are omitted. All monitoring cards are read-only.
+
+The Kiosks view links to the Nest Album subview. Refresh photo list requests the
+latest cached thumbnails; there is no periodic album poll or framebuffer capture.
+Tap a photo to toggle Keep (up to 10 within 45 personal photos). FIFO replaces only
+unprotected photos, while the avatar stays separate. The Nest shows all photos in
+shuffled rounds. An eleventh Keep is rejected visibly without releasing another.
+
+### Joanna Security & Updates
+
+The Joanna view includes a private security summary from the appliance's native read-only scheduler. The `sensor.joanna_security_updates` entity exposes aggregate counts and scan freshness. Review tiles open the internal Admin report directly (no token required); the vendor tile is informational. Vendor-only waits leave the main dashboards clear and remain amber inside the report. Actionable work, failed maintenance and missing coverage still warn. Configure the private destination in the local `bearclaw_security_admin_url` secret. Security summaries and raw poll snapshots are excluded from recorder; existing dispatch trends remain recorded. Detailed inventory, CVEs, and findings remain in appliance private state and are never committed to this repository. The dashboard does not trigger updates or public issues.

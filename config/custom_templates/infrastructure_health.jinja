@@ -54,6 +54,8 @@
     {% set severity = 'critical' %}
     {% if entity_id in maintenance and states(entity_id) == 'on' %}
       {% set severity = 'warning' %}
+    {% elif entity_id == 'sensor.joanna_security_updates' %}
+      {% set severity = 'critical' if state_attr(entity_id, 'severity') == 'critical' else 'warning' %}
     {% elif entity_id in health_sensors and states(entity_id) == 'warning' %}
       {% set severity = 'warning' %}
     {% elif entity_id == 'binary_sensor.infra_wan_quality_degraded' and states(entity_id) == 'on' and
@@ -124,6 +126,7 @@
     'binary_sensor.powerwall_status': 'on',
     'sensor.mariadb_status': 'running',
     'sensor.bearclaw_scheduled_job_health': 'ok',
+    'sensor.joanna_security_updates': 'review',
     'sensor.joanna_onenote_kb_health': 'ok',
     'binary_sensor.joanna_mini_app_problem': 'off',
     'binary_sensor.joanna_memory_index_stale': 'off'

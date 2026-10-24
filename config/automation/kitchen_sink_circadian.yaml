@@ -4,7 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Kitchen Sink Circadian Light - all-day white tuning
-#  Turns on after morning bed exits, follows the sun, and shuts down at bedtime.
+#  Starts on daytime wake-up/darkness events, tunes while on, and stops at bedtime.
 # -------------------------------------------------------------------
 # Related Issue: n/a
 # Notes: Uses color temperature only to avoid inherited color scenes.
@@ -12,6 +12,9 @@
 # Notes: Office lamp switch off-gates the sink while active PC work is in progress.
 # Notes: Kitchen Show illuminance gates only new automatic turn-ons. Once the
 #  sink is on, its normal circadian tuning continues without lux-based shutoff.
+# Notes: Illuminance uses the canonical native ESPHome entity without a numeric suffix.
+# Notes: Automatic starts require a 07:00-20:00 wake-up or darkness event.
+#  Timer, sun, startup, and bed-entry updates never undo an off command.
 ######################################################################
 
 - alias: "Kitchen Sink Circadian Daylight"
@@ -58,14 +61,17 @@
       event: sunset
       offset: "+00:30:00"
       id: tune
+    - platform: time
+      at: "07:00:00"
+      id: morning
     - platform: time_pattern
       minutes: "/30"
       id: tune
     - platform: numeric_state
-      entity_id: sensor.kitchen_show_ambient_light_2
+      entity_id: sensor.kitchen_show_ambient_light
       below: 30
       for: "00:05:00"
-      id: tune
+      id: ambient_dark
     - platform: homeassistant
       event: start
       id: tune
@@ -90,7 +96,7 @@
         working_active: >-
           {{ is_state('switch.office_lamp_switch', 'on') }}
         ambient_dark: >-
-          {% set lux = states('sensor.kitchen_show_ambient_light_2') %}
+          {% set lux = states('sensor.kitchen_show_ambient_light') %}
           {{ lux in ['unknown', 'unavailable', 'none', '']
              or lux | float(0) < 35 }}
         target_kelvin: >-
@@ -121,9 +127,7 @@
              and is_state('input_boolean.guest_mode', 'off')
              and not (tv_active | bool)
              and not (working_active | bool)
-             and ((awake_home | bool) or is_state('light.sink', 'on'))
-             and (is_state('light.sink', 'on')
-                  or ((ambient_dark | bool) and now().hour >= 4)) }}
+             and ((awake_home | bool) or is_state('light.sink', 'on')) }}
     - choose:
         - conditions:
             - condition: template
@@ -147,6 +151,27 @@
             - condition: template
               value_template: "{{ manage_sink | bool }}"
           sequence:
+            - alias: Tune an on light; start an off light only for a daytime event
+              condition: or
+              conditions:
+                - condition: state
+                  entity_id: light.sink
+                  state: "on"
+                - condition: and
+                  conditions:
+                    - condition: state
+                      entity_id: light.sink
+                      state: "off"
+                    - condition: time
+                      after: "07:00:00"
+                      before: "20:00:00"
+                    - condition: trigger
+                      id:
+                        - bed_exit
+                        - morning
+                        - ambient_dark
+                    - condition: template
+                      value_template: "{{ ambient_dark | bool }}"
             - service: light.turn_on
               target:
                 entity_id: light.sink

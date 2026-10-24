@@ -1,0 +1,82 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Nest Album - thumbnail selection and protected photos
+#  Up to ten Keep photos within the 45-photo personal album.
+# -------------------------------------------------------------------
+# Notes: The avatar is separate; FIFO replaces only unprotected photos.
+# Notes: Refresh photo list loads a snapshot; there is no background album poll.
+######################################################################
+
+title: Nest Album
+path: nest-album
+icon: mdi:image-multiple
+subview: true
+back_path: /dashboard-infrastructure/kiosks
+type: sections
+max_columns: 4
+dense_section_placement: true
+sections:
+  - type: grid
+    column_span: 4
+    cards:
+      - type: vertical-stack
+        grid_options:
+          columns: full
+        cards:
+          - type: custom:button-card
+            template: bearstone_infra_tile
+            entity: sensor.living_room_nest_album
+            name: Nest photo album
+            icon: mdi:image-multiple
+            state_display: >
+              [[[ const a = entity?.attributes || {}; return `${a.personal_count ?? '?'} / ${a.limit ?? 45} PHOTOS | ${a.keep_count ?? 0} / ${a.keep_limit ?? 10} KEEP`; ]]]
+            variables:
+              label: >
+                [[[ const a = entity?.attributes || {}; const t = Date.parse(a.last_refreshed); const when = Number.isFinite(t) ? new Date(t).toLocaleString() : 'Not refreshed yet'; return a.last_action_error === 'keep_limit_reached' ? 'Keep slots full. Release one photo before keeping another.' : a.last_action_error ? 'Photo selection could not be saved. Refresh and try again.' : `Tap a thumbnail to keep or release it. Joanna's avatar stays separate. Refreshed: ${when}`; ]]]
+          - type: custom:button-card
+            template: bearstone_infra_tile
+            entity: button.living_room_nest_refresh_album
+            name: Refresh photo list
+            icon: mdi:image-refresh
+            show_state: false
+            variables:
+              label: Load the latest photos and Keep selections
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.living_room_nest_refresh_album
+  - type: grid
+    column_span: 4
+    cards:
+      # auto-entities creates thumbnail buttons from the requested MQTT snapshot.
+      # A fixed button grid cannot follow album additions and FIFO removals.
+      - type: custom:auto-entities
+        grid_options:
+          columns: full
+        card:
+          type: custom:layout-card
+          layout_type: custom:grid-layout
+          layout:
+            grid-template-columns: repeat(4, minmax(0, 1fr))
+            grid-gap: 12px
+            margin: 0
+            mediaquery:
+              "(max-width: 700px)":
+                grid-template-columns: repeat(2, minmax(0, 1fr))
+        card_param: cards
+        show_empty: false
+        filter:
+          include:
+            - entity_id: switch.living_room_nest_photo_*
+              options:
+                type: custom:button-card
+                template: bearstone_infra_nest_photo
+        sort:
+          method: attribute
+          attribute: album_order
+          numeric: true
+cards: []

@@ -5,6 +5,9 @@
 # -------------------------------------------------------------------
 # Garage Garbage Day Reminders - actionable, snoozable garage alerts
 # Related Issue: 2022
+# Related Issue: 2016
+# Video: https://youtu.be/zcCrtwcw-S4
+# Blog: https://www.vcloudinfo.com/2026/10/home-assistant-frigate-garbage-bin-reminders.html
 #  Notify Carlo and announce at 30s/90s/180s if the garage stays open.
 # -------------------------------------------------------------------
 # Notes: Carlo's push offers 30-minute and 2-hour snooze actions. The
@@ -15,15 +18,23 @@
 # Notes: Debounced garage door open trigger to avoid restarts if the
 #  garage door state flaps (noisy sensors/reflection).
 # Notes: A stable garbage_day_reminder tag replaces the previous phone reminder.
+# Notes: Use a short phone title and single-line macro text; iOS owns layout.
 # Notes: A garage opening also runs the shared briefing when Tesla tires
 #  need air, even outside garbage days or during a garbage-only snooze.
 #  Tire speech uses the existing 1-day/3-day tire-alert snooze.
+# Notes: Local garage classifiers suppress garbage reminders once the
+#  required bins are absent. Unknown/obstructed views retain reminders.
+# Notes: Bring-in checks start with Monday/Thursday morning garage
+#  openings, continuing on following days until the next take-out day.
+#  Each bin stops appearing once verified stored. Timing is a household
+#  pickup window, not camera confirmation that collection occurred.
 ######################################################################
 - alias: 'Garage Garbage Day Reminders'
   id: 3f97f3be-3d0a-4d2d-9100-5b9c0dbfd5c3
   description: >-
-    Remind Carlo to handle garbage day, with phone actions that silence
-    all garbage speech for 30 minutes or 2 hours. Include low Tesla tire
+    Remind Carlo to take bins out and bring them back on pickup days, with
+    phone actions that silence all bin speech for 30 minutes or 2 hours.
+    Stop naming each bin once its required location is verified. Include low Tesla tire
     pressure in the shared briefing and announce tire-only reminders
     on other days when the garage opens.
   mode: restart
@@ -73,6 +84,12 @@
     - condition: trigger
       id: garage_open
 
+    - variables:
+        reminder_delays: [30, 60, 90]  # cumulative delays to hit 30s, 90s, 180s
+        reminder_message: >-
+          {% from 'garbage_bins.jinja' import garbage_reminder %}
+          {{ garbage_reminder() }}
+
     # Garbage-day openings already run speech_engine below, which includes tires.
     # On other openings, speak once only when an unsnoozed tire needs air.
     - choose:
@@ -81,17 +98,8 @@
               value_template: >-
                 {% from 'tesla_tires.jinja' import tire_reminder %}
                 {{ tire_reminder() | trim != '' }}
-            - condition: not
-              conditions:
-                - condition: and
-                  conditions:
-                    - condition: time
-                      weekday:
-                        - wed
-                        - sun
-                    - condition: state
-                      entity_id: timer.garbage_reminder_snooze
-                      state: 'idle'
+            - condition: template
+              value_template: "{{ reminder_message | trim == '' }}"
           sequence:
             - service: script.speech_engine
               data:
@@ -101,23 +109,9 @@
                 call_garbage_day: 1
             - stop: "Shared garage tire reminder announced."
 
-    # Only run on garbage days (Wed/Sun) while the shared snooze is idle.
-    - condition: time
-      weekday:
-        - wed
-        - sun
-    - condition: state
-      entity_id: timer.garbage_reminder_snooze
-      state: 'idle'
-
-    - variables:
-        reminder_delays: [30, 60, 90]  # cumulative delays to hit 30s, 90s, 180s
-        reminder_message: >-
-          Reminder: it's garbage day.
-          {% if now().strftime('%a') == 'Wed' %}
-          Both recycling and regular garbage go out today.
-          {% endif %}
-          Please take the cans to the curb before you leave.
+    # The shared macro owns the current take-out/return phase and snooze.
+    - condition: template
+      value_template: "{{ reminder_message | trim != '' }}"
 
     # Make the phone actions available immediately while the first speech runs.
     - parallel:
@@ -147,19 +141,17 @@
           - delay:
               seconds: "{{ repeat.item }}"
 
-          # Stop if the door closed, the day changed, or Carlo snoozed the alert.
+          # Recheck the current bin locations, reminder phase, and shared snooze.
           - condition: state
             entity_id: group.garage_doors
             state: 'open'
 
-          - condition: time
-            weekday:
-              - wed
-              - sun
-
-          - condition: state
-            entity_id: timer.garbage_reminder_snooze
-            state: 'idle'
+          - variables:
+              reminder_message: >-
+                {% from 'garbage_bins.jinja' import garbage_reminder %}
+                {{ garbage_reminder() }}
+          - condition: template
+            value_template: "{{ reminder_message | trim != '' }}"
 
           - service: notify.alexa_media_garage
             data:

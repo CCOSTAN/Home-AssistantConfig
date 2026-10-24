@@ -3,7 +3,7 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Overview Section - search, sleep, and frequent lighting
+# Overview Section - search, sleep, lighting, and transient vacuum status
 #  Puts entity search first for fast mobile access, then daily controls.
 # -------------------------------------------------------------------
 # Notes: The strong SQL-backed summary links to detailed Health trends.
@@ -100,80 +100,9 @@ cards:
     columns: full
     rows: 3
 
-- type: custom:bubble-card
-  card_type: button
-  button_type: slider
-  entity: light.living_room_lights
-  name: Living Room Lights
-  icon: mdi:sofa
-  show_state: true
-  show_attribute: false
-  show_last_changed: true
-  tap_action:
-    action: navigate
-    navigation_path: '#ovw-living-room'
-  button_action:
-    tap_action:
-      action: navigate
-      navigation_path: '#ovw-living-room'
-  grid_options:
-    columns: 6
-    rows: 1
-  card_layout: large
+- !include /config/dashboards/overview/partials/home_lighting.yaml
 
-- type: custom:bubble-card
-  card_type: button
-  button_type: switch
-  entity: sensor.number_of_lights_on
-  name: Lights On
-  icon: mdi:lightbulb-on-outline
-  show_state: true
-  show_name: true
-  show_attribute: false
-  tap_action:
-    action: navigate
-    navigation_path: '#ovw-lights'
-  button_action:
-    tap_action:
-      action: navigate
-      navigation_path: '#ovw-lights'
-  grid_options:
-    columns: 6
-    rows: 1
-  card_layout: large
-
-- type: custom:bubble-card
-  card_type: button
-  button_type: switch
-  entity: group.interior_switches
-  name: Interior Switches
-  icon: mdi:lightning-bolt
-  show_state: true
-  show_attribute: false
-  show_last_changed: false
-  button_action:
-    tap_action:
-      action: more-info
-  grid_options:
-    columns: 6
-    rows: 1
-  tap_action:
-    action: toggle
-  card_layout: large
-
-- type: custom:bubble-card
-  card_type: button
-  button_type: state
-  entity: group.exterior_lights
-  name: Exterior Lights
-  icon: mdi:palm-tree
-  show_state: true
-  show_attribute: false
-  show_last_changed: true
-  grid_options:
-    columns: 6
-    rows: 1
-
+# Retain existing popup hashes for saved lighting deep links.
 - !include /config/dashboards/overview/popups/living_room.yaml
 - !include /config/dashboards/overview/popups/lights.yaml
 

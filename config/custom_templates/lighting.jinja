@@ -1,0 +1,52 @@
+{#
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Household Lighting - Shared dashboard and all-off target selection
+#  Existing light groups plus explicitly approved lighting outlets.
+# -------------------------------------------------------------------
+# Notes: Unknown switches are excluded even if added to a lighting group.
+# Notes: Screens, equipment indicators, media power, and thermostat power
+#        are outside this scope. No voice or bedtime routines are called.
+######################################################################
+#}
+{% macro lighting_targets(active_only, returns) -%}
+  {%- set lamp_switches = [
+    'switch.kitchen_accent_1', 'switch.kitchen_accent_2',
+    'switch.master_bathroom_accent_1', 'switch.master_bathroom_accent_2',
+    'switch.front_door_outlet', 'switch.foyer_outlet', 'switch.den_outlet',
+    'switch.living_room_outlet', 'switch.office_accent',
+    'switch.office_lamp_switch', 'switch.front_office_lamp',
+    'switch.front_landscaping', 'switch.back_landscaping',
+    'switch.outdoor_xmas_2_socket_1', 'switch.outdoor_xmas_2_socket_2',
+    'switch.outdoor_xmas_2_socket_3', 'switch.outdoor_xmas_right_socket',
+    'switch.xmas_dual_outlet_switch_1', 'switch.xmas_dual_outlet_switch_2'
+  ] -%}
+  {%- set roots = [
+    'group.interior_lights', 'group.exterior_lights',
+    'light.main_slider', 'light.echo_glow', 'light.justin_go', 'light.paige_go'
+  ] + lamp_switches -%}
+  {%- set ns = namespace(items=[]) -%}
+  {%- for s in expand(roots) -%}
+    {%- if s.state in ['on', 'off'] and (not active_only or s.state == 'on')
+        and (s.entity_id.startswith('light.') or s.entity_id in lamp_switches)
+        and not s.entity_id.startswith('light.unifi_')
+        and not s.entity_id.endswith('_screen') and not s.entity_id.endswith('_screen_2') -%}
+      {%- set ns.items = ns.items + [s.entity_id] -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {# Hue rooms can remain available when their individual lamps are unavailable. #}
+  {%- for id in [
+    'light.garage', 'light.garage_2', 'light.dining_room', 'light.dinette',
+    'light.master_bedroom', 'light.office', 'light.office_2', 'light.upstairs',
+    'light.stairs', 'light.pool', 'light.kids_bedrooms'
+  ] -%}
+    {%- if states(id) in ['on', 'off'] and (not active_only or is_state(id, 'on'))
+        and not (expand(id) | selectattr('state','in',['on','off']) | list) -%}
+      {%- set ns.items = ns.items + [id] -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- do returns(ns.items | unique | sort | list) -%}
+{%- endmacro %}

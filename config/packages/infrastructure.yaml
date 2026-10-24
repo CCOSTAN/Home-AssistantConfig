@@ -37,6 +37,7 @@
 # Notes: Immediate website-down states create Repairs; the installed UptimeRobot integration exposes current state, not trend rollups.
 # Notes: External IP uses the live ipify probe; website rollups include only configured UptimeRobot monitors.
 # Notes: Bear Stone and website outages dispatch Joanna quietly; no direct phone alerts are sent.
+# Notes: Restoring vCloudInfo maintenance state excludes its planned downtime and blocks origin recovery dispatch until explicitly released.
 # Notes: Dashboard aggregate issue count is live-only; its underlying degraded sensors retain actionable history.
 # Notes: Dashboard aggregate issue count includes compact BearClaw scheduled-job warning/error health.
 # Notes: Docker host maintenance is counted separately from container runtime health so pending packages and stale host reports surface on Systems.
@@ -80,6 +81,9 @@ input_text:
 input_boolean:
   infra_duplicati_backup_repair_active:
     name: "Duplicati backup repair active"
+  vcloudinfo_maintenance:
+    name: "vCloudInfo Planned Maintenance"
+    icon: mdi:wrench-clock
 
 input_datetime:
   infra_duplicati_backup_last_success:
@@ -233,7 +237,8 @@ template:
           {% for id in ids %}
             {% if expand(id) | count > 0 %}
               {% set st = states(id) %}
-              {% if st in ['off', 'unknown', 'unavailable'] %}
+              {% if st in ['off', 'unknown', 'unavailable'] and
+                    (id != 'binary_sensor.vcloudinfo_com' or is_state('input_boolean.vcloudinfo_maintenance', 'off')) %}
                 {% set ns.count = ns.count + 1 %}
               {% endif %}
             {% endif %}
@@ -246,6 +251,9 @@ template:
               'binary_sensor.vcloudinfo_com',
               'binary_sensor.www_kingcrafthomes_com'
             ] }}
+          maintenance_entities: >-
+            {{ ['binary_sensor.vcloudinfo_com']
+               if not is_state('input_boolean.vcloudinfo_maintenance', 'off') else [] }}
           down_entities: >-
             {% set ids = [
               'binary_sensor.bear_stone',
@@ -256,7 +264,8 @@ template:
             {% for id in ids %}
               {% if expand(id) | count > 0 %}
                 {% set st = states(id) %}
-                {% if st in ['off', 'unknown', 'unavailable'] %}
+                {% if st in ['off', 'unknown', 'unavailable'] and
+                      (id != 'binary_sensor.vcloudinfo_com' or is_state('input_boolean.vcloudinfo_maintenance', 'off')) %}
                   {% set ns.items = ns.items + [id ~ '=' ~ st] %}
                 {% endif %}
               {% endif %}
@@ -529,7 +538,8 @@ template:
         state: >-
           {% set ns = namespace(seen=false, breach=false) %}
           {% for item in states.sensor %}
-            {% if item.entity_id is search('sensor\\.(vcloudinfo_com|kingcrafthomes_com|www_kingcrafthomes_com).*uptime_1d$') %}
+            {% if item.entity_id is search('sensor\\.(vcloudinfo_com|kingcrafthomes_com|www_kingcrafthomes_com).*uptime_1d$') and
+                  (not item.entity_id.startswith('sensor.vcloudinfo_com') or is_state('input_boolean.vcloudinfo_maintenance', 'off')) %}
               {% if item.state not in ['unknown', 'unavailable', 'none', ''] %}
                 {% set ns.seen = true %}
                 {% if (item.state | float(100)) < 99 %}
@@ -546,7 +556,8 @@ template:
         state: >-
           {% set ns = namespace(seen=false, breach=false) %}
           {% for item in states.sensor %}
-            {% if item.entity_id is search('sensor\\.(vcloudinfo_com|kingcrafthomes_com|www_kingcrafthomes_com).*avg_response_time_1d$') %}
+            {% if item.entity_id is search('sensor\\.(vcloudinfo_com|kingcrafthomes_com|www_kingcrafthomes_com).*avg_response_time_1d$') and
+                  (not item.entity_id.startswith('sensor.vcloudinfo_com') or is_state('input_boolean.vcloudinfo_maintenance', 'off')) %}
               {% if item.state not in ['unknown', 'unavailable', 'none', ''] %}
                 {% set ns.seen = true %}
                 {% if (item.state | float(0)) > 1.2 %}
@@ -823,6 +834,7 @@ automation:
                     - sensor.vcloudinfo_com
                     - sensor.wordpress_wp_state_2
                     - switch.wordpress_wp_container_2
+                    - input_boolean.vcloudinfo_maintenance
                   diagnostics: >-
                     down_entities={{ down_summary }};
                     bear_stone_sensor={{ states('sensor.bear_stone') }};
@@ -831,13 +843,19 @@ automation:
                     vcloudinfo_binary={{ states('binary_sensor.vcloudinfo_com') }};
                     wordpress_state={{ states('sensor.wordpress_wp_state_2') }};
                     wordpress_switch={{ states('switch.wordpress_wp_container_2') }};
+                    vcloudinfo_maintenance={{ states('input_boolean.vcloudinfo_maintenance') }};
                     cloudflared_wp={{ states('switch.cloudflared_wp_container_2') }}.
                   request: >-
-                    Investigate and resolve the monitored website outage. For
+                    Investigate only the websites listed in down_entities and resolve their outage. For
                     Bear Stone, start with public HTTPS reachability and the
                     Home Assistant/Cloudflare path. For
                     vcloudinfo.com, start with public HTTPS reachability,
                     wordpress_wp, wordpress_db, and cloudflared_wp telemetry.
+                    Before any WordPress recovery, recheck input_boolean.vcloudinfo_maintenance.
+                    If it is on, unknown, or unavailable, the blog is intentionally held offline:
+                    never start or recreate WordPress or reconnect its public network.
+                    Only explicitly verified patched-image restoration can release that hold;
+                    a maintenance return date is not authorization to restart.
                     Verify public HTTP 200 recovery before closing out. Do not
                     power-cycle unrelated infrastructure.
               - service: script.send_to_logbook
@@ -852,7 +870,7 @@ automation:
           - service: script.send_to_logbook
             data:
               topic: "INTERNET"
-              message: "Website availability recovered."
+              message: "Website availability has no unplanned outages; maintenance exclusions={{ state_attr('sensor.infra_website_down_count', 'maintenance_entities') | default([], true) | join(', ') }}."
 
   - alias: "Infrastructure - Website Uptime SLO Repair"
     id: infra_website_uptime_slo_repair
@@ -1501,6 +1519,13 @@ automation:
         event_type: cloudflare_alert
     variables:
       alert: "{{ trigger.event.data }}"
+    condition:
+      - condition: template
+        value_template: >-
+          {{ alert.action == 'resolve' or not (
+               not is_state('input_boolean.vcloudinfo_maintenance', 'off') and
+               alert.alert_type == 'real_origin_monitoring' and
+               alert.resource | lower in ['vcloudinfo.com', 'www.vcloudinfo.com']) }}
     action:
       - choose:
           - conditions: "{{ alert.action == 'resolve' }}"
@@ -1563,6 +1588,10 @@ automation:
                         Ignore stale alerts when live service health is good. If the fault is a clearly
                         identified local service or cloudflared connector, perform only an already
                         authorized targeted service recovery, then verify public reachability.
+                        Recheck input_boolean.vcloudinfo_maintenance before any WordPress action.
+                        If it is on, unknown, or unavailable, never start or recreate WordPress
+                        or reconnect its public network; the blog is intentionally held offline
+                        until its patched-image restoration gate is explicitly verified.
                         Do not use browser/computer interaction, change Cloudflare DNS, firewall,
                         Access, certificates, account/billing settings, credentials, or exposure;
                         do not reboot hosts or unrelated services. If recovery requires any of those

@@ -6,6 +6,9 @@
 # Kiosk Tablets - Fully recovery and Kiosk Satellite display policy
 #  Keeps the Bedroom tablet stable and drives state-based Kitchen Show camera views.
 # -------------------------------------------------------------------
+# Related Issue: 1913
+# Video: https://youtu.be/fuS1voqRznY
+# Blog: https://www.vcloudinfo.com/2026/10/repurpose-nest-thermostat-home-assistant-display.html
 # Related Issue: 1875
 # Related Issue: 1890
 # Related Issue: 1895
@@ -13,7 +16,8 @@
 # Notes: The Android 5 Fully tablet uses `/local/bedroom-kiosk.html`, a lightweight renderer.
 # Notes: Shared camera, header, and alert sensors keep both Bedroom renderers DRY.
 # Notes: Fully controls apply only to the legacy Bedroom tablet.
-# Notes: Kitchen Show uses Kiosk Satellite's native ESPHome entities; `_2` is the live set while legacy MQTT registry entries coexist.
+# Notes: Native ESPHome entities use canonical unsuffixed IDs.
+#  Retired MQTT duplicates and their obsolete history have been removed.
 # Notes: Kiosk Satellite owns HA kiosk-mode hiding, connection recovery, HA camera import, and HLS-first playback; no kiosk-mode custom resource is loaded.
 # Notes: Kitchen Show uses the Dim screensaver while empty or `group.bed` is on; true panel-off is disabled because this Crown build naps Wi-Fi and cannot accept a remote wake.
 # Notes: Kitchen volume follows bed occupancy (13% occupied, 75% empty); Upstairs and Office volume stay manual.
@@ -31,6 +35,7 @@
 # Notes: Updates run followers first; Joanna receives an exact enrolled device key and preserves its route.
 # Notes: Kiosk attention sensors expose only their stable status attribute so recorder preserves problem transitions without heartbeat churn.
 # Notes: The round Nest uses heartbeat/checksum health and bounded scene recovery; preview age is independent.
+# Notes: All Nest health is advisory only; the bridge retains bounded recovery and dashboard telemetry without notification dispatch.
 # Notes: Nearby daytime rain or lightning starts a five-minute NOAA radar view; the ambient banner offers daylight replay while the event remains active.
 # Notes: Actionable Kitchen banner slides open one shared short-lived detail surface; camera events retain priority.
 # Notes: Phyn detail can restore a closed main valve only after an explicit on-screen confirmation.
@@ -42,6 +47,11 @@
 # Notes: joanna_voice_ack_url points to /local/joanna-voice/acknowledgement.mp3 on the local HA server.
 # Video: https://youtu.be/ChgEu0IDWzc
 ######################################################################
+
+input_boolean:
+  living_room_nest_incident_active:
+    name: "Living Room Nest Incident Active"
+    icon: mdi:alert-circle-outline
 
 input_text:
   kitchen_kiosk_detail_view:
@@ -69,44 +79,29 @@ timer:
 automation:
   - alias: "Living Room Nest - Reconcile Display Repair"
     id: living_room_nest_reconcile_display_repair
-    description: "Keep one durable repair after the device's bounded recovery fails, and clear it on verified recovery."
-    mode: queued
-    max: 3
+    description: "Retire legacy Nest health escalations silently; automatic recovery stays with the display bridge."
+    mode: single
     trigger:
       - platform: state
-        entity_id: binary_sensor.living_room_nest_kiosk_needs_attention
+        entity_id: input_boolean.living_room_nest_incident_active
         to: "on"
-      - platform: state
-        entity_id: binary_sensor.living_room_nest_kiosk_needs_attention
-        to: "off"
-      - platform: homeassistant
-        event: start
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.living_room_nest_kiosk_needs_attention
-                state: "on"
-            sequence:
-              - action: repairs.create
-                data:
-                  issue_id: living_room_nest_display
-                  title: "Living Room Nest display needs attention"
-                  description: >-
-                    The display monitor reports {{ state_attr('binary_sensor.living_room_nest_kiosk_needs_attention', 'status') }}.
-                    Check the connection, alert feed and latest round preview on the Systems Kiosks view.
-                    Automatic scene recovery is limited to three restarts per hour; offline hardware requires a power/network check.
-                  severity: warning
-                  persistent: true
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.living_room_nest_kiosk_needs_attention
-                state: "off"
-            sequence:
-              - action: repairs.remove
-                continue_on_error: true
-                data:
-                  issue_id: living_room_nest_display
+      - if:
+          - condition: state
+            entity_id: input_boolean.living_room_nest_incident_active
+            state: "on"
+        then:
+          - action: repairs.remove
+            continue_on_error: true
+            data:
+              issue_id: living_room_nest_display
+          - action: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.living_room_nest_incident_active
+          - action: script.send_to_logbook
+            data:
+              topic: NEST
+              message: "All Nest health is advisory only. Legacy escalation retired silently; this does not claim verified device recovery."
 
   - alias: "Joanna Voice - Acknowledge Heard Request"
     id: joanna_voice_acknowledge_heard_request
@@ -283,7 +278,7 @@ automation:
         event: start
       - platform: state
         entity_id:
-          - binary_sensor.kitchen_show_connectivity_2
+          - binary_sensor.kitchen_show_connectivity
           - binary_sensor.upstairs_show_connectivity
           - binary_sensor.office_show_connectivity
         to: "on"
@@ -339,15 +334,15 @@ automation:
       - platform: state
         entity_id:
           - binary_sensor.kitchen_kiosk_should_be_on
-          - light.kitchen_show_screen_2
+          - light.kitchen_show_screen
           - light.upstairs_show_screen
           - light.office_show_screen
         to: "on"
       - platform: state
         entity_id:
           - binary_sensor.kitchen_kiosk_should_be_on
-          - light.kitchen_show_screen_2
-          - switch.kitchen_show_keep_screen_on_2
+          - light.kitchen_show_screen
+          - switch.kitchen_show_keep_screen_on
           - switch.upstairs_show_keep_screen_on
           - switch.office_show_keep_screen_on
         to: "off"
@@ -846,11 +841,11 @@ template:
         delay_off: "00:00:30"
         state: >-
           {% from 'kiosk_health.jinja' import satellite_status %}
-          {{ satellite_status('kitchen_show', '/dashboard-kiosk-satellite-staging/home', suffix='_2') | trim != 'online' }}
+          {{ satellite_status('kitchen_show', '/dashboard-kiosk-satellite-staging/home', suffix='') | trim != 'online' }}
         attributes:
           status: >-
             {% from 'kiosk_health.jinja' import satellite_status %}
-            {{ satellite_status('kitchen_show', '/dashboard-kiosk-satellite-staging/home', suffix='_2', include_update=true) | trim }}
+            {{ satellite_status('kitchen_show', '/dashboard-kiosk-satellite-staging/home', suffix='', include_update=true) | trim }}
 
       - name: "Upstairs Kiosk Needs Attention"
         unique_id: upstairs_kiosk_needs_attention
@@ -887,7 +882,8 @@ template:
         delay_on: "00:02:00"
         delay_off: "00:00:30"
         state: >-
-          {{ not is_state('sensor.living_room_nest_status', 'online') }}
+          {% from 'kiosk_health.jinja' import nest_needs_attention %}
+          {{ nest_needs_attention() | bool }}
         attributes:
           status: >-
             {{ states('sensor.living_room_nest_status') }}

@@ -4,7 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Driveway Parked Car Alert - notify when a car remains in the driveway zone.
-# Related Issue: 1773
+# Related Issue: 2011, 1773
 #  Sends alerts and starts the shared ten-minute kiosk camera takeover.
 # Video: https://youtu.be/X9qrywP3XS0
 # Blog: https://www.vcloudinfo.com/2026/09/home-assistant-frigate-driveway-car-alert.html
@@ -16,6 +16,8 @@
 # Notes: The kiosk takeover clears with occupancy or after ten minutes,
 #  whichever happens first; Garage and Front Door keep higher priority.
 # Notes: The driveway_alert tag replaces the previous driveway phone alert.
+# Notes: Guest mode snoozes this alert's phone, speech, and kiosk actions.
+#  Only a new occupancy detection after guest mode ends can alert; manual controls stay unchanged.
 # Notification icons video: https://youtu.be/TMfdxv-WprM
 # Notification icons blog: https://www.vcloudinfo.com/2026/10/home-assistant-ios-notification-icons.html
 ######################################################################
@@ -26,11 +28,17 @@
     Notify Carlo and Stacey and announce when Frigate confirms a car has
     remained in the driveway-zone for at least 30 seconds, while showing
     the Driveway camera on both household kiosks for at most ten minutes.
+    Guest mode suppresses these actions until a new detection after it ends.
   mode: single
   triggers:
     - trigger: occupancy.detected
       target:
         entity_id: binary_sensor.driveway_zone_car_occupancy
+
+  conditions:
+    - condition: state
+      entity_id: input_boolean.guest_mode
+      state: 'off'
 
   actions:
     - action: script.turn_on

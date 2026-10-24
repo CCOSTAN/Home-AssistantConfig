@@ -33,6 +33,7 @@
 # Notes: Panel Notes and OneNote Indexer use their current `_2` discovery switches after stale registry cleanup.
 # Notes: Retired repair cleanup clears stale legacy codex_appliance and Dozzle repair IDs.
 # Notes: Intentional Frigate thermal shedding suppresses its outage repair and recovery dispatch; the native hold also prevents restarts.
+# Notes: The restoring vCloudInfo maintenance flag suppresses WordPress outage Repairs and recovery dispatch, including after delayed checks.
 ######################################################################
 
 input_datetime:
@@ -685,7 +686,9 @@ script:
         value_template: >-
           {{ tracked_container and op in ['create', 'clear'] and
              (op == 'clear' or container_key != 'frigate' or
-              is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off')) }}
+              is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off')) and
+             (op == 'clear' or container_key != 'wordpress_wp' or
+              is_state('input_boolean.vcloudinfo_maintenance', 'off')) }}
       - choose:
           - conditions: "{{ op == 'create' }}"
             sequence:
@@ -732,7 +735,9 @@ script:
                 entity_id: binary_sensor.docker_container_alerts_snoozed
                 state: "off"
               - condition: template
-                value_template: "{{ container_key != 'frigate' or is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off') }}"
+                value_template: >-
+                  {{ (container_key != 'frigate' or is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off')) and
+                     (container_key != 'wordpress_wp' or is_state('input_boolean.vcloudinfo_maintenance', 'off')) }}
               - service: repairs.create
                 data:
                   issue_id: "{{ issue_id }}"
@@ -789,7 +794,9 @@ script:
                 entity_id: binary_sensor.docker_container_alerts_snoozed
                 state: "off"
               - condition: template
-                value_template: "{{ container_key != 'frigate' or is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off') }}"
+                value_template: >-
+                  {{ (container_key != 'frigate' or is_state('binary_sensor.frigate_thermal_recovery_inhibited', 'off')) and
+                     (container_key != 'wordpress_wp' or is_state('input_boolean.vcloudinfo_maintenance', 'off')) }}
               - service: script.joanna_dispatch
                 data:
                   trigger_context: >-
@@ -813,6 +820,10 @@ script:
                     First check binary_sensor.frigate_thermal_recovery_inhibited and sensor.proxmox02_thermal_guard.
                     If the thermal recovery block is on, unknown, or unavailable, never start Frigate or Docker14/VM 101.
                     An intentional thermal shutdown requires operator release after verified cooling.
+                    Also recheck input_boolean.vcloudinfo_maintenance before any WordPress recovery.
+                    If it is on, unknown, or unavailable, never start or recreate WordPress or
+                    reconnect its public network. The maintenance date does not release the
+                    verified patched-image hold.
                     Reply with explicit status fields:
                     resolved=true/false,
                     root_cause,

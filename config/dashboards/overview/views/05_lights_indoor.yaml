@@ -1,0 +1,787 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Subview - Indoor Lighting
+#  Room controls and lamp outlets from existing indoor and bedtime lighting groups.
+# -------------------------------------------------------------------
+# Notes: Lighting scope follows the indoor/exterior groups and bedtime routines.
+# Notes: Tap a named light/group to toggle; hold for brightness/color/details.
+# Notes: Reuses existing mobile templates; offline controls remain visible.
+######################################################################
+
+path: lights-indoor
+title: Indoor Lighting
+icon: mdi:lightbulb-group
+subview: true
+back_path: /lovelace/lights
+type: sections
+max_columns: 4
+dense_section_placement: true
+badges: []
+sections:
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        '(max-width: 700px)':
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Indoor Lights
+      icon: mdi:home-lightbulb-outline
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_nav_back
+      name: Back to Lighting
+      icon: mdi:arrow-left
+      show_state: false
+      view_layout:
+        grid-column: 1 / -1
+      tap_action:
+        action: navigate
+        navigation_path: /lovelace/lights
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        '(max-width: 700px)':
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Living Room
+      icon: mdi:sofa-outline
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.living_room_lights
+      name: Living Room Lights
+      icon: mdi:ceiling-light-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.living_room_accents
+      name: Living Room Accents
+      icon: mdi:led-strip-variant
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.main_slider
+      name: Main Slider
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.living_room_outlet
+      name: Living Room Outlet
+      icon: mdi:power-socket-us
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.den_outlet
+      view_layout:
+        grid-column: span 2
+      name: Den Outlet
+      icon: mdi:lamp-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        '(max-width: 700px)':
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Kitchen
+      icon: mdi:countertop-outline
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.kitchen_lights
+      name: Kitchen Lights
+      icon: mdi:ceiling-light-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.sink
+      name: Sink
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: group.kitchen_accents
+      name: Kitchen Accents
+      icon: mdi:led-strip-variant
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.kitchen_accent_1
+      name: Kitchen Accent 1
+      icon: mdi:led-strip-variant
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.kitchen_accent_2
+      view_layout:
+        grid-column: span 2
+      name: Kitchen Accent 2
+      icon: mdi:led-strip-variant
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        '(max-width: 700px)':
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Foyer & Dining
+      icon: mdi:ceiling-light-outline
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.foyer
+      name: Foyer Lights
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.foyer_outlet
+      name: Foyer Outlet
+      icon: mdi:lamp-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.front_door_outlet
+      name: Front Door Outlet
+      icon: mdi:outdoor-lamp
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.dining_room_lights
+      name: Dining Room
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.dinette_lights
+      view_layout:
+        grid-column: span 2
+      name: Dinette
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        '(max-width: 700px)':
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Office & Bathroom
+      icon: mdi:desk-lamp
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.office_lights
+      name: Office Lights
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.office_lamp_switch
+      name: Office Lamp
+      icon: mdi:desk-lamp
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.front_office_lamp
+      name: Front Office Lamp
+      icon: mdi:desk-lamp
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.office_accent
+      name: Office Accent
+      icon: mdi:led-strip-variant
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: group.master_bathroom_accents
+      name: Bathroom Accents
+      icon: mdi:vanity-light
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.master_bathroom_accent_1
+      name: Bath Accent 1
+      icon: mdi:vanity-light
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: switch.master_bathroom_accent_2
+      view_layout:
+        grid-column: span 2
+      name: Bath Accent 2
+      icon: mdi:vanity-light
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        '(max-width: 700px)':
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Bedrooms & Hallways
+      icon: mdi:bed-outline
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.bedroom_lights
+      name: Bedroom Lights
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.upstairs_lights
+      name: Upstairs Lights
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.upstairs_lamp
+      name: Upstairs Lamp
+      icon: mdi:lamp-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.ikea_1
+      name: Hallway Outlet
+      icon: mdi:power-socket-us
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.hallway_lights
+      name: Hallway Lights
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.justin_go
+      name: Justin's Room
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.paige_go
+      name: Paige's Room
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.echo_glow
+      name: Echo Glow
+      icon: mdi:lamp-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        '(max-width: 700px)':
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Garage
+      icon: mdi:garage
+      view_layout:
+        grid-column: 1 / -1
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.garage
+      name: Garage Hallway
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.garage_2
+      name: Garage Attic
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: light.garage_lights
+      view_layout:
+        grid-column: span 2
+      name: All Garage Lights
+      icon: mdi:lightbulb-outline
+      variables:
+        ok_states:
+        - 'off'
+        active_states:
+        - 'on'
+        state_labels:
+          unavailable: OFFLINE
+          unknown: UNKNOWN
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+cards: []

@@ -14,6 +14,7 @@
 # Notes: Family-away and bed-unused timestamps restore across Home Assistant restarts so long absences are not reset by a restart or brief unavailable state.
 # Notes: Vacation mode restores its prior state after Home Assistant restarts; a 5-minute reconciliation also clears a restored mode when the family is already home.
 # Notes: General vacation speech uses Chromecast only; the garage Alexa welcome is the one local-device exception.
+# Notes: Sitter reminders cover house security, packages, and garbage.
 # Notes: Visit analytics use recorder-backed visit counts plus arrival/departure helpers for accurate durations.
 # Notes: Dorm zones are reported as away locations, not Bear Stone home.
 # Notes: Garage arrival uses a 5-second open debounce to tolerate brief Garadget closed-state flickers; departure retains its 15-second close debounce.
@@ -839,14 +840,12 @@ automation:
             {{ visit_context }}
             Carlo is {{ carlo_location }}. Stacey is {{ stacey_location }}.
             Justin is {{ justin_location }}. Paige is {{ paige_location }}.
-            Please check Molly's food, water, and litter box.
             {{ package_message }}
             {{ garbage_message }}
           push_message: >-
             House sitter arrival detected via the {{ entry_label }} after {{ away_duration }} away.
             {{ visit_context }}
             Carlo={{ carlo_location }}, Stacey={{ stacey_location }}, Justin={{ justin_location }}, Paige={{ paige_location }}.
-            Molly reminder is included.
             {{ package_message }}
             {{ garbage_message }}
 
@@ -939,7 +938,7 @@ automation:
               The garage doors already look closed.
             {% endif %}
           checklist_message: >-
-            Quick reminder. Please check Molly's food, water, and litter box.
+            Quick house check reminder.
             {{ garage_status }}
             The front door should auto-lock when you leave.
 

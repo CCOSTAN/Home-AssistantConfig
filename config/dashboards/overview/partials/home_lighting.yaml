@@ -1,0 +1,90 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Overview Card - Lighting
+#  Daily lighting controls beneath Sleep Score with room navigation and shutdown.
+# -------------------------------------------------------------------
+# Notes: Two equal columns fit the Home middle column and phone widths.
+# Notes: Shared everyday cards keep Home and the Lighting menu consistent.
+######################################################################
+
+type: vertical-stack
+grid_options:
+  columns: full
+cards:
+- type: custom:layout-card
+  grid_options:
+    columns: full
+  layout_type: custom:grid-layout
+  layout:
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+    grid-auto-flow: row
+    grid-auto-rows: min-content
+    align-items: stretch
+    grid-gap: 12px
+    margin: 0
+  cards:
+  - type: custom:button-card
+    template: bearstone_mobile_header
+    name: Lighting
+    icon: mdi:lightbulb-group
+    view_layout:
+      grid-column: 1 / -1
+  - type: custom:button-card
+    template: bearstone_mobile_control
+    name: On Now
+    icon: mdi:lightbulb-on-outline
+    show_state: false
+    variables:
+      status_severity: active
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/lights
+  - type: custom:button-card
+    template: bearstone_mobile_control
+    name: Indoor
+    icon: mdi:home-lightbulb-outline
+    show_state: false
+    variables:
+      status_severity: active
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/lights-indoor
+  - type: custom:button-card
+    template: bearstone_mobile_control
+    name: Exterior
+    icon: mdi:outdoor-lamp
+    show_state: false
+    variables:
+      status_severity: active
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/lights-exterior
+  - type: custom:button-card
+    template: bearstone_mobile_control
+    name: All Lights Off
+    icon: mdi:lightbulb-group-off-outline
+    show_state: false
+    variables:
+      status_severity: active
+    tap_action:
+      action: perform-action
+      perform_action: script.turn_on
+      target:
+        entity_id: script.lighting_all_off
+    hold_action:
+      action: none
+- type: custom:layout-card
+  grid_options:
+    columns: full
+  layout_type: custom:grid-layout
+  layout:
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+    grid-auto-flow: row
+    grid-auto-rows: min-content
+    align-items: stretch
+    grid-gap: 12px
+    margin: 0
+  cards: !include '/config/dashboards/overview/partials/lighting_everyday_cards.yaml'

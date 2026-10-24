@@ -1,0 +1,46 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# All Lights Off - Dashboard lighting-only shutdown
+#  Shared by Home, Mobile, and the Lighting submenu.
+# -------------------------------------------------------------------
+# Notes: Uses the same lighting scope as On Now; lamp switches are allowlisted.
+# Notes: Does not call bedtime, media, voice, or equipment shutdown routines.
+# Notes: Empty target lists are skipped; unavailable devices stay visible offline.
+# Example: action: script.lighting_all_off
+######################################################################
+
+lighting_all_off:
+  alias: All Lights Off
+  description: Turn off available household lights and approved lamp/lighting outlets.
+  icon: mdi:lightbulb-group-off-outline
+  mode: single
+  max_exceeded: silent
+  sequence:
+    - alias: Resolve the shared lighting scope at the time of the press
+      variables:
+        lighting_entities: >-
+          {% from 'lighting.jinja' import lighting_targets %}
+          {{ (lighting_targets | as_function)(false) }}
+        light_entities: "{{ lighting_entities | select('match', '^light[.]') | list }}"
+        lamp_entities: "{{ lighting_entities | select('match', '^switch[.]') | list }}"
+    - alias: Turn off lights independently of lamp outlet availability
+      if:
+        - condition: template
+          value_template: "{{ light_entities | count > 0 }}"
+      then:
+        - action: light.turn_off
+          target:
+            entity_id: "{{ light_entities }}"
+          continue_on_error: true
+    - alias: Turn off only the approved lighting outlets
+      if:
+        - condition: template
+          value_template: "{{ lamp_entities | count > 0 }}"
+      then:
+        - action: switch.turn_off
+          target:
+            entity_id: "{{ lamp_entities }}"
+          continue_on_error: true

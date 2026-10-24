@@ -19,10 +19,11 @@
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
 # Notes: Status telemetry includes the latest 12 dispatches in the rolling 24-hour window for the Joanna Activity drill-down.
 # Notes: Status telemetry exposes compact scheduled-job warning/error health for the Systems dashboard.
+# Notes: Critical appliance updates open one operator-only Repair; vendor waits stay amber and never dispatch self-updates.
 # Notes: Status telemetry distinguishes the compact BearClaw working-memory index from the federated OneNote KB.
 # Notes: Independent Mini App origin/public probes run every minute; sustained failures create Repairs and HA mobile alerts.
 # Notes: The Mini App incident latch survives restarts to avoid duplicate outage notifications; recovery clears its owned Repair.
-# Notes: sensor.joanna_onenote_kb_health marks the federated KB warning after 90 minutes without a successful sync.
+# Notes: the existing OneNote health entity reports account-owned indexer health.
 # Notes: Status telemetry exposes user-keyed step trends for Health and personal records for briefings and kiosks.
 # Notes: Status telemetry exposes 48-hour Carlo/Stacey bowling highlights for the Kitchen Show rotation.
 # Notes: Retired QMD health telemetry is no longer imported or materialized in Home Assistant.
@@ -180,13 +181,52 @@ sensor:
       - transports
       - followups
       - memoryIndex
-      - oneNoteKb
+      - oneNoteIndexers
       - healthInsights
       - bowlingHighlights
       - scheduledJobsHealth
+      - securityUpdates
 
 template:
   - sensor:
+      - name: Joanna Security Updates
+        unique_id: joanna_security_updates
+        icon: mdi:shield-search
+        availability: >-
+          {{ states('sensor.bearclaw_status_telemetry') == 'ok' and state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') is mapping }}
+        state: >-
+          {% set report = state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true) %}
+          {% set checked = as_timestamp(report.get('lastCheckedAt'), 0) %}
+          {{ 'coverage_unknown' if as_timestamp(now()) - checked > 129600 else report.get('status', 'coverage_unknown') }}
+        attributes:
+          severity: >-
+            {% set report = state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true) %}
+            {% set checked = as_timestamp(report.get('lastCheckedAt'), 0) %}
+            {{ 'critical' if report.get('severity') == 'critical' else
+               'warning' if as_timestamp(now()) - checked > 129600 or report.get('severity') != 'healthy' else 'healthy' }}
+          critical_action_required: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('criticalActionRequired', 0) }}
+          appliance_update: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('applianceUpdate', {}) }}
+          needs_attention: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('counts', {}).get('needs_attention', 0) }}
+          services_need_review: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('needsReviewServices', 0) }}
+          automatic_fix_pending: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('counts', {}).get('automatic_fix_pending', 0) }}
+          waiting_vendor_patch: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('counts', {}).get('waiting_vendor_patch', 0) }}
+          vendor_wait_services: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('vendorWaitServices', 0) }}
+          images_scanned: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('imagesScanned', 0) }}
+          services: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('services', 0) }}
+          last_checked_at: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('lastCheckedAt') }}
+          next_run_at: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('nextRunAt') }}
+
       - name: BearClaw Scheduled Job Health
         unique_id: bearclaw_scheduled_job_health
         icon: mdi:calendar-alert
@@ -216,51 +256,28 @@ template:
             {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
             {{ health.get('generatedAt') }}
 
-      - name: Joanna OneNote KB Health
+      - name: Joanna OneNote Health
+        # Preserve the existing entity identity for dashboard/history consumers.
         unique_id: joanna_onenote_kb_health
         icon: mdi:notebook-check-outline
         availability: >-
-          {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') %}
-          {{ kb is mapping }}
+          {{ state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') is mapping }}
         state: >-
-          {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-          {% set last_sync_ts = as_timestamp(kb.get('lastSyncAt'), 0) %}
-          {% set age_minutes = ((as_timestamp(now()) - last_sync_ts) / 60) if last_sync_ts > 0 else 999999 %}
-          {% if not kb.get('ok', false) or kb.get('lastSyncError') not in [none, ''] or kb.get('lastSchedulerError') not in [none, ''] %}
-            error
-          {% elif age_minutes > 90 %}
-            warning
-          {% else %}
-            ok
-          {% endif %}
+          {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
+          {{ indexes.get('status', 'warning') }}
         attributes:
           docs: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('docs', 0) | int(0) }}
+            {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
+            {{ indexes.get('docs', 0) | int(0) }}
           chunks: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('chunks', 0) | int(0) }}
-          last_sync_at: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('lastSyncAt') }}
-          last_modified_at: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('lastModifiedAt') }}
+            {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
+            {{ indexes.get('chunks', 0) | int(0) }}
           source_accounts: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('sourceAccounts', []) }}
-          pending_digest: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('pendingDigest', 0) | int(0) }}
-          pending_synthesis: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('pendingSynthesisAll', 0) | int(0) }}
-          carlo_docs: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('sources', {}).get('carlo', {}).get('docs', 0) | int(0) }}
-          stacey_docs: >-
-            {% set kb = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteKb') | default({}, true) %}
-            {{ kb.get('sources', {}).get('stacey', {}).get('docs', 0) | int(0) }}
+            {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
+            {{ indexes.get('sourceAccounts', []) }}
+          sources: >-
+            {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
+            {{ indexes.get('sources', {}) }}
 
       - name: Joanna HA Dispatches 24h
         unique_id: joanna_ha_dispatches_24h
@@ -565,6 +582,67 @@ template:
           {{ memory.get('stale', false) in [true, 'true', 'True', 'on', 'yes', 1, '1'] }}
 
 automation:
+  - id: joanna_appliance_security_repair
+    alias: Joanna Appliance Security Repair
+    description: Operator-only critical update review; fresh verified scans clear the Repair without dispatching self-updates.
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.joanna_security_updates
+      - platform: homeassistant
+        event: start
+      - platform: time_pattern
+        minutes: "/5"
+    condition:
+      - condition: state
+        entity_id: sensor.bearclaw_status_telemetry
+        state: "ok"
+      - condition: template
+        value_template: >-
+          {{ has_value('sensor.joanna_security_updates') and
+             as_timestamp(now()) - as_timestamp(states.sensor.bearclaw_status_telemetry.last_reported, 0) < 180 }}
+    action:
+      - variables:
+          update: "{{ state_attr('sensor.joanna_security_updates', 'appliance_update') | default({}, true) }}"
+          report_url: !secret bearclaw_security_admin_url
+      - condition: template
+        value_template: "{{ update is mapping and update.get('status') in ['action_required', 'verified_clear'] }}"
+      - service: repairs.list
+        data:
+          include_ignored: true
+          domain: spook
+        response_variable: current_repairs
+      - variables:
+          repair_exists: >-
+            {{ current_repairs.get('issues', []) | selectattr('issue_id', 'equalto', 'user_joanna_appliance_security_update') | list | count > 0 }}
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ update.get('status') == 'action_required' and update.get('criticalActionRequired', 0) | int(0) > 0 and not repair_exists }}"
+            sequence:
+              - service: repairs.create
+                data:
+                  issue_id: joanna_appliance_security_update
+                  title: Joanna appliance needs a critical update review in Codex
+                  severity: critical
+                  persistent: true
+                  description: >-
+                    Carlo: a critical or known-exploited package match has a published fix available for the appliance.
+                    Open [Security & Updates]({{ report_url }}) and ask Codex to review applicability,
+                    build and test the update, retain a rollback image, deploy, and rescan.
+                    Joanna does not dispatch or apply this update herself.
+                    This Repair clears only after a fresh successful scan verifies no actionable critical fixes remain.
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ repair_exists and update.get('status') == 'verified_clear'
+                     and update.get('criticalActionRequired') == 0
+                     and 0 <= as_timestamp(now()) - as_timestamp(update.get('checkedAt'), 0) < 129600 }}
+            sequence:
+              - service: repairs.remove
+                data:
+                  issue_id: joanna_appliance_security_update
+
   - id: joanna_mini_app_health_monitor
     alias: Joanna Mini App Health Monitor
     description: Independent origin/edge monitoring, durable incident deduplication, and recovery cleanup.
