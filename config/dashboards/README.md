@@ -50,6 +50,12 @@ This folder holds YAML-managed Home Assistant Lovelace dashboards and UI resourc
 - `shared/`
   - Cross-dashboard reuse only. If something is only used by one dashboard, keep it in that dashboard folder.
 
+### Camera Timeline Playback
+
+The Frigate Events Card keeps its event gallery and continuous-recording timeline. Its resource loads through `www/frigate-events-auth.js`, which imports the HACS card and signs the timeline manifest and MP4 fallback through Home Assistant. Frigate passes the manifest signature to the recording segments; native video playback also needs a signed URL. The adapter is scoped to this card and preserves the installed HACS bundle and direct Frigate URL behavior.
+
+This bridges the unsigned timeline URLs in Frigate Events Card v2.5.23. Recheck playback after card upgrades and remove the adapter when upstream signs both timeline paths. The adapter discards pending authorization when the camera, time window, or modal changes.
+
 ### Mobile Quick Access
 - Mobile is the second visible Overview view, directly after Home and before Cameras.
 - Two-column controls use large labels, states, icons, and touch targets for quick use without glasses.
