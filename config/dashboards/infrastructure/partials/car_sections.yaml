@@ -12,6 +12,8 @@
 # Notes: Tap either Odometer tile for the daily visited-map image; hold for details.
 # Notes: Useful tiles use restored last-valid values without timestamp churn.
 # Notes: Raw JuiceBox energy retains long-term history; power is session-only.
+# Notes: Charging history converts daily Wh statistics to kWh for display.
+# Notes: The charging legend totals the displayed 30 days; tooltips show each day.
 # Notes: The Tesla's Home location charge-current setting is intentionally 16 A.
 # Notes: Proxy health follows live MQTT reports rather than Portainer state;
 #  three missing minutes dispatch Joanna and five become a Systems fault.
@@ -480,15 +482,41 @@
         - entity: sensor.juicebox_energy_lifetime
           state_not: unavailable
         card:
-          type: statistics-graph
-          chart_type: bar
-          days_to_show: 30
-          period: day
-          stat_types:
-          - change
-          entities:
+          # ApexCharts converts existing Wh statistics without a new sensor/history.
+          type: custom:apexcharts-card
+          graph_span: 30d
+          span:
+            end: day
+          apex_config:
+            chart:
+              height: 400
+            legend:
+              showForSingleSeries: true
+              formatter: |
+                EVAL:function(seriesName, opts) {
+                  const values = opts.w.globals.series[opts.seriesIndex].filter(Number.isFinite);
+                  if (!values.length) return '30-day total: No data';
+                  const total = values.reduce((sum, value) => sum + value, 0);
+                  const formatted = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                  return `30-day total: ${formatted} kWh`;
+                }
+          yaxis:
+          - min: 0
+            decimals: 1
+            apex_config:
+              title:
+                text: kWh
+          series:
           - entity: sensor.juicebox_energy_lifetime
             name: JuiceBox Energy
+            type: column
+            color: '#4263eb'
+            unit: kWh
+            float_precision: 2
+            transform: 'return x === null ? null : x / 1000;'
+            statistics:
+              type: change
+              period: day
 
       - type: conditional
         conditions:
