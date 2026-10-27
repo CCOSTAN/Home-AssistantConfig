@@ -4,9 +4,13 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - kiosks
+# Related Issue: 2030
 #  Exception-first health, device telemetry, and live dashboard previews.
 # -------------------------------------------------------------------
 # Notes: Included by config/dashboards/infrastructure/views/05z_kiosks.yaml.
+# Notes: Living Room TV is an on-demand kiosk, outside fleet health checks.
+# Notes: Raven app status replaces the retired Samsung Haven browser preview.
+# Notes: Kitchen Show power uses its charging sensor; battery telemetry is absent.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -131,63 +135,7 @@
         [[[ return String(entity?.attributes?.status ?? entity?.state ?? 'unknown').replaceAll('_', ' ').toUpperCase(); ]]]
 
 # -------------------------------------------------------------------
-# Latest device screenshots
-# -------------------------------------------------------------------
-# Native picture cards provide live device screenshots; button-card cannot render camera images.
-- type: grid
-  column_span: 4
-  columns: 4
-  square: false
-  cards:
-  - camera_view: auto
-    type: picture-glance
-    title: Bedroom Tablet
-    image: https://demo.home-assistant.io/stub_config/kitchen.png
-    entities:
-    - entity: binary_sensor.bedroom_kiosk_needs_attention
-    image_entity: image.alarm_panel_1_screenshot
-    tap_action:
-      action: navigate
-      navigation_path: /dashboard-bedroom/home
-
-  - camera_view: auto
-    type: picture-glance
-    title: Kitchen Show
-    image: https://demo.home-assistant.io/stub_config/kitchen.png
-    entities:
-    - entity: binary_sensor.kitchen_kiosk_needs_attention
-    - entity: sensor.kitchen_show_last_screenshot
-    camera_image: camera.kitchen_show_screenshot
-    tap_action:
-      action: navigate
-      navigation_path: /dashboard-kiosk-satellite-staging/home
-
-  - camera_view: auto
-    type: picture-glance
-    title: Upstairs Show
-    image: https://demo.home-assistant.io/stub_config/kitchen.png
-    entities:
-    - entity: binary_sensor.upstairs_kiosk_needs_attention
-    - entity: sensor.upstairs_show_last_screenshot
-    camera_image: camera.upstairs_show_screenshot
-    tap_action:
-      action: navigate
-      navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
-
-  - camera_view: auto
-    type: picture-glance
-    title: Office Show
-    image: https://demo.home-assistant.io/stub_config/kitchen.png
-    entities:
-    - entity: binary_sensor.office_kiosk_needs_attention
-    - entity: sensor.office_show_last_screenshot
-    camera_image: camera.office_show_screenshot
-    tap_action:
-      action: navigate
-      navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
-
-# -------------------------------------------------------------------
-# Living Room Nest - actual circular framebuffer preview
+# Screens - device captures and native Roku Raven status
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -199,13 +147,62 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr)
+      grid-template-columns: repeat(3, minmax(0, 1fr))
       grid-gap: 12px
       margin: 0
       mediaquery:
-        "(max-width: 900px)":
+        "(max-width: 700px)":
           grid-template-columns: minmax(0, 1fr)
+        "(max-width: 1200px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
+    - camera_view: auto
+      type: picture-glance
+      title: Bedroom Tablet
+      image: https://demo.home-assistant.io/stub_config/kitchen.png
+      entities:
+      - entity: binary_sensor.bedroom_kiosk_needs_attention
+      image_entity: image.alarm_panel_1_screenshot
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-bedroom/home
+
+    - camera_view: auto
+      type: picture-glance
+      title: Kitchen Show
+      image: https://demo.home-assistant.io/stub_config/kitchen.png
+      entities:
+      - entity: binary_sensor.kitchen_kiosk_needs_attention
+      - entity: sensor.kitchen_show_last_screenshot
+      camera_image: camera.kitchen_show_screenshot
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-kiosk-satellite-staging/home
+
+    - camera_view: auto
+      type: picture-glance
+      title: Upstairs Show
+      image: https://demo.home-assistant.io/stub_config/kitchen.png
+      entities:
+      - entity: binary_sensor.upstairs_kiosk_needs_attention
+      - entity: sensor.upstairs_show_last_screenshot
+      camera_image: camera.upstairs_show_screenshot
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
+
+    - camera_view: auto
+      type: picture-glance
+      title: Office Show
+      image: https://demo.home-assistant.io/stub_config/kitchen.png
+      entities:
+      - entity: binary_sensor.office_kiosk_needs_attention
+      - entity: sensor.office_show_last_screenshot
+      camera_image: camera.office_show_screenshot
+      tap_action:
+        action: navigate
+        navigation_path: /dashboard-kiosk-satellite-staging/echo-show5
+
     - type: custom:button-card
       template: bearstone_infra_round_display
       entity: image.living_room_nest_screen
@@ -218,6 +215,368 @@
         health_entity: sensor.living_room_nest_status
         timestamp_entity: sensor.living_room_nest_last_screenshot
         capture_entity: button.living_room_nest_capture_screen
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Raven - Living Room Roku
+        icon: mdi:television
+      - type: custom:button-card
+        template: bearstone_mobile_control
+        entity: sensor.living_room_ultra_active_app_id
+        name: Open Raven
+        show_entity_picture: true
+        entity_picture: /local/custom_ui/floorplan/images/branding/vCloudInfoCircle.png
+        triggers_update:
+          - media_player.samsung_q70_series_65
+        variables:
+          status_severity: >
+            [[[
+              const tv = states['media_player.samsung_q70_series_65']?.state;
+              if (tv === 'off') return 'active';
+              if (['unknown', 'unavailable', undefined].includes(entity?.state)) return 'warning';
+              return tv === 'on' && entity?.state === 'dev' ? 'healthy' : 'active';
+            ]]]
+        state_display: >
+          [[[
+            const tv = states['media_player.samsung_q70_series_65']?.state;
+            if (tv === 'off') return 'TV OFF';
+            if (['unknown', 'unavailable', undefined].includes(entity?.state)) return 'ROKU UNAVAILABLE';
+            return entity?.state === 'dev' ? 'RAVEN RUNNING' : 'TAP TO OPEN';
+          ]]]
+        tap_action:
+          action: perform-action
+          perform_action: rest_command.samsung_living_room_launch_haven
+        hold_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/roku-remote
+        double_tap_action:
+          action: none
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.living_room_ultra_active_app
+        name: Current Roku app
+        icon: mdi:apps
+        triggers_update:
+          - sensor.living_room_ultra_active_app_id
+        state_display: >
+          [[[ return states['sensor.living_room_ultra_active_app_id']?.state === '562859' ? 'Roku Home' : entity?.state ?? 'Unknown'; ]]]
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Roku Remote
+        icon: mdi:remote
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/roku-remote
+
+# -------------------------------------------------------------------
+# Device details - status and occasional controls
+# -------------------------------------------------------------------
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 700px)":
+          grid-template-columns: minmax(0, 1fr)
+        "(max-width: 1200px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+    cards:
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Bedroom Tablet
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.alarm_panel_1_battery
+        name: Battery
+        icon: mdi:battery
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.alarm_panel_1_plugged_in
+        name: Power
+        icon: mdi:power-plug
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'PLUGGED IN' : 'ON BATTERY'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.alarm_panel_1_current_page
+        name: Dashboard
+        icon: mdi:web
+        state_display: >
+          [[[
+            const page = String(entity?.state ?? '');
+            return page.includes('/local/bedroom-kiosk.html') ? 'PAGE OK' : 'CHECK PAGE';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.alarm_panel_1_foreground_app
+        name: Foreground App
+        icon: mdi:application-outline
+        state_display: >
+          [[[ return entity?.state === 'de.ozerov.fully' ? 'FULLY KIOSK' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Kitchen Show
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.kitchen_show_charging
+        name: Power
+        icon: mdi:power-plug
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'PLUGGED IN' : entity?.state === 'off' ? 'ON BATTERY' : 'UNKNOWN'; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.kitchen_show_last_seen
+        name: Last Seen
+        icon: mdi:clock-check-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.kitchen_show_current_page
+        name: Dashboard
+        icon: mdi:web
+        state_display: >
+          [[[
+            const page = String(entity?.state ?? '');
+            return page.includes('/dashboard-kiosk-satellite-staging/home') ? 'PAGE OK' : 'CHECK PAGE';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: update.kitchen_show_update
+        name: Kiosk Satellite
+        icon: mdi:update
+        state_display: >
+          [[[
+            const installed = entity?.attributes?.installed_version ?? 'unknown';
+            const latest = entity?.attributes?.latest_version ?? installed;
+            return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.kitchen_show_remote_admin
+        name: Remote Admin
+        icon: mdi:remote-desktop
+        state_display: AVAILABLE
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.kitchen_show_voice_satellite
+        name: Voice Assistant
+        icon: mdi:microphone
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: select.kitchen_show_assistant
+        name: Assist Pipeline
+        icon: mdi:account-voice
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: select.kitchen_show_wake_word
+        name: Wake Word
+        icon: mdi:ear-hearing
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Upstairs Show
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.upstairs_show_charging
+        name: Power
+        icon: mdi:power-plug
+        state_display: >
+          [[[ return states["binary_sensor.upstairs_show_charging"]?.state === "on" ? "PLUGGED IN" : "ON BATTERY"; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.upstairs_show_last_seen
+        name: Last Seen
+        icon: mdi:clock-check-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.upstairs_show_current_page
+        name: Dashboard
+        icon: mdi:web
+        state_display: >
+          [[[
+            const page = String(entity?.state ?? '');
+            return page.includes('/dashboard-kiosk-satellite-staging/echo-show5') ? 'PAGE OK' : 'CHECK PAGE';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.upstairs_show_foreground_app
+        name: Foreground App
+        icon: mdi:application-outline
+        state_display: >
+          [[[ return entity?.state === 'me.jxl.kiosk_satellite' ? 'KIOSK SATELLITE' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: light.upstairs_show_screen
+        name: Screen
+        icon: mdi:monitor
+        state_display: >
+          [[[ return String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: update.upstairs_show_update
+        name: Kiosk Satellite
+        icon: mdi:update
+        state_display: >
+          [[[
+            const installed = entity?.attributes?.installed_version ?? 'unknown';
+            const latest = entity?.attributes?.latest_version ?? installed;
+            return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.upstairs_show_remote_admin
+        name: Remote Admin
+        icon: mdi:remote-desktop
+        state_display: AVAILABLE
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.upstairs_show_voice_satellite
+        name: Voice Assistant
+        icon: mdi:microphone
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: select.upstairs_show_assistant
+        name: Assist Pipeline
+        icon: mdi:account-voice
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: select.upstairs_show_wake_word
+        name: Wake Word
+        icon: mdi:ear-hearing
+
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Office Show
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: binary_sensor.office_show_charging
+        name: Power
+        icon: mdi:power-plug
+        state_display: >
+          [[[ return states["binary_sensor.office_show_charging"]?.state === "on" ? "PLUGGED IN" : "ON BATTERY"; ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_show_last_seen
+        name: Last Seen
+        icon: mdi:clock-check-outline
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_show_current_page
+        name: Dashboard
+        icon: mdi:web
+        state_display: >
+          [[[
+            const page = String(entity?.state ?? '');
+            return page.includes('/dashboard-kiosk-satellite-staging/echo-show5') ? 'PAGE OK' : 'CHECK PAGE';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_show_foreground_app
+        name: Foreground App
+        icon: mdi:application-outline
+        state_display: >
+          [[[ return entity?.state === 'me.jxl.kiosk_satellite' ? 'KIOSK SATELLITE' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: light.office_show_screen
+        name: Screen
+        icon: mdi:monitor
+        state_display: >
+          [[[ return String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: update.office_show_update
+        name: Kiosk Satellite
+        icon: mdi:update
+        state_display: >
+          [[[
+            const installed = entity?.attributes?.installed_version ?? 'unknown';
+            const latest = entity?.attributes?.latest_version ?? installed;
+            return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_show_remote_admin
+        name: Remote Admin
+        icon: mdi:remote-desktop
+        state_display: AVAILABLE
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: sensor.office_show_voice_satellite
+        name: Voice Assistant
+        icon: mdi:microphone
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: select.office_show_assistant
+        name: Assist Pipeline
+        icon: mdi:account-voice
+
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: select.office_show_wake_word
+        name: Wake Word
+        icon: mdi:ear-hearing
 
     - type: custom:vertical-stack-in-card
       card_mod:
@@ -289,291 +648,70 @@
           target:
             entity_id: button.living_room_nest_restart_display
 
-# -------------------------------------------------------------------
-# Device telemetry
-# -------------------------------------------------------------------
-- type: grid
-  column_span: 4
-  columns: 4
-  square: false
-  cards:
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Bedroom Tablet
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.alarm_panel_1_battery
-      name: Battery
-      icon: mdi:battery
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: binary_sensor.alarm_panel_1_plugged_in
-      name: Power
-      icon: mdi:power-plug
-      state_display: >
-        [[[ return entity?.state === 'on' ? 'PLUGGED IN' : 'ON BATTERY'; ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.alarm_panel_1_current_page
-      name: Dashboard
-      icon: mdi:web
-      state_display: >
-        [[[
-          const page = String(entity?.state ?? '');
-          return page.includes('/local/bedroom-kiosk.html') ? 'PAGE OK' : 'CHECK PAGE';
-        ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.alarm_panel_1_foreground_app
-      name: Foreground App
-      icon: mdi:application-outline
-      state_display: >
-        [[[ return entity?.state === 'de.ozerov.fully' ? 'FULLY KIOSK' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
-
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Kitchen Show
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_battery
-      name: Battery
-      icon: mdi:battery
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_last_seen
-      name: Last Seen
-      icon: mdi:clock-check-outline
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_current_page
-      name: Dashboard
-      icon: mdi:web
-      state_display: >
-        [[[
-          const page = String(entity?.state ?? '');
-          return page.includes('/dashboard-kiosk-satellite-staging/home') ? 'PAGE OK' : 'CHECK PAGE';
-        ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: update.kitchen_show_update
-      name: Kiosk Satellite
-      icon: mdi:update
-      state_display: >
-        [[[
-          const installed = entity?.attributes?.installed_version ?? 'unknown';
-          const latest = entity?.attributes?.latest_version ?? installed;
-          return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
-        ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_remote_admin
-      name: Remote Admin
-      icon: mdi:remote-desktop
-      state_display: AVAILABLE
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.kitchen_show_voice_satellite
-      name: Voice Assistant
-      icon: mdi:microphone
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: select.kitchen_show_assistant
-      name: Assist Pipeline
-      icon: mdi:account-voice
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: select.kitchen_show_wake_word
-      name: Wake Word
-      icon: mdi:ear-hearing
-
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Upstairs Show
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: binary_sensor.upstairs_show_charging
-      name: Power
-      icon: mdi:power-plug
-      state_display: >
-        [[[ return states["binary_sensor.upstairs_show_charging"]?.state === "on" ? "PLUGGED IN" : "ON BATTERY"; ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.upstairs_show_last_seen
-      name: Last Seen
-      icon: mdi:clock-check-outline
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.upstairs_show_current_page
-      name: Dashboard
-      icon: mdi:web
-      state_display: >
-        [[[
-          const page = String(entity?.state ?? '');
-          return page.includes('/dashboard-kiosk-satellite-staging/echo-show5') ? 'PAGE OK' : 'CHECK PAGE';
-        ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.upstairs_show_foreground_app
-      name: Foreground App
-      icon: mdi:application-outline
-      state_display: >
-        [[[ return entity?.state === 'me.jxl.kiosk_satellite' ? 'KIOSK SATELLITE' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: light.upstairs_show_screen
-      name: Screen
-      icon: mdi:monitor
-      state_display: >
-        [[[ return String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: update.upstairs_show_update
-      name: Kiosk Satellite
-      icon: mdi:update
-      state_display: >
-        [[[
-          const installed = entity?.attributes?.installed_version ?? 'unknown';
-          const latest = entity?.attributes?.latest_version ?? installed;
-          return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
-        ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.upstairs_show_remote_admin
-      name: Remote Admin
-      icon: mdi:remote-desktop
-      state_display: AVAILABLE
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.upstairs_show_voice_satellite
-      name: Voice Assistant
-      icon: mdi:microphone
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: select.upstairs_show_assistant
-      name: Assist Pipeline
-      icon: mdi:account-voice
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: select.upstairs_show_wake_word
-      name: Wake Word
-      icon: mdi:ear-hearing
-
-  - type: custom:vertical-stack-in-card
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
-    cards:
-    - type: custom:button-card
-      template: bearstone_infra_panel_header
-      name: Office Show
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: binary_sensor.office_show_charging
-      name: Power
-      icon: mdi:power-plug
-      state_display: >
-        [[[ return states["binary_sensor.office_show_charging"]?.state === "on" ? "PLUGGED IN" : "ON BATTERY"; ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.office_show_last_seen
-      name: Last Seen
-      icon: mdi:clock-check-outline
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.office_show_current_page
-      name: Dashboard
-      icon: mdi:web
-      state_display: >
-        [[[
-          const page = String(entity?.state ?? '');
-          return page.includes('/dashboard-kiosk-satellite-staging/echo-show5') ? 'PAGE OK' : 'CHECK PAGE';
-        ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.office_show_foreground_app
-      name: Foreground App
-      icon: mdi:application-outline
-      state_display: >
-        [[[ return entity?.state === 'me.jxl.kiosk_satellite' ? 'KIOSK SATELLITE' : String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: light.office_show_screen
-      name: Screen
-      icon: mdi:monitor
-      state_display: >
-        [[[ return String(entity?.state ?? 'UNKNOWN').toUpperCase(); ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: update.office_show_update
-      name: Kiosk Satellite
-      icon: mdi:update
-      state_display: >
-        [[[
-          const installed = entity?.attributes?.installed_version ?? 'unknown';
-          const latest = entity?.attributes?.latest_version ?? installed;
-          return entity?.state === 'on' ? `UPDATE ${latest}` : `CURRENT ${installed}`;
-        ]]]
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.office_show_remote_admin
-      name: Remote Admin
-      icon: mdi:remote-desktop
-      state_display: AVAILABLE
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: sensor.office_show_voice_satellite
-      name: Voice Assistant
-      icon: mdi:microphone
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: select.office_show_assistant
-      name: Assist Pipeline
-      icon: mdi:account-voice
-
-    - type: custom:button-card
-      template: bearstone_infra_list_row
-      entity: select.office_show_wake_word
-      name: Wake Word
-      icon: mdi:ear-hearing
+    - type: custom:vertical-stack-in-card
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+      cards:
+      - type: custom:button-card
+        template: bearstone_infra_panel_header
+        name: Raven - Living Room TV
+        icon: mdi:television
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: media_player.samsung_q70_series_65
+        name: TV power
+        icon: mdi:power
+        state_display: >
+          [[[ return entity?.state === 'off' ? 'OFF (NORMAL)' : String(entity?.state ?? 'unknown').toUpperCase(); ]]]
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: timer.roku_haven_manual_exit
+        name: Manual-exit pause
+        icon: mdi:pause-circle-outline
+        state_display: >
+          [[[ return entity?.state === 'active' ? 'PAUSED AFTER EXIT' : entity?.state === 'idle' ? 'READY' : 'UNKNOWN'; ]]]
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: input_boolean.haven
+        name: Automatic Raven launch
+        icon: mdi:play-circle-outline
+        state_display: >
+          [[[ return entity?.state === 'on' ? 'ENABLED' : entity?.state === 'off' ? 'PAUSED UNTIL 3 AM' : 'UNKNOWN'; ]]]
+        tap_action:
+          action: toggle
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        entity: automation.living_room_tv_haven_on_roku_screensaver
+        name: Last automatic launch
+        icon: mdi:history
+        state_display: >
+          [[[
+            const last = entity?.attributes?.last_triggered;
+            if (!last) return 'NOT YET';
+            const date = new Date(last);
+            return Number.isNaN(date.getTime()) ? 'UNKNOWN' : date.toLocaleString(undefined, {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'});
+          ]]]
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Open Raven
+        icon: mdi:view-dashboard-outline
+        show_state: false
+        tap_action:
+          action: perform-action
+          perform_action: rest_command.samsung_living_room_launch_haven
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: Roku Remote
+        icon: mdi:remote
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/roku-remote
+      - type: custom:button-card
+        template: bearstone_infra_list_row
+        name: TV Remote
+        icon: mdi:remote-tv
+        show_state: false
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-infrastructure/tv-remote

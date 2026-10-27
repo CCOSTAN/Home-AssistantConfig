@@ -34,6 +34,7 @@ cards:
         grid-template-columns: repeat(4, minmax(0, 1fr))
         grid-gap: 4px
   cards:
+  - !include /config/dashboards/infrastructure/partials/informational_notices.yaml
   - type: custom:button-card
     template: bearstone_overview_ribbon_control
     entity: sensor.infra_dashboard_active_issue_count

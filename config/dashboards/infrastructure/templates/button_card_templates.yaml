@@ -5,6 +5,7 @@
 # -------------------------------------------------------------------
 # Infrastructure Templates - custom:button-card
 # Related Issue: 1560
+# Related Issue: 2029
 #  Shared `button_card_templates` used across Infrastructure and Overview views.
 # -------------------------------------------------------------------
 # Notes: Keep templates generic; view-specific tuning stays in the view partials.
@@ -749,7 +750,12 @@ bearstone_infra_container_row:
           return (hasRestart && isMonitored) ? 'block' : 'none';
         ]]]
 
+# Seasonal paint stays inside the existing header; dimensions and content are unchanged.
 bearstone_infra_panel_header:
+  variables:
+    seasonal: '[[[ return window.BearStoneKioskAmbient?.seasonal?.(states) || {mode: "standard", wash: "none", emblem: ""}; ]]]'
+  triggers_update:
+    - sensor.holiday_lighting_mode
   show_icon: false
   show_state: false
   show_label: false
@@ -758,6 +764,7 @@ bearstone_infra_panel_header:
   styles:
     card:
     - background: transparent
+    - background-image: '[[[ return variables.seasonal.wash; ]]]'
     - border: none
     - box-shadow: none
     - padding: 6px 2px 10px 2px
@@ -770,6 +777,8 @@ bearstone_infra_panel_header:
 
 bearstone_infra_panel_header_icon:
   template: bearstone_infra_panel_header
+  show_entity_picture: '[[[ return Boolean(variables.seasonal.emblem); ]]]'
+  entity_picture: '[[[ return variables.seasonal.emblem || ""; ]]]'
   show_icon: true
   show_name: true
   icon: mdi:view-dashboard-outline
@@ -917,7 +926,7 @@ bearstone_infra_alert_row:
           else if (kind === 'binary_off') show = (stateStr === 'off');
           else if (kind === 'state_not') {
             const okState = String(variables?.ok_state ?? '').toLowerCase();
-            show = stateStr.toLowerCase() !== okState;
+            show = !(Array.isArray(variables?.ok_states) ? variables.ok_states.map(value => String(value).toLowerCase()) : [okState]).includes(stateStr.toLowerCase());
           }
           else if (kind === 'state_is') {
             const alertState = String(variables?.alert_state ?? '').toLowerCase();
@@ -1126,10 +1135,21 @@ bearstone_infra_status_kpi:
       return 'ATTENTION';
     ]]]
   styles:
+    grid:
+    - grid-template-areas: '[[[ return variables?.show_detail ? `"i n" "s s" "l l"` : `"i n" "s s"`; ]]]'
+    - grid-template-rows: '[[[ return variables?.show_detail ? "20px min-content min-content" : "20px min-content"; ]]]'
+    label:
+    - grid-area: l
+    - white-space: normal
+    - text-align: center
+    - font-size: 12px
+    - line-height: 16px
+    - opacity: 0.8
     card:
     - border-color: >
         [[[
           const severity = String(variables?.status_severity ?? '');
+          if (severity === 'info') return 'rgba(30,136,229,0.40)';
           if (severity === 'healthy') return 'rgba(67,160,71,0.45)';
           if (severity === 'critical') return 'rgba(229,57,53,0.40)';
           return 'rgba(245,124,0,0.45)';
@@ -1137,6 +1157,7 @@ bearstone_infra_status_kpi:
     - background: >
         [[[
           const severity = String(variables?.status_severity ?? '');
+          if (severity === 'info') return 'rgba(227,242,253,0.85)';
           if (severity === 'healthy') return 'rgba(232,245,233,0.85)';
           if (severity === 'critical') return 'rgba(255,235,238,0.85)';
           return 'rgba(255,243,224,0.85)';
@@ -1145,6 +1166,7 @@ bearstone_infra_status_kpi:
     - color: >
         [[[
           const severity = String(variables?.status_severity ?? '');
+          if (severity === 'info') return 'rgba(21,101,192,1)';
           if (severity === 'healthy') return 'rgba(46,125,50,1)';
           if (severity === 'critical') return 'rgba(198,40,40,1)';
           return 'rgba(230,81,0,1)';
@@ -1153,6 +1175,7 @@ bearstone_infra_status_kpi:
     - color: >
         [[[
           const severity = String(variables?.status_severity ?? '');
+          if (severity === 'info') return 'rgba(21,101,192,1)';
           if (severity === 'healthy') return 'rgba(46,125,50,1)';
           if (severity === 'critical') return 'rgba(198,40,40,1)';
           return 'rgba(230,81,0,1)';

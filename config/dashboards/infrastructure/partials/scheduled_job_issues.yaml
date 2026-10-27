@@ -1,0 +1,44 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Scheduled Job Issues - shared exceptions for Systems and Joanna
+# Notes: Existing alert-row styling preserves each job's own severity.
+# Notes: Auto-entities is needed to render a changing number of job rows.
+######################################################################
+
+type: custom:auto-entities
+show_empty: false
+card:
+  type: grid
+  columns: 1
+  square: false
+card_param: cards
+filter:
+  template: >-
+    {% from 'infrastructure_health.jinja' import scheduled_job_issues %}
+    {% set issues = (scheduled_job_issues | as_function)() %}
+    {% set ns = namespace(cards=[]) %}
+    {% for issue in issues %}
+      {% set next_run = as_datetime(issue.get('nextRunAt'), none) %}
+      {% set detail = issue.get('detail') or 'Open BearClaw Admin > Activity > Scheduled Jobs to review this warning.' %}
+      {% if next_run is not none %}
+        {% set detail = detail ~ ' Next check: ' ~ as_local(next_run).strftime('%b %d, %I:%M %p') ~ '.' %}
+      {% endif %}
+      {% set warning = issue.get('severity') == 'warning' %}
+      {% set ns.cards = ns.cards + [{
+        'type': 'custom:button-card', 'template': 'bearstone_infra_alert_row',
+        'entity': 'sensor.bearclaw_scheduled_job_health',
+        'name': issue.get('label') or 'Scheduled job needs attention',
+        'icon': 'mdi:calendar-alert',
+        'variables': {
+          'alert_kind': 'state_not', 'ok_state': 'ok',
+          'alert_severity': 'warning' if warning else 'critical',
+          'exception_detail': detail
+        },
+        'state_display': 'WARNING' if warning else 'ERROR',
+        'tap_action': {'action': 'more-info'}
+      }] %}
+    {% endfor %}
+    {{ ns.cards | to_json }}

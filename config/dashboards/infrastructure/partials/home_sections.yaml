@@ -12,10 +12,11 @@
 # Notes: Network trend panels live on Network so Overview stays focused on broad house status.
 # Notes: Power & Solar shows realtime flow; accumulated history remains in Energy.
 # Notes: Scheduled Proxmox, Docker host, and HVAC maintenance plus sustained WAN quality/reset warnings render amber; critical conditions remain red.
-# Notes: Active Issue rows enumerate faults, scheduled maintenance, and reset urgency so drill-down is optional for initial triage.
-# Notes: BearClaw scheduled-job warnings/errors roll up under Joanna and appear as an exceptions-only Active Issue row.
+# Notes: Active Issue rows enumerate actionable faults and maintenance; optional notices stay in the blue banner.
+# Notes: Scheduled-job warnings/errors appear individually, using the same rows as Joanna and the Systems count.
 # Notes: Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
 # Notes: Back to Overview is the first control in the landing-view navigation strip.
+# Notes: The landing strip omits the redundant Systems tile and keeps twelve category tiles.
 # Notes: UPS health covers both Garage and Office NUT servers and drills into the shared UPS view.
 # Notes: UPS alarms and telemetry loss roll up alongside utility outages; other submenu faults and Repairs gate Systems all-clear.
 # Notes: Systems color follows the shared highest severity, with warnings amber and any critical issue red.
@@ -45,6 +46,7 @@
         "(max-width: 900px)":
           grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
+    - !include /config/dashboards/infrastructure/partials/informational_notices.yaml
     - type: custom:button-card
       template: bearstone_nav_back
       name: Back to Overview
@@ -54,18 +56,6 @@
       tap_action:
         action: navigate
         navigation_path: /lovelace/home
-
-    - type: custom:button-card
-      template: bearstone_infra_status_kpi
-      entity: sensor.infra_dashboard_active_issue_count
-      name: Systems
-      icon: mdi:shield-check-outline
-      variables:
-        ok_state: '0'
-        healthy_text: ALL CLEAR
-        warning_text: '[[[ return `${entity.state} ACTIVE`; ]]]'
-        raw_suffix: ACTIVE
-        severity_attribute: severity
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -281,9 +271,9 @@
           if (app === 'on') return 'MINI APP ERROR';
           if (entity?.state === 'error') return 'JOB ERROR';
           const security = states['sensor.joanna_security_updates'];
-          if (security?.attributes?.severity === 'critical') return 'CRITICAL REVIEW';
+          if (security?.attributes?.severity === 'critical') return 'URGENT CODEX';
           if (security?.state === 'waiting_vendor_patch') return 'VENDOR PATCHES';
-          if (security?.state !== 'review') return security?.state === 'needs_attention' ? 'SECURITY REVIEW' : 'SECURITY COVERAGE';
+          if (security?.state !== 'review') return security?.state === 'needs_attention' ? 'NEEDS CODEX' : 'CODEX SCAN CHECK';
           if (app !== 'off') return 'MINI APP UNKNOWN';
           return ({ ok: 'HEALTHY', warning: 'JOB WARNING', error: 'JOB ERROR' })[entity?.state] || 'UNKNOWN';
         ]]]
@@ -319,12 +309,12 @@
       cards:
       - type: custom:button-card
         template: bearstone_infra_panel_header
-        name: Active Issue
+        name: Active Issues
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
         entity: sensor.joanna_security_updates
-        name: Security & Updates review
+        name: Security update work for Codex
         icon: mdi:shield-search
         variables:
           alert_kind: state_not
@@ -332,10 +322,10 @@
           alert_severity: '[[[ return entity?.attributes?.severity === "critical" ? "critical" : "warning"; ]]]'
           exception_detail: >
             [[[ return entity?.state === 'needs_attention'
-              ? `${entity?.attributes?.services_need_review ?? 0} SERVICES TO REVIEW · OPEN JOANNA FOR DETAILS`
-              : 'SCAN COVERAGE NEEDS REVIEW · OPEN JOANNA FOR DETAILS'; ]]]
+              ? `${entity?.attributes?.services_need_review ?? 0} SERVICES NEED CODEX | OPEN JOANNA TO COPY PROMPT`
+              : 'SCAN COVERAGE NEEDS CODEX | OPEN JOANNA TO COPY PROMPT'; ]]]
         state_display: >
-          [[[ return entity?.attributes?.severity === 'critical' ? 'CRITICAL REVIEW' : 'REVIEW'; ]]]
+          [[[ return entity?.attributes?.severity === 'critical' ? 'URGENT CODEX' : 'NEEDS CODEX'; ]]]
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/joanna
@@ -563,30 +553,7 @@
           action: navigate
           navigation_path: /dashboard-infrastructure/kiosks
 
-      - type: custom:button-card
-        template: bearstone_infra_alert_row
-        entity: sensor.bearclaw_scheduled_job_health
-        name: >
-          [[[
-            const issues = entity?.attributes?.issues;
-            return Array.isArray(issues) && issues.length === 1
-              ? issues[0].label : 'BearClaw scheduled jobs need attention';
-          ]]]
-        icon: mdi:calendar-alert
-        variables:
-          alert_kind: state_not
-          ok_state: ok
-          alert_severity: '[[[ return entity?.state === "warning" ? "warning" : "critical"; ]]]'
-          exception_detail: >
-            [[[
-              const issues = entity?.attributes?.issues;
-              const detail = Array.isArray(issues) && issues.length === 1 ? issues[0].detail : null;
-              return String(detail || entity?.attributes?.summary || 'SCHEDULED JOB STATUS REQUIRES REVIEW');
-            ]]]
-        state_display: '[[[ return entity?.state === "warning" ? "WARNING" : "ERROR"; ]]]'
-        tap_action:
-          action: navigate
-          navigation_path: /dashboard-infrastructure/joanna
+      - !include /config/dashboards/infrastructure/partials/scheduled_job_issues.yaml
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
@@ -927,7 +894,8 @@
         icon: mdi:notebook-alert-outline
         variables:
           alert_kind: state_not
-          ok_state: ok
+          ok_states: [ok, indexing, recovering]
+          exception_detail: '[[[ return entity?.attributes?.detail || "OneNote index needs operator review"; ]]]'
           alert_severity: '[[[ return entity?.state === "warning" ? "warning" : "critical"; ]]]'
         tap_action:
           action: navigate

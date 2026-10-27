@@ -1,0 +1,268 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Infrastructure Subview - Living Room TV Remote
+# Related Issue: 2030
+#  Large navigation, input/settings menus, and the Raven app launcher.
+# -------------------------------------------------------------------
+# Notes: Open from Living Room TV on the Kiosks page.
+# Notes: Each tap sends one key; Back and Exit control the TV menu.
+# Notes: TV Home exposes Sources; Settings opens TV sound and Anynet+ options.
+# Notes: KEY_SOURCE did not open this TV's input menu; KEY_HOME is verified.
+# Notes: Reuses the 112px mobile controls without automatic key presses.
+# Notes: Raven launches the native Roku app through the display bridge.
+######################################################################
+
+path: tv-remote
+title: TV Remote
+icon: mdi:remote-tv
+subview: true
+type: sections
+max_columns: 4
+badges: []
+sections:
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      align-items: stretch
+      grid-gap: 10px
+      margin: 0
+    cards:
+    - type: custom:button-card
+      template: bearstone_mobile_header
+      name: Living Room TV
+      icon: mdi:television
+      view_layout:
+        grid-column: 1 / -1
+
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: media_player.living_room_ultra
+      name: Raven
+      icon: mdi:view-dashboard-outline
+      show_state: false
+      variables:
+        status_severity: healthy
+      view_layout:
+        grid-column: 1 / -1
+      tap_action:
+        action: perform-action
+        perform_action: rest_command.samsung_living_room_launch_haven
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    # Samsung menus stay accessible without a physical TV remote.
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: TV Home
+      icon: mdi:home-outline
+      show_state: false
+      variables:
+        status_severity: active
+      view_layout:
+        grid-column: span 3
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_HOME
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: Settings
+      icon: mdi:cog
+      show_state: false
+      variables:
+        status_severity: active
+      view_layout:
+        grid-column: span 3
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_MENU
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    # Full-width Up and Down keep every touch target large without spacers.
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: Up
+      icon: mdi:arrow-up-bold
+      show_state: false
+      variables:
+        status_severity: active
+      view_layout:
+        grid-column: 1 / -1
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_UP
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: Left
+      icon: mdi:arrow-left-bold
+      show_state: false
+      variables:
+        status_severity: active
+      view_layout:
+        grid-column: span 2
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_LEFT
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: OK
+      icon: mdi:check-bold
+      show_state: false
+      variables:
+        status_severity: healthy
+      view_layout:
+        grid-column: span 2
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_ENTER
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: Right
+      icon: mdi:arrow-right-bold
+      show_state: false
+      variables:
+        status_severity: active
+      view_layout:
+        grid-column: span 2
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_RIGHT
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: Down
+      icon: mdi:arrow-down-bold
+      show_state: false
+      variables:
+        status_severity: active
+      view_layout:
+        grid-column: 1 / -1
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_DOWN
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    # These buttons navigate the TV, rather than the Home Assistant screen.
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: Back
+      icon: mdi:undo
+      show_state: false
+      variables:
+        status_severity: active
+      view_layout:
+        grid-column: span 3
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_RETURN
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+
+    - type: custom:button-card
+      template: bearstone_mobile_control
+      entity: remote.samsung_q70_series_65
+      name: Exit
+      icon: mdi:close-circle-outline
+      show_state: false
+      variables:
+        status_severity: active
+      view_layout:
+        grid-column: span 3
+      tap_action:
+        action: perform-action
+        perform_action: remote.send_command
+        target:
+          entity_id: remote.samsung_q70_series_65
+        data:
+          command: KEY_EXIT
+      hold_action:
+        action: none
+      double_tap_action:
+        action: none
+cards: []

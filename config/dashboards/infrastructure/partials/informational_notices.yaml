@@ -1,0 +1,28 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Dashboard notices - optional appliance information
+#  A quiet full-width banner, separate from actionable health warnings.
+# -------------------------------------------------------------------
+# Notes: Native Markdown supplies HA's info alert and server-side expiry
+#  handling; button-card templates remain the status-card renderer.
+# Notes: Reuses live-only telemetry; no extra sensor, history, or dispatch.
+######################################################################
+
+type: markdown
+grid_options:
+  columns: full
+view_layout:
+  grid-column: 1 / -1
+text_only: true
+show_empty: false
+entity_id: sensor.bearclaw_status_telemetry
+content: >-
+  {%- set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) -%}
+  {%- if is_state('sensor.bearclaw_status_telemetry', 'ok') -%}
+    {%- for notice in health.get('notices', []) if notice.get('severity') == 'info' and as_timestamp(notice.get('expiresAt'), 0) > as_timestamp(now()) -%}
+      <ha-alert alert-type="info"><b>{{ notice.get('label', '') | e }}</b><br>{{ notice.get('detail', '') | e }}</ha-alert>
+    {%- endfor -%}
+  {%- endif -%}

@@ -115,23 +115,50 @@
         ok_state: review
         healthy_text: CLEAR
         severity_attribute: severity
-        warning_text: NEEDS REVIEW
-        critical_text: CRITICAL REVIEW
+        warning_text: NEEDS CODEX
+        critical_text: URGENT CODEX
       state_display: >
-        [[[ return entity?.attributes?.severity === 'critical' ? 'CRITICAL REVIEW' : entity?.state === 'needs_attention' ? 'NEEDS REVIEW' : entity?.state === 'review' ? 'CLEAR' : String(entity?.state ?? 'unknown').replaceAll('_', ' ').toUpperCase(); ]]]
+        [[[ return entity?.attributes?.severity === 'critical' ? 'URGENT CODEX' : entity?.state === 'needs_attention' ? 'NEEDS CODEX' : entity?.state === 'review' ? 'CLEAR' : String(entity?.state ?? 'unknown').replaceAll('_', ' ').toUpperCase(); ]]]
       tap_action:
         action: url
         url_path: !secret bearclaw_security_admin_url
     - type: custom:button-card
       template: bearstone_infra_kpi
       entity: sensor.joanna_security_updates
-      name: Services need review
-      icon: mdi:shield-alert-outline
+      name: Copy Codex prompt
+      icon: mdi:content-copy
+      state_display: >
+        [[[ return entity?.attributes?.codex_prompt ? `${entity?.attributes?.services_need_review ?? 0} SERVICES` : 'NOT NEEDED'; ]]]
       tap_action:
+        action: javascript
+        javascript: >
+          [[[
+            const text = entity?.attributes?.codex_prompt;
+            const toast = (message) => this.dispatchEvent(new CustomEvent('hass-notification', {
+              bubbles: true, composed: true, detail: { message }
+            }));
+            if (['unknown', 'unavailable'].includes(entity?.state) || typeof text !== 'string' || !text.trim()) {
+              toast('No current Codex prompt is available.');
+              return;
+            }
+            const manual = () => window.prompt('Copy this prompt into Codex:', text);
+            const copied = () => toast('Copied. Paste into Codex to start the review.');
+            if (window.isSecureContext && navigator.clipboard?.writeText) {
+              navigator.clipboard.writeText(text).then(copied).catch(manual);
+            } else {
+              const area = document.createElement('textarea');
+              area.value = text;
+              document.body.appendChild(area);
+              area.focus(); area.select();
+              let ok = false;
+              try { ok = document.execCommand('copy'); } catch {}
+              area.remove();
+              if (ok) copied(); else manual();
+            }
+          ]]]
+      hold_action:
         action: url
         url_path: !secret bearclaw_security_admin_url
-      state_display: >
-        [[[ return entity?.attributes?.services_need_review ?? '—'; ]]]
     - type: custom:button-card
       template: bearstone_infra_kpi
       entity: sensor.joanna_security_updates
@@ -300,27 +327,7 @@
           return parts.join(' · ') || 'STATUS UNKNOWN';
         ]]]
 
-    - type: custom:button-card
-      template: bearstone_infra_alert_row
-      entity: sensor.bearclaw_scheduled_job_health
-      name: >
-        [[[
-          const issue = Array.isArray(entity?.attributes?.issues) ? entity.attributes.issues[0] : null;
-          return issue?.label || 'Scheduled job needs attention';
-        ]]]
-      icon: mdi:alert-circle-outline
-      variables:
-        alert_kind: state_not
-        ok_state: ok
-        alert_severity: >
-          [[[ return entity?.state === 'warning' ? 'warning' : 'critical'; ]]]
-        exception_detail: >
-          [[[
-            const issue = Array.isArray(entity?.attributes?.issues) ? entity.attributes.issues[0] : null;
-            return String(issue?.detail || entity?.attributes?.summary || 'SCHEDULED JOB STATUS REQUIRES REVIEW');
-          ]]]
-      state_display: >
-        [[[ return entity?.state === 'warning' ? 'WARNING' : 'ERROR'; ]]]
+    - !include /config/dashboards/infrastructure/partials/scheduled_job_issues.yaml
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -343,12 +350,17 @@
       entity: sensor.joanna_onenote_kb_health
       name: OneNote account indexes
       icon: mdi:notebook-multiple
+      show_label: true
+      label: '[[[ return entity?.attributes?.detail || ""; ]]]'
       variables:
-        ok_state: ok
-        warning_state: warning
-        healthy_text: CURRENT
-        warning_text: SYNC STALE
-        critical_text: INDEX ERROR
+        show_detail: true
+        status_severity: >
+          [[[
+            const status = String(entity?.state ?? 'unknown');
+            if (['indexing', 'recovering'].includes(status)) return 'info';
+            if (status === 'ok') return 'healthy';
+            return status === 'warning' ? 'warning' : 'critical';
+          ]]]
       state_display: >
         [[[
           const docs = Number(entity?.attributes?.docs ?? 0).toLocaleString();
