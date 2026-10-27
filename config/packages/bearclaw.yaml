@@ -20,12 +20,14 @@
 # Notes: Status telemetry includes the latest 12 dispatches in the rolling 24-hour window for the Joanna Activity drill-down.
 # Notes: Status telemetry exposes compact scheduled-job warning/error health for the Systems dashboard.
 # Notes: Critical appliance updates open one operator-only Repair; vendor waits stay amber and never dispatch self-updates.
+# Notes: The copyable Codex security prompt contains aggregate context and retrieves fresh private evidence when used.
 # Notes: Status telemetry distinguishes the compact BearClaw working-memory index from the federated OneNote KB.
 # Notes: Independent Mini App origin/public probes run every minute; sustained failures create Repairs and HA mobile alerts.
 # Notes: The Mini App incident latch survives restarts to avoid duplicate outage notifications; recovery clears its owned Repair.
 # Notes: the existing OneNote health entity reports account-owned indexer health.
 # Notes: Status telemetry exposes user-keyed step trends for Health and personal records for briefings and kiosks.
 # Notes: Status telemetry exposes 48-hour Carlo/Stacey bowling highlights for the Kitchen Show rotation.
+# Notes: Family agenda is a filtered read-only list for kiosks; guest/vacation modes hide the TV page.
 # Notes: Retired QMD health telemetry is no longer imported or materialized in Home Assistant.
 # Notes: TeslaMate road-trip walkthrough: https://youtu.be/9-9T6v17NEw
 # Notes: TeslaMate road-trip companion post: https://www.vcloudinfo.com/2026/07/teslamate-road-trip-reports-codex.html
@@ -184,6 +186,7 @@ sensor:
       - oneNoteIndexers
       - healthInsights
       - bowlingHighlights
+      - familyAgenda
       - scheduledJobsHealth
       - securityUpdates
 
@@ -212,6 +215,8 @@ template:
             {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('counts', {}).get('needs_attention', 0) }}
           services_need_review: >-
             {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('needsReviewServices', 0) }}
+          codex_prompt: >-
+            {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('codexPrompt', '') }}
           automatic_fix_pending: >-
             {{ (state_attr('sensor.bearclaw_status_telemetry', 'securityUpdates') | default({}, true)).get('counts', {}).get('automatic_fix_pending', 0) }}
           waiting_vendor_patch: >-
@@ -266,6 +271,12 @@ template:
           {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
           {{ indexes.get('status', 'warning') }}
         attributes:
+          detail: >-
+            {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
+            {{ indexes.get('detail', '') }}
+          pending_embeddings: >-
+            {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
+            {{ indexes.get('pendingEmbeddings', 0) | int(0) }}
           docs: >-
             {% set indexes = state_attr('sensor.bearclaw_status_telemetry', 'oneNoteIndexers') | default({}, true) %}
             {{ indexes.get('docs', 0) | int(0) }}

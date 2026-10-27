@@ -36,6 +36,44 @@
   }) %}
 {%- endmacro %}
 
+{% macro scheduled_job_issues(returns) -%}
+  {# One row per reported job; retain a visible fallback for missing/truncated telemetry. #}
+  {% set entity_id = 'sensor.bearclaw_scheduled_job_health' %}
+  {% set status = states(entity_id) %}
+  {% set raw = state_attr(entity_id, 'issues') %}
+  {% set rows = raw | select('mapping') | list if raw is sequence and raw is not string and raw is not mapping else [] %}
+  {% set ns = namespace(issues=[]) %}
+  {% if status in ['warning', 'error'] %}
+    {% for row in rows %}
+      {% set ns.issues = ns.issues + [dict(row, count=1)] %}
+    {% endfor %}
+    {% set remaining = [state_attr(entity_id, 'issue_count') | int(0), rows | count, 1] | max - rows | count %}
+    {% if remaining > 0 %}
+      {% set ns.issues = ns.issues + [{
+        'label': (remaining ~ ' more scheduled job issues') if rows else 'Scheduled job details unavailable',
+        'severity': status, 'count': remaining,
+        'detail': 'Open BearClaw Admin > Activity > Scheduled Jobs to review the full report.'
+      }] %}
+    {% endif %}
+  {% elif status != 'ok' %}
+    {% set ns.issues = [{
+      'label': 'Scheduled job health unavailable', 'severity': 'error', 'count': 1,
+      'detail': 'Check the appliance status connection. Last-known job details cannot confirm current health.'
+    }] %}
+  {% endif %}
+  {% do returns(ns.issues) %}
+{%- endmacro %}
+
+{% macro dashboard_active_issue_count(returns) -%}
+  {% set active = (dashboard_active_entities | as_function)() %}
+  {% set ns = namespace(count=active | count) %}
+  {% if 'sensor.bearclaw_scheduled_job_health' in active %}
+    {% set jobs = (scheduled_job_issues | as_function)() %}
+    {% set ns.count = ns.count - 1 + (jobs | sum(attribute='count')) %}
+  {% endif %}
+  {% do returns([ns.count, states('sensor.active_issues') | int(0)] | max) %}
+{%- endmacro %}
+
 {% macro dashboard_severity(returns) -%}
   {# Match the Active Issue rows; an unrelated warning must never mask a fault. #}
   {% set active = (dashboard_active_entities | as_function)() %}
@@ -127,13 +165,13 @@
     'sensor.mariadb_status': 'running',
     'sensor.bearclaw_scheduled_job_health': 'ok',
     'sensor.joanna_security_updates': 'review',
-    'sensor.joanna_onenote_kb_health': 'ok',
+    'sensor.joanna_onenote_kb_health': ['ok', 'indexing', 'recovering'],
     'binary_sensor.joanna_mini_app_problem': 'off',
     'binary_sensor.joanna_memory_index_stale': 'off'
   } %}
   {% set ns = namespace(active=[]) %}
   {% for entity_id, healthy in monitored.items() %}
-    {% if states(entity_id) != healthy %}
+    {% if states(entity_id) not in (healthy if healthy is not string else [healthy]) %}
       {% set ns.active = ns.active + [entity_id] %}
     {% endif %}
   {% endfor %}

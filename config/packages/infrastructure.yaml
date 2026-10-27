@@ -15,6 +15,7 @@
 # Related Issue: 1890
 # Notes: Home dashboard consumes `infra_*` entities for exceptions-only alerts.
 # Notes: Systems uses the highest active severity: critical overrides warning; no issues is healthy.
+# Notes: Scheduled-job issues count individually and share their detail rows across Systems and Joanna.
 # Notes: Cloudflare alerts use an authenticated Nabu Casa webhook, persistent Repairs, and owned-resource-only Joanna dispatch.
 # Notes: Certificate and unowned-domain alerts require human review; no Cloudflare DNS or security writes are authorized by an alert.
 # Notes: Cloudflare delivery is webhook-only; origin recovery reuses reports from existing website probes.
@@ -276,9 +277,8 @@ template:
         unique_id: infra_dashboard_active_issue_count
         icon: mdi:alert-circle-check-outline
         state: >-
-          {% from 'infrastructure_health.jinja' import dashboard_active_entities %}
-          {% set active = dashboard_active_entities | as_function %}
-          {{ [active() | count, states('sensor.active_issues') | int(0)] | max }}
+          {% from 'infrastructure_health.jinja' import dashboard_active_issue_count %}
+          {{ (dashboard_active_issue_count | as_function)() }}
         attributes:
           active_entities: >-
             {% from 'infrastructure_health.jinja' import dashboard_active_entities %}
@@ -288,7 +288,7 @@ template:
           severity: >-
             {% from 'infrastructure_health.jinja' import dashboard_severity %}
             {{ (dashboard_severity | as_function)() }}
-          count_policy: "Maximum of active health sources and Repairs; overlapping Repairs are not added twice."
+          count_policy: "Scheduled jobs count individually; other health sources count once. Maximum with Repairs avoids adding overlapping Repairs twice."
 
   - binary_sensor:
       - name: "Home Water Problem"
