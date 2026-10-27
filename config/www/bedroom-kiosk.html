@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Bedroom wall-tablet renderer: fixed-dark status, cameras, and event takeovers. -->
+<!-- Bedroom wall-tablet renderer: shared household notifications, cameras, and event takeovers. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -147,6 +147,8 @@
     <div id="event-label"></div>
   </section>
 
+  <script src="/local/kiosk/ambient.js?v=1.2.0"></script>
+  <script src="/local/haven/client.js?v=1.0.0"></script>
   <script>
     (function () {
       'use strict';
@@ -159,7 +161,6 @@
       ];
       var states = {};
       var imageUrls = {};
-      var stateRefreshRunning = false;
       var imageRefreshRunning = false;
 
       function getTokens() {
@@ -242,6 +243,21 @@
         var mode = active ? active.state : 'none';
         var eventView = document.getElementById('event-view');
         var defaultView = document.getElementById('default-view');
+        // Shared holiday palette; the default bands disappear during camera takeovers.
+        var seasonal = window.BearStoneKioskAmbient && window.BearStoneKioskAmbient.seasonal
+          ? window.BearStoneKioskAmbient.seasonal(states) : {mode: 'standard', wash: 'none', edge: 'none'};
+        defaultView.setAttribute('data-seasonal-theme', seasonal.mode);
+        var bands = defaultView.querySelectorAll('.band');
+        for (var bandIndex = 0; bandIndex < bands.length; bandIndex++) {
+          bands[bandIndex].style.backgroundImage = seasonal.wash;
+          bands[bandIndex].style.boxShadow = seasonal.edge;
+        }
+        // Artwork sits beside the alarm text, never on top of it or the cameras.
+        bands[0].style.backgroundImage = seasonal.art ? 'url("' + seasonal.art + '"),' + seasonal.wash : 'none';
+        bands[0].style.backgroundPosition = 'right 12px center, center';
+        bands[0].style.backgroundSize = '112px 64px, cover';
+        bands[0].style.backgroundRepeat = 'no-repeat';
+        bands[0].style.paddingRight = seasonal.art ? '136px' : '24px';
 
         if (mode === 'garage' || mode === 'front_door' || mode === 'driveway') {
           defaultView.style.display = 'none';
@@ -259,42 +275,14 @@
           document.getElementById('header-headline').textContent = header.state;
           document.getElementById('header-detail').textContent = header.attributes.detail || '';
         }
-        if (alert) {
-          var slides = [{title: alert.state, detail: alert.attributes.detail || ''}];
-          var phoneFeed = states['sensor.kiosk_recent_phone_notifications'];
-          var notifications = phoneFeed && phoneFeed.attributes.items;
-          if (!alert.attributes.urgent && Array.isArray(notifications)) {
-            notifications.forEach(function (notification) {
-              if (Number(notification.expires_at) * 1000 <= Date.now()) return;
-              slides.push({
-                title: notification.title,
-                detail: notification.message + ' · Sent ' + notification.sent_time
-              });
-            });
-          }
+        if (window.BearStoneKioskAmbient || alert) {
+          var slides = window.BearStoneKioskAmbient
+            ? window.BearStoneKioskAmbient.build(states, new Date()).items
+            : [{title: alert.state, detail: alert.attributes.detail || ''}];
           var slide = slides[Math.floor(Date.now() / 10000) % slides.length];
           document.getElementById('alert-headline').textContent = slide.title;
           document.getElementById('alert-detail').textContent = slide.detail;
         }
-      }
-
-      function refreshStates() {
-        if (stateRefreshRunning) return;
-        stateRefreshRunning = true;
-        Promise.all(stateEntities.map(function (entityId) {
-          return authorizedFetch('/api/states/' + entityId).then(function (response) {
-            return response.json();
-          }).then(function (value) {
-            states[entityId] = value;
-          });
-        })).then(function () {
-          clearConnectionError();
-          render();
-        }).catch(function (error) {
-          setConnectionError(error.message + ' — load Home Assistant once to renew the trusted session.');
-        }).then(function () {
-          stateRefreshRunning = false;
-        });
       }
 
       function updateImage(elementId, cameraEntity) {
@@ -337,9 +325,21 @@
         });
       }
 
-      refreshStates();
+      var client = new window.HavenKioskClient({
+        url: window.location.origin,
+        entities: stateEntities.concat(window.BearStoneKioskAmbient.dependencies),
+        getToken: function (done, failed, force) {
+          ensureToken(force).then(function (tokens) { done(tokens.access_token); }, failed);
+        },
+        onStates: function (nextStates) { states = nextStates; render(); },
+        onStatus: function (connected, message) {
+          if (connected) clearConnectionError();
+          else setConnectionError(message);
+        }
+      });
+      client.start();
       window.setTimeout(refreshImages, 1000);
-      window.setInterval(refreshStates, 5000);
+      window.setInterval(render, 1000);
       window.setInterval(refreshImages, 4000);
     }());
   </script>

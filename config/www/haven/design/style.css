@@ -1,0 +1,91 @@
+/* Passive television layout. Fixed 1080p geometry; Chromium 69 compatible. */
+#kiosk {position:absolute;top:0;right:0;bottom:0;left:0;box-sizing:border-box;padding:24px;display:grid;grid-template-rows:100px 708px 192px;grid-gap:16px;color:#eff4f5;background:#0b121a;font-family:"SamsungOne","Segoe UI",Arial,sans-serif;}
+#kiosk * {box-sizing:border-box;}
+#kiosk [hidden] {display:none!important;}
+#kiosk-status {display:grid;grid-template-columns:1fr 1fr 1fr 1.23fr 1.23fr;min-height:0;background:#15202b;border:1px solid #2a3741;border-radius:16px;overflow:hidden;}
+.kiosk-status-card {display:flex;align-items:center;padding:12px 22px;border-right:1px solid #30404a;min-width:0;}
+.kiosk-status-card:last-child {border:0;}
+.status-icon {width:35px;height:35px;margin-right:17px;flex-shrink:0;color:#81c9a6;}
+.status-icon svg {width:100%;height:100%;}
+.status-copy {min-width:0;}
+.status-name {font-size:23px;color:#a9b8c2;line-height:1.25;}
+.status-value {font-size:28px;font-weight:600;line-height:1.3;white-space:nowrap;}
+.kiosk-status-card.active {background:#172c3b;box-shadow:inset 0 -3px #73bde5;}
+.kiosk-status-card.active .status-icon,.kiosk-status-card.active .status-value {color:#9bd7f7;}
+.kiosk-status-card.alert {background:#3a2028;box-shadow:inset 0 -3px #ee8088;}
+.kiosk-status-card.alert .status-icon,.kiosk-status-card.alert .status-value {color:#ffb3b8;}
+.kiosk-status-card.warning .status-icon,.kiosk-status-card.warning .status-value {color:#e9c77c;}
+#kiosk-cameras {display:grid;grid-template-columns:1240px 616px;grid-column-gap:16px;min-height:0;}
+#kiosk-visual {position:relative;min-height:0;}
+#kiosk-wall {height:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));grid-gap:12px;}
+.kiosk-camera {position:relative;min-height:0;overflow:hidden;background:#070c11;border:1px solid #34434c;border-radius:12px;}
+.kiosk-camera img,#kiosk-video {position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:contain;}
+#kiosk-main {height:100%;}
+#kiosk-video {z-index:2;background:#000;}
+#kiosk-info {display:grid;grid-template-rows:178px 514px;grid-row-gap:16px;min-height:0;}
+.kiosk-family-strip {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:15px 12px;background:#15202b;border:1px solid #2a3741;border-radius:16px;}
+.kiosk-person {text-align:center;min-width:0;}
+.person-photo {position:relative;height:79px;width:79px;margin:0 auto 7px;border:3px solid #668f89;border-radius:50%;background:#395c62;}
+.person-photo img {position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.kiosk-person.away .person-photo img,.kiosk-person.unknown .person-photo img {filter:grayscale(100%);opacity:.5;}
+.kiosk-person.away .person-photo,.kiosk-person.unknown .person-photo {border-color:#687884;background:#293540;}
+.person-initial {display:block;font-size:34px;line-height:73px;color:#b9d5d0;}
+.person-photo:after {content:"";position:absolute;bottom:-1px;right:-1px;width:17px;height:17px;border:3px solid #15202b;border-radius:50%;background:#81c9a6;}
+.kiosk-person.away .person-photo:after {background:#88b7eb;}
+.kiosk-person.unknown .person-photo:after {background:#e9c77c;}
+.person-name {font-size:24px;font-weight:600;line-height:1.25;}
+.person-state {font-size:20px;color:#a9b8c2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.kiosk-details {position:relative;overflow:hidden;background:#15202b;border:1px solid #2a3741;border-radius:16px;padding:24px 26px;}
+.info-page {height:100%;}
+.family-weather {display:flex;flex-direction:column;}
+.weather-now {display:flex;align-items:center;justify-content:space-between;height:145px;flex-shrink:0;}
+.weather-condition {font-size:20px;letter-spacing:1px;color:#a9b8c2;text-transform:uppercase;}
+.weather-temperature {font-size:72px;font-weight:500;line-height:1.05;letter-spacing:-3px;}
+.weather-context {font-size:22px;color:#b8c6cf;margin-top:4px;}
+.weather-symbol {font-size:82px;color:#e9c77c;margin-right:10px;}
+.info-heading {font-size:19px;letter-spacing:1px;color:#a9b8c2;display:none;}
+.forecast-days {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:15px 0 13px;border-top:1px solid #30404a;border-bottom:1px solid #30404a;}
+.forecast-name {font-size:22px;color:#a9b8c2;margin-bottom:6px;}
+.forecast-icon {display:inline-block;font-size:29px;color:#e9c77c;vertical-align:middle;margin-right:8px;}
+.forecast-temperature {display:inline-block;font-size:27px;font-weight:600;vertical-align:middle;}
+.forecast-temperature span {font-size:22px;color:#94a7b5;margin-left:3px;}
+.forecast-rain {font-size:18px;color:#94a7b5;margin-top:2px;}
+.info-away-list {margin-top:13px;overflow:hidden;}
+.info-away-card {position:relative;padding:4px 0 8px 92px;min-height:72px;}
+.away-name {position:absolute;left:0;top:6px;font-size:24px;font-weight:600;max-width:85px;}
+.away-location {font-size:23px;color:#c4d4df;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.away-since {font-size:18px;color:#94a7b5;margin-top:3px;}
+.energy-heading {display:flex;align-items:center;justify-content:space-between;font-size:27px;font-weight:600;letter-spacing:.2px;}
+.energy-heading span {font-size:22px;color:#9eafbb;font-weight:400;}
+.energy-body {height:418px;margin-top:5px;}
+.energy-diagram {width:100%;height:390px;overflow:visible;}
+.energy-value {font-size:38px;font-weight:600;fill:#eff4f5;text-anchor:middle;}
+.energy-unit {font-size:22px;fill:#b0c1cb;text-anchor:middle;}
+.energy-label {font-size:21px;letter-spacing:1px;fill:#b0c1cb;text-anchor:middle;}
+.energy-caption {font-size:20px;color:#a9b8c2;text-align:center;margin-top:2px;}
+.kiosk-pagination {position:absolute;bottom:13px;left:0;right:0;text-align:center;height:7px;}
+.kiosk-pagination i {display:inline-block;width:7px;height:7px;margin:0 4px;border-radius:50%;background:#52636f;}
+.kiosk-pagination i.selected {width:24px;border-radius:4px;background:#9dbbc7;}
+.agenda-heading {display:flex;align-items:baseline;justify-content:space-between;font-size:30px;font-weight:600;line-height:36px;}
+.agenda-heading span {font-size:19px;color:#a9b8c2;font-weight:400;}
+.agenda-list {margin-top:13px;}
+.agenda-item {height:99px;padding:10px 0 9px 15px;border-top:1px solid #30404a;position:relative;}
+.agenda-item:before {content:"";position:absolute;left:0;top:15px;bottom:15px;width:3px;border-radius:2px;background:#8fc6ec;}
+.agenda-item.person-1:before {background:#d5afea;}
+.agenda-item.shared:before {background:#8cd1b1;}
+.agenda-meta {display:flex;justify-content:space-between;align-items:center;line-height:24px;font-size:20px;color:#b8c6cf;}
+.agenda-when b {font-weight:400;color:#708994;margin:0 3px;}
+.agenda-owner {font-size:17px;font-weight:600;border-radius:6px;padding:0 8px;background:#243b4b;color:#abd9f7;line-height:24px;margin-left:12px;}
+.person-1 .agenda-owner {background:#382d46;color:#e1c1f2;}
+.shared .agenda-owner {background:#233d38;color:#a4ddc2;}
+.agenda-title {font-size:28px;font-weight:500;line-height:30px;margin-top:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:break-word;}
+#kiosk-notice {position:relative;overflow:hidden;border:1px solid #344a58;border-left:5px solid var(--notice-accent,#88bdce);border-radius:16px;background:#172735;padding:14px 30px;}
+#kiosk-kicker {font-size:20px;color:#9fb8c7;letter-spacing:1.8px;font-weight:600;line-height:1.1;}
+#kiosk-notice-title {font-size:49px;font-weight:600;line-height:1.1;margin:7px 0 6px;letter-spacing:-.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+#kiosk-notice-detail {font-size:31px;color:#c4d4df;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+#kiosk-notice.long-title #kiosk-notice-title {font-size:39px;}
+#kiosk-notice.long-title #kiosk-notice-detail {font-size:25px;-webkit-line-clamp:1;}
+#kiosk-connection {position:absolute;top:0;left:0;right:0;z-index:20;padding:8px 20px;text-align:center;background:#793c11;color:#fff;font-size:23px;}
+#kiosk.avplay-on,#kiosk.avplay-on #kiosk-visual,#kiosk.avplay-on #kiosk-main {background:transparent;}
+#kiosk.avplay-on #kiosk-main img {visibility:hidden;}
+#kiosk-avplayer {position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;z-index:1;}

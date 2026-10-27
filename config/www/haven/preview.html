@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Haven TV Kiosk Preview</title><link rel="stylesheet" href="design/style.css?v=1.2.3">
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}#stage{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden}</style>
+</head><body><div id="stage"></div>
+<script src="kiosk-config.js?v=1.2.3"></script><script src="client.js?v=1.2.3"></script>
+<script>
+(function () {
+    'use strict';
+    function tokens() { try {return JSON.parse(localStorage.getItem('hassTokens') || 'null');} catch(error) {return null;} }
+    function access(done,failed,force) {
+        var saved=tokens(), expires=saved && new Date(saved.expires).getTime();
+        if (!saved || !saved.access_token) {failed(); return;}
+        if (!force && (!isFinite(expires) || expires-Date.now()>60000)) {done(saved.access_token); return;}
+        var body='grant_type=refresh_token&refresh_token='+encodeURIComponent(saved.refresh_token);
+        var clientId=saved.clientId || saved.client_id;
+        if(clientId) body+='&client_id='+encodeURIComponent(clientId);
+        fetch('/auth/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body}).then(function(response){
+            if(!response.ok) throw new Error('Session renewal failed'); return response.json();
+        }).then(function(result){
+            saved.access_token=result.access_token; saved.expires=new Date(Date.now()+result.expires_in*1000).toISOString();
+            localStorage.setItem('hassTokens',JSON.stringify(saved)); done(saved.access_token);
+        }).catch(failed);
+    }
+    function fit(){var scale=Math.min(innerWidth/1920,innerHeight/1080);document.getElementById('stage').style.transform='translate('+(innerWidth-1920*scale)/2+'px,'+(innerHeight-1080*scale)/2+'px) scale('+scale+')';}
+    window.addEventListener('resize',fit); fit();
+    window.Haven={isTV:false,kiosk:function(){return window.HAVEN_KIOSK_PREVIEW || {};},
+        ha:function(){return {url:location.origin,token:''};}, accessToken:access,ready:function(){},
+        get:function(key,fallback){try{return JSON.parse(localStorage.getItem('haven.preview.'+key)) || fallback;}catch(error){return fallback;}},
+        set:function(key,value){localStorage.setItem('haven.preview.'+key,JSON.stringify(value));},
+        fetchText:function(url,timeout,ok,bad){var request=new XMLHttpRequest();request.open('GET',url,true);request.timeout=timeout;
+            request.onload=function(){if(request.status===200)ok(request.responseText);else bad();};request.onerror=bad;request.ontimeout=bad;request.send();}
+    };
+}());
+</script><script src="design/design.js?v=1.2.3"></script></body></html>

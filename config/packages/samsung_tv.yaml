@@ -1,0 +1,153 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Living Room TV - Native Roku Raven dashboard
+# Related Issue: 2030
+#  Launch after two minutes on Roku Home while the TV and Raven are on.
+# -------------------------------------------------------------------
+# Notes: Never switches Samsung inputs or sends Samsung Exit.
+# Notes: Manual exit pauses automatic launch for 15 minutes, across restarts.
+# Notes: The restoring timer carries shared exit history that Roku lacks.
+# Notes: The bridge verifies Home, TV power, Raven and cooldown again.
+# Notes: Keep bridge URLs and the separate control header in secrets.yaml.
+# Notes: Preserve the existing manual action and automation IDs for callers.
+# Notes: Screensaver telemetry remains for the existing device panel only.
+# Notes: Recover only this Roku integration after bridge-detected reconnects.
+# Notes: Raven restores its state and is re-enabled daily at 03:00.
+# Notes: TV-off is normal and remains outside always-on kiosk health alerts.
+######################################################################
+
+input_boolean:
+  haven:
+    name: Automatic Raven
+    icon: mdi:television-play
+
+timer:
+  roku_haven_manual_exit:
+    name: Roku Raven manual exit pause
+    duration: '00:15:00'
+    restore: true
+    icon: mdi:pause-circle-outline
+
+rest_command:
+  samsung_living_room_launch_haven:
+    url: !secret roku_haven_manual_launch_url
+    method: post
+    headers: !secret roku_haven_control_headers
+    timeout: 15
+  roku_haven_launch_when_idle:
+    url: !secret roku_haven_idle_launch_url
+    method: post
+    headers: !secret roku_haven_control_headers
+    timeout: 15
+
+rest:
+  - resource: !secret roku_haven_status_url
+    headers: !secret roku_haven_control_headers
+    scan_interval: 5
+    timeout: 4
+    binary_sensor:
+      - name: Living Room Roku Screensaver
+        unique_id: living_room_roku_screensaver
+        icon: mdi:monitor-shimmer
+        value_template: '{{ value_json.screensaver | default(false) }}'
+      - name: Living Room Roku Reconnect Required
+        unique_id: living_room_roku_reconnect_required
+        device_class: problem
+        value_template: '{{ value_json.reconnectRequired | default(false) }}'
+
+automation:
+  - id: samsung_living_room_haven_on_roku_screensaver
+    alias: Living Room TV - Raven after Roku Home Idle
+    description: Launch native Raven after two minutes on Home, respecting TV power and the restoring manual-exit pause.
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: sensor.living_room_ultra_active_app_id
+        to: '562859'
+        for:
+          minutes: 2
+      - trigger: state
+        entity_id: media_player.samsung_q70_series_65
+        to: 'on'
+        for:
+          minutes: 2
+      - trigger: state
+        entity_id: input_boolean.haven
+        to: 'on'
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.roku_haven_manual_exit
+    conditions:
+      - condition: state
+        entity_id: input_boolean.haven
+        state: 'on'
+      - condition: state
+        entity_id: media_player.samsung_q70_series_65
+        state: 'on'
+        for:
+          minutes: 2
+      - condition: state
+        entity_id: sensor.living_room_ultra_active_app_id
+        state: '562859'
+        for:
+          minutes: 2
+      - condition: state
+        entity_id: timer.roku_haven_manual_exit
+        state: idle
+    actions:
+      - action: rest_command.roku_haven_launch_when_idle
+
+  - id: samsung_living_room_exit_haven_on_roku_wake
+    alias: Living Room TV - Pause Raven after Manual Exit
+    description: Preserve time to choose another app after exiting Raven, including Roku's intermediate native menu state.
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id: sensor.living_room_ultra_active_app_id
+        from: dev
+    conditions:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.living_room_ultra_active_app_id
+            state:
+              - unavailable
+              - unknown
+    actions:
+      - action: timer.start
+        target:
+          entity_id: timer.roku_haven_manual_exit
+
+  - id: living_room_roku_reconnect_recovery
+    alias: Living Room Roku - Recover Integration after Reconnect
+    description: Refresh only the living-room Roku config entry after a detected reboot or network recovery; fresh bridge sockets remain independent.
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.living_room_roku_reconnect_required
+        to: 'on'
+        for:
+          seconds: 10
+    actions:
+      - action: homeassistant.reload_config_entry
+        data:
+          entry_id: "{{ config_entry_id('media_player.living_room_ultra') }}"
+      - delay:
+          minutes: 2
+
+  - id: samsung_living_room_haven_daily_reset
+    alias: Living Room TV - Re-enable Raven at 3 AM
+    description: Restore automatic Raven behavior each night without powering on the TV or launching an app.
+    mode: single
+    triggers:
+      - trigger: time
+        at: '03:00:00'
+    actions:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.haven
