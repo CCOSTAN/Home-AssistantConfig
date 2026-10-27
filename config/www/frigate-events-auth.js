@@ -1,6 +1,8 @@
 // Frigate Events Card v2.5.23 signs thumbnails but leaves timeline media unsigned.
 // Keep the HACS bundle intact and adapt only this card's timeline media loaders.
-import "/hacsfiles/frigate-events-card/frigate-events-card.js?hacstag=1111882479100";
+// Version the underlying bundle as well as the adapters: an old HACS cache key
+// can otherwise load a card release that does not have the timeline API.
+import "/hacsfiles/frigate-events-card/frigate-events-card.js?v=2.5.23";
 
 const Card = customElements.get("frigate-events-card");
 const originalLoad = Card?.prototype._loadTimelineVideo;

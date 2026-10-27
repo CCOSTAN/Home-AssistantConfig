@@ -9,6 +9,8 @@
 # Notes: Entry controls reuse the same shared template as the Home ribbon.
 # Notes: Desktop keeps three upper cameras and four second-row cameras beside the doorbell.
 # Notes: A full-width responsive grid prevents section wrapping; narrow screens use two columns.
+# Notes: Camera tiles open live camera details; thumbnails play individual clips.
+# Notes: The full recording timeline is available on the dedicated Clips view.
 ######################################################################
 
 - type: grid
@@ -64,7 +66,7 @@
         ok_states:
         - locked
 
-# Picture-glance supplies camera previews and tap-to-open video; button-card cannot.
+# Picture-glance supplies previews and live camera dialogs; button-card cannot.
 - type: grid
   column_span: 4
   cards:
@@ -95,6 +97,10 @@
     cards:
     - type: picture-glance
       camera_image: camera.frontdoorbell
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       aspect_ratio: '4:5'
       entities: []
@@ -102,6 +108,10 @@
         grid-area: door
     - type: picture-glance
       camera_image: camera.poolcam
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       aspect_ratio: '16:9'
       entities: []
@@ -110,50 +120,86 @@
         place-self: start stretch
     - type: picture-glance
       camera_image: camera.garagecam
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       entities: []
       view_layout:
         grid-area: garage
     - type: picture-glance
       camera_image: camera.frontlawn
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       entities: []
       view_layout:
         grid-area: lawn
     - type: picture-glance
       camera_image: camera.driveway
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       entities: []
       view_layout:
         grid-area: drive
     - type: picture-glance
       camera_image: camera.kidsgate
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       entities: []
       view_layout:
         grid-area: kids
     - type: picture-glance
       camera_image: camera.bedroomgate
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       entities: []
       view_layout:
         grid-area: bedroom
     - type: picture-glance
       camera_image: camera.filtergate
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       entities: []
       view_layout:
         grid-area: filter
     - type: picture-glance
       camera_image: camera.conico_wireless
+      tap_action:
+        action: more-info
+      hold_action:
+        action: more-info
       camera_view: auto
       entities: []
       view_layout:
         grid-area: conico
-    # Preserve the existing Frigate event previews below the camera rows.
+    # Eight thumbnail-only previews keep the live grid compact; use Clips for review.
     - type: custom:frigate-events-card
       frigate_client_id: frigate
-      event_count: 3
+      cameras: !include /config/dashboards/overview/partials/frigate_camera_names.yaml
+      review_clips: true
+      show_timeline: false
+      timeline_on_click: false
+      layout: grid
+      scroll: false
+      event_count: 8
+      review_compact: true
+      grid_max_height: 215px
       video: true
       video_on_hover: true
       view_layout:

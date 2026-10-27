@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Lovelace Resources - Custom card JS resources
+# Related Issue: 2029
 #  YAML-managed Lovelace resources (resource_mode: yaml).
 # -------------------------------------------------------------------
 # Notes: Generated from config/.storage/lovelace_resources. Edit here after migration; do not edit .storage.
@@ -50,8 +51,11 @@
 - type: module
   url: /hacsfiles/lovelace-layout-card/layout-card.js?hacstag=156434866247
 - type: module
-  # Loads the HACS card with signed timeline HLS and MP4 media URLs.
-  url: /local/frigate-events-auth.js?v=1
+  # One notification model for the Show, Bedroom, and Raven kiosk renderers.
+  url: /local/kiosk/ambient.js?v=1.2.0
+- type: module
+  # Loads the versioned HACS card with signed timeline media for Clips.
+  url: /local/frigate-events-navigation.js?v=8
 - type: module
   url: /local/ookla_speedtest/ookla-speedtest-card.js?v=3.0.5
 - type: module

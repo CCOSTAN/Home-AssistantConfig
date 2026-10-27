@@ -4,47 +4,22 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Overview Partial - cameras cards
-#  Reusable list extracted from a view for smaller diffs and safer edits.
+#  Recording gallery with direct access to the shared timeline player.
 # -------------------------------------------------------------------
-# Notes: Extracted from config/dashboards/overview/views/04_cameras.yaml key `cards`.
+# Notes: Pages through recorded clips; each clip opens its exact event time.
 ######################################################################
 
-- type: custom:frigate-card
-  cameras:
-  - camera_entity: camera.frontdoorbell
-    dependencies:
-      all_cameras: true
-      cameras:
-      - camera.bedroomgate
-      - camera.filtergate
-      - camera.driveway
-  - camera_entity: camera.bedroomgate
-  - camera_entity: camera.filtergate
-  - camera_entity: camera.driveway
-  - camera_entity: camera.poolcam
-    live_provider: auto
-  - camera_entity: camera.blink1
-    live_provider: auto
-  - camera_entity: camera.frontlawn
-    live_provider: auto
-  - camera_entity: camera.kidsgate
-  - camera_entity: camera.garagecam
-  view:
-    default: clips
-    camera_select: clips
-    default_cycle_camera: false
-  menu:
-    style: hidden
-  media_gallery:
-    controls:
-      thumbnails:
-        size: 175
-        show_favorite_control: false
-        show_details: false
-  dimensions:
-    min_height: '500'
-    aspect_ratio: '16:9'
-    aspect_ratio_mode: unconstrained
-  media_viewer:
-    layout:
-      fit: cover
+# The event card provides recording playback and scrubbing beyond button-card.
+- type: custom:frigate-events-card
+  title: Camera Clips
+  frigate_client_id: frigate
+  cameras: !include /config/dashboards/overview/partials/frigate_camera_names.yaml
+  review_clips: true
+  show_timeline: true
+  timeline_on_click: true
+  video: true
+  video_on_hover: true
+  layout: grid
+  scroll: false
+  event_count: 60
+  grid_max_height: 75vh

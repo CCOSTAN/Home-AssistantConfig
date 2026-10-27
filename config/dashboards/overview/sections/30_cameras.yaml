@@ -6,13 +6,16 @@
 # Overview Section - camera and weather awareness
 #  Keeps security views and outdoor context together in one column.
 # -------------------------------------------------------------------
-# Notes: Camera cards retain existing navigation and live behavior.
-# Notes: Hourly and daily forecasts remain complementary at a glance.
+# Notes: Birdseye opens Live Cameras; the recording timeline lives on Clips.
+# Notes: Pirate Weather shows current/hourly weather; the lower card is daily-only.
 ######################################################################
 
 cards:
 - type: custom:frigate-events-card
   frigate_client_id: frigate
+  cameras: !include /config/dashboards/overview/partials/frigate_camera_names.yaml
+  show_timeline: false
+  timeline_on_click: false
   event_count: 5
   video: true
   video_on_hover: true
@@ -24,7 +27,9 @@ cards:
   camera_view: live
   tap_action:
     action: navigate
-    navigation_path: /lovelace/cameras
+    navigation_path: /lovelace/live-cameras
+  hold_action:
+    action: more-info
 
 - type: weather-forecast
   show_current: true
@@ -33,28 +38,19 @@ cards:
   forecast_type: hourly
   secondary_info_attribute: humidity
 
+# Retain the weather card's daily temperature bars using its v3 section options.
 - type: custom:clock-weather-card
   entity: weather.pirateweather
-  sun_entity: sun.sun
-  temperature_sensor: sensor.pirateweather_temperature
-  humidity_sensor: sensor.pirateweather_humidity
   weather_icon_type: fill
-  animated_icon: true
-  forecast_rows: 5
   locale: en-GB
-  time_pattern: HH:mm
-  time_format: 12
-  date_pattern: DDDD
-  hide_today_section: true
-  hide_forecast_section: false
-  show_humidity: true
-  hide_clock: false
-  hide_date: true
-  hourly_forecast: false
-  use_browser_time: false
-  time_zone: null
-  show_decimal: false
-  aqi_sensor: sensor.bear_stone_common_air_quality_index
-  apparent_sensor: null
+  sections:
+    header:
+      hide: true
+    forecast_strip:
+      hide: true
+    forecast_list:
+      hide: false
+      forecast_type: daily
+      count: 5
 
 column_span: 1
