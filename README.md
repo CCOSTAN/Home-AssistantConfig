@@ -18,12 +18,10 @@
 
 Live, personal Home Assistant configuration shared for **browsing and inspiration**. This is not a turnkey clone-and-run setup; borrow ideas, adapt entity IDs/secrets, and test in your own environment.
 
-### Latest video: Turn an Old Nest Thermostat Into a Home Assistant Display
-[![Old Nest, new life: round Home Assistant photo and notification display](https://www.vcloudinfo.com/wp-content/uploads/2026/10/old-nest-new-life-home-assistant-display.jpg)](https://youtu.be/fuS1voqRznY)
+### Latest video: Use your TV as a Home Assistant Dashboard
+[![Samsung TV Home Assistant dashboard](https://www.vcloudinfo.com/wp-content/uploads/2026/10/samsung-tv-home-assistant-haven-dashboard-scaled.jpg)](https://youtu.be/hda5WXHWlpI)
 
-A retired second-generation Nest becomes a round living-room photo and notification display. A Raspberry Pi handled the USB flashing; Home Assistant supplies the shared alerts, household screen policy and kiosk dashboard. The companion article also covers the newer 45-photo album, ten Keep favorites and shuffled rotation. [![Watch Nest upcycling](https://img.shields.io/badge/Watch-Nest%20Upcycling-FF0000?logo=youtube&logoColor=white)](https://youtu.be/fuS1voqRznY) [![Nest display blog](https://img.shields.io/static/v1?label=vCloudInfo&message=Nest%20Display&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/repurpose-nest-thermostat-home-assistant-display.html) [![YAML source: kiosk_tablet](https://img.shields.io/static/v1?label=YAML&message=kiosk_tablet&color=lightgrey&logo=github&logoColor=181717)](config/packages/kiosk_tablet.yaml)
-
-[Project guide: upcycled Nest display](docs/NEST_DISPLAY.md) - hardware, credits, message flow, photo controls and source map.
+See how a Samsung TV became a Home Assistant dashboard using Haven, with camera snapshots, household status, and a Roku screensaver handoff. [![Watch TV dashboard](https://img.shields.io/badge/Watch-TV%20Dashboard-FF0000?logo=youtube&logoColor=white)](https://youtu.be/hda5WXHWlpI) [![TV dashboard blog](https://img.shields.io/static/v1?label=vCloudInfo&message=TV%20Dashboard&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/samsung-tv-home-assistant-dashboard-haven.html) [![Haven source](https://img.shields.io/static/v1?label=GitHub&message=Haven&color=lightgrey&logo=github&logoColor=181717)](https://github.com/natureglass/haven-tizen-ha)
 
 ### Quick navigation
 - You are here: `/` (root repo guide)
