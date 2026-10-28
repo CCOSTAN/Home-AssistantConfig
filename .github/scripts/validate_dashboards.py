@@ -427,7 +427,8 @@ def validate_entity_references(root: Path, references: set[str]) -> None:
     repository_catalog = repository_entity_catalog(root)
     live_catalog = live_entity_catalog(root)
     allowlist = read_entity_allowlist(root)
-    known = repository_catalog | live_catalog | allowlist
+    # Private runtime storage must not hide missing references from a clean checkout.
+    known = repository_catalog | allowlist
     unknown = sorted(references - known)
     if unknown:
         raise ValidationError(
