@@ -18,7 +18,7 @@
 # Notes: Monitored workload count deduplicates Portainer `_container_2` companion entities.
 # Notes: Container monitoring is dynamic with binary_sensor status preferred over switch state.
 # Notes: Weekly Joanna reconcile checks discovered container switches vs configured group members.
-# Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and scheduled image prune.
+# Notes: Includes Portainer stack status repairs, 20-minute Joanna dispatch for persistent container outages, and container monitoring. Image/cache retention belongs to appliance nightly maintenance.
 # Notes: Outage escalation keys off the configured monitored group so host-wide telemetry drops do not fall out of scope before the delayed Joanna dispatch runs.
 # Notes: Weekly reconcile should replace retired container-name switches with the current container-ID-prefixed discovery set.
 # Notes: Tapple is now served by `games_hub` on `/tapple/`; do not keep a standalone `tapple` container switch in the monitored group.
@@ -139,9 +139,6 @@ switch:
       - switch.games_hub_container_2
       - switch.home_assistant_container_2
       - switch.imposter_container_2
-      - switch.jobs_backend_container
-      - switch.jobs_db_container
-      - switch.jobs_frontend_container
       - switch.kingcrafthomes_container_2
       - switch.lmediaservices_container_2
       - switch.mariadb_backup_container_2
@@ -1431,26 +1428,3 @@ automation:
                     Reconcile Docker monitored group members in
                     config/packages/docker_infrastructure.yaml so configured monitoring
                     matches currently discovered container entities.
-
-  - alias: "Docker Weekly Prune Unused Images"
-    id: docker_weekly_prune_unused_images
-    description: "Run weekly unguarded prune actions across Docker hosts."
-    mode: single
-    trigger:
-      - platform: time
-        at: "03:15:00"
-    condition:
-      - condition: template
-        value_template: "{{ now().weekday() == 6 }}"
-    action:
-      - service: button.press
-        target:
-          entity_id:
-            - button.carlo_hass_prune_unused_images
-            - button.docker17_prune_unused_images
-            - button.docker69_prune_unused_images
-            - button.docker2_prune_unused_images
-      - service: script.send_to_logbook
-        data:
-          topic: "DOCKER"
-          message: "Weekly scheduled prune triggered on docker_10/17/69/14."
