@@ -4,9 +4,12 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Home Stats Automation - arrival briefing with weather and safety checks
+# Related Issue: 364
 #  Announces key home status after family returns or on manual trigger.
 # -------------------------------------------------------------------
 # Notes: Waits for garage doors to close before speaking.
+#  Automatic first-household returns include the last trip's recorded doorstep
+#  visits. Manual briefings do not repeat it; the next departure resets the count.
 ######################################################################
 - alias: 'Home Stats'
   id: f98e1ef4-051b-4214-908d-d8b35f076a3e
@@ -32,6 +35,15 @@
 
     - service: script.speech_engine
       data:
+        value1: >-
+          {% set visits = states('counter.front_door_visits_while_away') | int(0) %}
+          {% if trigger is defined and trigger.platform == 'state'
+                and trigger.entity_id == 'group.family' and visits > 0 %}
+            While everyone was out, {{ visits }} doorstep
+            {{ 'visit was' if visits == 1 else 'visits were' }} recorded.
+            Review the footage in Clips using the Doorstep visits filter.
+            [Report recorded visits, not distinct people or doorbell presses.]
+          {% endif %}
         call_inside_weather: 1
         call_garbage_day: 1
         call_outside_weather: 1

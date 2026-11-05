@@ -1,0 +1,331 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Front Door Visits - Frigate doorstep alerts and away visit counting.
+# Related Issue: 364
+#  Reuses the shared notification engine and welcome-home Home Stats.
+# -------------------------------------------------------------------
+# Notes: A person must first enter Frigate's person-only doorstep zone.
+#  One episode stays open until the zone has been clear for 90 seconds.
+#  Away visits settle after 60 seconds; a return cancels the pending visit.
+#  Presence must be stable for two minutes; guest mode suppresses alerts
+#  and counting. These are recorded visits, not distinct people or presses.
+# Notes: Helpers persist episode, pending visit, and away-session state.
+#  Frigate's instantaneous occupancy/count cannot supply that history.
+#  Startup reconciles restored helpers without resetting an ongoing trip.
+######################################################################
+
+counter:
+  front_door_visits_while_away:
+    name: Front Door Visits While Away
+    icon: mdi:doorbell-video
+    restore: true
+    minimum: 0
+
+input_boolean:
+  front_door_visit_open:
+    name: Front Door Visit Open
+  front_door_away_session:
+    name: Front Door Away Session
+  front_door_away_visit_pending:
+    name: Front Door Away Visit Pending
+
+input_datetime:
+  front_door_away_started:
+    name: Front Door Away Started
+    has_date: true
+    has_time: true
+
+input_text:
+  front_door_last_visit_event:
+    name: Front Door Last Visit Event
+    max: 80
+
+timer:
+  front_door_alert_snooze:
+    name: Doorstep Alerts Snooze
+    icon: mdi:bell-sleep
+    duration: '01:00:00'
+    restore: true
+  front_door_visit_clear:
+    name: Front Door Visit Clear
+    duration: '00:01:30'
+    restore: true
+  front_door_away_confirmation:
+    name: Front Door Away Confirmation
+    duration: '00:01:00'
+    restore: true
+
+script:
+  front_door_notify_visit:
+    alias: Front Door Notify Visit
+    mode: parallel
+    max: 5
+    sequence:
+      - delay: '00:00:05'
+      - condition: state
+        entity_id: input_boolean.guest_mode
+        state: 'off'
+      - condition: state
+        entity_id: timer.front_door_alert_snooze
+        state: idle
+      - condition: template
+        value_template: >-
+          {{ states('group.family') in ['home', 'not_home']
+             and as_timestamp(now()) - as_timestamp(states.group.family.last_changed) > 120 }}
+      - action: script.notify_engine
+        data:
+          title: 'Someone is at the front door'
+          value1: 'A person reached the doorstep. Tap to review the recorded visit.'
+          who: parents
+          group: front_door_visits
+          tag: "front_door_{{ event_id }}"
+          notification_icon: mdi:doorbell-video
+          color: '#00796B'
+          level: active
+          image: "/api/frigate/notifications/{{ event_id }}/snapshot.jpg"
+          url: "/api/frigate/notifications/{{ event_id }}/clip.mp4"
+          title1: Snooze 1 hour
+          action1: SNOOZE_DOORSTEP_ALERTS_1H
+          icon1: sfsymbols:bell.slash
+          title2: Snooze 4 hours
+          action2: SNOOZE_DOORSTEP_ALERTS_4H
+          icon2: sfsymbols:bell.slash
+
+automation:
+  - alias: 'Front Door - Record doorstep visit'
+    id: front_door_record_doorstep_visit
+    mode: queued
+    max: 10
+    triggers:
+      - trigger: mqtt
+        topic: frigate/events
+        payload: doorstep
+        value_template: >-
+          {% set event = value_json | default({}, true) %}
+          {% set after = event.get('after', {}) %}
+          {% set before = event.get('before', {}) %}
+          {{ 'doorstep' if event.get('type') in ['new', 'update']
+             and after.get('camera') == 'frontdoorbell'
+             and after.get('label') == 'person'
+             and not after.get('false_positive', true)
+             and 'doorstep' in after.get('current_zones', [])
+             and (event.get('type') == 'new' or before.get('false_positive', false)
+                  or 'doorstep' not in before.get('entered_zones', [])) else 'ignore' }}
+    actions:
+      # Action conditions are evaluated when dequeued, after the previous latch.
+      - condition: state
+        entity_id: input_boolean.front_door_visit_open
+        state: 'off'
+      - variables:
+          event_id: "{{ trigger.payload_json.after.id }}"
+          event_age: "{{ as_timestamp(now()) - (trigger.payload_json.after.frame_time | float(0)) }}"
+      - condition: template
+        value_template: >-
+          {{ event_id != states('input_text.front_door_last_visit_event')
+             and event_id | regex_match('^[0-9]+[.][0-9]+-[a-zA-Z0-9]+$')
+             and -2 <= event_age | float <= 30 }}
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.front_door_visit_open
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.front_door_last_visit_event
+        data:
+          value: "{{ event_id }}"
+      - if:
+          - condition: state
+            entity_id: binary_sensor.doorstep_person_occupancy
+            state: 'off'
+        then:
+          # Covers a fast visit whose occupancy-clear update arrived first.
+          - action: timer.start
+            target:
+              entity_id: timer.front_door_visit_clear
+      - action: script.send_to_logbook
+        continue_on_error: true
+        data:
+          topic: FRONT DOOR
+          message: >-
+            Doorstep visit recorded. Review:
+            /api/frigate/notifications/{{ event_id }}/clip.mp4
+      - if:
+          - condition: state
+            entity_id: group.family
+            state: 'not_home'
+          - condition: state
+            entity_id: input_boolean.front_door_away_session
+            state: 'on'
+          - condition: state
+            entity_id: input_boolean.guest_mode
+            state: 'off'
+          - condition: template
+            value_template: >-
+              {{ as_timestamp(now()) - as_timestamp(states('input_datetime.front_door_away_started'), as_timestamp(now())) > 120 }}
+        then:
+          - action: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.front_door_away_visit_pending
+          - action: timer.start
+            target:
+              entity_id: timer.front_door_away_confirmation
+      - action: script.turn_on
+        target:
+          entity_id: script.front_door_notify_visit
+        data:
+          variables:
+            event_id: "{{ event_id }}"
+
+  - alias: 'Front Door - Visit lifecycle'
+    id: front_door_visit_lifecycle
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.doorstep_person_occupancy
+        to: 'off'
+        id: clear
+      - trigger: state
+        entity_id: binary_sensor.doorstep_person_occupancy
+        to: 'on'
+        id: occupied
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.front_door_visit_clear
+        id: expired
+      - trigger: homeassistant
+        event: start
+        id: startup
+      - trigger: state
+        entity_id: group.family
+        to:
+          - home
+          - not_home
+        id: presence
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.front_door_away_confirmation
+        id: confirm
+    actions:
+      - choose:
+          - conditions: "{{ trigger.id == 'occupied' }}"
+            sequence:
+              - action: timer.cancel
+                target:
+                  entity_id: timer.front_door_visit_clear
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.id in ['clear', 'expired', 'startup'] }}"
+              - condition: state
+                entity_id: binary_sensor.doorstep_person_occupancy
+                state: 'off'
+              - condition: state
+                entity_id: input_boolean.front_door_visit_open
+                state: 'on'
+            sequence:
+              - choose:
+                  - conditions: "{{ trigger.id == 'expired' }}"
+                    sequence:
+                      - action: input_boolean.turn_off
+                        target:
+                          entity_id: input_boolean.front_door_visit_open
+                default:
+                  - action: timer.start
+                    target:
+                      entity_id: timer.front_door_visit_clear
+
+      - if: "{{ trigger.id in ['presence', 'confirm', 'startup'] }}"
+        then:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: group.family
+                    state: 'home'
+                sequence:
+                  - action: input_boolean.turn_off
+                    target:
+                      entity_id:
+                        - input_boolean.front_door_away_session
+                        - input_boolean.front_door_away_visit_pending
+                  - action: timer.cancel
+                    target:
+                      entity_id: timer.front_door_away_confirmation
+              - conditions:
+                  - condition: state
+                    entity_id: group.family
+                    state: 'not_home'
+                sequence:
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.front_door_away_session
+                            state: 'off'
+                        sequence:
+                          - action: counter.reset
+                            target:
+                              entity_id: counter.front_door_visits_while_away
+                          - action: input_datetime.set_datetime
+                            target:
+                              entity_id: input_datetime.front_door_away_started
+                            data:
+                              timestamp: "{{ as_timestamp(now()) }}"
+                          - action: input_boolean.turn_on
+                            target:
+                              entity_id: input_boolean.front_door_away_session
+                          - action: input_boolean.turn_off
+                            target:
+                              entity_id: input_boolean.front_door_away_visit_pending
+                      - conditions:
+                          - condition: state
+                            entity_id: input_boolean.front_door_away_visit_pending
+                            state: 'on'
+                        sequence:
+                          - choose:
+                              - conditions: "{{ trigger.id == 'confirm' }}"
+                                sequence:
+                                  - if:
+                                      - condition: state
+                                        entity_id: input_boolean.guest_mode
+                                        state: 'off'
+                                    then:
+                                      - action: counter.increment
+                                        target:
+                                          entity_id: counter.front_door_visits_while_away
+                                  - action: input_boolean.turn_off
+                                    target:
+                                      entity_id: input_boolean.front_door_away_visit_pending
+                            default:
+                              # A timer can finish while HA is stopped. Preserve its
+                              # pending visit and allow another presence grace period.
+                              - if:
+                                  - condition: state
+                                    entity_id: timer.front_door_away_confirmation
+                                    state: 'idle'
+                                then:
+                                  - action: timer.start
+                                    target:
+                                      entity_id: timer.front_door_away_confirmation
+
+  - alias: 'Front Door - Snooze alerts from notification'
+    id: front_door_snooze_alerts_from_notification
+    mode: queued
+    triggers:
+      - trigger: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_DOORSTEP_ALERTS_1H
+        id: '01:00:00'
+      - trigger: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: SNOOZE_DOORSTEP_ALERTS_4H
+        id: '04:00:00'
+    actions:
+      - action: timer.start
+        target:
+          entity_id: timer.front_door_alert_snooze
+        data:
+          duration: "{{ trigger.id }}"

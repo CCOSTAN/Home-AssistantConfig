@@ -8,6 +8,7 @@
 #  Compose messages from value1/value2/value3 with optional actions.
 # -------------------------------------------------------------------
 # Notes: Optional notification tags let recovery actions target a specific push.
+#  Optional image/url fields attach an event snapshot and open its recorded clip.
 #  Tags control replacement; groups remain visual notification categories.
 # Notes: Known groups receive colored MDI icons; other callers retain their payload.
 #  Explicit notification_icon/icon_url overrides are shared by both helpers.
@@ -89,6 +90,14 @@ notify_engine:
           } %}
           {% set notification_tag = tag | default('', true) | string | trim %}
           {% set payload = dict(payload, tag=notification_tag) if notification_tag else payload %}
+          {% set event_image = image | default('', true) | string | trim %}
+          {% set event_url = url | default('', true) | string | trim %}
+          {% if event_image %}
+            {% set payload = dict(payload, image=event_image) %}
+          {% endif %}
+          {% if event_url %}
+            {% set payload = dict(payload, url=event_url, clickAction=event_url) %}
+          {% endif %}
           {% set styles = {
             '360_alerts': {'notification_icon': 'mdi:map-marker-radius', 'color': '#1565C0'},
             'battery_alert': {'notification_icon': 'mdi:battery-alert-variant-outline', 'color': '#C2410C'},
@@ -174,6 +183,8 @@ notify_engine_two_button:
         tag: "{{ tag | default('', true) }}"
         level: "{{ level | default('active', true) }}"
         camera_entity: "{{ camera_entity | default('', true) }}"
+        image: "{{ image | default('', true) }}"
+        url: "{{ url | default('', true) }}"
         notification_icon: "{{ notification_icon | default(none) }}"
         icon_url: "{{ icon_url | default('', true) }}"
         notification_icon_color: "{{ notification_icon_color | default('', true) }}"
