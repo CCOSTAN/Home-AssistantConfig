@@ -7,7 +7,7 @@
 # Related Issue: 1572
 #  Pins core views, hides low-use panels, and fixes Developer Tools at the bottom.
 # -------------------------------------------------------------------
-# Served as /local/custom-sidebar-config.yaml; plugin loads via HACS.
+# Served as /local/custom-sidebar-config.yaml; Marketplace manages the plugin.
 ######################################################################
 
 order:
@@ -18,6 +18,12 @@ order:
   - item: Systems
     exact: true
     icon: mdi:server-network
+
+  - new_item: true
+    item: Marketplace
+    icon: mdi:store
+    href: /marketplace
+    hide: '[[[ !user_is_admin ]]]'
 
   - item: Calendar
     exact: true

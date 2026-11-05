@@ -1,7 +1,7 @@
 // Load the shared timeline helpers and keep one Clips player open at a time.
-import "/local/frigate-events-auth.js?v=2";
-import "/local/frigate-timeline-time.js?v=5";
-import "/local/frigate-clip-review.js?v=5";
+import "/local/frigate-events-auth.js?v=3";
+import "/local/frigate-timeline-time.js?v=6";
+import "/local/frigate-clip-review.js?v=9";
 
 // Keep existing bookmarks useful while the visible routes describe each page.
 const renamedRoute = {

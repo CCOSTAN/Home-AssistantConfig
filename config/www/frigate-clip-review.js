@@ -1,5 +1,5 @@
 // A paged, labeled review surface around the installed Frigate Events Card.
-import "/local/frigate-events-auth.js?v=2";
+import "/local/frigate-events-auth.js?v=3";
 
 const Card = customElements.get("frigate-events-card");
 const installed = Symbol.for("frigate-events-card.clip-review");
@@ -11,7 +11,7 @@ if (Card && !Card.prototype[installed]) {
   const states = new WeakMap();
 
   function stateFor(card) {
-    if (!states.has(card)) states.set(card, { page: 0, cursors: [null], camera: "", request: 0 });
+    if (!states.has(card)) states.set(card, { page: 0, cursors: [null], camera: "", zone: "", request: 0 });
     return states.get(card);
   }
 
@@ -20,10 +20,12 @@ if (Card && !Card.prototype[installed]) {
     if (!this.hass) return;
     const state = stateFor(this);
     const cursor = state.cursors[state.page];
-    const key = JSON.stringify([state.page, state.camera, cursor]);
+    const key = JSON.stringify([state.page, state.camera, state.zone, cursor]);
     if (state.loading && state.key === key) return;
     const request = ++state.request;
     state.busy = state.key !== key || !this._events?.length;
+    // A new filter/page must not leave unrelated clips visible on an API error.
+    if (state.key !== key) this._events = [];
     state.key = key;
     state.loading = true;
     state.error = false;
@@ -34,6 +36,12 @@ if (Card && !Card.prototype[installed]) {
       const query = { type: "frigate/events/get", instance_id: this._config.frigate_client_id || "frigate",
         cameras: state.camera ? [state.camera] : this._config.cameras,
         has_clip: true, limit: size + 1 + (cursor?.exclude.length || 0) };
+      const zone = this._config.review_zones?.find(item => item.zone === state.zone);
+      if (zone) {
+        query.cameras = [zone.camera];
+        query.zones = [zone.zone];
+        query.labels = [zone.label];
+      }
       if (cursor) query.before = cursor.before;
       const response = await this.hass.callWS(query);
       if (request !== state.request || !this.isConnected) return;
@@ -84,10 +92,28 @@ if (Card && !Card.prototype[installed]) {
       }
       select.addEventListener("change", () => {
         state.camera = select.value;
+        state.zone = "";
+        const zoneSelect = toolbar.querySelector('[aria-label="Filter clips by zone"]');
+        if (zoneSelect) zoneSelect.value = "";
         state.page = 0;
         state.cursors = [null];
         card._loadEvents();
       });
+      if (card._config.review_zones?.length) {
+        const zoneSelect = document.createElement("select");
+        zoneSelect.setAttribute("aria-label", "Filter clips by zone");
+        zoneSelect.add(new Option("All activity", ""));
+        for (const zone of card._config.review_zones) zoneSelect.add(new Option(zone.name, zone.zone));
+        zoneSelect.addEventListener("change", () => {
+          state.zone = zoneSelect.value;
+          const zone = card._config.review_zones.find(item => item.zone === state.zone);
+          if (zone) state.camera = select.value = zone.camera;
+          state.page = 0;
+          state.cursors = [null];
+          card._loadEvents();
+        });
+        select.after(zoneSelect);
+      }
       toolbar.addEventListener("click", async event => {
         const action = event.target.closest("[data-review]")?.dataset.review;
         if (!action) return;
@@ -164,7 +190,8 @@ if (Card && !Card.prototype[installed]) {
     const count = card._events?.length || 0;
     toolbar.querySelector(".review-status").textContent = state.busy ? "Loading recorded clips..."
       : state.error ? "Could not load clips. Use Latest to retry."
-      : count ? `Page ${state.page + 1} · ${count} recorded clips · newest first` : "No recorded clips for this camera.";
+      : count ? `Page ${state.page + 1} · ${count} recorded clips · newest first`
+      : state.zone ? "No recorded clips in this zone yet." : "No recorded clips for this camera.";
     toolbar.querySelector('[data-review="newer"]').disabled = state.busy || state.page === 0;
     toolbar.querySelector('[data-review="older"]').disabled = state.busy || !state.more;
     toolbar.querySelector('[data-review="latest"]').disabled = state.busy;

@@ -3,6 +3,8 @@
  * Add notification types in build(); keep ES5 syntax for older displays.
  * State and actions are data only; renderers decide presentation and interaction.
  * Issue #2029: seasonal accents follow the lighting mode, never a second calendar.
+ * Video: https://youtu.be/qawvBd8_RJ0
+ * Guide: https://www.vcloudinfo.com/2026/11/home-assistant-holiday-dashboard-theming.html
  */
 (function (root) {
     'use strict';

@@ -1,5 +1,5 @@
 // Keep one wall-clock selection across cameras, including recording gaps.
-import "/local/frigate-events-auth.js?v=2";
+import "/local/frigate-events-auth.js?v=3";
 
 const Card = customElements.get("frigate-events-card");
 const installed = Symbol.for("frigate-events-card.shared-time");

@@ -15,6 +15,11 @@
   frigate_client_id: frigate
   cameras: !include /config/dashboards/overview/partials/frigate_camera_names.yaml
   review_clips: true
+  review_zones:
+    - zone: doorstep
+      name: Doorstep visits
+      camera: frontdoorbell
+      label: person
   show_timeline: true
   timeline_on_click: true
   video: true

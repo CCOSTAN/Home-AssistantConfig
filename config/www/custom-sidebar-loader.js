@@ -5,5 +5,5 @@ const isAndroidWebView = /\bAndroid\b/i.test(navigator.userAgent)
   && /(?:;|\s)wv\)/i.test(navigator.userAgent);
 
 if (!isAndroidWebView) {
-  import("/hacsfiles/custom-sidebar/custom-sidebar-plugin.js?v=17.0.0");
+  import("/local/community/custom-sidebar/custom-sidebar-plugin.js?v=17.0.0");
 }
