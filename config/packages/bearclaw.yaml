@@ -19,6 +19,7 @@
 # Notes: Status telemetry polling expects !secret bearclaw_status_url (token header stays !secret bearclaw_token).
 # Notes: Status telemetry includes the latest 12 dispatches in the rolling 24-hour window for the Joanna Activity drill-down.
 # Notes: Status telemetry exposes compact scheduled-job warning/error health for the Systems dashboard.
+# Notes: Maintenance advisories use Security & Updates once; other job errors and unavailable telemetry remain visible.
 # Notes: Critical appliance updates open one operator-only Repair; vendor waits stay amber and never dispatch self-updates.
 # Notes: The copyable Codex security prompt contains aggregate context and retrieves fresh private evidence when used.
 # Notes: Status telemetry distinguishes the compact BearClaw working-memory index from the federated OneNote KB.
@@ -239,26 +240,33 @@ template:
           {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') %}
           {{ health is mapping and health.get('status') in ['ok', 'warning', 'error'] }}
         state: >-
-          {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+          {% from 'infrastructure_health.jinja' import scheduled_job_health %}
+          {% set health = (scheduled_job_health | as_function)(state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true), states('sensor.joanna_security_updates')) %}
           {{ health.get('status', 'unknown') }}
         attributes:
           issue_count: >-
-            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {% from 'infrastructure_health.jinja' import scheduled_job_health %}
+            {% set health = (scheduled_job_health | as_function)(state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true), states('sensor.joanna_security_updates')) %}
             {{ health.get('issueCount', 0) | int(0) }}
           error_count: >-
-            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {% from 'infrastructure_health.jinja' import scheduled_job_health %}
+            {% set health = (scheduled_job_health | as_function)(state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true), states('sensor.joanna_security_updates')) %}
             {{ health.get('errorCount', 0) | int(0) }}
           warning_count: >-
-            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {% from 'infrastructure_health.jinja' import scheduled_job_health %}
+            {% set health = (scheduled_job_health | as_function)(state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true), states('sensor.joanna_security_updates')) %}
             {{ health.get('warningCount', 0) | int(0) }}
           summary: >-
-            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {% from 'infrastructure_health.jinja' import scheduled_job_health %}
+            {% set health = (scheduled_job_health | as_function)(state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true), states('sensor.joanna_security_updates')) %}
             {{ health.get('summary', 'Scheduled-job health unavailable') }}
           issues: >-
-            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {% from 'infrastructure_health.jinja' import scheduled_job_health %}
+            {% set health = (scheduled_job_health | as_function)(state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true), states('sensor.joanna_security_updates')) %}
             {{ health.get('issues', []) }}
           generated_at: >-
-            {% set health = state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true) %}
+            {% from 'infrastructure_health.jinja' import scheduled_job_health %}
+            {% set health = (scheduled_job_health | as_function)(state_attr('sensor.bearclaw_status_telemetry', 'scheduledJobsHealth') | default({}, true), states('sensor.joanna_security_updates')) %}
             {{ health.get('generatedAt') }}
 
       - name: Joanna OneNote Health

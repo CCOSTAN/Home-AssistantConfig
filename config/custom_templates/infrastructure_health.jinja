@@ -36,6 +36,37 @@
   }) %}
 {%- endmacro %}
 
+{% macro scheduled_job_health(health, security_status, returns) -%}
+  {# Private application maintenance has a dedicated Security & Updates surface.
+     Do not duplicate its advisory row; retain it if that surface is unavailable.
+     Errors, unrelated jobs and missing/truncated telemetry remain visible. #}
+  {% set raw = health.get('issues', []) if health is mapping else [] %}
+  {% set rows = raw | select('mapping') | list if raw is sequence and raw is not string and raw is not mapping else [] %}
+  {% set ns = namespace(rows=[], removed=0) %}
+  {% for row in rows %}
+    {% if row.get('id') == 'app_maintenance' and row.get('severity') == 'warning' and
+          security_status in ['review', 'needs_attention', 'coverage_unknown', 'waiting_vendor_patch'] %}
+      {% set ns.removed = ns.removed + 1 %}
+    {% else %}
+      {% set ns.rows = ns.rows + [row] %}
+    {% endif %}
+  {% endfor %}
+  {% if ns.removed %}
+    {% set errors = [health.get('errorCount', 0) | int(0), 1 if health.get('status') == 'error' else 0] | max %}
+    {% set count = [[health.get('issueCount', 0) | int(0), rows | count] | max - ns.removed, errors] | max %}
+    {% set warnings = [health.get('warningCount', 0) | int(0) - ns.removed, count - errors, 0] | max %}
+    {% set labels = ns.rows[:3] | map(attribute='label') | list %}
+    {% set remaining = [count - labels | count, 0] | max %}
+    {% set summary = 'No scheduled jobs need attention' if count == 0 else
+        count ~ ' scheduled job' ~ ('s' if count != 1 else '') ~ ' need' ~ ('' if count != 1 else 's') ~ ' attention: ' ~
+        (labels | join(', ') if labels else 'details unavailable') ~ (', +' ~ remaining ~ ' more' if remaining and labels else '') %}
+    {% do returns(dict(health, ok=count == 0, status='error' if errors else 'warning' if count else 'ok',
+        issueCount=count, errorCount=errors, warningCount=warnings, issues=ns.rows, summary=summary)) %}
+  {% else %}
+    {% do returns(health) %}
+  {% endif %}
+{%- endmacro %}
+
 {% macro scheduled_job_issues(returns) -%}
   {# One row per reported job; retain a visible fallback for missing/truncated telemetry. #}
   {% set entity_id = 'sensor.bearclaw_scheduled_job_health' %}

@@ -1131,6 +1131,7 @@ automation:
   - alias: "Docker Host Disk Pressure Monitor"
     id: docker_host_disk_pressure_monitor
     description: "Track Docker host root disk pressure from normalized Glances sensors and dispatch Joanna on band changes."
+    # Persist each pressure transition before requesting external remediation.
     mode: queued
     trigger:
       - platform: time_pattern
@@ -1199,7 +1200,13 @@ automation:
                         description: >-
                           {{ host_name }} root disk usage is critically high.
                           Free space or expand the host filesystem before Docker workloads fail.
+                    - service: input_text.set_value
+                      target:
+                        entity_id: "{{ band_entity }}"
+                      data:
+                        value: "critical"
                     - service: script.joanna_dispatch
+                      continue_on_error: true
                       data:
                         trigger_context: "HA automation docker_host_disk_pressure_monitor (Docker Host Disk Pressure Monitor - Critical)"
                         source: "home_assistant_automation.docker_host_disk_pressure_monitor.critical"
@@ -1230,18 +1237,19 @@ automation:
                         message: >-
                           {{ host_name }} disk usage is critical at {{ disk_pct | round(1) }}%.
                           Repair {{ issue_id }} opened and Joanna investigation requested.
-                    - service: input_text.set_value
-                      target:
-                        entity_id: "{{ band_entity }}"
-                      data:
-                        value: "critical"
                 - conditions: "{{ current_band == 'warning' and previous_band not in ['warning', 'critical'] }}"
                   sequence:
                     - service: repairs.remove
                       continue_on_error: true
                       data:
                         issue_id: "{{ issue_id }}"
+                    - service: input_text.set_value
+                      target:
+                        entity_id: "{{ band_entity }}"
+                      data:
+                        value: "warning"
                     - service: script.joanna_dispatch
+                      continue_on_error: true
                       data:
                         trigger_context: "HA automation docker_host_disk_pressure_monitor (Docker Host Disk Pressure Monitor - Warning)"
                         source: "home_assistant_automation.docker_host_disk_pressure_monitor.warning"
@@ -1272,11 +1280,6 @@ automation:
                         message: >-
                           {{ host_name }} disk usage warning at {{ disk_pct | round(1) }}%.
                           Joanna investigation requested without opening a warning Repair.
-                    - service: input_text.set_value
-                      target:
-                        entity_id: "{{ band_entity }}"
-                      data:
-                        value: "warning"
                 - conditions: "{{ current_band == 'warning' and previous_band == 'critical' }}"
                   sequence:
                     - service: repairs.remove
