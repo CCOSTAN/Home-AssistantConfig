@@ -37,7 +37,7 @@ Home, Mobile, and Systems show optional, unexpired appliance notices in a blue b
 
 ### What is in here
 - `resources.yaml`
-  - Lovelace JS resources used by custom cards (HACS and local resources).
+  - Marketplace card modules load from `/local/community/`. Locally maintained card modules load from `/local/`.
   - This is used when `lovelace.resource_mode: yaml` is enabled.
   - Card-mod is also preloaded through `frontend.extra_module_url` so nested kiosk cards receive their styles on cold loads. Keep both card-mod URLs identical and refresh their cache version together when the installed module changes.
 - `SCRATCHPAD.md`
