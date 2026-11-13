@@ -1,0 +1,225 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Downstairs HVAC - Bed-led cooling, durable overrides, verified commands
+#  One writer owns downstairs; upstairs remains in the shared legacy policy.
+# Notes: Nest learning and the stored schedule must both be disabled/cleared.
+# Notes: Physical changes have no reliable user context; compare confirmed
+#  command state after a settling window, never temperature/humidity telemetry.
+######################################################################
+
+capture_downstairs_hvac_override:
+  alias: Capture Downstairs HVAC Override
+  mode: queued
+  sequence:
+    - variables:
+        expected: "{{ states('input_text.downstairs_hvac_expected') | from_json({}) }}"
+        current_mode: "{{ states('climate.downstairs') }}"
+        current_preset: "{{ state_attr('climate.downstairs', 'preset_mode') }}"
+        current_target: "{{ state_attr('climate.downstairs', 'temperature') | float(none) }}"
+        phase: "{{ states('input_select.downstairs_hvac_period') }}"
+    - condition: template
+      value_template: >-
+        {% from 'downstairs_hvac.jinja' import downstairs_matches %}
+        {{ expected.get('confirmed', false) and
+           as_timestamp(now()) >= expected.get('settle_until', 0) and
+           not (downstairs_matches(expected) | from_json) and
+           (current_mode == 'off' or (current_mode == 'cool' and
+             (current_preset == 'eco' or current_target is not none))) }}
+    - variables:
+        override: >-
+          {{ dict(kind='off' if current_mode == 'off' else
+               ('eco' if current_preset == 'eco' else 'temperature'),
+               temperature=current_target, phase=phase) }}
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.downstairs_hvac_override
+      data:
+        value: "{{ override | to_json }}"
+    - action: script.send_to_logbook
+      data:
+        topic: CLIMATE
+        message: >-
+          Downstairs {{ override.kind }} override captured
+          (target={{ current_target }}F; {{ 'until resumed' if override.kind == 'off' else 'until bedtime, 08:00, or a Guest Mode change' }}).
+
+reconcile_downstairs_hvac:
+  alias: Reconcile Downstairs HVAC
+  description: Bed-led cool-only policy; preserve manual intent and verify every command.
+  mode: queued
+  max: 10
+  max_exceeded: silent
+  sequence:
+    - condition: state
+      entity_id: climate.downstairs
+      state: ['cool', 'off', 'heat', 'heat_cool']
+    - if: "{{ capture_override | default(true) }}"
+      then:
+        - action: script.capture_downstairs_hvac_override
+    - variables:
+        desired: >-
+          {% from 'downstairs_hvac.jinja' import downstairs_policy %}
+          {{ downstairs_policy() | from_json }}
+        expected: "{{ states('input_text.downstairs_hvac_expected') | from_json({}) }}"
+    - condition: template
+      value_template: "{{ desired.valid }}"
+    - variables:
+        matched: >-
+          {% from 'downstairs_hvac.jinja' import downstairs_matches %}
+          {{ downstairs_matches(desired) | from_json }}
+        command: >-
+          {{ dict(mode=desired.mode, preset=desired.preset,
+             temperature=desired.temperature, reason=desired.reason) }}
+    - if:
+        - condition: template
+          value_template: "{{ matched }}"
+      then:
+        - if:
+            - condition: template
+              value_template: >-
+                {{ not expected.get('confirmed', false) or
+                   expected.get('mode') != desired.mode or
+                   expected.get('preset') != desired.preset or
+                   expected.get('temperature') != desired.temperature or
+                   expected.get('reason') != desired.reason }}
+          then:
+            - action: input_text.set_value
+              target:
+                entity_id: input_text.downstairs_hvac_expected
+              data:
+                value: "{{ dict(command, confirmed=true, settle_until=0) | to_json }}"
+        - stop: Downstairs already matches the current policy.
+    - condition: template
+      value_template: >-
+        {{ as_timestamp(now()) >= expected.get('settle_until', 0)
+           or desired.mode == 'off' }}
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.downstairs_hvac_expected
+      data:
+        value: "{{ dict(command, confirmed=false, settle_until=as_timestamp(now()) + 90) | to_json }}"
+    - choose:
+        - conditions: "{{ desired.mode == 'off' }}"
+          sequence:
+            - action: climate.turn_off
+              target:
+                entity_id: climate.downstairs
+      default:
+        - if:
+            - condition: template
+              value_template: "{{ not is_state('climate.downstairs', 'cool') }}"
+          then:
+            - action: climate.set_hvac_mode
+              target:
+                entity_id: climate.downstairs
+              data:
+                hvac_mode: cool
+            - wait_template: "{{ is_state('climate.downstairs', 'cool') }}"
+              timeout: "00:00:20"
+              continue_on_timeout: false
+        - if:
+            - condition: template
+              value_template: "{{ state_attr('climate.downstairs', 'preset_mode') != desired.preset }}"
+          then:
+            - action: climate.set_preset_mode
+              target:
+                entity_id: climate.downstairs
+              data:
+                preset_mode: "{{ desired.preset }}"
+        - if:
+            - condition: template
+              value_template: "{{ desired.preset == 'none' }}"
+          then:
+            - wait_template: "{{ state_attr('climate.downstairs', 'preset_mode') == 'none' }}"
+              timeout: "00:00:20"
+              continue_on_timeout: false
+            - if:
+                - condition: template
+                  value_template: "{{ state_attr('climate.downstairs', 'temperature') | float(none) != desired.temperature }}"
+              then:
+                - action: climate.set_temperature
+                  target:
+                    entity_id: climate.downstairs
+                  data:
+                    temperature: "{{ desired.temperature }}"
+    - wait_template: >-
+        {% from 'downstairs_hvac.jinja' import downstairs_matches %}
+        {{ downstairs_matches(desired) | from_json }}
+      timeout: "00:00:30"
+      continue_on_timeout: true
+    - variables:
+        verified: >-
+          {% from 'downstairs_hvac.jinja' import downstairs_matches %}
+          {{ downstairs_matches(desired) | from_json }}
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.downstairs_hvac_expected
+      data:
+        value: "{{ dict(command, confirmed=verified, settle_until=as_timestamp(now()) + (15 if verified else 120)) | to_json }}"
+    - action: script.send_to_logbook
+      data:
+        topic: CLIMATE
+        message: >-
+          Downstairs {{ 'verified' if verified else 'NOT CONFIRMED; will retry after settling' }}:
+          {{ desired.mode }}/{{ desired.preset }}, target={{ desired.temperature }}F
+          ({{ desired.reason }}).
+
+resume_downstairs_hvac_schedule:
+  alias: Resume Downstairs HVAC Schedule
+  description: Clear the manual hold and apply the current bed/presence policy.
+  mode: single
+  sequence:
+    - action: input_text.set_value
+      target:
+        entity_id:
+          - input_text.downstairs_hvac_override
+          - input_text.downstairs_hvac_expected
+      data:
+        value: "{}"
+    - action: script.reconcile_downstairs_hvac
+
+set_downstairs_hvac_period:
+  alias: Set Downstairs HVAC Bed Period
+  mode: queued
+  fields:
+    period:
+      description: Day at 08:00, or sleep after both sides are occupied.
+      selector:
+        select:
+          options: [day, sleep]
+    reset_hold:
+      description: Reset at the morning or guest boundary even if the bed period is unchanged.
+      selector:
+        boolean:
+  sequence:
+    - condition: template
+      value_template: "{{ period in ['day', 'sleep'] and (states('input_select.downstairs_hvac_period') != period or reset_hold | default(false)) }}"
+    - action: script.capture_downstairs_hvac_override
+    - variables:
+        hold: "{{ states('input_text.downstairs_hvac_override') | from_json({}) }}"
+    - if:
+        - condition: template
+          value_template: "{{ hold.get('kind') != 'off' }}"
+      then:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.downstairs_hvac_override
+          data:
+            value: "{}"
+    - action: input_select.select_option
+      target:
+        entity_id: input_select.downstairs_hvac_period
+      data:
+        option: "{{ period }}"
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.downstairs_hvac_next_wake
+      data:
+        datetime: >-
+          {% set morning = today_at('08:00') %}
+          {{ (morning if now() < morning else morning + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S') }}
+    - action: script.reconcile_downstairs_hvac
+      data:
+        capture_override: false

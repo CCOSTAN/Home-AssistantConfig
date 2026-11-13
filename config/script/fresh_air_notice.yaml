@@ -1,0 +1,99 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Fresh Air Notice - One daily advisory across phones and household screens
+#  Never changes HVAC, windows, or security state.
+# -------------------------------------------------------------------
+# Notes: One restoring timestamp reserves the daily send before fan-out.
+#  Qualifying conditions can issue a notice while downstairs is idle or cooling.
+#  The active helper tracks the notice lifecycle, not physical air quality.
+#  A stable tag replaces old pushes; clear commands also remove kiosk copies.
+######################################################################
+
+clear_fresh_air_notice:
+  alias: Clear Fresh Air Notice
+  mode: queued
+  sequence:
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.fresh_air_notice_active
+    - action: notify.ios_parents
+      continue_on_error: true
+      data:
+        message: clear_notification
+        data:
+          tag: fresh_air_opportunity
+          group: fresh_air
+    - action: persistent_notification.dismiss
+      data:
+        notification_id: fresh_air_opportunity
+
+reconcile_fresh_air_notice:
+  alias: Reconcile Fresh Air Notice
+  mode: single
+  max_exceeded: silent
+  sequence:
+    - variables:
+        assessment: >-
+          {% from 'fresh_air.jinja' import fresh_air_conditions %}
+          {{ fresh_air_conditions() | from_json }}
+        active: "{{ is_state('input_boolean.fresh_air_notice_active', 'on') }}"
+        sent_today: "{{ states('input_datetime.fresh_air_last_notified')[:10] == now().strftime('%Y-%m-%d') }}"
+    - choose:
+        - conditions: "{{ active and (not assessment.get('eligible', false) or not sent_today) }}"
+          sequence:
+            - action: script.clear_fresh_air_notice
+            - action: script.send_to_logbook
+              data:
+                topic: CLIMATE
+                message: "Fresh-air reminder cleared ({{ assessment.get('blocked', ['data unavailable']) | join(', ') if sent_today else 'previous day' }})."
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.text_notifications
+              state: 'on'
+            - condition: template
+              value_template: >-
+                {{ assessment.eligible and not sent_today and is_state('climate.downstairs', 'cool')
+                   and state_attr('climate.downstairs', 'hvac_action') in ['idle', 'cooling'] }}
+          sequence:
+            # Reserve first: a restart or failed delivery must not duplicate today's push.
+            - action: input_datetime.set_datetime
+              target:
+                entity_id: input_datetime.fresh_air_last_notified
+              data:
+                timestamp: "{{ as_timestamp(now()) }}"
+            - action: script.clear_fresh_air_notice
+            - action: input_boolean.turn_on
+              target:
+                entity_id: input_boolean.fresh_air_notice_active
+            - variables:
+                message: >-
+                  {% from 'fresh_air.jinja' import fresh_air_message %}
+                  {{ fresh_air_message(assessment) | trim }}
+            - action: persistent_notification.create
+              data:
+                notification_id: fresh_air_opportunity
+                title: Good weather for fresh air
+                message: "{{ message }}"
+            - action: script.notify_engine
+              continue_on_error: true
+              data:
+                who: parents
+                title: Good weather for fresh air
+                value1: "{{ message }}"
+                group: fresh_air
+                tag: fresh_air_opportunity
+                level: passive
+                notification_icon: mdi:currency-usd
+                color: '#00897B'
+                url: /?more-info-entity-id=binary_sensor.fresh_air_window_opportunity
+            - action: script.send_to_logbook
+              data:
+                topic: CLIMATE
+                message: >-
+                  Fresh-air reminder issued to Carlo/Stacey and household screens:
+                  inside={{ assessment.inside_f }}F/{{ assessment.indoor_humidity }}%,
+                  outside={{ assessment.outside_f }}F, dew points={{ assessment.indoor_dew_point_f }}/{{ assessment.outdoor_dew_point_f }}F,
+                  Airly CAQI={{ assessment.airly_caqi }}. Daily allowance reserved.

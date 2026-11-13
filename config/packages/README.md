@@ -100,9 +100,10 @@ The kiosk package also exposes `sensor.kiosk_recent_phone_notifications`: a rest
 ![Garadget Automation](../www/custom_ui/floorplan/images/branding/Garadget%20Automation.png)
 
 ### Nest climate control
-- Logic lives in [![YAML source: climate](https://img.shields.io/static/v1?label=YAML&message=climate&color=lightgrey&logo=github&logoColor=181717)](climate.yaml) and centralizes downstairs/upstairs Nest schedules, grid-aware guardrails, humidity pulses, and presence/weather-based targets.
-- The HVAC maintenance walkthrough covers the runtime counters, filter reset scripts, dashboard cards, and 360-day condenser-line reminder: [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/nScl2JxYSB8).
-- Shared script keeps daytime targets consistent: away -> eco, home + outside >90F -> 78F, home + outside <=90F -> 80F. Daytime weather crossings must remain above or below 90F for one hour before changing the target. Downstairs bedtime cooling stays dynamic: outside >80F -> 77F, 76-79F -> 79F, below 76F -> leave the current target alone. Grid-down conditions pause non-essential cool-downs.
+- [Climate package](climate.yaml) manages the downstairs cooling schedule, presence, guest mode, and runtime-based HVAC maintenance. The upstairs thermostat retains its existing controls.
+- Downstairs normally targets 80F from 8:00 a.m. and 77F after both beds have been occupied for six minutes overnight. Guest mode targets 76F; a sustained absence selects Eco. Manual adjustments are respected, including manual Off. The [controller](../script/downstairs_hvac.yaml) and [policy macros](../custom_templates/downstairs_hvac.jinja) contain the details and safety checks.
+- Fresh-air suggestions consider the indoor and outdoor conditions, Airly CAQI, weather, presence, and door contacts. They can appear while cooling is idle or running, with at most one phone notice per day. See the [eligibility rules](../custom_templates/fresh_air.jinja), [notice lifecycle](../script/fresh_air_notice.yaml), and [HVAC dashboard](../dashboards/infrastructure/partials/hvac_sections.yaml). Adapt entities and thresholds to your own home.
+- Filter reminders use runtime hours and a maximum age, with separate thresholds for each system. The [maintenance walkthrough](https://youtu.be/nScl2JxYSB8) covers counters, reset scripts and dashboard cards.
 ![Nest Climate Control](../www/custom_ui/floorplan/images/branding/Nest_Climate_Control.png)
 
 ### Dreame vacuum automations
