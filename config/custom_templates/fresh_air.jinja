@@ -1,0 +1,77 @@
+{# Advisory only. Weather uses Pirate Weather and air quality uses Airly CAQI.
+   The dew-point comparison avoids recommending cool but moisture-laden air. #}
+{% macro fresh_air_sunset() -%}
+  {% set sunset = as_datetime(state_attr('sun.sun', 'next_setting'), none) %}
+  {{ as_timestamp(sunset) if is_state('sun.sun', 'above_horizon') and sunset is not none
+       and as_local(sunset).date() == now().date() and sunset > now() else 0 }}
+{%- endmacro %}
+
+{% macro fresh_air_conditions() -%}
+  {% set inside = state_attr('climate.downstairs', 'current_temperature') | float(none) %}
+  {% set target = state_attr('climate.downstairs', 'temperature') | float(none) %}
+  {% set humidity = state_attr('climate.downstairs', 'current_humidity') | float(none) %}
+  {% set outside = states('sensor.pirateweather_temperature') | float(none) %}
+  {% set outside_dew = state_attr('weather.pirateweather', 'dew_point') | float(none) %}
+  {% set airly = states.sensor.bear_stone_common_air_quality_index %}
+  {% set caqi = airly.state | float(none) if airly is not none else none %}
+  {% set rain = states('sensor.pirateweather_precip_intensity') | float(none) %}
+  {% set rain_chance = states('sensor.pirateweather_precip_probability') | float(none) %}
+  {% set gust = states('sensor.pirateweather_wind_gust') | float(none) %}
+  {% set alerts = states('sensor.pirateweather_alerts') | int(-1) %}
+  {% set values_valid = inside is not none and 40 <= inside <= 110
+       and humidity is not none and 0 < humidity <= 100
+       and outside is not none and -80 <= outside <= 140 and outside_dew is not none
+       and rain is not none and rain_chance is not none and gust is not none and alerts >= 0
+       and has_value('climate.downstairs') and has_value('weather.pirateweather')
+       and state_attr('climate.downstairs', 'temperature_unit') == '\u00b0F'
+       and state_attr('weather.pirateweather', 'temperature_unit') == '\u00b0F' %}
+  {% set inside_dew = none %}
+  {% if values_valid %}
+    {% set celsius = (inside - 32) * 5 / 9 %}
+    {% set gamma = log(humidity / 100) + 17.625 * celsius / (243.04 + celsius) %}
+    {% set inside_dew = (243.04 * gamma / (17.625 - gamma)) * 9 / 5 + 32 %}
+  {% endif %}
+  {% set weather = states.weather.pirateweather %}
+  {% set climate = states.climate.downstairs %}
+  {% set fresh = values_valid and weather is not none and climate is not none
+       and 0 <= as_timestamp(now()) - as_timestamp(weather.last_reported) <= 3600
+       and 0 <= as_timestamp(now()) - as_timestamp(climate.last_reported) <= 7200 %}
+  {% set daytime = fresh_air_sunset() | float(0) > 0 %}
+  {% set home = is_state('person.carlo', 'home') or is_state('person.stacey', 'home') %}
+  {% set awake = is_state('binary_sensor.sleepnumber_carlo_carlo_is_in_bed', 'off')
+       and is_state('binary_sensor.sleepnumber_carlo_stacey_is_in_bed', 'off') %}
+  {% set slider_closed = is_state('binary_sensor.mcu2_gpio12', 'off') %}
+  {% set entries = expand('group.entry_points') | list %}
+  {% set closed = is_state('group.entry_points', 'off') and entries | count > 0
+       and entries | rejectattr('state', 'eq', 'off') | list | count == 0 %}
+  {% set guests_off = is_state('input_boolean.guest_mode', 'off') %}
+  {% set temperatures = fresh and is_number(target) and outside <= 76
+       and inside - outside >= 2 and target - outside >= 1 %}
+  {% set dry = fresh and outside_dew <= 60 and outside_dew <= inside_dew - 2 %}
+  {% set weather_ok = fresh and 0 <= rain == 0 and 0 <= rain_chance <= 20 and 0 <= gust <= 20
+       and alerts == 0 and states('weather.pirateweather') in ['sunny', 'partlycloudy', 'cloudy'] %}
+  {% set air_ok = airly is not none and caqi is not none and 0 <= caqi <= 25
+       and airly.attributes.get('unit_of_measurement') == 'CAQI'
+       and 0 <= as_timestamp(now()) - as_timestamp(airly.last_reported) <= 7200 %}
+  {% set checks = dict(data_fresh=fresh, daytime=daytime, home=home, awake=awake,
+       slider_closed=slider_closed, windows_closed=closed, guest_mode_off=guests_off, temperatures=temperatures,
+       drier_outside=dry, weather=weather_ok, air_quality=air_ok) %}
+  {% set ns = namespace(blocked=[]) %}
+  {% for name, passes in checks.items() %}
+    {% if not passes %}{% set ns.blocked = ns.blocked + [name] %}{% endif %}
+  {% endfor %}
+  {{ dict(eligible=ns.blocked | count == 0, blocked=ns.blocked,
+       inside_f=inside, target_f=target if is_number(target) else none, indoor_humidity=humidity, outside_f=outside,
+       indoor_dew_point_f=inside_dew | round(1) if inside_dew is not none else none,
+       outdoor_dew_point_f=outside_dew, airly_caqi=caqi) | to_json }}
+{%- endmacro %}
+
+{% macro fresh_air_message(reading=none) -%}
+  {% set reading = reading if reading is not none else state_attr('binary_sensor.fresh_air_window_opportunity', 'assessment') %}
+  {% if reading is mapping and reading.get('inside_f') is number and reading.get('outside_f') is number %}
+    {{ reading.inside_f | round(0) | int }}F inside, {{ reading.outside_f | round(0) | int }}F outside.
+    Consider opening the main sliding door for cooler, drier air.
+  {% else %}
+    Fresh-air opportunity details are updating.
+  {% endif %}
+{%- endmacro %}

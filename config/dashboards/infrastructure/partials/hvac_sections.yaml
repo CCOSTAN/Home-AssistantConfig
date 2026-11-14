@@ -3,12 +3,14 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Systems HVAC Partial - Maintenance overview and details
-#  Production HVAC maintenance, completion history, and reset access.
+# Systems HVAC Partial - Maintenance and downstairs cooling plan
+#  Live schedule context, cooling rules, maintenance history, and reset access.
 # -------------------------------------------------------------------
 # Related Issue: 1817
 # Notes: Downstairs filter maintenance is due at 550 runtime hours; upstairs remains 450 hours.
 # Notes: Reset actions reuse the existing HVAC maintenance scripts; no staging helpers are introduced.
+# Notes: Read-only schedule cards document the climate package; live context imports its policy macro.
+# Notes: Daily cooling bars use changes in the cumulative runtime statistic, integrated in hours; today's bar is partial.
 ######################################################################
 
 - type: grid
@@ -39,6 +41,14 @@
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/home
+
+    # Maintenance remains the primary HVAC dashboard content.
+    - type: custom:button-card
+      template: bearstone_infra_panel_header_icon
+      name: Maintenance
+      icon: mdi:tools
+      view_layout:
+        grid-column: 1 / -1
 
     - type: custom:button-card
       template: bearstone_infra_status_kpi
@@ -260,3 +270,154 @@
         tap_action:
           action: more-info
           entity: script.reset_hvac_condenser_lines_cleaned
+
+# Informational cooling plan follows maintenance and completion details.
+- type: grid
+  column_span: 4
+  columns: 1
+  square: false
+  cards:
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+      grid-template-areas: |
+        "heading heading heading heading"
+        "current day bedtime guests"
+        "runtime runtime plan plan"
+      grid-auto-flow: row
+      grid-auto-rows: min-content
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 900px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
+          grid-template-areas: |
+            "heading heading"
+            "current day"
+            "runtime runtime"
+            "bedtime guests"
+            "plan plan"
+    cards:
+    # Downstairs schedule: short values use existing shared KPI templates.
+    - type: custom:button-card
+      template: bearstone_infra_panel_header_icon
+      name: Downstairs Cooling Plan
+      icon: mdi:calendar-clock
+      view_layout:
+        grid-area: heading
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: climate.downstairs
+      name: Current Target
+      icon: mdi:thermostat
+      view_layout:
+        grid-area: current
+      state_display: >
+        [[[
+          if (!entity || ['unknown', 'unavailable'].includes(entity.state)) return 'UNAVAILABLE';
+          if (entity.state === 'off') return 'OFF';
+          if (entity.attributes.preset_mode === 'eco') return 'ECO';
+          const target = entity.attributes.temperature;
+          return typeof target === 'number' ? `${target}\u00b0F` : 'NO TARGET';
+        ]]]
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      name: 8 AM Every Day
+      icon: mdi:weather-sunny
+      view_layout:
+        grid-area: day
+      state_display: "80\u00b0F"
+      tap_action:
+        action: none
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      name: Bedtime - 6 Min
+      icon: mdi:bed
+      view_layout:
+        grid-area: bedtime
+      state_display: "77\u00b0F"
+      tap_action:
+        action: none
+
+    - type: custom:button-card
+      template: bearstone_infra_kpi
+      entity: input_boolean.guest_mode
+      name: Guest Mode
+      icon: mdi:account-group
+      view_layout:
+        grid-area: guests
+      state_display: >
+        [[[ return entity?.state === 'on' ? '76\u00b0F - ACTIVE' : '76\u00b0F WHEN ON'; ]]]
+
+    # Fallback: Core statistics-graph provides calendar-day changes from the
+    # existing sum statistic; mini-graph-card uses raw history instead.
+    # Runtime has no stored unit label, but its source integrates 0/1 with unit_time: h.
+    - type: statistics-graph
+      title: Daily Cooling Hours - 30 Days
+      view_layout:
+        grid-area: runtime
+      chart_type: bar
+      days_to_show: 30
+      period: day
+      stat_types:
+      - change
+      min_y_axis: 0
+      entities:
+      - entity: sensor.downstairs_ac_runtime_raw
+        name: Cooling hours
+
+    # Fallback: Markdown wraps policy explanations and renders the existing
+    # controller macro; KPI/list templates cannot safely fit this much text.
+    - type: markdown
+      view_layout:
+        grid-area: plan
+      content: >-
+        {% from 'downstairs_hvac.jinja' import downstairs_policy %}
+        {% set plan = downstairs_policy() | from_json %}
+        {% set labels = {'day schedule': 'Daytime schedule', 'sleep schedule': 'Bedtime schedule',
+          'guest mode': 'Guest Mode', 'family away': 'Away Eco', 'manual temperature': 'Manual temperature hold',
+          'manual eco': 'Manual Eco hold', 'manual off': 'Manually switched off',
+          'grid outage': 'Grid outage protection', 'entry open': 'Open-door/window protection'} %}
+        {% set climate_ok = has_value('climate.downstairs') %}
+        {% set action = state_attr('climate.downstairs', 'hvac_action') %}
+        **Current plan:** {{ labels.get(plan.reason, plan.reason | capitalize) if climate_ok else 'Thermostat unavailable' }}.
+        {% if not plan.valid %}Waiting for reliable sensors or the protection delay.{% endif %}
+        {% if climate_ok and action in ['cooling', 'idle', 'off'] %}
+        {{ {'cooling': 'Cooling now.', 'idle': 'Cooling is idle.', 'off': 'System is off.'}[action] }}
+        {% endif %}
+
+
+        **Next routine change:**
+        {% if plan.phase == 'day' %}
+        77&#176;F after both beds are occupied for 6 minutes, from sunset until 8:00 a.m.
+        {% elif plan.phase == 'sleep' %}
+        80&#176;F at 8:00 a.m., even if you are still in bed.
+        {% else %}
+        Waiting for the day/bedtime period.
+        {% endif %}
+        Guest Mode, manual holds, Eco and protections can take priority.
+
+
+        - **Daily rhythm:** 80&#176;F from 8:00 a.m. until bedtime; 77&#176;F overnight.
+          Getting out of bed does not change the target. Cooling only; no heating.
+
+        - **Guests and away:** Guest Mode selects 76&#176;F and prevents away Eco.
+          With guests off, 10 minutes with the family away selects Eco.
+          Returning home restores the current period or a valid manual hold.
+
+        - **Your dial adjustments:** Temperature and Eco holds last until bedtime, 8:00 a.m.,
+          a Guest Mode change, or Resume Schedule. Manual Off stays off until you turn cooling
+          back on or resume. Guest changes clear temperature/Eco holds; you can still adjust during a party.
+
+        - **Openings and power:** Open doors/windows pause cooling after 5 minutes;
+          closing them allows recovery after 5 minutes. Grid outages pause after 6 minutes,
+          with recovery after 10 minutes of stable grid power.
+
+        Cooling history shows hours per day; today is still in progress.
+        Home Assistant owns this downstairs plan. Upstairs keeps its existing controls.

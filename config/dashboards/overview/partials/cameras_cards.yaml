@@ -15,11 +15,31 @@
   frigate_client_id: frigate
   cameras: !include /config/dashboards/overview/partials/frigate_camera_names.yaml
   review_clips: true
-  review_zones:
-    - zone: doorstep
+  review_filters:
+    - id: doorstep
+      zone: doorstep
       name: Doorstep visits
       camera: frontdoorbell
       label: person
+    - id: wildlife
+      name: Wildlife
+      labels: [bear, cat, dog, mouse]
+      # Reviewed Filter Gate foliage; events remain available in Frigate.
+      exclude_event_ids:
+        - 1794110100.369744-4v8r8v
+        - 1793688637.393208-joy9o4
+        - 1793668591.455129-indbun
+        - 1793661180.174259-einnvh
+        - 1793623769.671395-r3qb7m
+        - 1793623252.310532-1z6pqj
+        - 1793618529.045134-o8mury
+        - 1793525187.832109-g73mpj
+        - 1793524079.790763-z2ju33
+        - 1793502246.406711-y14cim
+        - 1793498992.596638-chd1nz
+        - 1793370911.765409-nxq7j1
+        - 1793355960.890109-zr5nh1
+        - 1793284757.455674-zdqmm8
   show_timeline: true
   timeline_on_click: true
   video: true

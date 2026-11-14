@@ -27,7 +27,6 @@
 # Notes: The Mini App incident latch survives restarts to avoid duplicate outage notifications; recovery clears its owned Repair.
 # Notes: the existing OneNote health entity reports account-owned indexer health.
 # Notes: Status telemetry exposes user-keyed step trends for Health and personal records for briefings and kiosks.
-# Notes: Status telemetry exposes 48-hour Carlo/Stacey bowling highlights for the Kitchen Show rotation.
 # Notes: Family agenda is a filtered read-only list for kiosks; guest/vacation modes hide the TV page.
 # Notes: Retired QMD health telemetry is no longer imported or materialized in Home Assistant.
 # Notes: TeslaMate road-trip walkthrough: https://youtu.be/9-9T6v17NEw
@@ -62,6 +61,9 @@ input_boolean:
     icon: mdi:web-cancel
 
 rest_command:
+  bearclaw_security_updates_check:
+    url: !secret bearclaw_security_updates_check_url
+    method: post
   bearclaw_command:
     url: !secret bearclaw_command_url
     method: post
@@ -186,7 +188,6 @@ sensor:
       - memoryIndex
       - oneNoteIndexers
       - healthInsights
-      - bowlingHighlights
       - familyAgenda
       - scheduledJobsHealth
       - securityUpdates

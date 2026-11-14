@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Boot report for APT-managed hosts.
-# Reuses the registered apt_weekly webhook and retries while Home Assistant starts.
-# docker_10 hosts Home Assistant, so it confirms delivery after HA finishes loading.
+# Reuses the registered apt_weekly webhook; a timer reconciles after HA restarts.
+# This reports only reboot state and never replaces package results.
 
 WEBHOOK_SOURCE="${1:-}"
 HOST_NAME="${2:-$(hostname -s)}"
@@ -29,22 +29,12 @@ if [[ -z "$WEBHOOK_URL" ]]; then
   exit 1
 fi
 
-REBOOT_REQUIRED=false
-if [[ -f /var/run/reboot-required ]]; then
-  REBOOT_REQUIRED=true
-fi
-
-payload=$(cat <<JSON
-{
-  "event": "boot_report",
-  "host": "${HOST_NAME}",
-  "reboot_required": $( $REBOOT_REQUIRED && echo true || echo false )
-}
-JSON
-)
-
 post_report() {
   local retry_max_time="$1"
+  local reboot_required=false
+  [[ ! -f /var/run/reboot-required ]] || reboot_required=true
+  local payload
+  payload="{\"event\":\"reboot_status\",\"host\":\"${HOST_NAME}\",\"reboot_required\":${reboot_required},\"observed_at\":$(date +%s)}"
 
   curl --fail --silent --show-error \
     --connect-timeout 5 \
@@ -61,15 +51,3 @@ post_report() {
 }
 
 post_report 300
-
-if [[ "$HOST_NAME" == "docker_10" ]]; then
-  CONFIRM_DELAY_SECONDS="${APT_BOOT_REPORT_CONFIRM_DELAY_SECONDS:-120}"
-  if ! [[ "$CONFIRM_DELAY_SECONDS" =~ ^[0-9]+$ ]]; then
-    echo "APT_BOOT_REPORT_CONFIRM_DELAY_SECONDS must be a non-negative integer" >&2
-    exit 1
-  fi
-
-  echo "Waiting ${CONFIRM_DELAY_SECONDS}s for Home Assistant startup before confirming boot status."
-  sleep "$CONFIRM_DELAY_SECONDS"
-  post_report 120
-fi

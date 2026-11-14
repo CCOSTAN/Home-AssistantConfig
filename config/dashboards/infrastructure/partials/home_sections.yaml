@@ -11,7 +11,7 @@
 # Notes: DNS and external-monitoring faults roll up under Network instead of duplicating it.
 # Notes: Network trend panels live on Network so Overview stays focused on broad house status.
 # Notes: Power & Solar shows realtime flow; accumulated history remains in Energy.
-# Notes: Scheduled Proxmox, Docker host, and HVAC maintenance plus sustained WAN quality/reset warnings render amber; critical conditions remain red.
+# Notes: Scheduled host updates stay informational on the detail views. Action-required maintenance renders amber.
 # Notes: Active Issue rows enumerate actionable faults and maintenance; optional notices stay in the blue banner.
 # Notes: Scheduled-job warnings/errors appear individually, using the same rows as Joanna and the Systems count.
 # Notes: Water and Systems surface normalized Rheem faults; telemetry-only loss renders amber.
@@ -61,7 +61,7 @@
       template: bearstone_infra_status_kpi
       entity: binary_sensor.home_water_problem
       name: Water
-      icon: mdi:shield-water-outline
+      icon: mdi:water
       variables:
         ok_state: 'off'
         healthy_text: CLEAR
@@ -80,7 +80,7 @@
       template: bearstone_infra_status_kpi
       entity: binary_sensor.hvac_maintenance_due
       name: HVAC
-      icon: mdi:hvac
+      icon: mdi:weather-windy
       variables:
         ok_state: 'off'
         healthy_text: CLEAR
@@ -144,11 +144,6 @@
       icon: mdi:server-network
       variables:
         ok_state: 'off'
-        warning_text: MAINTENANCE
-        warning_entity_ids:
-        - binary_sensor.node_proxmox1_updates_packages
-        - binary_sensor.node_proxmox02_updates_packages
-        - binary_sensor.node_proxmox03_updates_packages
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/proxmox
@@ -621,84 +616,6 @@
 
       - type: custom:button-card
         template: bearstone_infra_alert_row
-        entity: binary_sensor.node_proxmox1_updates_packages
-        name: Proxmox01 maintenance pending
-        icon: mdi:package-up
-        variables:
-          alert_kind: binary_on
-          warning_only: true
-          exception_detail: >
-            [[[
-              const count = Number.parseInt(states['sensor.node_proxmox1_total_updates']?.state, 10);
-              const countText = Number.isFinite(count)
-                ? `${count} PKG${count === 1 ? '' : 'S'}`
-                : 'PACKAGE COUNT UNKNOWN';
-              const next = new Date();
-              next.setHours(2, 15, 0, 0);
-              if (next <= new Date()) next.setDate(next.getDate() + 1);
-              const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
-              const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
-              return `${countText} Â· NEXT CHECK ${dateText} ${timeText}`;
-            ]]]
-        state_display: '[[[ return "SCHEDULED"; ]]]'
-        tap_action:
-          action: navigate
-          navigation_path: /dashboard-infrastructure/proxmox
-
-      - type: custom:button-card
-        template: bearstone_infra_alert_row
-        entity: binary_sensor.node_proxmox02_updates_packages
-        name: Proxmox02 maintenance pending
-        icon: mdi:package-up
-        variables:
-          alert_kind: binary_on
-          warning_only: true
-          exception_detail: >
-            [[[
-              const count = Number.parseInt(states['sensor.node_proxmox02_total_updates']?.state, 10);
-              const countText = Number.isFinite(count)
-                ? `${count} PKG${count === 1 ? '' : 'S'}`
-                : 'PACKAGE COUNT UNKNOWN';
-              const next = new Date();
-              next.setHours(2, 15, 0, 0);
-              if (next <= new Date()) next.setDate(next.getDate() + 1);
-              const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
-              const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
-              return `${countText} Â· NEXT CHECK ${dateText} ${timeText}`;
-            ]]]
-        state_display: '[[[ return "SCHEDULED"; ]]]'
-        tap_action:
-          action: navigate
-          navigation_path: /dashboard-infrastructure/proxmox
-
-      - type: custom:button-card
-        template: bearstone_infra_alert_row
-        entity: binary_sensor.node_proxmox03_updates_packages
-        name: Proxmox03 maintenance pending
-        icon: mdi:package-up
-        variables:
-          alert_kind: binary_on
-          warning_only: true
-          exception_detail: >
-            [[[
-              const count = Number.parseInt(states['sensor.node_proxmox03_total_updates']?.state, 10);
-              const countText = Number.isFinite(count)
-                ? `${count} PKG${count === 1 ? '' : 'S'}`
-                : 'PACKAGE COUNT UNKNOWN';
-              const next = new Date();
-              next.setHours(2, 15, 0, 0);
-              if (next <= new Date()) next.setDate(next.getDate() + 1);
-              const dateText = next.toLocaleDateString(undefined, {month: 'short', day: 'numeric'}).toUpperCase();
-              const timeText = next.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
-              return `${countText} Â· NEXT CHECK ${dateText} ${timeText}`;
-            ]]]
-        state_display: '[[[ return "SCHEDULED"; ]]]'
-        tap_action:
-          action: navigate
-          navigation_path: /dashboard-infrastructure/proxmox
-
-      - type: custom:button-card
-        template: bearstone_infra_alert_row
         entity: binary_sensor.docker_host_maintenance_attention
         name: Docker host maintenance needs attention
         icon: mdi:package-up
@@ -707,41 +624,14 @@
           warning_only: true
           exception_detail: >
             [[[
-              const hosts = [
-                ['docker_10', 'sensor.docker_10_apt_status'],
-                ['docker_13', 'sensor.docker_13_apt_status'],
-                ['docker_14', 'sensor.docker_14_apt_status'],
-                ['docker_17', 'sensor.docker_17_apt_status'],
-                ['docker_69', 'sensor.docker_69_apt_status'],
-              ];
-              const needsAttention = (raw) => {
-                const status = String(raw ?? '').toUpperCase();
-                return ['UNKNOWN', 'UNAVAILABLE', 'NONE', ''].includes(status)
-                  || status.includes('PENDING')
-                  || status.includes('REBOOT REQ')
-                  || status.startsWith('ERROR');
-              };
-              return hosts
-                .filter(([, id]) => needsAttention(states[id]?.state))
-                .map(([host, id]) => `${host} ${String(states[id]?.state ?? 'unknown').toUpperCase()}`)
-                .join(' Â· ');
+              const hosts = entity?.attributes?.attention_hosts ?? [];
+              return hosts.map((host) =>
+                `${host} ${String(states[`sensor.${host}_apt_status`]?.state ?? 'unknown').toUpperCase()}`
+              ).join(' · ');
             ]]]
         state_display: >
           [[[
-            const ids = [
-              'sensor.docker_10_apt_status',
-              'sensor.docker_13_apt_status',
-              'sensor.docker_14_apt_status',
-              'sensor.docker_17_apt_status',
-              'sensor.docker_69_apt_status',
-            ];
-            const count = ids.filter((id) => {
-              const status = String(states[id]?.state ?? '').toUpperCase();
-              return ['UNKNOWN', 'UNAVAILABLE', 'NONE', ''].includes(status)
-                || status.includes('PENDING')
-                || status.includes('REBOOT REQ')
-                || status.startsWith('ERROR');
-            }).length;
+            const count = entity?.attributes?.attention_hosts?.length ?? 0;
             return `${count} HOST${count === 1 ? '' : 'S'}`;
           ]]]
         tap_action:

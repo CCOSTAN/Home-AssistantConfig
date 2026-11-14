@@ -95,6 +95,20 @@
   {% do returns(ns.issues) %}
 {%- endmacro %}
 
+{% macro docker_maintenance_attention_hosts(returns) -%}
+  {% set report_deadline = as_timestamp(now()) - 4 * 3600 %}
+  {% set ns = namespace(hosts=[]) %}
+  {% for host in ['docker_10', 'docker_13', 'docker_14', 'docker_17', 'docker_69'] %}
+    {% set status = states('sensor.' ~ host ~ '_apt_status') | upper %}
+    {% set due = state_attr('input_datetime.apt_' ~ host ~ '_action_due', 'timestamp') | float(0) %}
+    {% if status in ['UNKNOWN', 'UNAVAILABLE', 'NONE', ''] or status.startswith('ERROR') or
+          (due > 0 and due <= report_deadline and ('PENDING' in status or 'REBOOT REQ' in status)) %}
+      {% set ns.hosts = ns.hosts + [host] %}
+    {% endif %}
+  {% endfor %}
+  {% do returns(ns.hosts) %}
+{%- endmacro %}
+
 {% macro dashboard_active_issue_count(returns) -%}
   {% set active = (dashboard_active_entities | as_function)() %}
   {% set ns = namespace(count=active | count) %}
@@ -109,8 +123,6 @@
   {# Match the Active Issue rows; an unrelated warning must never mask a fault. #}
   {% set active = (dashboard_active_entities | as_function)() %}
   {% set maintenance = [
-    'binary_sensor.node_proxmox1_updates_packages',
-    'binary_sensor.node_proxmox02_updates_packages',
     'binary_sensor.docker_host_maintenance_attention',
     'binary_sensor.hvac_maintenance_due'
   ] %}
@@ -181,8 +193,6 @@
     'binary_sensor.infra_nebula_sync_degraded': 'off',
     'binary_sensor.infra_pihole_iot_dns_degraded': 'off',
     'binary_sensor.infra_compute_degraded': 'off',
-    'binary_sensor.node_proxmox1_updates_packages': 'off',
-    'binary_sensor.node_proxmox02_updates_packages': 'off',
     'binary_sensor.infra_storage_degraded': 'off',
     'binary_sensor.infra_external_monitoring_degraded': 'off',
     'binary_sensor.tesla_home_charge_attention': 'off',

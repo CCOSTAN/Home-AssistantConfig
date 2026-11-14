@@ -8,7 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: All graphs use 24-hour windows and explicit threshold colors.
 # Notes: Host utilization uses a shared 0-100 percent scale and 5-minute averages.
-# Notes: Pending updates remain windowed maintenance signals, not runtime failures.
+# Notes: Pending updates show package counts and their next scheduled check as information.
 # Notes: Recorder retains the nine displayed utilization metrics; all three hosts have history.
 ######################################################################
 
@@ -71,10 +71,7 @@
       icon: mdi:package-up
       variables:
         ok_state: 'off'
-        warning_state: 'on'
         healthy_text: CURRENT
-        warning_text: SCHEDULED
-        alert_text: PENDING
         pending_detail: true
         pending_count_entity: sensor.node_proxmox1_total_updates
         pending_schedule_hour: 2
@@ -87,10 +84,7 @@
       icon: mdi:package-up
       variables:
         ok_state: 'off'
-        warning_state: 'on'
         healthy_text: CURRENT
-        warning_text: SCHEDULED
-        alert_text: PENDING
         pending_detail: true
         pending_count_entity: sensor.node_proxmox02_total_updates
         pending_schedule_hour: 2
@@ -103,10 +97,7 @@
       icon: mdi:package-up
       variables:
         ok_state: 'off'
-        warning_state: 'on'
         healthy_text: CURRENT
-        warning_text: SCHEDULED
-        alert_text: PENDING
         pending_detail: true
         pending_count_entity: sensor.node_proxmox03_total_updates
         pending_schedule_hour: 2

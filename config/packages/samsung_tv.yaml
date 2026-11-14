@@ -18,6 +18,9 @@
 # Notes: Screensaver telemetry remains for the existing device panel only.
 # Notes: Recover only this Roku integration after bridge-detected reconnects.
 # Notes: Raven restores its state and is re-enabled daily at 03:00.
+# Notes: First parent arrival after the family is away wakes the TV and opens Raven.
+# Notes: Arrival wakes the TV through Roku Home, which can start the Raven exit timer.
+# Notes: Arrival retries Roku Home if TV power is not confirmed after a command.
 # Notes: TV-off is normal and remains outside always-on kiosk health alerts.
 ######################################################################
 
@@ -61,6 +64,71 @@ rest:
         value_template: '{{ value_json.reconnectRequired | default(false) }}'
 
 automation:
+  - id: living_room_raven_on_family_arrival
+    alias: Living Room TV - Open Raven on Family Arrival
+    description: Use Roku Home to wake the TV and open Raven when Carlo or Stacey returns to an empty house.
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: group.family
+        from: not_home
+        to: home
+    conditions:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: person.carlo
+            state: home
+          - condition: state
+            entity_id: person.stacey
+            state: home
+      - condition: state
+        entity_id: input_boolean.haven
+        state: 'on'
+      - condition: state
+        entity_id: timer.roku_haven_manual_exit
+        state: idle
+    actions:
+      - variables:
+          roku_was_raven: "{{ is_state('sensor.living_room_ultra_active_app_id', 'dev') }}"
+      - repeat:
+          sequence:
+            - action: remote.send_command
+              continue_on_error: true
+              target:
+                entity_id: remote.living_room_ultra
+              data:
+                command: home
+            - wait_template: "{{ is_state('media_player.samsung_q70_series_65', 'on') }}"
+              timeout:
+                seconds: 15
+          until:
+            - condition: or
+              conditions:
+                - condition: state
+                  entity_id: media_player.samsung_q70_series_65
+                  state: 'on'
+                - "{{ repeat.index >= 3 }}"
+      - condition: state
+        entity_id: media_player.samsung_q70_series_65
+        state: 'on'
+      - condition: state
+        entity_id: group.family
+        state: home
+      - condition: state
+        entity_id: input_boolean.haven
+        state: 'on'
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: timer.roku_haven_manual_exit
+            state: idle
+          # Roku Home can exit an already running Raven and start the pause itself.
+          - condition: template
+            value_template: >-
+              {{ roku_was_raven and is_state('sensor.living_room_ultra_active_app_id', '562859') }}
+      - action: rest_command.samsung_living_room_launch_haven
+
   - id: samsung_living_room_haven_on_roku_screensaver
     alias: Living Room TV - Raven after Roku Home Idle
     description: Launch native Raven after two minutes on Home, respecting TV power and the restoring manual-exit pause.

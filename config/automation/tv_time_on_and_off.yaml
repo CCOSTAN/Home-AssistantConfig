@@ -4,9 +4,11 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # TV Time and Samsung Power - Living room media scenes and explicit TV wake.
+# Related Issue: 2050
 #  Softens house lights for TV time and wakes the Samsung Q70 via WOL.
 # -------------------------------------------------------------------
 # Notes: Explicit WOL replaces Samsung's deprecated implicit wake behavior.
+# Notes: Ignore Raven playback and require both bed sensors to be explicitly off.
 ######################################################################
 - alias: TV Time
   id: 6e59d312-661f-40da-bb08-416f2e86b566
@@ -31,6 +33,13 @@
       - condition: state
         entity_id: media_player.living_room_ultra
         state: 'playing'
+      - condition: state
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        state: 'off'
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.get('app_id') not in [none, '', 'dev'] }}"
 
   action:
 

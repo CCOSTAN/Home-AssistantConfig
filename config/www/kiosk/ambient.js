@@ -63,7 +63,7 @@
         };
     }
     function build(states, now) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        var _a, _b, _c, _f, _g, _h, _j, _k, _l;
         now = now || new Date();
         var state = function (entityId) { var _a; return (_a = states[entityId]) === null || _a === void 0 ? void 0 : _a.state; };
         var valid = function (value) { return ['unknown', 'unavailable', 'none', '', undefined].indexOf(value) < 0; };
@@ -346,39 +346,6 @@
                 accent: '#00838f'
             });
         }
-        var bowlingHighlights = (_e = (_d = states['sensor.bearclaw_status_telemetry']) === null || _d === void 0 ? void 0 : _d.attributes) === null || _e === void 0 ? void 0 : _e.bowlingHighlights;
-        if ((bowlingHighlights === null || bowlingHighlights === void 0 ? void 0 : bowlingHighlights.active) && Array.isArray(bowlingHighlights.items)) {
-            bowlingHighlights.items.forEach(function (highlight) {
-                var expiresAt = new Date((highlight === null || highlight === void 0 ? void 0 : highlight.expiresAt) || '');
-                var games = (Array.isArray(highlight === null || highlight === void 0 ? void 0 : highlight.games) ? highlight.games : [])
-                    .map(function (score) { return Number.parseInt(score, 10); })
-                    .filter(Number.isFinite);
-                var highGame = Number.parseInt(highlight === null || highlight === void 0 ? void 0 : highlight.highGame, 10);
-                var seriesTotal = Number.parseInt(highlight === null || highlight === void 0 ? void 0 : highlight.seriesTotal, 10);
-                if (!Number.isFinite(expiresAt.getTime()) || expiresAt <= now || !games.length || !Number.isFinite(highGame))
-                    return;
-                var records = Array.isArray(highlight === null || highlight === void 0 ? void 0 : highlight.personalBestIds) ? highlight.personalBestIds : [];
-                var highGameRecord = records.indexOf('bowling_high_game') >= 0;
-                var highSeriesRecord = records.indexOf('bowling_high_series') >= 0 && Number.isFinite(seriesTotal);
-                var title = highGameRecord
-                    ? "".concat(highlight.displayName, "'s new high game: ").concat(highGame)
-                    : (highSeriesRecord
-                        ? "".concat(highlight.displayName, "'s new high series: ").concat(seriesTotal)
-                        : "".concat(highlight.displayName, "'s high game: ").concat(highGame));
-                var detail = [
-                    games.join(' / '),
-                    Number.isFinite(seriesTotal) ? "".concat(seriesTotal, " series") : '',
-                    Number.isFinite(Number(highlight === null || highlight === void 0 ? void 0 : highlight.weekNum)) ? "Week ".concat(highlight.weekNum) : ''
-                ].filter(Boolean).join(' · ');
-                items.push({
-                    kicker: highGameRecord || highSeriesRecord ? 'BOWLING PERSONAL BEST' : 'TUESDAY BOWLING',
-                    title: title,
-                    detail: detail,
-                    icon: 'mdi:bowling',
-                    accent: '#7e57c2'
-                });
-            });
-        }
         var phoneFeed = states['sensor.kiosk_recent_phone_notifications'];
         if (Array.isArray((_f = phoneFeed === null || phoneFeed === void 0 ? void 0 : phoneFeed.attributes) === null || _f === void 0 ? void 0 : _f.items)) {
             phoneFeed.attributes.items.forEach(function (notification) {
@@ -482,5 +449,5 @@
         }
         return { items: items, state: state, valid: valid, pretty: pretty, dateKey: dateKey, cleanAlertText: cleanAlertText, alertSection: alertSection, limitAlertText: limitAlertText, uniqueWeatherAlerts: uniqueWeatherAlerts, phynAlerts: phynAlerts, rheemProblem: rheemProblem };
     }
-    root.BearStoneKioskAmbient = { version: '1.2.0', seasonal: seasonal, dependencies: ["sensor.holiday_lighting_mode", "binary_sensor.garage_phyn_battery_alert", "binary_sensor.garage_phyn_freeze_warning_alert", "binary_sensor.garage_phyn_high_pressure_alert", "binary_sensor.garage_phyn_leak_alert", "binary_sensor.garage_phyn_offline_leak_shutoff_alert", "binary_sensor.garage_phyn_pinhole_leak_alert", "binary_sensor.garage_phyn_recurring_flow_alert", "binary_sensor.garage_phyn_temperature_alert", "valve.phyn_shutoff_valve", "sensor.phyn_current_water_pressure", "sensor.phyn_average_water_flow_rate", "sensor.nws_alerts_alerts", "group.garage_doors", "group.entry_points", "group.locks", "binary_sensor.front_door_packages_present", "sensor.rheem_wh_available_hot_water", "sensor.rheem_wh_alert_count", "sensor.rheem_wh_diagnostic_status", "binary_sensor.rheem_wh_problem", "binary_sensor.rheem_wh_active_alert", "binary_sensor.rheem_wh_telemetry_stale", "binary_sensor.rheem_wh_running", "sensor.rheem_wh_tank_health", "sensor.rheem_wh_compressor_health", "water_heater.rheem_wh", "light.sink", "input_boolean.garbage_cans_out", "input_datetime.water_delivery_date", "sensor.water_softener_salt_days_since_last_add", "sensor.water_softener_salt_average_days_between_refills", "sensor.spaceship_battery_level", "switch.spaceship_charge", "input_datetime.tesla_model_y_last_garage_close", "input_datetime.tesla_model_y_plug_in_snooze_until", "sensor.next_booked_cruise_countdown", "sensor.bearclaw_status_telemetry", "sensor.kiosk_recent_personal_records", "sensor.kiosk_recent_phone_notifications", "person.carlo", "person.stacey", "person.justin", "person.paige", "sensor.carlo_location_display", "sensor.stacey_location_display", "sensor.justin_location_display", "sensor.paige_location_display", "binary_sensor.kiosk_rain_radar_weather_event", "binary_sensor.kiosk_rain_radar_active", "timer.kitchen_kiosk_radar_display", "input_text.kitchen_kiosk_detail_view", "timer.kitchen_kiosk_detail_display", "sensor.kiosk_active_camera_view", "camera.frontdoorbell"], build: build };
+    root.BearStoneKioskAmbient = { version: '1.2.1', seasonal: seasonal, dependencies: ["sensor.holiday_lighting_mode", "binary_sensor.garage_phyn_battery_alert", "binary_sensor.garage_phyn_freeze_warning_alert", "binary_sensor.garage_phyn_high_pressure_alert", "binary_sensor.garage_phyn_leak_alert", "binary_sensor.garage_phyn_offline_leak_shutoff_alert", "binary_sensor.garage_phyn_pinhole_leak_alert", "binary_sensor.garage_phyn_recurring_flow_alert", "binary_sensor.garage_phyn_temperature_alert", "valve.phyn_shutoff_valve", "sensor.phyn_current_water_pressure", "sensor.phyn_average_water_flow_rate", "sensor.nws_alerts_alerts", "group.garage_doors", "group.entry_points", "group.locks", "binary_sensor.front_door_packages_present", "sensor.rheem_wh_available_hot_water", "sensor.rheem_wh_alert_count", "sensor.rheem_wh_diagnostic_status", "binary_sensor.rheem_wh_problem", "binary_sensor.rheem_wh_active_alert", "binary_sensor.rheem_wh_telemetry_stale", "binary_sensor.rheem_wh_running", "sensor.rheem_wh_tank_health", "sensor.rheem_wh_compressor_health", "water_heater.rheem_wh", "light.sink", "input_boolean.garbage_cans_out", "input_datetime.water_delivery_date", "sensor.water_softener_salt_days_since_last_add", "sensor.water_softener_salt_average_days_between_refills", "sensor.spaceship_battery_level", "switch.spaceship_charge", "input_datetime.tesla_model_y_last_garage_close", "input_datetime.tesla_model_y_plug_in_snooze_until", "sensor.next_booked_cruise_countdown", "sensor.kiosk_recent_personal_records", "sensor.kiosk_recent_phone_notifications", "person.carlo", "person.stacey", "person.justin", "person.paige", "sensor.carlo_location_display", "sensor.stacey_location_display", "sensor.justin_location_display", "sensor.paige_location_display", "binary_sensor.kiosk_rain_radar_weather_event", "binary_sensor.kiosk_rain_radar_active", "timer.kitchen_kiosk_radar_display", "input_text.kitchen_kiosk_detail_view", "timer.kitchen_kiosk_detail_display", "sensor.kiosk_active_camera_view", "camera.frontdoorbell"], build: build };
 }(window));

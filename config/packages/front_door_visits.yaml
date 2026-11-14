@@ -8,6 +8,8 @@
 #  Reuses the shared notification engine and welcome-home Home Stats.
 # -------------------------------------------------------------------
 # Notes: A person must first enter Frigate's person-only doorstep zone.
+#  Ignore near-full-frame boxes from lens obstructions; a later smaller
+#  box in the zone can still start the visit. Detect frame: 1296x1728.
 #  One episode stays open until the zone has been clear for 90 seconds.
 #  Away visits settle after 60 seconds; a return cancels the pending visit.
 #  Presence must be stable for two minutes; guest mode suppresses alerts
@@ -107,13 +109,23 @@ automation:
           {% set event = value_json | default({}, true) %}
           {% set after = event.get('after', {}) %}
           {% set before = event.get('before', {}) %}
+          {% set box = after.get('box') or [] %}
+          {% set old_box = before.get('box') or [] %}
+          {% set oversized = box | count == 4 and
+             (box[2] | float(0) - box[0] | float(0)) >= 1166 and
+             (box[3] | float(0) - box[1] | float(0)) >= 1642 %}
+          {% set was_oversized = old_box | count == 4 and
+             (old_box[2] | float(0) - old_box[0] | float(0)) >= 1166 and
+             (old_box[3] | float(0) - old_box[1] | float(0)) >= 1642 %}
           {{ 'doorstep' if event.get('type') in ['new', 'update']
              and after.get('camera') == 'frontdoorbell'
              and after.get('label') == 'person'
              and not after.get('false_positive', true)
+             and not oversized
              and 'doorstep' in after.get('current_zones', [])
              and (event.get('type') == 'new' or before.get('false_positive', false)
-                  or 'doorstep' not in before.get('entered_zones', [])) else 'ignore' }}
+                  or 'doorstep' not in before.get('entered_zones', [])
+                  or was_oversized) else 'ignore' }}
     actions:
       # Action conditions are evaluated when dequeued, after the previous latch.
       - condition: state

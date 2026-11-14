@@ -1,0 +1,11 @@
+[Unit]
+Description=Reconcile actual reboot state after Home Assistant restarts
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=15min
+RandomizedDelaySec=30
+Unit=apt_reboot_report.service
+
+[Install]
+WantedBy=timers.target

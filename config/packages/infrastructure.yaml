@@ -22,7 +22,7 @@
 # Notes: WAN outages require all four independent ICMP/HTTPS probes to fail continuously for 2 minutes.
 # Notes: Continuous latency/loss determine WAN quality; Ookla throughput is a separate twice-daily capacity snapshot and never declares an outage.
 # Notes: Severe quality turns critical after 30 minutes above 250 ms or 25% loss; moderate quality degradation requires 6 hours above 80 ms or 5% loss.
-# Notes: Nightly Duplicati verification runs at 08:00 after the 05:30 Duplicati job and docker_14 reboot window.
+# Notes: Nightly Duplicati verification runs at 08:00 after the 05:00 Duplicati job and docker_14 reboot window.
 # Notes: Duplicati transport/API errors are logged only; repairs are reserved for proven failed or stale backups.
 # Notes: Duplicati failure Repairs enable a recovery poll that clears the Repair after a later successful run.
 # Notes: Duplicati verification persists its result and latest successful backup time for the Docker storage dashboard.
@@ -32,6 +32,7 @@
 # Notes: Disk-pressure dispatch allows bounded safe cleanup of disposable caches and old generated backup artifacts, but not live data or restarts.
 # Notes: Warning-level Docker host disk pressure is Joanna-only; Repairs are reserved for critical pressure.
 # Notes: Nebula Sync compares the docker_10 primary with the physical office-pi DNS replica and dispatches Joanna on sustained drift or endpoint loss.
+# Notes: A fleet-wide Portainer outage has one telemetry warning; healthy DNS does not duplicate it as a sync failure.
 # Notes: Promoted IoT DNS consistency compares primary/backup Pi-hole answers for reserved IoT host records.
 # Notes: DNS probes retry brief resolver interruptions and filter transport diagnostics; timeout budgets also cover persistent resolver loss.
 # Notes: Garage compute heat uses the shared sustained hottest-package thermal incident and telemetry health.
@@ -51,6 +52,9 @@
 ######################################################################
 
 input_text:
+  infra_nebula_sync_retry:
+    name: "Nebula Sync recovery receipt"
+    max: 120
   infra_eaton_low_voltage_since:
     name: "Eaton low voltage warning since"
     max: 40
@@ -460,7 +464,8 @@ template:
             (states('sensor.nebula_sync_state_2') | lower) == 'running',
             is_state('switch.nebula_sync_container_2', 'on')
           ] | select('equalto', true) | list | count > 0 %}
-          {{ dns_state != 'ok' or (portainer_known and not portainer_ok) }}
+          {{ dns_state != 'ok' or (portainer_known and not portainer_ok and
+             not is_state('binary_sensor.docker_container_telemetry_degraded', 'on')) }}
         attributes:
           dns_consistency: "{{ states('sensor.infra_nebula_sync_dns_consistency') }}"
           host: "{{ state_attr('sensor.infra_nebula_sync_dns_consistency', 'host') }}"
@@ -953,15 +958,25 @@ automation:
       nebula_status: "{{ states('binary_sensor.nebula_sync_status_2') }}"
       nebula_state: "{{ states('sensor.nebula_sync_state_2') }}"
       pihole_secondary_status: "{{ states('binary_sensor.pi_hole_status_2') }}"
+      retry_receipt: "{{ states('input_text.infra_nebula_sync_retry') | from_json({}) }}"
+      retry_count: "{{ retry_receipt.get('attempts', 0) | int(0) }}"
+      retry_due: >-
+        {{ retry_count < 3 and
+           as_timestamp(now()) - (retry_receipt.get('at', 0) | float(0)) >= 7200 }}
     action:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ degraded and previous_band != 'warning' }}"
+                value_template: "{{ degraded and retry_count < 3 and (previous_band != 'warning' or retry_due) }}"
               - condition: state
                 entity_id: binary_sensor.docker_container_alerts_snoozed
                 state: "off"
             sequence:
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.infra_nebula_sync_retry
+                data:
+                  value: "{{ {'attempts': retry_count + 1, 'at': as_timestamp(now()) | int} | to_json }}"
               - service: repairs.remove
                 continue_on_error: true
                 data:
@@ -1016,6 +1031,11 @@ automation:
                   value: warning
           - conditions: "{{ not degraded and previous_band in ['warning', 'unavailable'] }}"
             sequence:
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.infra_nebula_sync_retry
+                data:
+                  value: ""
               - service: repairs.remove
                 continue_on_error: true
                 data:

@@ -1,0 +1,65 @@
+{# Downstairs cooling policy. Durable intent lives in the climate package helpers.
+   Native Nest scheduling/learning must be cleared/disabled before enabling this policy.
+   Never infer a manual change from an unavailable state or an unconfirmed command. #}
+{% macro downstairs_matches(expected) -%}
+  {% set mode = states('climate.downstairs') %}
+  {% set preset = state_attr('climate.downstairs', 'preset_mode') %}
+  {% set target = state_attr('climate.downstairs', 'temperature') | float(none) %}
+  {{ (mode == expected.get('mode') and
+      (mode == 'off' or (preset == expected.get('preset') and
+       (preset == 'eco' or target == expected.get('temperature'))))) | to_json }}
+{%- endmacro %}
+
+{% macro downstairs_policy() -%}
+  {% set stamp = as_timestamp(now()) %}
+  {% set expected = states('input_text.downstairs_hvac_expected') | from_json({}) %}
+  {% set hold = states('input_text.downstairs_hvac_override') | from_json({}) %}
+  {% set phase = states('input_select.downstairs_hvac_period') %}
+  {% set held = hold.get('kind') == 'off' or hold.get('phase') == phase %}
+  {% set grid = states.binary_sensor.powerwall_grid_status %}
+  {% set entries = states.group.entry_points %}
+  {% set family = states.group.family %}
+  {% set grid_age = stamp - as_timestamp(grid.last_changed, stamp) if grid is not none else 0 %}
+  {% set entry_age = stamp - as_timestamp(entries.last_changed, stamp) if entries is not none else 0 %}
+  {% set away = is_state('group.family', 'not_home') and
+       stamp - as_timestamp(family.last_changed) >= 600 and is_state('input_boolean.guest_mode', 'off') %}
+  {% set guest = is_state('input_boolean.guest_mode', 'on') %}
+  {% set ns = namespace(valid=true, mode='cool', preset='none',
+       target=76 if guest else (77 if phase == 'sleep' else 80),
+       reason='guest mode' if guest else phase ~ ' schedule') %}
+  {% if is_state('binary_sensor.powerwall_grid_status', 'off') %}
+    {% set ns.valid = grid_age >= 360 %}
+    {% set ns.mode = 'off' %}
+    {% set ns.reason = 'grid outage' %}
+  {% elif not is_state('binary_sensor.powerwall_grid_status', 'on') or states('group.entry_points') not in ['on', 'off'] %}
+    {% set ns.valid = false %}
+    {% set ns.reason = 'waiting for safety sensors' %}
+  {% elif is_state('group.entry_points', 'on') %}
+    {% set ns.valid = entry_age >= 300 %}
+    {% set ns.mode = 'off' %}
+    {% set ns.reason = 'entry open' %}
+  {% elif (expected.get('reason') == 'grid outage' and grid_age < 600) or
+          (expected.get('reason') == 'entry open' and entry_age < 300) %}
+    {% set ns.valid = false %}
+    {% set ns.reason = 'safety recovery delay' %}
+  {% elif phase not in ['day', 'sleep'] or
+          states('group.family') not in ['home', 'not_home'] or not has_value('input_boolean.guest_mode') %}
+    {% set ns.valid = false %}
+    {% set ns.reason = 'waiting for bed period or presence' %}
+  {% elif held and hold.get('kind') == 'off' %}
+    {% set ns.mode = 'off' %}
+    {% set ns.reason = 'manual off' %}
+  {% elif away %}
+    {% set ns.preset = 'eco' %}
+    {% set ns.reason = 'family away' %}
+  {% elif held and hold.get('kind') == 'eco' %}
+    {% set ns.preset = 'eco' %}
+    {% set ns.reason = 'manual eco' %}
+  {% elif held and hold.get('kind') == 'temperature' %}
+    {% set ns.target = hold.get('temperature', ns.target) %}
+    {% set ns.reason = 'manual temperature' %}
+  {% endif %}
+  {{ dict(valid=ns.valid, mode=ns.mode, preset=ns.preset,
+          temperature=ns.target if ns.mode == 'cool' and ns.preset == 'none' else none,
+          reason=ns.reason, phase=phase, held=held) | to_json }}
+{%- endmacro %}

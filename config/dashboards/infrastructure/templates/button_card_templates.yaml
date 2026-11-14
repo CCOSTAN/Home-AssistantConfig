@@ -1104,6 +1104,7 @@ bearstone_infra_status_kpi:
         const okState = String(variables?.ok_state ?? 'off').toLowerCase();
         if (critical) return 'critical';
         if (warning || numericWarning || (warningState && raw === warningState)) return 'warning';
+        if (variables?.pending_detail && raw === 'on') return 'info';
         const defaultSeverity = String(variables?.default_severity ?? '').toLowerCase();
         if (['healthy', 'warning', 'critical'].includes(defaultSeverity)) return defaultSeverity;
         return raw === okState ? 'healthy' : 'critical';
@@ -1512,13 +1513,9 @@ bearstone_infra_update_row:
         const state = String(entity?.state ?? '').toUpperCase();
         if (!state || state.includes('UNKNOWN') || state.includes('UNAVAILABLE') || state.includes('ERROR')) return 'error';
         const host = entity?.entity_id?.match(/^sensor\.(docker_\d+)_apt_status$/)?.[1];
-        const dueRaw = host ? states[`input_datetime.apt_${host}_action_due`]?.state : null;
-        const due = dueRaw && !['unknown', 'unavailable', 'none'].includes(String(dueRaw).toLowerCase())
-          ? new Date(String(dueRaw).replace(' ', 'T'))
-          : null;
-        const actionable = state.includes('PENDING') || state.includes('REBOOT REQ');
-        if (actionable && due instanceof Date && !Number.isNaN(due.getTime()) && Date.now() > due.getTime()) return 'overdue';
-        if (actionable) return 'scheduled';
+        const needsAction = states['binary_sensor.docker_host_maintenance_attention']?.attributes?.attention_hosts ?? [];
+        if (needsAction.includes(host)) return 'overdue';
+        if (state.includes('PENDING') || state.includes('REBOOT REQ')) return 'scheduled';
         if (state.includes('NO UPDATES') || state.includes('UPDATED')) return 'healthy';
         return 'neutral';
       ]]]
@@ -1559,14 +1556,16 @@ bearstone_infra_update_row:
     - border-color: >
         [[[
           if (variables.apt_severity === 'overdue') return 'rgba(229,57,53,0.40)';
-          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(245,124,0,0.45)';
+          if (variables.apt_severity === 'scheduled') return 'rgba(30,136,229,0.40)';
+          if (variables.apt_severity === 'error') return 'rgba(245,124,0,0.45)';
           if (variables.apt_severity === 'healthy') return 'rgba(67,160,71,0.45)';
           return 'var(--divider-color)';
         ]]]
     - background: >
         [[[
           if (variables.apt_severity === 'overdue') return 'rgba(255,235,238,0.85)';
-          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(255,243,224,0.85)';
+          if (variables.apt_severity === 'scheduled') return 'rgba(227,242,253,0.85)';
+          if (variables.apt_severity === 'error') return 'rgba(255,243,224,0.85)';
           if (variables.apt_severity === 'healthy') return 'rgba(232,245,233,0.85)';
           return 'rgba(0,0,0,0.02)';
         ]]]
@@ -1574,7 +1573,8 @@ bearstone_infra_update_row:
     - color: >
         [[[
           if (variables.apt_severity === 'overdue') return 'rgba(198,40,40,1)';
-          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(230,81,0,1)';
+          if (variables.apt_severity === 'scheduled') return 'rgba(21,101,192,1)';
+          if (variables.apt_severity === 'error') return 'rgba(230,81,0,1)';
           if (variables.apt_severity === 'healthy') return 'rgba(46,125,50,1)';
           return 'var(--primary-color)';
         ]]]
@@ -1582,7 +1582,8 @@ bearstone_infra_update_row:
     - color: >
         [[[
           if (variables.apt_severity === 'overdue') return 'rgba(198,40,40,1)';
-          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(230,81,0,1)';
+          if (variables.apt_severity === 'scheduled') return 'rgba(21,101,192,1)';
+          if (variables.apt_severity === 'error') return 'rgba(230,81,0,1)';
           if (variables.apt_severity === 'healthy') return 'rgba(46,125,50,1)';
           return 'var(--secondary-text-color)';
         ]]]
@@ -1599,7 +1600,8 @@ bearstone_infra_update_row:
     - color: >
         [[[
           if (variables.apt_severity === 'overdue') return 'rgba(198,40,40,1)';
-          if (variables.apt_severity === 'error' || variables.apt_severity === 'scheduled') return 'rgba(230,81,0,1)';
+          if (variables.apt_severity === 'scheduled') return 'rgba(21,101,192,1)';
+          if (variables.apt_severity === 'error') return 'rgba(230,81,0,1)';
           if (variables.apt_severity === 'healthy') return 'rgba(46,125,50,1)';
           return 'var(--secondary-text-color)';
         ]]]

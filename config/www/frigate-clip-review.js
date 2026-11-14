@@ -11,7 +11,7 @@ if (Card && !Card.prototype[installed]) {
   const states = new WeakMap();
 
   function stateFor(card) {
-    if (!states.has(card)) states.set(card, { page: 0, cursors: [null], camera: "", zone: "", request: 0 });
+    if (!states.has(card)) states.set(card, { page: 0, cursors: [null], camera: "", activity: "", request: 0 });
     return states.get(card);
   }
 
@@ -20,7 +20,7 @@ if (Card && !Card.prototype[installed]) {
     if (!this.hass) return;
     const state = stateFor(this);
     const cursor = state.cursors[state.page];
-    const key = JSON.stringify([state.page, state.camera, state.zone, cursor]);
+    const key = JSON.stringify([state.page, state.camera, state.activity, cursor]);
     if (state.loading && state.key === key) return;
     const request = ++state.request;
     state.busy = state.key !== key || !this._events?.length;
@@ -33,21 +33,25 @@ if (Card && !Card.prototype[installed]) {
     this.requestUpdate();
     try {
       const size = this._config.event_count || 60;
+      const filter = (this._config.review_filters || this._config.review_zones || [])
+        .find(item => (item.id || item.zone) === state.activity);
+      const ignored = new Set(filter?.exclude_event_ids || []);
       const query = { type: "frigate/events/get", instance_id: this._config.frigate_client_id || "frigate",
         cameras: state.camera ? [state.camera] : this._config.cameras,
-        has_clip: true, limit: size + 1 + (cursor?.exclude.length || 0) };
-      const zone = this._config.review_zones?.find(item => item.zone === state.zone);
-      if (zone) {
-        query.cameras = [zone.camera];
-        query.zones = [zone.zone];
-        query.labels = [zone.label];
+        has_clip: true, limit: size + 1 + (cursor?.exclude.length || 0) + ignored.size };
+      if (filter) {
+        if (filter.camera) query.cameras = [filter.camera];
+        if (filter.zone) query.zones = [filter.zone];
+        if (filter.labels) query.labels = filter.labels;
+        else if (filter.label) query.labels = [filter.label];
       }
       if (cursor) query.before = cursor.before;
       const response = await this.hass.callWS(query);
       if (request !== state.request || !this.isConnected) return;
       const excluded = new Set(cursor?.exclude || []);
       const rows = (typeof response === "string" ? JSON.parse(response) : response)
-        .filter(event => !excluded.has(event.id)).sort((a, b) => b.start_time - a.start_time);
+        .filter(event => !excluded.has(event.id) && !ignored.has(event.id))
+        .sort((a, b) => b.start_time - a.start_time);
       this._events = rows.slice(0, size);
       state.more = rows.length > size;
       if (state.more) {
@@ -92,27 +96,34 @@ if (Card && !Card.prototype[installed]) {
       }
       select.addEventListener("change", () => {
         state.camera = select.value;
-        state.zone = "";
-        const zoneSelect = toolbar.querySelector('[aria-label="Filter clips by zone"]');
-        if (zoneSelect) zoneSelect.value = "";
+        const filter = (card._config.review_filters || card._config.review_zones || [])
+          .find(item => (item.id || item.zone) === state.activity);
+        if (filter?.camera) {
+          state.activity = "";
+          const activitySelect = toolbar.querySelector('[aria-label="Filter clips by activity"]');
+          if (activitySelect) activitySelect.value = "";
+        }
         state.page = 0;
         state.cursors = [null];
         card._loadEvents();
       });
-      if (card._config.review_zones?.length) {
-        const zoneSelect = document.createElement("select");
-        zoneSelect.setAttribute("aria-label", "Filter clips by zone");
-        zoneSelect.add(new Option("All activity", ""));
-        for (const zone of card._config.review_zones) zoneSelect.add(new Option(zone.name, zone.zone));
-        zoneSelect.addEventListener("change", () => {
-          state.zone = zoneSelect.value;
-          const zone = card._config.review_zones.find(item => item.zone === state.zone);
-          if (zone) state.camera = select.value = zone.camera;
+      const filters = card._config.review_filters || card._config.review_zones || [];
+      if (filters.length) {
+        const activitySelect = document.createElement("select");
+        activitySelect.setAttribute("aria-label", "Filter clips by activity");
+        activitySelect.add(new Option("All activity", ""));
+        for (const filter of filters) activitySelect.add(new Option(filter.name, filter.id || filter.zone));
+        activitySelect.addEventListener("change", () => {
+          const previous = filters.find(item => (item.id || item.zone) === state.activity);
+          state.activity = activitySelect.value;
+          const filter = filters.find(item => (item.id || item.zone) === state.activity);
+          if (filter?.camera) state.camera = select.value = filter.camera;
+          else if (previous?.camera && filter) state.camera = select.value = "";
           state.page = 0;
           state.cursors = [null];
           card._loadEvents();
         });
-        select.after(zoneSelect);
+        select.after(activitySelect);
       }
       toolbar.addEventListener("click", async event => {
         const action = event.target.closest("[data-review]")?.dataset.review;
@@ -191,7 +202,7 @@ if (Card && !Card.prototype[installed]) {
     toolbar.querySelector(".review-status").textContent = state.busy ? "Loading recorded clips..."
       : state.error ? "Could not load clips. Use Latest to retry."
       : count ? `Page ${state.page + 1} · ${count} recorded clips · newest first`
-      : state.zone ? "No recorded clips in this zone yet." : "No recorded clips for this camera.";
+      : state.activity ? "No recorded clips for this activity and camera." : "No recorded clips for this camera.";
     toolbar.querySelector('[data-review="newer"]').disabled = state.busy || state.page === 0;
     toolbar.querySelector('[data-review="older"]').disabled = state.busy || !state.more;
     toolbar.querySelector('[data-review="latest"]').disabled = state.busy;

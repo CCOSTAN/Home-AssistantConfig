@@ -19,10 +19,10 @@
 # Notes: Native ESPHome entities use canonical unsuffixed IDs.
 #  Retired MQTT duplicates and their obsolete history have been removed.
 # Notes: Kiosk Satellite owns HA kiosk-mode hiding, connection recovery, HA camera import, and HLS-first playback; no kiosk-mode custom resource is loaded.
-# Notes: Kitchen Show uses the Dim screensaver while empty or `group.bed` is on; true panel-off is disabled because this Crown build naps Wi-Fi and cannot accept a remote wake.
+# Notes: Kitchen Show uses local camera motion to wake true idle panel-off on camera-enabled Crown firmware; household sleep/away and event-camera policies remain shared.
 # Notes: Kitchen volume follows bed occupancy (13% occupied, 75% empty); Upstairs and Office volume stay manual.
 # Notes: Garage and Front Door retain priority; a Driveway alert takes over both kiosks until occupancy clears or ten minutes elapse.
-# Notes: At 07:00, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
+# Notes: At 07:50, Home Assistant stages a pending Kiosk Satellite release, then dispatches Joanna daily until installation is verified.
 # Notes: Bedroom wake events only restore brightness/focus; URL reloads require page drift.
 # Notes: Fully auto-reload on screen-on/screensaver-stop is disabled to avoid motion wake reload loops.
 # Notes: Startup recovery waits for HA's initial websocket state burst, then reloads each Show page once.
@@ -31,7 +31,7 @@
 # Notes: Upstairs and Office use the compact Echo Show 5 view; shared snapshots and startup recovery cover enrolled Shows.
 # Notes: Shared kiosk_health macros keep connection, page, power, screenshot, and advisory-update checks aligned.
 # Notes: Show updates are advisory telemetry and do not raise kiosk or Systems fault rollups.
-# Notes: Native Shows share screen, volume, camera, snapshot and 07:00 update policies through satellite_devices.
+# Notes: Native Shows share screen, volume, camera, snapshot and 07:50 update policies through satellite_devices.
 # Notes: Updates run followers first; Joanna receives an exact enrolled device key and preserves its route.
 # Notes: Kiosk attention sensors expose only their stable status attribute so recorder preserves problem transitions without heartbeat churn.
 # Notes: The round Nest uses heartbeat/checksum health and bounded scene recovery; preview age is independent.
@@ -43,6 +43,8 @@
 # Notes: Verified Health Coach personal bests rotate for seven days; Bedroom safety and reminders retain priority.
 # Notes: Shared parent/family phone pushes rotate for five minutes; tags replace or clear matching entries.
 # Notes: The bounded notification feed uses sent timestamps, restores across restart, and prunes every 15 seconds.
+# Notes: Fresh-air notices persist until their active helper clears or sunset;
+#  ordinary phone notices retain the five-minute lifetime and stable-tag replacement.
 # Notes: Joanna Voice processing plays one cached spoken acknowledgment on the requesting Show; final speech stays in Assist.
 # Notes: joanna_voice_ack_url points to /local/joanna-voice/acknowledgement.mp3 on the local HA server.
 # Video: https://youtu.be/ChgEu0IDWzc
@@ -328,7 +330,7 @@ automation:
 
   - alias: "Kitchen Kiosk Satellite - Screen Policy"
     id: 99d8d43b-9448-4916-b313-8117a038baaf
-    description: "Keep enrolled Shows reachable; use Dim instead of true panel-off."
+    description: "Preserve native motion-based idle sleep and the household screen policy."
     mode: restart
     trigger:
       - platform: state
@@ -467,12 +469,12 @@ automation:
 
   - alias: "Kitchen Kiosk Satellite - Update Joanna Dispatch"
     id: 199e30f0-e28c-4842-953d-a65bc4b4e1d3
-    description: "At 07:00 update enrolled Shows, followers first, with bounded Joanna recovery."
+    description: "At 07:50 update enrolled Shows, followers first, with bounded Joanna recovery."
     mode: single
     max_exceeded: silent
     trigger:
       - platform: time
-        at: "07:00:00"
+        at: "07:50:00"
     action:
       - repeat:
           for_each: >-
@@ -509,6 +511,10 @@ template:
       - trigger: homeassistant
         event: start
         id: startup
+      - trigger: state
+        entity_id: input_boolean.fresh_air_notice_active
+        to: 'off'
+        id: fresh_air_clear
     conditions:
       - condition: template
         value_template: >-
@@ -517,6 +523,7 @@ template:
     actions:
       - variables:
           notification_items: >-
+            {% from 'fresh_air.jinja' import fresh_air_sunset %}
             {% set current = as_timestamp(now()) %}
             {% set incoming = trigger.event.data.service_data if trigger.id == 'notification' else {} %}
             {% set message = incoming.get('message', '') | string | striptags | regex_replace('\\s+', ' ') | trim %}
@@ -530,20 +537,25 @@ template:
             {% set ns = namespace(items=[]) %}
             {% for item in state_attr('sensor.kiosk_recent_phone_notifications', 'items') | default([], true) %}
               {% if item is mapping and item.get('expires_at', 0) | float(0) > current
+                    and (item.get('key') != 'tag:fresh_air_opportunity' or is_state('input_boolean.fresh_air_notice_active', 'on'))
                     and not ((publish or (clear and tag)) and item.get('key') == key) %}
                 {% set ns.items = ns.items + [item] %}
               {% endif %}
             {% endfor %}
-            {% if publish %}
+            {% set expires_at = fresh_air_sunset() | float(0) if tag == 'fresh_air_opportunity' else current + 300 %}
+            {% if publish and expires_at > current %}
               {% set icon = data.get('notification_icon', '') | default('', true) | string %}
               {% set color = data.get('color', '') | default('', true) | string %}
               {% set ns.items = ns.items + [dict(key=key, title=title or 'Household notification',
-                 message=message | truncate(320, true), sent_at=current, expires_at=current + 300,
+                 message=message | truncate(320, true), sent_at=current,
+                 expires_at=expires_at,
                  sent_time=now().strftime('%-I:%M %p'),
                  icon=icon if icon.startswith('mdi:') else 'mdi:message-text-outline',
                  color=color if color | regex_match('^#[0-9a-fA-F]{6}$') else '#1565c0')] %}
             {% endif %}
-            {{ ns.items[-12:] }}
+            {% set fresh_air = ns.items | selectattr('key', 'eq', 'tag:fresh_air_opportunity') | list %}
+            {% set others = ns.items | rejectattr('key', 'eq', 'tag:fresh_air_opportunity') | list %}
+            {{ fresh_air + others[-11:] if fresh_air else others[-12:] }}
     sensor:
       - name: "Kiosk Recent Phone Notifications"
         unique_id: kiosk_recent_phone_notifications
@@ -665,6 +677,8 @@ template:
           {% elif battery < 50 and is_state('switch.spaceship_charge', 'off')
              and is_state('person.carlo', 'home') and is_state('person.stacey', 'home') %}
             PLUG IN THE TESLA
+          {% elif is_state('input_boolean.fresh_air_notice_active', 'on') %}
+            GOOD WEATHER FOR FRESH AIR
           {% elif record_slot > 0 %}
             {{ records[record_slot - 1].person | upper }}'S PERSONAL BEST
           {% elif ns.name %}
@@ -724,6 +738,9 @@ template:
             {% elif battery < 50 and is_state('switch.spaceship_charge', 'off')
                and is_state('person.carlo', 'home') and is_state('person.stacey', 'home') %}
               Model Y battery is {{ battery | round(0) }}%.
+            {% elif is_state('input_boolean.fresh_air_notice_active', 'on') %}
+              {% from 'fresh_air.jinja' import fresh_air_message %}
+              {{ fresh_air_message() | trim }}
             {% elif record_slot > 0 %}
               {% set record = records[record_slot - 1] %}
               {{ record.label }}: {{ record.displayValue }}{% if record.activityType %}

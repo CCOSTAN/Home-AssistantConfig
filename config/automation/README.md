@@ -42,6 +42,10 @@ Camera-verified garbage and recycling reminders: [![YAML source: garbage_day_gar
 
 Bathroom night lighting requires an explicit in-bed to out-of-bed transition; recovery from an unavailable bed sensor does not switch on the accent outlet. Sunset and arrival behavior remain unchanged.
 
+Living room entry alerts require a garage door to remain open for five seconds, then restore each light's prior state after all entry points are secure.
+
+TV Time ignores Raven playback and changes lighting only when both bed sensors explicitly report unoccupied. Missing Roku app IDs or unavailable bed sensors leave lighting unchanged.
+
 ### Tips
 - Use these as patterns if you are migrating UI-created automations out of `automations.yaml`.
 - Most automations expose helpers (input booleans, scenes) so you can extend them without editing IDs.

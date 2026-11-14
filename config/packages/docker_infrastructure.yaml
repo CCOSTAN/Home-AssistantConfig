@@ -13,6 +13,7 @@
 # Notes: All Docker hosts use America/New_York; maintenance starts at 06:00 daily and is sequenced by host.
 # Notes: Reboots are handled directly on each host by apt_weekly.sh.
 # Notes: Boot reports reuse the registered APT webhook and retry while Home Assistant starts.
+# Notes: Reboot heartbeats clear only an older reboot flag; package results and failures remain intact.
 # Notes: Reboot order: docker_14, docker_69, docker_17, docker_10; docker_13 (codex-appliance) follows after its SMB dependencies recover.
 # Notes: Per-host action-due helpers preserve overdue state across daily checks and HA restarts.
 # Notes: Monitored workload count deduplicates Portainer `_container_2` companion entities.
@@ -25,7 +26,7 @@
 # Notes: Teslamate and crystalsoftwashsolutions are live services and should remain in the monitored group when their discovery switches are present.
 # Notes: Treat telemetry reconnects from unavailable/unknown to a concrete stopped state as actionable outages.
 # Notes: An empty discovered container inventory is telemetry degradation, not a healthy zero-container state.
-# Notes: Host APT maintenance rolls up independently from container telemetry so pending or stale host reports cannot remain buried on the Docker view.
+# Notes: Host APT failures, missing telemetry, and work still open four hours past its scheduled time roll up independently from container telemetry.
 # Notes: Treat stuck `restarting` and `created` states as down so monitored containers dispatch remediation.
 # Notes: Infra Info was removed; BearClaw Admin is the planning snapshot surface.
 # Notes: codex_appliance moved to a dedicated VM; retain only its current Portainer discovery switch.
@@ -103,6 +104,9 @@ input_datetime:
     has_time: true
 
 input_text:
+  docker_telemetry_recovery:
+    name: "Docker telemetry recovery receipt"
+    max: 120
   apt_docker_10_last_result:
     name: "docker_10 APT last result"
     max: 255
@@ -582,23 +586,12 @@ template:
         device_class: problem
         icon: mdi:package-up
         state: >-
-          {% set entities = [
-            'sensor.docker_10_apt_status',
-            'sensor.docker_13_apt_status',
-            'sensor.docker_14_apt_status',
-            'sensor.docker_17_apt_status',
-            'sensor.docker_69_apt_status'
-          ] %}
-          {% set ns = namespace(attention=false) %}
-          {% for entity_id in entities %}
-            {% set status = states(entity_id) | upper %}
-            {% if status in ['UNKNOWN', 'UNAVAILABLE', 'NONE', ''] or
-                  'PENDING' in status or 'REBOOT REQ' in status or
-                  status.startswith('ERROR') %}
-              {% set ns.attention = true %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.attention }}
+          {% from 'infrastructure_health.jinja' import docker_maintenance_attention_hosts %}
+          {{ (docker_maintenance_attention_hosts | as_function)() | count > 0 }}
+        attributes:
+          attention_hosts: >-
+            {% from 'infrastructure_health.jinja' import docker_maintenance_attention_hosts %}
+            {{ (docker_maintenance_attention_hosts | as_function)() }}
 
       - name: "Docker Container Telemetry Degraded"
         unique_id: docker_container_telemetry_degraded
@@ -1084,6 +1077,23 @@ automation:
       - condition: template
         value_template: "{{ host_helpers is not none }}"
     action:
+      - choose:
+          - conditions: "{{ event_kind == 'reboot_status' }}"
+            sequence:
+              - if:
+                  - condition: template
+                    value_template: >-
+                      {{ not reboot_required and previous_reboot and
+                         payload.get('observed_at', 0) | float(0) >=
+                         as_timestamp(states(host_helpers.last_check), 0) and
+                         payload.get('observed_at', 0) | float(0) <= as_timestamp(now()) + 60 }}
+                then:
+                  - action: input_text.set_value
+                    target:
+                      entity_id: "{{ host_helpers.last_result }}"
+                    data:
+                      value: "{{ states(host_helpers.last_result) | replace(' (REBOOT REQ)', '') }}"
+              - stop: "Reboot state reconciled without changing package maintenance evidence"
       - service: input_datetime.set_datetime
         target:
           entity_id: "{{ host_helpers.last_check }}"
@@ -1376,6 +1386,69 @@ automation:
             - sensor.docker_containers_down_list
             - sensor.docker_containers_down_count
             - binary_sensor.docker_container_telemetry_degraded
+
+  - alias: "Docker Telemetry Recovery"
+    id: docker_telemetry_recovery
+    description: "Try two bounded integration reloads, then request one private Joanna investigation."
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.docker_container_telemetry_degraded
+        to: "on"
+        for: "00:10:00"
+      - trigger: state
+        entity_id: binary_sensor.docker_container_telemetry_degraded
+        to: "off"
+        for: "00:02:00"
+      - trigger: time_pattern
+        minutes: "/30"
+    variables:
+      degraded: "{{ is_state('binary_sensor.docker_container_telemetry_degraded', 'on') }}"
+      receipt: "{{ states('input_text.docker_telemetry_recovery') | from_json({}) }}"
+      attempts: "{{ receipt.get('attempts', 0) | int(0) }}"
+      retry_due: >-
+        {{ degraded and attempts < 3 and
+           as_timestamp(now()) - (receipt.get('at', 0) | float(0)) >= 1800 and
+           as_timestamp(now()) - as_timestamp(states.binary_sensor.docker_container_telemetry_degraded.last_changed) >= 600 }}
+    actions:
+      - choose:
+          - conditions: "{{ not degraded }}"
+            sequence:
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.docker_telemetry_recovery
+                data:
+                  value: ""
+          - conditions: "{{ retry_due }}"
+            sequence:
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.docker_telemetry_recovery
+                data:
+                  value: "{{ {'attempts': attempts + 1, 'at': as_timestamp(now()) | int} | to_json }}"
+              - if: "{{ attempts < 2 }}"
+                then:
+                  - action: homeassistant.reload_config_entry
+                    continue_on_error: true
+                    data:
+                      entry_id: "{{ config_entry_id('binary_sensor.portainer_status_2') }}"
+                else:
+                  - action: script.joanna_dispatch
+                    data:
+                      source: "home_assistant_automation.docker_telemetry_recovery"
+                      summary: "Container monitoring is still unavailable after two recovery attempts"
+                      entity_ids:
+                        - binary_sensor.docker_container_telemetry_degraded
+                        - sensor.docker_monitored_container_count
+                      request: >-
+                        Diagnose Home Assistant Portainer integration health and upstream connectivity.
+                        Check actual containers before treating unavailable telemetry as an outage.
+                        Safe integration recovery is authorized. Preserve entity IDs and configuration.
+                        Do not restart healthy workloads, reboot hosts, delete integrations or registry
+                        entries, send notifications, or create public issues. Report exact recovery
+                        evidence or the owner action required. Keep routine recovery quiet.
+                      domain_hint: ops
+                      lane_hint: joanna.ops
 
   - alias: "Docker Group Reconcile - Weekly Joanna Review"
     id: docker_group_reconcile_weekly_joanna_review

@@ -3,70 +3,18 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Living Room Color Defaults - cool white by day, amber by evening
+# Living Room Entry Alert - temporary red lights for open entries
 # Related Issue: 1901
-#  Restores after entry/garage secure; manual late-night turns use the guard.
+#  Manual late-night turns use the separate brightness guard.
 # -------------------------------------------------------------------
-# Notes: Returns to defaults after entry points close; keeps prior off states.
+# Notes: Garage reports must remain open for five seconds; each light's
+#  previous state is restored after all entries are secured.
 ######################################################################
-
-- alias: 'Restore Living Room After Entry Secured'
-  id: restore_living_room_after_entry_secured
-  mode: single
-  trigger:
-    - platform: state
-      entity_id: group.entry_points
-      to: 'off'
-    - platform: state
-      entity_id: group.garage_doors
-      to: 'closed'
-      for: "00:00:30"
-  condition:
-    - condition: state
-      entity_id: group.entry_points
-      state: 'off'
-    - condition: state
-      entity_id: group.garage_doors
-      state: 'closed'
-  action:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: sun.sun
-              state: 'above_horizon'
-          sequence:
-            - service: light.turn_on
-              target:
-                entity_id: light.living_room_lights
-              data:
-                color_temp_kelvin: 5500
-                brightness: 255
-            - service: light.turn_on
-              target:
-                entity_id: light.living_room_accents
-              data:
-                color_temp_kelvin: 5500
-                brightness: 200
-      default:
-        - service: light.turn_on
-          target:
-            entity_id: light.living_room_lights
-          data:
-            color_temp_kelvin: 2700
-            brightness_pct: 25
-        - service: light.turn_on
-          target:
-            entity_id: light.living_room_accents
-          data:
-            color_temp_kelvin: 2700
-            brightness_pct: 20
 
 - alias: 'Living Room Red on Entry/Garage Open'
   id: living_room_red_on_entry_open
-  mode: restart
-  variables:
-    was_off: "{{ is_state('light.living_room_lights', 'off') }}"
-    accents_were_off: "{{ is_state('light.living_room_accents', 'off') }}"
+  mode: single
+  max_exceeded: silent
   trigger:
     - platform: state
       entity_id: group.entry_points
@@ -75,29 +23,35 @@
       entity_id: group.garage_doors
       from: 'closed'
       to: 'open'
-      for: "00:00:15"
+      for: '00:00:05'
   action:
+    - service: scene.create
+      data:
+        scene_id: living_room_before_entry_alert
+        snapshot_entities:
+          - light.m1_front_left
+          - light.m1_front_right
+          - light.m1_back_left
+          - light.m1_back_right
+          - light.tv_stand_light
+          - light.tv_light
+          - light.couch_1
     - service: scene.turn_on
       target:
         entity_id: scene.red_living_room
-    - wait_for_trigger:
-        - platform: state
-          entity_id: group.entry_points
-          to: 'off'
-        - platform: state
-          entity_id: group.garage_doors
-          to: 'closed'
-          for: "00:00:30"
-      timeout: "01:00:00"
-    - choose:
-        - conditions: "{{ was_off }}"
-          sequence:
-            - service: light.turn_off
-              target:
-                entity_id: light.living_room_lights
-    - choose:
-        - conditions: "{{ accents_were_off }}"
-          sequence:
-            - service: light.turn_off
-              target:
-                entity_id: light.living_room_accents
+    - repeat:
+        sequence:
+          - wait_template: >-
+              {{ is_state('group.entry_points', 'off') and
+                 is_state('group.garage_doors', 'closed') }}
+          - delay: '00:00:30'
+        until:
+          - condition: state
+            entity_id: group.entry_points
+            state: 'off'
+          - condition: state
+            entity_id: group.garage_doors
+            state: 'closed'
+    - service: scene.turn_on
+      target:
+        entity_id: scene.living_room_before_entry_alert

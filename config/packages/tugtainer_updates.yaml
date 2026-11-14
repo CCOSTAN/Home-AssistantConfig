@@ -233,6 +233,12 @@ automation:
       event_type: "{{ 'scheduled_verification' if post_rollout else trigger.event.data.event_type | default('info') }}"
       trigger_context: "HA automation tugtainer_dispatch_joanna_for_available_updates (Tugtainer - Dispatch Joanna For Available Updates)"
     action:
+      - if:
+          - condition: template
+            value_template: "{{ post_rollout }}"
+        then:
+          - action: rest_command.bearclaw_security_updates_check
+            continue_on_error: true
       - service: script.send_to_logbook
         data:
           topic: "DOCKER"

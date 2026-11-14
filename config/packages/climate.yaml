@@ -10,9 +10,22 @@
 # Notes: Filter due alerts use 550h downstairs/450h upstairs runtime thresholds, a 9-month hard limit, 3-day snooze, and Filter Changed push actions.
 # Notes: Condenser line cleanout uses a single 360-day reminder for both HVAC systems.
 # Notes: Native NFC tag triggers call the per-unit reset scripts; a short single-run guard suppresses duplicate phone scans.
+# Notes: Downstairs: both beds occupied 6m overnight -> 77F; 08:00 daily -> 80F.
+#  Guest Mode -> 76F; toggling it resets temperature/Eco holds, never manual Off.
+#  Getting out of bed never changes the target. A durable wake deadline catches
+#  missed mornings after downtime; only a fresh off-to-on bed edge starts sleep.
+# Notes: Nest learning/stored schedules are disabled. Manual temperature/Eco
+#  holds last until bedtime or 08:00; manual Off lasts until resumed.
+# Notes: Restoring helpers retain the bed period, manual intent and verified
+#  command fingerprint because Nest exposes none of that ownership metadata.
+# Notes: Fresh-air opportunities can notify while downstairs cooling is idle or running, before sunset.
+#  One daily passive parents push uses a stable tag; the notice clears when
+#  conditions stop qualifying. Helpers preserve daily allowance and active notice.
 # Notes: Filter history helpers restore across restarts; reset scripts seed the prior input_datetime when history is empty.
 # Notes: The snooze notification pattern is also covered at https://youtu.be/y47KSflS1aw.
 # Video: https://youtu.be/nScl2JxYSB8
+# Video: https://youtu.be/J7OSCINNNdM
+# Guide: https://www.vcloudinfo.com/2026/11/nest-thermostat-schedule-fresh-air-home-assistant.html
 ######################################################################
 # Contact: @CCOSTAN | Entity reference details below
 # Entity reference and attribute summaries:
@@ -53,6 +66,16 @@
 # ---------------------------------------------------------------------------
 template:
   - binary_sensor:
+      - name: Fresh Air Window Opportunity
+        unique_id: fresh_air_window_opportunity
+        icon: mdi:window-open-variant
+        state: >-
+          {% from 'fresh_air.jinja' import fresh_air_conditions %}
+          {{ (fresh_air_conditions() | from_json).eligible }}
+        attributes:
+          assessment: >-
+            {% from 'fresh_air.jinja' import fresh_air_conditions %}
+            {{ fresh_air_conditions() | from_json }}
       - name: "Downstairs AC is Cooling"
         unique_id: downstairs_ac_cooling
         state: >
@@ -235,6 +258,17 @@ template:
         icon: mdi:counter
         state: "{{ states('counter.upstairs_filter_change_count') | int(0) }}"
 
+input_boolean:
+  fresh_air_notice_active:
+    name: Fresh Air Notice Active
+    icon: mdi:window-open-variant
+
+input_select:
+  downstairs_hvac_period:
+    name: Downstairs HVAC Bed Period
+    options: [day, sleep]
+    icon: mdi:bed-clock
+
 counter:
   downstairs_filter_change_count:
     name: Downstairs Filter Change Count
@@ -249,6 +283,14 @@ counter:
     icon: mdi:counter
 
 input_datetime:
+  fresh_air_last_notified:
+    name: Fresh Air Last Notified
+    has_date: true
+    has_time: true
+  downstairs_hvac_next_wake:
+    name: Downstairs HVAC Next Morning Reset
+    has_date: true
+    has_time: true
   downstairs_last_filter_change:
     name: Downstairs Last Filter Change
     has_date: true
@@ -277,6 +319,16 @@ input_datetime:
     initial: "2026-06-28 00:00:00"
 
 input_text:
+  downstairs_hvac_override:
+    name: Downstairs HVAC Manual Intent
+    max: 255
+    icon: mdi:hand-back-right
+
+  downstairs_hvac_expected:
+    name: Downstairs HVAC Verified Command
+    max: 255
+    icon: mdi:thermostat
+
   downstairs_filter_change_history:
     name: Downstairs Filter Change History
     max: 255
@@ -420,6 +472,24 @@ script:
 ### There are also some automations in the POWERWALL.yaml package when the grid is down.
 ##############################################################################
 automation:
+  - alias: Fresh Air Reminder Lifecycle
+    id: fresh_air_reminder_lifecycle
+    mode: queued
+    max_exceeded: silent
+    trigger:
+      - trigger: climate.started_cooling
+        target:
+          entity_id: climate.downstairs
+      - trigger: state
+        entity_id: binary_sensor.fresh_air_window_opportunity
+      - trigger: time_pattern
+        minutes: '/1'
+      - trigger: homeassistant
+        event: start
+      - trigger: sun.sunset
+    action:
+      - action: script.reconcile_fresh_air_notice
+
   - alias: HVAC Filter NFC Stickers
     id: hvac_filter_nfc_stickers
     description: Log the unit whose bound HVAC filter NFC sticker was scanned
@@ -700,48 +770,123 @@ automation:
   - alias: Set Downstairs Bedtime Target When Both in Bed
     id: set_downstairs_nest_77_both_in_bed
     trigger:
-      - platform: state
-        entity_id: group.bed
+      # A known off-to-on edge excludes startup/unavailable sensor recovery.
+      - trigger: state
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        from: 'off'
         to: 'on'
+        for: &downstairs_bedtime_confirmation "00:06:00"
     condition:
-      - condition: and
+      # After the morning reset, returning to bed during the day is not bedtime.
+      - condition: or
         conditions:
-          - condition: state
-            entity_id: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-            state: 'on'
-          - condition: state
-            entity_id: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-            state: 'on'
-          - condition: state
-            entity_id: binary_sensor.powerwall_grid_status
-            state: 'on'
+          - condition: sun
+            after: sunset
+          - condition: time
+            before: "08:00:00"
       - condition: state
-        entity_id: sun.sun
-        state: 'below_horizon'
+        entity_id:
+          - binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+          - binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        state: 'on'
+        for: *downstairs_bedtime_confirmation
     action:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.pirateweather_temperature
-                above: 80
-            sequence:
-              - service: climate.set_temperature
-                data:
-                  entity_id: climate.downstairs
-                  temperature: 77
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.pirateweather_temperature
-                above: 75
-                below: 80
-            sequence:
-              - service: climate.set_temperature
-                data:
-                  entity_id: climate.downstairs
-                  temperature: 79
+      - action: script.set_downstairs_hvac_period
+        data:
+          period: sleep
+
+  - alias: Downstairs HVAC Morning Reset
+    id: downstairs_hvac_morning_reset
+    trigger:
+      - trigger: time
+        at: "08:00:00"
+    action:
+      - action: script.set_downstairs_hvac_period
+        data:
+          period: day
+          reset_hold: true
+
+  - alias: Downstairs HVAC Observe Manual Adjustments
+    id: downstairs_hvac_observe_manual_adjustments
+    mode: restart
+    trigger:
+      - trigger: state
+        entity_id: climate.downstairs
+        attribute: temperature
+      - trigger: state
+        entity_id: climate.downstairs
+        attribute: preset_mode
+      - trigger: state
+        entity_id: climate.downstairs
+        to: null
+    condition:
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state is not none and trigger.to_state is not none and
+             trigger.from_state.state not in ['unknown', 'unavailable'] and
+             trigger.to_state.state not in ['unknown', 'unavailable'] }}
+    action:
+      - delay: "00:00:05"
+      - delay:
+          seconds: >-
+            {% set expected = states('input_text.downstairs_hvac_expected') | from_json({}) %}
+            {{ [0, [120, expected.get('settle_until', 0) - as_timestamp(now()) + 1] | min] | max | int }}
+      - action: script.reconcile_downstairs_hvac
+
+  - alias: Downstairs HVAC Reconcile Bed Presence And Recovery
+    id: downstairs_hvac_reconcile_bed_presence_recovery
+    mode: queued
+    max: 5
+    max_exceeded: silent
+    trigger:
+      - trigger: homeassistant
+        event: start
+        id: startup
+      - trigger: time_pattern
+        minutes: "/5"
+      - trigger: state
+        entity_id: group.family
+        to: not_home
+        for: "00:10:00"
+      - trigger: state
+        entity_id: input_boolean.guest_mode
+        from: ['on', 'off']
+        to: ['on', 'off']
+        id: guest
+      - trigger: state
+        entity_id: climate.downstairs
+        from: unavailable
+        id: recovery
+    action:
+      - if:
+          - condition: trigger
+            id: [startup, recovery]
+        then:
+          - delay: "00:01:00"
+      - if:
+          - condition: template
+            value_template: >-
+              {{ as_timestamp(states('input_datetime.downstairs_hvac_next_wake'), 0) <= as_timestamp(now()) }}
+        then:
+          - action: script.set_downstairs_hvac_period
+            data:
+              period: day
+              reset_hold: true
+      - if:
+          - condition: trigger
+            id: guest
+        then:
+          - action: script.set_downstairs_hvac_period
+            data:
+              period: "{{ states('input_select.downstairs_hvac_period') }}"
+              reset_hold: true
+      - action: script.reconcile_downstairs_hvac
   
   - alias: 'Set Downstairs Thermostat Daytime Target'
     id: set_downstairs_thermostat_daytime_target
+    description: Preserve legacy upstairs refreshes; downstairs re-evaluates its bed-led policy without clock/weather target changes.
     mode: single
     trigger:
       - platform: state
@@ -856,31 +1001,6 @@ automation:
         entity_id: group.entry_points
         state: 'off'
     action:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.pirateweather_temperature
-                below: 75
-            sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: "CLIMATE"
-                  message: "Skipping downstairs cool mode (outside temp <75F)."
-        default:
-          - service: climate.set_preset_mode
-            data:
-              entity_id: climate.downstairs
-              preset_mode: 'none'
-          - service: climate.set_hvac_mode
-            data:
-              entity_id: climate.downstairs
-              hvac_mode: cool
-          - service: climate.set_temperature
-            data:
-              entity_id: climate.downstairs
-              temperature: 77
-          - delay: "00:20:00"
-          - service: script.reconcile_hvac_state
-            data:
-              reason: humidity cycle complete
-          - delay: "02:00:00"      # stops it from being triggered again too soon.
+      - action: script.reconcile_downstairs_hvac
+        data:
+          reason: humidity review within bed and manual comfort limits
