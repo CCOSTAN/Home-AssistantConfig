@@ -3,18 +3,38 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Flash Notify Script - Example action call was documented in the legacy header.
-#  Defines the Flash Notify Script sequence for reuse by automations and dashboards.
+# Flash Lighting Scripts - Targeted and whole-house flash actions.
+#  The whole-house action selects lights that advertise flash support.
 # -------------------------------------------------------------------
-# Notes: Script to turn on Front light FULL bright for 15m when motion is detected and then return to the normal colors
-# Notes: - service: script.flash_notify
+# Notes: Light turn_on can power on a switch-backed light if flash is unsupported.
 ######################################################################
 flash_notify:
   sequence:
     - service: light.turn_on
       entity_id:
         - light.main_slider
-        - light.office_lamp
         - light.outdoor_foyer
+      data:
+        flash: long
+
+flash_capable_lights:
+  alias: Flash Capable Lights
+  sequence:
+    - variables:
+        # Home Assistant LightEntityFeature.FLASH is bit 8.
+        targets: >-
+          {%- set result = namespace(ids=[]) -%}
+          {%- for light in states.light
+              if light.state in ['on', 'off']
+              and (light.attributes.supported_features | int(0) | bitwise_and(8))
+              and not light.attributes.entity_id is defined -%}
+            {%- set result.ids = result.ids + [light.entity_id] -%}
+          {%- endfor -%}
+          {{ result.ids }}
+    - condition: template
+      value_template: "{{ targets | length > 0 }}"
+    - action: light.turn_on
+      target:
+        entity_id: "{{ targets }}"
       data:
         flash: long

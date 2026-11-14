@@ -16,38 +16,8 @@
       from: 'off'
 
   action:
-    - service: light.turn_on
-      entity_id: all
-      data:
-        flash: long
-
-    - service: light.turn_on
-      entity_id:
-        - light.bedroom
-        - light.justin_go
-        - light.paige_go
-        - light.sink
-        - light.tv_light
-        - light.couch_1
-        - light.upstairs_lamp
-        - light.office_lamp
-        - light.main_slider
-        - light.garage_attic
-        - light.bedroom_lights
-        - light.dinette_lights
-        - light.dining_room_lights
-        - light.foyer
-        - light.garage_lights
-        - light.hallway_lights
-        - light.kitchen_lights
-        - light.living_room_accents
-        - light.living_room_lights
-        - light.office_lights
-        - light.upstairs_lights
-        - light.garage_hallway
-        # - light.den_lamp
-      data:
-        flash: long
+    - alias: Flash each available light that supports flashing
+      action: script.flash_capable_lights
 
     - service: input_boolean.turn_off
       entity_id: input_boolean.flash

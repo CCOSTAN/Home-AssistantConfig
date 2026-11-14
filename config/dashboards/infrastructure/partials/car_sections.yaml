@@ -6,7 +6,7 @@
 # Systems Partial - Car
 #  Read-only vehicle, tire, odometer, and JuiceBox charging summary.
 # -------------------------------------------------------------------
-# Related Issue: 1944
+# Related Issue: 1944, 2055
 # Notes: No cards expose Tesla or JuiceBox controls.
 # Notes: TeslaMate retains detailed drive, charge, and mileage history.
 # Notes: Tap either Odometer tile for the daily visited-map image; hold for details.
@@ -51,6 +51,51 @@
       tap_action:
         action: navigate
         navigation_path: /dashboard-infrastructure/home
+
+    # Native visibility removes the entire alert card from the grid when clear.
+    - type: conditional
+      view_layout:
+        grid-column: 1 / -1
+      conditions:
+      - condition: state
+        entity: binary_sensor.large_garage_reflection_low
+        state: 'on'
+      card:
+        type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.large_garage_reflection_low
+        name: Large garage needs alignment
+        icon: mdi:garage-alert
+        variables:
+          alert_kind: binary_on
+          warning_only: true
+          exception_detail: Readjust the Garadget laser.
+        state_display: LOW REFLECTION
+        tap_action:
+          action: more-info
+          entity: sensor.large_garage_reflection_rate
+
+    - type: conditional
+      view_layout:
+        grid-column: 1 / -1
+      conditions:
+      - condition: state
+        entity: binary_sensor.small_garage_reflection_low
+        state: 'on'
+      card:
+        type: custom:button-card
+        template: bearstone_infra_alert_row
+        entity: binary_sensor.small_garage_reflection_low
+        name: Small garage needs alignment
+        icon: mdi:garage-alert
+        variables:
+          alert_kind: binary_on
+          warning_only: true
+          exception_detail: Readjust the Garadget laser.
+        state_display: LOW REFLECTION
+        tap_action:
+          action: more-info
+          entity: sensor.small_garage_reflection_rate
 
     - type: custom:button-card
       template: bearstone_infra_kpi

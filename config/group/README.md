@@ -28,9 +28,9 @@ Logical groupings (doors, locks, media, motion, switches) that make automations 
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [![YAML source: doors](https://img.shields.io/static/v1?label=YAML&message=doors&color=lightgrey&logo=github&logoColor=181717)](doors.yaml) | Track all exterior/interior door sensors together. |
-| [![YAML source: media_players](https://img.shields.io/static/v1?label=YAML&message=media_players&color=lightgrey&logo=github&logoColor=181717)](media_players.yaml) | Bundles TVs and speakers for unified control. |
-| [![YAML source: switches](https://img.shields.io/static/v1?label=YAML&message=switches&color=lightgrey&logo=github&logoColor=181717)](switches.yaml) | Convenience groups for bulk on/off automations. |
+| [`doors.yaml`](doors.yaml) | Track all exterior/interior door sensors together. |
+| [`media_players.yaml`](media_players.yaml) | Bundles TVs and speakers for unified control. |
+| [`switches.yaml`](switches.yaml) | Convenience groups for bulk on/off automations. |
 
 ### Tips
 - Use groups in conditions to reduce repetitive entity lists.

@@ -4,7 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Light Groups Configuration for Home Assistant - This file defines light groups for improved control and integration.
-# Related Issue: 764
+# Related Issue: 764, 1996
 #  Defines Home Assistant YAML configuration for Light Groups Configuration for Home Assistant.
 # -------------------------------------------------------------------
 # Notes: This file defines light groups for improved control and integration
@@ -63,7 +63,7 @@
 - platform: group
   name: Office lights
   entities:
-    - light.office_lamp
+    - light.office_lamp_switch  # Switch as Light helper for switch.office_lamp_switch.
 
 - platform: group
   name: Upstairs lights
@@ -99,8 +99,8 @@
 - platform: group
   name: Garage lights
   entities:
-    - light.garage_attic
-    - light.garage_hallway
+    - light.dimmable_light_1_2
+    - light.garage_2_bulb
 
 - platform: group
   name: Hallway Lights

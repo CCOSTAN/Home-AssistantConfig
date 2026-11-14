@@ -4,12 +4,14 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Garadget Garage Doors - MQTT cover control and monitoring
-# Related Issue: 1773, 2005
+# Related Issue: 1773, 1996, 2005, 2055
 #  Open/close commands, status polling, and notifications.
 # -------------------------------------------------------------------
 # Notes: Debounces garage door open/close triggers to reduce noisy
 #  state flapping from spamming lights, speech, and Alexa displays.
 # Notes: Reflection sensors retain MQTT samples for alignment and fault history.
+# Notes: Alignment alerts require 30 minutes of valid low reflection while
+#  the corresponding Garadget reports closed. Snoozes are per door and restore.
 # Notes: Owns the restart-safe garbage reminder snooze timer shared by
 #  the garage reminder and household speech paths.
 # Notes: Garage door reminders share a one-hour phone/speech snooze. It
@@ -72,7 +74,9 @@ mqtt:
       state_topic: "garadget/GLarge/status"
       unit_of_measurement: '%'
       state_class: measurement
-      value_template: '{{ value_json.sensor }}'
+      expire_after: 180
+      value_template: >-
+        {{ value_json.sensor if value_json is mapping and is_number(value_json.get('sensor')) else 'None' }}
 
     - name: "Small Garage Door Since"
       unique_id: garadget_small_garage_door_since
@@ -91,7 +95,27 @@ mqtt:
       state_topic: "garadget/GSmall/status"
       unit_of_measurement: '%'
       state_class: measurement
-      value_template: '{{ value_json.sensor }}'
+      expire_after: 180
+      value_template: >-
+        {{ value_json.sensor if value_json is mapping and is_number(value_json.get('sensor')) else 'None' }}
+
+template:
+  - binary_sensor:
+      - name: Large Garage Reflection Low
+        unique_id: large_garage_reflection_low
+        device_class: problem
+        delay_on: "00:30:00"
+        state: >-
+          {% from 'garadget.jinja' import low_reflection %}
+          {{ low_reflection('large') }}
+
+      - name: Small Garage Reflection Low
+        unique_id: small_garage_reflection_low
+        device_class: problem
+        delay_on: "00:30:00"
+        state: >-
+          {% from 'garadget.jinja' import low_reflection %}
+          {{ low_reflection('small') }}
 
 input_text:
   last_person_home:
@@ -99,6 +123,16 @@ input_text:
     initial: 'Carlo'
 
 timer:
+  large_garage_reflection_snooze:
+    name: Large Garage Reflection Snooze
+    duration: "24:00:00"
+    restore: true
+
+  small_garage_reflection_snooze:
+    name: Small Garage Reflection Snooze
+    duration: "24:00:00"
+    restore: true
+
   garage_door_reminder_snooze:
     name: Garage Door Reminder Snooze
     duration: "01:00:00"
@@ -155,6 +189,238 @@ script:
                   message: "Large Garage was auto-opened for {{ person_name }}."
 
 automation:
+  - alias: Small Garage Lights After Dark
+    id: small_garage_lights_after_dark
+    description: >-
+      A door opening or Garagecam detecting a person turns on the small garage
+      fixture between civil dusk and dawn. In daylight, person detection can
+      start it once both doors are closed. Both doors must stay closed and
+      occupancy clear for 20 minutes to turn it off. If detection is switched
+      off, use the doors alone. An automation reload or restart ends the run.
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: garage_door.opened
+        id: door_opened
+        target:
+          entity_id: &garage_light_doors
+            - cover.large_garage_door
+            - cover.small_garage_door
+      - trigger: garage_door.closed
+        id: door_closed
+        target:
+          entity_id: *garage_light_doors
+      - trigger: occupancy.detected
+        id: person_detected
+        target:
+          entity_id: binary_sensor.garagecam_person_occupancy_2
+    conditions:
+      - condition: or
+        conditions:
+          - alias: A door opened after dark
+            condition: and
+            conditions:
+              - condition: trigger
+                id: door_opened
+              - &garage_light_dark
+                condition: sun.elevation
+                options:
+                  threshold:
+                    type: below
+                    value:
+                      number: -6
+          - alias: A person is inside with both doors closed or was detected after dark
+            condition: and
+            conditions:
+              - condition: trigger
+                id:
+                  - person_detected
+                  - door_closed
+              - condition: state
+                entity_id:
+                  - switch.garagecam_detect_2
+                  - binary_sensor.garagecam_person_occupancy_2
+                state: 'on'
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: *garage_light_doors
+                    state: 'closed'
+                  - condition: and
+                    conditions:
+                      - condition: trigger
+                        id: person_detected
+                      - *garage_light_dark
+    actions:
+      - action: light.turn_on
+        target:
+          entity_id: light.garage_lights
+      - repeat:
+          sequence:
+            - alias: Wait for both doors closed and no person detected
+              wait_template: >-
+                {{ is_state('cover.large_garage_door', 'closed')
+                   and is_state('cover.small_garage_door', 'closed')
+                   and (is_state('switch.garagecam_detect_2', 'off')
+                        or (is_state('switch.garagecam_detect_2', 'on')
+                            and is_state('binary_sensor.garagecam_person_occupancy_2', 'off'))) }}
+            - alias: Restart the hold when a door or the occupancy inputs change
+              wait_for_trigger:
+                - trigger: state
+                  entity_id:
+                    - cover.large_garage_door
+                    - cover.small_garage_door
+                    - binary_sensor.garagecam_person_occupancy_2
+                    - switch.garagecam_detect_2
+                  to: null
+              timeout: &garage_lights_hold "00:20:00"
+          until:
+            - "{{ not wait.completed }}"
+            - condition: state
+              entity_id:
+                - cover.large_garage_door
+                - cover.small_garage_door
+              state: 'closed'
+              for: *garage_lights_hold
+            - condition: or
+              conditions:
+                - condition: state
+                  entity_id: switch.garagecam_detect_2
+                  state: 'off'
+                  for: *garage_lights_hold
+                - condition: and
+                  conditions:
+                    - condition: state
+                      entity_id: switch.garagecam_detect_2
+                      state: 'on'
+                      for: *garage_lights_hold
+                    - condition: state
+                      entity_id: binary_sensor.garagecam_person_occupancy_2
+                      state: 'off'
+                      for: *garage_lights_hold
+      - action: light.turn_off
+        target:
+          entity_id: light.garage_lights
+
+  - alias: Garage Light Switch Power Reminder
+    id: garage_light_switch_power_reminder
+    description: Remind through the Garage Echo if both bulbs on the shared fixture lose contact.
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: light.garage_lights
+        from:
+          - 'on'
+          - 'off'
+        to: 'unavailable'
+        for: "00:00:30"
+    conditions:
+      # The group can also be unavailable if its members are missing during setup.
+      - condition: state
+        entity_id:
+          - light.dimmable_light_1_2
+          - light.garage_2_bulb
+        state: 'unavailable'
+    actions:
+      - action: notify.send_message
+        target:
+          entity_id: notify.garage_speak
+        data:
+          message: "The garage light switch may be off. Please turn it back on."
+
+  - alias: Garadget Reflection Maintenance Alert
+    id: garadget_reflection_maintenance_alert
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.large_garage_reflection_low
+          - binary_sensor.small_garage_reflection_low
+        to: 'on'
+        id: low
+      - trigger: state
+        entity_id:
+          - binary_sensor.large_garage_reflection_low
+          - binary_sensor.small_garage_reflection_low
+        from: 'on'
+        to: 'off'
+        id: clear
+      - trigger: state
+        entity_id:
+          - timer.large_garage_reflection_snooze
+          - timer.small_garage_reflection_snooze
+        from: 'active'
+        to: 'idle'
+        id: expired
+      - trigger: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: GARADGET_REFLECTION_LARGE_1D
+        id: snooze
+      - trigger: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: GARADGET_REFLECTION_LARGE_3D
+        id: snooze
+      - trigger: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: GARADGET_REFLECTION_SMALL_1D
+        id: snooze
+      - trigger: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: GARADGET_REFLECTION_SMALL_3D
+        id: snooze
+    variables:
+      door: >-
+        {{ trigger.event.data.action.split('_')[2] | lower if trigger.id == 'snooze'
+           else trigger.entity_id.split('.')[1].split('_')[0] }}
+      alert_entity: "binary_sensor.{{ door }}_garage_reflection_low"
+      snooze_timer: "timer.{{ door }}_garage_reflection_snooze"
+      notification_tag: "garadget_reflection_{{ door }}"
+    actions:
+      - condition: template
+        value_template: >-
+          {{ is_state(snooze_timer, 'idle')
+             and is_state(alert_entity, 'off' if trigger.id == 'clear' else 'on') }}
+      - if:
+          - condition: trigger
+            id: snooze
+        then:
+          - action: timer.start
+            target:
+              entity_id: "{{ snooze_timer }}"
+            data:
+              duration: "{{ 259200 if trigger.event.data.action.endswith('_3D') else 86400 }}"
+      - if:
+          - condition: trigger
+            id:
+              - clear
+              - snooze
+        then:
+          - action: script.notify_engine
+            data:
+              who: carlo
+              tag: "{{ notification_tag }}"
+              value1: clear_notification
+          - stop: Garage alignment notification cleared.
+      - action: script.notify_engine
+        data:
+          title: "Align the {{ door }} Garadget"
+          value1: "Reflection is {{ states('sensor.' ~ door ~ '_garage_reflection_rate') }}% with the door closed."
+          who: carlo
+          group: Maintenance
+          tag: "{{ notification_tag }}"
+          url: /dashboard-infrastructure/car
+          notification_icon: mdi:garage-alert
+          color: "#C2410C"
+          title1: Snooze 1 day
+          action1: "GARADGET_REFLECTION_{{ door | upper }}_1D"
+          icon1: sfsymbols:clock
+          title2: Snooze 3 days
+          action2: "GARADGET_REFLECTION_{{ door | upper }}_3D"
+          icon2: sfsymbols:calendar
 
   ######################################################################
   ##  Automation: Auto-open Large Garage Door when someone comes home

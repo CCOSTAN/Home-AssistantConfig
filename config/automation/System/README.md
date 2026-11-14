@@ -26,10 +26,10 @@ Meta automations that keep Home Assistant healthy�watchdogs, diagnostics, and 
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [![YAML source: watchdog_light](https://img.shields.io/static/v1?label=YAML&message=watchdog_light&color=lightgrey&logo=github&logoColor=181717)](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
-| [![YAML source: trigger_dump](https://img.shields.io/static/v1?label=YAML&message=trigger_dump&color=lightgrey&logo=github&logoColor=181717)](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
-| [![YAML source: CucKoo_Clock](https://img.shields.io/static/v1?label=YAML&message=CucKoo_Clock&color=lightgrey&logo=github&logoColor=181717)](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. Guest mode keeps chimes running around the clock; otherwise the family-home and 09:00-22:00 limits apply. |
-| [![YAML source: door_chime](https://img.shields.io/static/v1?label=YAML&message=door_chime&color=lightgrey&logo=github&logoColor=181717)](door_chime.yaml) | Door open/close tones play in the living room or on the bedroom tablet when Bed Mode is active. |
+| [`watchdog_light.yaml`](watchdog_light.yaml) | Detects flapping entities and nudges them back. |
+| [`trigger_dump.yaml`](trigger_dump.yaml) | Debug helper that logs trigger payloads for troubleshooting. |
+| [`CucKoo_Clock.yaml`](CucKoo_Clock.yaml) | Hourly and half-hour chimes with seasonal sound packs. Guest mode keeps chimes running around the clock; otherwise the family-home and 09:00-22:00 limits apply. |
+| [`door_chime.yaml`](door_chime.yaml) | Door open/close tones play in the living room or on the bedroom tablet when Bed Mode is active. |
 
 Set `door_chime_audio_base_url` in `secrets.yaml` to a Home Assistant URL reachable by both players.
 

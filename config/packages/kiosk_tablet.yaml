@@ -519,7 +519,10 @@ template:
       - condition: template
         value_template: >-
           {{ trigger.id != 'notification'
-             or trigger.event.data.service in ['ios_parents', 'ios_family'] }}
+             or trigger.event.data.service in ['ios_parents', 'ios_family']
+             or (trigger.event.data.service == 'mobile_app_carlo_maxpro'
+                 and (trigger.event.data.service_data.get('data') or {}).get('tag')
+                     in ['garadget_reflection_large', 'garadget_reflection_small']) }}
     actions:
       - variables:
           notification_items: >-

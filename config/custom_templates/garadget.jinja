@@ -1,0 +1,5 @@
+{# A closed door and a valid percentage are required even at zero reflection. #}
+{% macro low_reflection(door) -%}
+  {% set reflection = states('sensor.' ~ door ~ '_garage_reflection_rate') | float(-1) %}
+  {{ is_state('cover.' ~ door ~ '_garage_door', 'closed') and 0 <= reflection <= 20 }}
+{%- endmacro %}

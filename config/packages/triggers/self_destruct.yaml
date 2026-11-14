@@ -55,10 +55,7 @@ automation:
       data:
         media_content_id: /local/sounds/speechcons/self_destruct.mp3
         media_content_type: audio/mpeg
-    - service: light.turn_on
-      entity_id: all
-      data:
-        flash: long
+    - action: script.flash_capable_lights
 
     - service: light.turn_off
       entity_id: all

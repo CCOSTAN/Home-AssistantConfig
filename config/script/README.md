@@ -27,17 +27,17 @@ Reusable scripts that other automations call for notifications, lighting, safety
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
-| [![YAML source: notify_engine](https://img.shields.io/static/v1?label=YAML&message=notify_engine&color=lightgrey&logo=github&logoColor=181717)](notify_engine.yaml) | Single entrypoint for rich push notifications, with one or two optional action buttons, tags for clearing, and shared colored notification icons for household alerts. | [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/TMfdxv-WprM) [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/home-assistant-ios-notification-icons.html)
-| [![YAML source: hvac_control](https://img.shields.io/static/v1?label=YAML&message=hvac_control&color=lightgrey&logo=github&logoColor=181717)](hvac_control.yaml) | Single reconciler for grid, entry-point, occupancy, and target-temperature HVAC policy. |
-| [![YAML source: notify_live_activity](https://img.shields.io/static/v1?label=YAML&message=notify_live_activity&color=lightgrey&logo=github&logoColor=181717)](notify_live_activity.yaml) | Shared helper for tagged live activity/live update pushes and clear commands. |
-| [![YAML source: kiosk_driveway_camera_takeover](https://img.shields.io/static/v1?label=YAML&message=kiosk_driveway_camera_takeover&color=lightgrey&logo=github&logoColor=181717)](kiosk_driveway_camera_takeover.yaml) | Coordinates the bounded Driveway camera takeover and wake behavior across both household kiosks. |
-| [![YAML source: send_to_logbook](https://img.shields.io/static/v1?label=YAML&message=send_to_logbook&color=lightgrey&logo=github&logoColor=181717)](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
-| [![YAML source: joanna_dispatch](https://img.shields.io/static/v1?label=YAML&message=joanna_dispatch&color=lightgrey&logo=github&logoColor=181717)](joanna_dispatch.yaml) | Shared AGENT engineer dispatch contract that routes HA-detected issues into Joanna/BearClaw remediation. |
-| [![YAML source: speech_engine](https://img.shields.io/static/v1?label=YAML&message=speech_engine&color=lightgrey&logo=github&logoColor=181717)](speech_engine.yaml) | TTS/announcement orchestration with templated speech; speech processing can bypass LLM rewriting for exact messages and also routes garage/office Echo announcements. |
-| [![YAML source: verify_rain_at_house](https://img.shields.io/static/v1?label=YAML&message=verify_rain_at_house&color=lightgrey&logo=github&logoColor=181717)](verify_rain_at_house.yaml) | Conservative rain corroboration through the existing OpenAI AI Task and current exterior camera images. Returns a decision without controlling devices; requires usable recent Frigate camera reports, high-confidence visible rain or broadly wet exposed concrete, and inactive irrigation. Errors and uncertainty deny optional rain lighting. |
-| [![YAML source: monthly_color_scene](https://img.shields.io/static/v1?label=YAML&message=monthly_color_scene&color=lightgrey&logo=github&logoColor=181717)](monthly_color_scene.yaml) | Seasonal lighting dispatcher that follows `sensor.holiday_lighting_scene`. |
-| [![YAML source: interior_off](https://img.shields.io/static/v1?label=YAML&message=interior_off&color=lightgrey&logo=github&logoColor=181717)](interior_off.yaml) | Existing bedtime/away shutdown for interior lights, switches, media power, and the Paige lighting routine. |
-| [![YAML source: lighting_all_off](https://img.shields.io/static/v1?label=YAML&message=lighting_all_off&color=lightgrey&logo=github&logoColor=181717)](lighting_all_off.yaml) | Shared Home/Mobile lights-only shutdown with an explicit lamp-switch allowlist; uses the same scope as On Now. |
+| [`notify_engine.yaml`](notify_engine.yaml) | Single entrypoint for rich push notifications, with one or two optional action buttons, tags for clearing, and shared colored notification icons for household alerts. | [YouTube](https://youtu.be/TMfdxv-WprM) [Blog post](https://www.vcloudinfo.com/2026/10/home-assistant-ios-notification-icons.html)
+| [`hvac_control.yaml`](hvac_control.yaml) | Single reconciler for grid, entry-point, occupancy, and target-temperature HVAC policy. |
+| [`notify_live_activity.yaml`](notify_live_activity.yaml) | Shared helper for tagged live activity/live update pushes and clear commands. |
+| [`kiosk_driveway_camera_takeover.yaml`](kiosk_driveway_camera_takeover.yaml) | Coordinates the bounded Driveway camera takeover and wake behavior across both household kiosks. |
+| [`send_to_logbook.yaml`](send_to_logbook.yaml) | Generic `logbook.log` helper for Activity feed entries (Issue #1550). |
+| [`joanna_dispatch.yaml`](joanna_dispatch.yaml) | Shared AGENT engineer dispatch contract that routes HA-detected issues into Joanna/BearClaw remediation. |
+| [`speech_engine.yaml`](speech_engine.yaml) | TTS/announcement orchestration with templated speech; speech processing can bypass LLM rewriting for exact messages and also routes garage/office Echo announcements. |
+| [`verify_rain_at_house.yaml`](verify_rain_at_house.yaml) | Conservative rain corroboration through the existing OpenAI AI Task and current exterior camera images. Returns a decision without controlling devices; requires usable recent Frigate camera reports, high-confidence visible rain or broadly wet exposed concrete, and inactive irrigation. Errors and uncertainty deny optional rain lighting. |
+| [`monthly_color_scene.yaml`](monthly_color_scene.yaml) | Seasonal lighting dispatcher that follows `sensor.holiday_lighting_scene`. |
+| [`interior_off.yaml`](interior_off.yaml) | Existing bedtime/away shutdown for interior lights, switches, media power, and the Paige lighting routine. |
+| [`lighting_all_off.yaml`](lighting_all_off.yaml) | Shared Home/Mobile lights-only shutdown with an explicit lamp-switch allowlist; uses the same scope as On Now. |
 
 ### Household notification icons
 
@@ -95,27 +95,27 @@ What the helper normalizes before the BearClaw intake call:
 Current automations that kick off automated resolutions (via `script.joanna_dispatch`):
 | Automation ID | Alias | File |
 | --- | --- | --- |
-| `mqtt_open_repair_on_failure` | MQTT - Open Repair On Failure | [![YAML source: mqtt_status](https://img.shields.io/static/v1?label=YAML&message=mqtt_status&color=lightgrey&logo=github&logoColor=181717)](../packages/mqtt_status.yaml) |
-| `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [![YAML source: onenote_indexer](https://img.shields.io/static/v1?label=YAML&message=onenote_indexer&color=lightgrey&logo=github&logoColor=181717)](../packages/onenote_indexer.yaml) |
-| `infra_backup_nightly_verification` | Infrastructure - Backup Nightly Verification | [![YAML source: infrastructure](https://img.shields.io/static/v1?label=YAML&message=infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/infrastructure.yaml) |
-| `infra_monthly_log_hygiene_review` | Infrastructure - Monthly HA Log Hygiene Review | [![YAML source: infrastructure](https://img.shields.io/static/v1?label=YAML&message=infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/infrastructure.yaml) |
-| `infra_nebula_sync_health_dispatch` | Infrastructure - Nebula Sync Health Dispatch | [![YAML source: infrastructure](https://img.shields.io/static/v1?label=YAML&message=infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/infrastructure.yaml) |
-| `infra_pihole_iot_dns_drift_dispatch` | Infrastructure - Pi-hole IoT DNS Drift Dispatch | [![YAML source: infrastructure](https://img.shields.io/static/v1?label=YAML&message=infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/infrastructure.yaml) |
-| `infra_website_down_repair_and_dispatch` | Infrastructure - Website Down Repair And Dispatch | [![YAML source: infrastructure](https://img.shields.io/static/v1?label=YAML&message=infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/infrastructure.yaml) |
-| `docker_state_sync_repairs_dynamic` | Docker State Sync - Repairs (Dynamic) | [![YAML source: docker_infrastructure](https://img.shields.io/static/v1?label=YAML&message=docker_infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/docker_infrastructure.yaml) |
-| `docker_group_reconcile_weekly_joanna_review` | Docker Group Reconcile - Weekly Joanna Review | [![YAML source: docker_infrastructure](https://img.shields.io/static/v1?label=YAML&message=docker_infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/docker_infrastructure.yaml) |
-| `docker_host_disk_pressure_monitor` | Docker Host Disk Pressure Monitor | [![YAML source: infrastructure](https://img.shields.io/static/v1?label=YAML&message=infrastructure&color=lightgrey&logo=github&logoColor=181717)](../packages/infrastructure.yaml) |
-| `proxmox_updates_joanna_dispatch` | Proxmox Updates Joanna Dispatch | [![YAML source: proxmox](https://img.shields.io/static/v1?label=YAML&message=proxmox&color=lightgrey&logo=github&logoColor=181717)](../packages/proxmox.yaml) |
-| `tugtainer_dispatch_joanna_for_available_updates` | Tugtainer - Dispatch Joanna For Available Updates | [![YAML source: tugtainer_updates](https://img.shields.io/static/v1?label=YAML&message=tugtainer_updates&color=lightgrey&logo=github&logoColor=181717)](../packages/tugtainer_updates.yaml) |
-| `tugtainer_dispatch_joanna_for_home_assistant_core_digest` | Tugtainer - Dispatch Joanna For Home Assistant Core Digest | [![YAML source: tugtainer_updates](https://img.shields.io/static/v1?label=YAML&message=tugtainer_updates&color=lightgrey&logo=github&logoColor=181717)](../packages/tugtainer_updates.yaml) |
-| `unifi_ap_no_clients_repair_combined` | Unifi AP Create Repair Issue after 5m of 0 Clients | [![YAML source: wireless](https://img.shields.io/static/v1?label=YAML&message=wireless&color=lightgrey&logo=github&logoColor=181717)](../packages/wireless.yaml) |
-| `proxmox_runtime_repairs` | Proxmox Runtime Repair Issues | [![YAML source: proxmox](https://img.shields.io/static/v1?label=YAML&message=proxmox&color=lightgrey&logo=github&logoColor=181717)](../packages/proxmox.yaml) |
-| `proxmox_disk_pressure_repairs` | Proxmox Disk Pressure Repair Issues | [![YAML source: proxmox](https://img.shields.io/static/v1?label=YAML&message=proxmox&color=lightgrey&logo=github&logoColor=181717)](../packages/proxmox.yaml) |
-| `synology_dsm_open_repair_and_dispatch` | Synology DSM - Open Repair And Dispatch | [![YAML source: synology_dsm](https://img.shields.io/static/v1?label=YAML&message=synology_dsm&color=lightgrey&logo=github&logoColor=181717)](../packages/synology_dsm.yaml) |
-| `processmonitor_disk_use_joanna_review` | Self Heal Disk Use Joanna Review | [![YAML source: processmonitor](https://img.shields.io/static/v1?label=YAML&message=processmonitor&color=lightgrey&logo=github&logoColor=181717)](../packages/processmonitor.yaml) |
-| `rheem_water_heater_alert_incident` | Rheem Water Heater Alert Incident | [![YAML source: rheem_econet](https://img.shields.io/static/v1?label=YAML&message=rheem_econet&color=lightgrey&logo=github&logoColor=181717)](../packages/rheem_econet.yaml) |
-| `rheem_water_heater_incident_reconcile` | Rheem Water Heater Incident Reconcile | [![YAML source: rheem_econet](https://img.shields.io/static/v1?label=YAML&message=rheem_econet&color=lightgrey&logo=github&logoColor=181717)](../packages/rheem_econet.yaml) |
-| `1ce3cb43-0e27-4c53-acdd-d672396f3559` | Disk Use Alarm | [![YAML source: processmonitor](https://img.shields.io/static/v1?label=YAML&message=processmonitor&color=lightgrey&logo=github&logoColor=181717)](../packages/processmonitor.yaml) |
+| `mqtt_open_repair_on_failure` | MQTT - Open Repair On Failure | [`mqtt_status.yaml`](../packages/mqtt_status.yaml) |
+| `onenote_indexer_failure_open_repair` | OneNote Indexer - Open Repair On Failure | [`onenote_indexer.yaml`](../packages/onenote_indexer.yaml) |
+| `infra_backup_nightly_verification` | Infrastructure - Backup Nightly Verification | [`infrastructure.yaml`](../packages/infrastructure.yaml) |
+| `infra_monthly_log_hygiene_review` | Infrastructure - Monthly HA Log Hygiene Review | [`infrastructure.yaml`](../packages/infrastructure.yaml) |
+| `infra_nebula_sync_health_dispatch` | Infrastructure - Nebula Sync Health Dispatch | [`infrastructure.yaml`](../packages/infrastructure.yaml) |
+| `infra_pihole_iot_dns_drift_dispatch` | Infrastructure - Pi-hole IoT DNS Drift Dispatch | [`infrastructure.yaml`](../packages/infrastructure.yaml) |
+| `infra_website_down_repair_and_dispatch` | Infrastructure - Website Down Repair And Dispatch | [`infrastructure.yaml`](../packages/infrastructure.yaml) |
+| `docker_state_sync_repairs_dynamic` | Docker State Sync - Repairs (Dynamic) | [`docker_infrastructure.yaml`](../packages/docker_infrastructure.yaml) |
+| `docker_group_reconcile_weekly_joanna_review` | Docker Group Reconcile - Weekly Joanna Review | [`docker_infrastructure.yaml`](../packages/docker_infrastructure.yaml) |
+| `docker_host_disk_pressure_monitor` | Docker Host Disk Pressure Monitor | [`infrastructure.yaml`](../packages/infrastructure.yaml) |
+| `proxmox_updates_joanna_dispatch` | Proxmox Updates Joanna Dispatch | [`proxmox.yaml`](../packages/proxmox.yaml) |
+| `tugtainer_dispatch_joanna_for_available_updates` | Tugtainer - Dispatch Joanna For Available Updates | [`tugtainer_updates.yaml`](../packages/tugtainer_updates.yaml) |
+| `tugtainer_dispatch_joanna_for_home_assistant_core_digest` | Tugtainer - Dispatch Joanna For Home Assistant Core Digest | [`tugtainer_updates.yaml`](../packages/tugtainer_updates.yaml) |
+| `unifi_ap_no_clients_repair_combined` | Unifi AP Create Repair Issue after 5m of 0 Clients | [`wireless.yaml`](../packages/wireless.yaml) |
+| `proxmox_runtime_repairs` | Proxmox Runtime Repair Issues | [`proxmox.yaml`](../packages/proxmox.yaml) |
+| `proxmox_disk_pressure_repairs` | Proxmox Disk Pressure Repair Issues | [`proxmox.yaml`](../packages/proxmox.yaml) |
+| `synology_dsm_open_repair_and_dispatch` | Synology DSM - Open Repair And Dispatch | [`synology_dsm.yaml`](../packages/synology_dsm.yaml) |
+| `processmonitor_disk_use_joanna_review` | Self Heal Disk Use Joanna Review | [`processmonitor.yaml`](../packages/processmonitor.yaml) |
+| `rheem_water_heater_alert_incident` | Rheem Water Heater Alert Incident | [`rheem_econet.yaml`](../packages/rheem_econet.yaml) |
+| `rheem_water_heater_incident_reconcile` | Rheem Water Heater Incident Reconcile | [`rheem_econet.yaml`](../packages/rheem_econet.yaml) |
+| `1ce3cb43-0e27-4c53-acdd-d672396f3559` | Disk Use Alarm | [`processmonitor.yaml`](../packages/processmonitor.yaml) |
 
 ### Tips
 - Keep scripts generic, route data via `data:`/`variables:`, and reuse everywhere.

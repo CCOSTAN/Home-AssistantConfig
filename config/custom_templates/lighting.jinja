@@ -8,6 +8,7 @@
 #  Existing light groups plus explicitly approved lighting outlets.
 # -------------------------------------------------------------------
 # Notes: Unknown switches are excluded even if added to a lighting group.
+# Notes: Use the office lamp outlet directly in the shared dashboard and shutdown list.
 # Notes: Screens, equipment indicators, media power, and thermostat power
 #        are outside this scope. No voice or bedtime routines are called.
 ######################################################################
@@ -32,6 +33,7 @@
   {%- for s in expand(roots) -%}
     {%- if s.state in ['on', 'off'] and (not active_only or s.state == 'on')
         and (s.entity_id.startswith('light.') or s.entity_id in lamp_switches)
+        and s.entity_id != 'light.office_lamp_switch'
         and not s.entity_id.startswith('light.unifi_')
         and not s.entity_id.endswith('_screen') and not s.entity_id.endswith('_screen_2') -%}
       {%- set ns.items = ns.items + [s.entity_id] -%}
