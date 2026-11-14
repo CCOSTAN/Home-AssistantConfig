@@ -55,8 +55,9 @@ speech_engine:
              {% set media_player = media_player|join(', ') %}
            {% endif %}
            {{ media_player }}
-        # Include the speech message from the "speech/briefing.yaml" template file
-        speech_message: !include ../templates/speech/briefing.yaml
+        # The shared briefing uses the variables passed to this script.
+        speech_message: >-
+          {% include 'briefing.jinja' %}
 
     # Turn off the "input_boolean.home_stats"
     - service: input_boolean.turn_off

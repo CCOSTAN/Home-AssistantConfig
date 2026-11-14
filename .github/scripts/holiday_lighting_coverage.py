@@ -434,7 +434,7 @@ def validate_runtime_boundaries(root: Path, calculator) -> None:
     require(calculator.calendar_data("holiday", date(2027, 4, 19), data_dir)["state"], "", "false April Memorial Day")
     require(calculator.calendar_data("flag", date(2033, 1, 20), data_dir)["state"], "True", "future inauguration")
 
-    speech = (root / "config" / "templates" / "speech" / "briefing.yaml").read_text(encoding="utf-8")
+    speech = (root / "config" / "custom_templates" / "briefing.jinja").read_text(encoding="utf-8")
     macro_start = speech.index("{%- macro days_until() -%}")
     macro_end = speech.index("{%- endmacro -%}", macro_start) + len("{%- endmacro -%}")
     speech_template = env.from_string(speech[macro_start:macro_end] + "{{ days_until() }}")

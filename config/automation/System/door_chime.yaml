@@ -4,10 +4,11 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Door Chime Automation - Home Assistant automation behavior.
-#  Defines the Door Chime Automation triggers, conditions, and actions.
+#  Plays local open/close tones in the living room or on the bedroom tablet.
+# Notes: door_chime_audio_base_url is the Home Assistant URL reachable by both players.
 # -------------------------------------------------------------------
 ######################################################################
-- alias: Door 
+- alias: Door
   mode: queued
   id: ae0fb37b-67cf-48a4-a609-999d44272e90
   trigger:
@@ -20,6 +21,9 @@
       entity_id: group.family
       state: 'home'
 
+  variables:
+    chime_audio_base_url: !secret door_chime_audio_base_url
+
   action:
     - service: script.amp_settings
       data:
@@ -29,18 +33,12 @@
     - wait_template: "{{ not is_state('media_player.livingroomcc', 'playing') }}"
       timeout: '00:01:00'  # Adjust the timeout as needed
 
-    - service: media_player.play_media
+    - action: media_player.play_media
+      target:
+        entity_id: >-
+          {{ 'media_player.livingroomcc' if is_state('group.bed', 'off') else 'media_player.bedroom_tablet' }}
       data:
-        entity_id: >
-          {% if is_state('group.bed', 'off') %}
-          media_player.livingroomCC
-          {% else %}
-          media_player.bedroom
-          {% endif %}
-        media_content_id: >
-          {% if trigger.to_state.state == 'on' %}
-          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/one-tone-chime.mp3
-          {% else %}
-          https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/two-tone-chime.mp3
-          {% endif %}
-        media_content_type: audio/mp4
+        media_content_id: >-
+          {% set tone = 'one-tone' if trigger.to_state.state == 'on' else 'two-tone' %}
+          {{ chime_audio_base_url.rstrip('/') }}/local/sounds/{{ tone }}-chime.mp3
+        media_content_type: audio/mpeg

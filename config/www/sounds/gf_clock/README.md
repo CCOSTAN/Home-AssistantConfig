@@ -16,16 +16,16 @@
 
 </div>
 
-Speechcon/SSML-friendly sound snippets sprinkled into the speech engine for variety.
+Grandfather clock chimes and cues used for hourly or themed announcements.
 
 ### Quick navigation
-- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Sounds home](..) | [Speech automations](../../automation/Speech)
+- [Repo overview](../../../../README.md) | [Config index](../../../README.md) | [Sounds home](..)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
 ### Tips
-- Use sparingly; novelty wears off fast if played too often.
-- Keep filenames aligned with the SSML tags you reference.
+- Pair with `automation/Timed_Triggers/` routines for on-the-hour cues.
+- Normalize levels so chimes don�t spike TTS volume.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

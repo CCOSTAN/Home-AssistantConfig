@@ -294,6 +294,12 @@ class DashboardRepositoryValidator:
         configuration = parse_yaml(configuration_path)
         if not isinstance(configuration, dict):
             raise ValidationError("config/configuration.yaml must contain a mapping")
+        frontend = configuration.get("frontend")
+        if isinstance(frontend, dict) and "themes" in frontend:
+            themes = self.resolve_value(frontend["themes"], configuration_path)
+            if not isinstance(themes, dict):
+                raise ValidationError("frontend.themes must resolve to a mapping")
+
         lovelace = configuration.get("lovelace")
         if not isinstance(lovelace, dict):
             raise ValidationError("config/configuration.yaml is missing lovelace mapping")

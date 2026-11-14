@@ -16,16 +16,16 @@
 
 </div>
 
-Grandfather clock chimes and cues used for hourly or themed announcements.
+Custom/recorded sounds for bespoke automations (alarms, alerts, gags).
 
 ### Quick navigation
-- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Sounds home](..)
+- [Repo overview](../../../../README.md) | [Config index](../../../README.md) | [Sounds home](..)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
 ### Tips
-- Pair with `automation/Timed_Triggers/` routines for on-the-hour cues.
-- Normalize levels so chimes don�t spike TTS volume.
+- Note volume expectations in the automation that plays each file.
+- Store lossless masters elsewhere; keep deployment files compressed.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

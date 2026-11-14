@@ -16,16 +16,16 @@
 
 </div>
 
-Custom/recorded sounds for bespoke automations (alarms, alerts, gags).
+Speechcon/SSML-friendly sound snippets sprinkled into the speech engine for variety.
 
 ### Quick navigation
-- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Sounds home](..)
+- [Repo overview](../../../../README.md) | [Config index](../../../README.md) | [Sounds home](..) | [Speech automations](../../../automation/Speech)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
 ### Tips
-- Note volume expectations in the automation that plays each file.
-- Store lossless masters elsewhere; keep deployment files compressed.
+- Use sparingly; novelty wears off fast if played too often.
+- Keep filenames aligned with the SSML tags you reference.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 

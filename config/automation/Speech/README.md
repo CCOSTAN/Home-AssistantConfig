@@ -19,7 +19,7 @@
 Speech-first automations: contextual announcements, stats briefings, guest mode overrides, and alert handling routed through the speech/notify engines.
 
 ### Quick navigation
-- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Automation home](..) | [Scripts](../../script) | [Templates (speech)](../../templates/speech)
+- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Automation home](..) | [Scripts](../../script) | [Briefing template](../../custom_templates/briefing.jinja)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
@@ -33,7 +33,7 @@ Speech-first automations: contextual announcements, stats briefings, guest mode 
 | [![YAML source: High_Wind_Speed_Check](https://img.shields.io/static/v1?label=YAML&message=High_Wind_Speed_Check&color=lightgrey&logo=github&logoColor=181717)](High_Wind_Speed_Check.yaml) | Tier 30/40/60 mph alerts and include any open garage doors in one warning path. |
 
 ### Tips
-- Pairs with `script/speech_engine.yaml` and `templates/speech/briefing.yaml` for reusable phrasing.
+- Pairs with `script/speech_engine.yaml` and `custom_templates/briefing.jinja` for reusable phrasing.
 - Garage bin alerts use the short "Garage Bins" title and single-line shared reminder text so the phone can wrap naturally. iOS controls Priority Notifications styling and text size (Issue #2022).
 - Keep announcements natural and action-first; the LLM prompt should avoid previous-message repetition and include weather when requested, safety-relevant, or still useful before late-day context takes over.
 - Airly's nearest-monitor CAQI is the primary local reading and stays silent below medium (50); Pirate Weather US AQI is a safety backstop at 101 or higher. Normal readings are never added to speech. [![Watch on YouTube](https://img.shields.io/badge/Watch-YouTube-FF0000?logo=youtube&logoColor=white)](https://youtu.be/Gjk7z34Qe_4) [![vCloudInfo Blog Post](https://img.shields.io/static/v1?label=vCloudInfo&message=Blog%20Post&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/07/home-assistant-air-quality-airly-pirate-weather.html)

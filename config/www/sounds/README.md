@@ -5,17 +5,17 @@
 </h1>
 <h4 align="center">Be sure to :star: my configuration repo so you can keep up to date on any daily progress!</h4>
 
-Public Home Assistant static audio served from `/local/sounds/`.
+Home Assistant sound assets are served from `/local/sounds/`.
 
 ### Quick navigation
 - You are here: `config/www/sounds/` (public local audio)
-- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Sound sources](../../sounds)
+- [Repo overview](../../../README.md) | [Config index](../../README.md) | [Automations](../../automation) | [Scripts](../../script)
 
 ![Home Assistant header](https://i.imgur.com/vjDH1LJ.png)
 
 ### Tips
-- Keep only files that need HA-local HTTP playback here.
-- Cuckoo clock packs live here as the single source of truth so Chromecast fetches them from Home Assistant instead of GitHub raw URLs.
+- Door chimes, dog barks, and speech effects use the same local audio directory as the clock packs.
+- The `gf_clock/`, `custom/`, and `speechcons/` folders group other sound sets.
 - Seasonal cuckoo clock uses `july-clock` (patriotic holidays), `october-clock` (Halloween), and `december-clock` (Christmas) variants, falling back to `cuckoo-clock`.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**

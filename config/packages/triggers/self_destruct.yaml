@@ -53,9 +53,8 @@ automation:
           # - media_player.entry_alarm_panel
           # - media_player.bedroom_tablet
       data:
-        media_content_id: >
-          "https://raw.githubusercontent.com/CCOSTAN/Home-AssistantConfig/master/config/sounds/speechcons/self_destruct.mp3"
-        media_content_type: audio/mp4
+        media_content_id: /local/sounds/speechcons/self_destruct.mp3
+        media_content_type: audio/mpeg
     - service: light.turn_on
       entity_id: all
       data:
