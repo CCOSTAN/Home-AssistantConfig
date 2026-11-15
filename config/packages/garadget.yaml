@@ -17,6 +17,8 @@
 # Notes: Garage door reminders share a one-hour phone/speech snooze. It
 #  resets when both doors close and does not survive Home Assistant restarts.
 # Notes: The garage_door_reminder tag replaces the previous check-doors push.
+# Notes: Garage lights turn off after 10 minutes with both doors closed
+#  and Frigate clear. With detection off, only the doors are checked.
 # Setup: https://www.vcloudinfo.com/2019/03/how-to-add-garadget-to-home-assistant.html
 # Token fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 # Video: https://youtu.be/wFO0H5zgnzk
@@ -195,7 +197,7 @@ automation:
       A door opening or Garagecam detecting a person turns on the small garage
       fixture between civil dusk and dawn. In daylight, person detection can
       start it once both doors are closed. Both doors must stay closed and
-      occupancy clear for 20 minutes to turn it off. If detection is switched
+      occupancy clear for 10 minutes to turn it off. If detection is switched
       off, use the doors alone. An automation reload or restart ends the run.
     mode: single
     max_exceeded: silent
@@ -273,7 +275,7 @@ automation:
                     - binary_sensor.garagecam_person_occupancy_2
                     - switch.garagecam_detect_2
                   to: null
-              timeout: &garage_lights_hold "00:20:00"
+              timeout: &garage_lights_hold "00:10:00"
           until:
             - "{{ not wait.completed }}"
             - condition: state
