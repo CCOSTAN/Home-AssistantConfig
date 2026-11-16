@@ -39,7 +39,7 @@ Camera-verified garbage and recycling reminders: [`garbage_day_garage.yaml`](Spe
 | [`late_night_brightness_guard.yaml`](late_night_brightness_guard.yaml) | Scoped 20:00-06:00 brightness cap for direct user-activated living-room and outdoor front-light groups; nested scene and automation contexts are excluded. [Watch Night Brightness](https://youtu.be/XRciHrQhcxk) [Night Brightness blog](https://www.vcloudinfo.com/2026/10/home-assistant-nighttime-light-brightness-automation.html). The article also provides a portable whole-house alternative; it does not change this scoped rule. |
 | [`late_night_helper.yaml`](late_night_helper.yaml) | Nighttime arrival path with the living-room M1 front-right light explicitly limited to 25% brightness. |
 
-Bathroom night lighting requires an explicit in-bed to out-of-bed transition; recovery from an unavailable bed sensor does not switch on the accent outlet. Sunset and arrival behavior remain unchanged.
+Bathroom night lighting requires an explicit in-bed to out-of-bed transition; recovery from an unavailable bed sensor does not switch on the accent outlet. Sunset and arrival behavior remain unchanged. The [Echo Glow automation](echo_glow_accents.yaml) follows the kitchen accents by default and the bathroom accents at bedtime, both at 50%. Living room accents take priority and use a 50% minimum. During Roku playback or pause, the Glow holds steady gold at 50% while the living room accents are on. An active entry alert overrides every mode with red.
 
 Living room entry alerts require a garage door to remain open for five seconds, then restore each light's prior state after all entry points are secure.
 

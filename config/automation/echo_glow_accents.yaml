@@ -1,0 +1,126 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Echo Glow Accents - kitchen, bedtime, living room, and entry alerts
+# Related Issue: 1827, 2059
+# Notes: Entry alerts override steady gold during Roku playback.
+#        All active Glow modes use at least 50% brightness.
+######################################################################
+
+- alias: Echo Glow Accents
+  id: echo_glow_accents
+  mode: restart
+  triggers:
+    - trigger: state
+      entity_id: light.living_room_accents
+    - trigger: state
+      entity_id: media_player.living_room_ultra
+      to: null
+      id: roku_state
+    - trigger: state
+      entity_id: media_player.living_room_ultra
+      attribute: app_id
+    - trigger: state
+      entity_id:
+        - group.kitchen_accents
+        - group.master_bathroom_accents
+        - group.bed
+      to: ['on', 'off']
+    - trigger: state
+      entity_id: automation.living_room_red_on_entry_garage_open
+      attribute: current
+    - trigger: state
+      entity_id: automation.good_night_trigger
+      attribute: last_triggered
+    - trigger: state
+      entity_id: sun.sun
+      to: ['above_horizon', 'below_horizon']
+    - trigger: state
+      entity_id: light.echo_glow
+      from: ['unknown', 'unavailable']
+      to: ['on', 'off']
+    - trigger: homeassistant
+      event: start
+  actions:
+    # Let all lights in a scene settle before reading the group's color.
+    - delay:
+        milliseconds: 750
+    - condition: state
+      entity_id: light.echo_glow
+      state: ['on', 'off']
+    - variables:
+        living_room: light.living_room_accents
+        roku: media_player.living_room_ultra
+        minimum_brightness: 128 # 50% on the Home Assistant brightness scale.
+        tv_gold: [255, 215, 0]
+        bedtime_active: >-
+          {% set good_night = state_attr('automation.good_night_trigger', 'last_triggered') %}
+          {# The date shifted by 12 hours groups an evening and the following morning. #}
+          {{ is_state('sun.sun', 'below_horizon') and
+             (is_state('group.bed', 'on') or
+              (good_night is not none and
+               (as_local(good_night) - timedelta(hours=12)).date() ==
+               (now() - timedelta(hours=12)).date())) }}
+        source: >-
+          {% if state_attr('automation.living_room_red_on_entry_garage_open', 'current') | int(0) > 0 %}
+            entry_alert
+          {% elif is_state(living_room, 'on') and states(roku) in ['playing', 'paused']
+                    and state_attr(roku, 'app_id') not in [none, '', 'dev'] %}
+            tv_time
+          {% elif is_state(living_room, 'off') %}
+            {{ 'group.master_bathroom_accents' if bedtime_active else 'group.kitchen_accents' }}
+          {% else %}
+            {{ living_room }}
+          {% endif %}
+        settings: >-
+          {% if source == 'entry_alert' %}
+            {{ {'rgb_color': [255, 0, 0], 'brightness_pct': 100} }}
+          {% elif source == 'tv_time' %}
+            {{ {'brightness': minimum_brightness, 'rgb_color': tv_gold} }}
+          {% elif not is_state(source, 'on') %}
+            {{ none }}
+          {% elif source == 'group.master_bathroom_accents' %}
+            {{ {'brightness': minimum_brightness, 'color_temp_kelvin': 2200} }}
+          {% elif source == 'group.kitchen_accents' %}
+            {{ {'brightness': minimum_brightness, 'color_temp_kelvin': 2700} }}
+          {% else %}
+            {% set brightness = state_attr(living_room, 'brightness') %}
+            {% set kelvin = state_attr(living_room, 'color_temp_kelvin') %}
+            {% set hs = state_attr(living_room, 'hs_color') %}
+            {% set level = {'brightness': [brightness | int(0), minimum_brightness] | max} %}
+            {% if is_state_attr(living_room, 'color_mode', 'color_temp') and kelvin is number %}
+              {{ dict(level, color_temp_kelvin=kelvin) }}
+            {% elif hs is not none %}
+              {{ dict(level, hs_color=hs) }}
+            {% else %}
+              {{ level }}
+            {% endif %}
+          {% endif %}
+    - if:
+        - condition: template
+          value_template: "{{ settings is mapping }}"
+      then:
+        # Send gold at movie start, then ignore changes that leave the Glow at the TV setting.
+        - condition: template
+          value_template: >-
+            {{ source != 'tv_time' or
+               (trigger is defined and trigger.id | default('') == 'roku_state' and
+                trigger.to_state.state == 'playing') or
+               not (is_state('light.echo_glow', 'on') and
+                    is_state_attr('light.echo_glow', 'brightness', minimum_brightness) and
+                    (state_attr('light.echo_glow', 'rgb_color') or []) | list == tv_gold) }}
+        - action: light.turn_on
+          target:
+            entity_id: light.echo_glow
+          data: "{{ settings }}"
+      else:
+        - condition: template
+          value_template: "{{ is_state(source, 'off') }}"
+        - condition: state
+          entity_id: light.echo_glow
+          state: 'on'
+        - action: light.turn_off
+          target:
+            entity_id: light.echo_glow
