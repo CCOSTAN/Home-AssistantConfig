@@ -8,6 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: Normal sunset lighting is silent. Speech is reserved for an actionable
 #  package, unlocked front door, open garage door, or open entry point.
+# Notes: Use 2700 K for the living room accents after any entry alert clears.
 ######################################################################
 
 - alias: 'Sunset Stuff on'
@@ -98,11 +99,27 @@
                - switch.office_accent
                - switch.living_room_outlet
                - switch.living_room_tv_outlet
-            - service: light.turn_on
-              entity_id:
-               - light.living_room_accents
-               - light.upstairs_lamp
-               - light.ikea_1 #Upstairs Hallyway switchoutlet.
+            - action: light.turn_on
+              target:
+                entity_id:
+                  - light.upstairs_lamp
+                  - light.ikea_1 # Upstairs hallway
+            - alias: Set warm living room accents when the alert clears
+              sequence: &warm_living_room_accents
+                - wait_template: >-
+                    {{ is_state('group.entry_points', 'off') and
+                       is_state('group.garage_doors', 'closed') and
+                       is_state_attr('automation.living_room_red_on_entry_garage_open', 'current', 0) }}
+                  timeout: '00:10:00'
+                - if:
+                    - condition: template
+                      value_template: "{{ wait.completed }}"
+                  then:
+                    - action: light.turn_on
+                      target:
+                        entity_id: light.living_room_accents
+                      data:
+                        color_temp_kelvin: 2700
         - conditions:
             - condition: state
               entity_id: input_boolean.vacation_mode
@@ -122,11 +139,12 @@
                - switch.office_accent
                - switch.living_room_outlet
                - switch.living_room_tv_outlet
-            - service: light.turn_on
-              entity_id:
-               - light.living_room_accents
-               - light.upstairs_lamp
-               - light.ikea_1 #Upstairs Hallyway switchoutlet.
+            - action: light.turn_on
+              target:
+                entity_id:
+                  - light.upstairs_lamp
+                  - light.ikea_1 # Upstairs hallway
+            - sequence: *warm_living_room_accents
         - conditions:
             - condition: state
               entity_id: input_boolean.vacation_mode
@@ -160,20 +178,10 @@
                     - switch.foyer_outlet
                     - switch.living_room_outlet
                     - switch.front_office_lamp
-            - choose:
-                - conditions:
-                    - condition: template
-                      value_template: "{{ vacation_presence_light == 'light.upstairs_lamp' }}"
-                  sequence:
-                    - service: light.turn_on
-                      entity_id:
-                        - light.living_room_accents
-                        - light.upstairs_lamp
-              default:
-                - service: light.turn_on
-                  entity_id:
-                    - light.living_room_accents
-                    - light.ikea_1
+            - action: light.turn_on
+              target:
+                entity_id: "{{ vacation_presence_light }}"
+            - sequence: *warm_living_room_accents
             - delay: "{{ vacation_presence_runtime }}"
             - condition: state
               entity_id: input_boolean.vacation_mode

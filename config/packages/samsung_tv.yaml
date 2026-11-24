@@ -19,6 +19,7 @@
 # Notes: Recover only this Roku integration after bridge-detected reconnects.
 # Notes: Raven restores its state and is re-enabled daily at 03:00.
 # Notes: First parent arrival after the family is away wakes the TV and opens Raven.
+# Notes: With the TV off, a parent arrival also runs if the other has been home for 30 minutes.
 # Notes: Arrival wakes the TV through Roku Home, which can start the Raven exit timer.
 # Notes: Arrival retries Roku Home if TV power is not confirmed after a command.
 # Notes: TV-off is normal and remains outside always-on kiosk health alerts.
@@ -66,22 +67,60 @@ rest:
 automation:
   - id: living_room_raven_on_family_arrival
     alias: Living Room TV - Open Raven on Family Arrival
-    description: Use Roku Home to wake the TV and open Raven when Carlo or Stacey returns to an empty house.
+    description: Open Raven on a parent arrival to an empty house or to a TV that is off after the other parent has been home for 30 minutes.
     mode: single
     triggers:
       - trigger: state
+        id: empty_house
         entity_id: group.family
         from: not_home
+        to: home
+      - trigger: state
+        id: carlo_arrives
+        entity_id: person.carlo
+        not_from: [unknown, unavailable]
+        to: home
+      - trigger: state
+        id: stacey_arrives
+        entity_id: person.stacey
+        not_from: [unknown, unavailable]
         to: home
     conditions:
       - condition: or
         conditions:
-          - condition: state
-            entity_id: person.carlo
-            state: home
-          - condition: state
-            entity_id: person.stacey
-            state: home
+          - condition: and
+            conditions:
+              - condition: trigger
+                id: empty_house
+              - condition: state
+                entity_id: [person.carlo, person.stacey]
+                match: any
+                state: home
+          - condition: and
+            conditions:
+              - condition: media_player.is_off
+                target:
+                  entity_id: media_player.samsung_q70_series_65
+              - condition: or
+                conditions:
+                  - condition: and
+                    conditions:
+                      - condition: trigger
+                        id: carlo_arrives
+                      - condition: state
+                        entity_id: person.stacey
+                        state: home
+                        for:
+                          minutes: 30
+                  - condition: and
+                    conditions:
+                      - condition: trigger
+                        id: stacey_arrives
+                      - condition: state
+                        entity_id: person.carlo
+                        state: home
+                        for:
+                          minutes: 30
       - condition: state
         entity_id: input_boolean.haven
         state: 'on'
