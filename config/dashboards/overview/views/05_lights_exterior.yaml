@@ -8,7 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: Lighting scope follows the indoor/exterior groups and bedtime routines.
 # Notes: Tap a named light/group to toggle; hold for brightness/color/details.
-# Notes: Reuses existing mobile templates; offline controls remain visible.
+# Notes: Native tiles keep offline controls visible and expose the name and state together.
 ######################################################################
 
 path: lights-exterior
@@ -47,8 +47,10 @@ sections:
       icon: mdi:outdoor-lamp
       view_layout:
         grid-column: 1 / -1
-    - type: custom:button-card
-      template: bearstone_nav_back
+    - type: button
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       name: Back to Lighting
       icon: mdi:arrow-left
       show_state: false
@@ -83,206 +85,146 @@ sections:
       icon: mdi:outdoor-lamp
       view_layout:
         grid-column: 1 / -1
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.outdoor_front_lights
       name: All Front Lights
       icon: mdi:lightbulb-group
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.outdoor_foyer
       name: Outdoor Foyer
       icon: mdi:lightbulb-outline
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.outdoor_sconce_1
       name: Sconce 1
       icon: mdi:wall-sconce-flat-outline
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.outdoor_sconce_2
       name: Sconce 2
       icon: mdi:wall-sconce-flat-outline
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.outdoor_sconce_3
       name: Sconce 3
       icon: mdi:wall-sconce-flat-outline
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.led_garage_large
       name: Large Garage LEDs
       icon: mdi:led-strip-variant
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.led_garage_small
       name: Small Garage LEDs
       icon: mdi:led-strip-variant
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.led_garage_snip
       name: Garage Accent LEDs
       icon: mdi:led-strip-variant
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.led_outdoor_den
       name: Outdoor Den LEDs
       icon: mdi:led-strip-variant
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.treeflood
       name: Tree Flood
       icon: mdi:spotlight-beam
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.flood_2
       name: Flood 2
       icon: mdi:spotlight-beam
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: light.outdoor_bathroom
       name: Pool Bathroom
       icon: mdi:lightbulb-outline
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
@@ -313,55 +255,40 @@ sections:
       icon: mdi:palm-tree
       view_layout:
         grid-column: 1 / -1
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: group.landscaping
       name: All Landscaping
       icon: mdi:palm-tree
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: switch.front_landscaping
       name: Front Landscaping
       icon: mdi:palm-tree
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: switch.back_landscaping
       view_layout:
         grid-column: span 2
       name: Back Landscaping
       icon: mdi:palm-tree
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
@@ -392,123 +319,88 @@ sections:
       icon: mdi:string-lights
       view_layout:
         grid-column: 1 / -1
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: group.outdoor_seasonal
       name: All Seasonal Lights
       icon: mdi:string-lights
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: switch.xmas_dual_outlet_switch_1
       name: Seasonal Dual Outlet 1
       icon: mdi:string-lights
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: switch.xmas_dual_outlet_switch_2
       name: Seasonal Dual Outlet 2
       icon: mdi:string-lights
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: switch.outdoor_xmas_right_socket
       name: Seasonal Right Outlet
       icon: mdi:string-lights
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: switch.outdoor_xmas_2_socket_1
       name: Seasonal Outlet 1
       icon: mdi:string-lights
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: switch.outdoor_xmas_2_socket_2
       name: Seasonal Outlet 2
       icon: mdi:string-lights
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:
         action: more-info
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: tile
       entity: switch.outdoor_xmas_2_socket_3
       view_layout:
         grid-column: span 2
       name: Seasonal Outlet 3
       icon: mdi:string-lights
-      variables:
-        ok_states:
-        - 'off'
-        active_states:
-        - 'on'
-        state_labels:
-          unavailable: OFFLINE
-          unknown: UNKNOWN
+      state_content: state
+      icon_tap_action:
+        action: none
+      card_mod: !include /config/dashboards/overview/partials/lighting_tile_card_mod.yaml
       tap_action:
         action: toggle
       hold_action:

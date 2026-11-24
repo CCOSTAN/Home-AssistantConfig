@@ -1,0 +1,31 @@
+/* Shared by the fixed room tiles and the live On Now list. */
+ha-card.type-tile {
+  min-height: 112px;
+  border-radius: 20px;
+  --ha-tile-info-primary-font-size: 18px;
+  --ha-tile-info-primary-font-weight: 700;
+  --ha-tile-info-secondary-font-size: 15px;
+  --ha-tile-info-secondary-font-weight: 700;
+}
+ha-card.type-tile:has(ha-tile-icon[data-state="on"]) {
+  background: color-mix(in srgb, var(--info-color) 12%, var(--card-background-color));
+  border-color: color-mix(in srgb, var(--info-color) 45%, var(--divider-color));
+}
+ha-card.type-tile:has(ha-tile-icon[data-state="off"]) {
+  background: color-mix(in srgb, var(--success-color) 10%, var(--card-background-color));
+  border-color: color-mix(in srgb, var(--success-color) 45%, var(--divider-color));
+}
+ha-card.type-tile:has(ha-tile-icon:is([data-state="unavailable"], [data-state="unknown"])) {
+  border-color: var(--error-color);
+}
+ha-card.type-tile [slot="primary"],
+ha-card.type-tile [slot="secondary"] {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+ha-card.type-tile [slot="secondary"] { text-transform: uppercase; }
+ha-card.type-tile:has(ha-tile-container[focused]) {
+  outline: 3px solid var(--primary-color);
+  outline-offset: -3px;
+}

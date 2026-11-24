@@ -1,0 +1,23 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Native dashboard buttons - large, wrapping controls
+# -------------------------------------------------------------------
+# Notes: Home Assistant supplies action handling and accessible names.
+######################################################################
+
+|
+  ha-card.type-button {
+    min-height: 112px;
+    padding: 12px 10px;
+    border-radius: 20px;
+    flex-direction: row;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  ha-card ha-state-icon { width: 28px; flex-shrink: 0; }
+  ha-card ha-state-icon + span { margin: 0; white-space: normal; overflow-wrap: anywhere; }
+  ha-card:focus-visible { outline: 3px solid var(--primary-color); outline-offset: -3px; }

@@ -59,23 +59,23 @@ sections:
         action: navigate
         navigation_path: /lovelace/home
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       name: Lights & Switches
       icon: mdi:lightbulb-group
       show_state: false
-      variables:
-        status_severity: active
       tap_action:
         action: navigate
         navigation_path: /lovelace/lights
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       name: All Lights Off
       icon: mdi:lightbulb-group-off-outline
       show_state: false
-      variables:
-        status_severity: active
       tap_action:
         action: perform-action
         perform_action: script.turn_on

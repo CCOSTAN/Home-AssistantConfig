@@ -108,10 +108,10 @@
       grid-gap: 12px
       margin: 0
       mediaquery:
-        "(max-width: 1200px)":
-          grid-template-columns: repeat(2, minmax(0, 1fr))
         "(max-width: 900px)":
           grid-template-columns: repeat(1, minmax(0, 1fr))
+        "(max-width: 1200px)":
+          grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
     - type: custom:vertical-stack-in-card
       card_mod:
@@ -321,13 +321,13 @@
         state_display: >
           [[[ return String(entity?.state ?? 'NO DATA').toUpperCase(); ]]]
 
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: binary_sensor.infra_dns_pihole_degraded
+      # Native navigation button exposes the shortcut to keyboard and VoiceOver.
+      - type: button
         name: Open Pi-hole Controls
         icon: mdi:chart-box-outline
-        state_display: >
-          [[[ return 'OPEN'; ]]]
+        icon_height: 24px
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/pihole
@@ -404,13 +404,13 @@
             return `${next.name.toUpperCase()} | ${Math.round(next.days)} DAYS | ${date}`;
           ]]]
 
-      - type: custom:button-card
-        template: bearstone_infra_list_row
-        entity: binary_sensor.infra_website_degraded
+      # Native navigation button exposes the shortcut to keyboard and VoiceOver.
+      - type: button
         name: Open Website Details
         icon: mdi:chart-box-outline
-        state_display: >
-          [[[ return 'OPEN'; ]]]
+        icon_height: 24px
+        card_mod:
+          style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
         tap_action:
           action: navigate
           navigation_path: /dashboard-infrastructure/website-health

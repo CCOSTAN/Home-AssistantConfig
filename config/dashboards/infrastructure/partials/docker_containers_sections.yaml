@@ -106,9 +106,12 @@
         template: bearstone_infra_panel_header
         name: Host Updates
 
-      - type: grid
-        columns: 3
-        square: false
+      - type: custom:layout-card
+        layout_type: custom:grid-layout
+        layout:
+          grid-template-columns: repeat(auto-fit, minmax(min(135px, 100%), 1fr))
+          grid-gap: 8px
+          margin: 0
         cards:
         - type: custom:button-card
           template: bearstone_infra_update_tile

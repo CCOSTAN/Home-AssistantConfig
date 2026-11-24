@@ -7,6 +7,7 @@
 # Related Issue: 2030
 #  Native Roku navigation, playback, and the Raven app launcher.
 # -------------------------------------------------------------------
+# Notes: Native action buttons support keyboard navigation and screen readers.
 # Notes: Open from the Raven card or device panel on Systems > Kiosks.
 # Notes: Each tap sends one Roku command; Back/Home exit Raven natively.
 # Notes: TV menus remain on the separate Samsung TV Remote subview.
@@ -45,16 +46,16 @@ sections:
       view_layout:
         grid-column: 1 / -1
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: media_player.living_room_ultra
       name: Raven
       icon: mdi:view-dashboard-outline
       show_state: false
-      variables:
-        status_severity: healthy
       view_layout:
         grid-column: 1 / -1
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: rest_command.samsung_living_room_launch_haven
@@ -64,16 +65,16 @@ sections:
         action: none
 
     # Roku controls never send Samsung input or menu commands.
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: Roku Home
       icon: mdi:home-outline
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 3
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -86,16 +87,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: Options
       icon: mdi:dots-horizontal
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 3
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -109,16 +110,16 @@ sections:
         action: none
 
     # Full-width Up and Down keep every touch target large without spacers.
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: Up
       icon: mdi:arrow-up-bold
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: 1 / -1
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -131,16 +132,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: Left
       icon: mdi:arrow-left-bold
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 2
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -153,16 +154,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: OK
       icon: mdi:check-bold
       show_state: false
-      variables:
-        status_severity: healthy
       view_layout:
         grid-column: span 2
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -175,16 +176,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: Right
       icon: mdi:arrow-right-bold
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 2
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -197,16 +198,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: Down
       icon: mdi:arrow-down-bold
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: 1 / -1
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -220,16 +221,16 @@ sections:
         action: none
 
     # Back exits Raven; playback controls act on the current Roku app.
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: Back
       icon: mdi:undo
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 3
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -242,16 +243,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.living_room_ultra
       name: Play / Pause
       icon: mdi:play-pause
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 3
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command

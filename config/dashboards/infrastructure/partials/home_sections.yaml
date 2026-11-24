@@ -37,14 +37,11 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
       margin: 0
-      mediaquery:
-        "(max-width: 900px)":
-          grid-template-columns: repeat(2, minmax(0, 1fr))
     cards:
     - !include /config/dashboards/infrastructure/partials/informational_notices.yaml
     - type: custom:button-card
@@ -289,14 +286,11 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(3, minmax(0, 1fr))
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
       margin: 0
-      mediaquery:
-        "(max-width: 900px)":
-          grid-template-columns: repeat(1, minmax(0, 1fr))
     cards:
     - type: custom:vertical-stack-in-card
       card_mod:
@@ -353,7 +347,7 @@
               if ([latency, loss].some((item) => item === null)) issues.push('QUALITY TELEMETRY MISSING');
               if (latency !== null && latency > 80) issues.push(`LATENCY ${latency.toFixed(0)} > 80 ms`);
               if (loss !== null && loss > 5) issues.push(`LOSS ${loss.toFixed(1)}% > 5%`);
-              return issues.join(' Â· ');
+              return issues.join(' \u00b7 ');
             ]]]
         state_display: >
           [[[
@@ -406,7 +400,7 @@
               };
               const raw = entity?.attributes?.problem_entities;
               const ids = Array.isArray(raw) ? raw : [];
-              return ids.map((id) => `${labels[id] || id} ${String(states[id]?.state ?? 'unknown').toUpperCase()}`).join(' Â· ');
+              return ids.map((id) => `${labels[id] || id} ${String(states[id]?.state ?? 'unknown').toUpperCase()}`).join(' \u00b7 ');
             ]]]
         state_display: '[[[ return "ATTENTION"; ]]]'
         tap_action:
@@ -423,7 +417,7 @@
           exception_detail: >
             [[[
               const issues = Array.isArray(entity?.attributes?.issues) ? entity.attributes.issues : [];
-              return issues.map((issue) => `${issue.name}: ${issue.alarm || issue.status}`).join(' Â· ');
+              return issues.map((issue) => `${issue.name}: ${issue.alarm || issue.status}`).join(' \u00b7 ');
             ]]]
         state_display: >
           [[[ return states['binary_sensor.infra_ups_on_battery']?.state === 'on' ? 'ON BATTERY' : 'CHECK'; ]]]
@@ -457,7 +451,7 @@
             [[[
               const value = Number(entity?.state);
               return Number.isFinite(value)
-                ? `RUNTIME ${value.toFixed(0)} / 550 H Â· FILTER CHANGE DUE`
+                ? `RUNTIME ${value.toFixed(0)} / 550 H \u00b7 FILTER CHANGE DUE`
                 : 'FILTER RUNTIME TELEMETRY UNAVAILABLE';
             ]]]
         state_display: MAINTENANCE
@@ -478,7 +472,7 @@
             [[[
               const value = Number(entity?.state);
               return Number.isFinite(value)
-                ? `RUNTIME ${value.toFixed(0)} / 450 H Â· FILTER CHANGE DUE`
+                ? `RUNTIME ${value.toFixed(0)} / 450 H \u00b7 FILTER CHANGE DUE`
                 : 'FILTER RUNTIME TELEMETRY UNAVAILABLE';
             ]]]
         state_display: MAINTENANCE
@@ -499,7 +493,7 @@
             [[[
               const value = Number(entity?.state);
               return Number.isFinite(value)
-                ? `ELAPSED ${value.toFixed(0)} / 360 DAYS Â· LINE CLEANING DUE`
+                ? `ELAPSED ${value.toFixed(0)} / 360 DAYS \u00b7 LINE CLEANING DUE`
                 : 'CONDENSER MAINTENANCE TELEMETRY UNAVAILABLE';
             ]]]
         state_display: MAINTENANCE
@@ -541,7 +535,7 @@
               if (states['binary_sensor.upstairs_kiosk_needs_attention']?.state === 'on') issues.push(`UPSTAIRS: ${String(upstairs ?? 'ATTENTION').toUpperCase()}`);
               if (states['binary_sensor.office_kiosk_needs_attention']?.state === 'on') issues.push(`OFFICE: ${String(office ?? 'ATTENTION').toUpperCase()}`);
               if (states['binary_sensor.living_room_nest_kiosk_needs_attention']?.state === 'on') issues.push(`LIVING ROOM NEST: ${String(states['binary_sensor.living_room_nest_kiosk_needs_attention']?.attributes?.status ?? 'ATTENTION').toUpperCase()}`);
-              return issues.join(' Â· ') || 'KIOSK TELEMETRY REQUIRES REVIEW';
+              return issues.join(' \u00b7 ') || 'KIOSK TELEMETRY REQUIRES REVIEW';
             ]]]
         state_display: '[[[ return "ATTENTION"; ]]]'
         tap_action:
@@ -685,7 +679,7 @@
                   issues.push(`${label} ${value.toFixed(1)}% > ${limit}%`);
                 }
               }
-              return issues.join(' Â· ');
+              return issues.join(' \u00b7 ');
             ]]]
         state_display: '[[[ return "ATTENTION"; ]]]'
 
@@ -709,7 +703,7 @@
               return items.map((item) => {
                 const [id, state] = String(item).split('=');
                 return `${labels[id] || id} ${String(state || 'down').toUpperCase()}`;
-              }).join(' Â· ');
+              }).join(' \u00b7 ');
             ]]]
         state_display: '[[[ return "DOWN"; ]]]'
         tap_action:
@@ -923,7 +917,7 @@
             const seconds = Number(states['sensor.garage_ups_battery_runtime']?.state);
             const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
             const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
-            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} Â· ${battery} Â· ${runtime}`;
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} \u00b7 ${battery} \u00b7 ${runtime}`;
           ]]]
         tap_action:
           action: navigate
@@ -940,7 +934,7 @@
             const seconds = Number(states['sensor.office_ups_eaton_550_battery_runtime']?.state);
             const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
             const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
-            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} Â· ${battery} Â· ${runtime}`;
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} \u00b7 ${battery} \u00b7 ${runtime}`;
           ]]]
         tap_action:
           action: navigate
@@ -957,7 +951,7 @@
             const seconds = Number(states['sensor.office_ups_cyberpower_battery_runtime']?.state);
             const battery = Number.isFinite(charge) ? `${charge.toFixed(0)}%` : 'NO BATTERY DATA';
             const runtime = Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}m` : 'NO RUNTIME';
-            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} Â· ${battery} Â· ${runtime}`;
+            return `${String(entity?.state ?? 'NO DATA').toUpperCase()} \u00b7 ${battery} \u00b7 ${runtime}`;
           ]]]
         tap_action:
           action: navigate

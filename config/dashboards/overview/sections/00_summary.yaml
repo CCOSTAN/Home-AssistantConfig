@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------
 # Notes: Equal-width pills keep the whole ribbon compact and consistent.
 # Notes: Thermostat pills use the climate cooling helpers for active light-blue shading.
-# Notes: Mobile uses high-contrast four-column icon tiles with 64px tap targets.
+# Notes: The ribbon fits columns to the available width and keeps 64px mobile tap targets.
 # Notes: Systems mirrors infrastructure severity: sustained degradation is amber and only critical faults are red.
 ######################################################################
 
@@ -23,7 +23,7 @@ cards:
     columns: full
   layout_type: custom:grid-layout
   layout:
-    grid-template-columns: repeat(7, minmax(0, 1fr))
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr))
     grid-auto-flow: row
     grid-auto-rows: min-content
     align-items: center
@@ -31,7 +31,6 @@ cards:
     margin: 0
     mediaquery:
       "(max-width: 600px)":
-        grid-template-columns: repeat(4, minmax(0, 1fr))
         grid-gap: 4px
   cards:
   - !include /config/dashboards/infrastructure/partials/informational_notices.yaml

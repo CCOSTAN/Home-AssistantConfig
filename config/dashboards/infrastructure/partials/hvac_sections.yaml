@@ -381,7 +381,8 @@
         {% from 'downstairs_hvac.jinja' import downstairs_policy %}
         {% set plan = downstairs_policy() | from_json %}
         {% set labels = {'day schedule': 'Daytime schedule', 'sleep schedule': 'Bedtime schedule',
-          'guest mode': 'Guest Mode', 'family away': 'Away Eco', 'manual temperature': 'Manual temperature hold',
+          'humidity cycle': 'Drying downstairs air', 'guest mode': 'Guest Mode',
+          'family away': 'Away Eco', 'manual temperature': 'Manual temperature hold',
           'manual eco': 'Manual Eco hold', 'manual off': 'Manually switched off',
           'grid outage': 'Grid outage protection', 'entry open': 'Open-door/window protection'} %}
         {% set climate_ok = has_value('climate.downstairs') %}
@@ -393,6 +394,21 @@
         {% endif %}
 
 
+        {% set humidity = states('sensor.downstairs_humidity') %}
+        **Downstairs humidity** {{ humidity ~ '%' if is_number(humidity) else 'reading unavailable' }}.
+        {% if climate_ok and plan.reason == 'humidity cycle' %}
+        {% set deadline = as_timestamp(state_attr('timer.downstairs_humidity_cycle', 'finishes_at'), none) %}
+        {% if deadline is not none %}This cycle ends by {{ (deadline | timestamp_custom('%I:%M %p')).lstrip('0') }}.{% endif %}
+        {% elif is_state('automation.humidity_control', 'off') %}
+        Humidity control is switched off.
+        {% endif %}
+        After a full hour above 60%, Home Assistant can set the cooling target to 75&#176;F
+        if someone is home, the AC is idle, and downstairs is warmer than 75&#176;F.
+        Drying ends at 58% humidity, at a room temperature of 75&#176;F, or after 20 minutes,
+        whichever comes first. The current schedule or hold then resumes.
+        Cycles start at least two hours apart.
+
+
         **Next routine change:**
         {% if plan.phase == 'day' %}
         77&#176;F after both beds are occupied for 6 minutes, from sunset until 8:00 a.m.
@@ -401,7 +417,7 @@
         {% else %}
         Waiting for the day/bedtime period.
         {% endif %}
-        Guest Mode, manual holds, Eco and protections can take priority.
+        Guest Mode, manual holds, away Eco, and door or power protections take priority over scheduled cooling and drying.
 
 
         - **Daily rhythm:** 80&#176;F from 8:00 a.m. until bedtime; 77&#176;F overnight.

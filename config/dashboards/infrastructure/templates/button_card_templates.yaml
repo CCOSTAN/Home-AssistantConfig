@@ -209,6 +209,24 @@ bearstone_infra_tile:
       - border-color: rgba(229,57,53,0.35)
       - background: rgba(255,235,238,0.85)
 
+# Album counts and instructions can each take a full line on an iPhone.
+bearstone_infra_album_summary:
+  template: bearstone_infra_tile
+  styles:
+    grid:
+    - grid-template-areas: '"i n" "i s" "i l"'
+    - grid-template-columns: 28px minmax(0, 1fr)
+    - grid-template-rows: repeat(3, auto)
+    - row-gap: 3px
+    name:
+    - white-space: normal
+    state:
+    - white-space: normal
+    label:
+    - white-space: normal
+    - overflow-wrap: anywhere
+    - text-align: left
+
 bearstone_infra_reboot:
   template: bearstone_infra_tile
   show_state: false
@@ -774,6 +792,8 @@ bearstone_infra_panel_header:
     - letter-spacing: 0.04em
     - text-transform: uppercase
     - justify-self: start
+    - white-space: normal
+    - text-align: left
 
 bearstone_infra_panel_header_icon:
   template: bearstone_infra_panel_header
@@ -838,7 +858,7 @@ bearstone_infra_list_row:
     - box-sizing: border-box
     grid:
     - grid-template-areas: "\"i n s\""
-    - grid-template-columns: 24px 1fr auto
+    - grid-template-columns: 24px minmax(0, 1fr) fit-content(50%)
     - align-items: center
     - column-gap: 10px
     icon:
@@ -855,9 +875,9 @@ bearstone_infra_list_row:
     - justify-self: start
     - opacity: 0.95
     - min-width: 0
-    - overflow: hidden
-    - text-overflow: ellipsis
-    - white-space: nowrap
+    - white-space: normal
+    - overflow-wrap: anywhere
+    - text-align: left
     state:
     - justify-self: end
     - font-weight: 700
@@ -871,7 +891,9 @@ bearstone_infra_list_row:
     - opacity: >
         [[[ return variables?.numeric_warning_active ? 1 : 0.8; ]]]
     - padding-left: 8px
-    - white-space: nowrap
+    - white-space: normal
+    - overflow-wrap: anywhere
+    - text-align: right
 
 bearstone_infra_alert_row:
   template: bearstone_infra_list_row
@@ -895,7 +917,6 @@ bearstone_infra_alert_row:
   styles:
     grid:
     - grid-template-areas: '"i n s" "i l l"'
-    - grid-template-columns: 24px 1fr auto
     - grid-template-rows: min-content min-content
     card:
     - border-color: >
@@ -1041,7 +1062,7 @@ bearstone_infra_kpi:
     grid:
     - grid-template-areas: '"i n" "s s"'
     - grid-template-columns: 18px minmax(0, auto)
-    - grid-template-rows: 20px min-content
+    - grid-template-rows: minmax(20px, min-content) min-content
     - column-gap: 6px
     - row-gap: 5px
     - justify-content: center
@@ -1057,11 +1078,15 @@ bearstone_infra_kpi:
     - text-align: left
     - letter-spacing: 0.6px
     - justify-self: start
+    - white-space: normal
+    - overflow-wrap: anywhere
     state:
     - font-size: 16px
     - font-weight: 800
     - opacity: 0.9
     - justify-self: center
+    - white-space: normal
+    - overflow-wrap: anywhere
 
 bearstone_infra_status_kpi:
   template: bearstone_infra_kpi
@@ -1138,7 +1163,7 @@ bearstone_infra_status_kpi:
   styles:
     grid:
     - grid-template-areas: '[[[ return variables?.show_detail ? `"i n" "s s" "l l"` : `"i n" "s s"`; ]]]'
-    - grid-template-rows: '[[[ return variables?.show_detail ? "20px min-content min-content" : "20px min-content"; ]]]'
+    - grid-auto-rows: min-content
     label:
     - grid-area: l
     - white-space: normal
@@ -1269,12 +1294,11 @@ bearstone_overview_ribbon_control:
           return mobile ? 'rgba(183,28,28,0.96)' : 'rgba(255,235,238,0.85)';
         ]]]
     grid:
-    - grid-template-areas: >
-        [[[ return variables?.mobile_compact ? '"i n" "s s"' : '"i n" "i s"'; ]]]
+    - grid-template-areas: '"i n" "s s"'
     - grid-template-columns: >
         [[[ return variables?.mobile_compact ? '18px minmax(0, auto)' : '28px 1fr'; ]]]
     - grid-template-rows: >
-        [[[ return variables?.mobile_compact ? '18px 12px' : 'min-content min-content'; ]]]
+        [[[ return variables?.mobile_compact ? 'minmax(18px, min-content) min-content' : 'min-content min-content'; ]]]
     - column-gap: >
         [[[ return variables?.mobile_compact ? '5px' : '0'; ]]]
     - row-gap: >
@@ -1313,12 +1337,8 @@ bearstone_overview_ribbon_control:
         [[[ return variables?.mobile_compact ? '12px' : 'normal'; ]]]
     - justify-self: >
         [[[ return 'start'; ]]]
-    - white-space: >
-        [[[ return variables?.mobile_compact ? 'normal' : 'nowrap'; ]]]
-    - overflow: >
-        [[[ return variables?.mobile_compact ? 'visible' : 'hidden'; ]]]
-    - text-overflow: >
-        [[[ return variables?.mobile_compact ? 'clip' : 'ellipsis'; ]]]
+    - white-space: normal
+    - overflow-wrap: anywhere
     - text-align: >
         [[[ return 'left'; ]]]
     - opacity: 1
@@ -1339,6 +1359,8 @@ bearstone_overview_ribbon_control:
         [[[ return variables?.mobile_compact ? '12px' : 'normal'; ]]]
     - justify-self: >
         [[[ return variables?.mobile_compact ? 'center' : 'start'; ]]]
+    - white-space: normal
+    - overflow-wrap: anywhere
     - opacity: 1
 
 bearstone_mobile_header:
@@ -1462,8 +1484,8 @@ bearstone_health_kpi:
     - grid-template-rows: >
         [[[
           return variables?.detail_layout
-            ? '20px min-content minmax(18px, auto)'
-            : '20px min-content';
+            ? 'minmax(20px, max-content) min-content minmax(18px, auto)'
+            : 'minmax(20px, max-content) min-content';
         ]]]
     - column-gap: 6px
     - justify-content: center
@@ -1614,8 +1636,8 @@ bearstone_infra_update_tile:
     - padding: 10px
     grid:
     - grid-template-areas: '"i n" "s s" "l l"'
-    - grid-template-columns: 18px minmax(0, auto)
-    - grid-template-rows: 20px min-content min-content
+    - grid-template-columns: 18px minmax(0, 1fr)
+    - grid-template-rows: minmax(20px, max-content) min-content min-content
     - column-gap: 6px
     - row-gap: 3px
     - justify-content: center
@@ -1625,6 +1647,7 @@ bearstone_infra_update_tile:
     name:
     - justify-self: start
     - text-align: left
+    - overflow-wrap: anywhere
     - white-space: normal
     state:
     - justify-self: start

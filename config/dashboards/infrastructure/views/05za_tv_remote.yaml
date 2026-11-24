@@ -7,6 +7,7 @@
 # Related Issue: 2030
 #  Large navigation, input/settings menus, and the Raven app launcher.
 # -------------------------------------------------------------------
+# Notes: Native action buttons support keyboard navigation and screen readers.
 # Notes: Open from Living Room TV on the Kiosks page.
 # Notes: Each tap sends one key; Back and Exit control the TV menu.
 # Notes: TV Home exposes Sources; Settings opens TV sound and Anynet+ options.
@@ -47,16 +48,16 @@ sections:
       view_layout:
         grid-column: 1 / -1
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: media_player.living_room_ultra
       name: Raven
       icon: mdi:view-dashboard-outline
       show_state: false
-      variables:
-        status_severity: healthy
       view_layout:
         grid-column: 1 / -1
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: rest_command.samsung_living_room_launch_haven
@@ -66,16 +67,16 @@ sections:
         action: none
 
     # Samsung menus stay accessible without a physical TV remote.
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: TV Home
       icon: mdi:home-outline
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 3
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -88,16 +89,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: Settings
       icon: mdi:cog
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 3
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -111,16 +112,16 @@ sections:
         action: none
 
     # Full-width Up and Down keep every touch target large without spacers.
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: Up
       icon: mdi:arrow-up-bold
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: 1 / -1
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -133,16 +134,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: Left
       icon: mdi:arrow-left-bold
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 2
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -155,16 +156,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: OK
       icon: mdi:check-bold
       show_state: false
-      variables:
-        status_severity: healthy
       view_layout:
         grid-column: span 2
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -177,16 +178,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: Right
       icon: mdi:arrow-right-bold
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 2
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -199,16 +200,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: Down
       icon: mdi:arrow-down-bold
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: 1 / -1
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -222,16 +223,16 @@ sections:
         action: none
 
     # These buttons navigate the TV, rather than the Home Assistant screen.
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: Back
       icon: mdi:undo
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 3
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command
@@ -244,16 +245,16 @@ sections:
       double_tap_action:
         action: none
 
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       entity: remote.samsung_q70_series_65
       name: Exit
       icon: mdi:close-circle-outline
       show_state: false
-      variables:
-        status_severity: active
       view_layout:
         grid-column: span 3
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: remote.send_command

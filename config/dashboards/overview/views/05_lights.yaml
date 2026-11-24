@@ -6,6 +6,7 @@
 # Overview Subview - Lighting
 #  Shared lights-only All Off, active lights, everyday controls, and room menus.
 # -------------------------------------------------------------------
+# Notes: Native action buttons support keyboard navigation and screen readers.
 # Notes: Native Back returns to the Home or Mobile view used to enter.
 # Notes: On Now and All Off share custom_templates/lighting.jinja.
 ######################################################################
@@ -46,13 +47,13 @@ sections:
       icon: mdi:lightbulb-group
       view_layout:
         grid-column: 1 / -1
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       name: All Lights Off
       icon: mdi:lightbulb-group-off-outline
       show_state: false
-      variables:
-        status_severity: active
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: perform-action
         perform_action: script.turn_on
@@ -62,23 +63,23 @@ sections:
         action: none
       view_layout:
         grid-column: 1 / -1
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       name: Indoor
       icon: mdi:home-lightbulb-outline
       show_state: false
-      variables:
-        status_severity: active
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: navigate
         navigation_path: /lovelace/lights-indoor
-    - type: custom:button-card
-      template: bearstone_mobile_control
+    - type: button
       name: Exterior
       icon: mdi:outdoor-lamp
       show_state: false
-      variables:
-        status_severity: active
+      icon_height: 28px
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/native_button.yaml
       tap_action:
         action: navigate
         navigation_path: /lovelace/lights-exterior
@@ -117,9 +118,9 @@ sections:
           {% from 'lighting.jinja' import lighting_targets %}
           {% set cards = namespace(items=[]) %}
           {% for id in (lighting_targets | as_function)(true) %}
-            {% set cards.items = cards.items + [dict(type='custom:button-card',
-              template='bearstone_mobile_control', entity=id,
-              variables=dict(ok_states=['off'], active_states=['on']),
+            {% set cards.items = cards.items + [dict(type='tile', entity=id, state_content='state',
+              icon_tap_action=dict(action='none'),
+              card_mod={'class': 'lighting-toggle', 'style': '@import url("/local/lighting-tile.css?v=275608177ba5");'},
               tap_action=dict(action='toggle'), hold_action=dict(action='more-info'))] %}
           {% endfor %}
           {{ cards.items | to_json }}
