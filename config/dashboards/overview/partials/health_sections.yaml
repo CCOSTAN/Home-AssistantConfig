@@ -4,6 +4,7 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Overview Partial - Health
+# Related Issue: 2033
 #  Current SleepIQ state, Joanna achievements and steps, paired nightly trends, and native bed controls.
 # -------------------------------------------------------------------
 # Notes: Daily maximum statistics suppress SleepIQ's between-session zero states.
@@ -25,87 +26,145 @@
       columns: full
     layout_type: custom:grid-layout
     layout:
-      grid-template-columns: repeat(6, minmax(0, 1fr))
+      grid-template-columns: repeat(2, minmax(0, 1fr))
       grid-auto-flow: row
       grid-auto-rows: min-content
       grid-gap: 12px
       margin: 0
       mediaquery:
         "(max-width: 900px)":
-          grid-template-columns: repeat(2, minmax(0, 1fr))
+          grid-template-columns: minmax(0, 1fr)
     cards:
-    - type: custom:button-card
-      template: bearstone_health_kpi
-      entity: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
-      name: Carlo
-      icon: mdi:bed
-      state_display: >
-        [[[
-          return entity?.state === 'on' ? 'IN BED' : 'OUT OF BED';
-        ]]]
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: binary_sensor.sleepnumber_carlo_carlo_is_in_bed
+        name: Carlo
+        icon: mdi:bed
+        state_display: >
+          [[[
+            return entity?.state === 'on' ? 'IN BED' : 'OUT OF BED';
+          ]]]
 
-    - type: custom:button-card
-      template: bearstone_health_kpi
-      entity: number.sleepnumber_carlo_carlo_firmness
-      name: Carlo Firmness
-      icon: mdi:bed-outline
-      state_display: >
-        [[[
-          const value = Number(entity?.state);
-          return Number.isFinite(value) ? value.toFixed(0) : 'NO DATA';
-        ]]]
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: number.sleepnumber_carlo_carlo_firmness
+        name: Carlo Firmness
+        icon: mdi:bed-outline
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? value.toFixed(0) : 'NO DATA';
+          ]]]
 
-    - type: custom:button-card
-      template: bearstone_health_kpi
-      entity: sensor.sleepnumber_carlo_carlo_sleep_duration
-      name: Carlo Slept
-      icon: mdi:timer-sand
-      state_display: >
-        [[[
-          const value = Number(entity?.state);
-          const inBed = states['binary_sensor.sleepnumber_carlo_carlo_is_in_bed']?.state === 'on';
-          if (inBed && (!Number.isFinite(value) || value <= 0)) return 'IN PROGRESS';
-          if (!Number.isFinite(value)) return 'NO DATA';
-          return `${Math.floor(value)}h ${Math.round((value % 1) * 60)}m`;
-        ]]]
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: sensor.sleepnumber_carlo_carlo_sleep_duration
+        name: Carlo Slept
+        icon: mdi:timer-sand
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            const inBed = states['binary_sensor.sleepnumber_carlo_carlo_is_in_bed']?.state === 'on';
+            if (inBed && (!Number.isFinite(value) || value <= 0)) return 'IN PROGRESS';
+            if (!Number.isFinite(value)) return 'NO DATA';
+            return `${Math.floor(value)}h ${Math.round((value % 1) * 60)}m`;
+          ]]]
 
-    - type: custom:button-card
-      template: bearstone_health_kpi
-      entity: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
-      name: Stacey
-      icon: mdi:bed-double-outline
-      state_display: >
-        [[[
-          return entity?.state === 'on' ? 'IN BED' : 'OUT OF BED';
-        ]]]
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: sensor.carlo_water_refilled_total
+        name: Water Total
+        icon: mdi:cup-water
+        hold_action:
+          action: call-service
+          service: input_button.press
+          target:
+            entity_id: input_button.carlo_water_bottle_refill
+          confirmation:
+            text: Log a full 40 fl oz refill for Carlo?
 
-    - type: custom:button-card
-      template: bearstone_health_kpi
-      entity: number.sleepnumber_carlo_stacey_firmness
-      name: Stacey Firmness
-      icon: mdi:bed-outline
-      state_display: >
-        [[[
-          const value = Number(entity?.state);
-          return Number.isFinite(value) ? value.toFixed(0) : 'NO DATA';
-        ]]]
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: sensor.carlo_water_refilled_today
+        name: Water Today
+        icon: mdi:cup-water
 
-    - type: custom:button-card
-      template: bearstone_health_kpi
-      entity: sensor.sleepnumber_carlo_stacey_sleep_duration
-      name: Stacey Slept
-      icon: mdi:timer-sand
-      state_display: >
-        [[[
-          const value = Number(entity?.state);
-          const inBed = states['binary_sensor.sleepnumber_carlo_stacey_is_in_bed']?.state === 'on';
-          if (inBed && (!Number.isFinite(value) || value <= 0)) return 'IN PROGRESS';
-          if (!Number.isFinite(value)) return 'NO DATA';
-          return `${Math.floor(value)}h ${Math.round((value % 1) * 60)}m`;
-        ]]]
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: sensor.carlo_water_refilled_this_week
+        name: Water This Week
+        icon: mdi:cup-water
+
+    - type: grid
+      columns: 3
+      square: false
+      cards:
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: binary_sensor.sleepnumber_carlo_stacey_is_in_bed
+        name: Stacey
+        icon: mdi:bed-double-outline
+        state_display: >
+          [[[
+            return entity?.state === 'on' ? 'IN BED' : 'OUT OF BED';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: number.sleepnumber_carlo_stacey_firmness
+        name: Stacey Firmness
+        icon: mdi:bed-outline
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            return Number.isFinite(value) ? value.toFixed(0) : 'NO DATA';
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: sensor.sleepnumber_carlo_stacey_sleep_duration
+        name: Stacey Slept
+        icon: mdi:timer-sand
+        state_display: >
+          [[[
+            const value = Number(entity?.state);
+            const inBed = states['binary_sensor.sleepnumber_carlo_stacey_is_in_bed']?.state === 'on';
+            if (inBed && (!Number.isFinite(value) || value <= 0)) return 'IN PROGRESS';
+            if (!Number.isFinite(value)) return 'NO DATA';
+            return `${Math.floor(value)}h ${Math.round((value % 1) * 60)}m`;
+          ]]]
+
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: sensor.stacey_water_refilled_total
+        name: Water Total
+        icon: mdi:cup-water
+        hold_action:
+          action: call-service
+          service: input_button.press
+          target:
+            entity_id: input_button.stacey_water_bottle_refill
+          confirmation:
+            text: Log a full 40 fl oz refill for Stacey?
+
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: sensor.stacey_water_refilled_today
+        name: Water Today
+        icon: mdi:cup-water
+
+      - type: custom:button-card
+        template: bearstone_health_kpi
+        entity: sensor.stacey_water_refilled_this_week
+        name: Water This Week
+        icon: mdi:cup-water
 
 # -------------------------------------------------------------------
-# HealthKit step trends
+# Activity trends
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
@@ -179,7 +238,6 @@
           };
           return `28d ${value('prior_28d_average', 'prior_28d_samples', 28)} · 90d ${value('prior_90d_average', 'prior_90d_samples', 90)}`;
         ]]]
-
 
 # -------------------------------------------------------------------
 # Fourteen-night paired trends

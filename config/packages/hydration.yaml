@@ -1,0 +1,105 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Hydration - Record each person's full water bottles at refill time.
+# Related Issue: 2033
+# -------------------------------------------------------------------
+# Each accepted scan represents one full 40 US fl oz bottle at refill time.
+# Overview Health uses sensor.carlo_water_refilled_today, sensor.carlo_water_refilled_this_week,
+# sensor.stacey_water_refilled_today and sensor.stacey_water_refilled_this_week.
+######################################################################
+
+counter:
+  carlo_water_bottle_refills:
+    name: Carlo Water Bottle Refills
+    icon: mdi:cup-water
+    restore: true
+  stacey_water_bottle_refills:
+    name: Stacey Water Bottle Refills
+    icon: mdi:cup-water
+    restore: true
+
+input_button:
+  carlo_water_bottle_refill:
+    name: Log Carlo Water Bottle Refill
+    icon: mdi:cup-water
+  stacey_water_bottle_refill:
+    name: Log Stacey Water Bottle Refill
+    icon: mdi:cup-water
+
+template:
+  - variables:
+      bottle_capacity_fl_oz: 40
+    sensor:
+      - name: Carlo Water Refilled Total
+        unique_id: carlo_water_refilled_total
+        unit_of_measurement: "fl oz"
+        state_class: total_increasing
+        icon: mdi:cup-water
+        availability: "{{ is_number(states('counter.carlo_water_bottle_refills')) }}"
+        state: "{{ states('counter.carlo_water_bottle_refills') | int(0) * bottle_capacity_fl_oz }}"
+        attributes:
+          bottle_capacity_fl_oz: "{{ bottle_capacity_fl_oz }}"
+          last_refill_at: "{{ state_attr('automation.carlo_count_water_bottle_refill', 'last_triggered') }}"
+      - name: Stacey Water Refilled Total
+        unique_id: stacey_water_refilled_total
+        unit_of_measurement: "fl oz"
+        state_class: total_increasing
+        icon: mdi:cup-water
+        availability: "{{ is_number(states('counter.stacey_water_bottle_refills')) }}"
+        state: "{{ states('counter.stacey_water_bottle_refills') | int(0) * bottle_capacity_fl_oz }}"
+        attributes:
+          bottle_capacity_fl_oz: "{{ bottle_capacity_fl_oz }}"
+          last_refill_at: "{{ state_attr('automation.stacey_count_water_bottle_refill', 'last_triggered') }}"
+
+utility_meter:
+  carlo_water_refilled_today:
+    name: Carlo Water Refilled Today
+    unique_id: carlo_water_refilled_today
+    source: sensor.carlo_water_refilled_total
+    cycle: daily
+    periodically_resetting: false
+  carlo_water_refilled_this_week:
+    name: Carlo Water Refilled This Week
+    unique_id: carlo_water_refilled_this_week
+    source: sensor.carlo_water_refilled_total
+    cycle: weekly
+    periodically_resetting: false
+
+  stacey_water_refilled_today:
+    name: Stacey Water Refilled Today
+    unique_id: stacey_water_refilled_today
+    source: sensor.stacey_water_refilled_total
+    cycle: daily
+    periodically_resetting: false
+  stacey_water_refilled_this_week:
+    name: Stacey Water Refilled This Week
+    unique_id: stacey_water_refilled_this_week
+    source: sensor.stacey_water_refilled_total
+    cycle: weekly
+    periodically_resetting: false
+
+automation:
+  - id: carlo_count_water_bottle_refill
+    alias: Carlo Count Water Bottle Refill
+    use_blueprint:
+      path: bearstone/water_bottle_refill.yaml
+      input:
+        tag_id: &cooler_tag 48c1e7b5-bd08-4629-b649-f4ba9f994971
+        scanner: device_tracker.carlo_maxpro
+        person: person.carlo
+        manual_button: input_button.carlo_water_bottle_refill
+        counter: counter.carlo_water_bottle_refills
+
+  - id: stacey_count_water_bottle_refill
+    alias: Stacey Count Water Bottle Refill
+    use_blueprint:
+      path: bearstone/water_bottle_refill.yaml
+      input:
+        tag_id: *cooler_tag
+        scanner: device_tracker.stacey_iphone11
+        person: person.stacey
+        manual_button: input_button.stacey_water_bottle_refill
+        counter: counter.stacey_water_bottle_refills

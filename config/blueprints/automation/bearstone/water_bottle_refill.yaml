@@ -1,0 +1,74 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Hydration - Attribute a shared cooler tag or manual refill to its owner.
+# Related Issue: 2033
+######################################################################
+blueprint:
+  name: Personal water bottle refill
+  description: Count one full bottle from the registered phone or the owner's dashboard button. Repeated entries within 30 seconds count once per person.
+  domain: automation
+  source_url: https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/config/blueprints/automation/bearstone/water_bottle_refill.yaml
+  input:
+    tag_id:
+      name: Cooler tag ID
+      selector:
+        text:
+    scanner:
+      name: Phone registered with the Companion App
+      selector:
+        entity:
+          filter:
+            - domain: device_tracker
+              integration: mobile_app
+    person:
+      name: Person linked to the dashboard account
+      selector:
+        entity:
+          filter:
+            - domain: person
+    manual_button:
+      name: Manual refill button
+      selector:
+        entity:
+          filter:
+            - domain: input_button
+    counter:
+      name: Lifetime refill counter
+      selector:
+        entity:
+          filter:
+            - domain: counter
+
+variables:
+  scanner: !input scanner
+  person: !input person
+triggers:
+  - trigger: tag
+    id: sticker
+    tag_id: !input tag_id
+  - trigger: state
+    id: manual
+    entity_id: !input manual_button
+    to: null
+conditions:
+  - condition: template
+    value_template: >-
+      {% if trigger.id == 'sticker' %}
+        {% set phone = device_id(scanner) %}
+        {{ phone is string and trigger.event.data.get('device_id') == phone }}
+      {% else %}
+        {% set account = state_attr(person, 'user_id') %}
+        {{ account is string and trigger.from_state is not none and trigger.to_state is not none
+           and trigger.to_state.context.user_id == account }}
+      {% endif %}
+  - condition: template
+    value_template: >-
+      {{ as_timestamp(now()) - as_timestamp(this.attributes.get('last_triggered'), 0) >= 30 }}
+actions:
+  - action: counter.increment
+    target:
+      entity_id: !input counter
+mode: single
