@@ -42,6 +42,7 @@ speech_engine:
     # Run the "script.speech_processing" service with the specified media player and speech message
     - service: script.speech_processing
       data:
+        protect_amp_playback: "{{ protect_amp_playback | default(false) }}"
         # Set the entity ID for the media players to be controlled
         # If the "media_player" variable is not defined, set it to a list of media player entities
         # If the "media_player" variable is a list, convert it to a comma-separated string

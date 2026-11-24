@@ -8,6 +8,7 @@
 # -------------------------------------------------------------------
 # Notes: SleepIQ recovery from `unavailable` is not treated as a bed entry;
 #        amp wake-up requires both bed sensors to report explicit `off`.
+#        Bedtime shutdown leaves active or unconfirmed amp playback alone.
 ######################################################################
 
 - alias: 'Good Night Trigger'
@@ -65,6 +66,8 @@
         - switch.alarm_panel_1_motion_detection
         - light.ikea_1 #Upstairs Hallyway switchoutlet.
     - service: script.interior_off
+      data:
+        protect_amp_playback: true
     - service: number.set_value
       target:
         entity_id: number.alarm_panel_1_screen_brightness
@@ -95,9 +98,15 @@
             entity_id: group.bed
             state: 'on'
         sequence:
-          - service: homeassistant.turn_off
-            target:
-              entity_id: switch.lr_amp
+          - if:
+              - condition: template
+                value_template: >-
+                  {% from 'amp_playback.jinja' import amp_is_quiet %}
+                  {{ (amp_is_quiet | as_function)() }}
+            then:
+              - action: switch.turn_off
+                target:
+                  entity_id: switch.lr_amp
           - service: homeassistant.turn_off
             target:
               entity_id: 

@@ -1,0 +1,5 @@
+{# Both Cast and the Everywhere group can feed the living-room amplifier. #}
+{% macro amp_is_quiet(returns) -%}
+  {% do returns(is_state('media_player.livingroomcc', ['off', 'idle'])
+             and is_state('media_player.everywhere', ['off', 'idle'])) %}
+{%- endmacro %}

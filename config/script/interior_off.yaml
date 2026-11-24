@@ -11,11 +11,16 @@
 ######################################################################
 interior_off:
   sequence:
-    - service: homeassistant.turn_off
-      entity_id:
-        - group.interior_lights
-        - group.interior_switches
-        - switch.lr_amp
-        - group.tvs
+    - action: homeassistant.turn_off
+      target:
+        entity_id: >-
+          {% from 'amp_playback.jinja' import amp_is_quiet %}
+          {% if protect_amp_playback | default(false) and not (amp_is_quiet | as_function)() %}
+            {% set media_power = ['switch.lr_amp', 'switch.living_room_tv_outlet'] %}
+            {{ ['group.interior_lights'] + (expand('group.interior_switches')
+               | map(attribute='entity_id') | reject('in', media_power) | list) }}
+          {% else %}
+            {{ ['group.interior_lights', 'group.interior_switches', 'switch.lr_amp', 'group.tvs'] }}
+          {% endif %}
     - service: script.paige_lights_off  # C by GE Lights  (https://amzn.to/30w3UWy)
 #    - service: script.noon_lights_off   # Noon Home Smart Lights (https://amzn.to/3fOIPx6)

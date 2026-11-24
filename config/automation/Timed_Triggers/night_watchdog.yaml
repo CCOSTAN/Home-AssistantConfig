@@ -3,8 +3,8 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Stuff that needs to happen after 10pm - Home Assistant automation behavior.
-#  Defines the Stuff that needs to happen after 10pm triggers, conditions, and actions.
+# Night watchdogs - Living-room amplifier and bedroom screensaver.
+#  Shut off the amp when household conditions allow and both audio sources are quiet.
 # -------------------------------------------------------------------
 ######################################################################
 - alias: Automated NIGHT WatchDog!
@@ -15,7 +15,7 @@
       to: 'on'
       for: '00:10:00'
     - platform: state
-      entity_id: media_player.livingroomCC
+      entity_id: media_player.livingroomcc
       to: 'off'
       for: '00:02:00'
     - platform: state
@@ -52,9 +52,17 @@
             state: 'on'
 
   action:
-    - service: switch.turn_off
-      data:
-        entity_id: "{{ trigger.entity_id }}"
+    - alias: Only shut off the amp when both audio sources are off or idle
+      condition: state
+      entity_id:
+        - media_player.livingroomcc
+        - media_player.everywhere
+      state:
+        - 'off'
+        - 'idle'
+    - action: switch.turn_off
+      target:
+        entity_id: switch.lr_amp
 
 
 - alias: 'Bedroom Screensaver Watchdog'

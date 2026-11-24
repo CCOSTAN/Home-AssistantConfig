@@ -3,8 +3,8 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Automation for 10:00 PM tasks - This automation handles various actions that need to occur at 10 PM.
-#  Defines the Automation for 10:00 PM tasks triggers, conditions, and actions.
+# 10 p.m. amp shutdown - Wait for quiet before the nightly checks and power-off.
+#  Leave the amp on if either audio source stays busy or stops reporting.
 # -------------------------------------------------------------------
 ######################################################################
 - alias: 'Shut down AMP in Living room'
@@ -20,24 +20,27 @@
        {{ not is_state('input_boolean.guest_mode', 'on') or is_state('group.bed', 'on') }}
       timeout: "08:00:00"
       continue_on_timeout: false
-    - wait_template: >-
-       {{ not is_state('media_player.livingroomCC', 'playing') }}
+    - alias: Wait for both audio sources before requesting the briefing
+      wait_template: &amp_quiet >-
+        {% from 'amp_playback.jinja' import amp_is_quiet %}
+        {{ (amp_is_quiet | as_function)() }}
       timeout: "02:00:00"
-      continue_on_timeout: true
-    - wait_template: >-
-       {{ not is_state('media_player.everywhere', 'playing') }}
-      timeout: "02:00:00"
-      continue_on_timeout: true
+      continue_on_timeout: false
 
     - service: script.speech_engine
       data:
         call_no_announcement: 1
         call_garage_check: 1
         call_window_check: 1
+        protect_amp_playback: true
 
-    - wait_template: >-
-       {{ not is_state('media_player.livingroomCC', 'playing') }}
+    # Give Cast time to report the start of a dispatched announcement.
+    - delay: "00:00:05"
+    - wait_template: *amp_quiet
       timeout: "00:10:00"
-      continue_on_timeout: true
-    - service: switch.turn_off
-      entity_id: switch.lr_amp
+      continue_on_timeout: false
+    - condition: template
+      value_template: *amp_quiet
+    - action: switch.turn_off
+      target:
+        entity_id: switch.lr_amp

@@ -57,9 +57,17 @@ speech_processing:
           entity_id: input_boolean.speech_notifications
           state: 'on'
 
+    - alias: Check for playback after the speech queue
+      condition: template
+      value_template: &playback_allowed >-
+        {% from 'amp_playback.jinja' import amp_is_quiet %}
+        {{ not (protect_amp_playback | default(false)) or (amp_is_quiet | as_function)() }}
     - service: switch.turn_on
       entity_id: switch.lr_amp
 
+    - alias: Check again before changing the volume
+      condition: template
+      value_template: *playback_allowed
     - service: media_player.volume_set
       data:
         entity_id: >
@@ -88,6 +96,9 @@ speech_processing:
             - variables:
                 speech_response: "{{ agent.response.speech.plain.speech }}"
 
+    - alias: Recheck playback after generating the announcement
+      condition: template
+      value_template: *playback_allowed
     - service: tts.cloud_say
       data:
         entity_id: >
@@ -102,6 +113,8 @@ speech_processing:
         - conditions:
             - condition: template
               value_template: "{{ 'media_player.garage' not in routed_media_players }}"
+            - condition: template
+              value_template: "{{ not (protect_amp_playback | default(false)) or is_state('media_player.garage', ['off', 'idle', 'standby']) }}"
           sequence:
             - service: notify.alexa_media_garage
               continue_on_error: true
@@ -117,6 +130,8 @@ speech_processing:
               state: 'on'
             - condition: template
               value_template: "{{ 'media_player.office' not in routed_media_players }}"
+            - condition: template
+              value_template: "{{ not (protect_amp_playback | default(false)) or is_state('media_player.office', ['off', 'idle', 'standby']) }}"
           sequence:
             - service: notify.alexa_media_office
               continue_on_error: true
