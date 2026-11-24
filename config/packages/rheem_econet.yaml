@@ -14,7 +14,7 @@
 # Powerwall outage control for Rheem WH lives in config/packages/powerwall.yaml
 # Notes: EcoNet exposes an alert count but not the vendor error code or message.
 # Notes: New alert-count increases notify once; state changes and 15-minute reconciliation keep Repairs durable.
-# Notes: A 10-minute EcoNet data gap is telemetry stale, not proof of a water-heater fault.
+# Notes: A 10-minute data gap raises a connectivity warning. A reported heater fault takes priority.
 ######################################################################
 
 ##############################################################################
@@ -239,30 +239,48 @@ automation:
         value_template: "{{ states('binary_sensor.rheem_wh_problem') in ['on', 'off'] }}"
     action:
       - variables:
-          alert_count: "{{ states('sensor.rheem_wh_alert_count') | int(0) }}"
           diagnostic_status: "{{ states('sensor.rheem_wh_diagnostic_status') }}"
+          reasons: "{{ state_attr('binary_sensor.rheem_wh_problem', 'reasons') or [] }}"
+          telemetry_only: "{{ reasons == ['telemetry_stale'] }}"
           incident_title: >-
-            {% if is_state('binary_sensor.rheem_wh_active_alert', 'on') %}
+            {% if 'active_alert' in reasons %}
               Rheem water heater alert
-            {% elif is_state('binary_sensor.rheem_wh_telemetry_stale', 'on') %}
+            {% elif telemetry_only %}
               Rheem telemetry unavailable
             {% else %}
               Rheem water heater health degraded
             {% endif %}
           incident_description: |-
-            Home Assistant detected a Rheem water-heater problem.
+            {% if telemetry_only %}
+            Home Assistant has been missing EcoNet readings for at least 10 minutes. Check the heater's control panel for its current status.
+            {% if config_entry_attr(config_entry_id('water_heater.rheem_wh'), 'state') in ['setup_retry', 'setup_in_progress'] %}
 
-            Status: {{ states('sensor.rheem_wh_diagnostic_status') }}
-            Active alert count: {{ states('sensor.rheem_wh_alert_count') }}
-            Operation mode: {{ states('water_heater.rheem_wh') }}
-            Running state: {{ states('sensor.rheem_wh_running_state') }}
-            Available hot water: {{ states('sensor.rheem_wh_available_hot_water') }}%
-            Compressor health: {{ states('sensor.rheem_wh_compressor_health') }}%
-            Tank health: {{ states('sensor.rheem_wh_tank_health') }}%
-            Last new-alert snapshot: {{ states('sensor.rheem_wh_last_alert_snapshot') }}
+            Home Assistant is retrying the EcoNet connection automatically.
+            {% endif %}
+            {% else %}
+            {% if 'active_alert' in reasons %}
+            EcoNet reports an active heater alert. Check the Rheem app or vendor email for the diagnostic code and message.
+            {% else %}
+            EcoNet reports heater health below the 90% threshold.
+            {% endif %}
+            {% if 'telemetry_stale' in reasons %}
 
-            EcoNet exposes the number of alerts but not the vendor error code or message.
-            Check the Rheem app or vendor email for the exact diagnostic wording.
+            Some EcoNet readings are also unavailable.
+            {% endif %}
+
+            {% for label, entity in [
+              ('Active alerts', 'sensor.rheem_wh_alert_count'),
+              ('Operation mode', 'water_heater.rheem_wh'),
+              ('Running state', 'sensor.rheem_wh_running_state'),
+              ('Available hot water', 'sensor.rheem_wh_available_hot_water'),
+              ('Compressor health', 'sensor.rheem_wh_compressor_health'),
+              ('Tank health', 'sensor.rheem_wh_tank_health')] if has_value(entity) -%}
+            - {{ label }}: {{ states(entity, with_unit=true) }}
+            {% endfor %}
+            {% if 'active_alert' in reasons and has_value('sensor.rheem_wh_last_alert_snapshot') %}
+            Last recorded alert-count increase: {{ states('sensor.rheem_wh_last_alert_snapshot') }}
+            {% endif %}
+            {% endif %}
       - choose:
           - conditions:
               - condition: template
@@ -316,11 +334,7 @@ automation:
                   issue_id: "rheem_water_heater_problem"
                   domain: "econet"
                   title: "{{ incident_title }}"
-                  severity: >-
-                    {{ 'warning'
-                       if is_state('binary_sensor.rheem_wh_telemetry_stale', 'on')
-                       and not is_state('binary_sensor.rheem_wh_active_alert', 'on')
-                       else 'error' }}
+                  severity: "{{ 'warning' if telemetry_only else 'error' }}"
                   persistent: true
                   description: "{{ incident_description }}"
               - service: persistent_notification.create
