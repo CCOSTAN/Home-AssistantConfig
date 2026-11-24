@@ -3,8 +3,9 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Landscape Lighting - Tuya Smart Life outlets for exterior lights - Schedules and overrides for landscape lighting.
-#  Centralizes the Landscape Lighting - Tuya Smart Life outlets for exterior lights package configuration and helpers.
+# Landscape Lighting - Schedules and recovery for the Tuya Smart Life outlets.
+# Related Issue: 684
+#  Catch up a missed morning shutoff when an unavailable outlet returns on.
 # -------------------------------------------------------------------
 ######################################################################
 # Outlets managed via Smart_Life package.
@@ -62,3 +63,52 @@ automation:
 
         - service: homeassistant.turn_off
           entity_id: group.landscaping
+
+    - alias: 'Recover missed morning landscaping shutoff'
+      id: recover_missed_morning_landscaping_shutoff
+      mode: restart
+      triggers:
+        # Both morning routines emit this immediately before their outlet off command.
+        - trigger: event
+          event_type: landscaping_morning_shutoff
+        - trigger: sun
+          event: sunset
+          offset: "-00:15:00"
+          id: evening
+      actions:
+        # Restart mode cancels pending waits at the evening lighting boundary.
+        - condition: not
+          conditions:
+            - condition: trigger
+              id: evening
+        - &morning_window
+          condition: sun
+          after: sunrise
+          after_offset: "-02:00:00"
+          before: sunset
+          before_offset: "-00:15:00"
+        - parallel:
+            - alias: Recover the front outlet
+              sequence:
+                - condition: template
+                  value_template: "{{ not has_value('switch.front_landscaping') }}"
+                - wait_template: "{{ is_state('switch.front_landscaping', ['on', 'off']) }}"
+                - condition: state
+                  entity_id: switch.front_landscaping
+                  state: 'on'
+                - *morning_window
+                - action: switch.turn_off
+                  target:
+                    entity_id: switch.front_landscaping
+            - alias: Recover the back outlet
+              sequence:
+                - condition: template
+                  value_template: "{{ not has_value('switch.back_landscaping') }}"
+                - wait_template: "{{ is_state('switch.back_landscaping', ['on', 'off']) }}"
+                - condition: state
+                  entity_id: switch.back_landscaping
+                  state: 'on'
+                - *morning_window
+                - action: switch.turn_off
+                  target:
+                    entity_id: switch.back_landscaping

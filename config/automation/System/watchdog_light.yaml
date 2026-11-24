@@ -40,6 +40,9 @@
 #Turn it off!
   action:
 
+    - event: landscaping_morning_shutoff
+      event_data:
+        checkpoint: daylight_watchdog
     - service: homeassistant.turn_off
       data:
         entity_id:

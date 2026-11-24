@@ -17,6 +17,9 @@
 
   action:
     - service: script.interior_off
+    - event: landscaping_morning_shutoff
+      event_data:
+        checkpoint: pre_sunrise
     - service: homeassistant.turn_off
       entity_id:
         - group.landscaping
