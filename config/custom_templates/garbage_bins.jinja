@@ -46,13 +46,29 @@
   {%- endif -%}
 {%- endmacro %}
 
+{# Return timestamps persist across restarts and expire at the next collection cycle. #}
+{% macro garbage_return_recorded(entity_id, current_time=none) -%}
+  {%- set current = current_time if current_time is not none else now() -%}
+  {%- set weekday = current.weekday() -%}
+  {%- if weekday in [0, 1, 3, 4, 5] -%}
+    {%- set days_since_pickup = weekday if weekday < 3 else weekday - 3 -%}
+    {%- set cycle_start = current.replace(hour=8, minute=0, second=0, microsecond=0) - timedelta(days=days_since_pickup) -%}
+    {{- state_attr(entity_id, 'hour') | int(0) >= 8
+        and state_attr(entity_id, 'timestamp') | float(0) >= as_timestamp(cycle_start) -}}
+  {%- else -%}
+    false
+  {%- endif -%}
+{%- endmacro %}
+
 {% macro garbage_return_reminder(include_recycling=true) -%}
   {%- if is_state('timer.garbage_reminder_snooze', 'idle') -%}
     {%- set ns = namespace(needed=[]) -%}
-    {%- if not is_state('binary_sensor.garage_garbage_at_curb', 'off') -%}
+    {%- if not is_state('binary_sensor.garage_garbage_at_curb', 'off')
+        and garbage_return_recorded('input_datetime.garage_garbage_last_returned') | trim | lower != 'true' -%}
       {%- set ns.needed = ns.needed + ['garbage pail'] -%}
     {%- endif -%}
-    {%- if include_recycling and not is_state('binary_sensor.garage_recycling_at_curb', 'off') -%}
+    {%- if include_recycling and not is_state('binary_sensor.garage_recycling_at_curb', 'off')
+        and garbage_return_recorded('input_datetime.garage_recycling_last_returned') | trim | lower != 'true' -%}
       {%- set ns.needed = ns.needed + ['recycling containers'] -%}
     {%- endif -%}
     {%- if ns.needed -%}

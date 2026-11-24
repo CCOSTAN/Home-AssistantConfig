@@ -23,7 +23,9 @@
 #  need air, even outside garbage days or during a garbage-only snooze.
 #  Tire speech uses the existing 1-day/3-day tire-alert snooze.
 # Notes: Local garage classifiers suppress garbage reminders once the
-#  required bins are absent. Unknown/obstructed views retain reminders.
+#  required bins are absent. Pending take-out alerts allow 20 extra seconds
+#  for the camera to confirm the view after the door opens. Unknown or
+#  obstructed views still produce a reminder when the wait expires.
 # Notes: Bring-in checks start with Monday/Thursday morning garage
 #  openings, continuing on following days until the next take-out day.
 #  Each bin stops appearing once verified stored. Timing is a household
@@ -83,6 +85,13 @@
 
     - condition: trigger
       id: garage_open
+
+    - alias: "Allow one more camera check before a take-out reminder"
+      wait_template: >-
+        {% from 'garbage_bins.jinja' import garbage_takeout_reminder %}
+        {{ garbage_takeout_reminder() | trim == '' }}
+      timeout: "00:00:20"
+      continue_on_timeout: true
 
     - variables:
         reminder_delays: [30, 60, 90]  # cumulative delays to hit 30s, 90s, 180s

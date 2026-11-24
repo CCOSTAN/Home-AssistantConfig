@@ -23,6 +23,8 @@
 # Token fix: https://www.vcloudinfo.com/2020/05/fixing-garadget-in-home-assistant.html
 # Video: https://youtu.be/wFO0H5zgnzk
 # Companion post: https://www.vcloudinfo.com/2026/05/home-assistant-garage-automations-arrival-alerts-tesla.html
+# Garage lighting video: https://youtu.be/_BYzcyEduF8
+# Garage lighting guide: https://www.vcloudinfo.com/2026/11/home-assistant-garage-lights-multiple-sensors.html
 # Hardware: Garadget unit https://amzn.to/2jQLpVQ
 ######################################################################
 
@@ -425,22 +427,38 @@ automation:
           icon2: sfsymbols:calendar
 
   ######################################################################
-  ##  Automation: Auto-open Large Garage Door when someone comes home
+  ##  Automation: Auto-open Large Garage Door after a driving arrival
   ######################################################################
   - alias: 'Auto Open Large Garage Door On Arrival'
     id: 7e2b1c3a-4b1e-4b2a-9c1a-automated_garage_door
-    mode: single
-    trigger:
-      - platform: state
+    mode: parallel
+    triggers:
+      - trigger: state
         entity_id:
           - person.carlo
           - person.stacey
         from: 'driving'
-        to: 'home'
-    action:
-      - service: script.open_large_garage_door_if_ready
+        to:
+          - 'home'
+          - 'not_home'
+    actions:
+      # Life360 can stop reporting driving before the person enters the home zone.
+      - alias: Wait for this driver to leave the transient away state
+        wait_template: >-
+          {{ trigger.to_state.state == 'home' or not is_state(trigger.entity_id, 'not_home') }}
+        timeout: "00:01:00"
+        continue_on_timeout: false
+      - alias: Confirm this driver is home
+        condition: template
+        value_template: "{{ is_state(trigger.entity_id, 'home') }}"
+      - alias: Suppress duplicate requests while the garage status catches up
+        condition: state
+        entity_id: script.open_large_garage_door_if_ready
+        state: 'off'
+        for: "00:00:15"
+      - action: script.open_large_garage_door_if_ready
         data:
-          person_name: "{{ trigger.to_state.entity_id.split('.')[1] }}"
+          person_name: "{{ trigger.entity_id.split('.')[1] }}"
 
 ######################################################################
 ##  Entry helper prompt after arrival if auto-open didn’t fire.

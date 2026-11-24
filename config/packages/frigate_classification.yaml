@@ -50,6 +50,14 @@ input_text:
     max: 255
 
 input_datetime:
+  garage_garbage_last_returned:
+    name: "Garage garbage last verified returned"
+    has_date: true
+    has_time: true
+  garage_recycling_last_returned:
+    name: "Garage recycling last verified returned"
+    has_date: true
+    has_time: true
   front_door_package_last_sync:
     name: "Frigate front door last state sync"
     has_date: true
@@ -120,6 +128,51 @@ template:
           classifier_edge_state: "{{ states('sensor.frontdoorbell_front_door_package_edge_classification') }}"
 
 automation:
+  - alias: Frigate - Remember garage bin returns
+    id: frigate_remember_garage_bin_returns
+    description: "Remember stable bin returns through the current collection cycle."
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.garage_garbage_at_curb
+          - binary_sensor.garage_recycling_at_curb
+        to: 'off'
+        for: "00:02:00"
+      - trigger: time
+        at: "08:02:00"
+      - trigger: homeassistant
+        event: start
+        id: startup
+    actions:
+      - if:
+          - condition: trigger
+            id: startup
+        then:
+          - delay: "00:02:00"
+      - condition: template
+        value_template: "{{ now().weekday() in [0, 1, 3, 4, 5] and now().hour >= 8 }}"
+      - repeat:
+          for_each:
+            - sensor: binary_sensor.garage_garbage_at_curb
+              remembered: input_datetime.garage_garbage_last_returned
+            - sensor: binary_sensor.garage_recycling_at_curb
+              remembered: input_datetime.garage_recycling_last_returned
+          sequence:
+            - if:
+                - condition: template
+                  value_template: >-
+                    {% from 'garbage_bins.jinja' import garbage_return_recorded %}
+                    {{ is_state(repeat.item.sensor, 'off')
+                       and (as_timestamp(now()) - as_timestamp(states[repeat.item.sensor].last_changed)) >= 120
+                       and garbage_return_recorded(repeat.item.remembered) | trim | lower != 'true' }}
+              then:
+                - action: input_datetime.set_datetime
+                  target:
+                    entity_id: "{{ repeat.item.remembered }}"
+                  data:
+                    datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+
   - alias: Frigate - Garage bins compatibility state
     id: frigate_garage_bins_compatibility_state
     description: "Keep existing kiosk consumers true only when today's required bins are verified out."
