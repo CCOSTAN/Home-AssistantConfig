@@ -4,14 +4,15 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Maintenance Logging - webhook ingest + graphable HA history
-# Related Issue: 1816
+# Related Issue: 519, 1816
 #  Stores water softener salt maintenance events in recorder-backed helpers.
 # -------------------------------------------------------------------
 # Video: https://youtu.be/_OqTv9i-jAs
 # Blog: https://www.vcloudinfo.com/2026/07/home-assistant-water-softener-salt-automation.html
 # Notes: Webhook id is bearclaw_maintenance_log_v1; internal maintenance_log events reuse the same queued processor.
 # Notes: The water-softener NFC tag uses a short single-run guard to suppress duplicate phone scans.
-# Notes: Duplicate event_id values are ignored to prevent double-count totals.
+# Notes: The restored refill journal deduplicates by event ID; late entries count toward totals without replacing a newer refill.
+# Notes: Typical duration uses up to ten chronological refills. Short input_text fields are compatibility displays.
 # Notes: Recent event history string format is "YYYY-MM-DD HH:MM:SS|amount|note||...".
 # Notes: Long-term stats live on template sensors; helpers are internal state for restore/calculation.
 ######################################################################
@@ -99,7 +100,7 @@ template:
             {% if note in ['unknown', 'unavailable', 'none', ''] %}
               {{ amount | round(1) }} lb on {{ when }}
             {% else %}
-              {{ amount | round(1) }} lb on {{ when }} - {{ note }}
+              {{ ((amount | round(1)) ~ ' lb on ' ~ when ~ ' - ' ~ note)[:255] }}
             {% endif %}
           {% endif %}
 
@@ -108,32 +109,17 @@ template:
         unit_of_measurement: d
         state_class: measurement
         state: >-
-          {% set raw = states('input_text.water_softener_salt_recent_events') %}
-          {% if raw in ['unknown', 'unavailable', 'none', ''] %}
-            unknown
-          {% else %}
-            {% set entries = raw.split('||') %}
-            {% set ns = namespace(previous_ts=none, total_days=0, sample_count=0) %}
-            {% for entry in entries %}
-              {% set parts = entry.split('|') %}
-              {% set dt = as_datetime(parts[0] | default('', true) | trim, default=none) %}
-              {% if dt is not none %}
-                {% set ts = as_timestamp(dt, default=none) %}
-                {% if ts is not none %}
-                  {% if ns.previous_ts is not none and ns.previous_ts > ts %}
-                    {% set ns.total_days = ns.total_days + ((ns.previous_ts - ts) / 86400) %}
-                    {% set ns.sample_count = ns.sample_count + 1 %}
-                  {% endif %}
-                  {% set ns.previous_ts = ts %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
-            {% if ns.sample_count > 0 %}
-              {{ (ns.total_days / ns.sample_count) | round(1) }}
-            {% else %}
-              unknown
+          {% set journal = state_attr('sensor.water_softener_salt_refill_journal', 'journal') %}
+          {% if journal is none %}
+            {% from 'softener_salt.jinja' import legacy_journal %}
+            {% if has_value('counter.water_softener_salt_event_count')
+                  and has_value('input_number.water_softener_salt_total_added_lb') %}
+              {% set journal = (legacy_journal | as_function)() %}
             {% endif %}
           {% endif %}
+          {% set recent = journal.records[:10] if journal is mapping else [] %}
+          {{ ((recent[0].at - recent[-1].at) / 86400 / (recent | length - 1)) | round(1)
+             if recent | length > 1 else none }}
 
       - name: "Water Softener Salt Refill Count"
         unique_id: water_softener_salt_refill_count
@@ -147,6 +133,17 @@ template:
         device_class: weight
         state_class: total
         state: "{{ states('input_number.water_softener_salt_total_added_lb') | float(0) | round(1) }}"
+
+  # Trigger-based template sensors restore their state and attributes after restart.
+  - triggers:
+      - trigger: event
+        event_type: water_softener_salt_journal_updated
+    sensor:
+      - name: Water Softener Salt Refill Journal
+        unique_id: water_softener_salt_refill_journal
+        state: "{{ trigger.event.data.journal['count'] }}"
+        attributes:
+          journal: "{{ trigger.event.data.journal }}"
 
 automation:
   - alias: "Maintenance Log - Water Softener Salt NFC"
@@ -230,13 +227,6 @@ automation:
         {% else %}
           0
         {% endif %}
-      event_id: >-
-        {% set raw_id = payload.event_id | default('', true) | string | trim %}
-        {% if raw_id %}
-          {{ raw_id }}
-        {% else %}
-          maint_{{ now().timestamp() | int }}
-        {% endif %}
       occurred_at_raw: "{{ payload.occurred_at | default(now().isoformat(), true) }}"
       occurred_at: >-
         {% set parsed = as_datetime(occurred_at_raw, default=none) %}
@@ -253,11 +243,16 @@ automation:
         {{ dt.strftime('%Y-%m-%d %I:%M %p') | replace(' 0', ' ') }}
       actor: "{{ payload.actor | default('unknown', true) | string | trim }}"
       raw_text: "{{ payload.raw_text | default('', true) | string | replace('|', '/') | trim }}"
+      event_id: >-
+        {% set raw_id = payload.event_id | default('', true) | string | trim %}
+        {% if raw_id %}
+          {{ raw_id }}
+        {% elif as_timestamp(payload.occurred_at | default(none), none) is not none %}
+          refill_{{ [as_timestamp(occurred_at), actor, raw_text] | to_json | sha256 }}
+        {% else %}
+          maint_{{ trigger.event.context.id if trigger.id == 'internal_event' else now().isoformat() }}
+        {% endif %}
       parse_confidence: "{{ payload.parse_confidence | default('unknown', true) | string | trim }}"
-      is_duplicate: >-
-        {% set existing = (states('input_text.water_softener_salt_recent_event_ids')
-           | default('', true) | string).split('|') %}
-        {{ event_id in existing }}
       is_supported_item: "{{ item_key == 'water_softener_salt' }}"
       is_add_action: "{{ action in ['add', 'top_off', 'refill'] }}"
       effective_amount_lb: >-
@@ -268,39 +263,28 @@ automation:
         {% endif %}
       note_value: >-
         {% set text = raw_text if raw_text else 'Logged by Joanna webhook.' %}
-        {{ text | truncate(255, true, '') }}
-      recent_event_line: "{{ occurred_local_datetime }}|{{ effective_amount_lb | round(1) }} lb|{{ note_value }}"
-      next_recent_events: >-
-        {% set current = (states('input_text.water_softener_salt_recent_events')
-           | default('', true) | string).split('||') %}
-        {% set ns = namespace(items=[recent_event_line]) %}
-        {% for raw in current %}
-          {% set value = raw | trim %}
-          {% if value and value not in ['unknown', 'unavailable', 'none'] and value != recent_event_line and (ns.items | count) < 10 %}
-            {% set ns.items = ns.items + [value] %}
-          {% endif %}
-        {% endfor %}
-        {{ ns.items | join('||') }}
-      next_recent_ids: >-
-        {% set current = (states('input_text.water_softener_salt_recent_event_ids')
-           | default('', true) | string).split('|') %}
-        {% set ns = namespace(items=[event_id]) %}
-        {% for raw in current %}
-          {% set value = raw | trim %}
-          {% if value and value not in ['unknown', 'unavailable', 'none'] and value != event_id and (ns.items | count) < 8 %}
-            {% set ns.items = ns.items + [value] %}
-          {% endif %}
-        {% endfor %}
-        {{ ns.items | join('|') }}
-      current_total_lb: "{{ states('input_number.water_softener_salt_total_added_lb') | float(0) }}"
-      next_total_lb: >-
-        {% if is_add_action %}
-          {{ (current_total_lb + effective_amount_lb) | round(2) }}
-        {% else %}
-          {{ current_total_lb | round(2) }}
-        {% endif %}
+        {{ (text | string)[:255] }}
 
     action:
+      # Read the helpers and journal only once this request reaches the front of the queue.
+      - variables:
+          journal: >-
+            {% set saved = state_attr('sensor.water_softener_salt_refill_journal', 'journal') %}
+            {% if saved is mapping %}
+              {{ saved }}
+            {% elif states.sensor.water_softener_salt_refill_journal is not none
+                 and has_value('counter.water_softener_salt_event_count')
+                 and has_value('input_number.water_softener_salt_total_added_lb')
+                 and (states('counter.water_softener_salt_event_count') | int == 0
+                      or (has_value('input_text.water_softener_salt_recent_event_ids')
+                          and has_value('input_text.water_softener_salt_recent_events')
+                          and has_value('input_datetime.water_softener_salt_last_occurred_at')
+                          and has_value('input_number.water_softener_salt_last_amount_lb'))) %}
+              {% from 'softener_salt.jinja' import legacy_journal %}
+              {{ (legacy_journal | as_function)() }}
+            {% else %}
+              {{ none }}
+            {% endif %}
       - choose:
           - conditions:
               - condition: template
@@ -313,7 +297,7 @@ automation:
                     Ignored unsupported maintenance item "{{ item_key }}" (event_id={{ event_id }}).
           - conditions:
               - condition: template
-                value_template: "{{ effective_amount_lb <= 0 }}"
+                value_template: "{{ not is_add_action or effective_amount_lb <= 0 }}"
             sequence:
               - service: script.send_to_logbook
                 data:
@@ -322,53 +306,82 @@ automation:
                     Ignored maintenance payload with invalid amount (event_id={{ event_id }}, raw_amount={{ amount_value }} {{ unit }}).
           - conditions:
               - condition: template
-                value_template: "{{ is_duplicate }}"
+                value_template: "{{ journal is not mapping }}"
             sequence:
-              - service: script.send_to_logbook
-                data:
-                  topic: MAINTENANCE
-                  message: >-
-                    Duplicate maintenance event ignored for softener salt (event_id={{ event_id }}).
+              - stop: "Salt history is unavailable; retry this event when the helpers have loaded."
+                error: true
         default:
-          - service: input_number.set_value
-            data:
-              entity_id: input_number.water_softener_salt_last_amount_lb
-              value: "{{ effective_amount_lb }}"
+          - variables:
+              duplicate: "{{ event_id | string in journal.ids }}"
+              updated: >-
+                {% if duplicate %}
+                  {{ journal }}
+                {% else %}
+                  {% set entry = dict(at=as_timestamp(occurred_at) | int, lb=effective_amount_lb, note=note_value | string) %}
+                  {{ dict(records=([entry] + journal.records) | sort(attribute='at', reverse=true),
+                          ids=[event_id | string] + journal.ids, count=journal['count'] + 1,
+                          total=(journal.total + effective_amount_lb) | round(2)) }}
+                {% endif %}
+          - if: "{{ not duplicate or state_attr('sensor.water_softener_salt_refill_journal', 'journal') is none }}"
+            then:
+              - event: water_softener_salt_journal_updated
+                event_data:
+                  journal: "{{ updated }}"
+              - wait_template: "{{ state_attr('sensor.water_softener_salt_refill_journal', 'journal') == updated }}"
+                timeout: "00:00:10"
+                continue_on_timeout: false
 
-          - service: input_number.set_value
-            data:
+          # Write absolute values so retrying an interrupted update repairs its displays.
+          - action: input_number.set_value
+            target:
               entity_id: input_number.water_softener_salt_total_added_lb
-              value: "{{ next_total_lb }}"
-
-          - service: counter.increment
             data:
+              value: "{{ updated.total }}"
+          - action: counter.set_value
+            target:
               entity_id: counter.water_softener_salt_event_count
-
-          - service: input_datetime.set_datetime
             data:
-              entity_id: input_datetime.water_softener_salt_last_occurred_at
-              datetime: "{{ occurred_local_datetime }}"
-
-          - service: input_text.set_value
-            data:
-              entity_id: input_text.water_softener_salt_last_note
-              value: "{{ note_value }}"
-
-          - service: input_text.set_value
-            data:
+              value: "{{ updated['count'] }}"
+          - if: "{{ updated.records | length > 0 }}"
+            then:
+              - action: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.water_softener_salt_last_occurred_at
+                data:
+                  timestamp: "{{ updated.records[0].at }}"
+              - action: input_number.set_value
+                target:
+                  entity_id: input_number.water_softener_salt_last_amount_lb
+                data:
+                  value: "{{ updated.records[0].lb }}"
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.water_softener_salt_last_note
+                data:
+                  value: "{{ updated.records[0].note }}"
+          - action: input_text.set_value
+            target:
               entity_id: input_text.water_softener_salt_recent_event_ids
-              value: "{{ next_recent_ids | truncate(255, true, '') }}"
-
-          - service: input_text.set_value
             data:
+              value: >-
+                {% set text = updated.ids[:8] | join('|') %}
+                {{ text if text | length <= 255 else text[:256].rsplit('|', 1)[0] if '|' in text[:256] else '' }}
+          - action: input_text.set_value
+            target:
               entity_id: input_text.water_softener_salt_recent_events
-              value: "{{ next_recent_events | truncate(255, true, '') }}"
-
-          - service: script.send_to_logbook
+            data:
+              value: >-
+                {% from 'softener_salt.jinja' import recent_history %}
+                {{ recent_history(updated.records) }}
+          - action: script.send_to_logbook
             data:
               topic: MAINTENANCE
               message: >-
-                Softener salt logged: {{ effective_amount_lb | round(1) }} lb at {{ occurred_display }}.
-                total={{ next_total_lb | round(1) }} lb, count={{ states('counter.water_softener_salt_event_count') | int(0) + 1 }},
-                actor={{ actor }}, confidence={{ parse_confidence }}, event_id={{ event_id }},
-                raw="{{ raw_text | truncate(110, true, '...') }}".
+                {% if duplicate %}
+                  Duplicate maintenance event ignored for softener salt (event_id={{ event_id }}).
+                {% else %}
+                  Softener salt logged: {{ effective_amount_lb | round(1) }} lb at {{ occurred_display }}.
+                  total={{ updated.total }} lb, count={{ updated['count'] }},
+                  actor={{ actor }}, confidence={{ parse_confidence }}, event_id={{ event_id }},
+                  raw="{{ raw_text | truncate(110, true, '...') }}".
+                {% endif %}

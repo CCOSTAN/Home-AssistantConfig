@@ -1,0 +1,50 @@
+{# Import the existing helpers on the first refill after installation.
+   Older event IDs and history lines were stored separately, in bounded strings. #}
+{% macro legacy_journal(returns) -%}
+  {% set count = states('counter.water_softener_salt_event_count') | int %}
+  {% set last = states('input_datetime.water_softener_salt_last_occurred_at') %}
+  {% set ns = namespace(records=[], matched_last=false) %}
+  {% for row in states('input_text.water_softener_salt_recent_events').split('||') %}
+    {% set parts = row.split('|', 2) %}
+    {% set dt = strptime(parts[0], '%Y-%m-%d %H:%M:%S', none) %}
+    {% if dt is not none %}
+      {% set at = as_timestamp(dt.replace(tzinfo=now().tzinfo)) | int %}
+      {% set amount = (parts[1] | default('80')).split(' ')[0] | float(80) %}
+      {% set note = parts[2] | default('') %}
+      {% if count and parts[0] == last and not ns.matched_last %}
+        {% set amount = states('input_number.water_softener_salt_last_amount_lb') | float(amount) %}
+        {% if has_value('input_text.water_softener_salt_last_note') %}
+          {% set note = states('input_text.water_softener_salt_last_note') %}
+        {% endif %}
+        {% set ns.matched_last = true %}
+      {% endif %}
+      {% set ns.records = ns.records + [dict(at=at, lb=amount, note=note)] %}
+    {% endif %}
+  {% endfor %}
+  {% set last_dt = strptime(last, '%Y-%m-%d %H:%M:%S', none) %}
+  {% if count and last_dt is not none and not ns.matched_last %}
+    {% set at = as_timestamp(last_dt.replace(tzinfo=now().tzinfo)) | int %}
+    {% set latest = dict(at=at, lb=states('input_number.water_softener_salt_last_amount_lb') | float(80),
+                         note=states('input_text.water_softener_salt_last_note')) %}
+    {% set ns.records = ns.records + [latest] %}
+  {% endif %}
+  {% set ids = states('input_text.water_softener_salt_recent_event_ids').split('|')
+               | reject('in', ['', 'unknown', 'unavailable', 'none']) | list %}
+  {% do returns(dict(records=ns.records | sort(attribute='at', reverse=true),
+                     ids=ids, count=count, total=states('input_number.water_softener_salt_total_added_lb') | float)) %}
+{%- endmacro %}
+
+{# The existing short display helper keeps whole date/amount fields.
+   Its character limit never cuts the journal used for the interval calculation. #}
+{% macro recent_history(records) -%}
+  {% set ns = namespace(lines=[], remaining=255) %}
+  {% for record in records[:10] %}
+    {% set prefix = (record.at | timestamp_custom('%Y-%m-%d %H:%M:%S')) ~ '|' ~ record.lb ~ ' lb|' %}
+    {% set room = ns.remaining - (2 if ns.lines else 0) - prefix | length %}
+    {% if room < 0 %}{% break %}{% endif %}
+    {% set note = record.note[:room] %}
+    {% set ns.lines = ns.lines + [prefix ~ note] %}
+    {% set ns.remaining = room - note | length %}
+  {% endfor %}
+  {{- ns.lines | join('||') -}}
+{%- endmacro %}
