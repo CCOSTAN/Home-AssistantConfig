@@ -24,6 +24,11 @@ reconcile_hvac_state:
     - action: script.turn_on
       target:
         entity_id: script.reconcile_downstairs_hvac
+    # A group can appear after presence during startup; never treat missing as closed.
+    # Grid-off must still bypass this wait so the safety shutoff is immediate.
+    - wait_template: >-
+        {{ states('group.entry_points') in ['on', 'off']
+           or is_state('binary_sensor.powerwall_grid_status', 'off') }}
     - choose:
         - conditions:
             - condition: state
@@ -59,6 +64,9 @@ reconcile_hvac_state:
               entity_id: input_boolean.guest_mode
               state: 'off'
           sequence:
+            - condition: state
+              entity_id: group.entry_points
+              state: 'off'
             - service: climate.set_hvac_mode
               target:
                 entity_id: climate.upstairs
@@ -74,6 +82,9 @@ reconcile_hvac_state:
                 topic: "CLIMATE"
                 message: "HVAC reconciled to away targets ({{ reconcile_reason }})."
       default:
+        - condition: state
+          entity_id: group.entry_points
+          state: 'off'
         - service: climate.set_hvac_mode
           target:
             entity_id: climate.upstairs

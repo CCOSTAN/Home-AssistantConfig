@@ -63,6 +63,12 @@ reconcile_downstairs_hvac:
           {% from 'downstairs_hvac.jinja' import downstairs_policy %}
           {{ downstairs_policy() | from_json }}
         expected: "{{ states('input_text.downstairs_hvac_expected') | from_json({}) }}"
+    # End the drying request as soon as comfort, manual intent, or safety takes priority.
+    - if: "{{ is_state('timer.downstairs_humidity_cycle', 'active') and desired.reason != 'humidity cycle' }}"
+      then:
+        - action: timer.cancel
+          target:
+            entity_id: timer.downstairs_humidity_cycle
     - condition: template
       value_template: "{{ desired.valid }}"
     - variables:

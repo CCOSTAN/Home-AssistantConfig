@@ -18,9 +18,12 @@
 #  holds last until bedtime or 08:00; manual Off lasts until resumed.
 # Notes: Restoring helpers retain the bed period, manual intent and verified
 #  command fingerprint because Nest exposes none of that ownership metadata.
+# Notes: After one hour above 60% RH, allow a 20-minute drying cycle, at most once per two hours.
+#  Stop at 58% RH or 75F and reconcile the current schedule. Manual and safety rules take priority.
 # Notes: Fresh-air opportunities can notify while downstairs cooling is idle or running, before sunset.
 #  One daily passive parents push uses a stable tag; the notice clears when
 #  conditions stop qualifying. Helpers preserve daily allowance and active notice.
+# Notes: Per-thermostat speech is quiet while an entry point is open and for 10 minutes after all close.
 # Notes: Filter history helpers restore across restarts; reset scripts seed the prior input_datetime when history is empty.
 # Notes: The snooze notification pattern is also covered at https://youtu.be/y47KSflS1aw.
 # Video: https://youtu.be/nScl2JxYSB8
@@ -262,6 +265,12 @@ input_boolean:
   fresh_air_notice_active:
     name: Fresh Air Notice Active
     icon: mdi:window-open-variant
+
+timer:
+  downstairs_humidity_cycle:
+    name: Downstairs Humidity Cycle
+    duration: "00:20:00"
+    restore: true
 
 input_select:
   downstairs_hvac_period:
@@ -729,22 +738,38 @@ automation:
 
   - alias: 'AC Status Announcement'
     id: 7812fdaf-a3f8-498b-8f07-28e977e528fe
+    mode: queued
+    max: 10
     trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - climate.downstairs
           - climate.upstairs
         from: 'off'
-      - platform: state
+        to: [cool, heat, heat_cool]
+      - trigger: state
         entity_id:
           - climate.downstairs
           - climate.upstairs
+        from: [cool, heat, heat_cool]
         to: 'off'
     action:
-      - service: script.speech_engine
+      # Covers both the 5-minute close timer and time for the thermostats to settle.
+      - condition: state
+        entity_id: group.entry_points
+        state: 'off'
+        for: "00:10:00"
+      - action: script.speech_engine
         data:
-          NestStatus: "The {{ trigger.entity_id.split('.')[1].split('_')[0]}} {{ trigger.entity_id.split('.')[1].split('_')[1]}} has now been turned on for {{(trigger.to_state.state)}}."
-          call_window_check: 1
+          value1: >-
+            {% set location = state_attr(trigger.entity_id, 'friendly_name') | default(trigger.entity_id.split('.')[1], true) %}
+            {% set mode = trigger.to_state.state %}
+            {% if mode == 'off' %}
+              The {{ location }} thermostat is now set to off.
+            {% else %}
+              The {{ location }} thermostat is now set to {{ 'heat and cool' if mode == 'heat_cool' else mode }} mode.
+              This describes the thermostat setting; it does not say the system is running.
+            {% endif %}
   
   - alias: Prevent Upstairs Nest Below 76
     id: 7812fdaf-a3f8-498b-8f07-28e977e528ff
@@ -859,6 +884,21 @@ automation:
         entity_id: climate.downstairs
         from: unavailable
         id: recovery
+      - trigger: state
+        entity_id: timer.downstairs_humidity_cycle
+        to: ['active', 'idle']
+      - trigger: state
+        entity_id:
+          - sensor.downstairs_humidity
+          - sensor.downstairs_temperature
+          - group.entry_points
+          - group.family
+          - binary_sensor.powerwall_grid_status
+        to: null
+        id: drying_input
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.id != 'drying_input' or is_state('timer.downstairs_humidity_cycle', 'active') }}"
     action:
       - if:
           - condition: trigger
@@ -977,30 +1017,40 @@ automation:
 
   - alias: 'Humidity Control'
     id: AC_Humidity_Control
+    description: Start a bounded downstairs drying cycle after an uninterrupted hour above 60% RH.
     mode: single
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.downstairs_humidity
-        above: 60
-      - platform: time
-        at: "02:00:00"
-    condition:
-      - condition: time
-        after: "01:00:00"
-        before: "08:00:00"
-      - condition: numeric_state
-        entity_id: sensor.downstairs_humidity
-        above: 60
-      - condition: template #Only needed in the winter months
-        value_template: "{{ now().month in [10, 11, 12, 1, 2, 3] }}"  
-      - condition: template # Only run if AC is idle (prevents fighting other automations)
-        value_template: "{{ state_attr('climate.downstairs', 'hvac_action') == 'idle' }}"
-      - condition: template # Never run if the grid is down and running on powerwall.
-        value_template: "{{ states('binary_sensor.powerwall_grid_status')|lower == 'on' }}"
+    triggers:
+      - trigger: time_pattern
+        minutes: "*"
+    conditions:
       - condition: state
-        entity_id: group.entry_points
-        state: 'off'
-    action:
-      - action: script.reconcile_downstairs_hvac
-        data:
-          reason: humidity review within bed and manual comfort limits
+        entity_id: timer.downstairs_humidity_cycle
+        state: idle
+      - condition: template
+        value_template: >-
+          {{ as_timestamp(now()) - as_timestamp(this.attributes.get('last_triggered'), 0) >= 7200 }}
+      - condition: state
+        entity_id: climate.downstairs
+        attribute: hvac_action
+        state: idle
+      - condition: humidity.is_value
+        target:
+          entity_id: sensor.downstairs_humidity
+        options:
+          threshold:
+            type: above
+            value:
+              number: 60
+          for:
+            hours: 1
+      - condition: template
+        value_template: >-
+          {% from 'downstairs_hvac.jinja' import downstairs_matches, downstairs_policy %}
+          {% set expected = states('input_text.downstairs_hvac_expected') | from_json({}) %}
+          {{ expected.get('confirmed', false) and as_timestamp(now()) >= expected.get('settle_until', 0)
+             and (downstairs_matches(expected) | from_json)
+             and (downstairs_policy(drying=true) | from_json).reason == 'humidity cycle' }}
+    actions:
+      - action: timer.start
+        target:
+          entity_id: timer.downstairs_humidity_cycle

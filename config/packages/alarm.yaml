@@ -10,6 +10,7 @@
 #  Alarm sensors, customization, and automations for home security.
 # -------------------------------------------------------------------
 # Notes: Turns HVAC off when doors/windows are open and restores cool mode after closure (weather-gated for downstairs).
+# Notes: Speaks once when HVAC is paused per continuous opening; closing is quiet.
 ######################################################################
 homeassistant:
   customize_glob:
@@ -265,17 +266,19 @@ automation:
       - service: script.reconcile_hvac_state
         data:
           reason: "entry point left open"
-      - service: script.speech_engine
+      # Leave reconciliation eligible for later openings; gate only speech.
+      - condition: state
+        entity_id: group.entry_points
+        state: 'on'
+      - condition: template
+        value_template: >-
+          {{ as_timestamp(this.attributes.last_triggered, 0)
+             < as_timestamp(states.group.entry_points.last_changed) }}
+      - action: script.speech_engine
         data:
           value1: >-
-            {% set opening = state_attr(trigger.entity_id, "friendly_name")%}
-            {%- macro opening_sentence(opening) -%}
-            {{"Since the " ~ opening +" has been left open, I will turn off the air conditioners until you close it" }}
-            [Give a snarky reason for this action]
-            {%- endmacro -%}
-            {{opening_sentence(opening)}}
-          call_outside_weather: 1
-          call_inside_weather: 1
+            Pausing the HVAC while the {{ trigger.to_state.name }} is open.
+            [Say only one short sentence about the HVAC pause. Skip greetings and other updates.]
 #-------------------------------------------#-------------------------------------------
   - alias: 'Turn HVAC back on when all doors/windows are closed.'
     id: 66833291-c504-4651-aac9-3cdbf98d20ea

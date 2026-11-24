@@ -10,7 +10,7 @@
        (preset == 'eco' or target == expected.get('temperature'))))) | to_json }}
 {%- endmacro %}
 
-{% macro downstairs_policy() -%}
+{% macro downstairs_policy(drying=none) -%}
   {% set stamp = as_timestamp(now()) %}
   {% set expected = states('input_text.downstairs_hvac_expected') | from_json({}) %}
   {% set hold = states('input_text.downstairs_hvac_override') | from_json({}) %}
@@ -58,6 +58,14 @@
   {% elif held and hold.get('kind') == 'temperature' %}
     {% set ns.target = hold.get('temperature', ns.target) %}
     {% set ns.reason = 'manual temperature' %}
+  {% elif not guest and is_state('group.family', 'home') and
+          (is_state('timer.downstairs_humidity_cycle', 'active') if drying is none else drying) %}
+    {% set humidity = states('sensor.downstairs_humidity') | float(none) %}
+    {% set room = states('sensor.downstairs_temperature') | float(none) %}
+    {% if humidity is not none and 58 < humidity <= 100 and room is not none and room > 75 %}
+      {% set ns.target = 75 %}
+      {% set ns.reason = 'humidity cycle' %}
+    {% endif %}
   {% endif %}
   {{ dict(valid=ns.valid, mode=ns.mode, preset=ns.preset,
           temperature=ns.target if ns.mode == 'cool' and ns.preset == 'none' else none,
