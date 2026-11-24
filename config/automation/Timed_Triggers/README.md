@@ -28,7 +28,7 @@ Time-based routines for wake/sleep cycles, sunrise/sunset shifts, and nightly wa
 | --- | --- |
 | [`sunrise_turn_off.yaml`](sunrise_turn_off.yaml) | Shut down overnight lights as the sun comes up. |
 | [`sunset_turn_on.yaml`](sunset_turn_on.yaml) | Evening lighting kickoff with speech only for package or security exceptions. |
-| [`night_watchdog.yaml`](night_watchdog.yaml) | Late-night checks that everything is closed and safe. |
+| [`night_watchdog.yaml`](night_watchdog.yaml) | Shuts off the living-room amp when both audio sources are quiet and household conditions allow. Also manages the bedroom screensaver. |
 | [`wake_up.yaml`](wake_up.yaml) | Morning scene starter that eases into the day. |
 
 ### Tips

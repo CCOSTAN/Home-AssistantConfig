@@ -36,7 +36,7 @@ Reusable scripts that other automations call for notifications, lighting, safety
 | [`speech_engine.yaml`](speech_engine.yaml) | TTS/announcement orchestration with templated speech; speech processing can bypass LLM rewriting for exact messages and also routes garage/office Echo announcements. |
 | [`verify_rain_at_house.yaml`](verify_rain_at_house.yaml) | Conservative rain corroboration through the existing OpenAI AI Task and current exterior camera images. Returns a decision without controlling devices; requires usable recent Frigate camera reports, high-confidence visible rain or broadly wet exposed concrete, and inactive irrigation. Errors and uncertainty deny optional rain lighting. |
 | [`monthly_color_scene.yaml`](monthly_color_scene.yaml) | Seasonal lighting dispatcher that follows `sensor.holiday_lighting_scene`. |
-| [`interior_off.yaml`](interior_off.yaml) | Existing bedtime/away shutdown for interior lights, switches, media power, and the Paige lighting routine. |
+| [`interior_off.yaml`](interior_off.yaml) | Shuts down interior lights, switches and TVs. The bedtime caller preserves media power while either amp source is active or its state is uncertain. |
 | [`lighting_all_off.yaml`](lighting_all_off.yaml) | Shared Home/Mobile lights-only shutdown with an explicit lamp-switch allowlist; uses the same scope as On Now. |
 
 ### Household notification icons

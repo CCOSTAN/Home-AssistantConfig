@@ -22,10 +22,13 @@
 
 This folder holds YAML-managed Home Assistant Lovelace dashboards, UI resources, and themes.
 
+The Home and Systems status grids fit their columns to the available card area, including when the sidebar is open. Long names and readings wrap at their usual text size.
+
 Systems > HVAC includes a read-only downstairs cooling plan below equipment maintenance.
 It shows the thermostat's reported target, 8 a.m. daytime target, bed-triggered nighttime
-target, and Guest Mode target. Live context uses the same policy macro as the controller;
-the accompanying notes explain away Eco, manual holds, and door/grid protections.
+target, and Guest Mode target. Live context uses the controller's policy and shows downstairs
+humidity, the drying rules, and the latest end time during an active drying cycle.
+The accompanying notes explain away Eco, manual holds, and door/grid protections.
 The cards document the schedule without changing thermostat settings.
 Below the target tiles, the last 30 days of downstairs cooling hours sit beside
 the live plan. Daily bars use changes in the existing cumulative runtime statistic;
@@ -94,6 +97,7 @@ All three event cards share the ordered recording-camera list in `overview/parti
 - **Mobile** keeps Lights & Switches and All Lights Off together in its first quick-control row. The lighting submenu has the same shutdown action; native Back returns to the view used to enter it.
 - **All Lights Off** calls `script.lighting_all_off`. It targets available household lights and an explicit allowlist of lamp, accent, landscape, and seasonal outlets. Media power, thermostat power, screens, network indicators, and voice routines are outside its scope.
 - **On Now** and the shutdown script share `custom_templates/lighting.jinja`, so their lighting membership stays aligned. The switch allowlist rejects equipment switches even if a broad group later includes one.
+- Everyday, Indoor, Exterior, and On Now use native tiles. Each light is one Tab stop with its name and current state. Enter, Space, click, or tap toggles it. Press and hold or use Shift+F10 to open its details. Turning a light off from the keyboard in On Now keeps focus at the same list position.
 - The shared everyday buttons combine Living Room main lights and accents using the native **Living Room Lighting** Light Group helper (`light.living_room_lighting`, members `light.living_room_lights` and `light.living_room_accents`, any-on state, members visible). The existing Kitchen group already includes Sink. Detailed Indoor controls retain individual light groups.
 - Tap a named light or group to toggle it; hold for native brightness, color, and entity details. **OFFLINE** stays visible on unavailable room controls. Bedtime, guest-mode, motion, sunset, and other lighting automations keep their existing behavior.
 
@@ -155,12 +159,14 @@ Lovelace resources are loaded from:
 - Systems views are desktop-first and dense by default: use `type: sections`, `max_columns: 4`, and `dense_section_placement: true` on every standard view. The landing strip starts with Back to Overview and twelve category tiles; it omits the redundant Systems aggregate tile.
   - Use responsive `layout-card` grids with `min-content` rows inside full-width section wrappers so panels pack tightly without fixed-height gaps.
   - Keep related panels similar in height, avoid spacer cards, and verify both desktop and single-column mobile layouts.
+  - The Network shortcuts, TV and Roku remote keys, and Lighting menu shortcuts use native buttons for iPhone VoiceOver and desktop keyboard navigation.
   - Keep WAN telemetry, compact dual Pi-hole controls, and current website health together on the Network view; reserve hidden subviews for detailed Pi-hole analytics and domain/monitor telemetry.
   - Use primary KPI tiles as the canonical drill-down entry point instead of repeating navigation rows at the bottom of a view.
   - Treat NAS long-term statistics as the Docker capacity source of truth; keep host cleanup controls in full-width, single-column maintenance popups.
 - Major Overview redesigns use a hidden `-staging` dashboard for review and keep production view paths unchanged until explicit promotion approval.
 - Overview is the daily home page: preserve people, climate, lighting, cameras, weather, and frequently used controls while bubbling up a compact mix of actionable system state and key household context.
 - Home Water and Vacuum live under Systems; personal Health remains under Overview. Detailed Salt Trends, Sprinklers, and Vacuum Map views are Systems subviews.
+- Overview Health shows each person’s lifetime, daily and calendar-week refill volumes below their sleep tiles. Scan the shared cooler sticker with a registered phone and open the Home Assistant banner, or hold your Water Total tile and confirm from your own account. Each full bottle adds 40 US fl oz at refill time. The [hydration package](../packages/hydration.yaml) ignores repeats for 30 seconds per person.
 - Vacuum keeps the cleaning plan, everyday controls, and consumables together. Its **Robot** tile opens native vacuum controls; **Current Room** and the **Live Map & Room Cleaning** row open the interactive current map. For manual cleans, press Stop before Return home. To cancel an automated cycle, switch On-Demand Cycle off, which stops the task and docks the robot. Camera calibration follows the current map instead of fixed coordinates.
 - Vacuum uses the free Xiaomi Vacuum Map Card with the Dreame integration for zone, point, and room cleaning. Native controls provide start, pause, stop, and dock actions, cleaning mode, suction, mop moisture, auto-empty settings, and consumable maintenance.
 - The free map opens in room mode with named selectors; choose rooms and press Run to start. Room IDs and display bounds are maintained in `infrastructure/partials/vacuum_map_rooms.yaml` from the current camera's `rooms` attribute. Regenerate that partial after remapping or splitting/merging rooms; camera calibration remains dynamic.
