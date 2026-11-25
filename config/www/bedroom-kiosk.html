@@ -104,9 +104,14 @@
     }
     #event-view.front-door #event-image { object-fit: contain; }
     #event-label { padding: 14px 22px; font-size: 36px; }
+    .camera-warning:not(:empty) {
+      display: block;
+      color: #ffcc80;
+      font-size: 20px;
+    }
     #connection {
       position: fixed;
-      top: 0;
+      top: 116px;
       right: 0;
       left: 0;
       display: none;
@@ -130,11 +135,11 @@
     <section id="cameras">
       <div class="camera">
         <img id="front-lawn" alt="Front Lawn camera">
-        <div class="camera-label">Front Lawn</div>
+        <div class="camera-label">Front Lawn<span id="front-lawn-warning" class="camera-warning" role="status"></span></div>
       </div>
       <div class="camera">
         <img id="driveway" alt="Driveway camera">
-        <div class="camera-label">Driveway</div>
+        <div class="camera-label">Driveway<span id="driveway-warning" class="camera-warning" role="status"></span></div>
       </div>
     </section>
     <section class="band">
@@ -144,7 +149,7 @@
   </main>
   <section id="event-view">
     <img id="event-image" alt="Active event camera">
-    <div id="event-label"></div>
+    <div id="event-label"><span id="event-name"></span><span id="event-image-warning" class="camera-warning" role="status"></span></div>
   </section>
 
   <script src="/local/kiosk/ambient.js?v=1.2.1"></script>
@@ -161,7 +166,9 @@
       ];
       var states = {};
       var imageUrls = {};
-      var imageRefreshRunning = false;
+      var pendingImages = {};
+      var eventCameras = {garage: 'camera.garagecam', front_door: 'camera.frontdoorbell', driveway: 'camera.driveway'};
+      var eventCamera = null;
 
       function getTokens() {
         try {
@@ -221,7 +228,11 @@
               return authorizedFetch(path, options, false);
             });
           }
-          if (!response.ok) throw new Error('Home Assistant request failed: ' + response.status);
+          if (!response.ok) {
+            var error = new Error('Camera request failed');
+            error.status = response.status;
+            throw error;
+          }
           return response;
         });
       }
@@ -259,11 +270,20 @@
         bands[0].style.backgroundRepeat = 'no-repeat';
         bands[0].style.paddingRight = seasonal.art ? '136px' : '24px';
 
-        if (mode === 'garage' || mode === 'front_door' || mode === 'driveway') {
+        var nextCamera = eventCameras[mode] || null;
+        if (nextCamera !== eventCamera) {
+          eventCamera = nextCamera;
+          delete pendingImages['event-image'];
+          document.getElementById('event-image').removeAttribute('src');
+          document.getElementById('event-image-warning').textContent = '';
+          if (imageUrls['event-image']) URL.revokeObjectURL(imageUrls['event-image']);
+          delete imageUrls['event-image'];
+        }
+        if (eventCamera) {
           defaultView.style.display = 'none';
           eventView.style.display = 'block';
           eventView.className = mode === 'front_door' ? 'front-door' : '';
-          document.getElementById('event-label').textContent = mode === 'garage'
+          document.getElementById('event-name').textContent = mode === 'garage'
             ? 'Garage'
             : mode === 'front_door' ? 'Front Door' : 'Driveway Alert';
         } else {
@@ -286,43 +306,50 @@
       }
 
       function updateImage(elementId, cameraEntity) {
-        return authorizedFetch('/api/camera_proxy/' + cameraEntity).then(function (response) {
+        if (pendingImages[elementId]) return;
+        var warning = document.getElementById(elementId + '-warning');
+        var request = {};
+        pendingImages[elementId] = request;
+        function stillSelected() { return pendingImages[elementId] === request; }
+        authorizedFetch('/api/camera_proxy/' + cameraEntity).then(function (response) {
           return response.blob();
         }).then(function (blob) {
-          var nextUrl = URL.createObjectURL(blob);
-          var image = document.getElementById(elementId);
-          var previousUrl = imageUrls[elementId];
-          image.onload = function () {
-            if (previousUrl) URL.revokeObjectURL(previousUrl);
-          };
-          image.src = nextUrl;
-          imageUrls[elementId] = nextUrl;
+          if (!stillSelected()) return;
+          // Decode offscreen so a bad frame leaves the last usable picture in place.
+          return new Promise(function (resolve, reject) {
+            var frame = new Image();
+            var nextUrl = URL.createObjectURL(blob);
+            frame.onload = function () {
+              if (stillSelected()) {
+                document.getElementById(elementId).src = nextUrl;
+                if (imageUrls[elementId]) URL.revokeObjectURL(imageUrls[elementId]);
+                imageUrls[elementId] = nextUrl;
+                warning.textContent = '';
+              } else {
+                URL.revokeObjectURL(nextUrl);
+              }
+              resolve();
+            };
+            frame.onerror = function () {
+              URL.revokeObjectURL(nextUrl);
+              reject(new Error('Unreadable camera image'));
+            };
+            frame.src = nextUrl;
+          });
+        }).catch(function (error) {
+          if (stillSelected()) warning.textContent = 'Image unavailable' + (error.status ? ' (HTTP ' + error.status + ')' : '');
+        }).then(function () {
+          if (stillSelected()) delete pendingImages[elementId];
         });
       }
 
       function refreshImages() {
-        if (imageRefreshRunning) return;
-        imageRefreshRunning = true;
-        var active = states['sensor.kiosk_active_camera_view'];
-        var mode = active ? active.state : 'none';
-        var requests;
-        if (mode === 'garage') {
-          requests = [updateImage('event-image', 'camera.garagecam')];
-        } else if (mode === 'front_door') {
-          requests = [updateImage('event-image', 'camera.frontdoorbell')];
-        } else if (mode === 'driveway') {
-          requests = [updateImage('event-image', 'camera.driveway')];
+        if (eventCamera) {
+          updateImage('event-image', eventCamera);
         } else {
-          requests = [
-            updateImage('front-lawn', 'camera.frontlawn'),
-            updateImage('driveway', 'camera.driveway')
-          ];
+          updateImage('front-lawn', 'camera.frontlawn');
+          updateImage('driveway', 'camera.driveway');
         }
-        Promise.all(requests).catch(function (error) {
-          setConnectionError(error.message);
-        }).then(function () {
-          imageRefreshRunning = false;
-        });
       }
 
       var client = new window.HavenKioskClient({

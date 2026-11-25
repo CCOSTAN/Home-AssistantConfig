@@ -107,6 +107,7 @@ All three event cards share the ordered recording-camera list in `overview/parti
 The Camera tab keeps the doorbell and pool on the left, three exterior cameras across the upper right, and Kids Gate, Bedroom Gate, Filter Gate, and Conico Wireless across the second right-hand row. A full-width grid prevents the camera group from wrapping below the doorbell on desktop; narrow screens reflow into two columns. Recent Frigate events remain below the camera rows.
 
 ### Event-Driven Kiosk Dashboards
+- The Bedroom tablet labels a failed image on the affected camera and clears the warning after its next valid frame. A Home Assistant connection warning appears below the alarm heading.
 - Upcycled Nest display: [project guide](../../docs/NEST_DISPLAY.md), [round kiosk preview](infrastructure/partials/kiosk_sections.yaml), [Nest Album submenu](infrastructure/views/05za_nest_album.yaml), [![Watch Nest upcycling](https://img.shields.io/badge/Watch-Nest%20Upcycling-FF0000?logo=youtube&logoColor=white)](https://youtu.be/fuS1voqRznY) [![Nest display blog](https://img.shields.io/static/v1?label=vCloudInfo&message=Nest%20Display&color=21759B&logo=wordpress&logoColor=white)](https://www.vcloudinfo.com/2026/10/repurpose-nest-thermostat-home-assistant-display.html)
 - Logic and recovery package: [`kiosk_tablet.yaml`](../packages/kiosk_tablet.yaml)
 - Bedroom dashboard: [`dashboard.yaml`](bedroom/dashboard.yaml)
