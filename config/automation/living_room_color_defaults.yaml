@@ -3,32 +3,38 @@
 # For more info visit https://www.vcloudinfo.com/click-here
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
-# Living Room Entry Alert - temporary red lights for open entries
+# Living Room Entry Alert - red while a monitored entry is open
 # Related Issue: 1901
 #  Manual late-night turns use the separate brightness guard.
 # -------------------------------------------------------------------
-# Notes: Garage reports must remain open for five seconds; each light's
-#  previous state is restored after all entries are secured.
+# Notes: Garage openings qualify after five seconds. On close, restore
+#  power and brightness with the TV scene's golden yellow.
 ######################################################################
 
 - alias: 'Living Room Red on Entry/Garage Open'
   id: living_room_red_on_entry_open
-  mode: single
-  max_exceeded: silent
-  trigger:
-    - platform: state
+  mode: queued
+  triggers:
+    - trigger: state
       entity_id: group.entry_points
       to: 'on'
-    - platform: state
+    - trigger: state
       entity_id: group.garage_doors
-      from: 'closed'
       to: 'open'
       for: '00:00:05'
-  action:
-    - service: scene.create
-      data:
-        scene_id: living_room_before_entry_alert
-        snapshot_entities:
+  actions:
+    # A second opening can queue while the first alert is restoring.
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: group.entry_points
+          state: 'on'
+        - condition: state
+          entity_id: group.garage_doors
+          state: 'open'
+          for: '00:00:05'
+    - variables:
+        lamps: &entry_lamps
           - light.m1_front_left
           - light.m1_front_right
           - light.m1_back_left
@@ -36,22 +42,72 @@
           - light.tv_stand_light
           - light.tv_light
           - light.couch_1
-    - service: scene.turn_on
+        yellow: &entry_yellow [255, 223, 0]
+    - variables:
+        return_states: >-
+          {% set ns = namespace(items=[]) %}
+          {% for lamp in expand(lamps) if lamp.state in ['on', 'off'] %}
+            {% set settings = {'state': lamp.state} %}
+            {% if lamp.state == 'on' %}
+              {% set settings = dict(settings, rgb_color=yellow) %}
+              {% if lamp.attributes.get('brightness') is number %}
+                {% set settings = dict(settings, brightness=lamp.attributes.brightness) %}
+              {% endif %}
+            {% endif %}
+            {% set ns.items = ns.items + [(lamp.entity_id, settings)] %}
+          {% endfor %}
+          {{ dict(ns.items) }}
+    - action: scene.turn_on
+      continue_on_error: true
       target:
         entity_id: scene.red_living_room
-    - repeat:
-        sequence:
-          - wait_template: >-
-              {{ is_state('group.entry_points', 'off') and
-                 is_state('group.garage_doors', 'closed') }}
-          - delay: '00:00:30'
-        until:
-          - condition: state
-            entity_id: group.entry_points
-            state: 'off'
-          - condition: state
-            entity_id: group.garage_doors
-            state: 'closed'
-    - service: scene.turn_on
+    - wait_template: >-
+        {{ is_state('group.entry_points', 'off') and
+           is_state('group.garage_doors', 'closed') }}
+    - condition: template
+      value_template: "{{ return_states | count > 0 }}"
+    - action: scene.apply
+      data:
+        entities: "{{ return_states }}"
+
+- alias: Living Room Clear Stale Entry Red
+  id: living_room_clear_stale_entry_red
+  mode: restart
+  triggers:
+    - trigger: state
+      entity_id: *entry_lamps
+      attribute: hs_color
+    - trigger: template
+      value_template: &secure_and_idle >-
+        {{ is_state('group.entry_points', 'off') and
+           is_state('group.garage_doors', 'closed') and
+           is_state_attr('automation.living_room_red_on_entry_garage_open', 'current', 0) }}
+    - trigger: homeassistant
+      event: start
+    - trigger: event
+      event_type: automation_reloaded
+  conditions:
+    - condition: template
+      value_template: *secure_and_idle
+  actions:
+    # A bulb can report its retained alert color when it comes back online.
+    - variables:
+        lamps: *entry_lamps
+    - variables:
+        stale_red: >-
+          {% set ns = namespace(lamps=[]) %}
+          {% for lamp in expand(lamps) if lamp.state == 'on' %}
+            {% set hs = lamp.attributes.get('hs_color') %}
+            {# Hue bulbs can report pure red as 10 degrees after gamut conversion. #}
+            {% if hs and hs[1] >= 90 and (hs[0] <= 12 or hs[0] >= 350) %}
+              {% set ns.lamps = ns.lamps + [lamp.entity_id] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.lamps }}
+    - condition: template
+      value_template: "{{ stale_red | count > 0 }}"
+    - action: light.turn_on
       target:
-        entity_id: scene.living_room_before_entry_alert
+        entity_id: "{{ stale_red }}"
+      data:
+        rgb_color: *entry_yellow
