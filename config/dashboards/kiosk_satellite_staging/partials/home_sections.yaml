@@ -23,6 +23,7 @@
 # Notes: Verified Health Coach personal bests add Carlo and Stacey slides for seven days.
 # Notes: Sink unavailable adds a wall-switch reminder that clears when the light reconnects.
 # Notes: The large-format lower panel otherwise mirrors read-only household fact entities.
+# Notes: A confirmed grid outage alternates with household alerts in the lower panel.
 # Notes: The clock uses oversized time text and places live conditions beneath the current-weather icon.
 ######################################################################
 
@@ -171,6 +172,8 @@
         # Shared alert semantics; default presentation preserves the Kitchen wall.
         - type: custom:button-card
           template: kiosk_ambient_alerts
+          variables:
+            power_outage: !include /config/dashboards/shared/partials/power_outage_message.yaml
           view_layout:
             grid-area: ambient
 

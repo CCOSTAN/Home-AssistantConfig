@@ -1,0 +1,41 @@
+######################################################################
+# @CCOSTAN - Follow Me on X
+# For more info visit https://www.vcloudinfo.com/click-here
+# Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
+# -------------------------------------------------------------------
+# Power outage message - Kitchen and Mobile
+#  Display the existing Home Assistant resilience stage during confirmed grid loss.
+######################################################################
+>-
+  [[[
+    if (states['binary_sensor.powerwall_grid_status']?.state !== 'off') return null;
+    const policy = states['sensor.power_resilience_recommended_stage'];
+    const anchor = states['input_datetime.power_resilience_outage_started'];
+    const started = anchor?.attributes.timestamp;
+    const hasStart = Number.isFinite(started) && anchor.state === policy?.attributes.outage_started_at;
+    let time = null;
+    if (hasStart) {
+      const date = new Date(started * 1000);
+      const zone = {timeZone: hass.config.time_zone};
+      const day = new Intl.DateTimeFormat('en-US', zone);
+      const format = {hour: 'numeric', minute: '2-digit', ...zone};
+      if (day.format(date) !== day.format(new Date())) Object.assign(format, {month: 'short', day: 'numeric'});
+      time = new Intl.DateTimeFormat('en-US', format).format(date);
+    }
+    const charge = Number.parseFloat(states['sensor.powerwall_charge']?.state);
+    const battery = charge >= 0 && charge <= 100 ? 'Powerwall ' + Math.round(charge) + '%' : 'Charge unavailable';
+    const advice = {
+      OBSERVE: 'Monitor battery use.',
+      SHED_1: 'Delay heavy appliance use.',
+      SHED_2: 'Turn off nonessential loads.',
+      PRESERVE: 'Use essential devices only.'
+    };
+    const stage = policy?.attributes.grid_status === 'off' ? policy.state : '';
+    return {
+      kicker: 'UTILITY POWER',
+      icon: 'mdi:transmission-tower-off',
+      accent: '#c62828',
+      title: time ? 'Power out since ' + time : 'Power out, start time unknown',
+      detail: battery + ' \u00b7 ' + (advice[stage] || 'Guidance unavailable.')
+    };
+  ]]]

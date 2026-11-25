@@ -18,6 +18,7 @@ kiosk_ambient_alerts:
   variables:
     compact: false
     read_only: false
+    power_outage: null
   show_icon: false
   show_name: false
   show_state: false
@@ -38,7 +39,13 @@ kiosk_ambient_alerts:
         if (!model) return html`<div>Loading household notifications...</div>`;
         const feed = model.build(states, now);
         const seasonal = model.seasonal ? model.seasonal(states) : {mode: 'standard'};
-        const {items, state, valid, pretty, dateKey, cleanAlertText, alertSection, limitAlertText, uniqueWeatherAlerts, phynAlerts, rheemProblem} = feed;
+        const {state, valid, pretty, dateKey, cleanAlertText, alertSection, limitAlertText, uniqueWeatherAlerts, phynAlerts, rheemProblem} = feed;
+        let items = feed.items;
+        if (variables.power_outage) {
+          // An outage replaces the idle all-clear and shares air time with active slides.
+          const active = items.filter(item => item.kicker !== 'HOUSEHOLD' || item.icon !== 'mdi:check-circle-outline');
+          items = active.length ? active.flatMap(item => [variables.power_outage, item]) : [variables.power_outage];
+        }
         const detailValue = valid(state('input_text.kitchen_kiosk_detail_view'))
           ? state('input_text.kitchen_kiosk_detail_view')
           : 'none';

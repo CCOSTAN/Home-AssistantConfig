@@ -14,6 +14,7 @@
 # Notes: Odd final tiles span both columns to avoid small orphan controls.
 # Notes: The top Back to Home button preserves visible-tab navigation.
 # Notes: Inherits the selected frontend theme.
+# Notes: Confirmed utility outages surface above the normal controls.
 # Video: https://youtu.be/ujP-zYLEso8
 # Companion Post: https://www.vcloudinfo.com/2026/07/home-assistant-mobile-dashboard-big-buttons.html
 ######################################################################
@@ -27,6 +28,33 @@ max_columns: 4
 dense_section_placement: true
 badges: []
 sections:
+
+# Utility outage
+- type: grid
+  column_span: 4
+  visibility:
+  - condition: state
+    entity: binary_sensor.powerwall_grid_status
+    state: 'off'
+  cards:
+  - type: custom:button-card
+    template: bearstone_mobile_control
+    entity: binary_sensor.powerwall_grid_status
+    icon: mdi:transmission-tower-off
+    variables:
+      power_outage: !include /config/dashboards/shared/partials/power_outage_message.yaml
+    name: '[[[ return variables.power_outage?.title; ]]]'
+    state_display: '[[[ return variables.power_outage?.detail; ]]]'
+    triggers_update:
+    - sensor.power_resilience_recommended_stage
+    - sensor.powerwall_charge
+    - input_datetime.power_resilience_outage_started
+    grid_options:
+      columns: full
+    tap_action:
+      action: none
+    hold_action:
+      action: none
 
 # -------------------------------------------------------------------
 # Quick access

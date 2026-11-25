@@ -86,6 +86,7 @@ The Clips view shows 60 recorded clips per page with readable camera, object and
 All three event cards share the ordered recording-camera list in `overview/partials/frigate_camera_names.yaml`. Add or remove a Frigate camera there to change the available timeline tabs, even when a camera has no recent detections. All nine recording cameras are included; Birdseye is a composite feed and Blink has no Frigate recording history. Camera tabs and transport controls wrap on narrow screens. Availability and recording gaps remain properties of each camera's saved footage.
 
 ### Mobile Quick Access
+- During a confirmed utility outage, Mobile shows the outage start in home local time, Powerwall charge, and the household recommendation above its controls. Kitchen alternates the same message with its ambient slides. Both use the existing power resilience policy and clear the message when the grid returns.
 - Mobile is the second visible Overview view, directly after Home and before Live Cameras.
 - Two-column controls use large labels, states, icons, and touch targets for quick use without glasses.
 - Primary actions cover garage doors, the front-door lock, thermostats, household alerts, and entry-point status.
