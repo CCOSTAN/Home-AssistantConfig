@@ -3,8 +3,8 @@
 
 Uses python-dateutil and hdate from the Home Assistant container. The container's
 local timezone supplies today's date; --date supports operator previews.
-Reads fixed dates and one-off additions from www/json_data; floating dates never
-need an annual table update. Chanukkah targets the first daytime date (25 Kislev).
+Reads public calendar data from www/json_data and optional private recurring dates
+from secrets/household_holidays.json. Floating dates need no annual table update. Chanukkah targets the first daytime date (25 Kislev).
 Its first candle-lighting evening is the preceding Gregorian date.
 """
 
@@ -95,6 +95,14 @@ def calendar_data(kind: str, today: date, data_dir: Path | None = None) -> dict:
         else ("flag_days.json", "Flag_Days_US", FLAG_RULES)
     )
     source = json.loads((data_dir / filename).read_text(encoding="utf-8"))[attribute]
+    if kind == "holiday":
+        private_path = data_dir.parent.parent / "secrets" / "household_holidays.json"
+        try:
+            private_dates = private_path.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            pass  # Public-only installations use the built-in calendar.
+        else:
+            source["static"].update(json.loads(private_dates))
     events: dict[date, list[str]] = {}
     for year in range(today.year - 1, today.year + 2):
         for name, rule in rules.items():

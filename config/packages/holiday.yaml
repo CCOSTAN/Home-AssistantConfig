@@ -12,7 +12,7 @@
 # Dashboard theming video: https://youtu.be/qawvBd8_RJ0
 # Dashboard theming blog: https://www.vcloudinfo.com/2026/11/home-assistant-holiday-dashboard-theming.html
 # Notes: holiday_countdowns.py calculates floating dates and all nine countdowns locally.
-# Notes: config/www/json_data holds fixed household dates and optional one-off additions.
+# Notes: Public holidays live in www/json_data. Private recurring dates use secrets/household_holidays.json.
 # Notes: Existing IDs stay stable; calendars/countdowns refresh at startup and local midnight.
 # Notes: Hanukkah lighting spans eight evenings, beginning before 25 Kislev; flag days retain priority.
 ######################################################################
@@ -206,4 +206,4 @@ template:
           mode: "{{ states('sensor.holiday_lighting_mode') }}"
           holiday: "{{ states('sensor.holiday') }}"
           flag_day: "{{ states('sensor.flag') }}"
-          source: local calendar rules plus config/www/json_data household dates
+          source: local calendar rules and configured holiday dates
