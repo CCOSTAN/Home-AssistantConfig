@@ -8,8 +8,8 @@
 #  Defines the Plays the number of cuckoos per hour and 1 on the half hour triggers, conditions, and actions.
 # -------------------------------------------------------------------
 # Notes: More Info and Video: https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html
-# Notes: Patriotic cuckoos run July 3-4, last Monday in May, and first Monday in September.
-# Notes: Patriotic/fireworks cuckoos are disabled for now; revisit issue 984 before re-enabling.
+# Notes: Patriotic/fireworks chimes (July 3-4, Memorial Day, Labor Day) are disabled for noise sensitivity. See issue 984.
+# Notes: Holiday lighting mode selects Hanukkah, New Year's, Easter, and Thanksgiving ahead of the monthly packs.
 # Notes: Clock WAVs are served from /local/sounds so Chromecast fetches them from Home Assistant.
 # Notes: Guest mode keeps scheduled chimes running outside the normal 09:00-22:00 window.
 ######################################################################
@@ -53,30 +53,18 @@
     - service: media_player.play_media
       data:
         entity_id: media_player.livingroomCC
-        media_content_id: >
-          {% set month = now().strftime("%B") %}
-          {#
-          Patriotic/fireworks cuckoos disabled 2026-07-04 due to noise sensitivity at home.
-          Re-enable by restoring this date branch and the july-clock folder selection below.
-          {% set is_july_celebration = now().month == 7 and now().day in [3, 4] %}
-          {% set is_memorial_day = now().month == 5 and now().weekday() == 0 and now().day >= 25 %}
-          {% set is_labor_day = now().month == 9 and now().weekday() == 0 and now().day <= 7 %}
-          {% set is_patriotic_day = is_july_celebration or is_memorial_day or is_labor_day %}
-          #}
-          {% set is_patriotic_day = false %}
+        media_content_id: >-
+          {% set chime_time = as_local(trigger.now) if trigger is defined and trigger.now is defined else now() %}
+          {% set holiday_packs = {
+            'hanukkah': 'hanukkah-clock',
+            'new_years_day': 'new-years-clock',
+            'easter': 'easter-clock',
+            'thanksgiving': 'thanksgiving-clock'
+          } %}
+          {% set monthly_packs = {10: 'october-clock', 12: 'december-clock'} %}
+          {% set folder = holiday_packs.get(states('sensor.holiday_lighting_mode'),
+                                             monthly_packs.get(chime_time.month, 'cuckoo-clock')) %}
+          {% set hour = '01' if chime_time.minute == 30 else chime_time.strftime('%I') %}
           {% set base = "http://192.168.10.10:8123/local/sounds/" %}
-          {#
-          {% if is_patriotic_day %}
-            {% set folder = 'july-clock' %}
-          {% elif month == 'October' %}
-          #}
-          {% if month == 'October' %}
-            {% set folder = 'october-clock' %}
-          {% elif month == 'December' %}
-            {% set folder = 'december-clock' %}
-          {% else %}
-            {% set folder = 'cuckoo-clock' %}
-          {% endif %}
-          {% set file = 'cuckoo-clock-01.wav' if now().strftime("%M")|int == 30 else 'cuckoo-clock-' ~ now().strftime("%I") ~ '.wav' %}
-          {{ base ~ folder ~ '/' ~ file }}
+          {{ base ~ folder ~ '/cuckoo-clock-' ~ hour ~ '.wav' }}
         media_content_type: audio/wav
