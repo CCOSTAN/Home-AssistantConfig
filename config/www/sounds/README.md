@@ -21,6 +21,8 @@ Home Assistant sound assets are served from `/local/sounds/`.
   - [New Year's](new-years-clock/) (`new_years_day`) uses one glass clink per hour over a piano arrangement of *Auld Lang Syne*.
   - [Easter](easter-clock/) (`easter`) uses a two-note bird call for each count, answered by bassoon, plucked strings, and marimba.
   - [Thanksgiving](thanksgiving-clock/) (`thanksgiving`) pairs turkey calls with dulcimer and quiet dinner-table sounds. The turkey call was recorded by JarredGibb. [Recording and license](https://orangefreesounds.com/turkey-gobble/)
+- [Birthday](birthday-clock/) takes priority on the two selected household birthdays in the existing holiday calendar. Count the hour by listening for a handclap and a piano note together, once per second. After the last clap, the piano finishes the phrase under a group birthday greeting. At half past, `cuckoo-clock-half.wav` plays one solo piano note. [Sound credits](birthday-clock/CREDITS.txt)
+  - To use the pack at home, copy `birthday-clock/` into `config/www/sounds/`. In the [clock automation](../../automation/System/CucKoo_Clock.yaml), set `base` to a Home Assistant URL your speaker can reach, ending in `/local/sounds/`. Replace the two birthday labels with your own entries from `sensor.holiday`, or use your own birthday condition.
 - Outside these lighting modes, October uses `october-clock`, December uses `december-clock`, and other months use `cuckoo-clock`. The patriotic `july-clock` pack is disabled.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**

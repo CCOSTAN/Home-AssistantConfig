@@ -10,6 +10,7 @@
 # Notes: More Info and Video: https://www.vcloudinfo.com/2017/11/building-digital-cuckoo-clock-with-home.html
 # Notes: Patriotic/fireworks chimes (July 3-4, Memorial Day, Labor Day) are disabled for noise sensitivity. See issue 984.
 # Notes: Holiday lighting mode selects Hanukkah, New Year's, Easter, and Thanksgiving ahead of the monthly packs.
+# Notes: The two household birthday entries take precedence over seasonal packs.
 # Notes: Clock WAVs are served from /local/sounds so Chromecast fetches them from Home Assistant.
 # Notes: Guest mode keeps scheduled chimes running outside the normal 09:00-22:00 window.
 ######################################################################
@@ -62,9 +63,11 @@
             'thanksgiving': 'thanksgiving-clock'
           } %}
           {% set monthly_packs = {10: 'october-clock', 12: 'december-clock'} %}
-          {% set folder = holiday_packs.get(states('sensor.holiday_lighting_mode'),
-                                             monthly_packs.get(chime_time.month, 'cuckoo-clock')) %}
-          {% set hour = '01' if chime_time.minute == 30 else chime_time.strftime('%I') %}
+          {% set fixed_dates = (state_attr('sensor.holiday', 'MAJOR_US') or {}).get('static', {}) %}
+          {% set occasion = fixed_dates.get(chime_time.month ~ '/' ~ chime_time.day) %}
+          {% set folder = 'birthday-clock' if occasion in ['Carlos Birthday', 'Staceys Birthday']
+             else holiday_packs.get(states('sensor.holiday_lighting_mode'), monthly_packs.get(chime_time.month, 'cuckoo-clock')) %}
+          {% set chime = ('half' if folder == 'birthday-clock' else '01') if chime_time.minute == 30 else chime_time.strftime('%I') %}
           {% set base = "http://192.168.10.10:8123/local/sounds/" %}
-          {{ base ~ folder ~ '/cuckoo-clock-' ~ hour ~ '.wav' }}
+          {{ base ~ folder ~ '/cuckoo-clock-' ~ chime ~ '.wav' }}
         media_content_type: audio/wav
