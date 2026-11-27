@@ -16,7 +16,12 @@ Home Assistant sound assets are served from `/local/sounds/`.
 ### Tips
 - Door chimes, dog barks, and speech effects use the same local audio directory as the clock packs.
 - The `gf_clock/`, `custom/`, and `speechcons/` folders group other sound sets.
-- Seasonal cuckoo clock uses `july-clock` (patriotic holidays), `october-clock` (Halloween), and `december-clock` (Christmas) variants, falling back to `cuckoo-clock`.
+- The cuckoo clock follows `sensor.holiday_lighting_mode` for the four sets below. Each hourly recording counts from one to twelve. The half-hour uses the one o'clock recording.
+  - [Hanukkah](hanukkah-clock/) (`hanukkah`) counts with wooden dreidel knocks, answered by klezmer clarinet and hammered dulcimer.
+  - [New Year's](new-years-clock/) (`new_years_day`) uses one glass clink per hour over a piano arrangement of *Auld Lang Syne*.
+  - [Easter](easter-clock/) (`easter`) uses a two-note bird call for each count, answered by bassoon, plucked strings, and marimba.
+  - [Thanksgiving](thanksgiving-clock/) (`thanksgiving`) pairs turkey calls with dulcimer and quiet dinner-table sounds. The turkey call was recorded by JarredGibb. [Recording and license](https://orangefreesounds.com/turkey-gobble/)
+- Outside these lighting modes, October uses `october-clock`, December uses `december-clock`, and other months use `cuckoo-clock`. The patriotic `july-clock` pack is disabled.
 
 **All of my configuration files are tested against the most stable version of home-assistant.**
 
