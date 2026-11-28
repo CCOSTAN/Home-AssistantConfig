@@ -22,6 +22,12 @@
 
 This folder holds YAML-managed Home Assistant Lovelace dashboards, UI resources, and themes.
 
+### Recorder database history
+
+The [Systems database view](infrastructure/partials/mariadb_sections.yaml) shows 90 days of database size and daily state writes, a seven-day moving average, and the ten busiest entities over 30 completed local days. Expand an entity to see its ID, its share of all state rows, and the number of days it appeared in the daily top ten. The native Storage report shows the space used by retained data. Compare both before changing what you record.
+
+The [MariaDB package](../packages/mariadb.yaml) calls the [snapshot runner](../shell_scripts/mariadb_snapshot.py) and [workload collector](../shell_scripts/recorder_workload.py). The collector needs MariaDB, the existing Recorder database URL, and a writable local cache. Backfill can count only retained rows. The oldest partially retained day and the current day are omitted. [Screenshots and worked example](https://github.com/CCOSTAN/Home-AssistantConfig/issues/2081).
+
 The Home and Systems status grids fit their columns to the available card area, including when the sidebar is open. Long names and readings wrap at their usual text size.
 
 Systems > HVAC includes a read-only downstairs cooling plan below equipment maintenance.

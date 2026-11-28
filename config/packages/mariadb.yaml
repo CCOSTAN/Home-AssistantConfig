@@ -4,14 +4,29 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # MariaDB Monitoring - Snapshot-driven DB health sensors
+# Related Issue: 2081
 #  Recorder-backed metrics for MariaDB health, capacity, and tuning.
 # -------------------------------------------------------------------
 # Notes: Uses command_line snapshot helpers so expensive MariaDB queries are not forced to run every 30 seconds by the SQL integration.
 # Notes: Live metrics poll hourly; recorder/admin snapshots poll weekly.
+# Notes: Workload uses completed local days and reuses cached daily counts on each poll.
 # Notes: Numeric template sensors expose state_class where useful so HA can keep long-term statistics efficiently.
 ######################################################################
 
 command_line:
+  - sensor:
+      name: MariaDB Recorder Workload
+      unique_id: mariadb_recorder_workload
+      command: "python3 /config/shell_scripts/mariadb_snapshot.py workload"
+      scan_interval: 3600
+      command_timeout: 900
+      value_template: "{{ value_json.through }}"
+      json_attributes:
+        - daily
+        - leaders
+        - writer_days
+        - writer_rows
+
   - sensor:
       name: MariaDB Live Snapshot
       unique_id: mariadb_live_snapshot

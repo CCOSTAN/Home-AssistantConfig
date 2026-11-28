@@ -119,12 +119,12 @@ def main() -> int:
     """Run the requested query mode and emit a compact JSON payload."""
     mode = sys.argv[1].strip().lower() if len(sys.argv) > 1 else ""
 
-    if len(sys.argv) != 2 or mode not in QUERIES:
+    if len(sys.argv) != 2 or (mode not in QUERIES and mode != "workload"):
         print(
             json.dumps(
                 {
                     "error": "usage",
-                    "message": "expected one mode: admin, live, recorder",
+                    "message": "expected one mode: admin, live, recorder, workload",
                 },
                 separators=(",", ":"),
             ),
@@ -135,8 +135,14 @@ def main() -> int:
     engine = create_engine(_load_db_url(), pool_pre_ping=True)
 
     try:
-        with engine.connect() as connection:
-            row = connection.execute(text(QUERIES[mode])).mappings().one()
+        if mode == "workload":
+            from recorder_workload import collect_workload
+
+            payload = collect_workload(engine)
+        else:
+            with engine.connect() as connection:
+                row = connection.execute(text(QUERIES[mode])).mappings().one()
+                payload = {key: _json_safe(value) for key, value in row.items()}
     except Exception as err:  # pragma: no cover - runtime safety path
         print(
             json.dumps(
@@ -147,7 +153,6 @@ def main() -> int:
         )
         return 1
 
-    payload = {key: _json_safe(value) for key, value in row.items()}
     print(json.dumps(payload, separators=(",", ":")))
     return 0
 

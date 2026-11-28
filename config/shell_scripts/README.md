@@ -26,6 +26,7 @@ Longer-running shell helpers referenced by automations, packages, or cron. Anyth
 ### Featured files to browse
 | File | Why it matters |
 | --- | --- |
+| [Recorder workload](recorder_workload.py) and [snapshot runner](mariadb_snapshot.py) | Cache completed daily state counts and rank monthly writers for the [Systems database charts](../dashboards/README.md#recorder-database-history). |
 | [HAUpdate.sh](HAUpdate.sh) | One-command Home Assistant update helper. |
 | [`holiday_countdowns.py`](holiday_countdowns.py) | Local countdowns and perpetual holiday/flag calendars using weekday rules, python-dateutil for Gregorian Easter, and hdate for 25 Kislev. Reads public events from `www/json_data` and optional private recurring dates from `secrets/household_holidays.json`. Uses the container's local timezone and installed libraries; no API key or network call. Actual dates are used, rather than substitute workdays. Preview with `python3 holiday_countdowns.py chanukkah --date 2026-10-15`. [Watch local holiday countdowns](https://youtu.be/QzrfDFA7htc) [Local holiday countdowns blog](https://www.vcloudinfo.com/2026/10/home-assistant-local-holiday-countdowns-python-codex.html) |
 | [apt_pending_check.sh](apt_pending_check.sh) | On-demand, read-only APT pending-count reporter for the Docker host maintenance dashboard. |

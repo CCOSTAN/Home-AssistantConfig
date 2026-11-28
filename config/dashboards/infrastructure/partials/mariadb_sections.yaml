@@ -4,9 +4,10 @@
 # Original Repo : https://github.com/CCOSTAN/Home-AssistantConfig
 # -------------------------------------------------------------------
 # Infrastructure Partial - MariaDB
-#  Humanized KPIs, seven-day capacity trends, recorder health, and tuning.
+# Related Issue: 2081
+#  Database growth, daily ingest, ranked writers, server health, and tuning.
 # -------------------------------------------------------------------
-# Notes: Database growth, ingest rate, and connections use consistent 168-hour graphs.
+# Notes: Writer shares count Recorder state rows over completed local days.
 ######################################################################
 
 # -------------------------------------------------------------------
@@ -73,65 +74,142 @@
 # -------------------------------------------------------------------
 - type: grid
   column_span: 4
-  columns: 3
+  columns: 2
   square: false
   cards:
-  - type: custom:mini-graph-card
-    name: Database Growth
-    icon: mdi:database-arrow-up
-    hours_to_show: 2160
-    points_per_hour: 0.0416667
-    line_width: 2
-    smoothing: true
-    show:
-      legend: false
-      labels: false
-      name: true
-      icon: true
-      state: true
-    entities:
-    - entity: sensor.database_size
-      name: Database Size
+  - type: custom:layout-card
+    grid_options:
+      columns: full
+    layout_type: custom:grid-layout
+    layout:
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      grid-gap: 12px
+      margin: 0
+      mediaquery:
+        "(max-width: 700px)":
+          grid-template-columns: minmax(0, 1fr)
+    cards:
+    - type: custom:mini-graph-card
+      name: Database Growth (90 Days)
+      icon: mdi:database-arrow-up
+      hours_to_show: 2160
+      points_per_hour: 0.0416667
+      line_width: 2
+      smoothing: true
+      show:
+        legend: false
+        labels: false
+        name: true
+        icon: true
+        state: true
+      entities:
+      - entity: sensor.database_size
+        name: Database Size
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+    - type: custom:mini-graph-card
+      name: Active Connections
+      icon: mdi:lan-connect
+      hours_to_show: 168
+      points_per_hour: 0.25
+      line_width: 2
+      smoothing: true
+      show:
+        legend: false
+        labels: false
+        name: true
+        icon: true
+        state: true
+      entities:
+      - entity: sensor.mariadb_connections
+        name: Connections
+      card_mod:
+        style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+
+# ApexCharts renders backfilled daily counts immediately from the snapshot.
+- type: grid
+  column_span: 4
+  cards:
+  - type: custom:apexcharts-card
+    grid_options:
+      columns: full
+    header:
+      show: true
+      title: Recorder Ingest (90 Days)
+    graph_span: 90d
+    span:
+      end: day
+      offset: "-1d"
+    apex_config:
+      chart:
+        height: 260
+      legend:
+        show: true
+      tooltip:
+        x:
+          format: 'MMM d, yyyy'
+      yaxis:
+        labels:
+          formatter: "EVAL:function(n) { return Math.round(n / 1000) + 'k'; }"
+      plotOptions:
+        bar:
+          columnWidth: '80%'
+    series:
+    - entity: sensor.mariadb_recorder_workload
+      name: Daily state rows
+      type: column
+      unit: rows
+      color: '#5b96c3'
+      float_precision: 0
+      data_generator: |
+        return (entity.attributes.daily || []).map(([date, count]) =>
+          [new Date(date + 'T12:00:00').getTime(), count]);
+    - entity: sensor.mariadb_recorder_workload
+      name: 7-day average
+      type: line
+      unit: rows
+      color: '#cb7529'
+      stroke_width: 3
+      float_precision: 0
+      data_generator: |
+        return (entity.attributes.daily || []).map(([date, , mean]) =>
+          [new Date(date + 'T12:00:00').getTime(), mean]);
     card_mod:
       style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
 
-  - type: custom:mini-graph-card
-    name: Recorder Ingest Rate
-    icon: mdi:chart-line
-    hours_to_show: 2160
-    points_per_hour: 0.0416667
-    line_width: 2
-    smoothing: true
-    show:
-      legend: false
-      labels: false
-      name: true
-      icon: true
-      state: true
-    entities:
-    - entity: sensor.database_records_per_day
-      name: Records per Day
-    card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+# Native Markdown supports the variable-length ranking and expandable entity IDs.
+- type: grid
+  column_span: 4
+  cards:
+  - type: markdown
+    grid_options:
+      columns: full
+    title: Top Recorder Writers (30 Days)
+    content: |-
+      {% set source = 'sensor.mariadb_recorder_workload' %}
+      {% set days = state_attr(source, 'writer_days') %}
+      {% set writers = state_attr(source, 'leaders') %}
+      {% if days and writers %}
+      **{{ "{:,}".format(state_attr(source, 'writer_rows')) }} state rows** over {{ days }} completed days through {{ states(source) }}.
 
-  - type: custom:mini-graph-card
-    name: Active Connections
-    icon: mdi:lan-connect
-    hours_to_show: 168
-    points_per_hour: 0.25
-    line_width: 2
-    smoothing: true
-    show:
-      legend: false
-      labels: false
-      name: true
-      icon: true
-      state: true
-    entities:
-    - entity: sensor.mariadb_connections
-      name: Connections
+      <table width="100%">
+      <thead><tr><th>Entity</th><th>State rows</th><th>Share</th><th>Days in top 10</th></tr></thead>
+      <tbody>
+      {% for w in writers -%}
+      <tr><td><details><summary>{{ (state_attr(w.entity_id, 'friendly_name') or w.entity_id.replace('_', ' ')) | e }}</summary><code>{{ w.entity_id | e }}</code></details></td><td>{{ "{:,}".format(w.rows) }}</td><td>{{ "%.2f"|format(w.share) }}%</td><td>{{ w.top_days }} / {{ days }}</td></tr>
+      {% endfor -%}
+      </tbody></table>
+      {% else %}
+      Waiting for completed Recorder days.
+      {% endif %}
+
+      [Open the native Storage report](/config/storage)
     card_mod:
-      style: !include /config/dashboards/infrastructure/card_mod/infra_card.yaml
+      style:
+        .: !include /config/dashboards/infrastructure/card_mod/infra_panel.yaml
+        ha-markdown$: |
+          code { overflow-wrap: anywhere; }
 
 # -------------------------------------------------------------------
 # Recorder and server health
@@ -172,7 +250,7 @@
       - type: custom:button-card
         template: bearstone_infra_list_row
         entity: sensor.database_records_per_day
-        name: Records per Day
+        name: Retention Average per Day
         icon: mdi:chart-line
 
       - type: custom:button-card
